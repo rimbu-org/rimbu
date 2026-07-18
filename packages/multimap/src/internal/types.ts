@@ -66,7 +66,7 @@ export interface VariantMultiMapBase<
 	 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
 	 * const m = HashMultiMapHashValue.of([1, 1], [2, 2])
 	 * const map = m.keyMap
-	 * console.log(map.get(1)!.toArray()); // => [ 1 ]
+	 * console.log(map.at(1)!.toArray()); // => [ 1 ]
 	 * ```
 	 */
 	readonly keyMap: WithKeyValue<Tp, K, V>['keyMap'];
@@ -161,8 +161,8 @@ export interface VariantMultiMapBase<
 	 * ```ts
 	 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
 	 * const m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'])
-	 * console.log(m.getValues(1).toArray()); // => [ "a" ]
-	 * console.log(m.getValues(10).toArray()); // => []
+	 * console.log(m.valuesAt(1).toArray()); // => [ "a" ]
+	 * console.log(m.valuesAt(10).toArray()); // => []
 	 * ```
 	 */
 	valuesAt<UK = K>(
@@ -378,7 +378,7 @@ export namespace VariantMultiMapBase {
 		 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
 		 * const m = HashMultiMapHashValue.of([1, 1], [2, 2])
 		 * const map = m.keyMap
-		 * console.log(map.get(1)!.toArray()); // => [ 1 ]
+		 * console.log(map.at(1)!.toArray()); // => [ 1 ]
 		 * ```
 		 */
 		readonly keyMap: WithKeyValue<Tp, K, V>['keyMapNonEmpty'];

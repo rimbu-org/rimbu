@@ -1,6 +1,6 @@
 {
   "$schema": "rimbu-docs/aggregate/v1",
-  "generatedAt": "2026-07-18T13:19:38.967Z",
+  "generatedAt": "2026-07-18T14:46:35.989Z",
   "gitRef": "main",
   "packages": [
     "@rimbu/actor",
@@ -91068,11 +91068,11 @@
             }
           },
           {
-            "name": "getValues",
+            "name": "valuesAt",
             "kind": "method",
             "signatures": [
               {
-                "text": "getValues<UK>(key: RelatedTo<K, UK>): SortedSet<V>",
+                "text": "valuesAt<UK>(key: RelatedTo<K, UK>): SortedSet<V>",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns a collection containing the values associated with the given `key`.",
@@ -91084,7 +91084,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nimport { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [1, 2]);\nconsole.log(m.getValues(1).toArray()); // => [ 1, 2 ]\nconsole.log(m.getValues(5).toArray()); // => []\n```"
+                    "```ts\nimport { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [1, 2]);\nconsole.log(m.valuesAt(1).toArray()); // => [ 1, 2 ]\nconsole.log(m.valuesAt(5).toArray()); // => []\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -91094,7 +91094,7 @@
                   "line": 1,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimultimap/src/internal/base.ts#L1"
                 },
-                "raw": "getValues<UK = K>(key: RelatedTo<K, UK>): WithKeyValue<Tp, K, V>['keyMultiMapValues']"
+                "raw": "valuesAt<UK = K>(key: RelatedTo<K, UK>): WithKeyValue<Tp, K, V>['keyMultiMapValues']"
               }
             ],
             "source": {
@@ -91104,11 +91104,11 @@
             }
           },
           {
-            "name": "getKeys",
+            "name": "keysAt",
             "kind": "method",
             "signatures": [
               {
-                "text": "getKeys<UV>(value: RelatedTo<V, UV>): SortedSet<K>",
+                "text": "keysAt<UV>(value: RelatedTo<V, UV>): SortedSet<K>",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns a collection containing the keys associated with the given `value`.",
@@ -91120,7 +91120,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nimport { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [2, 1]);\nconsole.log(m.getKeys(1).toArray()); // => [ 1, 2 ]\nconsole.log(m.getKeys(5).toArray()); // => []\n```"
+                    "```ts\nimport { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [2, 1]);\nconsole.log(m.keysAt(1).toArray()); // => [ 1, 2 ]\nconsole.log(m.keysAt(5).toArray()); // => []\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -91130,7 +91130,7 @@
                   "line": 1,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimultimap/src/internal/base.ts#L1"
                 },
-                "raw": "getKeys<UV = V>(value: RelatedTo<V, UV>): WithKeyValue<Tp, K, V>['valueMultiMapValues']"
+                "raw": "keysAt<UV = V>(value: RelatedTo<V, UV>): WithKeyValue<Tp, K, V>['valueMultiMapValues']"
               }
             ],
             "source": {
@@ -92539,11 +92539,11 @@
             "inheritedFrom": "bimultimap/BiMultiMapBase"
           },
           {
-            "name": "getValues",
+            "name": "valuesAt",
             "kind": "method",
             "signatures": [
               {
-                "text": "getValues<UK>(key: RelatedTo<K, UK>): SortedSet<V>",
+                "text": "valuesAt<UK>(key: RelatedTo<K, UK>): SortedSet<V>",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns a collection containing the values associated with the given `key`.",
@@ -92555,7 +92555,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nimport { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [1, 2]);\nconsole.log(m.getValues(1).toArray()); // => [ 1, 2 ]\nconsole.log(m.getValues(5).toArray()); // => []\n```"
+                    "```ts\nimport { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [1, 2]);\nconsole.log(m.valuesAt(1).toArray()); // => [ 1, 2 ]\nconsole.log(m.valuesAt(5).toArray()); // => []\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -92565,7 +92565,7 @@
                   "line": 1,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimultimap/src/internal/base.ts#L1"
                 },
-                "raw": "getValues<UK = K>(key: RelatedTo<K, UK>): WithKeyValue<Tp, K, V>['keyMultiMapValues']"
+                "raw": "valuesAt<UK = K>(key: RelatedTo<K, UK>): WithKeyValue<Tp, K, V>['keyMultiMapValues']"
               }
             ],
             "source": {
@@ -92576,11 +92576,11 @@
             "inheritedFrom": "bimultimap/BiMultiMapBase"
           },
           {
-            "name": "getKeys",
+            "name": "keysAt",
             "kind": "method",
             "signatures": [
               {
-                "text": "getKeys<UV>(value: RelatedTo<V, UV>): SortedSet<K>",
+                "text": "keysAt<UV>(value: RelatedTo<V, UV>): SortedSet<K>",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns a collection containing the keys associated with the given `value`.",
@@ -92592,7 +92592,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nimport { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [2, 1]);\nconsole.log(m.getKeys(1).toArray()); // => [ 1, 2 ]\nconsole.log(m.getKeys(5).toArray()); // => []\n```"
+                    "```ts\nimport { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [2, 1]);\nconsole.log(m.keysAt(1).toArray()); // => [ 1, 2 ]\nconsole.log(m.keysAt(5).toArray()); // => []\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -92602,7 +92602,7 @@
                   "line": 1,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimultimap/src/internal/base.ts#L1"
                 },
-                "raw": "getKeys<UV = V>(value: RelatedTo<V, UV>): WithKeyValue<Tp, K, V>['valueMultiMapValues']"
+                "raw": "keysAt<UV = V>(value: RelatedTo<V, UV>): WithKeyValue<Tp, K, V>['valueMultiMapValues']"
               }
             ],
             "source": {
@@ -94163,11 +94163,11 @@
             "inheritedFrom": "bimultimap/BiMultiMapBase"
           },
           {
-            "name": "getValues",
+            "name": "valuesAt",
             "kind": "method",
             "signatures": [
               {
-                "text": "getValues<UK>(key: RelatedTo<K, UK>): SortedSet<V>",
+                "text": "valuesAt<UK>(key: RelatedTo<K, UK>): SortedSet<V>",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns a collection containing the values associated with the given `key`.",
@@ -94179,7 +94179,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nimport { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [1, 2]);\nconsole.log(m.getValues(1).toArray()); // => [ 1, 2 ]\nconsole.log(m.getValues(5).toArray()); // => []\n```"
+                    "```ts\nimport { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [1, 2]);\nconsole.log(m.valuesAt(1).toArray()); // => [ 1, 2 ]\nconsole.log(m.valuesAt(5).toArray()); // => []\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -94189,7 +94189,7 @@
                   "line": 1,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimultimap/src/internal/base.ts#L1"
                 },
-                "raw": "getValues<UK = K>(key: RelatedTo<K, UK>): WithKeyValue<Tp, K, V>['keyMultiMapValues']"
+                "raw": "valuesAt<UK = K>(key: RelatedTo<K, UK>): WithKeyValue<Tp, K, V>['keyMultiMapValues']"
               }
             ],
             "source": {
@@ -94200,11 +94200,11 @@
             "inheritedFrom": "bimultimap/BiMultiMapBase"
           },
           {
-            "name": "getKeys",
+            "name": "keysAt",
             "kind": "method",
             "signatures": [
               {
-                "text": "getKeys<UV>(value: RelatedTo<V, UV>): SortedSet<K>",
+                "text": "keysAt<UV>(value: RelatedTo<V, UV>): SortedSet<K>",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns a collection containing the keys associated with the given `value`.",
@@ -94216,7 +94216,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nimport { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [2, 1]);\nconsole.log(m.getKeys(1).toArray()); // => [ 1, 2 ]\nconsole.log(m.getKeys(5).toArray()); // => []\n```"
+                    "```ts\nimport { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [2, 1]);\nconsole.log(m.keysAt(1).toArray()); // => [ 1, 2 ]\nconsole.log(m.keysAt(5).toArray()); // => []\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -94226,7 +94226,7 @@
                   "line": 1,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimultimap/src/internal/base.ts#L1"
                 },
-                "raw": "getKeys<UV = V>(value: RelatedTo<V, UV>): WithKeyValue<Tp, K, V>['valueMultiMapValues']"
+                "raw": "keysAt<UV = V>(value: RelatedTo<V, UV>): WithKeyValue<Tp, K, V>['valueMultiMapValues']"
               }
             ],
             "source": {
@@ -96070,11 +96070,11 @@
             "inheritedFrom": "bimultimap/BiMultiMapBase"
           },
           {
-            "name": "getValues",
+            "name": "valuesAt",
             "kind": "method",
             "signatures": [
               {
-                "text": "getValues<UK>(key: RelatedTo<K, UK>): SortedSet<V>",
+                "text": "valuesAt<UK>(key: RelatedTo<K, UK>): SortedSet<V>",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns a collection containing the values associated with the given `key`.",
@@ -96086,7 +96086,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nimport { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [1, 2]);\nconsole.log(m.getValues(1).toArray()); // => [ 1, 2 ]\nconsole.log(m.getValues(5).toArray()); // => []\n```"
+                    "```ts\nimport { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [1, 2]);\nconsole.log(m.valuesAt(1).toArray()); // => [ 1, 2 ]\nconsole.log(m.valuesAt(5).toArray()); // => []\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -96096,7 +96096,7 @@
                   "line": 1,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimultimap/src/internal/base.ts#L1"
                 },
-                "raw": "getValues<UK = K>(key: RelatedTo<K, UK>): WithKeyValue<Tp, K, V>['keyMultiMapValues']"
+                "raw": "valuesAt<UK = K>(key: RelatedTo<K, UK>): WithKeyValue<Tp, K, V>['keyMultiMapValues']"
               }
             ],
             "source": {
@@ -96107,11 +96107,11 @@
             "inheritedFrom": "bimultimap/BiMultiMapBase"
           },
           {
-            "name": "getKeys",
+            "name": "keysAt",
             "kind": "method",
             "signatures": [
               {
-                "text": "getKeys<UV>(value: RelatedTo<V, UV>): SortedSet<K>",
+                "text": "keysAt<UV>(value: RelatedTo<V, UV>): SortedSet<K>",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns a collection containing the keys associated with the given `value`.",
@@ -96123,7 +96123,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nimport { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [2, 1]);\nconsole.log(m.getKeys(1).toArray()); // => [ 1, 2 ]\nconsole.log(m.getKeys(5).toArray()); // => []\n```"
+                    "```ts\nimport { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [2, 1]);\nconsole.log(m.keysAt(1).toArray()); // => [ 1, 2 ]\nconsole.log(m.keysAt(5).toArray()); // => []\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -96133,7 +96133,7 @@
                   "line": 1,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimultimap/src/internal/base.ts#L1"
                 },
-                "raw": "getKeys<UV = V>(value: RelatedTo<V, UV>): WithKeyValue<Tp, K, V>['valueMultiMapValues']"
+                "raw": "keysAt<UV = V>(value: RelatedTo<V, UV>): WithKeyValue<Tp, K, V>['valueMultiMapValues']"
               }
             ],
             "source": {
@@ -98614,11 +98614,11 @@
             }
           },
           {
-            "name": "get",
+            "name": "at",
             "kind": "method",
             "signatures": [
               {
-                "text": "get<UK>(key: RelatedTo<K, UK>): V | undefined",
+                "text": "at<UK>(key: RelatedTo<K, UK>): V | undefined",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns the value associated with the given `key`, or given `otherwise` value if the key is not in the collection.",
@@ -98634,7 +98634,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nimport { HashMap } from '@rimbu/hashed';\n\nconst source = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(source.get(2)); // => b\nconsole.log(source.get(3)); // => undefined\nconsole.log(source.get(2, 'none')); // => b\nconsole.log(source.get(3, 'none')); // => none\n```"
+                    "```ts\nimport { HashMap } from '@rimbu/hashed';\n\nconst source = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(source.at(2)); // => b\nconsole.log(source.at(3)); // => undefined\nconsole.log(source.at(2, 'none')); // => b\nconsole.log(source.at(3, 'none')); // => none\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -98644,10 +98644,10 @@
                   "line": 127,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/collection-types/src/advanced/map/base.ts#L127"
                 },
-                "raw": "get<UK = K>(key: RelatedTo<K, UK>): V | undefined"
+                "raw": "at<UK = K>(key: RelatedTo<K, UK>): V | undefined"
               },
               {
-                "text": "get<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O",
+                "text": "at<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O",
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/collection-types/src/advanced/map/base.ts",
@@ -99960,11 +99960,11 @@
             }
           },
           {
-            "name": "get",
+            "name": "at",
             "kind": "method",
             "signatures": [
               {
-                "text": "get<UK = K>(key: RelatedTo<K, UK>): V | undefined",
+                "text": "at<UK = K>(key: RelatedTo<K, UK>): V | undefined",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns the value associated with the given `key`, or given `otherwise` value if the key is not in the collection.",
@@ -99980,7 +99980,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nimport { HashMap } from '@rimbu/hashed';\n\nconst builder = HashMap.of([1, 'a'], [2, 'b']).toBuilder();\nconsole.log(builder.get(2)); // => b\nconsole.log(builder.get(3)); // => undefined\nconsole.log(builder.get(2, 'none')); // => b\nconsole.log(builder.get(3, 'none')); // => none\n```"
+                    "```ts\nimport { HashMap } from '@rimbu/hashed';\n\nconst builder = HashMap.of([1, 'a'], [2, 'b']).toBuilder();\nconsole.log(builder.at(2)); // => b\nconsole.log(builder.at(3)); // => undefined\nconsole.log(builder.at(2, 'none')); // => b\nconsole.log(builder.at(3, 'none')); // => none\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -99992,7 +99992,7 @@
                 }
               },
               {
-                "text": "get<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O",
+                "text": "at<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O",
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/collection-types/src/advanced/map/base.ts",
@@ -101098,11 +101098,11 @@
             "inheritedFrom": "collection-types/VariantMapBase"
           },
           {
-            "name": "get",
+            "name": "at",
             "kind": "method",
             "signatures": [
               {
-                "text": "get<UK>(key: RelatedTo<K, UK>): V | undefined",
+                "text": "at<UK>(key: RelatedTo<K, UK>): V | undefined",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns the value associated with the given `key`, or given `otherwise` value if the key is not in the collection.",
@@ -101118,7 +101118,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nimport { HashMap } from '@rimbu/hashed';\n\nconst source = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(source.get(2)); // => b\nconsole.log(source.get(3)); // => undefined\nconsole.log(source.get(2, 'none')); // => b\nconsole.log(source.get(3, 'none')); // => none\n```"
+                    "```ts\nimport { HashMap } from '@rimbu/hashed';\n\nconst source = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(source.at(2)); // => b\nconsole.log(source.at(3)); // => undefined\nconsole.log(source.at(2, 'none')); // => b\nconsole.log(source.at(3, 'none')); // => none\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -101128,10 +101128,10 @@
                   "line": 127,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/collection-types/src/advanced/map/base.ts#L127"
                 },
-                "raw": "get<UK = K>(key: RelatedTo<K, UK>): V | undefined"
+                "raw": "at<UK = K>(key: RelatedTo<K, UK>): V | undefined"
               },
               {
-                "text": "get<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O",
+                "text": "at<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O",
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/collection-types/src/advanced/map/base.ts",
@@ -105337,11 +105337,11 @@
             "inheritedFrom": "collection-types/RMapBase"
           },
           {
-            "name": "get",
+            "name": "at",
             "kind": "method",
             "signatures": [
               {
-                "text": "get<UK>(key: RelatedTo<K, UK>): V | undefined",
+                "text": "at<UK>(key: RelatedTo<K, UK>): V | undefined",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns the value associated with the given `key`, or given `otherwise` value if the key is not in the collection.",
@@ -105357,7 +105357,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nimport { HashMap } from '@rimbu/hashed';\n\nconst source = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(source.get(2)); // => b\nconsole.log(source.get(3)); // => undefined\nconsole.log(source.get(2, 'none')); // => b\nconsole.log(source.get(3, 'none')); // => none\n```"
+                    "```ts\nimport { HashMap } from '@rimbu/hashed';\n\nconst source = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(source.at(2)); // => b\nconsole.log(source.at(3)); // => undefined\nconsole.log(source.at(2, 'none')); // => b\nconsole.log(source.at(3, 'none')); // => none\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -105367,10 +105367,10 @@
                   "line": 127,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/collection-types/src/advanced/map/base.ts#L127"
                 },
-                "raw": "get<UK = K>(key: RelatedTo<K, UK>): V | undefined"
+                "raw": "at<UK = K>(key: RelatedTo<K, UK>): V | undefined"
               },
               {
-                "text": "get<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O",
+                "text": "at<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O",
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/collection-types/src/advanced/map/base.ts",
@@ -106226,11 +106226,11 @@
             "inheritedFrom": "collection-types/VariantMapBase"
           },
           {
-            "name": "get",
+            "name": "at",
             "kind": "method",
             "signatures": [
               {
-                "text": "get<UK>(key: RelatedTo<K, UK>): V | undefined",
+                "text": "at<UK>(key: RelatedTo<K, UK>): V | undefined",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns the value associated with the given `key`, or given `otherwise` value if the key is not in the collection.",
@@ -106246,7 +106246,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nimport { HashMap } from '@rimbu/hashed';\n\nconst source = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(source.get(2)); // => b\nconsole.log(source.get(3)); // => undefined\nconsole.log(source.get(2, 'none')); // => b\nconsole.log(source.get(3, 'none')); // => none\n```"
+                    "```ts\nimport { HashMap } from '@rimbu/hashed';\n\nconst source = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(source.at(2)); // => b\nconsole.log(source.at(3)); // => undefined\nconsole.log(source.at(2, 'none')); // => b\nconsole.log(source.at(3, 'none')); // => none\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -106256,10 +106256,10 @@
                   "line": 127,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/collection-types/src/advanced/map/base.ts#L127"
                 },
-                "raw": "get<UK = K>(key: RelatedTo<K, UK>): V | undefined"
+                "raw": "at<UK = K>(key: RelatedTo<K, UK>): V | undefined"
               },
               {
-                "text": "get<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O",
+                "text": "at<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O",
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/collection-types/src/advanced/map/base.ts",
@@ -153935,11 +153935,11 @@
             "inheritedFrom": "collection-types/RMapBase"
           },
           {
-            "name": "get",
+            "name": "at",
             "kind": "method",
             "signatures": [
               {
-                "text": "get<UK>(key: RelatedTo<K, UK>): V | undefined",
+                "text": "at<UK>(key: RelatedTo<K, UK>): V | undefined",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns the value associated with the given `key`, or given `otherwise` value if the key is not in the collection.",
@@ -153955,7 +153955,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nimport { HashMap } from '@rimbu/hashed';\n\nconst source = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(source.get(2)); // => b\nconsole.log(source.get(3)); // => undefined\nconsole.log(source.get(2, 'none')); // => b\nconsole.log(source.get(3, 'none')); // => none\n```"
+                    "```ts\nimport { HashMap } from '@rimbu/hashed';\n\nconst source = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(source.at(2)); // => b\nconsole.log(source.at(3)); // => undefined\nconsole.log(source.at(2, 'none')); // => b\nconsole.log(source.at(3, 'none')); // => none\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -153965,10 +153965,10 @@
                   "line": 127,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/collection-types/src/advanced/map/base.ts#L127"
                 },
-                "raw": "get<UK = K>(key: RelatedTo<K, UK>): V | undefined"
+                "raw": "at<UK = K>(key: RelatedTo<K, UK>): V | undefined"
               },
               {
-                "text": "get<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O",
+                "text": "at<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O",
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/collection-types/src/advanced/map/base.ts",
@@ -160025,11 +160025,11 @@
             }
           },
           {
-            "name": "get",
+            "name": "at",
             "kind": "method",
             "signatures": [
               {
-                "text": "get<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): V | undefined",
+                "text": "at<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): V | undefined",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns the value at given `row` and `column` keys, or the `otherwise` value if no\nvalue is present.",
@@ -160049,7 +160049,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.get(10, 1)     // => undefined\nt.get(10, 1, 0)  // => 0\nt.get(1, 2)      // => 3\nt.get(1, 2, 0)   // => 3\n```"
+                    "```ts\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.at(10, 1)     // => undefined\nt.at(10, 1, 0)  // => 0\nt.at(1, 2)      // => 3\nt.at(1, 2, 0)   // => 3\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -160059,10 +160059,10 @@
                   "line": 1,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/table/src/internal/types.ts#L1"
                 },
-                "raw": "get<UR = R, UC = C>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): V | undefined"
+                "raw": "at<UR = R, UC = C>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): V | undefined"
               },
               {
-                "text": "get<UR, UC, O>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>, otherwise: OptLazy<O>): V | O",
+                "text": "at<UR, UC, O>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>, otherwise: OptLazy<O>): V | O",
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/table/src/internal/types.ts",
@@ -160078,11 +160078,11 @@
             }
           },
           {
-            "name": "getRow",
+            "name": "rowAt",
             "kind": "method",
             "signatures": [
               {
-                "text": "getRow<UR>(row: RelatedTo<R, UR>): VariantMap<C, V>",
+                "text": "rowAt<UR>(row: RelatedTo<R, UR>): VariantMap<C, V>",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns a map containing the column keys and values in the given `row`.",
@@ -160104,7 +160104,7 @@
                   "line": 179,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/table/src/internal/types.ts#L179"
                 },
-                "raw": "getRow<UR = R>(row: RelatedTo<R, UR>): WithRow<Tp, R, C, V>['row']"
+                "raw": "rowAt<UR = R>(row: RelatedTo<R, UR>): WithRow<Tp, R, C, V>['row']"
               }
             ],
             "source": {
@@ -161346,16 +161346,16 @@
                 },
                 "source": {
                   "file": "packages/table/src/internal/types.ts",
-                  "line": 179,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/table/src/internal/types.ts#L179"
+                  "line": 860,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/table/src/internal/types.ts#L860"
                 },
                 "raw": "getRow<UR = R>(row: RelatedTo<R, UR>): WithRow<Tp, R, C, V>['row']"
               }
             ],
             "source": {
               "file": "packages/table/src/internal/types.ts",
-              "line": 179,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/table/src/internal/types.ts#L179"
+              "line": 860,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/table/src/internal/types.ts#L860"
             }
           },
           {
@@ -162817,11 +162817,11 @@
             "inheritedFrom": "table/VariantTableBase"
           },
           {
-            "name": "get",
+            "name": "at",
             "kind": "method",
             "signatures": [
               {
-                "text": "get<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): V | undefined",
+                "text": "at<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): V | undefined",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns the value at given `row` and `column` keys, or the `otherwise` value if no\nvalue is present.",
@@ -162841,7 +162841,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.get(10, 1)     // => undefined\nt.get(10, 1, 0)  // => 0\nt.get(1, 2)      // => 3\nt.get(1, 2, 0)   // => 3\n```"
+                    "```ts\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.at(10, 1)     // => undefined\nt.at(10, 1, 0)  // => 0\nt.at(1, 2)      // => 3\nt.at(1, 2, 0)   // => 3\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -162851,10 +162851,10 @@
                   "line": 1,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/table/src/internal/types.ts#L1"
                 },
-                "raw": "get<UR = R, UC = C>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): V | undefined"
+                "raw": "at<UR = R, UC = C>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): V | undefined"
               },
               {
-                "text": "get<UR, UC, O>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>, otherwise: OptLazy<O>): V | O",
+                "text": "at<UR, UC, O>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>, otherwise: OptLazy<O>): V | O",
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/table/src/internal/types.ts",
@@ -162871,11 +162871,11 @@
             "inheritedFrom": "table/VariantTableBase"
           },
           {
-            "name": "getRow",
+            "name": "rowAt",
             "kind": "method",
             "signatures": [
               {
-                "text": "getRow<UR>(row: RelatedTo<R, UR>): VariantMap<C, V>",
+                "text": "rowAt<UR>(row: RelatedTo<R, UR>): VariantMap<C, V>",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns a map containing the column keys and values in the given `row`.",
@@ -162897,7 +162897,7 @@
                   "line": 179,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/table/src/internal/types.ts#L179"
                 },
-                "raw": "getRow<UR = R>(row: RelatedTo<R, UR>): WithRow<Tp, R, C, V>['row']"
+                "raw": "rowAt<UR = R>(row: RelatedTo<R, UR>): WithRow<Tp, R, C, V>['row']"
               }
             ],
             "source": {
@@ -164478,11 +164478,11 @@
             "inheritedFrom": "table/TableBase"
           },
           {
-            "name": "get",
+            "name": "at",
             "kind": "method",
             "signatures": [
               {
-                "text": "get<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): V | undefined",
+                "text": "at<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): V | undefined",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns the value at given `row` and `column` keys, or the `otherwise` value if no\nvalue is present.",
@@ -164502,7 +164502,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.get(10, 1)     // => undefined\nt.get(10, 1, 0)  // => 0\nt.get(1, 2)      // => 3\nt.get(1, 2, 0)   // => 3\n```"
+                    "```ts\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.at(10, 1)     // => undefined\nt.at(10, 1, 0)  // => 0\nt.at(1, 2)      // => 3\nt.at(1, 2, 0)   // => 3\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -164512,10 +164512,10 @@
                   "line": 1,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/table/src/internal/types.ts#L1"
                 },
-                "raw": "get<UR = R, UC = C>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): V | undefined"
+                "raw": "at<UR = R, UC = C>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): V | undefined"
               },
               {
-                "text": "get<UR, UC, O>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>, otherwise: OptLazy<O>): V | O",
+                "text": "at<UR, UC, O>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>, otherwise: OptLazy<O>): V | O",
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/table/src/internal/types.ts",
@@ -164532,11 +164532,11 @@
             "inheritedFrom": "table/TableBase"
           },
           {
-            "name": "getRow",
+            "name": "rowAt",
             "kind": "method",
             "signatures": [
               {
-                "text": "getRow<UR>(row: RelatedTo<R, UR>): VariantMap<C, V>",
+                "text": "rowAt<UR>(row: RelatedTo<R, UR>): VariantMap<C, V>",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns a map containing the column keys and values in the given `row`.",
@@ -164558,7 +164558,7 @@
                   "line": 179,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/table/src/internal/types.ts#L179"
                 },
-                "raw": "getRow<UR = R>(row: RelatedTo<R, UR>): WithRow<Tp, R, C, V>['row']"
+                "raw": "rowAt<UR = R>(row: RelatedTo<R, UR>): WithRow<Tp, R, C, V>['row']"
               }
             ],
             "source": {
@@ -166389,11 +166389,11 @@
             "inheritedFrom": "table/TableBase"
           },
           {
-            "name": "get",
+            "name": "at",
             "kind": "method",
             "signatures": [
               {
-                "text": "get<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): V | undefined",
+                "text": "at<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): V | undefined",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns the value at given `row` and `column` keys, or the `otherwise` value if no\nvalue is present.",
@@ -166413,7 +166413,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.get(10, 1)     // => undefined\nt.get(10, 1, 0)  // => 0\nt.get(1, 2)      // => 3\nt.get(1, 2, 0)   // => 3\n```"
+                    "```ts\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.at(10, 1)     // => undefined\nt.at(10, 1, 0)  // => 0\nt.at(1, 2)      // => 3\nt.at(1, 2, 0)   // => 3\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -166423,10 +166423,10 @@
                   "line": 1,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/table/src/internal/types.ts#L1"
                 },
-                "raw": "get<UR = R, UC = C>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): V | undefined"
+                "raw": "at<UR = R, UC = C>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): V | undefined"
               },
               {
-                "text": "get<UR, UC, O>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>, otherwise: OptLazy<O>): V | O",
+                "text": "at<UR, UC, O>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>, otherwise: OptLazy<O>): V | O",
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/table/src/internal/types.ts",
@@ -166443,11 +166443,11 @@
             "inheritedFrom": "table/TableBase"
           },
           {
-            "name": "getRow",
+            "name": "rowAt",
             "kind": "method",
             "signatures": [
               {
-                "text": "getRow<UR>(row: RelatedTo<R, UR>): VariantMap<C, V>",
+                "text": "rowAt<UR>(row: RelatedTo<R, UR>): VariantMap<C, V>",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns a map containing the column keys and values in the given `row`.",
@@ -166469,7 +166469,7 @@
                   "line": 179,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/table/src/internal/types.ts#L179"
                 },
-                "raw": "getRow<UR = R>(row: RelatedTo<R, UR>): WithRow<Tp, R, C, V>['row']"
+                "raw": "rowAt<UR = R>(row: RelatedTo<R, UR>): WithRow<Tp, R, C, V>['row']"
               }
             ],
             "source": {
@@ -168300,11 +168300,11 @@
             "inheritedFrom": "table/TableBase"
           },
           {
-            "name": "get",
+            "name": "at",
             "kind": "method",
             "signatures": [
               {
-                "text": "get<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): V | undefined",
+                "text": "at<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): V | undefined",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns the value at given `row` and `column` keys, or the `otherwise` value if no\nvalue is present.",
@@ -168324,7 +168324,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.get(10, 1)     // => undefined\nt.get(10, 1, 0)  // => 0\nt.get(1, 2)      // => 3\nt.get(1, 2, 0)   // => 3\n```"
+                    "```ts\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.at(10, 1)     // => undefined\nt.at(10, 1, 0)  // => 0\nt.at(1, 2)      // => 3\nt.at(1, 2, 0)   // => 3\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -168334,10 +168334,10 @@
                   "line": 1,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/table/src/internal/types.ts#L1"
                 },
-                "raw": "get<UR = R, UC = C>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): V | undefined"
+                "raw": "at<UR = R, UC = C>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): V | undefined"
               },
               {
-                "text": "get<UR, UC, O>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>, otherwise: OptLazy<O>): V | O",
+                "text": "at<UR, UC, O>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>, otherwise: OptLazy<O>): V | O",
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/table/src/internal/types.ts",
@@ -168354,11 +168354,11 @@
             "inheritedFrom": "table/TableBase"
           },
           {
-            "name": "getRow",
+            "name": "rowAt",
             "kind": "method",
             "signatures": [
               {
-                "text": "getRow<UR>(row: RelatedTo<R, UR>): VariantMap<C, V>",
+                "text": "rowAt<UR>(row: RelatedTo<R, UR>): VariantMap<C, V>",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns a map containing the column keys and values in the given `row`.",
@@ -168380,7 +168380,7 @@
                   "line": 179,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/table/src/internal/types.ts#L179"
                 },
-                "raw": "getRow<UR = R>(row: RelatedTo<R, UR>): WithRow<Tp, R, C, V>['row']"
+                "raw": "rowAt<UR = R>(row: RelatedTo<R, UR>): WithRow<Tp, R, C, V>['row']"
               }
             ],
             "source": {
@@ -170211,11 +170211,11 @@
             "inheritedFrom": "table/TableBase"
           },
           {
-            "name": "get",
+            "name": "at",
             "kind": "method",
             "signatures": [
               {
-                "text": "get<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): V | undefined",
+                "text": "at<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): V | undefined",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns the value at given `row` and `column` keys, or the `otherwise` value if no\nvalue is present.",
@@ -170235,7 +170235,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.get(10, 1)     // => undefined\nt.get(10, 1, 0)  // => 0\nt.get(1, 2)      // => 3\nt.get(1, 2, 0)   // => 3\n```"
+                    "```ts\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.at(10, 1)     // => undefined\nt.at(10, 1, 0)  // => 0\nt.at(1, 2)      // => 3\nt.at(1, 2, 0)   // => 3\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -170245,10 +170245,10 @@
                   "line": 1,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/table/src/internal/types.ts#L1"
                 },
-                "raw": "get<UR = R, UC = C>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): V | undefined"
+                "raw": "at<UR = R, UC = C>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): V | undefined"
               },
               {
-                "text": "get<UR, UC, O>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>, otherwise: OptLazy<O>): V | O",
+                "text": "at<UR, UC, O>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>, otherwise: OptLazy<O>): V | O",
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/table/src/internal/types.ts",
@@ -170265,11 +170265,11 @@
             "inheritedFrom": "table/TableBase"
           },
           {
-            "name": "getRow",
+            "name": "rowAt",
             "kind": "method",
             "signatures": [
               {
-                "text": "getRow<UR>(row: RelatedTo<R, UR>): VariantMap<C, V>",
+                "text": "rowAt<UR>(row: RelatedTo<R, UR>): VariantMap<C, V>",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns a map containing the column keys and values in the given `row`.",
@@ -170291,7 +170291,7 @@
                   "line": 179,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/table/src/internal/types.ts#L179"
                 },
-                "raw": "getRow<UR = R>(row: RelatedTo<R, UR>): WithRow<Tp, R, C, V>['row']"
+                "raw": "rowAt<UR = R>(row: RelatedTo<R, UR>): WithRow<Tp, R, C, V>['row']"
               }
             ],
             "source": {
@@ -171986,11 +171986,11 @@
             "inheritedFrom": "table/TableBase"
           },
           {
-            "name": "get",
+            "name": "at",
             "kind": "method",
             "signatures": [
               {
-                "text": "get<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): V | undefined",
+                "text": "at<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): V | undefined",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns the value at given `row` and `column` keys, or the `otherwise` value if no\nvalue is present.",
@@ -172010,7 +172010,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.get(10, 1)     // => undefined\nt.get(10, 1, 0)  // => 0\nt.get(1, 2)      // => 3\nt.get(1, 2, 0)   // => 3\n```"
+                    "```ts\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.at(10, 1)     // => undefined\nt.at(10, 1, 0)  // => 0\nt.at(1, 2)      // => 3\nt.at(1, 2, 0)   // => 3\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -172020,10 +172020,10 @@
                   "line": 1,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/table/src/internal/types.ts#L1"
                 },
-                "raw": "get<UR = R, UC = C>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): V | undefined"
+                "raw": "at<UR = R, UC = C>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): V | undefined"
               },
               {
-                "text": "get<UR, UC, O>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>, otherwise: OptLazy<O>): V | O",
+                "text": "at<UR, UC, O>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>, otherwise: OptLazy<O>): V | O",
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/table/src/internal/types.ts",
@@ -172040,11 +172040,11 @@
             "inheritedFrom": "table/TableBase"
           },
           {
-            "name": "getRow",
+            "name": "rowAt",
             "kind": "method",
             "signatures": [
               {
-                "text": "getRow<UR>(row: RelatedTo<R, UR>): VariantMap<C, V>",
+                "text": "rowAt<UR>(row: RelatedTo<R, UR>): VariantMap<C, V>",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns a map containing the column keys and values in the given `row`.",
@@ -172066,7 +172066,7 @@
                   "line": 179,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/table/src/internal/types.ts#L179"
                 },
-                "raw": "getRow<UR = R>(row: RelatedTo<R, UR>): WithRow<Tp, R, C, V>['row']"
+                "raw": "rowAt<UR = R>(row: RelatedTo<R, UR>): WithRow<Tp, R, C, V>['row']"
               }
             ],
             "source": {
@@ -173178,11 +173178,11 @@
             "inheritedFrom": "table/VariantTableBase"
           },
           {
-            "name": "get",
+            "name": "at",
             "kind": "method",
             "signatures": [
               {
-                "text": "get<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): V | undefined",
+                "text": "at<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): V | undefined",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns the value at given `row` and `column` keys, or the `otherwise` value if no\nvalue is present.",
@@ -173202,7 +173202,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.get(10, 1)     // => undefined\nt.get(10, 1, 0)  // => 0\nt.get(1, 2)      // => 3\nt.get(1, 2, 0)   // => 3\n```"
+                    "```ts\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.at(10, 1)     // => undefined\nt.at(10, 1, 0)  // => 0\nt.at(1, 2)      // => 3\nt.at(1, 2, 0)   // => 3\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -173212,10 +173212,10 @@
                   "line": 1,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/table/src/internal/types.ts#L1"
                 },
-                "raw": "get<UR = R, UC = C>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): V | undefined"
+                "raw": "at<UR = R, UC = C>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): V | undefined"
               },
               {
-                "text": "get<UR, UC, O>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>, otherwise: OptLazy<O>): V | O",
+                "text": "at<UR, UC, O>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>, otherwise: OptLazy<O>): V | O",
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/table/src/internal/types.ts",
@@ -173232,11 +173232,11 @@
             "inheritedFrom": "table/VariantTableBase"
           },
           {
-            "name": "getRow",
+            "name": "rowAt",
             "kind": "method",
             "signatures": [
               {
-                "text": "getRow<UR>(row: RelatedTo<R, UR>): VariantMap<C, V>",
+                "text": "rowAt<UR>(row: RelatedTo<R, UR>): VariantMap<C, V>",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns a map containing the column keys and values in the given `row`.",
@@ -173258,7 +173258,7 @@
                   "line": 179,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/table/src/internal/types.ts#L179"
                 },
-                "raw": "getRow<UR = R>(row: RelatedTo<R, UR>): WithRow<Tp, R, C, V>['row']"
+                "raw": "rowAt<UR = R>(row: RelatedTo<R, UR>): WithRow<Tp, R, C, V>['row']"
               }
             ],
             "source": {
@@ -173911,7 +173911,7 @@
                   "description": "Returns the non-empty Map representation of this collection.",
                   "params": [],
                   "examples": [
-                    "```ts\nimport { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 1], [2, 2])\nconst map = m.keyMap\nconsole.log(map.get(1)!.toArray()); // => [ 1 ]\n```"
+                    "```ts\nimport { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 1], [2, 2])\nconst map = m.keyMap\nconsole.log(map.at(1)!.toArray()); // => [ 1 ]\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -174515,7 +174515,7 @@
                   "description": "Returns the Map representation of this collection.",
                   "params": [],
                   "examples": [
-                    "```ts\nimport { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 1], [2, 2])\nconst map = m.keyMap\nconsole.log(map.get(1)!.toArray()); // => [ 1 ]\n```"
+                    "```ts\nimport { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 1], [2, 2])\nconst map = m.keyMap\nconsole.log(map.at(1)!.toArray()); // => [ 1 ]\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -174765,11 +174765,11 @@
             }
           },
           {
-            "name": "getValues",
+            "name": "valuesAt",
             "kind": "method",
             "signatures": [
               {
-                "text": "getValues<UK>(key: RelatedTo<K, UK>): SortedSet<V>",
+                "text": "valuesAt<UK>(key: RelatedTo<K, UK>): SortedSet<V>",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns the value collection associated to the given `key`.",
@@ -174781,7 +174781,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nimport { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'])\nconsole.log(m.getValues(1).toArray()); // => [ \"a\" ]\nconsole.log(m.getValues(10).toArray()); // => []\n```"
+                    "```ts\nimport { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'])\nconsole.log(m.valuesAt(1).toArray()); // => [ \"a\" ]\nconsole.log(m.valuesAt(10).toArray()); // => []\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -174791,7 +174791,7 @@
                   "line": 1,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/multimap/src/internal/types.ts#L1"
                 },
-                "raw": "getValues<UK = K>(key: RelatedTo<K, UK>): WithKeyValue<Tp, K, V>['keyMapValues']"
+                "raw": "valuesAt<UK = K>(key: RelatedTo<K, UK>): WithKeyValue<Tp, K, V>['keyMapValues']"
               }
             ],
             "source": {
@@ -175965,11 +175965,11 @@
             }
           },
           {
-            "name": "getValues",
+            "name": "valuesAt",
             "kind": "method",
             "signatures": [
               {
-                "text": "getValues<UK = K>(key: RelatedTo<K, UK>): WithKeyValue<Tp, K, V>[\"keyMapValues\"]",
+                "text": "valuesAt<UK = K>(key: RelatedTo<K, UK>): WithKeyValue<Tp, K, V>[\"keyMapValues\"]",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns a built immutable collection of the values associated with given `key`",
@@ -175981,7 +175981,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nimport { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'], [1, 'c']).toBuilder()\nconsole.log(m.getValues(1).toArray()); // => [ \"a\", \"c\" ]\nconsole.log(m.getValues(10).toArray()); // => []\n```"
+                    "```ts\nimport { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'], [1, 'c']).toBuilder()\nconsole.log(m.valuesAt(1).toArray()); // => [ \"a\", \"c\" ]\nconsole.log(m.valuesAt(10).toArray()); // => []\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -175991,7 +175991,7 @@
                   "line": 1,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/multimap/src/internal/types.ts#L1"
                 },
-                "raw": "getValues<UK = K>(key: RelatedTo<K, UK>): WithKeyValue<Tp, K, V>['keyMapValues']"
+                "raw": "valuesAt<UK = K>(key: RelatedTo<K, UK>): WithKeyValue<Tp, K, V>['keyMapValues']"
               }
             ],
             "source": {
@@ -177364,7 +177364,7 @@
                   "description": "Returns the Map representation of this collection.",
                   "params": [],
                   "examples": [
-                    "```ts\nimport { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 1], [2, 2])\nconst map = m.keyMap\nconsole.log(map.get(1)!.toArray()); // => [ 1 ]\n```"
+                    "```ts\nimport { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 1], [2, 2])\nconst map = m.keyMap\nconsole.log(map.at(1)!.toArray()); // => [ 1 ]\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -177622,11 +177622,11 @@
             "inheritedFrom": "multimap/VariantMultiMapBase"
           },
           {
-            "name": "getValues",
+            "name": "valuesAt",
             "kind": "method",
             "signatures": [
               {
-                "text": "getValues<UK>(key: RelatedTo<K, UK>): SortedSet<V>",
+                "text": "valuesAt<UK>(key: RelatedTo<K, UK>): SortedSet<V>",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns the value collection associated to the given `key`.",
@@ -177638,7 +177638,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nimport { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'])\nconsole.log(m.getValues(1).toArray()); // => [ \"a\" ]\nconsole.log(m.getValues(10).toArray()); // => []\n```"
+                    "```ts\nimport { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'])\nconsole.log(m.valuesAt(1).toArray()); // => [ \"a\" ]\nconsole.log(m.valuesAt(10).toArray()); // => []\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -177648,7 +177648,7 @@
                   "line": 1,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/multimap/src/internal/types.ts#L1"
                 },
-                "raw": "getValues<UK = K>(key: RelatedTo<K, UK>): WithKeyValue<Tp, K, V>['keyMapValues']"
+                "raw": "valuesAt<UK = K>(key: RelatedTo<K, UK>): WithKeyValue<Tp, K, V>['keyMapValues']"
               }
             ],
             "source": {
@@ -179119,7 +179119,7 @@
                   "description": "Returns the Map representation of this collection.",
                   "params": [],
                   "examples": [
-                    "```ts\nimport { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 1], [2, 2])\nconst map = m.keyMap\nconsole.log(map.get(1)!.toArray()); // => [ 1 ]\n```"
+                    "```ts\nimport { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 1], [2, 2])\nconst map = m.keyMap\nconsole.log(map.at(1)!.toArray()); // => [ 1 ]\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -179377,11 +179377,11 @@
             "inheritedFrom": "multimap/MultiMapBase"
           },
           {
-            "name": "getValues",
+            "name": "valuesAt",
             "kind": "method",
             "signatures": [
               {
-                "text": "getValues<UK>(key: RelatedTo<K, UK>): SortedSet<V>",
+                "text": "valuesAt<UK>(key: RelatedTo<K, UK>): SortedSet<V>",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns the value collection associated to the given `key`.",
@@ -179393,7 +179393,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nimport { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'])\nconsole.log(m.getValues(1).toArray()); // => [ \"a\" ]\nconsole.log(m.getValues(10).toArray()); // => []\n```"
+                    "```ts\nimport { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'])\nconsole.log(m.valuesAt(1).toArray()); // => [ \"a\" ]\nconsole.log(m.valuesAt(10).toArray()); // => []\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -179403,7 +179403,7 @@
                   "line": 1,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/multimap/src/internal/types.ts#L1"
                 },
-                "raw": "getValues<UK = K>(key: RelatedTo<K, UK>): WithKeyValue<Tp, K, V>['keyMapValues']"
+                "raw": "valuesAt<UK = K>(key: RelatedTo<K, UK>): WithKeyValue<Tp, K, V>['keyMapValues']"
               }
             ],
             "source": {
@@ -181127,7 +181127,7 @@
                   "description": "Returns the Map representation of this collection.",
                   "params": [],
                   "examples": [
-                    "```ts\nimport { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 1], [2, 2])\nconst map = m.keyMap\nconsole.log(map.get(1)!.toArray()); // => [ 1 ]\n```"
+                    "```ts\nimport { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 1], [2, 2])\nconst map = m.keyMap\nconsole.log(map.at(1)!.toArray()); // => [ 1 ]\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -181385,11 +181385,11 @@
             "inheritedFrom": "multimap/MultiMapBase"
           },
           {
-            "name": "getValues",
+            "name": "valuesAt",
             "kind": "method",
             "signatures": [
               {
-                "text": "getValues<UK>(key: RelatedTo<K, UK>): SortedSet<V>",
+                "text": "valuesAt<UK>(key: RelatedTo<K, UK>): SortedSet<V>",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns the value collection associated to the given `key`.",
@@ -181401,7 +181401,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nimport { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'])\nconsole.log(m.getValues(1).toArray()); // => [ \"a\" ]\nconsole.log(m.getValues(10).toArray()); // => []\n```"
+                    "```ts\nimport { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'])\nconsole.log(m.valuesAt(1).toArray()); // => [ \"a\" ]\nconsole.log(m.valuesAt(10).toArray()); // => []\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -181411,7 +181411,7 @@
                   "line": 1,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/multimap/src/internal/types.ts#L1"
                 },
-                "raw": "getValues<UK = K>(key: RelatedTo<K, UK>): WithKeyValue<Tp, K, V>['keyMapValues']"
+                "raw": "valuesAt<UK = K>(key: RelatedTo<K, UK>): WithKeyValue<Tp, K, V>['keyMapValues']"
               }
             ],
             "source": {
@@ -183330,7 +183330,7 @@
                   "description": "Returns the Map representation of this collection.",
                   "params": [],
                   "examples": [
-                    "```ts\nimport { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 1], [2, 2])\nconst map = m.keyMap\nconsole.log(map.get(1)!.toArray()); // => [ 1 ]\n```"
+                    "```ts\nimport { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 1], [2, 2])\nconst map = m.keyMap\nconsole.log(map.at(1)!.toArray()); // => [ 1 ]\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -183588,11 +183588,11 @@
             "inheritedFrom": "multimap/MultiMapBase"
           },
           {
-            "name": "getValues",
+            "name": "valuesAt",
             "kind": "method",
             "signatures": [
               {
-                "text": "getValues<UK>(key: RelatedTo<K, UK>): SortedSet<V>",
+                "text": "valuesAt<UK>(key: RelatedTo<K, UK>): SortedSet<V>",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns the value collection associated to the given `key`.",
@@ -183604,7 +183604,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nimport { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'])\nconsole.log(m.getValues(1).toArray()); // => [ \"a\" ]\nconsole.log(m.getValues(10).toArray()); // => []\n```"
+                    "```ts\nimport { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'])\nconsole.log(m.valuesAt(1).toArray()); // => [ \"a\" ]\nconsole.log(m.valuesAt(10).toArray()); // => []\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -183614,7 +183614,7 @@
                   "line": 1,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/multimap/src/internal/types.ts#L1"
                 },
-                "raw": "getValues<UK = K>(key: RelatedTo<K, UK>): WithKeyValue<Tp, K, V>['keyMapValues']"
+                "raw": "valuesAt<UK = K>(key: RelatedTo<K, UK>): WithKeyValue<Tp, K, V>['keyMapValues']"
               }
             ],
             "source": {
@@ -184630,7 +184630,7 @@
                   "description": "Returns the Map representation of this collection.",
                   "params": [],
                   "examples": [
-                    "```ts\nimport { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 1], [2, 2])\nconst map = m.keyMap\nconsole.log(map.get(1)!.toArray()); // => [ 1 ]\n```"
+                    "```ts\nimport { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 1], [2, 2])\nconst map = m.keyMap\nconsole.log(map.at(1)!.toArray()); // => [ 1 ]\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -184888,11 +184888,11 @@
             "inheritedFrom": "multimap/VariantMultiMapBase"
           },
           {
-            "name": "getValues",
+            "name": "valuesAt",
             "kind": "method",
             "signatures": [
               {
-                "text": "getValues<UK>(key: RelatedTo<K, UK>): SortedSet<V>",
+                "text": "valuesAt<UK>(key: RelatedTo<K, UK>): SortedSet<V>",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns the value collection associated to the given `key`.",
@@ -184904,7 +184904,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nimport { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'])\nconsole.log(m.getValues(1).toArray()); // => [ \"a\" ]\nconsole.log(m.getValues(10).toArray()); // => []\n```"
+                    "```ts\nimport { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'])\nconsole.log(m.valuesAt(1).toArray()); // => [ \"a\" ]\nconsole.log(m.valuesAt(10).toArray()); // => []\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -184914,7 +184914,7 @@
                   "line": 1,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/multimap/src/internal/types.ts#L1"
                 },
-                "raw": "getValues<UK = K>(key: RelatedTo<K, UK>): WithKeyValue<Tp, K, V>['keyMapValues']"
+                "raw": "valuesAt<UK = K>(key: RelatedTo<K, UK>): WithKeyValue<Tp, K, V>['keyMapValues']"
               }
             ],
             "source": {
@@ -186587,7 +186587,7 @@
                   "description": "Returns the Map representation of this collection.",
                   "params": [],
                   "examples": [
-                    "```ts\nimport { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 1], [2, 2])\nconst map = m.keyMap\nconsole.log(map.get(1)!.toArray()); // => [ 1 ]\n```"
+                    "```ts\nimport { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 1], [2, 2])\nconst map = m.keyMap\nconsole.log(map.at(1)!.toArray()); // => [ 1 ]\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -186845,11 +186845,11 @@
             "inheritedFrom": "multimap/MultiMapBase"
           },
           {
-            "name": "getValues",
+            "name": "valuesAt",
             "kind": "method",
             "signatures": [
               {
-                "text": "getValues<UK>(key: RelatedTo<K, UK>): SortedSet<V>",
+                "text": "valuesAt<UK>(key: RelatedTo<K, UK>): SortedSet<V>",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns the value collection associated to the given `key`.",
@@ -186861,7 +186861,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nimport { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'])\nconsole.log(m.getValues(1).toArray()); // => [ \"a\" ]\nconsole.log(m.getValues(10).toArray()); // => []\n```"
+                    "```ts\nimport { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'])\nconsole.log(m.valuesAt(1).toArray()); // => [ \"a\" ]\nconsole.log(m.valuesAt(10).toArray()); // => []\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -186871,7 +186871,7 @@
                   "line": 1,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/multimap/src/internal/types.ts#L1"
                 },
-                "raw": "getValues<UK = K>(key: RelatedTo<K, UK>): WithKeyValue<Tp, K, V>['keyMapValues']"
+                "raw": "valuesAt<UK = K>(key: RelatedTo<K, UK>): WithKeyValue<Tp, K, V>['keyMapValues']"
               }
             ],
             "source": {
@@ -188790,7 +188790,7 @@
                   "description": "Returns the Map representation of this collection.",
                   "params": [],
                   "examples": [
-                    "```ts\nimport { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 1], [2, 2])\nconst map = m.keyMap\nconsole.log(map.get(1)!.toArray()); // => [ 1 ]\n```"
+                    "```ts\nimport { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 1], [2, 2])\nconst map = m.keyMap\nconsole.log(map.at(1)!.toArray()); // => [ 1 ]\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -189048,11 +189048,11 @@
             "inheritedFrom": "multimap/MultiMapBase"
           },
           {
-            "name": "getValues",
+            "name": "valuesAt",
             "kind": "method",
             "signatures": [
               {
-                "text": "getValues<UK>(key: RelatedTo<K, UK>): SortedSet<V>",
+                "text": "valuesAt<UK>(key: RelatedTo<K, UK>): SortedSet<V>",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns the value collection associated to the given `key`.",
@@ -189064,7 +189064,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nimport { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'])\nconsole.log(m.getValues(1).toArray()); // => [ \"a\" ]\nconsole.log(m.getValues(10).toArray()); // => []\n```"
+                    "```ts\nimport { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'])\nconsole.log(m.valuesAt(1).toArray()); // => [ \"a\" ]\nconsole.log(m.valuesAt(10).toArray()); // => []\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -189074,7 +189074,7 @@
                   "line": 1,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/multimap/src/internal/types.ts#L1"
                 },
-                "raw": "getValues<UK = K>(key: RelatedTo<K, UK>): WithKeyValue<Tp, K, V>['keyMapValues']"
+                "raw": "valuesAt<UK = K>(key: RelatedTo<K, UK>): WithKeyValue<Tp, K, V>['keyMapValues']"
               }
             ],
             "source": {
@@ -190828,11 +190828,11 @@
             "inheritedFrom": "collection-types/RMapBase"
           },
           {
-            "name": "get",
+            "name": "at",
             "kind": "method",
             "signatures": [
               {
-                "text": "get<UK>(key: RelatedTo<K, UK>): V | undefined",
+                "text": "at<UK>(key: RelatedTo<K, UK>): V | undefined",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns the value associated with the given `key`, or given `otherwise` value if the key is not in the collection.",
@@ -190848,7 +190848,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nimport { HashMap } from '@rimbu/hashed';\n\nconst source = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(source.get(2)); // => b\nconsole.log(source.get(3)); // => undefined\nconsole.log(source.get(2, 'none')); // => b\nconsole.log(source.get(3, 'none')); // => none\n```"
+                    "```ts\nimport { HashMap } from '@rimbu/hashed';\n\nconst source = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(source.at(2)); // => b\nconsole.log(source.at(3)); // => undefined\nconsole.log(source.at(2, 'none')); // => b\nconsole.log(source.at(3, 'none')); // => none\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -190858,10 +190858,10 @@
                   "line": 127,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/collection-types/src/advanced/map/base.ts#L127"
                 },
-                "raw": "get<UK = K>(key: RelatedTo<K, UK>): V | undefined"
+                "raw": "at<UK = K>(key: RelatedTo<K, UK>): V | undefined"
               },
               {
-                "text": "get<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O",
+                "text": "at<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O",
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/collection-types/src/advanced/map/base.ts",
@@ -206168,11 +206168,11 @@
             }
           },
           {
-            "name": "getAtIndex",
+            "name": "atIndex",
             "kind": "method",
             "signatures": [
               {
-                "text": "getAtIndex(index: number): T | undefined",
+                "text": "atIndex(index: number): T | undefined",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns the value at the given index of the value sort order of the SortedSet builder, or a fallback value (default: undefined)\nif the index is out of bounds.",
@@ -206188,7 +206188,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nimport { SortedSet } from '@rimbu/sorted';\n\nconst b = SortedSet.of('b', 'd', 'a', 'c').toBuilder();\nconsole.log(b.getAtIndex(1))\n// => b\nconsole.log(b.getAtIndex(-1))\n// => d\nconsole.log(b.getAtIndex(10))\n// => undefined\nconsole.log(b.getAtIndex(10, 'q'))\n// => q\n```"
+                    "```ts\nimport { SortedSet } from '@rimbu/sorted';\n\nconst b = SortedSet.of('b', 'd', 'a', 'c').toBuilder();\nconsole.log(b.atIndex(1))\n// => b\nconsole.log(b.atIndex(-1))\n// => d\nconsole.log(b.atIndex(10))\n// => undefined\nconsole.log(b.atIndex(10, 'q'))\n// => q\n```"
                   ],
                   "notes": [
                     "negative index values will retrieve the values from the end of the sort order, e.g. -1 is the last value"
@@ -206202,7 +206202,7 @@
                 }
               },
               {
-                "text": "getAtIndex<O>(index: number, otherwise: OptLazy<O>): T | O",
+                "text": "atIndex<O>(index: number, otherwise: OptLazy<O>): T | O",
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/sorted/src/public/set.ts",
@@ -206592,11 +206592,11 @@
             }
           },
           {
-            "name": "getAtIndex",
+            "name": "atIndex",
             "kind": "method",
             "signatures": [
               {
-                "text": "getAtIndex(index: number): T | undefined",
+                "text": "atIndex(index: number): T | undefined",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns the value at the given index of the value sort order of the SortedSet, or a fallback value (default: undefined)\nif the index is out of bounds.",
@@ -206612,7 +206612,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nimport { SortedSet } from '@rimbu/sorted';\n\nconst m = SortedSet.of('b', 'd', 'a', 'c').asNormal();\nconsole.log(m.getAtIndex(1))\n// => b\nconsole.log(m.getAtIndex(-1))\n// => d\nconsole.log(m.getAtIndex(10))\n// => undefined\nconsole.log(m.getAtIndex(10, 'q'))\n// => q\n```"
+                    "```ts\nimport { SortedSet } from '@rimbu/sorted';\n\nconst m = SortedSet.of('b', 'd', 'a', 'c').asNormal();\nconsole.log(m.atIndex(1))\n// => b\nconsole.log(m.atIndex(-1))\n// => d\nconsole.log(m.atIndex(10))\n// => undefined\nconsole.log(m.atIndex(10, 'q'))\n// => q\n```"
                   ],
                   "notes": [
                     "negative index values will retrieve the values from the end of the sort order, e.g. -1 is the last value"
@@ -206626,7 +206626,7 @@
                 }
               },
               {
-                "text": "getAtIndex<O>(index: number, otherwise: OptLazy<O>): T | O",
+                "text": "atIndex<O>(index: number, otherwise: OptLazy<O>): T | O",
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/sorted/src/public/set.ts",
@@ -208401,11 +208401,11 @@
             }
           },
           {
-            "name": "getAtIndex",
+            "name": "atIndex",
             "kind": "method",
             "signatures": [
               {
-                "text": "getAtIndex(index: number): readonly [K, V] | undefined",
+                "text": "atIndex(index: number): readonly [K, V] | undefined",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns the entry with its key at the given index of the key sort order of the SortedMap builder, or a fallback value (default: undefined)\nif the index is out of bounds.",
@@ -208421,7 +208421,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nimport { SortedMap } from '@rimbu/sorted';\n\nconst b = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).toBuilder();\nconsole.log(b.getAtIndex(1))\n// => [ \"b\", 2 ]\nconsole.log(b.getAtIndex(-1))\n// => [ \"d\", 4 ]\nconsole.log(b.getAtIndex(10))\n// => undefined\nconsole.log(b.getAtIndex(10, 'q'))\n// => q\n```"
+                    "```ts\nimport { SortedMap } from '@rimbu/sorted';\n\nconst b = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).toBuilder();\nconsole.log(b.atIndex(1))\n// => [ \"b\", 2 ]\nconsole.log(b.atIndex(-1))\n// => [ \"d\", 4 ]\nconsole.log(b.atIndex(10))\n// => undefined\nconsole.log(b.atIndex(10, 'q'))\n// => q\n```"
                   ],
                   "notes": [
                     "negative index values will retrieve the values from the end of the sort order, e.g. -1 is the last value"
@@ -208435,7 +208435,7 @@
                 }
               },
               {
-                "text": "getAtIndex<O>(index: number, otherwise: OptLazy<O>): readonly [K, V] | O",
+                "text": "atIndex<O>(index: number, otherwise: OptLazy<O>): readonly [K, V] | O",
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
@@ -209040,11 +209040,11 @@
             }
           },
           {
-            "name": "getAtIndex",
+            "name": "atIndex",
             "kind": "method",
             "signatures": [
               {
-                "text": "getAtIndex(index: number): readonly [K, V] | undefined",
+                "text": "atIndex(index: number): readonly [K, V] | undefined",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns the entry with its key at the given index of the key sort order of the SortedMap, or a fallback value (default: undefined)\nif the index is out of bounds.",
@@ -209060,7 +209060,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nimport { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.getAtIndex(1))\n// => [ \"b\", 2 ]\nconsole.log(m.getAtIndex(-1))\n// => [ \"d\", 4 ]\nconsole.log(m.getAtIndex(10))\n// => undefined\nconsole.log(m.getAtIndex(10, 'q'))\n// => q\n```"
+                    "```ts\nimport { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.atIndex(1))\n// => [ \"b\", 2 ]\nconsole.log(m.atIndex(-1))\n// => [ \"d\", 4 ]\nconsole.log(m.atIndex(10))\n// => undefined\nconsole.log(m.atIndex(10, 'q'))\n// => q\n```"
                   ],
                   "notes": [
                     "negative index values will retrieve the values from the end of the sort order, e.g. -1 is the last value"
@@ -209074,7 +209074,7 @@
                 }
               },
               {
-                "text": "getAtIndex<O>(index: number, otherwise: OptLazy<O>): readonly [K, V] | O",
+                "text": "atIndex<O>(index: number, otherwise: OptLazy<O>): readonly [K, V] | O",
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
@@ -209090,11 +209090,11 @@
             }
           },
           {
-            "name": "getKeyAtIndex",
+            "name": "keyAtIndex",
             "kind": "method",
             "signatures": [
               {
-                "text": "getKeyAtIndex(index: number): K | undefined",
+                "text": "keyAtIndex(index: number): K | undefined",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns the key at the given index of the key sort order of the SortedMap, or a fallback value (default: undefined)\nif the index is out of bounds.",
@@ -209110,7 +209110,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nimport { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.getKeyAtIndex(1))\n// => b\nconsole.log(m.getKeyAtIndex(-1))\n// => d\nconsole.log(m.getKeyAtIndex(10))\n// => undefined\nconsole.log(m.getKeyAtIndex(10, 'q'))\n// => q\n```"
+                    "```ts\nimport { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.keyAtIndex(1))\n// => b\nconsole.log(m.keyAtIndex(-1))\n// => d\nconsole.log(m.keyAtIndex(10))\n// => undefined\nconsole.log(m.keyAtIndex(10, 'q'))\n// => q\n```"
                   ],
                   "notes": [
                     "negative index values will retrieve the values from the end of the sort order, e.g. -1 is the last value"
@@ -209124,7 +209124,7 @@
                 }
               },
               {
-                "text": "getKeyAtIndex<O>(index: number, otherwise: OptLazy<O>): K | O",
+                "text": "keyAtIndex<O>(index: number, otherwise: OptLazy<O>): K | O",
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
@@ -209140,11 +209140,11 @@
             }
           },
           {
-            "name": "getValueAtIndex",
+            "name": "valueAtIndex",
             "kind": "method",
             "signatures": [
               {
-                "text": "getValueAtIndex(index: number): V | undefined",
+                "text": "valueAtIndex(index: number): V | undefined",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns the value associated with the key at the given index of the key sort order of the SortedMap, or a fallback value (default: undefined)\nif the index is out of bounds.",
@@ -209160,7 +209160,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nimport { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.getValueAtIndex(1))\n// => 2\nconsole.log(m.getValueAtIndex(-1))\n// => 4\nconsole.log(m.getValueAtIndex(10))\n// => undefined\nconsole.log(m.getValueAtIndex(10, 'q'))\n// => q\n```"
+                    "```ts\nimport { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.valueAtIndex(1))\n// => 2\nconsole.log(m.valueAtIndex(-1))\n// => 4\nconsole.log(m.valueAtIndex(10))\n// => undefined\nconsole.log(m.valueAtIndex(10, 'q'))\n// => q\n```"
                   ],
                   "notes": [
                     "negative index values will retrieve the values from the end of the sort order, e.g. -1 is the last value"
@@ -209174,7 +209174,7 @@
                 }
               },
               {
-                "text": "getValueAtIndex<O>(index: number, otherwise: OptLazy<O>): V | O",
+                "text": "valueAtIndex<O>(index: number, otherwise: OptLazy<O>): V | O",
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
@@ -209872,11 +209872,11 @@
             "inheritedFrom": "collection-types/RMapBase"
           },
           {
-            "name": "get",
+            "name": "at",
             "kind": "method",
             "signatures": [
               {
-                "text": "get<UK>(key: RelatedTo<K, UK>): V | undefined",
+                "text": "at<UK>(key: RelatedTo<K, UK>): V | undefined",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns the value associated with the given `key`, or given `otherwise` value if the key is not in the collection.",
@@ -209892,7 +209892,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nimport { HashMap } from '@rimbu/hashed';\n\nconst source = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(source.get(2)); // => b\nconsole.log(source.get(3)); // => undefined\nconsole.log(source.get(2, 'none')); // => b\nconsole.log(source.get(3, 'none')); // => none\n```"
+                    "```ts\nimport { HashMap } from '@rimbu/hashed';\n\nconst source = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(source.at(2)); // => b\nconsole.log(source.at(3)); // => undefined\nconsole.log(source.at(2, 'none')); // => b\nconsole.log(source.at(3, 'none')); // => none\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -209902,10 +209902,10 @@
                   "line": 127,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/collection-types/src/advanced/map/base.ts#L127"
                 },
-                "raw": "get<UK = K>(key: RelatedTo<K, UK>): V | undefined"
+                "raw": "at<UK = K>(key: RelatedTo<K, UK>): V | undefined"
               },
               {
-                "text": "get<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O",
+                "text": "at<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O",
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/collection-types/src/advanced/map/base.ts",
@@ -211625,8 +211625,8 @@
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 165,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L165"
+                  "line": 949,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L949"
                 }
               },
               {
@@ -211634,15 +211634,15 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 166,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L166"
+                  "line": 950,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L950"
                 }
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 165,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L165"
+              "line": 949,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L949"
             }
           },
           {
@@ -211673,8 +211673,8 @@
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 182,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L182"
+                  "line": 966,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L966"
                 }
               },
               {
@@ -211682,15 +211682,15 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 183,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L183"
+                  "line": 967,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L967"
                 }
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 182,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L182"
+              "line": 966,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L966"
             }
           },
           {
@@ -212556,11 +212556,11 @@
             }
           },
           {
-            "name": "getValue",
+            "name": "at",
             "kind": "method",
             "signatures": [
               {
-                "text": "getValue<UK>(key: RelatedTo<K, UK>): V | undefined",
+                "text": "at<UK>(key: RelatedTo<K, UK>): V | undefined",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns the value associated with the given `key`, or given `otherwise` value if the key is not in the collection.",
@@ -212576,7 +212576,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 'a'], [2, 'b'])\nconsole.log(m.getValue(2)); // => b\nconsole.log(m.getValue(3)); // => undefined\nconsole.log(m.getValue(2, 'none')); // => b\nconsole.log(m.getValue(3, 'none')); // => none\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 'a'], [2, 'b'])\nconsole.log(m.at(2)); // => b\nconsole.log(m.at(3)); // => undefined\nconsole.log(m.at(2, 'none')); // => b\nconsole.log(m.at(3, 'none')); // => none\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -212586,10 +212586,10 @@
                   "line": 165,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L165"
                 },
-                "raw": "getValue<UK = K>(key: RelatedTo<K, UK>): V | undefined"
+                "raw": "at<UK = K>(key: RelatedTo<K, UK>): V | undefined"
               },
               {
-                "text": "getValue<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O",
+                "text": "at<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O",
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
@@ -212605,11 +212605,11 @@
             }
           },
           {
-            "name": "getKey",
+            "name": "atValue",
             "kind": "method",
             "signatures": [
               {
-                "text": "getKey<UV>(value: RelatedTo<V, UV>): K | undefined",
+                "text": "atValue<UV>(value: RelatedTo<V, UV>): K | undefined",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns the key associated with the given `value`, or given `otherwise` value if the key is not in the collection.",
@@ -212625,7 +212625,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 'a'], [2, 'b'])\nconsole.log(m.getKey('b')); // => 2\nconsole.log(m.getKey('z')); // => undefined\nconsole.log(m.getKey('b', 'none')); // => 2\nconsole.log(m.getKey('z', 'none')); // => none\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 'a'], [2, 'b'])\nconsole.log(m.atValue('b')); // => 2\nconsole.log(m.atValue('z')); // => undefined\nconsole.log(m.atValue('b', 'none')); // => 2\nconsole.log(m.atValue('z', 'none')); // => none\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -212635,10 +212635,10 @@
                   "line": 182,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L182"
                 },
-                "raw": "getKey<UV = V>(value: RelatedTo<V, UV>): K | undefined"
+                "raw": "atValue<UV = V>(value: RelatedTo<V, UV>): K | undefined"
               },
               {
-                "text": "getKey<UV, O>(value: RelatedTo<V, UV>, otherwise: OptLazy<O>): K | O",
+                "text": "atValue<UV, O>(value: RelatedTo<V, UV>, otherwise: OptLazy<O>): K | O",
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
@@ -227147,11 +227147,11 @@
             "inheritedFrom": "collection-types/RMapBase"
           },
           {
-            "name": "get",
+            "name": "at",
             "kind": "method",
             "signatures": [
               {
-                "text": "get<UK>(key: RelatedTo<K, UK>): V | undefined",
+                "text": "at<UK>(key: RelatedTo<K, UK>): V | undefined",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns the value associated with the given `key`, or given `otherwise` value if the key is not in the collection.",
@@ -227167,7 +227167,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nimport { HashMap } from '@rimbu/hashed';\n\nconst source = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(source.get(2)); // => b\nconsole.log(source.get(3)); // => undefined\nconsole.log(source.get(2, 'none')); // => b\nconsole.log(source.get(3, 'none')); // => none\n```"
+                    "```ts\nimport { HashMap } from '@rimbu/hashed';\n\nconst source = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(source.at(2)); // => b\nconsole.log(source.at(3)); // => undefined\nconsole.log(source.at(2, 'none')); // => b\nconsole.log(source.at(3, 'none')); // => none\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -227177,10 +227177,10 @@
                   "line": 127,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/collection-types/src/advanced/map/base.ts#L127"
                 },
-                "raw": "get<UK = K>(key: RelatedTo<K, UK>): V | undefined"
+                "raw": "at<UK = K>(key: RelatedTo<K, UK>): V | undefined"
               },
               {
-                "text": "get<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O",
+                "text": "at<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O",
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/collection-types/src/advanced/map/base.ts",
@@ -228542,11 +228542,11 @@
             "inheritedFrom": "ordered/OrderedMapBase"
           },
           {
-            "name": "get",
+            "name": "at",
             "kind": "method",
             "signatures": [
               {
-                "text": "get<UK>(key: RelatedTo<K, UK>): V | undefined",
+                "text": "at<UK>(key: RelatedTo<K, UK>): V | undefined",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns the value associated with the given `key`, or given `otherwise` value if the key is not in the collection.",
@@ -228562,7 +228562,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nimport { HashMap } from '@rimbu/hashed';\n\nconst source = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(source.get(2)); // => b\nconsole.log(source.get(3)); // => undefined\nconsole.log(source.get(2, 'none')); // => b\nconsole.log(source.get(3, 'none')); // => none\n```"
+                    "```ts\nimport { HashMap } from '@rimbu/hashed';\n\nconst source = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(source.at(2)); // => b\nconsole.log(source.at(3)); // => undefined\nconsole.log(source.at(2, 'none')); // => b\nconsole.log(source.at(3, 'none')); // => none\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -228572,10 +228572,10 @@
                   "line": 127,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/collection-types/src/advanced/map/base.ts#L127"
                 },
-                "raw": "get<UK = K>(key: RelatedTo<K, UK>): V | undefined"
+                "raw": "at<UK = K>(key: RelatedTo<K, UK>): V | undefined"
               },
               {
-                "text": "get<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O",
+                "text": "at<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O",
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/collection-types/src/advanced/map/base.ts",
@@ -232700,11 +232700,11 @@
             "inheritedFrom": "ordered/OrderedMapBase"
           },
           {
-            "name": "get",
+            "name": "at",
             "kind": "method",
             "signatures": [
               {
-                "text": "get<UK>(key: RelatedTo<K, UK>): V | undefined",
+                "text": "at<UK>(key: RelatedTo<K, UK>): V | undefined",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns the value associated with the given `key`, or given `otherwise` value if the key is not in the collection.",
@@ -232720,7 +232720,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nimport { HashMap } from '@rimbu/hashed';\n\nconst source = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(source.get(2)); // => b\nconsole.log(source.get(3)); // => undefined\nconsole.log(source.get(2, 'none')); // => b\nconsole.log(source.get(3, 'none')); // => none\n```"
+                    "```ts\nimport { HashMap } from '@rimbu/hashed';\n\nconst source = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(source.at(2)); // => b\nconsole.log(source.at(3)); // => undefined\nconsole.log(source.at(2, 'none')); // => b\nconsole.log(source.at(3, 'none')); // => none\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -232730,10 +232730,10 @@
                   "line": 127,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/collection-types/src/advanced/map/base.ts#L127"
                 },
-                "raw": "get<UK = K>(key: RelatedTo<K, UK>): V | undefined"
+                "raw": "at<UK = K>(key: RelatedTo<K, UK>): V | undefined"
               },
               {
-                "text": "get<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O",
+                "text": "at<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O",
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/collection-types/src/advanced/map/base.ts",
@@ -234548,11 +234548,11 @@
             "inheritedFrom": "ordered/OrderedMapBase"
           },
           {
-            "name": "get",
+            "name": "at",
             "kind": "method",
             "signatures": [
               {
-                "text": "get<UK>(key: RelatedTo<K, UK>): V | undefined",
+                "text": "at<UK>(key: RelatedTo<K, UK>): V | undefined",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns the value associated with the given `key`, or given `otherwise` value if the key is not in the collection.",
@@ -234568,7 +234568,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nimport { HashMap } from '@rimbu/hashed';\n\nconst source = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(source.get(2)); // => b\nconsole.log(source.get(3)); // => undefined\nconsole.log(source.get(2, 'none')); // => b\nconsole.log(source.get(3, 'none')); // => none\n```"
+                    "```ts\nimport { HashMap } from '@rimbu/hashed';\n\nconst source = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(source.at(2)); // => b\nconsole.log(source.at(3)); // => undefined\nconsole.log(source.at(2, 'none')); // => b\nconsole.log(source.at(3, 'none')); // => none\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -234578,10 +234578,10 @@
                   "line": 127,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/collection-types/src/advanced/map/base.ts#L127"
                 },
-                "raw": "get<UK = K>(key: RelatedTo<K, UK>): V | undefined"
+                "raw": "at<UK = K>(key: RelatedTo<K, UK>): V | undefined"
               },
               {
-                "text": "get<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O",
+                "text": "at<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O",
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/collection-types/src/advanced/map/base.ts",

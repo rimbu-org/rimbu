@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-18T13:19:54.653Z",
+  "generatedAt": "2026-07-18T14:45:52.713Z",
   "total": 3687,
   "failed": 2010,
   "passed": 1677,
@@ -19033,6 +19033,16 @@
     },
     {
       "ownerId": "table/HashTableHashColumn",
+      "member": "at",
+      "sig": 0,
+      "index": 0,
+      "errors": [
+        "(2:16) TS2393: Duplicate function implementation.",
+        "(3:11) TS2304: Cannot find name 'HashTableHashColumn'."
+      ]
+    },
+    {
+      "ownerId": "table/HashTableHashColumn",
       "member": "builder",
       "sig": 0,
       "index": 0,
@@ -19096,26 +19106,6 @@
       "errors": [
         "(2:16) TS2393: Duplicate function implementation.",
         "(3:1) TS2304: Cannot find name 'HashTableHashColumn'."
-      ]
-    },
-    {
-      "ownerId": "table/HashTableHashColumn",
-      "member": "get",
-      "sig": 0,
-      "index": 0,
-      "errors": [
-        "(2:16) TS2393: Duplicate function implementation.",
-        "(3:11) TS2304: Cannot find name 'HashTableHashColumn'."
-      ]
-    },
-    {
-      "ownerId": "table/HashTableHashColumn",
-      "member": "getRow",
-      "sig": 0,
-      "index": 0,
-      "errors": [
-        "(2:16) TS2393: Duplicate function implementation.",
-        "(3:11) TS2304: Cannot find name 'HashTableHashColumn'."
       ]
     },
     {
@@ -19260,6 +19250,16 @@
     {
       "ownerId": "table/HashTableHashColumn",
       "member": "removeRows",
+      "sig": 0,
+      "index": 0,
+      "errors": [
+        "(2:16) TS2393: Duplicate function implementation.",
+        "(3:11) TS2304: Cannot find name 'HashTableHashColumn'."
+      ]
+    },
+    {
+      "ownerId": "table/HashTableHashColumn",
+      "member": "rowAt",
       "sig": 0,
       "index": 0,
       "errors": [
@@ -19450,6 +19450,16 @@
     },
     {
       "ownerId": "table/HashTableSortedColumn",
+      "member": "at",
+      "sig": 0,
+      "index": 0,
+      "errors": [
+        "(2:16) TS2393: Duplicate function implementation.",
+        "(3:11) TS2304: Cannot find name 'HashTableHashColumn'."
+      ]
+    },
+    {
+      "ownerId": "table/HashTableSortedColumn",
       "member": "builder",
       "sig": 0,
       "index": 0,
@@ -19513,26 +19523,6 @@
       "errors": [
         "(2:16) TS2393: Duplicate function implementation.",
         "(3:1) TS2304: Cannot find name 'HashTableHashColumn'."
-      ]
-    },
-    {
-      "ownerId": "table/HashTableSortedColumn",
-      "member": "get",
-      "sig": 0,
-      "index": 0,
-      "errors": [
-        "(2:16) TS2393: Duplicate function implementation.",
-        "(3:11) TS2304: Cannot find name 'HashTableHashColumn'."
-      ]
-    },
-    {
-      "ownerId": "table/HashTableSortedColumn",
-      "member": "getRow",
-      "sig": 0,
-      "index": 0,
-      "errors": [
-        "(2:16) TS2393: Duplicate function implementation.",
-        "(3:11) TS2304: Cannot find name 'HashTableHashColumn'."
       ]
     },
     {
@@ -19677,6 +19667,16 @@
     {
       "ownerId": "table/HashTableSortedColumn",
       "member": "removeRows",
+      "sig": 0,
+      "index": 0,
+      "errors": [
+        "(2:16) TS2393: Duplicate function implementation.",
+        "(3:11) TS2304: Cannot find name 'HashTableHashColumn'."
+      ]
+    },
+    {
+      "ownerId": "table/HashTableSortedColumn",
+      "member": "rowAt",
       "sig": 0,
       "index": 0,
       "errors": [
@@ -19867,6 +19867,16 @@
     },
     {
       "ownerId": "table/SortedTableHashColumn",
+      "member": "at",
+      "sig": 0,
+      "index": 0,
+      "errors": [
+        "(2:16) TS2393: Duplicate function implementation.",
+        "(3:11) TS2304: Cannot find name 'HashTableHashColumn'."
+      ]
+    },
+    {
+      "ownerId": "table/SortedTableHashColumn",
       "member": "builder",
       "sig": 0,
       "index": 0,
@@ -19930,26 +19940,6 @@
       "errors": [
         "(2:16) TS2393: Duplicate function implementation.",
         "(3:1) TS2304: Cannot find name 'HashTableHashColumn'."
-      ]
-    },
-    {
-      "ownerId": "table/SortedTableHashColumn",
-      "member": "get",
-      "sig": 0,
-      "index": 0,
-      "errors": [
-        "(2:16) TS2393: Duplicate function implementation.",
-        "(3:11) TS2304: Cannot find name 'HashTableHashColumn'."
-      ]
-    },
-    {
-      "ownerId": "table/SortedTableHashColumn",
-      "member": "getRow",
-      "sig": 0,
-      "index": 0,
-      "errors": [
-        "(2:16) TS2393: Duplicate function implementation.",
-        "(3:11) TS2304: Cannot find name 'HashTableHashColumn'."
       ]
     },
     {
@@ -20094,6 +20084,16 @@
     {
       "ownerId": "table/SortedTableHashColumn",
       "member": "removeRows",
+      "sig": 0,
+      "index": 0,
+      "errors": [
+        "(2:16) TS2393: Duplicate function implementation.",
+        "(3:11) TS2304: Cannot find name 'HashTableHashColumn'."
+      ]
+    },
+    {
+      "ownerId": "table/SortedTableHashColumn",
+      "member": "rowAt",
       "sig": 0,
       "index": 0,
       "errors": [
@@ -20284,6 +20284,16 @@
     },
     {
       "ownerId": "table/SortedTableSortedColumn",
+      "member": "at",
+      "sig": 0,
+      "index": 0,
+      "errors": [
+        "(2:16) TS2393: Duplicate function implementation.",
+        "(3:11) TS2304: Cannot find name 'HashTableHashColumn'."
+      ]
+    },
+    {
+      "ownerId": "table/SortedTableSortedColumn",
       "member": "builder",
       "sig": 0,
       "index": 0,
@@ -20347,26 +20357,6 @@
       "errors": [
         "(2:16) TS2393: Duplicate function implementation.",
         "(3:1) TS2304: Cannot find name 'HashTableHashColumn'."
-      ]
-    },
-    {
-      "ownerId": "table/SortedTableSortedColumn",
-      "member": "get",
-      "sig": 0,
-      "index": 0,
-      "errors": [
-        "(2:16) TS2393: Duplicate function implementation.",
-        "(3:11) TS2304: Cannot find name 'HashTableHashColumn'."
-      ]
-    },
-    {
-      "ownerId": "table/SortedTableSortedColumn",
-      "member": "getRow",
-      "sig": 0,
-      "index": 0,
-      "errors": [
-        "(2:16) TS2393: Duplicate function implementation.",
-        "(3:11) TS2304: Cannot find name 'HashTableHashColumn'."
       ]
     },
     {
@@ -20511,6 +20501,16 @@
     {
       "ownerId": "table/SortedTableSortedColumn",
       "member": "removeRows",
+      "sig": 0,
+      "index": 0,
+      "errors": [
+        "(2:16) TS2393: Duplicate function implementation.",
+        "(3:11) TS2304: Cannot find name 'HashTableHashColumn'."
+      ]
+    },
+    {
+      "ownerId": "table/SortedTableSortedColumn",
+      "member": "rowAt",
       "sig": 0,
       "index": 0,
       "errors": [
@@ -20701,6 +20701,16 @@
     },
     {
       "ownerId": "table/Table",
+      "member": "at",
+      "sig": 0,
+      "index": 0,
+      "errors": [
+        "(2:16) TS2393: Duplicate function implementation.",
+        "(3:11) TS2304: Cannot find name 'HashTableHashColumn'."
+      ]
+    },
+    {
+      "ownerId": "table/Table",
       "member": "filter",
       "sig": 0,
       "index": 0,
@@ -20733,26 +20743,6 @@
         "(4:13) TS7006: Parameter 'entry' implicitly has an 'any' type.",
         "(4:20) TS7006: Parameter 'i' implicitly has an 'any' type.",
         "(4:23) TS7006: Parameter 'halt' implicitly has an 'any' type."
-      ]
-    },
-    {
-      "ownerId": "table/Table",
-      "member": "get",
-      "sig": 0,
-      "index": 0,
-      "errors": [
-        "(2:16) TS2393: Duplicate function implementation.",
-        "(3:11) TS2304: Cannot find name 'HashTableHashColumn'."
-      ]
-    },
-    {
-      "ownerId": "table/Table",
-      "member": "getRow",
-      "sig": 0,
-      "index": 0,
-      "errors": [
-        "(2:16) TS2393: Duplicate function implementation.",
-        "(3:11) TS2304: Cannot find name 'HashTableHashColumn'."
       ]
     },
     {
@@ -20875,6 +20865,16 @@
     {
       "ownerId": "table/Table",
       "member": "removeRows",
+      "sig": 0,
+      "index": 0,
+      "errors": [
+        "(2:16) TS2393: Duplicate function implementation.",
+        "(3:11) TS2304: Cannot find name 'HashTableHashColumn'."
+      ]
+    },
+    {
+      "ownerId": "table/Table",
+      "member": "rowAt",
       "sig": 0,
       "index": 0,
       "errors": [
@@ -21344,6 +21344,16 @@
     },
     {
       "ownerId": "table/TableBase",
+      "member": "at",
+      "sig": 0,
+      "index": 0,
+      "errors": [
+        "(2:16) TS2393: Duplicate function implementation.",
+        "(3:11) TS2304: Cannot find name 'HashTableHashColumn'."
+      ]
+    },
+    {
+      "ownerId": "table/TableBase",
       "member": "filter",
       "sig": 0,
       "index": 0,
@@ -21376,26 +21386,6 @@
         "(4:13) TS7006: Parameter 'entry' implicitly has an 'any' type.",
         "(4:20) TS7006: Parameter 'i' implicitly has an 'any' type.",
         "(4:23) TS7006: Parameter 'halt' implicitly has an 'any' type."
-      ]
-    },
-    {
-      "ownerId": "table/TableBase",
-      "member": "get",
-      "sig": 0,
-      "index": 0,
-      "errors": [
-        "(2:16) TS2393: Duplicate function implementation.",
-        "(3:11) TS2304: Cannot find name 'HashTableHashColumn'."
-      ]
-    },
-    {
-      "ownerId": "table/TableBase",
-      "member": "getRow",
-      "sig": 0,
-      "index": 0,
-      "errors": [
-        "(2:16) TS2393: Duplicate function implementation.",
-        "(3:11) TS2304: Cannot find name 'HashTableHashColumn'."
       ]
     },
     {
@@ -21518,6 +21508,16 @@
     {
       "ownerId": "table/TableBase",
       "member": "removeRows",
+      "sig": 0,
+      "index": 0,
+      "errors": [
+        "(2:16) TS2393: Duplicate function implementation.",
+        "(3:11) TS2304: Cannot find name 'HashTableHashColumn'."
+      ]
+    },
+    {
+      "ownerId": "table/TableBase",
+      "member": "rowAt",
       "sig": 0,
       "index": 0,
       "errors": [
@@ -21668,6 +21668,16 @@
     },
     {
       "ownerId": "table/VariantTable",
+      "member": "at",
+      "sig": 0,
+      "index": 0,
+      "errors": [
+        "(2:16) TS2393: Duplicate function implementation.",
+        "(3:11) TS2304: Cannot find name 'HashTableHashColumn'."
+      ]
+    },
+    {
+      "ownerId": "table/VariantTable",
       "member": "filter",
       "sig": 0,
       "index": 0,
@@ -21700,26 +21710,6 @@
         "(4:13) TS7006: Parameter 'entry' implicitly has an 'any' type.",
         "(4:20) TS7006: Parameter 'i' implicitly has an 'any' type.",
         "(4:23) TS7006: Parameter 'halt' implicitly has an 'any' type."
-      ]
-    },
-    {
-      "ownerId": "table/VariantTable",
-      "member": "get",
-      "sig": 0,
-      "index": 0,
-      "errors": [
-        "(2:16) TS2393: Duplicate function implementation.",
-        "(3:11) TS2304: Cannot find name 'HashTableHashColumn'."
-      ]
-    },
-    {
-      "ownerId": "table/VariantTable",
-      "member": "getRow",
-      "sig": 0,
-      "index": 0,
-      "errors": [
-        "(2:16) TS2393: Duplicate function implementation.",
-        "(3:11) TS2304: Cannot find name 'HashTableHashColumn'."
       ]
     },
     {
@@ -21828,6 +21818,16 @@
     {
       "ownerId": "table/VariantTable",
       "member": "removeRows",
+      "sig": 0,
+      "index": 0,
+      "errors": [
+        "(2:16) TS2393: Duplicate function implementation.",
+        "(3:11) TS2304: Cannot find name 'HashTableHashColumn'."
+      ]
+    },
+    {
+      "ownerId": "table/VariantTable",
+      "member": "rowAt",
       "sig": 0,
       "index": 0,
       "errors": [
@@ -22048,6 +22048,16 @@
     },
     {
       "ownerId": "table/VariantTableBase",
+      "member": "at",
+      "sig": 0,
+      "index": 0,
+      "errors": [
+        "(2:16) TS2393: Duplicate function implementation.",
+        "(3:11) TS2304: Cannot find name 'HashTableHashColumn'."
+      ]
+    },
+    {
+      "ownerId": "table/VariantTableBase",
       "member": "filter",
       "sig": 0,
       "index": 0,
@@ -22080,26 +22090,6 @@
         "(4:13) TS7006: Parameter 'entry' implicitly has an 'any' type.",
         "(4:20) TS7006: Parameter 'i' implicitly has an 'any' type.",
         "(4:23) TS7006: Parameter 'halt' implicitly has an 'any' type."
-      ]
-    },
-    {
-      "ownerId": "table/VariantTableBase",
-      "member": "get",
-      "sig": 0,
-      "index": 0,
-      "errors": [
-        "(2:16) TS2393: Duplicate function implementation.",
-        "(3:11) TS2304: Cannot find name 'HashTableHashColumn'."
-      ]
-    },
-    {
-      "ownerId": "table/VariantTableBase",
-      "member": "getRow",
-      "sig": 0,
-      "index": 0,
-      "errors": [
-        "(2:16) TS2393: Duplicate function implementation.",
-        "(3:11) TS2304: Cannot find name 'HashTableHashColumn'."
       ]
     },
     {
@@ -22208,6 +22198,16 @@
     {
       "ownerId": "table/VariantTableBase",
       "member": "removeRows",
+      "sig": 0,
+      "index": 0,
+      "errors": [
+        "(2:16) TS2393: Duplicate function implementation.",
+        "(3:11) TS2304: Cannot find name 'HashTableHashColumn'."
+      ]
+    },
+    {
+      "ownerId": "table/VariantTableBase",
+      "member": "rowAt",
       "sig": 0,
       "index": 0,
       "errors": [

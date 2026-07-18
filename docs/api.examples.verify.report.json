@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-07-18T13:21:36.160Z",
-  "filter": "collection-types/",
-  "totalSnippets": 222,
-  "checkedOutputs": 321,
+  "generatedAt": "2026-07-18T14:48:44.863Z",
+  "filter": "multiset/",
+  "totalSnippets": 195,
+  "checkedOutputs": 258,
   "checkedInferredTypes": 0,
   "mismatches": 0,
   "strict": false,

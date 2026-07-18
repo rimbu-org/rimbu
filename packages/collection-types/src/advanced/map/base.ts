@@ -980,10 +980,10 @@ export namespace RMapBase {
 		 * import { HashMap } from '@rimbu/hashed';
 		 *
 		 * const builder = HashMap.of([1, 'a'], [2, 'b']).toBuilder();
-		 * console.log(builder.get(2)); // => b
-		 * console.log(builder.get(3)); // => undefined
-		 * console.log(builder.get(2, 'none')); // => b
-		 * console.log(builder.get(3, 'none')); // => none
+		 * console.log(builder.at(2)); // => b
+		 * console.log(builder.at(3)); // => undefined
+		 * console.log(builder.at(2, 'none')); // => b
+		 * console.log(builder.at(3, 'none')); // => none
 		 * ```
 		 */
 		at<UK = K>(key: RelatedTo<K, UK>): V | undefined;

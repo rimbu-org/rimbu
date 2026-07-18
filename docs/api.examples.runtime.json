@@ -4932,15 +4932,15 @@
     ],
     "typeChecks": true
   },
-  "bimultimap/BiMultiMapBase::getValues::0::0": {
-    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [1, 2]);\nconsole.log(m.getValues(1).toArray()); // => [ 1, 2 ]\nconsole.log(m.getValues(5).toArray()); // => []",
+  "bimultimap/BiMultiMapBase::valuesAt::0::0": {
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [1, 2]);\nconsole.log(m.valuesAt(1).toArray()); // => [ 1, 2 ]\nconsole.log(m.valuesAt(5).toArray()); // => []",
     "packages": [
       "@rimbu/bimultimap"
     ],
     "typeChecks": true
   },
-  "bimultimap/BiMultiMapBase::getKeys::0::0": {
-    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [2, 1]);\nconsole.log(m.getKeys(1).toArray()); // => [ 1, 2 ]\nconsole.log(m.getKeys(5).toArray()); // => []",
+  "bimultimap/BiMultiMapBase::keysAt::0::0": {
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [2, 1]);\nconsole.log(m.keysAt(1).toArray()); // => [ 1, 2 ]\nconsole.log(m.keysAt(5).toArray()); // => []",
     "packages": [
       "@rimbu/bimultimap"
     ],
@@ -5149,15 +5149,15 @@
     ],
     "typeChecks": true
   },
-  "bimultimap/BiMultiMap::getValues::0::0": {
-    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [1, 2]);\nconsole.log(m.getValues(1).toArray()); // => [ 1, 2 ]\nconsole.log(m.getValues(5).toArray()); // => []",
+  "bimultimap/BiMultiMap::valuesAt::0::0": {
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [1, 2]);\nconsole.log(m.valuesAt(1).toArray()); // => [ 1, 2 ]\nconsole.log(m.valuesAt(5).toArray()); // => []",
     "packages": [
       "@rimbu/bimultimap"
     ],
     "typeChecks": true
   },
-  "bimultimap/BiMultiMap::getKeys::0::0": {
-    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [2, 1]);\nconsole.log(m.getKeys(1).toArray()); // => [ 1, 2 ]\nconsole.log(m.getKeys(5).toArray()); // => []",
+  "bimultimap/BiMultiMap::keysAt::0::0": {
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [2, 1]);\nconsole.log(m.keysAt(1).toArray()); // => [ 1, 2 ]\nconsole.log(m.keysAt(5).toArray()); // => []",
     "packages": [
       "@rimbu/bimultimap"
     ],
@@ -5373,15 +5373,15 @@
     ],
     "typeChecks": true
   },
-  "bimultimap/HashBiMultiMap::getValues::0::0": {
-    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [1, 2]);\nconsole.log(m.getValues(1).toArray()); // => [ 1, 2 ]\nconsole.log(m.getValues(5).toArray()); // => []",
+  "bimultimap/HashBiMultiMap::valuesAt::0::0": {
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [1, 2]);\nconsole.log(m.valuesAt(1).toArray()); // => [ 1, 2 ]\nconsole.log(m.valuesAt(5).toArray()); // => []",
     "packages": [
       "@rimbu/bimultimap"
     ],
     "typeChecks": true
   },
-  "bimultimap/HashBiMultiMap::getKeys::0::0": {
-    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [2, 1]);\nconsole.log(m.getKeys(1).toArray()); // => [ 1, 2 ]\nconsole.log(m.getKeys(5).toArray()); // => []",
+  "bimultimap/HashBiMultiMap::keysAt::0::0": {
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [2, 1]);\nconsole.log(m.keysAt(1).toArray()); // => [ 1, 2 ]\nconsole.log(m.keysAt(5).toArray()); // => []",
     "packages": [
       "@rimbu/bimultimap"
     ],
@@ -5633,15 +5633,15 @@
     ],
     "typeChecks": true
   },
-  "bimultimap/SortedBiMultiMap::getValues::0::0": {
-    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [1, 2]);\nconsole.log(m.getValues(1).toArray()); // => [ 1, 2 ]\nconsole.log(m.getValues(5).toArray()); // => []",
+  "bimultimap/SortedBiMultiMap::valuesAt::0::0": {
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [1, 2]);\nconsole.log(m.valuesAt(1).toArray()); // => [ 1, 2 ]\nconsole.log(m.valuesAt(5).toArray()); // => []",
     "packages": [
       "@rimbu/bimultimap"
     ],
     "typeChecks": true
   },
-  "bimultimap/SortedBiMultiMap::getKeys::0::0": {
-    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [2, 1]);\nconsole.log(m.getKeys(1).toArray()); // => [ 1, 2 ]\nconsole.log(m.getKeys(5).toArray()); // => []",
+  "bimultimap/SortedBiMultiMap::keysAt::0::0": {
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [2, 1]);\nconsole.log(m.keysAt(1).toArray()); // => [ 1, 2 ]\nconsole.log(m.keysAt(5).toArray()); // => []",
     "packages": [
       "@rimbu/bimultimap"
     ],
@@ -5886,8 +5886,8 @@
     ],
     "typeChecks": true
   },
-  "collection-types/VariantMapBase::get::0::0": {
-    "code": "import { HashMap } from '@rimbu/hashed';\n\nconst source = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(source.get(2)); // => b\nconsole.log(source.get(3)); // => undefined\nconsole.log(source.get(2, 'none')); // => b\nconsole.log(source.get(3, 'none')); // => none",
+  "collection-types/VariantMapBase::at::0::0": {
+    "code": "import { HashMap } from '@rimbu/hashed';\n\nconst source = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(source.at(2)); // => b\nconsole.log(source.at(3)); // => undefined\nconsole.log(source.at(2, 'none')); // => b\nconsole.log(source.at(3, 'none')); // => none",
     "packages": [
       "@rimbu/hashed"
     ],
@@ -6090,8 +6090,8 @@
     ],
     "typeChecks": true
   },
-  "collection-types/RMapBase.Builder::get::0::0": {
-    "code": "import { HashMap } from '@rimbu/hashed';\n\nconst builder = HashMap.of([1, 'a'], [2, 'b']).toBuilder();\nconsole.log(builder.get(2)); // => b\nconsole.log(builder.get(3)); // => undefined\nconsole.log(builder.get(2, 'none')); // => b\nconsole.log(builder.get(3, 'none')); // => none",
+  "collection-types/RMapBase.Builder::at::0::0": {
+    "code": "import { HashMap } from '@rimbu/hashed';\n\nconst builder = HashMap.of([1, 'a'], [2, 'b']).toBuilder();\nconsole.log(builder.at(2)); // => b\nconsole.log(builder.at(3)); // => undefined\nconsole.log(builder.at(2, 'none')); // => b\nconsole.log(builder.at(3, 'none')); // => none",
     "packages": [
       "@rimbu/hashed"
     ],
@@ -6272,8 +6272,8 @@
     ],
     "typeChecks": true
   },
-  "collection-types/RMapBase::get::0::0": {
-    "code": "import { HashMap } from '@rimbu/hashed';\n\nconst source = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(source.get(2)); // => b\nconsole.log(source.get(3)); // => undefined\nconsole.log(source.get(2, 'none')); // => b\nconsole.log(source.get(3, 'none')); // => none",
+  "collection-types/RMapBase::at::0::0": {
+    "code": "import { HashMap } from '@rimbu/hashed';\n\nconst source = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(source.at(2)); // => b\nconsole.log(source.at(3)); // => undefined\nconsole.log(source.at(2, 'none')); // => b\nconsole.log(source.at(3, 'none')); // => none",
     "packages": [
       "@rimbu/hashed"
     ],
@@ -6875,8 +6875,8 @@
     ],
     "typeChecks": true
   },
-  "collection-types/RMap::get::0::0": {
-    "code": "import { HashMap } from '@rimbu/hashed';\n\nconst source = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(source.get(2)); // => b\nconsole.log(source.get(3)); // => undefined\nconsole.log(source.get(2, 'none')); // => b\nconsole.log(source.get(3, 'none')); // => none",
+  "collection-types/RMap::at::0::0": {
+    "code": "import { HashMap } from '@rimbu/hashed';\n\nconst source = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(source.at(2)); // => b\nconsole.log(source.at(3)); // => undefined\nconsole.log(source.at(2, 'none')); // => b\nconsole.log(source.at(3, 'none')); // => none",
     "packages": [
       "@rimbu/hashed"
     ],
@@ -7008,8 +7008,8 @@
     ],
     "typeChecks": true
   },
-  "collection-types/VariantMap::get::0::0": {
-    "code": "import { HashMap } from '@rimbu/hashed';\n\nconst source = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(source.get(2)); // => b\nconsole.log(source.get(3)); // => undefined\nconsole.log(source.get(2, 'none')); // => b\nconsole.log(source.get(3, 'none')); // => none",
+  "collection-types/VariantMap::at::0::0": {
+    "code": "import { HashMap } from '@rimbu/hashed';\n\nconst source = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(source.at(2)); // => b\nconsole.log(source.at(3)); // => undefined\nconsole.log(source.at(2, 'none')); // => b\nconsole.log(source.at(3, 'none')); // => none",
     "packages": [
       "@rimbu/hashed"
     ],
@@ -11398,8 +11398,8 @@
     ],
     "typeChecks": true
   },
-  "hashed/HashMap::get::0::0": {
-    "code": "import { HashMap } from '@rimbu/hashed';\n\nconst source = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(source.get(2)); // => b\nconsole.log(source.get(3)); // => undefined\nconsole.log(source.get(2, 'none')); // => b\nconsole.log(source.get(3, 'none')); // => none",
+  "hashed/HashMap::at::0::0": {
+    "code": "import { HashMap } from '@rimbu/hashed';\n\nconst source = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(source.at(2)); // => b\nconsole.log(source.at(3)); // => undefined\nconsole.log(source.at(2, 'none')); // => b\nconsole.log(source.at(3, 'none')); // => none",
     "packages": [
       "@rimbu/hashed"
     ],
@@ -11909,12 +11909,12 @@
     "packages": [],
     "typeChecks": false
   },
-  "table/VariantTableBase::get::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.get(10, 1)     // => undefined\nt.get(10, 1, 0)  // => 0\nt.get(1, 2)      // => 3\nt.get(1, 2, 0)   // => 3",
+  "table/VariantTableBase::at::0::0": {
+    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.at(10, 1)     // => undefined\nt.at(10, 1, 0)  // => 0\nt.at(1, 2)      // => 3\nt.at(1, 2, 0)   // => 3",
     "packages": [],
     "typeChecks": false
   },
-  "table/VariantTableBase::getRow::0::0": {
+  "table/VariantTableBase::rowAt::0::0": {
     "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.getRow(10).toArray()    // => []\nt.getRow(1).toArray()     // => [[2, 3], [4, 5]]",
     "packages": [],
     "typeChecks": false
@@ -12209,12 +12209,12 @@
     "packages": [],
     "typeChecks": false
   },
-  "table/TableBase::get::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.get(10, 1)     // => undefined\nt.get(10, 1, 0)  // => 0\nt.get(1, 2)      // => 3\nt.get(1, 2, 0)   // => 3",
+  "table/TableBase::at::0::0": {
+    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.at(10, 1)     // => undefined\nt.at(10, 1, 0)  // => 0\nt.at(1, 2)      // => 3\nt.at(1, 2, 0)   // => 3",
     "packages": [],
     "typeChecks": false
   },
-  "table/TableBase::getRow::0::0": {
+  "table/TableBase::rowAt::0::0": {
     "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.getRow(10).toArray()    // => []\nt.getRow(1).toArray()     // => [[2, 3], [4, 5]]",
     "packages": [],
     "typeChecks": false
@@ -12379,12 +12379,12 @@
     "packages": [],
     "typeChecks": false
   },
-  "table/HashTableHashColumn::get::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.get(10, 1)     // => undefined\nt.get(10, 1, 0)  // => 0\nt.get(1, 2)      // => 3\nt.get(1, 2, 0)   // => 3",
+  "table/HashTableHashColumn::at::0::0": {
+    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.at(10, 1)     // => undefined\nt.at(10, 1, 0)  // => 0\nt.at(1, 2)      // => 3\nt.at(1, 2, 0)   // => 3",
     "packages": [],
     "typeChecks": false
   },
-  "table/HashTableHashColumn::getRow::0::0": {
+  "table/HashTableHashColumn::rowAt::0::0": {
     "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.getRow(10).toArray()    // => []\nt.getRow(1).toArray()     // => [[2, 3], [4, 5]]",
     "packages": [],
     "typeChecks": false
@@ -12574,12 +12574,12 @@
     "packages": [],
     "typeChecks": false
   },
-  "table/HashTableSortedColumn::get::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.get(10, 1)     // => undefined\nt.get(10, 1, 0)  // => 0\nt.get(1, 2)      // => 3\nt.get(1, 2, 0)   // => 3",
+  "table/HashTableSortedColumn::at::0::0": {
+    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.at(10, 1)     // => undefined\nt.at(10, 1, 0)  // => 0\nt.at(1, 2)      // => 3\nt.at(1, 2, 0)   // => 3",
     "packages": [],
     "typeChecks": false
   },
-  "table/HashTableSortedColumn::getRow::0::0": {
+  "table/HashTableSortedColumn::rowAt::0::0": {
     "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.getRow(10).toArray()    // => []\nt.getRow(1).toArray()     // => [[2, 3], [4, 5]]",
     "packages": [],
     "typeChecks": false
@@ -12769,12 +12769,12 @@
     "packages": [],
     "typeChecks": false
   },
-  "table/SortedTableHashColumn::get::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.get(10, 1)     // => undefined\nt.get(10, 1, 0)  // => 0\nt.get(1, 2)      // => 3\nt.get(1, 2, 0)   // => 3",
+  "table/SortedTableHashColumn::at::0::0": {
+    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.at(10, 1)     // => undefined\nt.at(10, 1, 0)  // => 0\nt.at(1, 2)      // => 3\nt.at(1, 2, 0)   // => 3",
     "packages": [],
     "typeChecks": false
   },
-  "table/SortedTableHashColumn::getRow::0::0": {
+  "table/SortedTableHashColumn::rowAt::0::0": {
     "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.getRow(10).toArray()    // => []\nt.getRow(1).toArray()     // => [[2, 3], [4, 5]]",
     "packages": [],
     "typeChecks": false
@@ -12964,12 +12964,12 @@
     "packages": [],
     "typeChecks": false
   },
-  "table/SortedTableSortedColumn::get::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.get(10, 1)     // => undefined\nt.get(10, 1, 0)  // => 0\nt.get(1, 2)      // => 3\nt.get(1, 2, 0)   // => 3",
+  "table/SortedTableSortedColumn::at::0::0": {
+    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.at(10, 1)     // => undefined\nt.at(10, 1, 0)  // => 0\nt.at(1, 2)      // => 3\nt.at(1, 2, 0)   // => 3",
     "packages": [],
     "typeChecks": false
   },
-  "table/SortedTableSortedColumn::getRow::0::0": {
+  "table/SortedTableSortedColumn::rowAt::0::0": {
     "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.getRow(10).toArray()    // => []\nt.getRow(1).toArray()     // => [[2, 3], [4, 5]]",
     "packages": [],
     "typeChecks": false
@@ -13159,12 +13159,12 @@
     "packages": [],
     "typeChecks": false
   },
-  "table/Table::get::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.get(10, 1)     // => undefined\nt.get(10, 1, 0)  // => 0\nt.get(1, 2)      // => 3\nt.get(1, 2, 0)   // => 3",
+  "table/Table::at::0::0": {
+    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.at(10, 1)     // => undefined\nt.at(10, 1, 0)  // => 0\nt.at(1, 2)      // => 3\nt.at(1, 2, 0)   // => 3",
     "packages": [],
     "typeChecks": false
   },
-  "table/Table::getRow::0::0": {
+  "table/Table::rowAt::0::0": {
     "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.getRow(10).toArray()    // => []\nt.getRow(1).toArray()     // => [[2, 3], [4, 5]]",
     "packages": [],
     "typeChecks": false
@@ -13289,12 +13289,12 @@
     "packages": [],
     "typeChecks": false
   },
-  "table/VariantTable::get::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.get(10, 1)     // => undefined\nt.get(10, 1, 0)  // => 0\nt.get(1, 2)      // => 3\nt.get(1, 2, 0)   // => 3",
+  "table/VariantTable::at::0::0": {
+    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.at(10, 1)     // => undefined\nt.at(10, 1, 0)  // => 0\nt.at(1, 2)      // => 3\nt.at(1, 2, 0)   // => 3",
     "packages": [],
     "typeChecks": false
   },
-  "table/VariantTable::getRow::0::0": {
+  "table/VariantTable::rowAt::0::0": {
     "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.getRow(10).toArray()    // => []\nt.getRow(1).toArray()     // => [[2, 3], [4, 5]]",
     "packages": [],
     "typeChecks": false
@@ -13372,7 +13372,7 @@
     "typeChecks": true
   },
   "multimap/VariantMultiMapBase.NonEmpty::keyMap::0::0": {
-    "code": "import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 1], [2, 2])\nconst map = m.keyMap\nconsole.log(map.get(1)!.toArray()); // => [ 1 ]",
+    "code": "import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 1], [2, 2])\nconst map = m.keyMap\nconsole.log(map.at(1)!.toArray()); // => [ 1 ]",
     "packages": [
       "@rimbu/multimap"
     ],
@@ -13456,7 +13456,7 @@
     "typeChecks": true
   },
   "multimap/VariantMultiMapBase::keyMap::0::0": {
-    "code": "import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 1], [2, 2])\nconst map = m.keyMap\nconsole.log(map.get(1)!.toArray()); // => [ 1 ]",
+    "code": "import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 1], [2, 2])\nconst map = m.keyMap\nconsole.log(map.at(1)!.toArray()); // => [ 1 ]",
     "packages": [
       "@rimbu/multimap"
     ],
@@ -13511,8 +13511,8 @@
     ],
     "typeChecks": true
   },
-  "multimap/VariantMultiMapBase::getValues::0::0": {
-    "code": "import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'])\nconsole.log(m.getValues(1).toArray()); // => [ \"a\" ]\nconsole.log(m.getValues(10).toArray()); // => []",
+  "multimap/VariantMultiMapBase::valuesAt::0::0": {
+    "code": "import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'])\nconsole.log(m.valuesAt(1).toArray()); // => [ \"a\" ]\nconsole.log(m.valuesAt(10).toArray()); // => []",
     "packages": [
       "@rimbu/multimap"
     ],
@@ -13694,8 +13694,8 @@
     ],
     "typeChecks": true
   },
-  "multimap/MultiMapBase.Builder::getValues::0::0": {
-    "code": "import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'], [1, 'c']).toBuilder()\nconsole.log(m.getValues(1).toArray()); // => [ \"a\", \"c\" ]\nconsole.log(m.getValues(10).toArray()); // => []",
+  "multimap/MultiMapBase.Builder::valuesAt::0::0": {
+    "code": "import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'], [1, 'c']).toBuilder()\nconsole.log(m.valuesAt(1).toArray()); // => [ \"a\", \"c\" ]\nconsole.log(m.valuesAt(10).toArray()); // => []",
     "packages": [
       "@rimbu/multimap"
     ],
@@ -13898,7 +13898,7 @@
     "typeChecks": true
   },
   "multimap/MultiMapBase::keyMap::0::0": {
-    "code": "import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 1], [2, 2])\nconst map = m.keyMap\nconsole.log(map.get(1)!.toArray()); // => [ 1 ]",
+    "code": "import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 1], [2, 2])\nconst map = m.keyMap\nconsole.log(map.at(1)!.toArray()); // => [ 1 ]",
     "packages": [
       "@rimbu/multimap"
     ],
@@ -13953,8 +13953,8 @@
     ],
     "typeChecks": true
   },
-  "multimap/MultiMapBase::getValues::0::0": {
-    "code": "import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'])\nconsole.log(m.getValues(1).toArray()); // => [ \"a\" ]\nconsole.log(m.getValues(10).toArray()); // => []",
+  "multimap/MultiMapBase::valuesAt::0::0": {
+    "code": "import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'])\nconsole.log(m.valuesAt(1).toArray()); // => [ \"a\" ]\nconsole.log(m.valuesAt(10).toArray()); // => []",
     "packages": [
       "@rimbu/multimap"
     ],
@@ -14157,7 +14157,7 @@
     "typeChecks": true
   },
   "multimap/MultiMap::keyMap::0::0": {
-    "code": "import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 1], [2, 2])\nconst map = m.keyMap\nconsole.log(map.get(1)!.toArray()); // => [ 1 ]",
+    "code": "import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 1], [2, 2])\nconst map = m.keyMap\nconsole.log(map.at(1)!.toArray()); // => [ 1 ]",
     "packages": [
       "@rimbu/multimap"
     ],
@@ -14212,8 +14212,8 @@
     ],
     "typeChecks": true
   },
-  "multimap/MultiMap::getValues::0::0": {
-    "code": "import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'])\nconsole.log(m.getValues(1).toArray()); // => [ \"a\" ]\nconsole.log(m.getValues(10).toArray()); // => []",
+  "multimap/MultiMap::valuesAt::0::0": {
+    "code": "import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'])\nconsole.log(m.valuesAt(1).toArray()); // => [ \"a\" ]\nconsole.log(m.valuesAt(10).toArray()); // => []",
     "packages": [
       "@rimbu/multimap"
     ],
@@ -14430,7 +14430,7 @@
     "typeChecks": true
   },
   "multimap/SortedMultiMapHashValue::keyMap::0::0": {
-    "code": "import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 1], [2, 2])\nconst map = m.keyMap\nconsole.log(map.get(1)!.toArray()); // => [ 1 ]",
+    "code": "import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 1], [2, 2])\nconst map = m.keyMap\nconsole.log(map.at(1)!.toArray()); // => [ 1 ]",
     "packages": [
       "@rimbu/multimap"
     ],
@@ -14485,8 +14485,8 @@
     ],
     "typeChecks": true
   },
-  "multimap/SortedMultiMapHashValue::getValues::0::0": {
-    "code": "import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'])\nconsole.log(m.getValues(1).toArray()); // => [ \"a\" ]\nconsole.log(m.getValues(10).toArray()); // => []",
+  "multimap/SortedMultiMapHashValue::valuesAt::0::0": {
+    "code": "import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'])\nconsole.log(m.valuesAt(1).toArray()); // => [ \"a\" ]\nconsole.log(m.valuesAt(10).toArray()); // => []",
     "packages": [
       "@rimbu/multimap"
     ],
@@ -14739,7 +14739,7 @@
     "typeChecks": true
   },
   "multimap/SortedMultiMapSortedValue::keyMap::0::0": {
-    "code": "import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 1], [2, 2])\nconst map = m.keyMap\nconsole.log(map.get(1)!.toArray()); // => [ 1 ]",
+    "code": "import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 1], [2, 2])\nconst map = m.keyMap\nconsole.log(map.at(1)!.toArray()); // => [ 1 ]",
     "packages": [
       "@rimbu/multimap"
     ],
@@ -14794,8 +14794,8 @@
     ],
     "typeChecks": true
   },
-  "multimap/SortedMultiMapSortedValue::getValues::0::0": {
-    "code": "import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'])\nconsole.log(m.getValues(1).toArray()); // => [ \"a\" ]\nconsole.log(m.getValues(10).toArray()); // => []",
+  "multimap/SortedMultiMapSortedValue::valuesAt::0::0": {
+    "code": "import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'])\nconsole.log(m.valuesAt(1).toArray()); // => [ \"a\" ]\nconsole.log(m.valuesAt(10).toArray()); // => []",
     "packages": [
       "@rimbu/multimap"
     ],
@@ -14943,7 +14943,7 @@
     "typeChecks": true
   },
   "multimap/VariantMultiMap::keyMap::0::0": {
-    "code": "import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 1], [2, 2])\nconst map = m.keyMap\nconsole.log(map.get(1)!.toArray()); // => [ 1 ]",
+    "code": "import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 1], [2, 2])\nconst map = m.keyMap\nconsole.log(map.at(1)!.toArray()); // => [ 1 ]",
     "packages": [
       "@rimbu/multimap"
     ],
@@ -14998,8 +14998,8 @@
     ],
     "typeChecks": true
   },
-  "multimap/VariantMultiMap::getValues::0::0": {
-    "code": "import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'])\nconsole.log(m.getValues(1).toArray()); // => [ \"a\" ]\nconsole.log(m.getValues(10).toArray()); // => []",
+  "multimap/VariantMultiMap::valuesAt::0::0": {
+    "code": "import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'])\nconsole.log(m.valuesAt(1).toArray()); // => [ \"a\" ]\nconsole.log(m.valuesAt(10).toArray()); // => []",
     "packages": [
       "@rimbu/multimap"
     ],
@@ -15216,7 +15216,7 @@
     "typeChecks": true
   },
   "multimap/HashMultiMapHashValue::keyMap::0::0": {
-    "code": "import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 1], [2, 2])\nconst map = m.keyMap\nconsole.log(map.get(1)!.toArray()); // => [ 1 ]",
+    "code": "import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 1], [2, 2])\nconst map = m.keyMap\nconsole.log(map.at(1)!.toArray()); // => [ 1 ]",
     "packages": [
       "@rimbu/multimap"
     ],
@@ -15271,8 +15271,8 @@
     ],
     "typeChecks": true
   },
-  "multimap/HashMultiMapHashValue::getValues::0::0": {
-    "code": "import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'])\nconsole.log(m.getValues(1).toArray()); // => [ \"a\" ]\nconsole.log(m.getValues(10).toArray()); // => []",
+  "multimap/HashMultiMapHashValue::valuesAt::0::0": {
+    "code": "import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'])\nconsole.log(m.valuesAt(1).toArray()); // => [ \"a\" ]\nconsole.log(m.valuesAt(10).toArray()); // => []",
     "packages": [
       "@rimbu/multimap"
     ],
@@ -15525,7 +15525,7 @@
     "typeChecks": true
   },
   "multimap/HashMultiMapSortedValue::keyMap::0::0": {
-    "code": "import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 1], [2, 2])\nconst map = m.keyMap\nconsole.log(map.get(1)!.toArray()); // => [ 1 ]",
+    "code": "import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 1], [2, 2])\nconst map = m.keyMap\nconsole.log(map.at(1)!.toArray()); // => [ 1 ]",
     "packages": [
       "@rimbu/multimap"
     ],
@@ -15580,8 +15580,8 @@
     ],
     "typeChecks": true
   },
-  "multimap/HashMultiMapSortedValue::getValues::0::0": {
-    "code": "import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'])\nconsole.log(m.getValues(1).toArray()); // => [ \"a\" ]\nconsole.log(m.getValues(10).toArray()); // => []",
+  "multimap/HashMultiMapSortedValue::valuesAt::0::0": {
+    "code": "import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconst m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'])\nconsole.log(m.valuesAt(1).toArray()); // => [ \"a\" ]\nconsole.log(m.valuesAt(10).toArray()); // => []",
     "packages": [
       "@rimbu/multimap"
     ],
@@ -15815,8 +15815,8 @@
     ],
     "typeChecks": true
   },
-  "proximity/ProximityMap::get::0::0": {
-    "code": "import { HashMap } from '@rimbu/hashed';\n\nconst source = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(source.get(2)); // => b\nconsole.log(source.get(3)); // => undefined\nconsole.log(source.get(2, 'none')); // => b\nconsole.log(source.get(3, 'none')); // => none",
+  "proximity/ProximityMap::at::0::0": {
+    "code": "import { HashMap } from '@rimbu/hashed';\n\nconst source = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(source.at(2)); // => b\nconsole.log(source.at(3)); // => undefined\nconsole.log(source.at(2, 'none')); // => b\nconsole.log(source.at(3, 'none')); // => none",
     "packages": [
       "@rimbu/hashed"
     ],
@@ -17543,8 +17543,8 @@
     ],
     "typeChecks": true
   },
-  "sorted/SortedSet.Builder::getAtIndex::0::0": {
-    "code": "import { SortedSet } from '@rimbu/sorted';\n\nconst b = SortedSet.of('b', 'd', 'a', 'c').toBuilder();\nconsole.log(b.getAtIndex(1))\n// => b\nconsole.log(b.getAtIndex(-1))\n// => d\nconsole.log(b.getAtIndex(10))\n// => undefined\nconsole.log(b.getAtIndex(10, 'q'))\n// => q",
+  "sorted/SortedSet.Builder::atIndex::0::0": {
+    "code": "import { SortedSet } from '@rimbu/sorted';\n\nconst b = SortedSet.of('b', 'd', 'a', 'c').toBuilder();\nconsole.log(b.atIndex(1))\n// => b\nconsole.log(b.atIndex(-1))\n// => d\nconsole.log(b.atIndex(10))\n// => undefined\nconsole.log(b.atIndex(10, 'q'))\n// => q",
     "packages": [
       "@rimbu/sorted"
     ],
@@ -17592,8 +17592,8 @@
     ],
     "typeChecks": true
   },
-  "sorted/SortedSet::getAtIndex::0::0": {
-    "code": "import { SortedSet } from '@rimbu/sorted';\n\nconst m = SortedSet.of('b', 'd', 'a', 'c').asNormal();\nconsole.log(m.getAtIndex(1))\n// => b\nconsole.log(m.getAtIndex(-1))\n// => d\nconsole.log(m.getAtIndex(10))\n// => undefined\nconsole.log(m.getAtIndex(10, 'q'))\n// => q",
+  "sorted/SortedSet::atIndex::0::0": {
+    "code": "import { SortedSet } from '@rimbu/sorted';\n\nconst m = SortedSet.of('b', 'd', 'a', 'c').asNormal();\nconsole.log(m.atIndex(1))\n// => b\nconsole.log(m.atIndex(-1))\n// => d\nconsole.log(m.atIndex(10))\n// => undefined\nconsole.log(m.atIndex(10, 'q'))\n// => q",
     "packages": [
       "@rimbu/sorted"
     ],
@@ -17859,8 +17859,8 @@
     ],
     "typeChecks": true
   },
-  "sorted/SortedMap.Builder::getAtIndex::0::0": {
-    "code": "import { SortedMap } from '@rimbu/sorted';\n\nconst b = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).toBuilder();\nconsole.log(b.getAtIndex(1))\n// => [ \"b\", 2 ]\nconsole.log(b.getAtIndex(-1))\n// => [ \"d\", 4 ]\nconsole.log(b.getAtIndex(10))\n// => undefined\nconsole.log(b.getAtIndex(10, 'q'))\n// => q",
+  "sorted/SortedMap.Builder::atIndex::0::0": {
+    "code": "import { SortedMap } from '@rimbu/sorted';\n\nconst b = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).toBuilder();\nconsole.log(b.atIndex(1))\n// => [ \"b\", 2 ]\nconsole.log(b.atIndex(-1))\n// => [ \"d\", 4 ]\nconsole.log(b.atIndex(10))\n// => undefined\nconsole.log(b.atIndex(10, 'q'))\n// => q",
     "packages": [
       "@rimbu/sorted"
     ],
@@ -17936,22 +17936,22 @@
     ],
     "typeChecks": true
   },
-  "sorted/SortedMap::getAtIndex::0::0": {
-    "code": "import { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.getAtIndex(1))\n// => [ \"b\", 2 ]\nconsole.log(m.getAtIndex(-1))\n// => [ \"d\", 4 ]\nconsole.log(m.getAtIndex(10))\n// => undefined\nconsole.log(m.getAtIndex(10, 'q'))\n// => q",
+  "sorted/SortedMap::atIndex::0::0": {
+    "code": "import { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.atIndex(1))\n// => [ \"b\", 2 ]\nconsole.log(m.atIndex(-1))\n// => [ \"d\", 4 ]\nconsole.log(m.atIndex(10))\n// => undefined\nconsole.log(m.atIndex(10, 'q'))\n// => q",
     "packages": [
       "@rimbu/sorted"
     ],
     "typeChecks": true
   },
-  "sorted/SortedMap::getKeyAtIndex::0::0": {
-    "code": "import { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.getKeyAtIndex(1))\n// => b\nconsole.log(m.getKeyAtIndex(-1))\n// => d\nconsole.log(m.getKeyAtIndex(10))\n// => undefined\nconsole.log(m.getKeyAtIndex(10, 'q'))\n// => q",
+  "sorted/SortedMap::keyAtIndex::0::0": {
+    "code": "import { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.keyAtIndex(1))\n// => b\nconsole.log(m.keyAtIndex(-1))\n// => d\nconsole.log(m.keyAtIndex(10))\n// => undefined\nconsole.log(m.keyAtIndex(10, 'q'))\n// => q",
     "packages": [
       "@rimbu/sorted"
     ],
     "typeChecks": true
   },
-  "sorted/SortedMap::getValueAtIndex::0::0": {
-    "code": "import { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.getValueAtIndex(1))\n// => 2\nconsole.log(m.getValueAtIndex(-1))\n// => 4\nconsole.log(m.getValueAtIndex(10))\n// => undefined\nconsole.log(m.getValueAtIndex(10, 'q'))\n// => q",
+  "sorted/SortedMap::valueAtIndex::0::0": {
+    "code": "import { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.valueAtIndex(1))\n// => 2\nconsole.log(m.valueAtIndex(-1))\n// => 4\nconsole.log(m.valueAtIndex(10))\n// => undefined\nconsole.log(m.valueAtIndex(10, 'q'))\n// => q",
     "packages": [
       "@rimbu/sorted"
     ],
@@ -18083,8 +18083,8 @@
     ],
     "typeChecks": true
   },
-  "sorted/SortedMap::get::0::0": {
-    "code": "import { HashMap } from '@rimbu/hashed';\n\nconst source = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(source.get(2)); // => b\nconsole.log(source.get(3)); // => undefined\nconsole.log(source.get(2, 'none')); // => b\nconsole.log(source.get(3, 'none')); // => none",
+  "sorted/SortedMap::at::0::0": {
+    "code": "import { HashMap } from '@rimbu/hashed';\n\nconst source = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(source.at(2)); // => b\nconsole.log(source.at(3)); // => undefined\nconsole.log(source.at(2, 'none')); // => b\nconsole.log(source.at(3, 'none')); // => none",
     "packages": [
       "@rimbu/hashed"
     ],
@@ -18518,15 +18518,15 @@
     ],
     "typeChecks": true
   },
-  "bimap/BiMap::getValue::0::0": {
-    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 'a'], [2, 'b'])\nconsole.log(m.getValue(2)); // => b\nconsole.log(m.getValue(3)); // => undefined\nconsole.log(m.getValue(2, 'none')); // => b\nconsole.log(m.getValue(3, 'none')); // => none",
+  "bimap/BiMap::at::0::0": {
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 'a'], [2, 'b'])\nconsole.log(m.at(2)); // => b\nconsole.log(m.at(3)); // => undefined\nconsole.log(m.at(2, 'none')); // => b\nconsole.log(m.at(3, 'none')); // => none",
     "packages": [
       "@rimbu/bimap"
     ],
     "typeChecks": true
   },
-  "bimap/BiMap::getKey::0::0": {
-    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 'a'], [2, 'b'])\nconsole.log(m.getKey('b')); // => 2\nconsole.log(m.getKey('z')); // => undefined\nconsole.log(m.getKey('b', 'none')); // => 2\nconsole.log(m.getKey('z', 'none')); // => none",
+  "bimap/BiMap::atValue::0::0": {
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 'a'], [2, 'b'])\nconsole.log(m.atValue('b')); // => 2\nconsole.log(m.atValue('z')); // => undefined\nconsole.log(m.atValue('b', 'none')); // => 2\nconsole.log(m.atValue('z', 'none')); // => none",
     "packages": [
       "@rimbu/bimap"
     ],
@@ -20274,8 +20274,8 @@
     ],
     "typeChecks": true
   },
-  "ordered/OrderedMapBase::get::0::0": {
-    "code": "import { HashMap } from '@rimbu/hashed';\n\nconst source = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(source.get(2)); // => b\nconsole.log(source.get(3)); // => undefined\nconsole.log(source.get(2, 'none')); // => b\nconsole.log(source.get(3, 'none')); // => none",
+  "ordered/OrderedMapBase::at::0::0": {
+    "code": "import { HashMap } from '@rimbu/hashed';\n\nconst source = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(source.at(2)); // => b\nconsole.log(source.at(3)); // => undefined\nconsole.log(source.at(2, 'none')); // => b\nconsole.log(source.at(3, 'none')); // => none",
     "packages": [
       "@rimbu/hashed"
     ],
@@ -20484,8 +20484,8 @@
     ],
     "typeChecks": true
   },
-  "ordered/OrderedMap::get::0::0": {
-    "code": "import { HashMap } from '@rimbu/hashed';\n\nconst source = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(source.get(2)); // => b\nconsole.log(source.get(3)); // => undefined\nconsole.log(source.get(2, 'none')); // => b\nconsole.log(source.get(3, 'none')); // => none",
+  "ordered/OrderedMap::at::0::0": {
+    "code": "import { HashMap } from '@rimbu/hashed';\n\nconst source = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(source.at(2)); // => b\nconsole.log(source.at(3)); // => undefined\nconsole.log(source.at(2, 'none')); // => b\nconsole.log(source.at(3, 'none')); // => none",
     "packages": [
       "@rimbu/hashed"
     ],
@@ -21016,8 +21016,8 @@
     ],
     "typeChecks": true
   },
-  "ordered/OrderedHashMap::get::0::0": {
-    "code": "import { HashMap } from '@rimbu/hashed';\n\nconst source = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(source.get(2)); // => b\nconsole.log(source.get(3)); // => undefined\nconsole.log(source.get(2, 'none')); // => b\nconsole.log(source.get(3, 'none')); // => none",
+  "ordered/OrderedHashMap::at::0::0": {
+    "code": "import { HashMap } from '@rimbu/hashed';\n\nconst source = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(source.at(2)); // => b\nconsole.log(source.at(3)); // => undefined\nconsole.log(source.at(2, 'none')); // => b\nconsole.log(source.at(3, 'none')); // => none",
     "packages": [
       "@rimbu/hashed"
     ],
@@ -21290,8 +21290,8 @@
     ],
     "typeChecks": true
   },
-  "ordered/OrderedSortedMap::get::0::0": {
-    "code": "import { HashMap } from '@rimbu/hashed';\n\nconst source = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(source.get(2)); // => b\nconsole.log(source.get(3)); // => undefined\nconsole.log(source.get(2, 'none')); // => b\nconsole.log(source.get(3, 'none')); // => none",
+  "ordered/OrderedSortedMap::at::0::0": {
+    "code": "import { HashMap } from '@rimbu/hashed';\n\nconst source = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(source.at(2)); // => b\nconsole.log(source.at(3)); // => undefined\nconsole.log(source.at(2, 'none')); // => b\nconsole.log(source.at(3, 'none')); // => none",
     "packages": [
       "@rimbu/hashed"
     ],
