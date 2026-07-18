@@ -26,7 +26,7 @@ export class SortedEmpty extends EmptyBase {
 		return OptLazy(otherwise) as O;
 	}
 
-	getAtIndex<O>(index: number, otherwise?: OptLazy<O>): O {
+	atIndex<O>(index: number, otherwise?: OptLazy<O>): O {
 		return OptLazy(otherwise) as O;
 	}
 
@@ -55,7 +55,7 @@ export abstract class SortedNonEmptyBase<
 	E,
 	TS extends SortedNonEmptyBase<E, TS>,
 > extends NonEmptyBase<E> {
-	abstract getAtIndex<O>(index: number, otherwise?: OptLazy<O>): E | O;
+	abstract atIndex<O>(index: number, otherwise?: OptLazy<O>): E | O;
 
 	// internal
 	abstract get entries(): readonly E[];
@@ -239,7 +239,7 @@ export function leafMutateJoinRight<S extends LeafMutateSource<S, E>, E>(
  */
 export interface InnerChild<E> {
 	readonly size: number;
-	getAtIndex<O>(index: number, otherwise?: OptLazy<O>): E | O;
+	atIndex<O>(index: number, otherwise?: OptLazy<O>): E | O;
 	stream(options?: { reversed?: boolean }): Stream<E>;
 	streamSliceIndex(
 		range: IndexRange,
@@ -695,7 +695,7 @@ export function innerGetAtIndex<E, O>(
 	const subIndex = innerGetSubIndex(source, index);
 
 	if (Array.isArray(subIndex))
-		return source.children[subIndex[0]].getAtIndex(subIndex[1], otherwise);
+		return source.children[subIndex[0]].atIndex(subIndex[1], otherwise);
 	return source.entries[subIndex];
 }
 
@@ -891,7 +891,7 @@ export abstract class SortedBuilder<E> {
 		| {
 				min<O>(otherwise?: OptLazy<O>): E | O;
 				max<O>(otherwise?: OptLazy<O>): E | O;
-				getAtIndex<O>(index: number, otherwise?: OptLazy<O>): E | O;
+				atIndex<O>(index: number, otherwise?: OptLazy<O>): E | O;
 				forEach(
 					f: (entry: E, index: number, halt: () => void) => void,
 					options?: { state?: TraverseState },
@@ -975,9 +975,9 @@ export abstract class SortedBuilder<E> {
 	 * @param index - the (possibly negative) index to look up
 	 * @param otherwise - (default: undefined) fallback value when out of bounds
 	 */
-	getAtIndex<O>(index: number, otherwise?: OptLazy<O>): E | O {
+	atIndex<O>(index: number, otherwise?: OptLazy<O>): E | O {
 		if (undefined !== this.source) {
-			return this.source.getAtIndex(index, otherwise);
+			return this.source.atIndex(index, otherwise);
 		}
 
 		if (index >= this.size || -index > this.size) {
@@ -985,7 +985,7 @@ export abstract class SortedBuilder<E> {
 		}
 
 		if (index < 0) {
-			return this.getAtIndex(this.size + index, otherwise);
+			return this.atIndex(this.size + index, otherwise);
 		}
 
 		if (!this.hasChildren) return this.entries[index];
@@ -1001,7 +1001,7 @@ export abstract class SortedBuilder<E> {
 				const childIndex = SortedIndex.next(elemIndex);
 				const child = this.children[childIndex];
 
-				if (i < child.size) return child.getAtIndex(i, otherwise);
+				if (i < child.size) return child.atIndex(i, otherwise);
 				i -= child.size;
 			}
 			elemIndex = SortedIndex.next(elemIndex);

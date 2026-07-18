@@ -130,18 +130,18 @@ export interface SortedSet<T> extends RSetBase<T, SortedSet.Types> {
 	 * import { SortedSet } from '@rimbu/sorted';
 	 *
 	 * const m = SortedSet.of('b', 'd', 'a', 'c').asNormal();
-	 * console.log(m.getAtIndex(1))
+	 * console.log(m.atIndex(1))
 	 * // => b
-	 * console.log(m.getAtIndex(-1))
+	 * console.log(m.atIndex(-1))
 	 * // => d
-	 * console.log(m.getAtIndex(10))
+	 * console.log(m.atIndex(10))
 	 * // => undefined
-	 * console.log(m.getAtIndex(10, 'q'))
+	 * console.log(m.atIndex(10, 'q'))
 	 * // => q
 	 * ```
 	 */
-	getAtIndex(index: number): T | undefined;
-	getAtIndex<O>(index: number, otherwise: OptLazy<O>): T | O;
+	atIndex(index: number): T | undefined;
+	atIndex<O>(index: number, otherwise: OptLazy<O>): T | O;
 	/**
 	 * Returns a SortedSet containing the first `amount` of values of this SortedSet.
 	 * @param amount - the amount of elements to keep
@@ -330,18 +330,18 @@ export namespace SortedSet {
 		 * import { SortedSet } from '@rimbu/sorted';
 		 *
 		 * const b = SortedSet.of('b', 'd', 'a', 'c').toBuilder();
-		 * console.log(b.getAtIndex(1))
+		 * console.log(b.atIndex(1))
 		 * // => b
-		 * console.log(b.getAtIndex(-1))
+		 * console.log(b.atIndex(-1))
 		 * // => d
-		 * console.log(b.getAtIndex(10))
+		 * console.log(b.atIndex(10))
 		 * // => undefined
-		 * console.log(b.getAtIndex(10, 'q'))
+		 * console.log(b.atIndex(10, 'q'))
 		 * // => q
 		 * ```
 		 */
-		getAtIndex(index: number): T | undefined;
-		getAtIndex<O>(index: number, otherwise: OptLazy<O>): T | O;
+		atIndex(index: number): T | undefined;
+		atIndex<O>(index: number, otherwise: OptLazy<O>): T | O;
 	}
 
 	/**

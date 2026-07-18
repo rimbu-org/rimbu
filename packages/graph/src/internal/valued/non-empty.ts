@@ -132,7 +132,7 @@ export class ValuedGraphNonEmpty<N, V>
 		node1: RelatedTo<N, UN>,
 		node2: RelatedTo<N, UN>,
 	): boolean {
-		const targets = this.linkMap.get(node1);
+		const targets = this.linkMap.at(node1);
 
 		return targets?.hasKey(node2) ?? false;
 	}
@@ -142,17 +142,17 @@ export class ValuedGraphNonEmpty<N, V>
 		node2: RelatedTo<N, UN>,
 		otherwise?: OptLazy<O>,
 	): V | O {
-		const targets = this.linkMap.get(node1);
+		const targets = this.linkMap.at(node1);
 
 		if (undefined === targets) return OptLazy(otherwise!);
 
-		return targets.get(node2, otherwise!);
+		return targets.at(node2, otherwise!);
 	}
 
 	getConnectionStreamFrom<UN = N>(
 		node1: RelatedTo<N, UN>,
 	): Stream<ValuedLink<N, V>> {
-		const targets = this.linkMap.get(node1);
+		const targets = this.linkMap.at(node1);
 
 		if (undefined === targets) return Stream.empty();
 
@@ -168,7 +168,7 @@ export class ValuedGraphNonEmpty<N, V>
 			return this.streamConnections().filter(([_, node2]) => node2 === node);
 		}
 
-		const targets = this.linkMap.get(node);
+		const targets = this.linkMap.at(node);
 
 		if (undefined === targets) return Stream.empty();
 
@@ -178,11 +178,11 @@ export class ValuedGraphNonEmpty<N, V>
 	}
 
 	getConnectionsFrom<UN = N>(node1: RelatedTo<N, UN>): RMap<N, V> {
-		return this.linkMap.get(node1, this.context.linkConnectionsContext.empty());
+		return this.linkMap.at(node1, this.context.linkConnectionsContext.empty());
 	}
 
 	isSink<UN = N>(node: RelatedTo<N, UN>): boolean {
-		const targets = this.linkMap.get(node);
+		const targets = this.linkMap.at(node);
 
 		return targets?.isEmpty ?? false;
 	}

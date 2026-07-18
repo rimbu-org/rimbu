@@ -90,12 +90,12 @@ export class HashMapBlockBuilder<K, V>
 		return this._entrySets!;
 	}
 
-	get = <UK, O>(
+	at = <UK, O>(
 		key: RelatedTo<K, UK>,
 		otherwise?: OptLazy<O>,
 		hash?: number,
 	): V | O => {
-		if (undefined !== this.source) return this.source.get(key, otherwise);
+		if (undefined !== this.source) return this.source.at(key, otherwise);
 
 		if (!this.context.hasher.isValid(key)) return OptLazy(otherwise) as O;
 
@@ -112,7 +112,7 @@ export class HashMapBlockBuilder<K, V>
 
 		if (keyIndex in this.entrySets) {
 			const currentEntrySet = this.entrySets[keyIndex];
-			return currentEntrySet.get<UK, O>(key, otherwise, keyHash);
+			return currentEntrySet.at<UK, O>(key, otherwise, keyHash);
 		}
 
 		return OptLazy(otherwise) as O;
@@ -120,7 +120,7 @@ export class HashMapBlockBuilder<K, V>
 
 	hasKey = <UK>(key: RelatedTo<K, UK>): boolean => {
 		const token = Symbol();
-		return token !== this.get(key, token);
+		return token !== this.at(key, token);
 	};
 
 	addEntry = (entry: readonly [K, V]): boolean => {
@@ -468,14 +468,14 @@ export class HashMapCollisionBuilder<K, V> extends CollisionBuilderBase<
 		super();
 	}
 
-	get<UK, O>(
+	at<UK, O>(
 		key: RelatedTo<K, UK>,
 		otherwise?: OptLazy<O>,
 		hash?: number,
 	): V | O {
 		if (!this.context.hasher.isValid(key)) return OptLazy(otherwise) as O;
 
-		if (undefined !== this.source) return this.source.get(key, otherwise);
+		if (undefined !== this.source) return this.source.at(key, otherwise);
 
 		const token = Symbol();
 		let result: V | typeof token = token;

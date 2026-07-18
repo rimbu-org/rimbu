@@ -42,7 +42,7 @@ export class HashMapEmpty<K = any, V = any>
 		return Stream.empty();
 	}
 
-	get<_, O>(_: K, otherwise?: OptLazy<O>): O {
+	at<_, O>(_: K, otherwise?: OptLazy<O>): O {
 		return OptLazy(otherwise) as O;
 	}
 
@@ -130,7 +130,7 @@ export abstract class HashMapNonEmptyBase<K, V>
 
 	abstract get context(): ContextImpl<K>;
 	abstract get size(): number;
-	abstract get<UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O;
+	abstract at<UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O;
 	abstract addEntry(
 		entry: readonly [K, V],
 		hash?: number,
@@ -163,7 +163,7 @@ export abstract class HashMapNonEmptyBase<K, V>
 
 	hasKey<U>(key: RelatedTo<K, U>): boolean {
 		const token = Symbol();
-		return token !== this.get(key, token);
+		return token !== this.at(key, token);
 	}
 
 	set(key: K, value: V): HashMap.NonEmpty<K, V> {
@@ -331,7 +331,7 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 		) as Stream.NonEmpty<readonly [K, V]>;
 	}
 
-	get<UK, O>(
+	at<UK, O>(
 		key: RelatedTo<K, UK>,
 		otherwise?: OptLazy<O>,
 		hash?: number,
@@ -349,7 +349,7 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 
 		if (null !== this.entrySets && atKeyIndex in this.entrySets) {
 			const entrySet = this.entrySets[atKeyIndex];
-			return entrySet.get(key, otherwise, keyHash);
+			return entrySet.at(key, otherwise, keyHash);
 		}
 
 		return OptLazy(otherwise) as O;
@@ -665,7 +665,7 @@ export class HashMapCollision<K, V> extends HashMapNonEmptyBase<K, V> {
 		return this.entries.stream();
 	}
 
-	get<U, O>(
+	at<U, O>(
 		key: RelatedTo<K, U>,
 		otherwise?: OptLazy<O>,
 		keyHash?: number,

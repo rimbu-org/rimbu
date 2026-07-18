@@ -80,11 +80,11 @@ export class BiMultiMapEmpty<K, V>
 		) as BiMultiMap.NonEmpty<K, V>;
 	}
 
-	getValues(): RSet<V> {
+	valuesAt(): RSet<V> {
 		return this.context.keyValueMultiMapContext.keyMapValuesContext.empty();
 	}
 
-	getKeys(): RSet<K> {
+	keysAt(): RSet<K> {
 		return this.context.valueKeyMultiMapContext.keyMapValuesContext.empty();
 	}
 
@@ -218,12 +218,12 @@ export class BiMultiMapNonEmpty<K, V>
 		return builder.build().assumeNonEmpty();
 	}
 
-	getValues<UK = K>(key: RelatedTo<K, UK>): RSet<V> {
-		return this.keyValueMultiMap.getValues(key);
+	valuesAt<UK = K>(key: RelatedTo<K, UK>): RSet<V> {
+		return this.keyValueMultiMap.valuesAt(key);
 	}
 
-	getKeys<UV = V>(value: RelatedTo<V, UV>): RSet<K> {
-		return this.valueKeyMultiMap.getValues(value);
+	keysAt<UV = V>(value: RelatedTo<V, UV>): RSet<K> {
+		return this.valueKeyMultiMap.valuesAt(value);
 	}
 
 	removeKey<UK = K>(key: RelatedTo<K, UK>): BiMultiMap<K, V> {
@@ -333,7 +333,7 @@ export class BiMultiMapNonEmpty<K, V>
 			end: ')',
 			valueToString: (key: K) => {
 				return `${key} <-> ${this.keyValueMultiMap
-					.getValues(key)
+					.valuesAt(key)
 					.stream()
 					.join({ start: '(', sep: ', ', end: ')' })}`;
 			},

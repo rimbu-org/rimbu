@@ -97,11 +97,11 @@ export class TableEmpty<R, C, V>
 		return false;
 	}
 
-	get<_, __, O>(_: R, __: C, otherwise?: OptLazy<O>): O {
+	at<_, __, O>(_: R, __: C, otherwise?: OptLazy<O>): O {
 		return OptLazy(otherwise) as O;
 	}
 
-	getRow(): RMap<C, V> {
+	rowAt(): RMap<C, V> {
 		return this.context.columnContext.empty();
 	}
 
@@ -216,22 +216,22 @@ export class TableNonEmpty<R, C, V>
 
 	hasValueAt<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): boolean {
 		const token = Symbol();
-		return token !== this.get(row, column, token);
+		return token !== this.at(row, column, token);
 	}
 
-	get<UR, UC, O>(
+	at<UR, UC, O>(
 		row: RelatedTo<R, UR>,
 		column: RelatedTo<C, UC>,
 		otherwise?: OptLazy<O>,
 	): V | O {
 		const token = Symbol();
-		const result = this.rowMap.get(row, token);
+		const result = this.rowMap.at(row, token);
 		if (token === result) return OptLazy(otherwise) as O;
-		return result.get(column, otherwise!);
+		return result.at(column, otherwise!);
 	}
 
-	getRow<UR>(row: RelatedTo<R, UR>): RMap<C, V> {
-		return this.rowMap.get(row, this.context.columnContext.empty());
+	rowAt<UR>(row: RelatedTo<R, UR>): RMap<C, V> {
+		return this.rowMap.at(row, this.context.columnContext.empty());
 	}
 
 	set(row: R, column: C, value: V): Table.NonEmpty<R, C, V> {
@@ -586,20 +586,20 @@ export class TableBuilder<R, C, V> implements TableBase.Builder<R, C, V> {
 		otherwise?: OptLazy<O>,
 	): V | O => {
 		if (undefined !== this.source) {
-			return this.source.get(row, column, otherwise!);
+			return this.source.at(row, column, otherwise!);
 		}
 
 		const token = Symbol();
-		const result = this.rowMap.get(row, token);
+		const result = this.rowMap.at(row, token);
 		if (token === result) return OptLazy(otherwise) as O;
-		return result.get<UC, O>(column, otherwise!);
+		return result.at<UC, O>(column, otherwise!);
 	};
 
 	getRow = <UR>(row: RelatedTo<R, UR>): RMap<C, V> => {
-		if (undefined !== this.source) return this.source.getRow(row);
+		if (undefined !== this.source) return this.source.rowAt(row);
 
 		const token = Symbol();
-		const result = this.rowMap.get(row, token);
+		const result = this.rowMap.at(row, token);
 		if (token === result) return this.context.columnContext.empty();
 		return result.build();
 	};
@@ -677,7 +677,7 @@ export class TableBuilder<R, C, V> implements TableBase.Builder<R, C, V> {
 	): V | O => {
 		this.checkLock();
 
-		const columnMap = this.rowMap.get(row);
+		const columnMap = this.rowMap.at(row);
 		if (undefined === columnMap) return OptLazy(otherwise) as O;
 
 		if (!this.context.columnContext.isValidKey(column)) {

@@ -49,22 +49,20 @@ expectTypeOf(bEmpty.filter(() => true)).toEqualTypeOf<B_Empty>();
 expectTypeOf(bNonEmpty.filter(() => true)).toEqualTypeOf<B_Empty>();
 
 // .getKey(..)
-expectTypeOf(bEmpty.getKey('a', 2)).toEqualTypeOf<number>();
-expectTypeOf(bNonEmpty.getKey('a', 2)).toEqualTypeOf<number>();
-expectTypeOf(bEmpty.getKey('a', true as boolean)).toEqualTypeOf<
+expectTypeOf(bEmpty.atValue('a', 2)).toEqualTypeOf<number>();
+expectTypeOf(bNonEmpty.atValue('a', 2)).toEqualTypeOf<number>();
+expectTypeOf(bEmpty.atValue('a', true as boolean)).toEqualTypeOf<
 	number | boolean
 >();
-expectTypeOf(bNonEmpty.getKey('a', true as boolean)).toEqualTypeOf<
+expectTypeOf(bNonEmpty.atValue('a', true as boolean)).toEqualTypeOf<
 	number | boolean
 >();
 
 // .getValue(..)
-expectTypeOf(bEmpty.getValue(2, 'a')).toEqualTypeOf<string>();
-expectTypeOf(bNonEmpty.getValue(2, 'a')).toEqualTypeOf<string>();
-expectTypeOf(bEmpty.getValue(2, true as boolean)).toEqualTypeOf<
-	string | boolean
->();
-expectTypeOf(bNonEmpty.getValue(2, true as boolean)).toEqualTypeOf<
+expectTypeOf(bEmpty.at(2, 'a')).toEqualTypeOf<string>();
+expectTypeOf(bNonEmpty.at(2, 'a')).toEqualTypeOf<string>();
+expectTypeOf(bEmpty.at(2, true as boolean)).toEqualTypeOf<string | boolean>();
+expectTypeOf(bNonEmpty.at(2, true as boolean)).toEqualTypeOf<
 	string | boolean
 >();
 

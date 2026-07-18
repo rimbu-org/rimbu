@@ -186,7 +186,7 @@ export class MultiSetNonEmpty<T>
 	}
 
 	count<U>(elem: RelatedTo<T, U>): number {
-		return this.countMap.get(elem, 0);
+		return this.countMap.at(elem, 0);
 	}
 
 	add(elem: T, amount = 1): MultiSet.NonEmpty<T> {
@@ -623,7 +623,7 @@ export class MultiSetBuilder<T> implements MultiSetBase.Builder<T> {
 	};
 
 	count = <U>(value: RelatedTo<T, U>): number => {
-		return this.source?.count(value) ?? this.countMap.get(value, 0);
+		return this.source?.count(value) ?? this.countMap.at(value, 0);
 	};
 
 	removeAll = <U>(

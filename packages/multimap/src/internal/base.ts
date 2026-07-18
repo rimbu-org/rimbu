@@ -116,7 +116,7 @@ export class MultiMapEmpty<K, V>
 		return this.context.from(other);
 	}
 
-	getValues(): RSet<V> {
+	valuesAt(): RSet<V> {
 		return this.context.keyMapValuesContext.empty();
 	}
 
@@ -306,7 +306,7 @@ export class MultiMapNonEmpty<K, V>
 	}
 
 	count<UK>(key: RelatedTo<K, UK>): number {
-		return this.keyMap.get(key)?.size ?? 0;
+		return this.keyMap.at(key)?.size ?? 0;
 	}
 
 	union<U extends V>(other: MultiMap<K, U>): MultiMap.NonEmpty<K, V> {
@@ -325,7 +325,7 @@ export class MultiMapNonEmpty<K, V>
 
 		const builder = this.context.builder<K, V>();
 		this.keyMap.forEach(([key, values]) => {
-			const inter = values.intersect(other.getValues(key));
+			const inter = values.intersect(other.valuesAt(key));
 			if (inter.nonEmpty()) builder.setValues(key, inter);
 		});
 		return builder.build();
@@ -350,7 +350,7 @@ export class MultiMapNonEmpty<K, V>
 
 		while ((thisEntry = thisIter.fastNext()) !== undefined) {
 			const [key, values] = thisEntry;
-			const otherValues = otherBuilder.get(key);
+			const otherValues = otherBuilder.at(key);
 
 			if (undefined !== otherValues) {
 				otherBuilder.removeKey(key);
@@ -375,13 +375,13 @@ export class MultiMapNonEmpty<K, V>
 	}
 
 	hasEntry<U>(key: RelatedTo<K, U>, value: V): boolean {
-		const values = this.keyMap.get(key);
+		const values = this.keyMap.at(key);
 
 		return values?.has(value) ?? false;
 	}
 
-	getValues<U>(key: RelatedTo<K, U>): RSet<V> {
-		return this.keyMap.get(key, this.context.keyMapValuesContext.empty());
+	valuesAt<U>(key: RelatedTo<K, U>): RSet<V> {
+		return this.keyMap.at(key, this.context.keyMapValuesContext.empty());
 	}
 
 	add(key: K, value: V): MultiMap.NonEmpty<K, V> {
@@ -631,10 +631,10 @@ export class MultiMapBuilder<K, V> implements MultiMapBase.Builder<K, V> {
 		return this.size === 0;
 	}
 
-	getValues = <UK>(key: RelatedTo<K, UK>): any => {
+	valuesAt = <UK>(key: RelatedTo<K, UK>): any => {
 		return (
-			this.source?.getValues(key) ??
-			this.keyMap.get(key)?.build() ??
+			this.source?.valuesAt(key) ??
+			this.keyMap.at(key)?.build() ??
 			this.context.keyMapValuesContext.empty()
 		);
 	};
@@ -646,7 +646,7 @@ export class MultiMapBuilder<K, V> implements MultiMapBase.Builder<K, V> {
 	hasEntry = <UK>(key: RelatedTo<K, UK>, value: V): boolean => {
 		return (
 			this.source?.hasEntry(key, value) ??
-			this.keyMap.get(key)?.has(value) ??
+			this.keyMap.at(key)?.has(value) ??
 			false
 		);
 	};

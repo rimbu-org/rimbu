@@ -165,7 +165,7 @@ export interface VariantMultiMapBase<
 	 * console.log(m.getValues(10).toArray()); // => []
 	 * ```
 	 */
-	getValues<UK = K>(
+	valuesAt<UK = K>(
 		key: RelatedTo<K, UK>,
 	): WithKeyValue<Tp, K, V>['keyMapValues'];
 	/**
@@ -951,11 +951,11 @@ export namespace MultiMapBase {
 		 * ```ts
 		 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
 		 * const m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'], [1, 'c']).toBuilder()
-		 * console.log(m.getValues(1).toArray()); // => [ "a", "c" ]
-		 * console.log(m.getValues(10).toArray()); // => []
+		 * console.log(m.valuesAt(1).toArray()); // => [ "a", "c" ]
+		 * console.log(m.valuesAt(10).toArray()); // => []
 		 * ```
 		 */
-		getValues<UK = K>(
+		valuesAt<UK = K>(
 			key: RelatedTo<K, UK>,
 		): WithKeyValue<Tp, K, V>['keyMapValues'];
 		/**

@@ -218,18 +218,18 @@ export interface SortedMap<K, V> extends RMapBase<K, V, SortedMap.Types> {
 	 * import { SortedMap } from '@rimbu/sorted';
 	 *
 	 * const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();
-	 * console.log(m.getAtIndex(1))
+	 * console.log(m.atIndex(1))
 	 * // => [ "b", 2 ]
-	 * console.log(m.getAtIndex(-1))
+	 * console.log(m.atIndex(-1))
 	 * // => [ "d", 4 ]
-	 * console.log(m.getAtIndex(10))
+	 * console.log(m.atIndex(10))
 	 * // => undefined
-	 * console.log(m.getAtIndex(10, 'q'))
+	 * console.log(m.atIndex(10, 'q'))
 	 * // => q
 	 * ```
 	 */
-	getAtIndex(index: number): readonly [K, V] | undefined;
-	getAtIndex<O>(index: number, otherwise: OptLazy<O>): readonly [K, V] | O;
+	atIndex(index: number): readonly [K, V] | undefined;
+	atIndex<O>(index: number, otherwise: OptLazy<O>): readonly [K, V] | O;
 	/**
 	 * Returns the key at the given index of the key sort order of the SortedMap, or a fallback value (default: undefined)
 	 * if the index is out of bounds.
@@ -242,18 +242,18 @@ export interface SortedMap<K, V> extends RMapBase<K, V, SortedMap.Types> {
 	 * import { SortedMap } from '@rimbu/sorted';
 	 *
 	 * const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();
-	 * console.log(m.getKeyAtIndex(1))
+	 * console.log(m.keyAtIndex(1))
 	 * // => b
-	 * console.log(m.getKeyAtIndex(-1))
+	 * console.log(m.keyAtIndex(-1))
 	 * // => d
-	 * console.log(m.getKeyAtIndex(10))
+	 * console.log(m.keyAtIndex(10))
 	 * // => undefined
-	 * console.log(m.getKeyAtIndex(10, 'q'))
+	 * console.log(m.keyAtIndex(10, 'q'))
 	 * // => q
 	 * ```
 	 */
-	getKeyAtIndex(index: number): K | undefined;
-	getKeyAtIndex<O>(index: number, otherwise: OptLazy<O>): K | O;
+	keyAtIndex(index: number): K | undefined;
+	keyAtIndex<O>(index: number, otherwise: OptLazy<O>): K | O;
 	/**
 	 * Returns the value associated with the key at the given index of the key sort order of the SortedMap, or a fallback value (default: undefined)
 	 * if the index is out of bounds.
@@ -266,18 +266,18 @@ export interface SortedMap<K, V> extends RMapBase<K, V, SortedMap.Types> {
 	 * import { SortedMap } from '@rimbu/sorted';
 	 *
 	 * const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();
-	 * console.log(m.getValueAtIndex(1))
+	 * console.log(m.valueAtIndex(1))
 	 * // => 2
-	 * console.log(m.getValueAtIndex(-1))
+	 * console.log(m.valueAtIndex(-1))
 	 * // => 4
-	 * console.log(m.getValueAtIndex(10))
+	 * console.log(m.valueAtIndex(10))
 	 * // => undefined
-	 * console.log(m.getValueAtIndex(10, 'q'))
+	 * console.log(m.valueAtIndex(10, 'q'))
 	 * // => q
 	 * ```
 	 */
-	getValueAtIndex(index: number): V | undefined;
-	getValueAtIndex<O>(index: number, otherwise: OptLazy<O>): V | O;
+	valueAtIndex(index: number): V | undefined;
+	valueAtIndex<O>(index: number, otherwise: OptLazy<O>): V | O;
 	/**
 	 * Returns a SortedMap containing the first `amount` of elements of this SortedMap.
 	 * @param amount - the amount of elements to keep
@@ -520,18 +520,18 @@ export namespace SortedMap {
 		 * import { SortedMap } from '@rimbu/sorted';
 		 *
 		 * const b = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).toBuilder();
-		 * console.log(b.getAtIndex(1))
+		 * console.log(b.atIndex(1))
 		 * // => [ "b", 2 ]
-		 * console.log(b.getAtIndex(-1))
+		 * console.log(b.atIndex(-1))
 		 * // => [ "d", 4 ]
-		 * console.log(b.getAtIndex(10))
+		 * console.log(b.atIndex(10))
 		 * // => undefined
-		 * console.log(b.getAtIndex(10, 'q'))
+		 * console.log(b.atIndex(10, 'q'))
 		 * // => q
 		 * ```
 		 */
-		getAtIndex(index: number): readonly [K, V] | undefined;
-		getAtIndex<O>(index: number, otherwise: OptLazy<O>): readonly [K, V] | O;
+		atIndex(index: number): readonly [K, V] | undefined;
+		atIndex<O>(index: number, otherwise: OptLazy<O>): readonly [K, V] | O;
 	}
 
 	/**

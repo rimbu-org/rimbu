@@ -64,10 +64,10 @@ export class OrderedMapBuilder<K, V> implements OrderedMapBase.Builder<K, V> {
 		return this.source?.hasKey(key) ?? this.mapBuilder.hasKey(key);
 	};
 
-	get = <UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O => {
-		if (undefined !== this.source) return this.source.get(key, otherwise!);
+	at = <UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O => {
+		if (undefined !== this.source) return this.source.at(key, otherwise!);
 
-		return this.mapBuilder.get(key, otherwise!);
+		return this.mapBuilder.at(key, otherwise!);
 	};
 
 	set = (key: K, value: V): boolean => {
@@ -193,7 +193,7 @@ export class OrderedMapBuilder<K, V> implements OrderedMapBase.Builder<K, V> {
 			this.keyOrderBuilder.forEach(
 				(key, _, outerHalt): void => {
 					f(
-						[key, mapBuilder.get(key, RimbuError.throwInvalidStateError)],
+						[key, mapBuilder.at(key, RimbuError.throwInvalidStateError)],
 						state.nextIndex(),
 						halt,
 					);

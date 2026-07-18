@@ -140,35 +140,33 @@ expectTypeOf(genNonEmpty.filterRows(() => true)).toEqualTypeOf<G_Empty>();
 
 // .get(..)
 
-expectTypeOf(varEmpty.get(2, 'a')).toEqualTypeOf<boolean | undefined>();
-expectTypeOf(varNonEmpty.get(2, 'a')).toEqualTypeOf<boolean | undefined>();
-expectTypeOf(varEmpty.get(2, 'a', false)).toEqualTypeOf<boolean>();
-expectTypeOf(varNonEmpty.get(2, 'a', false)).toEqualTypeOf<boolean>();
-expectTypeOf(genEmpty.get(2, 'a')).toEqualTypeOf<boolean | undefined>();
-expectTypeOf(genNonEmpty.get(2, 'a')).toEqualTypeOf<boolean | undefined>();
-expectTypeOf(genEmpty.get(2, 'a', false)).toEqualTypeOf<boolean>();
-expectTypeOf(genNonEmpty.get(2, 'a', false)).toEqualTypeOf<boolean>();
+expectTypeOf(varEmpty.at(2, 'a')).toEqualTypeOf<boolean | undefined>();
+expectTypeOf(varNonEmpty.at(2, 'a')).toEqualTypeOf<boolean | undefined>();
+expectTypeOf(varEmpty.at(2, 'a', false)).toEqualTypeOf<boolean>();
+expectTypeOf(varNonEmpty.at(2, 'a', false)).toEqualTypeOf<boolean>();
+expectTypeOf(genEmpty.at(2, 'a')).toEqualTypeOf<boolean | undefined>();
+expectTypeOf(genNonEmpty.at(2, 'a')).toEqualTypeOf<boolean | undefined>();
+expectTypeOf(genEmpty.at(2, 'a', false)).toEqualTypeOf<boolean>();
+expectTypeOf(genNonEmpty.at(2, 'a', false)).toEqualTypeOf<boolean>();
 
-expectTypeOf(varEmpty.get(2, 'a', 'b' as string)).toEqualTypeOf<
+expectTypeOf(varEmpty.at(2, 'a', 'b' as string)).toEqualTypeOf<
 	boolean | string
 >();
-expectTypeOf(varNonEmpty.get(2, 'a', 'b' as string)).toEqualTypeOf<
+expectTypeOf(varNonEmpty.at(2, 'a', 'b' as string)).toEqualTypeOf<
 	boolean | string
 >();
-expectTypeOf(genEmpty.get(2, 'a', 'b' as string)).toEqualTypeOf<
+expectTypeOf(genEmpty.at(2, 'a', 'b' as string)).toEqualTypeOf<
 	boolean | string
 >();
-expectTypeOf(genNonEmpty.get(2, 'a', 'b' as string)).toEqualTypeOf<
+expectTypeOf(genNonEmpty.at(2, 'a', 'b' as string)).toEqualTypeOf<
 	boolean | string
 >();
 
 // .getRow(..)
-expectTypeOf(varEmpty.getRow(2)).toEqualTypeOf<VariantMap<string, boolean>>();
-expectTypeOf(varNonEmpty.getRow(2)).toEqualTypeOf<
-	VariantMap<string, boolean>
->();
-expectTypeOf(genEmpty.getRow(2)).toEqualTypeOf<RMap<string, boolean>>();
-expectTypeOf(genNonEmpty.getRow(2)).toEqualTypeOf<RMap<string, boolean>>();
+expectTypeOf(varEmpty.rowAt(2)).toEqualTypeOf<VariantMap<string, boolean>>();
+expectTypeOf(varNonEmpty.rowAt(2)).toEqualTypeOf<VariantMap<string, boolean>>();
+expectTypeOf(genEmpty.rowAt(2)).toEqualTypeOf<RMap<string, boolean>>();
+expectTypeOf(genNonEmpty.rowAt(2)).toEqualTypeOf<RMap<string, boolean>>();
 
 // .isEmpty
 expectTypeOf(varEmpty.isEmpty).toEqualTypeOf<boolean>();

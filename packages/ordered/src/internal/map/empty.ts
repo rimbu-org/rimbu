@@ -44,7 +44,7 @@ export class OrderedMapEmpty<K = any, V = any>
 		return false;
 	}
 
-	get<O>(key: K, otherwise?: OptLazy<O>): O {
+	at<O>(key: K, otherwise?: OptLazy<O>): O {
 		return OptLazy(otherwise) as O;
 	}
 

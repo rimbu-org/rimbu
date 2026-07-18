@@ -62,9 +62,9 @@ export class BiMapBuilder<K, V> implements BiMap.Builder<K, V> {
 	}
 
 	getValue = <UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O => {
-		if (undefined !== this.source) return this.source.getValue(key, otherwise);
+		if (undefined !== this.source) return this.source.at(key, otherwise);
 
-		return this.keyValueMap.get(key, otherwise!);
+		return this.keyValueMap.at(key, otherwise!);
 	};
 
 	hasKey = <UK>(key: RelatedTo<K, UK>): boolean => {
@@ -73,8 +73,8 @@ export class BiMapBuilder<K, V> implements BiMap.Builder<K, V> {
 	};
 
 	getKey = <UV, O>(value: RelatedTo<V, UV>, otherwise?: OptLazy<O>): K | O => {
-		if (undefined !== this.source) return this.source.getKey(value, otherwise);
-		return this.valueKeyMap.get(value, otherwise!);
+		if (undefined !== this.source) return this.source.atValue(value, otherwise);
+		return this.valueKeyMap.at(value, otherwise!);
 	};
 
 	hasValue = <UV>(value: RelatedTo<V, UV>): boolean => {
@@ -93,8 +93,8 @@ export class BiMapBuilder<K, V> implements BiMap.Builder<K, V> {
 
 		const token = Symbol();
 
-		const oldValue = this.keyValueMap.get(key, token);
-		const oldKey = this.valueKeyMap.get(value, token);
+		const oldValue = this.keyValueMap.at(key, token);
+		const oldKey = this.valueKeyMap.at(value, token);
 
 		if (token !== oldKey && token !== oldValue) {
 			if (Object.is(oldKey, key) && Object.is(oldValue, value)) return false;
@@ -206,7 +206,7 @@ export class BiMapBuilder<K, V> implements BiMap.Builder<K, V> {
 		const [key, value] = entry;
 
 		const token = Symbol();
-		const current = this.keyValueMap.get(key, token);
+		const current = this.keyValueMap.at(key, token);
 
 		if (token === current) return false;
 		if (!Object.is(current, value)) return false;

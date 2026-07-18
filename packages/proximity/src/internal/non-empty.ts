@@ -23,7 +23,7 @@ const toStringBeginning = /^[^(]+/;
  * Concrete non-empty implementation of {@link ProximityMap.NonEmpty}.<br/>
  * <br/>
  * It stores entries in a non-empty `HashMap` and applies the configured distance function
- * when resolving lookups via {@link ProximityMapNonEmpty.get}.
+ * when resolving lookups via {@link ProximityMapNonEmpty.at}.
  *
  * @typeparam K - the key type
  * @typeparam V - the value type
@@ -129,9 +129,9 @@ export class ProximityMapNonEmpty<K, V> implements ProximityMap.NonEmpty<K, V> {
 		return this.internalMap.toArray();
 	}
 
-	get<UK = K>(key: RelatedTo<K, UK>): V | undefined;
-	get<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O;
-	get<UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O | undefined {
+	at<UK = K>(key: RelatedTo<K, UK>): V | undefined;
+	at<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O;
+	at<UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O | undefined {
 		const keyMatch = findNearestKeyMatch(
 			this.context.distanceFunction,
 			key as K,

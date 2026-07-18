@@ -151,17 +151,17 @@ export interface VariantTableBase<
 	 * @example
 	 * ```ts
 	 * const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])
-	 * t.get(10, 1)     // => undefined
-	 * t.get(10, 1, 0)  // => 0
-	 * t.get(1, 2)      // => 3
-	 * t.get(1, 2, 0)   // => 3
+	 * t.at(10, 1)     // => undefined
+	 * t.at(10, 1, 0)  // => 0
+	 * t.at(1, 2)      // => 3
+	 * t.at(1, 2, 0)   // => 3
 	 * ```
 	 */
-	get<UR = R, UC = C>(
+	at<UR = R, UC = C>(
 		row: RelatedTo<R, UR>,
 		column: RelatedTo<C, UC>,
 	): V | undefined;
-	get<UR, UC, O>(
+	at<UR, UC, O>(
 		row: RelatedTo<R, UR>,
 		column: RelatedTo<C, UC>,
 		otherwise: OptLazy<O>,
@@ -176,7 +176,7 @@ export interface VariantTableBase<
 	 * t.getRow(1).toArray()     // => [[2, 3], [4, 5]]
 	 * ```
 	 */
-	getRow<UR = R>(row: RelatedTo<R, UR>): WithRow<Tp, R, C, V>['row'];
+	rowAt<UR = R>(row: RelatedTo<R, UR>): WithRow<Tp, R, C, V>['row'];
 	/**
 	 * Returns the collection where the value at given `row` and `column` keys is removed.
 	 * @param row - the row key

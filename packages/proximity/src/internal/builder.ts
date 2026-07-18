@@ -40,15 +40,15 @@ export class ProximityMapBuilder<K, V> implements ProximityMap.Builder<K, V> {
 	}
 
 	/**
-	 * Applying `get()` to the Builder does NOT apply the proximity algorithm - which would
+	 * Applying `at()` to the Builder does NOT apply the proximity algorithm - which would
 	 * be pointless at this construction stage; the internal, hash-based builder
 	 * is queried instead
 	 *
 	 */
-	get = <UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O => {
-		if (undefined !== this.source) return this.source.get(key, otherwise!);
+	at = <UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O => {
+		if (undefined !== this.source) return this.source.at(key, otherwise!);
 
-		return this.internalBuilder.get(key, otherwise!);
+		return this.internalBuilder.at(key, otherwise!);
 	};
 
 	hasKey = <UK = K>(key: RelatedTo<K, UK>): boolean => {
@@ -131,7 +131,7 @@ export class ProximityMapBuilder<K, V> implements ProximityMap.Builder<K, V> {
 			otherwise!,
 		);
 
-		const newValue = this.internalBuilder.get(key);
+		const newValue = this.internalBuilder.at(key);
 
 		if (!Object.is(previousValue, newValue)) {
 			this.source = undefined;

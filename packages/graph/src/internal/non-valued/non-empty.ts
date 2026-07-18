@@ -109,13 +109,13 @@ export class GraphNonEmpty<N>
 		node1: RelatedTo<N, UN>,
 		node2: RelatedTo<N, UN>,
 	): boolean {
-		const targets = this.linkMap.get(node1);
+		const targets = this.linkMap.at(node1);
 
 		return targets?.has(node2) ?? false;
 	}
 
 	getConnectionStreamFrom<UN = N>(node1: RelatedTo<N, UN>): Stream<Link<N>> {
-		const targets = this.linkMap.get(node1);
+		const targets = this.linkMap.at(node1);
 
 		if (undefined === targets) return Stream.empty();
 
@@ -130,7 +130,7 @@ export class GraphNonEmpty<N>
 			});
 		}
 
-		const targets = this.linkMap.get(node);
+		const targets = this.linkMap.at(node);
 
 		if (undefined === targets) return Stream.empty();
 
@@ -138,14 +138,14 @@ export class GraphNonEmpty<N>
 	}
 
 	getConnectionsFrom<UN = N>(node1: RelatedTo<N, UN>): RSet<N> {
-		return this.linkMap.get(
+		return this.linkMap.at(
 			node1,
 			this.context.linkConnectionsContext.empty<N>(),
 		);
 	}
 
 	isSink<UN = N>(node: RelatedTo<N, UN>): boolean {
-		const targets = this.linkMap.get(node);
+		const targets = this.linkMap.at(node);
 
 		return targets?.isEmpty ?? false;
 	}

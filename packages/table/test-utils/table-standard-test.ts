@@ -138,10 +138,10 @@ export function runTableTestsWith(
 				[[1, 'a', false]],
 			);
 
-			expect(table3.addEntry([10, 'a', true]).get(10, 'a')).toBe(true);
+			expect(table3.addEntry([10, 'a', true]).at(10, 'a')).toBe(true);
 			expect(table3.addEntry([10, 'a', true]).size).toBe(4);
 
-			expect(table6.addEntry([10, 'a', true]).get(10, 'a')).toBe(true);
+			expect(table6.addEntry([10, 'a', true]).at(10, 'a')).toBe(true);
 			expect(table6.addEntry([10, 'a', true]).size).toBe(7);
 		});
 
@@ -226,22 +226,22 @@ export function runTableTestsWith(
 		});
 
 		it('get', () => {
-			expect(tableEmpty.get(1, 'a')).toBe(undefined);
-			expect(tableEmpty.get(1, 'a', 0)).toBe(0);
-			expect(tableEmpty.get(1, 'a', () => 0)).toBe(0);
+			expect(tableEmpty.at(1, 'a')).toBe(undefined);
+			expect(tableEmpty.at(1, 'a', 0)).toBe(0);
+			expect(tableEmpty.at(1, 'a', () => 0)).toBe(0);
 
-			expect(table3.get(10, 'a')).toBe(undefined);
-			expect(table3.get(10, 'a', 0)).toBe(0);
-			expect(table3.get(1, 'z')).toBe(undefined);
-			expect(table3.get(1, 'z', 0)).toBe(0);
-			expect(table3.get(2, 'b')).toBe(true);
-			expect(table3.get(2, 'b', 0)).toBe(true);
+			expect(table3.at(10, 'a')).toBe(undefined);
+			expect(table3.at(10, 'a', 0)).toBe(0);
+			expect(table3.at(1, 'z')).toBe(undefined);
+			expect(table3.at(1, 'z', 0)).toBe(0);
+			expect(table3.at(2, 'b')).toBe(true);
+			expect(table3.at(2, 'b', 0)).toBe(true);
 		});
 
 		it('getRow', () => {
-			expect(tableEmpty.getRow(1)).toBe(T.columnContext.empty());
-			expect(table3.getRow(10)).toBe(T.columnContext.empty());
-			expect(new Map(table3.getRow(1))).toEqual(
+			expect(tableEmpty.rowAt(1)).toBe(T.columnContext.empty());
+			expect(table3.rowAt(10)).toBe(T.columnContext.empty());
+			expect(new Map(table3.rowAt(1))).toEqual(
 				new Map([
 					['a', true],
 					['c', true],
@@ -428,10 +428,10 @@ export function runTableTestsWith(
 				[1, 'a', false],
 			]);
 
-			expect(table3.set(10, 'a', true).get(10, 'a')).toBe(true);
+			expect(table3.set(10, 'a', true).at(10, 'a')).toBe(true);
 			expect(table3.set(10, 'a', true).size).toBe(4);
 
-			expect(table6.set(10, 'a', true).get(10, 'a')).toBe(true);
+			expect(table6.set(10, 'a', true).at(10, 'a')).toBe(true);
 			expect(table6.set(10, 'a', true).size).toBe(7);
 		});
 
@@ -559,7 +559,7 @@ export function runTableTestsWith(
 
 				forEachBuilder((b) => {
 					expect(b.build().size).toBe(3);
-					expect(b.build().get(2, 'b')).toBe(true);
+					expect(b.build().at(2, 'b')).toBe(true);
 				});
 			});
 
@@ -693,7 +693,7 @@ export function runTableTestsWith(
 				);
 				expect(b.size).toBe(1);
 				expect(b.get(1, 'a')).toBe(true);
-				expect(b.build().get(1, 'a')).toBe(true);
+				expect(b.build().at(1, 'a')).toBe(true);
 
 				expect(b.modifyAt(1, 'a', { ifNew: { set: true } })).toBe(false);
 
@@ -702,7 +702,7 @@ export function runTableTestsWith(
 				);
 				expect(b.size).toBe(1);
 				expect(b.get(1, 'a')).toBe(false);
-				expect(b.build().get(1, 'a')).toBe(false);
+				expect(b.build().at(1, 'a')).toBe(false);
 
 				expect(b.modifyAt(2, 'a', { ifNew: { set: true } })).toBe(true);
 				expect(b.size).toBe(2);
@@ -712,9 +712,9 @@ export function runTableTestsWith(
 				).toBe(true);
 				expect(b.size).toBe(1);
 				expect(b.get(1, 'a')).toBe(undefined);
-				expect(b.build().get(1, 'a')).toBe(undefined);
+				expect(b.build().at(1, 'a')).toBe(undefined);
 				expect(b.get(2, 'a')).toBe(true);
-				expect(b.build().get(2, 'a')).toBe(true);
+				expect(b.build().at(2, 'a')).toBe(true);
 
 				forEachBuilder((b) => {
 					expect(b.modifyAt(1, 'a', { ifNew: { set: true } })).toBe(false);

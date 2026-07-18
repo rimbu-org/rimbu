@@ -118,14 +118,14 @@ export interface VariantMapBase<
 	 * import { HashMap } from '@rimbu/hashed';
 	 *
 	 * const source = HashMap.of([1, 'a'], [2, 'b']);
-	 * console.log(source.get(2)); // => b
-	 * console.log(source.get(3)); // => undefined
-	 * console.log(source.get(2, 'none')); // => b
-	 * console.log(source.get(3, 'none')); // => none
+	 * console.log(source.at(2)); // => b
+	 * console.log(source.at(3)); // => undefined
+	 * console.log(source.at(2, 'none')); // => b
+	 * console.log(source.at(3, 'none')); // => none
 	 * ```
 	 */
-	get<UK = K>(key: RelatedTo<K, UK>): V | undefined;
-	get<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O;
+	at<UK = K>(key: RelatedTo<K, UK>): V | undefined;
+	at<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O;
 	/**
 	 * Returns true if the given `key` is present in the collection.
 	 * @typeparam UK - the type of key to look for, a related type to K
@@ -986,8 +986,8 @@ export namespace RMapBase {
 		 * console.log(builder.get(3, 'none')); // => none
 		 * ```
 		 */
-		get<UK = K>(key: RelatedTo<K, UK>): V | undefined;
-		get<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O;
+		at<UK = K>(key: RelatedTo<K, UK>): V | undefined;
+		at<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O;
 		/**
 		 * Returns true if the given `key` is present in the builder.
 		 * @typeparam UK - the type of key to look for, a related type to K

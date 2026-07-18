@@ -68,7 +68,7 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 	): boolean => {
 		if (this.source) return this.source.hasConnection(node1, node2);
 
-		const targets = this.linkMap.get(node1);
+		const targets = this.linkMap.at(node1);
 
 		return targets?.hasKey(node2) ?? false;
 	};
@@ -82,11 +82,11 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 			return this.source.getValue(node1, node2, otherwise!);
 		}
 
-		const targets = this.linkMap.get(node1);
+		const targets = this.linkMap.at(node1);
 
 		if (undefined === targets) return OptLazy(otherwise!);
 
-		return targets.get(node2, otherwise!);
+		return targets.at(node2, otherwise!);
 	};
 
 	addNodeInternal = (node: N): boolean => {

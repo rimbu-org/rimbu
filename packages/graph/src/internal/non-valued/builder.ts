@@ -61,7 +61,7 @@ export class GraphBuilder<N> implements Graph.Builder<N> {
 			return this.source.hasConnection(node1, node2);
 		}
 
-		const targets = this.linkMap.get(node1);
+		const targets = this.linkMap.at(node1);
 		return targets?.has(node2) ?? false;
 	};
 

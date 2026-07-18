@@ -147,8 +147,8 @@ void [
 ];
 
 // .getValues(..)
-expectTypeOf(genEmpty.getValues(1)).toEqualTypeOf<RSet<string>>();
-expectTypeOf(genNonEmpty.getValues(1)).toEqualTypeOf<RSet<string>>();
+expectTypeOf(genEmpty.valuesAt(1)).toEqualTypeOf<RSet<string>>();
+expectTypeOf(genNonEmpty.valuesAt(1)).toEqualTypeOf<RSet<string>>();
 
 // .isEmpty
 expectTypeOf(varEmpty.isEmpty).toEqualTypeOf<boolean>();

@@ -8,7 +8,7 @@ describe('SortedMap issues fixed by PRs', () => {
 	it('from SortedSet issue #189: remove should not use reference equality', () => {
 		const set1 = SortedMap.of([Tuple.of(1, 'a'), 'q'], [Tuple.of(2, 'b'), 'v']);
 
-		expect(set1.getAtIndex(0)).toEqual([[1, 'a'], 'q']);
+		expect(set1.atIndex(0)).toEqual([[1, 'a'], 'q']);
 		expect(set1.hasKey([1, 'a'])).toBe(true);
 
 		const s2 = set1.removeKey([1, 'a']);
@@ -23,7 +23,7 @@ describe('SortedMap issues fixed by PRs', () => {
 			map = map.addEntries(
 				Stream.range({ start: i * 10, amount: 10 }).map((v) => [v, -v]),
 			);
-			expect(map.getAtIndex(-1)).toEqual([i * 10 + 9, -(i * 10 + 9)]);
+			expect(map.atIndex(-1)).toEqual([i * 10 + 9, -(i * 10 + 9)]);
 		}
 	});
 });

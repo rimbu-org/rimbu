@@ -233,11 +233,11 @@ export interface BiMultiMapBase<
 	 * ```ts
 	 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
 	 * const m = HashBiMultiMap.of([1, 1], [1, 2]);
-	 * console.log(m.getValues(1).toArray()); // => [ 1, 2 ]
-	 * console.log(m.getValues(5).toArray()); // => []
+	 * console.log(m.valuesAt(1).toArray()); // => [ 1, 2 ]
+	 * console.log(m.valuesAt(5).toArray()); // => []
 	 * ```
 	 */
-	getValues<UK = K>(
+	valuesAt<UK = K>(
 		key: RelatedTo<K, UK>,
 	): WithKeyValue<Tp, K, V>['keyMultiMapValues'];
 	/**
@@ -247,11 +247,11 @@ export interface BiMultiMapBase<
 	 * ```ts
 	 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
 	 * const m = HashBiMultiMap.of([1, 1], [2, 1]);
-	 * console.log(m.getKeys(1).toArray()); // => [ 1, 2 ]
-	 * console.log(m.getKeys(5).toArray()); // => []
+	 * console.log(m.keysAt(1).toArray()); // => [ 1, 2 ]
+	 * console.log(m.keysAt(5).toArray()); // => []
 	 * ```
 	 */
-	getKeys<UV = V>(
+	keysAt<UV = V>(
 		value: RelatedTo<V, UV>,
 	): WithKeyValue<Tp, K, V>['valueMultiMapValues'];
 	/**

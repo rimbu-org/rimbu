@@ -53,7 +53,7 @@ export class OrderedMapNonEmpty<K, V>
 	stream(): Stream.NonEmpty<[K, V]> {
 		return this.streamKeys().map((k): [K, V] => [
 			k,
-			this.sourceMap.get(k, RimbuError.throwInvalidStateError),
+			this.sourceMap.at(k, RimbuError.throwInvalidStateError),
 		]);
 	}
 
@@ -63,7 +63,7 @@ export class OrderedMapNonEmpty<K, V>
 
 	streamValues(): Stream.NonEmpty<V> {
 		return this.streamKeys().map(
-			(k): V => this.sourceMap.get(k, RimbuError.throwInvalidStateError),
+			(k): V => this.sourceMap.at(k, RimbuError.throwInvalidStateError),
 		);
 	}
 
@@ -71,8 +71,8 @@ export class OrderedMapNonEmpty<K, V>
 		return this.sourceMap.hasKey(key);
 	}
 
-	get<UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O {
-		return this.sourceMap.get(key, otherwise!);
+	at<UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O {
+		return this.sourceMap.at(key, otherwise!);
 	}
 
 	set(key: K, value: V): OrderedMap.NonEmpty<K, V> {
@@ -194,7 +194,7 @@ export class OrderedMapNonEmpty<K, V>
 
 		while (!state.halted && done !== (key = keyIter.fastNext(done))) {
 			f(
-				[key, sourceMap.get(key, RimbuError.throwInvalidStateError)],
+				[key, sourceMap.at(key, RimbuError.throwInvalidStateError)],
 				state.nextIndex(),
 				halt,
 			);

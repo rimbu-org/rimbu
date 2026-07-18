@@ -46,11 +46,11 @@ export class BiMapEmpty<K = any, V = any>
 		return false;
 	}
 
-	getValue<_, O>(key: K, otherwise?: OptLazy<O>): O {
+	at<_, O>(key: K, otherwise?: OptLazy<O>): O {
 		return OptLazy(otherwise) as O;
 	}
 
-	getKey<_, O>(value: V, otherwise?: OptLazy<O>): O {
+	atValue<_, O>(value: V, otherwise?: OptLazy<O>): O {
 		return OptLazy(otherwise) as O;
 	}
 
@@ -246,12 +246,12 @@ export class BiMapNonEmptyImpl<K, V>
 		return this.valueKeyMap.hasKey(value);
 	}
 
-	getValue<UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O {
-		return this.keyValueMap.get(key, otherwise!);
+	at<UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O {
+		return this.keyValueMap.at(key, otherwise!);
 	}
 
-	getKey<UV, O>(value: RelatedTo<V, UV>, otherwise?: OptLazy<O>): K | O {
-		return this.valueKeyMap.get(value, otherwise!);
+	atValue<UV, O>(value: RelatedTo<V, UV>, otherwise?: OptLazy<O>): K | O {
+		return this.valueKeyMap.at(value, otherwise!);
 	}
 
 	set(key: K, value: V): BiMap.NonEmpty<K, V> {
@@ -500,7 +500,7 @@ export class BiMapNonEmptyImpl<K, V>
 
 	updateValueAtKey(key: K, valueUpdate: (value: V) => V): BiMap.NonEmpty<K, V> {
 		const token = Symbol();
-		const currentValue = this.getValue(key, token);
+		const currentValue = this.at(key, token);
 		if (token === currentValue) return this;
 
 		const newValue = valueUpdate(currentValue);
@@ -510,7 +510,7 @@ export class BiMapNonEmptyImpl<K, V>
 
 	updateKeyAtValue(keyUpdate: (key: K) => K, value: V): BiMap.NonEmpty<K, V> {
 		const token = Symbol();
-		const currentKey = this.getKey(value, token);
+		const currentKey = this.atValue(value, token);
 		if (token === currentKey) return this;
 
 		const newKey = keyUpdate(currentKey);

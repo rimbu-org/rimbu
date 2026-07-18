@@ -156,14 +156,14 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * import { BiMap } from '@rimbu/bimap';
 	 *
 	 * const m = BiMap.of([1, 'a'], [2, 'b'])
-	 * console.log(m.getValue(2)); // => b
-	 * console.log(m.getValue(3)); // => undefined
-	 * console.log(m.getValue(2, 'none')); // => b
-	 * console.log(m.getValue(3, 'none')); // => none
+	 * console.log(m.at(2)); // => b
+	 * console.log(m.at(3)); // => undefined
+	 * console.log(m.at(2, 'none')); // => b
+	 * console.log(m.at(3, 'none')); // => none
 	 * ```
 	 */
-	getValue<UK = K>(key: RelatedTo<K, UK>): V | undefined;
-	getValue<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O;
+	at<UK = K>(key: RelatedTo<K, UK>): V | undefined;
+	at<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O;
 	/**
 	 * Returns the key associated with the given `value`, or given `otherwise` value if the key is not in the collection.
 	 * @param value - the value to look for
@@ -173,14 +173,14 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * import { BiMap } from '@rimbu/bimap';
 	 *
 	 * const m = BiMap.of([1, 'a'], [2, 'b'])
-	 * console.log(m.getKey('b')); // => 2
-	 * console.log(m.getKey('z')); // => undefined
-	 * console.log(m.getKey('b', 'none')); // => 2
-	 * console.log(m.getKey('z', 'none')); // => none
+	 * console.log(m.atValue('b')); // => 2
+	 * console.log(m.atValue('z')); // => undefined
+	 * console.log(m.atValue('b', 'none')); // => 2
+	 * console.log(m.atValue('z', 'none')); // => none
 	 * ```
 	 */
-	getKey<UV = V>(value: RelatedTo<V, UV>): K | undefined;
-	getKey<UV, O>(value: RelatedTo<V, UV>, otherwise: OptLazy<O>): K | O;
+	atValue<UV = V>(value: RelatedTo<V, UV>): K | undefined;
+	atValue<UV, O>(value: RelatedTo<V, UV>, otherwise: OptLazy<O>): K | O;
 	/**
 	 * Returns the collection with the given `key` associated to the given `value`.
 	 * @param key - the entry key to add

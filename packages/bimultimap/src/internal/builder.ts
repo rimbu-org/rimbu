@@ -82,18 +82,18 @@ export class BiMultiMapBuilder<K, V> implements BiMultiMapBase.Builder<K, V> {
 
 	getValues = <UK = K>(key: RelatedTo<K, UK>): RSet<V> => {
 		if (undefined !== this.source) {
-			return this.source.getValues(key);
+			return this.source.valuesAt(key);
 		}
 
-		return this.keyValueMultiMap.getValues(key);
+		return this.keyValueMultiMap.valuesAt(key);
 	};
 
 	getKeys = <UV = V>(value: RelatedTo<V, UV>): RSet<K> => {
 		if (undefined !== this.source) {
-			return this.source.getKeys(value);
+			return this.source.keysAt(value);
 		}
 
-		return this.valueKeyMultiMap.getValues(value);
+		return this.valueKeyMultiMap.valuesAt(value);
 	};
 
 	setValues = (key: K, values: StreamSource<V>): boolean => {

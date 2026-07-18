@@ -21,10 +21,10 @@ export function runTableRandomTestsWith(
 				expect(this.builder.size).toEqual(this.immm.size);
 				this.map.forEach((row, rowKey): void => {
 					expect(this.builder.getRow(rowKey).size).toBe(row.size);
-					expect(this.immm.getRow(rowKey).size).toBe(row.size);
+					expect(this.immm.rowAt(rowKey).size).toBe(row.size);
 					row.forEach((value, columnKey): void => {
 						expect(this.builder.get(rowKey, columnKey, 'a')).toEqual(value);
-						expect(this.immm.get(rowKey, columnKey, 'a')).toEqual(value);
+						expect(this.immm.at(rowKey, columnKey, 'a')).toEqual(value);
 					});
 				});
 			} catch (e) {
@@ -44,7 +44,7 @@ export function runTableRandomTestsWith(
 
 		checkGet(row: number, column: number): void {
 			const getmap = this.map.get(row)?.get(column);
-			const gethm = this.immm.get(row, column, undefined);
+			const gethm = this.immm.at(row, column, undefined);
 			const gethb = this.builder.get(row, column, undefined);
 
 			try {
@@ -113,7 +113,7 @@ export function runTableRandomTestsWith(
 			expect(m.nonEmpty()).toBe(false);
 			expect(() => m.assumeNonEmpty()).toThrowError();
 			expect(m.filter((v): boolean => false)).toBe(empty);
-			expect(m.get(0, 0, 'a')).toBe('a');
+			expect(m.at(0, 0, 'a')).toBe('a');
 			expect(m.rowMap.isEmpty).toBe(true);
 			expect(m.mapValues((v): number => 1)).toBe<any>(empty);
 			// expect(m.modifyAt(0, { ifExists: (): number => 5 })).toBe(empty);
@@ -192,7 +192,7 @@ export function runTableRandomTestsWith(
 
 		it('set existing key overrides', (): void => {
 			const m = context.of([1, 1, 1], [2, 2, 2], [2, 0, 0], [3, 3, 3]);
-			expect(m.set(1, 1, 4).get(1, 1, 'a')).toEqual(4);
+			expect(m.set(1, 1, 4).at(1, 1, 'a')).toEqual(4);
 		});
 
 		it('isEmpty', (): void => {
@@ -242,10 +242,10 @@ export function runTableRandomTestsWith(
 		});
 
 		it('get', (): void => {
-			expect(context.empty().get(1, 1, 'a')).toBe('a');
-			expect(context.of([1, 1, 1]).get(1, 1, 'a')).toBe(1);
-			expect(context.of([1, 1, 1]).get(2, 1, 'a')).toBe('a');
-			expect(context.of([1, 1, 1]).get(1, 2, 'a')).toBe('a');
+			expect(context.empty().at(1, 1, 'a')).toBe('a');
+			expect(context.of([1, 1, 1]).at(1, 1, 'a')).toBe(1);
+			expect(context.of([1, 1, 1]).at(2, 1, 'a')).toBe('a');
+			expect(context.of([1, 1, 1]).at(1, 2, 'a')).toBe('a');
 		});
 
 		it('hasRowKey', (): void => {

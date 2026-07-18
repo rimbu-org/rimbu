@@ -77,10 +77,10 @@ export class SortedMapBuilder<K, V>
 		this._children = value;
 	}
 
-	get = <UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O => {
+	at = <UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O => {
 		if (!this.context.comp.isComparable(key)) return OptLazy(otherwise) as O;
 
-		if (undefined !== this.source) return this.source.get(key, otherwise!);
+		if (undefined !== this.source) return this.source.at(key, otherwise!);
 
 		const entryIndex = this.context.findIndex(key, this.entries);
 
@@ -92,14 +92,14 @@ export class SortedMapBuilder<K, V>
 			const childIndex = SortedIndex.next(entryIndex);
 			const child = this.children[childIndex];
 
-			return child.get(key, otherwise);
+			return child.at(key, otherwise);
 		}
 
 		return OptLazy(otherwise) as O;
 	};
 
 	hasKey = <UK>(key: RelatedTo<K, UK>): boolean => {
-		return Token !== this.get(key, Token);
+		return Token !== this.at(key, Token);
 	};
 
 	addEntry = (entry: readonly [K, V]): boolean => {

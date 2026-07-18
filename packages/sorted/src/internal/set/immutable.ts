@@ -413,12 +413,12 @@ export class SortedSetLeaf<T> extends SortedSetNode<T> {
 		return index < 0 ? -1 : index;
 	}
 
-	getAtIndex<O>(index: number, otherwise?: OptLazy<O>): T | O {
+	atIndex<O>(index: number, otherwise?: OptLazy<O>): T | O {
 		if (index >= this.size || -index > this.size) {
 			return OptLazy(otherwise) as O;
 		}
 		if (index < 0) {
-			return this.getAtIndex(this.size + index, otherwise);
+			return this.atIndex(this.size + index, otherwise);
 		}
 
 		return this.entries[index];
@@ -623,7 +623,7 @@ export class SortedSetInner<T> extends SortedSetNode<T> {
 		return -1;
 	}
 
-	getAtIndex<O>(index: number, otherwise?: OptLazy<O>): T | O {
+	atIndex<O>(index: number, otherwise?: OptLazy<O>): T | O {
 		return innerGetAtIndex<T, O>(this, index, otherwise);
 	}
 

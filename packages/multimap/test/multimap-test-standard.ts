@@ -119,10 +119,10 @@ export function runMultiMapTestsWith(
 				[1, 'a'],
 				[1, 'b'],
 			]);
-			expect(new Set(map3_1.add(1, 'z').getValues(1))).toEqual(
+			expect(new Set(map3_1.add(1, 'z').valuesAt(1))).toEqual(
 				new Set(['a', 'z']),
 			);
-			expect(new Set(mapDouble.add(1, 'z').getValues(1))).toEqual(
+			expect(new Set(mapDouble.add(1, 'z').valuesAt(1))).toEqual(
 				new Set(['a', 'b', 'z']),
 			);
 		});
@@ -250,10 +250,10 @@ export function runMultiMapTestsWith(
 		});
 
 		it('getValues', () => {
-			expect(mapEmpty.getValues(2).toArray()).toEqual([]);
-			expect(map3_1.getValues(2).toArray()).toEqual(['b']);
-			expect(map6_1.getValues(2).toArray()).toEqual(['b']);
-			expect(mapDouble.getValues(2).toArray()).toEqual(['a', 'b']);
+			expect(mapEmpty.valuesAt(2).toArray()).toEqual([]);
+			expect(map3_1.valuesAt(2).toArray()).toEqual(['b']);
+			expect(map6_1.valuesAt(2).toArray()).toEqual(['b']);
+			expect(mapDouble.valuesAt(2).toArray()).toEqual(['a', 'b']);
 		});
 
 		it('hasEntry', () => {
@@ -700,18 +700,18 @@ export function runMultiMapTestsWith(
 			}
 			{
 				const b = map3_1.toBuilder();
-				expect(b.getValues(2).toArray()).toEqual(['b']);
-				expect(b.getValues(10).toArray()).toEqual([]);
+				expect(b.valuesAt(2).toArray()).toEqual(['b']);
+				expect(b.valuesAt(10).toArray()).toEqual([]);
 			}
 			{
 				const b = map6_1.toBuilder();
-				expect(b.getValues(2).toArray()).toEqual(['b']);
-				expect(b.getValues(10).toArray()).toEqual([]);
+				expect(b.valuesAt(2).toArray()).toEqual(['b']);
+				expect(b.valuesAt(10).toArray()).toEqual([]);
 			}
 			{
 				const b = mapDouble.toBuilder();
-				expect(b.getValues(2).toArray()).toEqual(['a', 'b']);
-				expect(b.getValues(10).toArray()).toEqual([]);
+				expect(b.valuesAt(2).toArray()).toEqual(['a', 'b']);
+				expect(b.valuesAt(10).toArray()).toEqual([]);
 			}
 		});
 
@@ -771,7 +771,7 @@ export function runMultiMapTestsWith(
 			expect(b.build()).toBe(MM.empty());
 			b.addEntries(arr3);
 			expect(b.build().size).toBe(3);
-			expect(b.build().getValues(2).toArray()).toEqual(['b']);
+			expect(b.build().valuesAt(2).toArray()).toEqual(['b']);
 		});
 
 		it('forEach', () => {

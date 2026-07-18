@@ -144,10 +144,10 @@ describe('BiMap methods', () => {
 			[1, 'b'],
 		]);
 
-		expect(map3_1.addEntry([10, 'z']).getValue(10)).toBe('z');
+		expect(map3_1.addEntry([10, 'z']).at(10)).toBe('z');
 		expect(map3_1.addEntry([10, 'z']).size).toBe(4);
 
-		expect(map6_1.addEntry([10, 'z']).getValue(10)).toBe('z');
+		expect(map6_1.addEntry([10, 'z']).at(10)).toBe('z');
 		expect(map6_1.addEntry([10, 'z']).size).toBe(7);
 	});
 
@@ -227,35 +227,35 @@ describe('BiMap methods', () => {
 	});
 
 	it('getKey', () => {
-		expect(mapEmpty.getKey('b')).toBe(undefined);
-		expect(mapEmpty.getKey('b', 'z')).toBe('z');
-		expect(mapEmpty.getKey('b', () => 'z')).toBe('z');
+		expect(mapEmpty.atValue('b')).toBe(undefined);
+		expect(mapEmpty.atValue('b', 'z')).toBe('z');
+		expect(mapEmpty.atValue('b', () => 'z')).toBe('z');
 
-		expect(map3_1.getKey('b')).toBe(2);
-		expect(map3_1.getKey('b', 'z')).toBe(2);
-		expect(map3_1.getKey('z')).toBe(undefined);
-		expect(map3_1.getKey('z', 'o')).toBe('o');
+		expect(map3_1.atValue('b')).toBe(2);
+		expect(map3_1.atValue('b', 'z')).toBe(2);
+		expect(map3_1.atValue('z')).toBe(undefined);
+		expect(map3_1.atValue('z', 'o')).toBe('o');
 
-		expect(map6_1.getKey('b')).toBe(2);
-		expect(map6_1.getKey('b', 'z')).toBe(2);
-		expect(map6_1.getKey('z')).toBe(undefined);
-		expect(map6_1.getKey('z', 'o')).toBe('o');
+		expect(map6_1.atValue('b')).toBe(2);
+		expect(map6_1.atValue('b', 'z')).toBe(2);
+		expect(map6_1.atValue('z')).toBe(undefined);
+		expect(map6_1.atValue('z', 'o')).toBe('o');
 	});
 
 	it('getValue', () => {
-		expect(mapEmpty.getValue(2)).toBe(undefined);
-		expect(mapEmpty.getValue(2, 'z')).toBe('z');
-		expect(mapEmpty.getValue(2, () => 'z')).toBe('z');
+		expect(mapEmpty.at(2)).toBe(undefined);
+		expect(mapEmpty.at(2, 'z')).toBe('z');
+		expect(mapEmpty.at(2, () => 'z')).toBe('z');
 
-		expect(map3_1.getValue(2)).toBe('b');
-		expect(map3_1.getValue(2, 'z')).toBe('b');
-		expect(map3_1.getValue(10)).toBe(undefined);
-		expect(map3_1.getValue(10, 'z')).toBe('z');
+		expect(map3_1.at(2)).toBe('b');
+		expect(map3_1.at(2, 'z')).toBe('b');
+		expect(map3_1.at(10)).toBe(undefined);
+		expect(map3_1.at(10, 'z')).toBe('z');
 
-		expect(map6_1.getValue(2)).toBe('b');
-		expect(map6_1.getValue(2, 'z')).toBe('b');
-		expect(map6_1.getValue(10)).toBe(undefined);
-		expect(map6_1.getValue(10, 'z')).toBe('z');
+		expect(map6_1.at(2)).toBe('b');
+		expect(map6_1.at(2, 'z')).toBe('b');
+		expect(map6_1.at(10)).toBe(undefined);
+		expect(map6_1.at(10, 'z')).toBe('z');
 	});
 
 	it('hasKey', () => {
@@ -298,9 +298,9 @@ describe('BiMap methods', () => {
 
 	it('removeKey', () => {
 		expect(mapEmpty.removeKey(2)).toBe(mapEmpty);
-		expect(map3_1.removeKey(2).getValue(2)).toBe(undefined);
+		expect(map3_1.removeKey(2).at(2)).toBe(undefined);
 		expect(map3_1.removeKey(10)).toBe(map3_1);
-		expect(map6_1.removeKey(2).getValue(2)).toBe(undefined);
+		expect(map6_1.removeKey(2).at(2)).toBe(undefined);
 		expect(map6_1.removeKey(10)).toBe(map6_1);
 	});
 
@@ -333,20 +333,20 @@ describe('BiMap methods', () => {
 
 		expect(map3_1.removeKeys([10])).toBe(map3_1);
 		expect(map3_1.removeKeys([1, 3, 10]).size).toBe(1);
-		expect(map3_1.removeKeys([1, 3, 10]).getValue(2)).toBe('b');
-		expect(map3_1.removeKeys([1, 3, 10]).getValue(1)).toBe(undefined);
+		expect(map3_1.removeKeys([1, 3, 10]).at(2)).toBe('b');
+		expect(map3_1.removeKeys([1, 3, 10]).at(1)).toBe(undefined);
 
 		expect(map6_1.removeKeys([10])).toBe(map6_1);
 		expect(map6_1.removeKeys([1, 3, 10]).size).toBe(4);
-		expect(map6_1.removeKeys([1, 3, 10]).getValue(2)).toBe('b');
-		expect(map6_1.removeKeys([1, 3, 10]).getValue(1)).toBe(undefined);
+		expect(map6_1.removeKeys([1, 3, 10]).at(2)).toBe('b');
+		expect(map6_1.removeKeys([1, 3, 10]).at(1)).toBe(undefined);
 	});
 
 	it('removeValue', () => {
 		expect(mapEmpty.removeValue('b')).toBe(mapEmpty);
-		expect(map3_1.removeValue('b').getValue(2)).toBe(undefined);
+		expect(map3_1.removeValue('b').at(2)).toBe(undefined);
 		expect(map3_1.removeValue('z')).toBe(map3_1);
-		expect(map6_1.removeValue('b').getValue(2)).toBe(undefined);
+		expect(map6_1.removeValue('b').at(2)).toBe(undefined);
 		expect(map6_1.removeValue('z')).toBe(map6_1);
 	});
 
@@ -381,7 +381,7 @@ describe('BiMap methods', () => {
 
 		const r = map3_1.updateValueAtKeyAndGet(2, (v) => v + '!');
 		expect(r[2]).toBe(true);
-		expect(r[0].getValue(2)).toBe('b!');
+		expect(r[0].at(2)).toBe('b!');
 		expect(r[1]).toBe('b');
 
 		const noop = map3_1.updateValueAtKeyAndGet(2, (v) => v);
@@ -397,7 +397,7 @@ describe('BiMap methods', () => {
 
 		const r = map3_1.updateKeyAtValueAndGet((k) => k + 10, 'b');
 		expect(r[2]).toBe(true);
-		expect(r[0].getKey('b')).toBe(12);
+		expect(r[0].atValue('b')).toBe(12);
 		expect(r[1]).toBe(2);
 
 		const noop = map3_1.updateKeyAtValueAndGet((k) => k, 'b');
@@ -411,44 +411,44 @@ describe('BiMap methods', () => {
 
 		expect(map3_1.removeValues(['z'])).toBe(map3_1);
 		expect(map3_1.removeValues(['a', 'c', 'z']).size).toBe(1);
-		expect(map3_1.removeValues(['a', 'c', 'z']).getValue(2)).toBe('b');
-		expect(map3_1.removeValues(['a', 'c', 'z']).getValue(1)).toBe(undefined);
+		expect(map3_1.removeValues(['a', 'c', 'z']).at(2)).toBe('b');
+		expect(map3_1.removeValues(['a', 'c', 'z']).at(1)).toBe(undefined);
 
 		expect(map6_1.removeValues(['z'])).toBe(map6_1);
 		expect(map6_1.removeValues(['a', 'c', 'z']).size).toBe(4);
-		expect(map6_1.removeValues(['a', 'c', 'z']).getValue(2)).toBe('b');
-		expect(map6_1.removeValues(['a', 'c', 'z']).getValue(1)).toBe(undefined);
+		expect(map6_1.removeValues(['a', 'c', 'z']).at(2)).toBe('b');
+		expect(map6_1.removeValues(['a', 'c', 'z']).at(1)).toBe(undefined);
 	});
 
 	it('set', () => {
-		expect(mapEmpty.set(1, 'a').getValue(1)).toBe('a');
+		expect(mapEmpty.set(1, 'a').at(1)).toBe('a');
 
-		expect(map3_1.set(10, 'z').getValue(10)).toBe('z');
-		expect(map3_1.set(2, 'z').getValue(2)).toBe('z');
+		expect(map3_1.set(10, 'z').at(10)).toBe('z');
+		expect(map3_1.set(2, 'z').at(2)).toBe('z');
 
-		expect(map6_1.set(10, 'z').getValue(10)).toBe('z');
-		expect(map6_1.set(2, 'z').getValue(2)).toBe('z');
+		expect(map6_1.set(10, 'z').at(10)).toBe('z');
+		expect(map6_1.set(2, 'z').at(2)).toBe('z');
 	});
 
 	it('setAndGet', () => {
-		expect(mapEmpty.setAndGet(1, 'a')[0].getValue(1)).toBe('a');
+		expect(mapEmpty.setAndGet(1, 'a')[0].at(1)).toBe('a');
 		expect(mapEmpty.setAndGet(1, 'a')[1]).toBe(undefined);
 
 		// key present, value absent -> previous entry at key is displaced
 		const r1 = map3_1.setAndGet(2, 'z');
-		expect(r1[0].getValue(2)).toBe('z');
+		expect(r1[0].at(2)).toBe('z');
 		expect(r1[1]).toEqual([2, 'b']);
 
 		// key absent, value present -> previous entry bound to value is displaced
 		const r2 = map3_1.setAndGet(10, 'b');
-		expect(r2[0].getValue(10)).toBe('b');
+		expect(r2[0].at(10)).toBe('b');
 		expect(r2[1]).toEqual([2, 'b']);
 
 		// key and value both present, mapped to different entries -> previous entry at key displaced
 		const r3 = map3_1.setAndGet(1, 'b');
-		expect(r3[0].getValue(1)).toBe('b');
+		expect(r3[0].at(1)).toBe('b');
 		expect(r3[1]).toEqual([1, 'a']);
-		expect(r3[0].getKey('b')).toBe(1);
+		expect(r3[0].atValue('b')).toBe(1);
 		expect(r3[0].hasKey(2)).toBe(false);
 
 		// no-op when identical entry: entry is present, collection unchanged
@@ -463,11 +463,11 @@ describe('BiMap methods', () => {
 		expect(mapEmpty.addEntryAndGet([1, 'a'])[1]).toBe(undefined);
 
 		const r1 = map3_1.addEntryAndGet([2, 'z']);
-		expect(r1[0].getValue(2)).toBe('z');
+		expect(r1[0].at(2)).toBe('z');
 		expect(r1[1]).toEqual([2, 'b']);
 
 		const r2 = map3_1.addEntryAndGet([10, 'b']);
-		expect(r2[0].getValue(10)).toBe('b');
+		expect(r2[0].at(10)).toBe('b');
 		expect(r2[1]).toEqual([2, 'b']);
 
 		const r3 = map3_1.addEntryAndGet([2, 'b']);
@@ -482,7 +482,7 @@ describe('BiMap methods', () => {
 			[1, 'a'],
 			[3, 'c'],
 		]);
-		expect(map3_1.removeEntry([2, 'b']).getKey('b')).toBe(undefined);
+		expect(map3_1.removeEntry([2, 'b']).atValue('b')).toBe(undefined);
 		// key present but value does not match -> unchanged
 		expect(map3_1.removeEntry([2, 'c'])).toBe(map3_1);
 		// key not present -> unchanged
@@ -557,12 +557,12 @@ describe('BiMap methods', () => {
 		expect(mapEmpty.updateKeyAtValue(() => 10, 'b')).toBe(mapEmpty);
 		expect(mapEmpty.updateKeyAtValue((v) => v + v, 'b')).toBe(mapEmpty);
 
-		expect(map3_1.updateKeyAtValue(() => 10, 'b').getKey('b')).toBe(10);
-		expect(map3_1.updateKeyAtValue((v) => v + v, 'b').getKey('b')).toBe(4);
+		expect(map3_1.updateKeyAtValue(() => 10, 'b').atValue('b')).toBe(10);
+		expect(map3_1.updateKeyAtValue((v) => v + v, 'b').atValue('b')).toBe(4);
 		expect(map3_1.updateKeyAtValue(() => 10, 'z')).toBe(map3_1);
 
-		expect(map6_1.updateKeyAtValue(() => 10, 'b').getKey('b')).toBe(10);
-		expect(map6_1.updateKeyAtValue((v) => v + v, 'b').getKey('b')).toBe(4);
+		expect(map6_1.updateKeyAtValue(() => 10, 'b').atValue('b')).toBe(10);
+		expect(map6_1.updateKeyAtValue((v) => v + v, 'b').atValue('b')).toBe(4);
 		expect(map6_1.updateKeyAtValue(() => 10, 'z')).toBe(map6_1);
 	});
 
@@ -570,12 +570,12 @@ describe('BiMap methods', () => {
 		expect(mapEmpty.updateValueAtKey(2, () => 'z')).toBe(mapEmpty);
 		expect(mapEmpty.updateValueAtKey(2, (v) => v + v)).toBe(mapEmpty);
 
-		expect(map3_1.updateValueAtKey(2, () => 'z').getValue(2)).toBe('z');
-		expect(map3_1.updateValueAtKey(2, (v) => v + v).getValue(2)).toBe('bb');
+		expect(map3_1.updateValueAtKey(2, () => 'z').at(2)).toBe('z');
+		expect(map3_1.updateValueAtKey(2, (v) => v + v).at(2)).toBe('bb');
 		expect(map3_1.updateValueAtKey(10, () => 'z')).toBe(map3_1);
 
-		expect(map6_1.updateValueAtKey(2, () => 'z').getValue(2)).toBe('z');
-		expect(map6_1.updateValueAtKey(2, (v) => v + v).getValue(2)).toBe('bb');
+		expect(map6_1.updateValueAtKey(2, () => 'z').at(2)).toBe('z');
+		expect(map6_1.updateValueAtKey(2, (v) => v + v).at(2)).toBe('bb');
 		expect(map6_1.updateValueAtKey(10, () => 'z')).toBe(map6_1);
 	});
 });
@@ -623,7 +623,7 @@ describe('BiMap.Builder', () => {
 		expect(b.build()).toBe(BiMap.empty());
 		b.addEntries(arr3);
 		expect(b.build().size).toBe(3);
-		expect(b.build().getValue(2)).toBe('b');
+		expect(b.build().at(2)).toBe('b');
 	});
 
 	it('removeEntry', () => {
@@ -631,7 +631,7 @@ describe('BiMap.Builder', () => {
 		expect(b.removeEntry([1, 'a'])).toBe(false);
 		b.addEntries(arr3);
 		expect(b.removeEntry([2, 'b'])).toBe(true);
-		expect(b.build().getValue(2)).toBe(undefined);
+		expect(b.build().at(2)).toBe(undefined);
 		expect(b.removeEntry([1, 'c'])).toBe(false);
 		expect(b.removeEntry([10, 'a'])).toBe(false);
 		expect(b.build().size).toBe(2);

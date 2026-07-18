@@ -38,7 +38,7 @@ export class ProximityMapEmpty<K = any, V = any>
 		return Stream.empty();
 	}
 
-	get<O>(_key: K, otherwise?: OptLazy<O>): O {
+	at<O>(_key: K, otherwise?: OptLazy<O>): O {
 		return OptLazy(otherwise) as O;
 	}
 

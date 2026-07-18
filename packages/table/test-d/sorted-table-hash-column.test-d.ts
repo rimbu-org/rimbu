@@ -77,21 +77,21 @@ expectTypeOf(genEmpty.filterRows(() => true)).toEqualTypeOf<G_Empty>();
 expectTypeOf(genNonEmpty.filterRows(() => true)).toEqualTypeOf<G_Empty>();
 
 // .get(..)
-expectTypeOf(genEmpty.get(2, 'a')).toEqualTypeOf<boolean | undefined>();
-expectTypeOf(genNonEmpty.get(2, 'a')).toEqualTypeOf<boolean | undefined>();
-expectTypeOf(genEmpty.get(2, 'a', false)).toEqualTypeOf<boolean>();
-expectTypeOf(genNonEmpty.get(2, 'a', false)).toEqualTypeOf<boolean>();
+expectTypeOf(genEmpty.at(2, 'a')).toEqualTypeOf<boolean | undefined>();
+expectTypeOf(genNonEmpty.at(2, 'a')).toEqualTypeOf<boolean | undefined>();
+expectTypeOf(genEmpty.at(2, 'a', false)).toEqualTypeOf<boolean>();
+expectTypeOf(genNonEmpty.at(2, 'a', false)).toEqualTypeOf<boolean>();
 
-expectTypeOf(genEmpty.get(2, 'a', 'b' as string)).toEqualTypeOf<
+expectTypeOf(genEmpty.at(2, 'a', 'b' as string)).toEqualTypeOf<
 	boolean | string
 >();
-expectTypeOf(genNonEmpty.get(2, 'a', 'b' as string)).toEqualTypeOf<
+expectTypeOf(genNonEmpty.at(2, 'a', 'b' as string)).toEqualTypeOf<
 	boolean | string
 >();
 
 // .getRow(..)
-expectTypeOf(genEmpty.getRow(2)).toEqualTypeOf<RowType>();
-expectTypeOf(genNonEmpty.getRow(2)).toEqualTypeOf<RowType>();
+expectTypeOf(genEmpty.rowAt(2)).toEqualTypeOf<RowType>();
+expectTypeOf(genNonEmpty.rowAt(2)).toEqualTypeOf<RowType>();
 
 // .isEmpty
 expectTypeOf(genEmpty.isEmpty).toEqualTypeOf<boolean>();

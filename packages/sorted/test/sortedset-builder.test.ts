@@ -35,8 +35,8 @@ function runWith(name: string, context: SortedSet.Context<number>) {
 		});
 		it('getAtIndex', () => {
 			const builder = context.builder();
-			expect(builder.getAtIndex(10)).toBe(undefined);
-			expect(builder.getAtIndex(10, 1)).toBe(1);
+			expect(builder.atIndex(10)).toBe(undefined);
+			expect(builder.atIndex(10, 1)).toBe(1);
 
 			const values = Stream.randomInt(0, 100).take(100).toArray();
 			builder.addAll(values);
@@ -45,7 +45,7 @@ function runWith(name: string, context: SortedSet.Context<number>) {
 			const setValues = [...new Set(values.sort((a, b) => a - b))];
 
 			setValues.forEach((v, i) => {
-				expect(builder.getAtIndex(i)).toBe(v);
+				expect(builder.atIndex(i)).toBe(v);
 			});
 		});
 	});

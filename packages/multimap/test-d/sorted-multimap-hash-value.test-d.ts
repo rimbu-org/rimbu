@@ -63,8 +63,8 @@ expectTypeOf(genEmpty.filter(() => true)).toEqualTypeOf<G_Empty>();
 expectTypeOf(genNonEmpty.filter(() => true)).toEqualTypeOf<G_Empty>();
 
 // .getValues(..)
-expectTypeOf(genEmpty.getValues(1)).toEqualTypeOf<Values>();
-expectTypeOf(genNonEmpty.getValues(1)).toEqualTypeOf<Values>();
+expectTypeOf(genEmpty.valuesAt(1)).toEqualTypeOf<Values>();
+expectTypeOf(genNonEmpty.valuesAt(1)).toEqualTypeOf<Values>();
 
 // .isEmpty
 expectTypeOf(genEmpty.isEmpty).toEqualTypeOf<boolean>();
