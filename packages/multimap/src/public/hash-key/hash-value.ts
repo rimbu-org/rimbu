@@ -21,8 +21,10 @@ import { createMultiMapContextModule } from '#multimap/context-factory';
  * the values for each key.
  * @example
  * ```ts
+ * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
  * const m1 = HashMultiMapHashValue.empty<number, string>()
  * const m2 = HashMultiMapHashValue.of([1, 'a'], [1, 'b'], [2, 'a'])
+ * console.log(m2.toArray()); // => [ [ 1, "a" ], [ 1, "b" ], [ 2, "a" ] ]
  * ```
  */
 export interface HashMultiMapHashValue<K, V>
@@ -42,8 +44,10 @@ export namespace HashMultiMapHashValue {
 	 * the values for each key.
 	 * @example
 	 * ```ts
+	 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
 	 * const m1 = HashMultiMapHashValue.empty<number, string>()
 	 * const m2 = HashMultiMapHashValue.of([1, 'a'], [1, 'b'], [2, 'a'])
+	 * console.log(m2.toArray()); // => [ [ 1, "a" ], [ 1, "b" ], [ 2, "a" ] ]
 	 * ```
 	 */
 	export interface NonEmpty<K, V>

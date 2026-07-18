@@ -33,8 +33,9 @@ export interface VariantMultiMapBase<
 	 * Returns true if the collection is empty.
 	 * @example
 	 * ```ts
-	 * HashMultiMapHashValue.empty<number>().isEmpty      // => true
-	 * HashMultiMapHashValue.of([1, 1], [2, 2]).isEmpty   // => false
+	 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+	 * console.log(HashMultiMapHashValue.empty<number, number>().isEmpty); // => true
+	 * console.log(HashMultiMapHashValue.of([1, 1], [2, 2]).isEmpty); // => false
 	 * ```
 	 */
 	readonly isEmpty: boolean;
@@ -42,8 +43,9 @@ export interface VariantMultiMapBase<
 	 * Returns the number of keys in the collection.
 	 * @example
 	 * ```ts
-	 * HashMultiMapHashValue.of([1, 1], [2, 2]).keySize      // => 2
-	 * HashMultiMapHashValue.of([1, 1], [1, 2]).keySize      // => 1
+	 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+	 * console.log(HashMultiMapHashValue.of([1, 1], [2, 2]).keySize); // => 2
+	 * console.log(HashMultiMapHashValue.of([1, 1], [1, 2]).keySize); // => 1
 	 * ```
 	 */
 	readonly keySize: number;
@@ -51,8 +53,9 @@ export interface VariantMultiMapBase<
 	 * Returns the number of unique key-value combinations in this collection.
 	 * @example
 	 * ```ts
-	 * HashMultiMapHashValue.of([1, 1], [2, 2]).size       // => 2
-	 * HashMultiMapHashValue.of([1, 1], [1, 2]).size       // => 2
+	 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+	 * console.log(HashMultiMapHashValue.of([1, 1], [2, 2]).size); // => 2
+	 * console.log(HashMultiMapHashValue.of([1, 1], [1, 2]).size); // => 2
 	 * ```
 	 */
 	readonly size: number;
@@ -60,8 +63,10 @@ export interface VariantMultiMapBase<
 	 * Returns the Map representation of this collection.
 	 * @example
 	 * ```ts
+	 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
 	 * const m = HashMultiMapHashValue.of([1, 1], [2, 2])
-	 * const map: HashMap<number, HashSet.NonEmpty<number>> = m.keyMap
+	 * const map = m.keyMap
+	 * console.log(map.get(1)!.toArray()); // => [ 1 ]
 	 * ```
 	 */
 	readonly keyMap: WithKeyValue<Tp, K, V>['keyMap'];
@@ -70,10 +75,15 @@ export interface VariantMultiMapBase<
 	 * @throws RimbuError.EmptyCollectionAssumedNonEmptyError if the collection is empty
 	 * @example
 	 * ```ts
-	 * HashMultiMapHashValue.empty<number, number>().assumeNonEmpty()   // => throws
-	 * const m: HashMultiMapHashValue<number, number> = HashMultiMapHashValue.of([1, 1], [2, 2])
-	 * const m2: HashMultiMapHashValue.NonEmpty<number, number> = m     // => compiler error
-	 * const m3: HashMultiMapHashValue.NonEmpty<number, number> = m.assumeNonEmpty()
+	 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+	 * try {
+	 *   HashMultiMapHashValue.empty<number, number>().assumeNonEmpty();
+	 * } catch (err) {
+	 *   console.log((err as Error).name); // => EmptyCollectionAssumedNonEmptyError
+	 * }
+	 * const m: HashMultiMapHashValue<number, number> = HashMultiMapHashValue.of([1, 1], [2, 2]).asNormal();
+	 * const m3: HashMultiMapHashValue.NonEmpty<number, number> = m.assumeNonEmpty();
+	 * console.log(m3.size); // => 2
 	 * ```
 	 * @note returns reference to this collection
 	 */
@@ -83,10 +93,11 @@ export interface VariantMultiMapBase<
 	 * as a .NonEmpty type.
 	 * @example
 	 * ```ts
-	 * const m: HashMultiMapHashValue<number, number> = HashMultiMapHashValue.of([1, 1], [2, 2])
-	 * m.stream().first(0)     // compiler allows fallback value since the Stream may be empty
+	 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+	 * const m: HashMultiMapHashValue<number, number> = HashMultiMapHashValue.of([1, 1], [2, 2]).asNormal();
+	 * console.log(m.stream().first(0)); // => [ 1, 1 ]
 	 * if (m.nonEmpty()) {
-	 *   m.stream().first(0)   // compiler error: fallback value not allowed since Stream is not empty
+	 *   console.log(m.stream().first()); // => [ 1, 1 ]
 	 * }
 	 * ```
 	 */
@@ -95,7 +106,8 @@ export interface VariantMultiMapBase<
 	 * Returns a Stream containing all entries of this collection as tuples of key and value.
 	 * @example
 	 * ```ts
-	 * HashMultiMapHashValue.of([1, 1], [2, 2]).stream().toArray()  // => [[1, 1], [2, 2]]
+	 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+	 * console.log(HashMultiMapHashValue.of([1, 1], [2, 2]).stream().toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]
 	 * ```
 	 */
 	stream(): Stream<[K, V]>;
@@ -103,7 +115,8 @@ export interface VariantMultiMapBase<
 	 * Returns a Stream containing all keys of this collection.
 	 * @example
 	 * ```ts
-	 * HashMultiMapHashValue.of([[1, 'a'], [2, 'b']]).streamKeys().toArray()   // => [1, 2]
+	 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+	 * console.log(HashMultiMapHashValue.of([1, 'a'], [2, 'b']).streamKeys().toArray()); // => [ 1, 2 ]
 	 * ```
 	 */
 	streamKeys(): Stream<K>;
@@ -111,7 +124,8 @@ export interface VariantMultiMapBase<
 	 * Returns a Stream containing all values of this collection.
 	 * @example
 	 * ```ts
-	 * HashMultiMapHashValue.of([[1, 'a'], [2, 'b']]).streamValues().toArray()   // => ['a', 'b']
+	 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+	 * console.log(HashMultiMapHashValue.of([1, 'a'], [2, 'b']).streamValues().toArray()); // => [ "a", "b" ]
 	 * ```
 	 */
 	streamValues(): Stream<V>;
@@ -120,9 +134,10 @@ export interface VariantMultiMapBase<
 	 * @param key - the key to look for
 	 * @example
 	 * ```ts
+	 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
 	 * const m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'])
-	 * m.hasKey(2)    // => true
-	 * m.hasKey(3)    // => false
+	 * console.log(m.hasKey(2)); // => true
+	 * console.log(m.hasKey(3)); // => false
 	 * ```
 	 */
 	hasKey<UK = K>(key: RelatedTo<K, UK>): boolean;
@@ -132,9 +147,10 @@ export interface VariantMultiMapBase<
 	 * @param value - the value to look for
 	 * @example
 	 * ```ts
+	 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
 	 * const m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'])
-	 * m.hasEntry(1, 'a')    // => true
-	 * m.hasEntry(1, 'b')    // => false
+	 * console.log(m.hasEntry(1, 'a')); // => true
+	 * console.log(m.hasEntry(1, 'b')); // => false
 	 * ```
 	 */
 	hasEntry<UK = K>(key: RelatedTo<K, UK>, value: V): boolean;
@@ -143,9 +159,10 @@ export interface VariantMultiMapBase<
 	 * @param key - the key to look for
 	 * @example
 	 * ```ts
+	 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
 	 * const m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'])
-	 * m.getValues(1).toArray()    // => ['a']
-	 * m.getValues(10).toArray()   // => []
+	 * console.log(m.getValues(1).toArray()); // => [ "a" ]
+	 * console.log(m.getValues(10).toArray()); // => []
 	 * ```
 	 */
 	getValues<UK = K>(
@@ -156,9 +173,10 @@ export interface VariantMultiMapBase<
 	 * @param key - the key of the entries to remove
 	 * @example
 	 * ```ts
+	 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
 	 * const m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'], [1, 'c'])
-	 * m.removeKey(2).toArray()   // => [[1, 'a'], [1, 'c']]
-	 * m.removeKey(3) === m       // true
+	 * console.log(m.removeKey(2).toArray()); // => [ [ 1, "a" ], [ 1, "c" ] ]
+	 * console.log(m.removeKey(3) === m); // => true
 	 * ```
 	 * @note guarantees same object reference if the key is not present
 	 */
@@ -168,9 +186,10 @@ export interface VariantMultiMapBase<
 	 * @param keys - a `StreamSource` of keys to remove
 	 * @example
 	 * ```ts
+	 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
 	 * const m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'], [1, 'c'])
-	 * m.removeKeys([2, 10]).toArray()   // => [[1, 'a'], [1, 'c']]
-	 * m.removeKeys([10, 11]) === m      // true
+	 * console.log(m.removeKeys([2, 10]).toArray()); // => [ [ 1, "a" ], [ 1, "c" ] ]
+	 * console.log(m.removeKeys([10, 11]) === m); // => true
 	 * ```
 	 * @note guarantees same object reference if the key is not present
 	 */
@@ -183,10 +202,11 @@ export interface VariantMultiMapBase<
 	 * @param value - the value of the entry to remove
 	 * @example
 	 * ```ts
+	 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
 	 * const m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'], [1, 'c'])
-	 * m.removeEntry(2, 'b').toArray()   // => [[1, 'a'], [1, 'c']]
-	 * m.removeEntry(2, 'q').toArray()   // => [[1, 'a'], [2, 'b'], [1, 'c']]
-	 * m.removeEntry(3, 'a') === m       // true
+	 * console.log(m.removeEntry(2, 'b').toArray()); // => [ [ 1, "a" ], [ 1, "c" ] ]
+	 * console.log(m.removeEntry(2, 'q').toArray()); // => [ [ 1, "a" ], [ 1, "c" ], [ 2, "b" ] ]
+	 * console.log(m.removeEntry(3, 'a') === m); // => true
 	 * ```
 	 * @note guarantees same object reference if the key is not present
 	 */
@@ -199,10 +219,11 @@ export interface VariantMultiMapBase<
 	 * @param entries - a `StreamSource` containing key-value entries to remove
 	 * @example
 	 * ```ts
+	 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
 	 * const m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'], [1, 'c'])
-	 * m.removeEntries([[2, 'b'], [1, 'd']]).toArray()   // => [[1, 'a'], [1, 'c']]
-	 * m.removeEntries([2, 'q']).toArray()               // => [[1, 'a'], [2, 'b'], [1, 'c']]
-	 * m.removeEntries(3) === m              // true
+	 * console.log(m.removeEntries([[2, 'b'], [1, 'd']]).toArray()); // => [ [ 1, "a" ], [ 1, "c" ] ]
+	 * console.log(m.removeEntries([[2, 'q']]).toArray()); // => [ [ 1, "a" ], [ 1, "c" ], [ 2, "b" ] ]
+	 * console.log(m.removeEntries([[3, 'q']]) === m); // => true
 	 * ```
 	 * @note guarantees same object reference if the key is not present
 	 */
@@ -216,10 +237,11 @@ export interface VariantMultiMapBase<
 	 * @param key - the key of the entry to remove
 	 * @example
 	 * ```ts
+	 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
 	 * const m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'])
 	 * const result = m.removeKeyAndGet(2)
-	 * if (result[2]) console.log([result[0].toString(), result[1]])    // => logs [HashMultiMapHashValue(1 => 'a'), HashSet('b')]
-	 * console.log(m.removeKeyAndGet(3))                                // => [HashMultiMapHashValue(1 => 'a'), undefined, false]
+	 * console.log([result[0].toString(), result[1]?.toString(), result[2]]); // => [ "HashMultiMapHashValue(1 -> [a])", "HashSet(b)", true ]
+	 * console.log(m.removeKeyAndGet(3)[2]); // => false
 	 * ```
 	 */
 	removeKeyAndGet<UK = K>(
@@ -237,11 +259,13 @@ export interface VariantMultiMapBase<
 	 * @param state - (optional) the traverse state
 	 * @example
 	 * ```ts
+	 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+	 * const collected: [string, number][] = [];
 	 * HashMultiMapHashValue.of([1, 'a'], [2, 'b'], [1, 'c']).forEach((entry, i, halt) => {
-	 *  console.log([entry[1], entry[0]]);
-	 *  if (i >= 1) halt();
-	 * })
-	 * // => logs ['a', 1]  ['c', 1]  (or other order)
+	 *   collected.push([entry[1], entry[0]]);
+	 *   if (i >= 1) halt();
+	 * });
+	 * console.log(collected); // => [ [ "a", 1 ], [ "c", 1 ] ]
 	 * ```
 	 * @note O(N)
 	 */
@@ -259,10 +283,9 @@ export interface VariantMultiMapBase<
 	 * - negate: (default: false) when true will negate the predicate
 	 * @example
 	 * ```ts
-	 * HashMultiMapHashValue.of([1, 'a'], [2, 'b'], [1, 'c'])
-	 *   .filter(entry => entry[0] === 2 || entry[1] === 'c')
-	 *   .toArray()
-	 * // => [[2, 'b'], [1, 'c']]
+	 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+	 * const m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'], [1, 'c'])
+	 * console.log(m.filter(entry => entry[0] === 2 || entry[1] === 'c').toArray()); // => [ [ 1, "c" ], [ 2, "b" ] ]
 	 * ```
 	 */
 	filter(
@@ -280,8 +303,8 @@ export interface VariantMultiMapBase<
 	 * @param transformFun - a function that receives the `Stream` of entries of this collection, and returns a `StreamSource` of resulting entries
 	 * @example
 	 * ```ts
-	 * HashMultiMapHashValue.of([1, 'a'], [2, 'b']).transform(s => s.map(([k, v]) => [k, v.toUpperCase()])).toArray()
-	 * // => [[1, 'A'], [2, 'B']]
+	 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+	 * console.log(HashMultiMapHashValue.of([1, 'a'], [2, 'b']).transform(s => s.map(([k, v]) => [k, v.toUpperCase()])).toArray()); // => [ [ 1, "A" ], [ 2, "B" ] ]
 	 * ```
 	 * @note because the resulting collection is built in the same context, `K2` must be a subtype of `K` and `V2` a subtype of `V`.
 	 * To transform to unrelated key or value types, build a new collection explicitly, for example `HashMultiMapHashValue.from(stream.map(...))`.
@@ -294,9 +317,10 @@ export interface VariantMultiMapBase<
 	 * @param key - the key to look for
 	 * @example
 	 * ```ts
+	 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
 	 * const m = HashMultiMapHashValue.of([1, 'a'], [1, 'b'], [2, 'c'])
-	 * m.count(1)   // => 2
-	 * m.count(3)   // => 0
+	 * console.log(m.count(1)); // => 2
+	 * console.log(m.count(3)); // => 0
 	 * ```
 	 */
 	count<UK = K>(key: RelatedTo<K, UK>): number;
@@ -304,7 +328,8 @@ export interface VariantMultiMapBase<
 	 * Returns an array containing all entries in this collection.
 	 * @example
 	 * ```ts
-	 * HashMultiMapHashValue.of([1, 'a'], [2, 'b'], [1, 'c']).toArray()   // => [[1, 'a'], [1, 'c'], [2, 'b']]
+	 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+	 * console.log(HashMultiMapHashValue.of([1, 'a'], [2, 'b'], [1, 'c']).toArray()); // => [ [ 1, "a" ], [ 1, "c" ], [ 2, "b" ] ]
 	 * ```
 	 * @note O(log(N))
 	 * @note it is safe to mutate the returned array, however, the array elements are not copied, thus should be treated as read-only
@@ -314,8 +339,8 @@ export interface VariantMultiMapBase<
 	 * Returns a string representation of this collection.
 	 * @example
 	 * ```ts
-	 * HashMultiMapHashValue.of([1, 'a'], [2, 'b'], [1, 'c']).toString()
-	 * // => HashMultiMapHashValue(1 => ['a', 'c'], 2 => ['b'])
+	 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+	 * console.log(HashMultiMapHashValue.of([1, 'a'], [2, 'b'], [1, 'c']).toString()); // => HashMultiMapHashValue(1 -> [a, c], 2 -> [b])
 	 * ```
 	 */
 	toString(): string;
@@ -323,8 +348,8 @@ export interface VariantMultiMapBase<
 	 * Returns a JSON representation of this collection.
 	 * @example
 	 * ```ts
-	 * HashMultiMapHashValue.of([1, 'a'], [2, 'b'], [1, 'c']).toJSON()
-	 * // => { dataType: 'HashMultiMapHashValue', value: [[1, ['a', 'c']], [2, ['b']]] }
+	 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+	 * console.log(HashMultiMapHashValue.of([1, 'a'], [2, 'b'], [1, 'c']).toJSON()); // => { dataType: "HashMultiMapHashValue", value: [ [ 1, [ "a", "c" ] ], [ 2, [ "b" ] ] ] }
 	 * ```
 	 */
 	toJSON(): ToJSON<[K, V[]][]>;
@@ -341,7 +366,8 @@ export namespace VariantMultiMapBase {
 		 * Returns false since this collection is known to be non-empty
 		 * @example
 		 * ```ts
-		 * HashMultiMapHashValue.of([1, 1], [2, 2]).isEmpty   // => false
+		 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+		 * console.log(HashMultiMapHashValue.of([1, 1], [2, 2]).isEmpty); // => false
 		 * ```
 		 */
 		readonly isEmpty: false;
@@ -349,8 +375,10 @@ export namespace VariantMultiMapBase {
 		 * Returns the non-empty Map representation of this collection.
 		 * @example
 		 * ```ts
+		 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
 		 * const m = HashMultiMapHashValue.of([1, 1], [2, 2])
-		 * const map: HashMap.NonEmpty<number, HashSet.NonEmpty<number>> = m.keyMap
+		 * const map = m.keyMap
+		 * console.log(map.get(1)!.toArray()); // => [ 1 ]
 		 * ```
 		 */
 		readonly keyMap: WithKeyValue<Tp, K, V>['keyMapNonEmpty'];
@@ -358,8 +386,9 @@ export namespace VariantMultiMapBase {
 		 * Returns a self reference since this collection is known to be non-empty.
 		 * @example
 		 * ```ts
+		 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
 		 * const m = HashMultiMapHashValue.of([1, 1], [2, 2]);
-		 * m === m.assumeNonEmpty()  // => true
+		 * console.log(m === m.assumeNonEmpty()); // => true
 		 * ```
 		 */
 		assumeNonEmpty(): this;
@@ -367,7 +396,9 @@ export namespace VariantMultiMapBase {
 		 * Returns this collection typed as a 'possibly empty' collection.
 		 * @example
 		 * ```ts
-		 * HashMultiMapHashValue.of([1, 1], [2, 2]).asNormal();  // type: HashMultiMapHashValue<number, number>
+		 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+		 * const m = HashMultiMapHashValue.of([1, 1], [2, 2]).asNormal();
+		 * console.log(m.toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]
 		 * ```
 		 */
 		asNormal(): WithKeyValue<Tp, K, V>['normal'];
@@ -375,7 +406,8 @@ export namespace VariantMultiMapBase {
 		 * Returns true since this collection is known to be non-empty
 		 * @example
 		 * ```ts
-		 * HashMultiMapHashValue.of([1, 1], [2, 2]).nonEmpty()   // => true
+		 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+		 * console.log(HashMultiMapHashValue.of([1, 1], [2, 2]).nonEmpty()); // => true
 		 * ```
 		 */
 		nonEmpty(): this is WithKeyValue<Tp, K, V>['nonEmpty'];
@@ -383,7 +415,8 @@ export namespace VariantMultiMapBase {
 		 * Returns a non-empty Stream containing all entries of this collection as tuples of key and value.
 		 * @example
 		 * ```ts
-		 * HashMultiMapHashValue.of([1, 1], [2, 2]).stream().toArray()  // => [[1, 1], [2, 2]]
+		 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+		 * console.log(HashMultiMapHashValue.of([1, 1], [2, 2]).stream().toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]
 		 * ```
 		 */
 		stream(): Stream.NonEmpty<[K, V]>;
@@ -398,8 +431,8 @@ export namespace VariantMultiMapBase {
 		 * @param transformFun - a function that receives the non-empty `Stream` of entries of this collection, and returns a `StreamSource` of resulting entries
 		 * @example
 		 * ```ts
-		 * HashMultiMapHashValue.of([1, 'a'], [2, 'b']).transform(s => s.map(([k, v]) => [k, v.toUpperCase()])).toArray()
-		 * // => [[1, 'A'], [2, 'B']]
+		 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+		 * console.log(HashMultiMapHashValue.of([1, 'a'], [2, 'b']).transform(s => s.map(([k, v]) => [k, v.toUpperCase()])).toArray()); // => [ [ 1, "A" ], [ 2, "B" ] ]
 		 * ```
 		 * @note because the resulting collection is built in the same context, `K2` must be a subtype of `K` and `V2` a subtype of `V`.
 		 * To transform to unrelated key or value types, build a new collection explicitly, for example `HashMultiMapHashValue.from(stream.map(...))`.
@@ -416,7 +449,8 @@ export namespace VariantMultiMapBase {
 		 * Returns a non-empty Stream containing all keys of this collection.
 		 * @example
 		 * ```ts
-		 * HashMultiMapHashValue.of([[1, 'a'], [2, 'b']]).streamKeys().toArray()   // => [1, 2]
+		 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+		 * console.log(HashMultiMapHashValue.of([1, 'a'], [2, 'b']).streamKeys().toArray()); // => [ 1, 2 ]
 		 * ```
 		 */
 		streamKeys(): Stream.NonEmpty<K>;
@@ -424,7 +458,8 @@ export namespace VariantMultiMapBase {
 		 * Returns a non-empty Stream containing all values of this collection.
 		 * @example
 		 * ```ts
-		 * HashMultiMapHashValue.of([[1, 'a'], [2, 'b']]).streamValues().toArray()   // => ['a', 'b']
+		 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+		 * console.log(HashMultiMapHashValue.of([1, 'a'], [2, 'b']).streamValues().toArray()); // => [ "a", "b" ]
 		 * ```
 		 */
 		streamValues(): Stream.NonEmpty<V>;
@@ -446,7 +481,8 @@ export namespace VariantMultiMapBase {
 		 * Returns a non-empty array containing all entries in this collection.
 		 * @example
 		 * ```ts
-		 * HashMultiMapHashValue.of([1, 'a'], [2, 'b'], [1, 'c']).toArray()   // => [[1, 'a'], [1, 'c'], [2, 'b']]
+		 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+		 * console.log(HashMultiMapHashValue.of([1, 'a'], [2, 'b'], [1, 'c']).toArray()); // => [ [ 1, "a" ], [ 1, "c" ], [ 2, "b" ] ]
 		 * ```
 		 * @note O(log(N))
 		 * @note it is safe to mutate the returned array, however, the array elements are not copied, thus should be treated as read-only
@@ -485,8 +521,9 @@ export interface MultiMapBase<
 	 * @param value - the value to add to the key values
 	 * @example
 	 * ```ts
-	 * HashMultiMapHashValue.of([1, 'a']).add(2, 'b').toArray()   // => [[1, 'a'], [2, 'b']]
-	 * HashMultiMapHashValue.of([1, 'a']).add(1, 'b').toArray()   // => [[1, 'a'], [1, 'b']]
+	 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+	 * console.log(HashMultiMapHashValue.of([1, 'a']).add(2, 'b').toArray()); // => [ [ 1, "a" ], [ 2, "b" ] ]
+	 * console.log(HashMultiMapHashValue.of([1, 'a']).add(1, 'b').toArray()); // => [ [ 1, "a" ], [ 1, "b" ] ]
 	 * ```
 	 */
 	add(key: K, value: V): WithKeyValue<Tp, K, V>['nonEmpty'];
@@ -495,8 +532,8 @@ export interface MultiMapBase<
 	 * @param entries - a `StreamSource` containing entries to add
 	 * @example
 	 * ```ts
-	 * HashMultiMapHashValue.of([1, 'a']).addEntries([[2, 'b'], [1, 'c']]).toArray()
-	 * // => [[1, 'a'], [1, 'c'], [2, 'b']]
+	 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+	 * console.log(HashMultiMapHashValue.of([1, 'a']).addEntries([[2, 'b'], [1, 'c']]).toArray()); // => [ [ 1, "a" ], [ 1, "c" ], [ 2, "b" ] ]
 	 * ```
 	 */
 	addEntries(
@@ -511,8 +548,8 @@ export interface MultiMapBase<
 	 * @param values - the values to set for the key
 	 * @example
 	 * ```ts
-	 * HashMultiMapHashValue.of([1, 'a'], [2, 'b']).setValues(1, ['d', 'e']).toArray()
-	 * // => [[1, 'd'], [1, 'e'], [2, 'b']]
+	 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+	 * console.log(HashMultiMapHashValue.of([1, 'a'], [2, 'b']).setValues(1, ['d', 'e']).toArray()); // => [ [ 1, "d" ], [ 1, "e" ], [ 2, "b" ] ]
 	 * ```
 	 */
 	setValues(
@@ -526,8 +563,8 @@ export interface MultiMapBase<
 	 * @param mapFun - a function taking a value and its key, returning a new value
 	 * @example
 	 * ```ts
-	 * HashMultiMapHashValue.of([1, 'a'], [1, 'b']).mapValues(v => v.toUpperCase()).toArray()
-	 * // => [[1, 'A'], [1, 'B']]
+	 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+	 * console.log(HashMultiMapHashValue.of([1, 'a'], [1, 'b']).mapValues(v => v.toUpperCase()).toArray()); // => [ [ 1, "A" ], [ 1, "B" ] ]
 	 * ```
 	 * @note the number of values per key is preserved, so a non-empty collection stays non-empty.
 	 * Because the result is built in the same context, `W` must be a subtype of `V`.
@@ -542,8 +579,8 @@ export interface MultiMapBase<
 	 * @param flatMapFun - a function taking a value and its key, returning a `StreamSource` of new values
 	 * @example
 	 * ```ts
-	 * HashMultiMapHashValue.of([1, 'a']).flatMapValues(v => [v, v.toUpperCase()]).toArray()
-	 * // => [[1, 'a'], [1, 'A']]
+	 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+	 * console.log(HashMultiMapHashValue.of([1, 'a']).flatMapValues(v => [v, v.toUpperCase()]).toArray()); // => [ [ 1, "A" ], [ 1, "a" ] ]
 	 * ```
 	 * @note a key may end up with zero values (for example if `flatMapFun` returns an empty
 	 * `StreamSource` for all its values), in which case the key is removed. Because the result is
@@ -562,17 +599,13 @@ export interface MultiMapBase<
 	 * non-empty value set to return the new values. Returning an empty `StreamSource` removes the key (and its values).
 	 * @example
 	 * ```ts
+	 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
 	 * const m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'])
-	 * m.modifyAt(3, { ifNew: ['c', 'd'] }).toArray()
-	 * // => [[1, 'a'], [2, 'b'], [3, 'c'], [3, 'd']]
-	 * m.modifyAt(3, { ifNew: () => 1 < 2 ? [] : ['c'] }).toArray()
-	 * // => [[1, 'a'], [2, 'b']]
-	 * m.modifyAt(2, { ifExists: () => ['c'] }).toArray()
-	 * // => [[1, 'a'], [2, 'c']]
-	 * m.modifyAt(2, { ifExists: (v) => v.add('d') }).toArray()
-	 * // => [[1, 'a'], [2, 'c'], [2, 'd']]
-	 * m.modifyAt(2, { ifExists: (v) => v.has('a') ? v : [] }).toArray()
-	 * // => [[1, 'a']]
+	 * console.log(m.modifyAt(3, { ifNew: { set: ['c', 'd'] } }).toArray()); // => [ [ 1, "a" ], [ 2, "b" ], [ 3, "c" ], [ 3, "d" ] ]
+	 * console.log(m.modifyAt(3, { ifNew: { create: () => 1 < 2 ? [] : ['c'] } }).toArray()); // => [ [ 1, "a" ], [ 2, "b" ] ]
+	 * console.log(m.modifyAt(2, { ifExists: { set: ['c'] } }).toArray()); // => [ [ 1, "a" ], [ 2, "c" ] ]
+	 * console.log(m.modifyAt(2, { ifExists: { update: (v) => v.add('d') } }).toArray()); // => [ [ 1, "a" ], [ 2, "b" ], [ 2, "d" ] ]
+	 * console.log(m.modifyAt(2, { ifExists: { update: (v) => v.has('a') ? v : [] } }).toArray()); // => [ [ 1, "a" ] ]
 	 * ```
 	 */
 	modifyAt(
@@ -588,8 +621,8 @@ export interface MultiMapBase<
 	 * @param values - a `StreamSource` of values to add
 	 * @example
 	 * ```ts
-	 * HashMultiMapHashValue.of([1, 'a']).addValues(1, ['b', 'c']).toArray()
-	 * // => [[1, 'a'], [1, 'b'], [1, 'c']]
+	 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+	 * console.log(HashMultiMapHashValue.of([1, 'a']).addValues(1, ['b', 'c']).toArray()); // => [ [ 1, "a" ], [ 1, "b" ], [ 1, "c" ] ]
 	 * ```
 	 * @note if `values` is empty, the collection is returned unchanged (and, if the key was
 	 * absent, the same object reference)
@@ -608,8 +641,8 @@ export interface MultiMapBase<
 	 * returning a `StreamSource` of new entries
 	 * @example
 	 * ```ts
-	 * HashMultiMapHashValue.of([1, 'a']).flatMap(([k, v]) => [[k, v], [k, v.toUpperCase()]]).toArray()
-	 * // => [[1, 'a'], [1, 'A']]
+	 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+	 * console.log(HashMultiMapHashValue.of([1, 'a']).flatMap(([k, v]) => [[k, v], [k, v.toUpperCase()]]).toArray()); // => [ [ 1, "A" ], [ 1, "a" ] ]
 	 * ```
 	 * @note because the result is built in the same context, `K2` must be a subtype of `K` and
 	 * `V2` a subtype of `V`. To transform to unrelated key or value types, build a new collection
@@ -628,8 +661,8 @@ export interface MultiMapBase<
 	 * @param other - a `MultiMap` to combine with
 	 * @example
 	 * ```ts
-	 * HashMultiMapHashValue.of([1, 'a'], [2, 'b']).union(HashMultiMapHashValue.of([1, 'c'], [3, 'd'])).toArray()
-	 * // => [[1, 'a'], [1, 'c'], [2, 'b'], [3, 'd']]
+	 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+	 * console.log(HashMultiMapHashValue.of([1, 'a'], [2, 'b']).union(HashMultiMapHashValue.of([1, 'c'], [3, 'd'])).toArray()); // => [ [ 1, "a" ], [ 1, "c" ], [ 2, "b" ], [ 3, "d" ] ]
 	 * ```
 	 */
 	union<U extends V>(
@@ -643,8 +676,8 @@ export interface MultiMapBase<
 	 * @param other - a `MultiMap` to combine with
 	 * @example
 	 * ```ts
-	 * HashMultiMapHashValue.of([1, 'a'], [1, 'b'], [2, 'b']).intersect(HashMultiMapHashValue.of([1, 'b'], [3, 'd'])).toArray()
-	 * // => [[1, 'b']]
+	 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+	 * console.log(HashMultiMapHashValue.of([1, 'a'], [1, 'b'], [2, 'b']).intersect(HashMultiMapHashValue.of([1, 'b'], [3, 'd'])).toArray()); // => [ [ 1, "b" ] ]
 	 * ```
 	 */
 	intersect<U extends V>(
@@ -657,8 +690,8 @@ export interface MultiMapBase<
 	 * @param other - a `MultiMap` to subtract
 	 * @example
 	 * ```ts
-	 * HashMultiMapHashValue.of([1, 'a'], [1, 'b'], [2, 'b']).difference(HashMultiMapHashValue.of([1, 'b'], [3, 'd'])).toArray()
-	 * // => [[1, 'a'], [2, 'b']]
+	 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+	 * console.log(HashMultiMapHashValue.of([1, 'a'], [1, 'b'], [2, 'b']).difference(HashMultiMapHashValue.of([1, 'b'], [3, 'd'])).toArray()); // => [ [ 1, "a" ], [ 2, "b" ] ]
 	 * ```
 	 */
 	difference<U extends V>(
@@ -671,8 +704,8 @@ export interface MultiMapBase<
 	 * @param other - a `MultiMap` to combine with
 	 * @example
 	 * ```ts
-	 * HashMultiMapHashValue.of([1, 'a'], [1, 'b'], [2, 'b']).symDifference(HashMultiMapHashValue.of([1, 'b'], [3, 'd'])).toArray()
-	 * // => [[1, 'a'], [2, 'b'], [3, 'd']]
+	 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+	 * console.log(HashMultiMapHashValue.of([1, 'a'], [1, 'b'], [2, 'b']).symDifference(HashMultiMapHashValue.of([1, 'b'], [3, 'd'])).toArray()); // => [ [ 1, "a" ], [ 2, "b" ], [ 3, "d" ] ]
 	 * ```
 	 */
 	symDifference<U extends V>(
@@ -682,8 +715,9 @@ export interface MultiMapBase<
 	 * Returns a builder object containing the entries of this collection.
 	 * @example
 	 * ```ts
-	 * const builder: HashMultiMapHashValue.Builder<number, string>
-	 *   = HashMultiMapHashValue.of([1, 'a'], [2, 'b'], [2, 'c']).toBuilder()
+	 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+	 * const builder = HashMultiMapHashValue.of([1, 'a'], [2, 'b'], [2, 'c']).toBuilder();
+	 * console.log(builder.size); // => 3
 	 * ```
 	 */
 	toBuilder(): WithKeyValue<Tp, K, V>['builder'];
@@ -704,7 +738,8 @@ export namespace MultiMapBase {
 		 * Returns a non-empty Stream containing all entries of this collection as tuples of key and value.
 		 * @example
 		 * ```ts
-		 * HashMultiMapHashValue.of([1, 1], [2, 2]).stream().toArray()  // => [[1, 1], [2, 2]]
+		 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+		 * console.log(HashMultiMapHashValue.of([1, 1], [2, 2]).stream().toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]
 		 * ```
 		 */
 		stream(): Stream.NonEmpty<[K, V]>;
@@ -713,8 +748,8 @@ export namespace MultiMapBase {
 		 * @param entries - a `StreamSource` containing entries to add
 		 * @example
 		 * ```ts
-		 * HashMultiMapHashValue.of([1, 'a']).addEntries([[2, 'b'], [1, 'c']]).toArray()
-		 * // => [[1, 'a'], [1, 'c'], [2, 'b']]
+		 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+		 * console.log(HashMultiMapHashValue.of([1, 'a']).addEntries([[2, 'b'], [1, 'c']]).toArray()); // => [ [ 1, "a" ], [ 1, "c" ], [ 2, "b" ] ]
 		 * ```
 		 */
 		addEntries(
@@ -726,8 +761,8 @@ export namespace MultiMapBase {
 		 * @param values - a non-empty `StreamSource` of values to add
 		 * @example
 		 * ```ts
-		 * HashMultiMapHashValue.of([1, 'a']).addValues(1, ['b', 'c']).toArray()
-		 * // => [[1, 'a'], [1, 'b'], [1, 'c']]
+		 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+		 * console.log(HashMultiMapHashValue.of([1, 'a']).addValues(1, ['b', 'c']).toArray()); // => [ [ 1, "a" ], [ 1, "b" ], [ 1, "c" ] ]
 		 * ```
 		 */
 		addValues(
@@ -740,8 +775,8 @@ export namespace MultiMapBase {
 		 * @param mapFun - a function taking a value and its key, returning a new value
 		 * @example
 		 * ```ts
-		 * HashMultiMapHashValue.of([1, 'a'], [1, 'b']).mapValues(v => v.toUpperCase()).toArray()
-		 * // => [[1, 'A'], [1, 'B']]
+		 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+		 * console.log(HashMultiMapHashValue.of([1, 'a'], [1, 'b']).mapValues(v => v.toUpperCase()).toArray()); // => [ [ 1, "A" ], [ 1, "B" ] ]
 		 * ```
 		 * @note the number of values per key is preserved, so a non-empty collection stays non-empty
 		 */
@@ -757,8 +792,8 @@ export namespace MultiMapBase {
 		 * returning a `StreamSource` of new entries
 		 * @example
 		 * ```ts
-		 * HashMultiMapHashValue.of([1, 'a']).flatMap(([k, v]) => [[k, v], [k, v.toUpperCase()]]).toArray()
-		 * // => [[1, 'a'], [1, 'A']]
+		 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+		 * console.log(HashMultiMapHashValue.of([1, 'a']).flatMap(([k, v]) => [[k, v], [k, v.toUpperCase()]]).toArray()); // => [ [ 1, "A" ], [ 1, "a" ] ]
 		 * ```
 		 * @note because the result is built in the same context, `K2` must be a subtype of `K` and
 		 * `V2` a subtype of `V`. To transform to unrelated key or value types, build a new collection
@@ -797,8 +832,9 @@ export namespace MultiMapBase {
 		 * Returns the (singleton) empty instance of this type and context with given key and value types.
 		 * @example
 		 * ```ts
-		 * HashMultiMapHashValue.empty<number, string>()    // => HashMultiMapHashValue<number, string>
-		 * HashMultiMapHashValue.empty<string, boolean>()   // => HashMultiMapHashValue<string, boolean>
+		 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+		 * console.log(HashMultiMapHashValue.empty<number, string>().size); // => 0
+		 * console.log(HashMultiMapHashValue.empty<string, boolean>().toString()); // => HashMultiMapHashValue()
 		 * ```
 		 */
 		empty<K extends UK, V extends UV>(): WithKeyValue<Tp, K, V>['normal'];
@@ -807,7 +843,8 @@ export namespace MultiMapBase {
 		 * @param entries - a non-empty array of key-value entries
 		 * @example
 		 * ```ts
-		 * HashMultiMapHashValue.of([1, 'a'], [2, 'b'], [1, 'c'])    // => HashMultiMapHashValue.NonEmpty<number, string>
+		 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+		 * console.log(HashMultiMapHashValue.of([1, 'a'], [2, 'b'], [1, 'c']).toString()); // => HashMultiMapHashValue(1 -> [a, c], 2 -> [b])
 		 * ```
 		 */
 		of<K extends UK, V extends UV>(
@@ -818,7 +855,8 @@ export namespace MultiMapBase {
 		 * @param sources - an array of `StreamSource` instances containing key-value entries
 		 * @example
 		 * ```ts
-		 * HashMultiMapHashValue.from([[1, 'a'], [2, 'b']])    // => HashMultiMapHashValue.NonEmpty<number, string>
+		 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+		 * console.log(HashMultiMapHashValue.from([[1, 'a'], [2, 'b']]).toString()); // => HashMultiMapHashValue(1 -> [a], 2 -> [b])
 		 * ```
 		 */
 		from<K extends UK, V extends UV>(
@@ -831,7 +869,8 @@ export namespace MultiMapBase {
 		 * Returns an empty builder instance for this type of collection and context.
 		 * @example
 		 * ```ts
-		 * HashMultiMapHashValue.builder<number, string>()    // => HashMultiMapHashValue.Builder<number, string>
+		 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+		 * console.log(HashMultiMapHashValue.builder<number, string>().size); // => 0
 		 * ```
 		 */
 		builder<K extends UK, V extends UV>(): WithKeyValue<Tp, K, V>['builder'];
@@ -841,9 +880,11 @@ export namespace MultiMapBase {
 		 * @param source - (optional) an initial source of tuples to add to
 		 * @example
 		 * ```ts
+		 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+		 * import { Stream } from '@rimbu/stream';
 		 * const someSource: [number, string][] = [[1, 'a'], [2, 'b']];
-		 * const result = Stream.of([1, 'c'], [3, 'a']).reduce(HashMultiMapHashValue.reducer(someSource))
-		 * result.toArray()   // => [[1, 'a'], [1, 'c'], [2, 'b'], [3, 'a']]
+		 * const result = Stream.of<readonly [number, string]>([1, 'c'], [3, 'a']).reduce(HashMultiMapHashValue.reducer(someSource));
+		 * console.log(result.toArray()); // => [ [ 1, "a" ], [ 1, "c" ], [ 2, "b" ], [ 3, "a" ] ]
 		 * ```
 		 * @note uses a builder under the hood. If the given `source` is a `MultiMap` in the same context, it will directly call `.toBuilder()`.
 		 */
@@ -864,7 +905,8 @@ export namespace MultiMapBase {
 		 * A string tag defining the specific collection type
 		 * @example
 		 * ```ts
-		 * HashMultiMapHashValue.defaultContext().typeTag   // => 'HashMultiMapHashValue'
+		 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+		 * console.log(HashMultiMapHashValue.defaultContext().typeTag); // => HashMultiMapHashValue
 		 * ```
 		 */
 		readonly typeTag: string;
@@ -888,8 +930,8 @@ export namespace MultiMapBase {
 		 * Returns the amount of entries in the builder.
 		 * @example
 		 * ```ts
-		 * HashMultiMapHashValue.of([[1, 'a'], [2, 'b'], [1, 'c']]).toBuilder().size
-		 * // => 3
+		 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+		 * console.log(HashMultiMapHashValue.of([1, 'a'], [2, 'b'], [1, 'c']).toBuilder().size); // => 3
 		 * ```
 		 */
 		readonly size: number;
@@ -897,8 +939,8 @@ export namespace MultiMapBase {
 		 * Returns true if there are no entries in the builder.
 		 * @example
 		 * ```ts
-		 * HashMultiMapHashValue.of([[1, 'a'], [2, 'b']]).toBuilder().isEmpty
-		 * // => false
+		 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+		 * console.log(HashMultiMapHashValue.of([1, 'a'], [2, 'b']).toBuilder().isEmpty); // => false
 		 * ```
 		 */
 		readonly isEmpty: boolean;
@@ -907,9 +949,10 @@ export namespace MultiMapBase {
 		 * @param key - the key for which to get the associated values
 		 * @example
 		 * ```ts
-		 * const m = HashMultiMapHashValue.of([[1, 'a'], [2, 'b'], [1, 'c']]).toBuilder()
-		 * m.getValues(1).toArray()   // => ['a', 'c']
-		 * m.getValues(10).toArray()  // => []
+		 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+		 * const m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'], [1, 'c']).toBuilder()
+		 * console.log(m.getValues(1).toArray()); // => [ "a", "c" ]
+		 * console.log(m.getValues(10).toArray()); // => []
 		 * ```
 		 */
 		getValues<UK = K>(
@@ -921,9 +964,10 @@ export namespace MultiMapBase {
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
+		 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
 		 * const m = HashMultiMapHashValue.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.setValues(1, ['a'])      // => false
-		 * m.setValues(2, ['c', 'd']) // => true
+		 * console.log(m.setValues(1, ['a'])); // => true
+		 * console.log(m.setValues(2, ['c', 'd'])); // => true
 		 * ```
 		 */
 		setValues(key: K, values: StreamSource<V>): boolean;
@@ -934,9 +978,10 @@ export namespace MultiMapBase {
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
+		 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
 		 * const m = HashMultiMapHashValue.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.addValues(1, ['c'])   // => true
-		 * m.addValues(1, [])      // => false
+		 * console.log(m.addValues(1, ['c'])); // => true
+		 * console.log(m.addValues(1, [])); // => false
 		 * ```
 		 */
 		addValues(key: K, values: StreamSource<V>): boolean;
@@ -945,9 +990,10 @@ export namespace MultiMapBase {
 		 * @param key - the key to look for
 		 * @example
 		 * ```ts
+		 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
 		 * const m = HashMultiMapHashValue.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.hasKey(2)    // => true
-		 * m.hasKey(3)    // => false
+		 * console.log(m.hasKey(2)); // => true
+		 * console.log(m.hasKey(3)); // => false
 		 * ```
 		 */
 		hasKey<UK = K>(key: RelatedTo<K, UK>): boolean;
@@ -957,10 +1003,11 @@ export namespace MultiMapBase {
 		 * @param value - the value to look for
 		 * @example
 		 * ```ts
+		 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
 		 * const m = HashMultiMapHashValue.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.hasEntry(2, 'b')    // => true
-		 * m.hasEntry(2, 'c')    // => false
-		 * m.hasEntry(3, 'a')    // => false
+		 * console.log(m.hasEntry(2, 'b')); // => true
+		 * console.log(m.hasEntry(2, 'c')); // => false
+		 * console.log(m.hasEntry(3, 'a')); // => false
 		 * ```
 		 */
 		hasEntry<UK = K>(key: RelatedTo<K, UK>, value: V): boolean;
@@ -971,9 +1018,10 @@ export namespace MultiMapBase {
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
+		 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
 		 * const m = HashMultiMapHashValue.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.add(1, 'a')   // => false
-		 * m.add(1, 'b')   // => true
+		 * console.log(m.add(1, 'a')); // => false
+		 * console.log(m.add(1, 'b')); // => true
 		 * ```
 		 */
 		add(key: K, value: V): boolean;
@@ -983,9 +1031,10 @@ export namespace MultiMapBase {
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
+		 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
 		 * const m = HashMultiMapHashValue.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.addEntries([[1, 'a'], [2, 'b']])   // => false
-		 * m.addEntries([[1, 'b'], [2, 'd']])   // => true
+		 * console.log(m.addEntries([[1, 'a'], [2, 'b']])); // => false
+		 * console.log(m.addEntries([[1, 'b'], [2, 'd']])); // => true
 		 * ```
 		 */
 		addEntries(entries: StreamSource<readonly [K, V]>): boolean;
@@ -996,9 +1045,10 @@ export namespace MultiMapBase {
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
+		 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
 		 * const m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'], [1, 'c']).toBuilder()
-		 * m.removeEntry(3, 'a')   // => false
-		 * m.removeEntry(1, 'a')   // => true
+		 * console.log(m.removeEntry(3, 'a')); // => false
+		 * console.log(m.removeEntry(1, 'a')); // => true
 		 * ```
 		 */
 		removeEntry<UK = K, UV = V>(
@@ -1011,9 +1061,10 @@ export namespace MultiMapBase {
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
+		 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
 		 * const m = HashMultiMapHashValue.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.removeEntries([[3, 'a'], [3, 'b']])  // => false
-		 * m.removeEntries([[1, 'a'], [3, 'b']])  // => true
+		 * console.log(m.removeEntries([[3, 'a'], [3, 'b']])); // => false
+		 * console.log(m.removeEntries([[1, 'a'], [3, 'b']])); // => true
 		 * ```
 		 */
 		removeEntries<UK = K, UV = V>(
@@ -1025,9 +1076,10 @@ export namespace MultiMapBase {
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
+		 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
 		 * const m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'], [1, 'c']).toBuilder()
-		 * m.removeKey(3)   // => false
-		 * m.removeKey(1)   // => true
+		 * console.log(m.removeKey(3)); // => false
+		 * console.log(m.removeKey(1)); // => true
 		 * ```
 		 */
 		removeKey<UK = K>(key: RelatedTo<K, UK>): boolean;
@@ -1037,9 +1089,10 @@ export namespace MultiMapBase {
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
+		 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
 		 * const m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'], [1, 'c']).toBuilder()
-		 * m.removeKeys([10, 11])   // => false
-		 * m.removeKeys([1])        // => true
+		 * console.log(m.removeKeys([10, 11])); // => false
+		 * console.log(m.removeKeys([1])); // => true
 		 * ```
 		 */
 		removeKeys<UK = K>(keys: StreamSource<RelatedTo<K, UK>>): boolean;
@@ -1054,11 +1107,13 @@ export namespace MultiMapBase {
 		 * looping over it
 		 * @example
 		 * ```ts
+		 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+		 * const collected: [string, number][] = [];
 		 * HashMultiMapHashValue.of([1, 'a'], [2, 'b'], [1, 'c']).toBuilder().forEach((entry, i, halt) => {
-		 *  console.log([entry[1], entry[0]]);
-		 *  if (i >= 1) halt();
-		 * })
-		 * // => logs ['a', 1]  ['c', 1]  (or other order)
+		 *   collected.push([entry[1], entry[0]]);
+		 *   if (i >= 1) halt();
+		 * });
+		 * console.log(collected); // => [ [ "a", 1 ], [ "c", 1 ] ]
 		 * ```
 		 * @note O(N)
 		 */
@@ -1070,8 +1125,10 @@ export namespace MultiMapBase {
 		 * Returns an immutable collection instance containing the entries in this builder.
 		 * @example
 		 * ```ts
-		 * const m = HashMultiMapHashValue.of([1, 'a'], [2, 'b']).toBuilder()
-		 * const m2: HashMultiMapHashValue<number, string> = m.build()
+		 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+		 * const m = HashMultiMapHashValue.of([1, 'a'], [2, 'b']).toBuilder();
+		 * const m2: HashMultiMapHashValue<number, string> = m.build();
+		 * console.log(m2.toArray()); // => [ [ 1, "a" ], [ 2, "b" ] ]
 		 * ```
 		 */
 		build(): WithKeyValue<Tp, K, V>['normal'];

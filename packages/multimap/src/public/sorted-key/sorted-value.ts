@@ -21,8 +21,10 @@ import { createMultiMapContextModule } from '#multimap/context-factory';
  * the values for each key.
  * @example
  * ```ts
+ * import { SortedMultiMapSortedValue } from '@rimbu/multimap/sorted-key/sorted-value';
  * const m1 = SortedMultiMapSortedValue.empty<number, string>()
  * const m2 = SortedMultiMapSortedValue.of([1, 'a'], [1, 'b'], [2, 'a'])
+ * console.log(m2.toArray()); // => [ [ 1, "a" ], [ 1, "b" ], [ 2, "a" ] ]
  * ```
  */
 export interface SortedMultiMapSortedValue<K, V>
@@ -42,8 +44,10 @@ export namespace SortedMultiMapSortedValue {
 	 * the values for each key.
 	 * @example
 	 * ```ts
+	 * import { SortedMultiMapSortedValue } from '@rimbu/multimap/sorted-key/sorted-value';
 	 * const m1 = SortedMultiMapSortedValue.empty<number, string>()
 	 * const m2 = SortedMultiMapSortedValue.of([1, 'a'], [1, 'b'], [2, 'a'])
+	 * console.log(m2.toArray()); // => [ [ 1, "a" ], [ 1, "b" ], [ 2, "a" ] ]
 	 * ```
 	 */
 	export interface NonEmpty<K, V>

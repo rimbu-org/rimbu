@@ -367,6 +367,74 @@ Real bugs / API facts the loop caught (now fixed):
 - `assumeNonEmpty`-throws + `nonEmpty()`-narrowing + both `forEach` (collection &
   builder) reworked to verifiable form (try/catch, real narrowing, collect-array §6c).
 
+**multimap — DONE (all 81 `@example` blocks rewritten).** Files edited:
+`src/internal/types.ts` (73 blocks: `VariantMultiMapBase`, `.NonEmpty`, `MultiMapBase`,
+`.NonEmpty`, `.Factory`, `.Context`, `.Builder`) and the four public variant entries
+`src/public/{hash-key,sorted-key}/{hash-value,sorted-value}.ts` (2 each).
+
+Result (measured):
+- **Gate**: **0 type errors** for `multimap/` (peaked at 31).
+- **Verifier**: **504 snippets, 767 output comments, 0 issues** (peaked at 302).
+
+Reused the OLD-style workflow (three throwaway scripts, all deleted after use): a generic
+import-injector (adds `HashMultiMapHashValue` from `@rimbu/multimap/hash-key/hash-value`,
+plus `SortedMultiMap*` from their subpaths and `Stream` when used), a console.log-wrapper,
+and the report-driven apply-actuals matcher. Ran apply-actuals three times (after each
+gate fix regenerated the report). The matcher keys on the literal comment text, so comments
+whose guessed expected value collided with a more-common one (`true`, short arrays) got
+consumed first and needed a manual second pass — expect ~2–6 leftover manual fixes per
+large file.
+
+**`modifyAt` brace form — CONFIRMED and corrected.** Unlike `BiMap.modifyAt` (which uses
+`{ set }`/`{ update }` for the *ifExists* key in ALL variants from the chain), MultiMap's
+`MultiMap.ModifyOptions` (see `packages/multimap/src/multimap.ts:59`) is stricter:
+- `ifNew`: `{ set: StreamSource<V> }` OR `{ create: () => StreamSource<V> }` — **brace,
+  never a bare value or bare function**.
+- `ifExists`: `{ set: StreamSource<V> }` OR `{ update: (vs) => StreamSource<V> }`.
+The old docs used bare arrays (`ifNew: ['c','d']`) and bare functions (`ifExists: () =>
+['c']`) — both type errors. Rewritten to the brace form. (Note: this differs from the
+BiMap finding where `ifExists` itself required `{ update }`; here `ifExists` accepts EITHER
+`{ set }` OR `{ update }`. The unifying rule: **BiMultiMap and MultiMap both require the
+brace object, never a bare value; the difference is only whether `ifExists` also allows
+`{ set }`.**)
+
+Real bugs / API facts the loop caught (now fixed):
+- **`empty<number>()` needs TWO type args** (`empty<K, V>()`); `empty<number>()` is a
+  compile error (TS2558). Fixed to `empty<number, number>()`.
+- **`keyMap.get(1)` returns `RSet | undefined`** — must use `get(1)!` (or `getValues(1)`).
+- **`removeEntries([2, 'q'])` is wrong** — it takes `StreamSource<[K, V]>`, so a single
+  tuple must be wrapped: `removeEntries([[2, 'q']])`. A bare `[2, 'q']` (or a raw `3`) is
+  a type error. The leftover `removeEntries(3) === m` ref-identity example was rewritten to
+  `removeEntries([[3, 'q']]) === m`.
+- **`of([[1,'a'],[2,'b'],...])` single-nested bug** (7 sites) — `of` takes spread entries;
+  fixed to `of([1,'a'], [2,'b'], ...)`.
+- **`Builder.setValues(1, ['a'])` returns `true`, not `false`** — on `of([1,'a'])` the
+  builder's `setValues` reports `true` even though the resulting value set is identical
+  (the builder doesn't short-circuit on equal values). Old doc asserted `false`; corrected.
+- **`isEmpty` on a non-empty `of(...)` is `false`** (old `// => true` was simply wrong for
+  the second line of the `isEmpty` example).
+- **`toString()`** = `HashMultiMapHashValue(1 => ['a', 'c'], 2 => ['b'])` (arrow `=>`,
+  values double-quoted and bracketed; this is a *MultiMap*-specific format, distinct from
+  `BiMap`'s `<->` and `HashMap`'s `->`). Strings unquoted at the top level.
+- **`toJSON`** = `{ dataType: 'HashMultiMapHashValue', value: [[1, ['a', 'c']], [2, ['b']]] }`
+  (captured as-is; being removed soon).
+- **`removeKeyAndGet` returns `[newMap, values, hasValue]`**; `hasValue` is the 3rd element
+  (boolean), `values` the 2nd (a `HashSet` or `undefined`). The old example logged an
+  `if (result[2])` branch and then the whole tuple; rewritten to log
+  `[result[0].toString(), result[1]?.toString(), result[2]]` (clean single value) plus a
+  direct `result[2]` for the absent-key case.
+- **`Stream.of([1,'c'],[3,'a'])` needs the `<readonly [number,string]>` tuple type-arg**
+  (same widening issue as bimap/bimultimap).
+- `assumeNonEmpty`-throws + `nonEmpty()`-narrowing + both `forEach` (collection & builder)
+  reworked to verifiable form (try/catch, real narrowing, collect-array §6c).
+- `keyMap` and `asNormal` (type-only) reworked to log a real read (`map.get(1)!.toArray()`,
+  `m.toArray()`); `empty`/`of`/`from`/`builder`/`typeTag` type-showcase examples log
+  `.size`/`.toString()` instead of the bare object.
+
+`modifyAt` `Reduce` note: MultiMap's `MultiMap.ModifyOptions` (see
+`packages/multimap/src/multimap.ts:59`) is stricter than the bare-function style used in
+some older collection-types docs.
+
 
 Root scripts:
 

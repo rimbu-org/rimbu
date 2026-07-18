@@ -21,8 +21,10 @@ import { createMultiMapContextModule } from '#multimap/context-factory';
  * the values for each key.
  * @example
  * ```ts
+ * import { HashMultiMapSortedValue } from '@rimbu/multimap/hash-key/sorted-value';
  * const m1 = HashMultiMapSortedValue.empty<number, string>()
  * const m2 = HashMultiMapSortedValue.of([1, 'a'], [1, 'b'], [2, 'a'])
+ * console.log(m2.toArray()); // => [ [ 1, "a" ], [ 1, "b" ], [ 2, "a" ] ]
  * ```
  */
 export interface HashMultiMapSortedValue<K, V>
@@ -42,8 +44,10 @@ export namespace HashMultiMapSortedValue {
 	 * the values for each key.
 	 * @example
 	 * ```ts
+	 * import { HashMultiMapSortedValue } from '@rimbu/multimap/hash-key/sorted-value';
 	 * const m1 = HashMultiMapSortedValue.empty<number, string>()
 	 * const m2 = HashMultiMapSortedValue.of([1, 'a'], [1, 'b'], [2, 'a'])
+	 * console.log(m2.toArray()); // => [ [ 1, "a" ], [ 1, "b" ], [ 2, "a" ] ]
 	 * ```
 	 */
 	export interface NonEmpty<K, V>
