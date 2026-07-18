@@ -659,8 +659,9 @@ export class SortedSetInner<T> extends SortedSetNode<T> {
 		const index = this.context.findIndex(value, this.entries);
 		if (index >= 0)
 			return (
-				this.children.slice(0, index + 1).reduce((x, y) => x + y.size, 0) +
-				index
+				Stream.fromArray(this.children, {
+					range: { amount: index + 1 },
+				}).fold(0, (x, y) => x + y.size) + index
 			);
 		const childIndex = SortedIndex.next(index);
 		const child = this.children[childIndex];

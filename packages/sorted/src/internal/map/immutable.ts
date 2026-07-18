@@ -822,7 +822,9 @@ export class SortedMapInner<K, V> extends SortedMapNode<K, V> {
 		if (undefined !== index$) {
 			return (
 				index$ +
-				(this.children.slice(0, childIndex).reduce((x, y) => x + y.size, 0) -
+				(Stream.fromArray(this.children, {
+					range: { amount: childIndex },
+				}).fold(0, (x, y) => x + y.size) -
 					index -
 					1)
 			);
