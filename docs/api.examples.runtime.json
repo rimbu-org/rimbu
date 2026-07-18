@@ -18758,979 +18758,1385 @@
     "typeChecks": true
   },
   "multiset/VariantMultiSetBase.NonEmpty::isEmpty::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).isEmpty         // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).isEmpty); // => false",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/VariantMultiSetBase.NonEmpty::countMap::0::0": {
-    "code": "const m = HashMultiSet.of(1, 2, 2)\nconst map: HashMap.NonEmpty<number, number> = m.countMap",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nimport type { HashMap } from '@rimbu/hashed/map';\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.countMap.toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]",
+    "packages": [
+      "@rimbu/hashed",
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/VariantMultiSetBase.NonEmpty::nonEmpty::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).nonEmpty()   // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).nonEmpty()); // => true",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/VariantMultiSetBase.NonEmpty::asNormal::0::0": {
-    "code": "HashMultiSet.of(1, 2).asNormal();  // type: HashMultiSet<number>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2).asNormal().toArray()); // => [ 1, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/VariantMultiSetBase.NonEmpty::stream::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).stream().toArray()  // => [1, 2, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).stream().toArray()); // => [ 1, 2, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/VariantMultiSetBase.NonEmpty::streamDistinct::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).stream().toArray()  // => [1, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).streamDistinct().toArray()); // => [ 1, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/VariantMultiSetBase.NonEmpty::streamWithCounts::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).streamWithCounts().toArray()  // => [[1, 1], [2, 2]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).streamWithCounts().toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/VariantMultiSetBase.NonEmpty::toArray::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).toArray()  // => [1, 2, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).toArray()); // => [ 1, 2, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/VariantMultiSetBase::isEmpty::0::0": {
-    "code": "HashMultiSet.empty<number>().isEmpty     // => true\nHashMultiSet.of(1, 2, 2).isEmpty         // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.empty<number>().isEmpty); // => true\nconsole.log(HashMultiSet.of(1, 2, 2).isEmpty); // => false",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/VariantMultiSetBase::size::0::0": {
-    "code": "HashMultiSet.of(1, 2).size         // => 2\nHashMultiSet.of(1, 2, 2).size      // => 3",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2).size); // => 2\nconsole.log(HashMultiSet.of(1, 2, 2).size); // => 3",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/VariantMultiSetBase::sizeDistinct::0::0": {
-    "code": "HashMultiSet.of(1, 2).sizeDistinct       // => 2\nHashMultiSet.of(1, 2, 2).sizeDistinct    // => 2",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2).sizeDistinct); // => 2\nconsole.log(HashMultiSet.of(1, 2, 2).sizeDistinct); // => 2",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/VariantMultiSetBase::countMap::0::0": {
-    "code": "const m = HashMultiSet.of(1, 2, 2)\nconst map: HashMap.NonEmpty<number, number> = m.countMap",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nimport type { HashMap } from '@rimbu/hashed/map';\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.countMap.toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]",
+    "packages": [
+      "@rimbu/hashed",
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/VariantMultiSetBase::nonEmpty::0::0": {
-    "code": "const m: HashMultiSet<number> = HashMultiSet.of(1, 2, 2)\nm.stream().first(0)     // compiler allows fallback value since the Stream may be empty\nif (m.nonEmpty()) {\n  m.stream().first(0)   // compiler error: fallback value not allowed since Stream is not empty\n}",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nimport { Stream } from '@rimbu/stream';\n\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.nonEmpty()); // => true\nconsole.log(m.stream().first()); // => 1",
+    "packages": [
+      "@rimbu/multiset",
+      "@rimbu/stream"
+    ],
+    "typeChecks": true
   },
   "multiset/VariantMultiSetBase::assumeNonEmpty::0::0": {
-    "code": "HashMultiSet.empty<number>().assumeNonEmpty()   // => throws\nconst m: HashMultiSet<number> = HashMultiSet.of(1, 2)\nconst m2: HashMultiSet.NonEmpty<number> = m     // => compiler error\nconst m3: HashMultiSet.NonEmpty<number> = m.assumeNonEmpty()",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\n\nconst m = HashMultiSet.of(1, 2)\nconst m2 = m.assumeNonEmpty()\nconsole.log(m2.size);\n// => 2",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/VariantMultiSetBase::stream::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).stream().toArray()  // => [1, 2, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).stream().toArray()); // => [ 1, 2, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/VariantMultiSetBase::streamDistinct::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).streamDistinct().toArray()  // => [1, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).streamDistinct().toArray()); // => [ 1, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/VariantMultiSetBase::streamWithCounts::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).streamWithCounts().toArray()  // => [[1, 1], [2, 2]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).streamWithCounts().toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/VariantMultiSetBase::remove::0::0": {
-    "code": "const m = HashMultiSet.of(1, 2, 2)\nm.remove(5).toArray()     // => [1, 2, 2]\nm.remove(2).toArray()     // => [1]\nm.remove(2, 1).toArray()  // => [1, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.remove(5).toArray()); // => [ 1, 2, 2 ]\nconsole.log(m.remove(2).toArray()); // => [ 1, 2 ]\nconsole.log(m.remove(2, { amount: 1 }).toArray()); // => [ 1, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/VariantMultiSetBase::removeAll::0::0": {
-    "code": "const m = HashMultiSet.of(1, 2, 2)\nm.removeAll([5, 6]).toArray()         // => [1, 2, 2]\nm.removeAll([2, 3]).toArray()         // => [1]\nm.removeAll([2], { amount: 1 }).toArray()  // => [1, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.removeAll([5, 6]).toArray()); // => [ 1, 2, 2 ]\nconsole.log(m.removeAll([2, 3]).toArray()); // => [ 1 ]\nconsole.log(m.removeAll([2], { amount: 1 }).toArray()); // => [ 1, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/VariantMultiSetBase::has::0::0": {
-    "code": "const m = HashMultiSet.of(1, 2, 2)\nm.has(5)   // => false\nm.has(2)   // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.has(5)); // => false\nconsole.log(m.has(2)); // => true",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/VariantMultiSetBase::count::0::0": {
-    "code": "const m = HashMultiSet.of(1, 2, 2)\nm.count(5)   // => 0\nm.count(2)   // => 2",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.count(5)); // => 0\nconsole.log(m.count(2)); // => 2",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/VariantMultiSetBase::forEach::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2, 3).forEach((value, i, halt) => {\n  console.log(value)\n  if (i >= 1) halt()\n})\n// => logs 1  2",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst result: number[] = [];\nHashMultiSet.of(1, 2, 2, 3).forEach((value, i, halt) => {\n  result.push(value);\n  if (i >= 1) halt();\n});\nconsole.log(result);\n// => [ 1, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/VariantMultiSetBase::filterWithCounts::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2, 3)\n  .filterWithCounts(([_, count]) => count > 1)\n  .toArray()\n// => [2, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nHashMultiSet.of(1, 2, 2, 3)\n  .filterWithCounts(([_, count]) => count > 1)\n  .toArray()\n// => [2, 2]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/VariantMultiSetBase::toArray::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).toArray()  // => [1, 2, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).toArray()); // => [ 1, 2, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/VariantMultiSetBase::toString::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).toString()  // => HashMultiSet(1, 2, 2)",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).toString()); // => HashMultiSet(1, 2, 2)",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/VariantMultiSetBase::toJSON::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).toJSON()   // => { dataType: 'HashMultiSet', value: [[1, 1], [2, 2]] }",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).toJSON()); // => { dataType: \"HashMultiSet\", value: [ [ 1, 1 ], [ 2, 2 ] ] }",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase.NonEmpty::stream::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).stream().toArray()  // => [1, 2, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).stream().toArray()); // => [ 1, 2, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase.NonEmpty::add::0::0": {
-    "code": "HashMultiSet.of(1, 2).add(2).toArray()      // => [1, 2, 2]\nHashMultiSet.of(1, 2).add(3, 2).toArray()   // => [1, 2, 3, 3]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2).add(2).toArray()); // => [ 1, 2, 2 ]\nconsole.log(HashMultiSet.of(1, 2).add(3, 2).toArray()); // => [ 1, 2, 3, 3 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase.NonEmpty::addAll::0::0": {
-    "code": "HashMultiSet.of(1, 2).addAll([2, 3]).toArray()   // => [1, 2, 2, 3]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2).addAll([2, 3]).toArray()); // => [ 1, 2, 2, 3 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase.NonEmpty::addAllWithCounts::0::0": {
-    "code": "HashMultiSet.of(1, 2).addAllWithCounts([[2, 2], [3, 2]]).toArray()\n// => [1, 2, 2, 2, 3, 3]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nHashMultiSet.of(1, 2).addAllWithCounts([[2, 2], [3, 2]]).toArray()\n// => [1, 2, 2, 2, 3, 3]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase.Factory::empty::0::0": {
-    "code": "HashMultiSet.empty<number>()  // => HashMultiSet<number>\nHashMultiSet.empty<string>()  // => HashMultiSet<string>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.empty<number>().toArray()); // => []\nconsole.log(HashMultiSet.empty<string>().toArray()); // => []",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase.Factory::of::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2)    // => HashMultiSet.NonEmpty<number>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).toArray()); // => [ 1, 2, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase.Factory::from::0::0": {
-    "code": "HashMultiSet.from([1, 2], [2, 3, 4]).toArray()    // => [1, 2, 2, 3, 4]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.from([1, 2], [2, 3, 4]).toArray()); // => [ 1, 2, 2, 3, 4 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase.Factory::builder::0::0": {
-    "code": "HashMultiSet.builder<number>()    // => HashMultiSet.Builder<number>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.builder<number>().isEmpty); // => true",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase.Factory::reducer::0::0": {
-    "code": "const someSource = [1, 2, 3];\nconst result = Stream.range({ start: 20, amount: 5 }).reduce(HashMultiSet.reducer(someSource))\nresult.toArray()   // => [1, 2, 3, 20, 21, 22, 23, 24]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nimport { Stream } from '@rimbu/stream';\nconst someSource = [1, 2, 3];\nconst result = Stream.range({ start: 20, amount: 5 }).reduce(HashMultiSet.reducer(someSource))\nconsole.log(result.toArray()); // => [ 1, 2, 3, 20, 21, 22, 23, 24 ]",
+    "packages": [
+      "@rimbu/multiset",
+      "@rimbu/stream"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase.Context::typeTag::0::0": {
-    "code": "HashMultiSet.defaultContext().typeTag   // => 'HashMultiSet'",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.defaultContext().typeTag); // => HashMultiSet",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase.Context::isValidElem::0::0": {
-    "code": "HashMultiSet.defaultContext().isValidElem(1)   // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.defaultContext().isValidElem(1)); // => true",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase.Builder::size::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).toBuilder().size\n// => 3",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nHashMultiSet.of(1, 2, 2).toBuilder().size\n// => 3",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase.Builder::sizeDistinct::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).toBuilder().sizeDistinct\n// => 2",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nHashMultiSet.of(1, 2, 2).toBuilder().sizeDistinct\n// => 2",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase.Builder::isEmpty::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).toBuilder().isEmpty\n// => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nHashMultiSet.of(1, 2, 2).toBuilder().isEmpty\n// => false",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase.Builder::has::0::0": {
-    "code": "const s = HashMultiSet.of(1, 2, 2).toBuilder()\ns.has(2)   // => true\ns.has(10)  // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst s = HashMultiSet.of(1, 2, 2).toBuilder()\nconsole.log(s.has(2)); // => true\nconsole.log(s.has(10)); // => false",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase.Builder::add::0::0": {
-    "code": "const s = HashMultiSet.of(1, 2, 2).toBuilder()\ns.add(2)     // => true\ns.add(3, 5)  // => true\ns.add(3, 0)  // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst s = HashMultiSet.of(1, 2, 2).toBuilder()\nconsole.log(s.add(2)); // => true\nconsole.log(s.add(3, 5)); // => true\nconsole.log(s.add(3, 0)); // => false",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase.Builder::addAll::0::0": {
-    "code": "const s = HashMultiSet.of(1, 2, 2).toBuilder()\ns.addAll(1, 3)   // => false\ns.addAll(2, 10)  // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst s = HashMultiSet.of(1, 2, 2).toBuilder()\nconsole.log(s.addAll([1, 3]));   // => true\nconsole.log(s.addAll([2, 10]));  // => true",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase.Builder::addAllWithCounts::0::0": {
-    "code": "const s = HashMultiSet.of(1, 2, 2).toBuilder()\ns.addAllWithCounts([[1, 2], [2, 3]])   // => true\ns.addAllWithCounts([[1, 0], [3, 0]])   // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst s = HashMultiSet.of(1, 2, 2).toBuilder()\nconsole.log(s.addAllWithCounts([[1, 2], [2, 3]])); // => true\nconsole.log(s.addAllWithCounts([[1, 0], [3, 0]])); // => false",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase.Builder::remove::0::0": {
-    "code": "const s = HashMultiSet.of(1, 2, 2).toBuilder()\ns.remove(10)    // => 0\ns.remove(1, 2)  // => 1\ns.remove(2, 2)  // => 2",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst s = HashMultiSet.of(1, 2, 2).toBuilder()\nconsole.log(s.remove(10)); // => 0\nconsole.log(s.remove(1, 2)); // => 1\nconsole.log(s.remove(2, 2)); // => 2",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase.Builder::removeAll::0::0": {
-    "code": "const s = HashMultiSet.of(1, 2, 2).toBuilder()\ns.removeAll([10, 11])   // => false\ns.removeAll([1, 11])    // => true\ns.removeAll([2], { amount: 1 })  // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst s = HashMultiSet.of(1, 2, 2).toBuilder()\nconsole.log(s.removeAll([10, 11])); // => false\nconsole.log(s.removeAll([1, 11])); // => true\nconsole.log(s.removeAll([2], { amount: 1 })); // => true",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase.Builder::setCount::0::0": {
-    "code": "const s = HashMultiSet.of(1, 2, 2).toBuilder()\ns.setCount(1, 1)    // => false\ns.setCount(1, 3)    // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst s = HashMultiSet.of(1, 2, 2).toBuilder()\nconsole.log(s.setCount(1, 1)); // => false\nconsole.log(s.setCount(1, 3)); // => true",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase.Builder::modifyCount::0::0": {
-    "code": "const s = HashMultiSet.of(1, 2, 2).toBuilder()\ns.modifyCount(3, v => v)      // => false\ns.modifyCount(3, v => v + 1)  // => true\ns.modifyCount(2, v => v + 1)  // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst s = HashMultiSet.of(1, 2, 2).toBuilder()\nconsole.log(s.modifyCount(3, v => v)); // => false\nconsole.log(s.modifyCount(3, v => v + 1)); // => true\nconsole.log(s.modifyCount(2, v => v + 1)); // => true",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase.Builder::count::0::0": {
-    "code": "const s = HashMultiSet.of(1, 2, 2).toBuilder()\ns.count(10)    // => 0\ns.count(2)     // => 2",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst s = HashMultiSet.of(1, 2, 2).toBuilder()\nconsole.log(s.count(10)); // => 0\nconsole.log(s.count(2)); // => 2",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase.Builder::forEach::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2, 3).toBuilder().forEach((value, i, halt) => {\n  console.log(value)\n  if (i >= 1) halt()\n})\n// => logs 1  2",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst result: number[] = [];\nHashMultiSet.of(1, 2, 2, 3).toBuilder().forEach((value, i, halt) => {\n  result.push(value);\n  if (i >= 1) halt();\n});\nconsole.log(result);\n// => [ 1, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase.Builder::build::0::0": {
-    "code": "const s = HashMultiSet.of(1, 2, 2).toBuilder()\nconst s2: HashMultiSet<number> = s.build()",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst s = HashMultiSet.of(1, 2, 2).toBuilder()\nconst s2 = s.build()\nconsole.log(s2.toArray()); // => [ 1, 2, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase::add::0::0": {
-    "code": "HashMultiSet.of(1, 2).add(2).toArray()      // => [1, 2, 2]\nHashMultiSet.of(1, 2).add(3, 2).toArray()   // => [1, 2, 3, 3]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2).add(2).toArray()); // => [ 1, 2, 2 ]\nconsole.log(HashMultiSet.of(1, 2).add(3, 2).toArray()); // => [ 1, 2, 3, 3 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase::addAll::0::0": {
-    "code": "HashMultiSet.of(1, 2).addAll([2, 3]).toArray()   // => [1, 2, 2, 3]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2).addAll([2, 3]).toArray()); // => [ 1, 2, 2, 3 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase::addAllWithCounts::0::0": {
-    "code": "HashMultiSet.of(1, 2).addAllWithCounts([[2, 2], [3, 2]]).toArray()\n// => [1, 2, 2, 2, 3, 3]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nHashMultiSet.of(1, 2).addAllWithCounts([[2, 2], [3, 2]]).toArray()\n// => [1, 2, 2, 2, 3, 3]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase::setCount::0::0": {
-    "code": "const m = HashMultiSet.of(1, 2, 2)\nm.setCount(1, 2).toArray()    // => [1, 1, 2, 2]\nm.setCount(2, 0).toArray()    // => [1]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.setCount(1, 2).toArray()); // => [ 1, 1, 2, 2 ]\nconsole.log(m.setCount(2, 0).toArray()); // => [ 1, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase::modifyCount::0::0": {
-    "code": "const m = HashMultiSet.of(1, 2, 2)\nm.modifyCount(1, v => v + 1).toArray()   // => [1, 1, 2, 2]\nm.modifyCount(3, v => v + 1).toArray()   // => [1, 2, 2, 3]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.modifyCount(1, v => v + 1).toArray()); // => [ 1, 1, 2, 2 ]\nconsole.log(m.modifyCount(3, v => v + 1).toArray()); // => [ 1, 2, 2, 3 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase::union::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).union(HashMultiSet.of(2, 3)).toArray()\n// => [1, 2, 2, 3]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nHashMultiSet.of(1, 2, 2).union(HashMultiSet.of(2, 3)).toArray()\n// => [ 1, 2, 2, 3 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase::intersect::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).intersect(HashMultiSet.of(2, 3)).toArray()\n// => [2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nHashMultiSet.of(1, 2, 2).intersect(HashMultiSet.of(2, 3)).toArray()\n// => [2]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase::difference::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).difference(HashMultiSet.of(2, 3)).toArray()\n// => [1, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nHashMultiSet.of(1, 2, 2).difference(HashMultiSet.of(2, 3)).toArray()\n// => [ 1, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase::symDifference::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).symDifference(HashMultiSet.of(2, 3)).toArray()\n// => [1, 2, 3]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nHashMultiSet.of(1, 2, 2).symDifference(HashMultiSet.of(2, 3)).toArray()\n// => [1, 2, 3]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase::toBuilder::0::0": {
-    "code": "const builder: HashMultiSet.Builder<number>\n  = HashMultiSet.of(1, 2, 2).toBuilder()",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst builder = HashMultiSet.of(1, 2, 2).toBuilder()\nconsole.log(builder.size); // => 3",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase::isEmpty::0::0": {
-    "code": "HashMultiSet.empty<number>().isEmpty     // => true\nHashMultiSet.of(1, 2, 2).isEmpty         // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.empty<number>().isEmpty); // => true\nconsole.log(HashMultiSet.of(1, 2, 2).isEmpty); // => false",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase::size::0::0": {
-    "code": "HashMultiSet.of(1, 2).size         // => 2\nHashMultiSet.of(1, 2, 2).size      // => 3",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2).size); // => 2\nconsole.log(HashMultiSet.of(1, 2, 2).size); // => 3",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase::sizeDistinct::0::0": {
-    "code": "HashMultiSet.of(1, 2).sizeDistinct       // => 2\nHashMultiSet.of(1, 2, 2).sizeDistinct    // => 2",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2).sizeDistinct); // => 2\nconsole.log(HashMultiSet.of(1, 2, 2).sizeDistinct); // => 2",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase::countMap::0::0": {
-    "code": "const m = HashMultiSet.of(1, 2, 2)\nconst map: HashMap.NonEmpty<number, number> = m.countMap",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nimport type { HashMap } from '@rimbu/hashed/map';\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.countMap.toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]",
+    "packages": [
+      "@rimbu/hashed",
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase::nonEmpty::0::0": {
-    "code": "const m: HashMultiSet<number> = HashMultiSet.of(1, 2, 2)\nm.stream().first(0)     // compiler allows fallback value since the Stream may be empty\nif (m.nonEmpty()) {\n  m.stream().first(0)   // compiler error: fallback value not allowed since Stream is not empty\n}",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nimport { Stream } from '@rimbu/stream';\n\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.nonEmpty()); // => true\nconsole.log(m.stream().first()); // => 1",
+    "packages": [
+      "@rimbu/multiset",
+      "@rimbu/stream"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase::assumeNonEmpty::0::0": {
-    "code": "HashMultiSet.empty<number>().assumeNonEmpty()   // => throws\nconst m: HashMultiSet<number> = HashMultiSet.of(1, 2)\nconst m2: HashMultiSet.NonEmpty<number> = m     // => compiler error\nconst m3: HashMultiSet.NonEmpty<number> = m.assumeNonEmpty()",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\n\nconst m = HashMultiSet.of(1, 2)\nconst m2 = m.assumeNonEmpty()\nconsole.log(m2.size);\n// => 2",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase::stream::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).stream().toArray()  // => [1, 2, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).stream().toArray()); // => [ 1, 2, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase::streamDistinct::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).streamDistinct().toArray()  // => [1, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).streamDistinct().toArray()); // => [ 1, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase::streamWithCounts::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).streamWithCounts().toArray()  // => [[1, 1], [2, 2]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).streamWithCounts().toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase::remove::0::0": {
-    "code": "const m = HashMultiSet.of(1, 2, 2)\nm.remove(5).toArray()     // => [1, 2, 2]\nm.remove(2).toArray()     // => [1]\nm.remove(2, 1).toArray()  // => [1, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.remove(5).toArray()); // => [ 1, 2, 2 ]\nconsole.log(m.remove(2).toArray()); // => [ 1, 2 ]\nconsole.log(m.remove(2, { amount: 1 }).toArray()); // => [ 1, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase::removeAll::0::0": {
-    "code": "const m = HashMultiSet.of(1, 2, 2)\nm.removeAll([5, 6]).toArray()         // => [1, 2, 2]\nm.removeAll([2, 3]).toArray()         // => [1]\nm.removeAll([2], { amount: 1 }).toArray()  // => [1, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.removeAll([5, 6]).toArray()); // => [ 1, 2, 2 ]\nconsole.log(m.removeAll([2, 3]).toArray()); // => [ 1 ]\nconsole.log(m.removeAll([2], { amount: 1 }).toArray()); // => [ 1, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase::has::0::0": {
-    "code": "const m = HashMultiSet.of(1, 2, 2)\nm.has(5)   // => false\nm.has(2)   // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.has(5)); // => false\nconsole.log(m.has(2)); // => true",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase::count::0::0": {
-    "code": "const m = HashMultiSet.of(1, 2, 2)\nm.count(5)   // => 0\nm.count(2)   // => 2",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.count(5)); // => 0\nconsole.log(m.count(2)); // => 2",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase::forEach::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2, 3).forEach((value, i, halt) => {\n  console.log(value)\n  if (i >= 1) halt()\n})\n// => logs 1  2",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst result: number[] = [];\nHashMultiSet.of(1, 2, 2, 3).forEach((value, i, halt) => {\n  result.push(value);\n  if (i >= 1) halt();\n});\nconsole.log(result);\n// => [ 1, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase::filterWithCounts::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2, 3)\n  .filterWithCounts(([_, count]) => count > 1)\n  .toArray()\n// => [2, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nHashMultiSet.of(1, 2, 2, 3)\n  .filterWithCounts(([_, count]) => count > 1)\n  .toArray()\n// => [2, 2]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase::toArray::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).toArray()  // => [1, 2, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).toArray()); // => [ 1, 2, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase::toString::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).toString()  // => HashMultiSet(1, 2, 2)",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).toString()); // => HashMultiSet(1, 2, 2)",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSetBase::toJSON::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).toJSON()   // => { dataType: 'HashMultiSet', value: [[1, 1], [2, 2]] }",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).toJSON()); // => { dataType: \"HashMultiSet\", value: [ [ 1, 1 ], [ 2, 2 ] ] }",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/HashMultiSet.NonEmpty::::-1::0": {
-    "code": "const m1 = HashMultiSet.empty<string>()\nconst m2 = HashMultiSet.of('a', 'b', 'a', 'c')",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\n\nconsole.log(HashMultiSet.empty<string>().toArray()); // => []\nconsole.log(HashMultiSet.of('a', 'b', 'a', 'c').toArray()); // => [ \"a\", \"a\", \"b\", \"c\" ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/HashMultiSet::::-1::0": {
-    "code": "const m1 = HashMultiSet.empty<string>()\nconst m2 = HashMultiSet.of('a', 'b', 'a', 'c')",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\n\nconsole.log(HashMultiSet.empty<string>().toArray()); // => []\nconsole.log(HashMultiSet.of('a', 'b', 'a', 'c').toArray()); // => [ \"a\", \"a\", \"b\", \"c\" ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/HashMultiSet::add::0::0": {
-    "code": "HashMultiSet.of(1, 2).add(2).toArray()      // => [1, 2, 2]\nHashMultiSet.of(1, 2).add(3, 2).toArray()   // => [1, 2, 3, 3]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2).add(2).toArray()); // => [ 1, 2, 2 ]\nconsole.log(HashMultiSet.of(1, 2).add(3, 2).toArray()); // => [ 1, 2, 3, 3 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/HashMultiSet::addAll::0::0": {
-    "code": "HashMultiSet.of(1, 2).addAll([2, 3]).toArray()   // => [1, 2, 2, 3]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2).addAll([2, 3]).toArray()); // => [ 1, 2, 2, 3 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/HashMultiSet::addAllWithCounts::0::0": {
-    "code": "HashMultiSet.of(1, 2).addAllWithCounts([[2, 2], [3, 2]]).toArray()\n// => [1, 2, 2, 2, 3, 3]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nHashMultiSet.of(1, 2).addAllWithCounts([[2, 2], [3, 2]]).toArray()\n// => [1, 2, 2, 2, 3, 3]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/HashMultiSet::setCount::0::0": {
-    "code": "const m = HashMultiSet.of(1, 2, 2)\nm.setCount(1, 2).toArray()    // => [1, 1, 2, 2]\nm.setCount(2, 0).toArray()    // => [1]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.setCount(1, 2).toArray()); // => [ 1, 1, 2, 2 ]\nconsole.log(m.setCount(2, 0).toArray()); // => [ 1, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/HashMultiSet::modifyCount::0::0": {
-    "code": "const m = HashMultiSet.of(1, 2, 2)\nm.modifyCount(1, v => v + 1).toArray()   // => [1, 1, 2, 2]\nm.modifyCount(3, v => v + 1).toArray()   // => [1, 2, 2, 3]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.modifyCount(1, v => v + 1).toArray()); // => [ 1, 1, 2, 2 ]\nconsole.log(m.modifyCount(3, v => v + 1).toArray()); // => [ 1, 2, 2, 3 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/HashMultiSet::union::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).union(HashMultiSet.of(2, 3)).toArray()\n// => [1, 2, 2, 3]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nHashMultiSet.of(1, 2, 2).union(HashMultiSet.of(2, 3)).toArray()\n// => [ 1, 2, 2, 3 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/HashMultiSet::intersect::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).intersect(HashMultiSet.of(2, 3)).toArray()\n// => [2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nHashMultiSet.of(1, 2, 2).intersect(HashMultiSet.of(2, 3)).toArray()\n// => [2]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/HashMultiSet::difference::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).difference(HashMultiSet.of(2, 3)).toArray()\n// => [1, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nHashMultiSet.of(1, 2, 2).difference(HashMultiSet.of(2, 3)).toArray()\n// => [ 1, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/HashMultiSet::symDifference::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).symDifference(HashMultiSet.of(2, 3)).toArray()\n// => [1, 2, 3]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nHashMultiSet.of(1, 2, 2).symDifference(HashMultiSet.of(2, 3)).toArray()\n// => [1, 2, 3]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/HashMultiSet::toBuilder::0::0": {
-    "code": "const builder: HashMultiSet.Builder<number>\n  = HashMultiSet.of(1, 2, 2).toBuilder()",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst builder = HashMultiSet.of(1, 2, 2).toBuilder()\nconsole.log(builder.size); // => 3",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/HashMultiSet::isEmpty::0::0": {
-    "code": "HashMultiSet.empty<number>().isEmpty     // => true\nHashMultiSet.of(1, 2, 2).isEmpty         // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.empty<number>().isEmpty); // => true\nconsole.log(HashMultiSet.of(1, 2, 2).isEmpty); // => false",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/HashMultiSet::size::0::0": {
-    "code": "HashMultiSet.of(1, 2).size         // => 2\nHashMultiSet.of(1, 2, 2).size      // => 3",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2).size); // => 2\nconsole.log(HashMultiSet.of(1, 2, 2).size); // => 3",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/HashMultiSet::sizeDistinct::0::0": {
-    "code": "HashMultiSet.of(1, 2).sizeDistinct       // => 2\nHashMultiSet.of(1, 2, 2).sizeDistinct    // => 2",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2).sizeDistinct); // => 2\nconsole.log(HashMultiSet.of(1, 2, 2).sizeDistinct); // => 2",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/HashMultiSet::countMap::0::0": {
-    "code": "const m = HashMultiSet.of(1, 2, 2)\nconst map: HashMap.NonEmpty<number, number> = m.countMap",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nimport type { HashMap } from '@rimbu/hashed/map';\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.countMap.toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]",
+    "packages": [
+      "@rimbu/hashed",
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/HashMultiSet::nonEmpty::0::0": {
-    "code": "const m: HashMultiSet<number> = HashMultiSet.of(1, 2, 2)\nm.stream().first(0)     // compiler allows fallback value since the Stream may be empty\nif (m.nonEmpty()) {\n  m.stream().first(0)   // compiler error: fallback value not allowed since Stream is not empty\n}",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nimport { Stream } from '@rimbu/stream';\n\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.nonEmpty()); // => true\nconsole.log(m.stream().first()); // => 1",
+    "packages": [
+      "@rimbu/multiset",
+      "@rimbu/stream"
+    ],
+    "typeChecks": true
   },
   "multiset/HashMultiSet::assumeNonEmpty::0::0": {
-    "code": "HashMultiSet.empty<number>().assumeNonEmpty()   // => throws\nconst m: HashMultiSet<number> = HashMultiSet.of(1, 2)\nconst m2: HashMultiSet.NonEmpty<number> = m     // => compiler error\nconst m3: HashMultiSet.NonEmpty<number> = m.assumeNonEmpty()",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\n\nconst m = HashMultiSet.of(1, 2)\nconst m2 = m.assumeNonEmpty()\nconsole.log(m2.size);\n// => 2",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/HashMultiSet::stream::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).stream().toArray()  // => [1, 2, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).stream().toArray()); // => [ 1, 2, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/HashMultiSet::streamDistinct::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).streamDistinct().toArray()  // => [1, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).streamDistinct().toArray()); // => [ 1, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/HashMultiSet::streamWithCounts::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).streamWithCounts().toArray()  // => [[1, 1], [2, 2]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).streamWithCounts().toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/HashMultiSet::remove::0::0": {
-    "code": "const m = HashMultiSet.of(1, 2, 2)\nm.remove(5).toArray()     // => [1, 2, 2]\nm.remove(2).toArray()     // => [1]\nm.remove(2, 1).toArray()  // => [1, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.remove(5).toArray()); // => [ 1, 2, 2 ]\nconsole.log(m.remove(2).toArray()); // => [ 1, 2 ]\nconsole.log(m.remove(2, { amount: 1 }).toArray()); // => [ 1, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/HashMultiSet::removeAll::0::0": {
-    "code": "const m = HashMultiSet.of(1, 2, 2)\nm.removeAll([5, 6]).toArray()         // => [1, 2, 2]\nm.removeAll([2, 3]).toArray()         // => [1]\nm.removeAll([2], { amount: 1 }).toArray()  // => [1, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.removeAll([5, 6]).toArray()); // => [ 1, 2, 2 ]\nconsole.log(m.removeAll([2, 3]).toArray()); // => [ 1 ]\nconsole.log(m.removeAll([2], { amount: 1 }).toArray()); // => [ 1, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/HashMultiSet::has::0::0": {
-    "code": "const m = HashMultiSet.of(1, 2, 2)\nm.has(5)   // => false\nm.has(2)   // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.has(5)); // => false\nconsole.log(m.has(2)); // => true",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/HashMultiSet::count::0::0": {
-    "code": "const m = HashMultiSet.of(1, 2, 2)\nm.count(5)   // => 0\nm.count(2)   // => 2",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.count(5)); // => 0\nconsole.log(m.count(2)); // => 2",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/HashMultiSet::forEach::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2, 3).forEach((value, i, halt) => {\n  console.log(value)\n  if (i >= 1) halt()\n})\n// => logs 1  2",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst result: number[] = [];\nHashMultiSet.of(1, 2, 2, 3).forEach((value, i, halt) => {\n  result.push(value);\n  if (i >= 1) halt();\n});\nconsole.log(result);\n// => [ 1, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/HashMultiSet::filterWithCounts::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2, 3)\n  .filterWithCounts(([_, count]) => count > 1)\n  .toArray()\n// => [2, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nHashMultiSet.of(1, 2, 2, 3)\n  .filterWithCounts(([_, count]) => count > 1)\n  .toArray()\n// => [2, 2]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/HashMultiSet::toArray::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).toArray()  // => [1, 2, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).toArray()); // => [ 1, 2, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/HashMultiSet::toString::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).toString()  // => HashMultiSet(1, 2, 2)",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).toString()); // => HashMultiSet(1, 2, 2)",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/HashMultiSet::toJSON::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).toJSON()   // => { dataType: 'HashMultiSet', value: [[1, 1], [2, 2]] }",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).toJSON()); // => { dataType: \"HashMultiSet\", value: [ [ 1, 1 ], [ 2, 2 ] ] }",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/HashMultiSet::empty::0::0": {
-    "code": "HashMultiSet.empty<number>()  // => HashMultiSet<number>\nHashMultiSet.empty<string>()  // => HashMultiSet<string>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.empty<number>().toArray()); // => []\nconsole.log(HashMultiSet.empty<string>().toArray()); // => []",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/HashMultiSet::of::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2)    // => HashMultiSet.NonEmpty<number>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).toArray()); // => [ 1, 2, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/HashMultiSet::from::0::0": {
-    "code": "HashMultiSet.from([1, 2], [2, 3, 4]).toArray()    // => [1, 2, 2, 3, 4]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.from([1, 2], [2, 3, 4]).toArray()); // => [ 1, 2, 2, 3, 4 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/HashMultiSet::builder::0::0": {
-    "code": "HashMultiSet.builder<number>()    // => HashMultiSet.Builder<number>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.builder<number>().isEmpty); // => true",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/HashMultiSet::reducer::0::0": {
-    "code": "const someSource = [1, 2, 3];\nconst result = Stream.range({ start: 20, amount: 5 }).reduce(HashMultiSet.reducer(someSource))\nresult.toArray()   // => [1, 2, 3, 20, 21, 22, 23, 24]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nimport { Stream } from '@rimbu/stream';\nconst someSource = [1, 2, 3];\nconst result = Stream.range({ start: 20, amount: 5 }).reduce(HashMultiSet.reducer(someSource))\nconsole.log(result.toArray()); // => [ 1, 2, 3, 20, 21, 22, 23, 24 ]",
+    "packages": [
+      "@rimbu/multiset",
+      "@rimbu/stream"
+    ],
+    "typeChecks": true
   },
   "multiset/VariantMultiSet::isEmpty::0::0": {
-    "code": "HashMultiSet.empty<number>().isEmpty     // => true\nHashMultiSet.of(1, 2, 2).isEmpty         // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.empty<number>().isEmpty); // => true\nconsole.log(HashMultiSet.of(1, 2, 2).isEmpty); // => false",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/VariantMultiSet::size::0::0": {
-    "code": "HashMultiSet.of(1, 2).size         // => 2\nHashMultiSet.of(1, 2, 2).size      // => 3",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2).size); // => 2\nconsole.log(HashMultiSet.of(1, 2, 2).size); // => 3",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/VariantMultiSet::sizeDistinct::0::0": {
-    "code": "HashMultiSet.of(1, 2).sizeDistinct       // => 2\nHashMultiSet.of(1, 2, 2).sizeDistinct    // => 2",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2).sizeDistinct); // => 2\nconsole.log(HashMultiSet.of(1, 2, 2).sizeDistinct); // => 2",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/VariantMultiSet::countMap::0::0": {
-    "code": "const m = HashMultiSet.of(1, 2, 2)\nconst map: HashMap.NonEmpty<number, number> = m.countMap",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nimport type { HashMap } from '@rimbu/hashed/map';\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.countMap.toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]",
+    "packages": [
+      "@rimbu/hashed",
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/VariantMultiSet::nonEmpty::0::0": {
-    "code": "const m: HashMultiSet<number> = HashMultiSet.of(1, 2, 2)\nm.stream().first(0)     // compiler allows fallback value since the Stream may be empty\nif (m.nonEmpty()) {\n  m.stream().first(0)   // compiler error: fallback value not allowed since Stream is not empty\n}",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nimport { Stream } from '@rimbu/stream';\n\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.nonEmpty()); // => true\nconsole.log(m.stream().first()); // => 1",
+    "packages": [
+      "@rimbu/multiset",
+      "@rimbu/stream"
+    ],
+    "typeChecks": true
   },
   "multiset/VariantMultiSet::assumeNonEmpty::0::0": {
-    "code": "HashMultiSet.empty<number>().assumeNonEmpty()   // => throws\nconst m: HashMultiSet<number> = HashMultiSet.of(1, 2)\nconst m2: HashMultiSet.NonEmpty<number> = m     // => compiler error\nconst m3: HashMultiSet.NonEmpty<number> = m.assumeNonEmpty()",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\n\nconst m = HashMultiSet.of(1, 2)\nconst m2 = m.assumeNonEmpty()\nconsole.log(m2.size);\n// => 2",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/VariantMultiSet::stream::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).stream().toArray()  // => [1, 2, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).stream().toArray()); // => [ 1, 2, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/VariantMultiSet::streamDistinct::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).streamDistinct().toArray()  // => [1, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).streamDistinct().toArray()); // => [ 1, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/VariantMultiSet::streamWithCounts::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).streamWithCounts().toArray()  // => [[1, 1], [2, 2]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).streamWithCounts().toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/VariantMultiSet::remove::0::0": {
-    "code": "const m = HashMultiSet.of(1, 2, 2)\nm.remove(5).toArray()     // => [1, 2, 2]\nm.remove(2).toArray()     // => [1]\nm.remove(2, 1).toArray()  // => [1, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.remove(5).toArray()); // => [ 1, 2, 2 ]\nconsole.log(m.remove(2).toArray()); // => [ 1, 2 ]\nconsole.log(m.remove(2, { amount: 1 }).toArray()); // => [ 1, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/VariantMultiSet::removeAll::0::0": {
-    "code": "const m = HashMultiSet.of(1, 2, 2)\nm.removeAll([5, 6]).toArray()         // => [1, 2, 2]\nm.removeAll([2, 3]).toArray()         // => [1]\nm.removeAll([2], { amount: 1 }).toArray()  // => [1, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.removeAll([5, 6]).toArray()); // => [ 1, 2, 2 ]\nconsole.log(m.removeAll([2, 3]).toArray()); // => [ 1 ]\nconsole.log(m.removeAll([2], { amount: 1 }).toArray()); // => [ 1, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/VariantMultiSet::has::0::0": {
-    "code": "const m = HashMultiSet.of(1, 2, 2)\nm.has(5)   // => false\nm.has(2)   // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.has(5)); // => false\nconsole.log(m.has(2)); // => true",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/VariantMultiSet::count::0::0": {
-    "code": "const m = HashMultiSet.of(1, 2, 2)\nm.count(5)   // => 0\nm.count(2)   // => 2",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.count(5)); // => 0\nconsole.log(m.count(2)); // => 2",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/VariantMultiSet::forEach::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2, 3).forEach((value, i, halt) => {\n  console.log(value)\n  if (i >= 1) halt()\n})\n// => logs 1  2",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst result: number[] = [];\nHashMultiSet.of(1, 2, 2, 3).forEach((value, i, halt) => {\n  result.push(value);\n  if (i >= 1) halt();\n});\nconsole.log(result);\n// => [ 1, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/VariantMultiSet::filterWithCounts::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2, 3)\n  .filterWithCounts(([_, count]) => count > 1)\n  .toArray()\n// => [2, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nHashMultiSet.of(1, 2, 2, 3)\n  .filterWithCounts(([_, count]) => count > 1)\n  .toArray()\n// => [2, 2]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/VariantMultiSet::toArray::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).toArray()  // => [1, 2, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).toArray()); // => [ 1, 2, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/VariantMultiSet::toString::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).toString()  // => HashMultiSet(1, 2, 2)",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).toString()); // => HashMultiSet(1, 2, 2)",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/VariantMultiSet::toJSON::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).toJSON()   // => { dataType: 'HashMultiSet', value: [[1, 1], [2, 2]] }",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).toJSON()); // => { dataType: \"HashMultiSet\", value: [ [ 1, 1 ], [ 2, 2 ] ] }",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/SortedMultiSet.NonEmpty::::-1::0": {
-    "code": "const s1 = SortedMultiSet.empty<string>()\nconst s2 = SortedMultiSet.of('a', 'b', 'a', 'c')",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedMultiSet } from '@rimbu/multiset/sorted';\n\nconsole.log(SortedMultiSet.empty<string>().toArray()); // => []\nconsole.log(SortedMultiSet.of('a', 'b', 'a', 'c').toArray()); // => [ \"a\", \"a\", \"b\", \"c\" ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/SortedMultiSet::::-1::0": {
-    "code": "const s1 = SortedMultiSet.empty<string>()\nconst s2 = SortedMultiSet.of('a', 'b', 'a', 'c')",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedMultiSet } from '@rimbu/multiset/sorted';\n\nconsole.log(SortedMultiSet.empty<string>().toArray()); // => []\nconsole.log(SortedMultiSet.of('a', 'b', 'a', 'c').toArray()); // => [ \"a\", \"a\", \"b\", \"c\" ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/SortedMultiSet::add::0::0": {
-    "code": "HashMultiSet.of(1, 2).add(2).toArray()      // => [1, 2, 2]\nHashMultiSet.of(1, 2).add(3, 2).toArray()   // => [1, 2, 3, 3]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2).add(2).toArray()); // => [ 1, 2, 2 ]\nconsole.log(HashMultiSet.of(1, 2).add(3, 2).toArray()); // => [ 1, 2, 3, 3 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/SortedMultiSet::addAll::0::0": {
-    "code": "HashMultiSet.of(1, 2).addAll([2, 3]).toArray()   // => [1, 2, 2, 3]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2).addAll([2, 3]).toArray()); // => [ 1, 2, 2, 3 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/SortedMultiSet::addAllWithCounts::0::0": {
-    "code": "HashMultiSet.of(1, 2).addAllWithCounts([[2, 2], [3, 2]]).toArray()\n// => [1, 2, 2, 2, 3, 3]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nHashMultiSet.of(1, 2).addAllWithCounts([[2, 2], [3, 2]]).toArray()\n// => [1, 2, 2, 2, 3, 3]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/SortedMultiSet::setCount::0::0": {
-    "code": "const m = HashMultiSet.of(1, 2, 2)\nm.setCount(1, 2).toArray()    // => [1, 1, 2, 2]\nm.setCount(2, 0).toArray()    // => [1]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.setCount(1, 2).toArray()); // => [ 1, 1, 2, 2 ]\nconsole.log(m.setCount(2, 0).toArray()); // => [ 1, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/SortedMultiSet::modifyCount::0::0": {
-    "code": "const m = HashMultiSet.of(1, 2, 2)\nm.modifyCount(1, v => v + 1).toArray()   // => [1, 1, 2, 2]\nm.modifyCount(3, v => v + 1).toArray()   // => [1, 2, 2, 3]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.modifyCount(1, v => v + 1).toArray()); // => [ 1, 1, 2, 2 ]\nconsole.log(m.modifyCount(3, v => v + 1).toArray()); // => [ 1, 2, 2, 3 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/SortedMultiSet::union::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).union(HashMultiSet.of(2, 3)).toArray()\n// => [1, 2, 2, 3]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nHashMultiSet.of(1, 2, 2).union(HashMultiSet.of(2, 3)).toArray()\n// => [ 1, 2, 2, 3 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/SortedMultiSet::intersect::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).intersect(HashMultiSet.of(2, 3)).toArray()\n// => [2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nHashMultiSet.of(1, 2, 2).intersect(HashMultiSet.of(2, 3)).toArray()\n// => [2]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/SortedMultiSet::difference::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).difference(HashMultiSet.of(2, 3)).toArray()\n// => [1, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nHashMultiSet.of(1, 2, 2).difference(HashMultiSet.of(2, 3)).toArray()\n// => [ 1, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/SortedMultiSet::symDifference::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).symDifference(HashMultiSet.of(2, 3)).toArray()\n// => [1, 2, 3]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nHashMultiSet.of(1, 2, 2).symDifference(HashMultiSet.of(2, 3)).toArray()\n// => [1, 2, 3]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/SortedMultiSet::toBuilder::0::0": {
-    "code": "const builder: HashMultiSet.Builder<number>\n  = HashMultiSet.of(1, 2, 2).toBuilder()",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst builder = HashMultiSet.of(1, 2, 2).toBuilder()\nconsole.log(builder.size); // => 3",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/SortedMultiSet::isEmpty::0::0": {
-    "code": "HashMultiSet.empty<number>().isEmpty     // => true\nHashMultiSet.of(1, 2, 2).isEmpty         // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.empty<number>().isEmpty); // => true\nconsole.log(HashMultiSet.of(1, 2, 2).isEmpty); // => false",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/SortedMultiSet::size::0::0": {
-    "code": "HashMultiSet.of(1, 2).size         // => 2\nHashMultiSet.of(1, 2, 2).size      // => 3",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2).size); // => 2\nconsole.log(HashMultiSet.of(1, 2, 2).size); // => 3",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/SortedMultiSet::sizeDistinct::0::0": {
-    "code": "HashMultiSet.of(1, 2).sizeDistinct       // => 2\nHashMultiSet.of(1, 2, 2).sizeDistinct    // => 2",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2).sizeDistinct); // => 2\nconsole.log(HashMultiSet.of(1, 2, 2).sizeDistinct); // => 2",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/SortedMultiSet::countMap::0::0": {
-    "code": "const m = HashMultiSet.of(1, 2, 2)\nconst map: HashMap.NonEmpty<number, number> = m.countMap",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nimport type { HashMap } from '@rimbu/hashed/map';\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.countMap.toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]",
+    "packages": [
+      "@rimbu/hashed",
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/SortedMultiSet::nonEmpty::0::0": {
-    "code": "const m: HashMultiSet<number> = HashMultiSet.of(1, 2, 2)\nm.stream().first(0)     // compiler allows fallback value since the Stream may be empty\nif (m.nonEmpty()) {\n  m.stream().first(0)   // compiler error: fallback value not allowed since Stream is not empty\n}",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nimport { Stream } from '@rimbu/stream';\n\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.nonEmpty()); // => true\nconsole.log(m.stream().first()); // => 1",
+    "packages": [
+      "@rimbu/multiset",
+      "@rimbu/stream"
+    ],
+    "typeChecks": true
   },
   "multiset/SortedMultiSet::assumeNonEmpty::0::0": {
-    "code": "HashMultiSet.empty<number>().assumeNonEmpty()   // => throws\nconst m: HashMultiSet<number> = HashMultiSet.of(1, 2)\nconst m2: HashMultiSet.NonEmpty<number> = m     // => compiler error\nconst m3: HashMultiSet.NonEmpty<number> = m.assumeNonEmpty()",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\n\nconst m = HashMultiSet.of(1, 2)\nconst m2 = m.assumeNonEmpty()\nconsole.log(m2.size);\n// => 2",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/SortedMultiSet::stream::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).stream().toArray()  // => [1, 2, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).stream().toArray()); // => [ 1, 2, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/SortedMultiSet::streamDistinct::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).streamDistinct().toArray()  // => [1, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).streamDistinct().toArray()); // => [ 1, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/SortedMultiSet::streamWithCounts::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).streamWithCounts().toArray()  // => [[1, 1], [2, 2]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).streamWithCounts().toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/SortedMultiSet::remove::0::0": {
-    "code": "const m = HashMultiSet.of(1, 2, 2)\nm.remove(5).toArray()     // => [1, 2, 2]\nm.remove(2).toArray()     // => [1]\nm.remove(2, 1).toArray()  // => [1, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.remove(5).toArray()); // => [ 1, 2, 2 ]\nconsole.log(m.remove(2).toArray()); // => [ 1, 2 ]\nconsole.log(m.remove(2, { amount: 1 }).toArray()); // => [ 1, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/SortedMultiSet::removeAll::0::0": {
-    "code": "const m = HashMultiSet.of(1, 2, 2)\nm.removeAll([5, 6]).toArray()         // => [1, 2, 2]\nm.removeAll([2, 3]).toArray()         // => [1]\nm.removeAll([2], { amount: 1 }).toArray()  // => [1, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.removeAll([5, 6]).toArray()); // => [ 1, 2, 2 ]\nconsole.log(m.removeAll([2, 3]).toArray()); // => [ 1 ]\nconsole.log(m.removeAll([2], { amount: 1 }).toArray()); // => [ 1, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/SortedMultiSet::has::0::0": {
-    "code": "const m = HashMultiSet.of(1, 2, 2)\nm.has(5)   // => false\nm.has(2)   // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.has(5)); // => false\nconsole.log(m.has(2)); // => true",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/SortedMultiSet::count::0::0": {
-    "code": "const m = HashMultiSet.of(1, 2, 2)\nm.count(5)   // => 0\nm.count(2)   // => 2",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.count(5)); // => 0\nconsole.log(m.count(2)); // => 2",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/SortedMultiSet::forEach::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2, 3).forEach((value, i, halt) => {\n  console.log(value)\n  if (i >= 1) halt()\n})\n// => logs 1  2",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst result: number[] = [];\nHashMultiSet.of(1, 2, 2, 3).forEach((value, i, halt) => {\n  result.push(value);\n  if (i >= 1) halt();\n});\nconsole.log(result);\n// => [ 1, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/SortedMultiSet::filterWithCounts::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2, 3)\n  .filterWithCounts(([_, count]) => count > 1)\n  .toArray()\n// => [2, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nHashMultiSet.of(1, 2, 2, 3)\n  .filterWithCounts(([_, count]) => count > 1)\n  .toArray()\n// => [2, 2]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/SortedMultiSet::toArray::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).toArray()  // => [1, 2, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).toArray()); // => [ 1, 2, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/SortedMultiSet::toString::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).toString()  // => HashMultiSet(1, 2, 2)",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).toString()); // => HashMultiSet(1, 2, 2)",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/SortedMultiSet::toJSON::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).toJSON()   // => { dataType: 'HashMultiSet', value: [[1, 1], [2, 2]] }",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).toJSON()); // => { dataType: \"HashMultiSet\", value: [ [ 1, 1 ], [ 2, 2 ] ] }",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/SortedMultiSet::empty::0::0": {
-    "code": "HashMultiSet.empty<number>()  // => HashMultiSet<number>\nHashMultiSet.empty<string>()  // => HashMultiSet<string>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.empty<number>().toArray()); // => []\nconsole.log(HashMultiSet.empty<string>().toArray()); // => []",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/SortedMultiSet::of::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2)    // => HashMultiSet.NonEmpty<number>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).toArray()); // => [ 1, 2, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/SortedMultiSet::from::0::0": {
-    "code": "HashMultiSet.from([1, 2], [2, 3, 4]).toArray()    // => [1, 2, 2, 3, 4]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.from([1, 2], [2, 3, 4]).toArray()); // => [ 1, 2, 2, 3, 4 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/SortedMultiSet::builder::0::0": {
-    "code": "HashMultiSet.builder<number>()    // => HashMultiSet.Builder<number>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.builder<number>().isEmpty); // => true",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/SortedMultiSet::reducer::0::0": {
-    "code": "const someSource = [1, 2, 3];\nconst result = Stream.range({ start: 20, amount: 5 }).reduce(HashMultiSet.reducer(someSource))\nresult.toArray()   // => [1, 2, 3, 20, 21, 22, 23, 24]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nimport { Stream } from '@rimbu/stream';\nconst someSource = [1, 2, 3];\nconst result = Stream.range({ start: 20, amount: 5 }).reduce(HashMultiSet.reducer(someSource))\nconsole.log(result.toArray()); // => [ 1, 2, 3, 20, 21, 22, 23, 24 ]",
+    "packages": [
+      "@rimbu/multiset",
+      "@rimbu/stream"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSet::add::0::0": {
-    "code": "HashMultiSet.of(1, 2).add(2).toArray()      // => [1, 2, 2]\nHashMultiSet.of(1, 2).add(3, 2).toArray()   // => [1, 2, 3, 3]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2).add(2).toArray()); // => [ 1, 2, 2 ]\nconsole.log(HashMultiSet.of(1, 2).add(3, 2).toArray()); // => [ 1, 2, 3, 3 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSet::addAll::0::0": {
-    "code": "HashMultiSet.of(1, 2).addAll([2, 3]).toArray()   // => [1, 2, 2, 3]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2).addAll([2, 3]).toArray()); // => [ 1, 2, 2, 3 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSet::addAllWithCounts::0::0": {
-    "code": "HashMultiSet.of(1, 2).addAllWithCounts([[2, 2], [3, 2]]).toArray()\n// => [1, 2, 2, 2, 3, 3]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nHashMultiSet.of(1, 2).addAllWithCounts([[2, 2], [3, 2]]).toArray()\n// => [1, 2, 2, 2, 3, 3]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSet::setCount::0::0": {
-    "code": "const m = HashMultiSet.of(1, 2, 2)\nm.setCount(1, 2).toArray()    // => [1, 1, 2, 2]\nm.setCount(2, 0).toArray()    // => [1]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.setCount(1, 2).toArray()); // => [ 1, 1, 2, 2 ]\nconsole.log(m.setCount(2, 0).toArray()); // => [ 1, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSet::modifyCount::0::0": {
-    "code": "const m = HashMultiSet.of(1, 2, 2)\nm.modifyCount(1, v => v + 1).toArray()   // => [1, 1, 2, 2]\nm.modifyCount(3, v => v + 1).toArray()   // => [1, 2, 2, 3]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.modifyCount(1, v => v + 1).toArray()); // => [ 1, 1, 2, 2 ]\nconsole.log(m.modifyCount(3, v => v + 1).toArray()); // => [ 1, 2, 2, 3 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSet::union::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).union(HashMultiSet.of(2, 3)).toArray()\n// => [1, 2, 2, 3]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nHashMultiSet.of(1, 2, 2).union(HashMultiSet.of(2, 3)).toArray()\n// => [ 1, 2, 2, 3 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSet::intersect::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).intersect(HashMultiSet.of(2, 3)).toArray()\n// => [2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nHashMultiSet.of(1, 2, 2).intersect(HashMultiSet.of(2, 3)).toArray()\n// => [2]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSet::difference::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).difference(HashMultiSet.of(2, 3)).toArray()\n// => [1, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nHashMultiSet.of(1, 2, 2).difference(HashMultiSet.of(2, 3)).toArray()\n// => [ 1, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSet::symDifference::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).symDifference(HashMultiSet.of(2, 3)).toArray()\n// => [1, 2, 3]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nHashMultiSet.of(1, 2, 2).symDifference(HashMultiSet.of(2, 3)).toArray()\n// => [1, 2, 3]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSet::toBuilder::0::0": {
-    "code": "const builder: HashMultiSet.Builder<number>\n  = HashMultiSet.of(1, 2, 2).toBuilder()",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst builder = HashMultiSet.of(1, 2, 2).toBuilder()\nconsole.log(builder.size); // => 3",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSet::isEmpty::0::0": {
-    "code": "HashMultiSet.empty<number>().isEmpty     // => true\nHashMultiSet.of(1, 2, 2).isEmpty         // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.empty<number>().isEmpty); // => true\nconsole.log(HashMultiSet.of(1, 2, 2).isEmpty); // => false",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSet::size::0::0": {
-    "code": "HashMultiSet.of(1, 2).size         // => 2\nHashMultiSet.of(1, 2, 2).size      // => 3",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2).size); // => 2\nconsole.log(HashMultiSet.of(1, 2, 2).size); // => 3",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSet::sizeDistinct::0::0": {
-    "code": "HashMultiSet.of(1, 2).sizeDistinct       // => 2\nHashMultiSet.of(1, 2, 2).sizeDistinct    // => 2",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2).sizeDistinct); // => 2\nconsole.log(HashMultiSet.of(1, 2, 2).sizeDistinct); // => 2",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSet::countMap::0::0": {
-    "code": "const m = HashMultiSet.of(1, 2, 2)\nconst map: HashMap.NonEmpty<number, number> = m.countMap",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nimport type { HashMap } from '@rimbu/hashed/map';\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.countMap.toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]",
+    "packages": [
+      "@rimbu/hashed",
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSet::nonEmpty::0::0": {
-    "code": "const m: HashMultiSet<number> = HashMultiSet.of(1, 2, 2)\nm.stream().first(0)     // compiler allows fallback value since the Stream may be empty\nif (m.nonEmpty()) {\n  m.stream().first(0)   // compiler error: fallback value not allowed since Stream is not empty\n}",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nimport { Stream } from '@rimbu/stream';\n\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.nonEmpty()); // => true\nconsole.log(m.stream().first()); // => 1",
+    "packages": [
+      "@rimbu/multiset",
+      "@rimbu/stream"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSet::assumeNonEmpty::0::0": {
-    "code": "HashMultiSet.empty<number>().assumeNonEmpty()   // => throws\nconst m: HashMultiSet<number> = HashMultiSet.of(1, 2)\nconst m2: HashMultiSet.NonEmpty<number> = m     // => compiler error\nconst m3: HashMultiSet.NonEmpty<number> = m.assumeNonEmpty()",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\n\nconst m = HashMultiSet.of(1, 2)\nconst m2 = m.assumeNonEmpty()\nconsole.log(m2.size);\n// => 2",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSet::stream::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).stream().toArray()  // => [1, 2, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).stream().toArray()); // => [ 1, 2, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSet::streamDistinct::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).streamDistinct().toArray()  // => [1, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).streamDistinct().toArray()); // => [ 1, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSet::streamWithCounts::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).streamWithCounts().toArray()  // => [[1, 1], [2, 2]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).streamWithCounts().toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSet::remove::0::0": {
-    "code": "const m = HashMultiSet.of(1, 2, 2)\nm.remove(5).toArray()     // => [1, 2, 2]\nm.remove(2).toArray()     // => [1]\nm.remove(2, 1).toArray()  // => [1, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.remove(5).toArray()); // => [ 1, 2, 2 ]\nconsole.log(m.remove(2).toArray()); // => [ 1, 2 ]\nconsole.log(m.remove(2, { amount: 1 }).toArray()); // => [ 1, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSet::removeAll::0::0": {
-    "code": "const m = HashMultiSet.of(1, 2, 2)\nm.removeAll([5, 6]).toArray()         // => [1, 2, 2]\nm.removeAll([2, 3]).toArray()         // => [1]\nm.removeAll([2], { amount: 1 }).toArray()  // => [1, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.removeAll([5, 6]).toArray()); // => [ 1, 2, 2 ]\nconsole.log(m.removeAll([2, 3]).toArray()); // => [ 1 ]\nconsole.log(m.removeAll([2], { amount: 1 }).toArray()); // => [ 1, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSet::has::0::0": {
-    "code": "const m = HashMultiSet.of(1, 2, 2)\nm.has(5)   // => false\nm.has(2)   // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.has(5)); // => false\nconsole.log(m.has(2)); // => true",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSet::count::0::0": {
-    "code": "const m = HashMultiSet.of(1, 2, 2)\nm.count(5)   // => 0\nm.count(2)   // => 2",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst m = HashMultiSet.of(1, 2, 2)\nconsole.log(m.count(5)); // => 0\nconsole.log(m.count(2)); // => 2",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSet::forEach::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2, 3).forEach((value, i, halt) => {\n  console.log(value)\n  if (i >= 1) halt()\n})\n// => logs 1  2",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconst result: number[] = [];\nHashMultiSet.of(1, 2, 2, 3).forEach((value, i, halt) => {\n  result.push(value);\n  if (i >= 1) halt();\n});\nconsole.log(result);\n// => [ 1, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSet::filterWithCounts::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2, 3)\n  .filterWithCounts(([_, count]) => count > 1)\n  .toArray()\n// => [2, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nHashMultiSet.of(1, 2, 2, 3)\n  .filterWithCounts(([_, count]) => count > 1)\n  .toArray()\n// => [2, 2]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSet::toArray::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).toArray()  // => [1, 2, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).toArray()); // => [ 1, 2, 2 ]",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSet::toString::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).toString()  // => HashMultiSet(1, 2, 2)",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).toString()); // => HashMultiSet(1, 2, 2)",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "multiset/MultiSet::toJSON::0::0": {
-    "code": "HashMultiSet.of(1, 2, 2).toJSON()   // => { dataType: 'HashMultiSet', value: [[1, 1], [2, 2]] }",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMultiSet } from '@rimbu/multiset/hashed';\nconsole.log(HashMultiSet.of(1, 2, 2).toJSON()); // => { dataType: \"HashMultiSet\", value: [ [ 1, 1 ], [ 2, 2 ] ] }",
+    "packages": [
+      "@rimbu/multiset"
+    ],
+    "typeChecks": true
   },
   "actor/Actor.configure::::-1::0": {
     "code": "const actor = Actor.configure({\n  reducer: Reducer....,\n});\nactor.getState();\n// => <initial state>",

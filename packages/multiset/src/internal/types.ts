@@ -19,8 +19,9 @@ export interface VariantMultiSetBase<
 	 * Returns true if the collection is empty.
 	 * @example
 	 * ```ts
-	 * HashMultiSet.empty<number>().isEmpty     // => true
-	 * HashMultiSet.of(1, 2, 2).isEmpty         // => false
+	 * import { HashMultiSet } from '@rimbu/multiset/hashed';
+	 * console.log(HashMultiSet.empty<number>().isEmpty); // => true
+	 * console.log(HashMultiSet.of(1, 2, 2).isEmpty); // => false
 	 * ```
 	 */
 	readonly isEmpty: boolean;
@@ -28,8 +29,9 @@ export interface VariantMultiSetBase<
 	 * Returns the number of values in the collection.
 	 * @example
 	 * ```ts
-	 * HashMultiSet.of(1, 2).size         // => 2
-	 * HashMultiSet.of(1, 2, 2).size      // => 3
+	 * import { HashMultiSet } from '@rimbu/multiset/hashed';
+	 * console.log(HashMultiSet.of(1, 2).size); // => 2
+	 * console.log(HashMultiSet.of(1, 2, 2).size); // => 3
 	 * ```
 	 */
 	readonly size: number;
@@ -37,8 +39,9 @@ export interface VariantMultiSetBase<
 	 * Returns the number of distinct values in the collection.
 	 * @example
 	 * ```ts
-	 * HashMultiSet.of(1, 2).sizeDistinct       // => 2
-	 * HashMultiSet.of(1, 2, 2).sizeDistinct    // => 2
+	 * import { HashMultiSet } from '@rimbu/multiset/hashed';
+	 * console.log(HashMultiSet.of(1, 2).sizeDistinct); // => 2
+	 * console.log(HashMultiSet.of(1, 2, 2).sizeDistinct); // => 2
 	 * ```
 	 */
 	readonly sizeDistinct: number;
@@ -46,8 +49,10 @@ export interface VariantMultiSetBase<
 	 * Returns the Map representation of this collection.
 	 * @example
 	 * ```ts
+	 * import { HashMultiSet } from '@rimbu/multiset/hashed';
+	 * import type { HashMap } from '@rimbu/hashed/map';
 	 * const m = HashMultiSet.of(1, 2, 2)
-	 * const map: HashMap.NonEmpty<number, number> = m.countMap
+	 * console.log(m.countMap.toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]
 	 * ```
 	 */
 	readonly countMap: WithElem<Tp, T>['countMap'];
@@ -56,11 +61,12 @@ export interface VariantMultiSetBase<
 	 * as a .NonEmpty type.
 	 * @example
 	 * ```ts
-	 * const m: HashMultiSet<number> = HashMultiSet.of(1, 2, 2)
-	 * m.stream().first(0)     // compiler allows fallback value since the Stream may be empty
-	 * if (m.nonEmpty()) {
-	 *   m.stream().first(0)   // compiler error: fallback value not allowed since Stream is not empty
-	 * }
+	 * import { HashMultiSet } from '@rimbu/multiset/hashed';
+	 * import { Stream } from '@rimbu/stream';
+	 *
+	 * const m = HashMultiSet.of(1, 2, 2)
+	 * console.log(m.nonEmpty()); // => true
+	 * console.log(m.stream().first()); // => 1
 	 * ```
 	 */
 	nonEmpty(): this is WithElem<Tp, T>['nonEmpty'];
@@ -69,10 +75,12 @@ export interface VariantMultiSetBase<
 	 * @throws RimbuError.EmptyCollectionAssumedNonEmptyError if the collection is empty
 	 * @example
 	 * ```ts
-	 * HashMultiSet.empty<number>().assumeNonEmpty()   // => throws
-	 * const m: HashMultiSet<number> = HashMultiSet.of(1, 2)
-	 * const m2: HashMultiSet.NonEmpty<number> = m     // => compiler error
-	 * const m3: HashMultiSet.NonEmpty<number> = m.assumeNonEmpty()
+	 * import { HashMultiSet } from '@rimbu/multiset/hashed';
+	 *
+	 * const m = HashMultiSet.of(1, 2)
+	 * const m2 = m.assumeNonEmpty()
+	 * console.log(m2.size);
+	 * // => 2
 	 * ```
 	 * @note returns reference to this collection
 	 */
@@ -81,7 +89,8 @@ export interface VariantMultiSetBase<
 	 * Returns a Stream containing all values of this collection.
 	 * @example
 	 * ```ts
-	 * HashMultiSet.of(1, 2, 2).stream().toArray()  // => [1, 2, 2]
+	 * import { HashMultiSet } from '@rimbu/multiset/hashed';
+	 * console.log(HashMultiSet.of(1, 2, 2).stream().toArray()); // => [ 1, 2, 2 ]
 	 * ```
 	 */
 	stream(): Stream<T>;
@@ -89,7 +98,8 @@ export interface VariantMultiSetBase<
 	 * Returns a Stream containing all distinct values of this collection.
 	 * @example
 	 * ```ts
-	 * HashMultiSet.of(1, 2, 2).streamDistinct().toArray()  // => [1, 2]
+	 * import { HashMultiSet } from '@rimbu/multiset/hashed';
+	 * console.log(HashMultiSet.of(1, 2, 2).streamDistinct().toArray()); // => [ 1, 2 ]
 	 * ```
 	 */
 	streamDistinct(): Stream<T>;
@@ -97,7 +107,8 @@ export interface VariantMultiSetBase<
 	 * Returns a Stream of tuples containing each distinct value and its count.
 	 * @example
 	 * ```ts
-	 * HashMultiSet.of(1, 2, 2).streamWithCounts().toArray()  // => [[1, 1], [2, 2]]
+	 * import { HashMultiSet } from '@rimbu/multiset/hashed';
+	 * console.log(HashMultiSet.of(1, 2, 2).streamWithCounts().toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]
 	 * ```
 	 */
 	streamWithCounts(): Stream<readonly [T, number]>;
@@ -109,10 +120,11 @@ export interface VariantMultiSetBase<
 	 * - amount: (default: 'ALL') the amount of values to remove, or 'ALL' to remove all values.
 	 * @example
 	 * ```ts
+	 * import { HashMultiSet } from '@rimbu/multiset/hashed';
 	 * const m = HashMultiSet.of(1, 2, 2)
-	 * m.remove(5).toArray()     // => [1, 2, 2]
-	 * m.remove(2).toArray()     // => [1]
-	 * m.remove(2, 1).toArray()  // => [1, 2]
+	 * console.log(m.remove(5).toArray()); // => [ 1, 2, 2 ]
+	 * console.log(m.remove(2).toArray()); // => [ 1, 2 ]
+	 * console.log(m.remove(2, { amount: 1 }).toArray()); // => [ 1, 2 ]
 	 * ```
 	 */
 	remove<U = T>(
@@ -127,10 +139,11 @@ export interface VariantMultiSetBase<
 	 * - amount: (default: 'ALL') the amount of occurrences to remove per value, or 'ALL' to remove all occurrences.
 	 * @example
 	 * ```ts
+	 * import { HashMultiSet } from '@rimbu/multiset/hashed';
 	 * const m = HashMultiSet.of(1, 2, 2)
-	 * m.removeAll([5, 6]).toArray()         // => [1, 2, 2]
-	 * m.removeAll([2, 3]).toArray()         // => [1]
-	 * m.removeAll([2], { amount: 1 }).toArray()  // => [1, 2]
+	 * console.log(m.removeAll([5, 6]).toArray()); // => [ 1, 2, 2 ]
+	 * console.log(m.removeAll([2, 3]).toArray()); // => [ 1 ]
+	 * console.log(m.removeAll([2], { amount: 1 }).toArray()); // => [ 1, 2 ]
 	 * ```
 	 */
 	removeAll<U = T>(
@@ -142,9 +155,10 @@ export interface VariantMultiSetBase<
 	 * @param value - the value to look for
 	 * @example
 	 * ```ts
+	 * import { HashMultiSet } from '@rimbu/multiset/hashed';
 	 * const m = HashMultiSet.of(1, 2, 2)
-	 * m.has(5)   // => false
-	 * m.has(2)   // => true
+	 * console.log(m.has(5)); // => false
+	 * console.log(m.has(2)); // => true
 	 * ```
 	 */
 	has<U = T>(value: RelatedTo<T, U>): boolean;
@@ -153,9 +167,10 @@ export interface VariantMultiSetBase<
 	 * @param value - the value to look for
 	 * @example
 	 * ```ts
+	 * import { HashMultiSet } from '@rimbu/multiset/hashed';
 	 * const m = HashMultiSet.of(1, 2, 2)
-	 * m.count(5)   // => 0
-	 * m.count(2)   // => 2
+	 * console.log(m.count(5)); // => 0
+	 * console.log(m.count(2)); // => 2
 	 * ```
 	 */
 	count<U = T>(value: RelatedTo<T, U>): number;
@@ -169,11 +184,14 @@ export interface VariantMultiSetBase<
 	 * - state: (optional) the traversal state
 	 * @example
 	 * ```ts
+	 * import { HashMultiSet } from '@rimbu/multiset/hashed';
+	 * const result: number[] = [];
 	 * HashMultiSet.of(1, 2, 2, 3).forEach((value, i, halt) => {
-	 *   console.log(value)
-	 *   if (i >= 1) halt()
-	 * })
-	 * // => logs 1  2
+	 *   result.push(value);
+	 *   if (i >= 1) halt();
+	 * });
+	 * console.log(result);
+	 * // => [ 1, 2 ]
 	 * ```
 	 */
 	forEach(
@@ -191,6 +209,7 @@ export interface VariantMultiSetBase<
 	 * @note if the predicate is a type guard, the return type is automatically inferred
 	 * @example
 	 * ```ts
+	 * import { HashMultiSet } from '@rimbu/multiset/hashed';
 	 * HashMultiSet.of(1, 2, 2, 3)
 	 *   .filterWithCounts(([_, count]) => count > 1)
 	 *   .toArray()
@@ -219,7 +238,8 @@ export interface VariantMultiSetBase<
 	 * Returns an array containing all values in this collection.
 	 * @example
 	 * ```ts
-	 * HashMultiSet.of(1, 2, 2).toArray()  // => [1, 2, 2]
+	 * import { HashMultiSet } from '@rimbu/multiset/hashed';
+	 * console.log(HashMultiSet.of(1, 2, 2).toArray()); // => [ 1, 2, 2 ]
 	 * ```
 	 * @note O(N)
 	 * @note it is safe to mutate the returned array, however, the array elements are not copied, thus should be treated as read-only
@@ -229,7 +249,8 @@ export interface VariantMultiSetBase<
 	 * Returns a string representation of this collection.
 	 * @example
 	 * ```ts
-	 * HashMultiSet.of(1, 2, 2).toString()  // => HashMultiSet(1, 2, 2)
+	 * import { HashMultiSet } from '@rimbu/multiset/hashed';
+	 * console.log(HashMultiSet.of(1, 2, 2).toString()); // => HashMultiSet(1, 2, 2)
 	 * ```
 	 */
 	toString(): string;
@@ -237,7 +258,8 @@ export interface VariantMultiSetBase<
 	 * Returns a JSON representation of this collection.
 	 * @example
 	 * ```ts
-	 * HashMultiSet.of(1, 2, 2).toJSON()   // => { dataType: 'HashMultiSet', value: [[1, 1], [2, 2]] }
+	 * import { HashMultiSet } from '@rimbu/multiset/hashed';
+	 * console.log(HashMultiSet.of(1, 2, 2).toJSON()); // => { dataType: "HashMultiSet", value: [ [ 1, 1 ], [ 2, 2 ] ] }
 	 * ```
 	 */
 	toJSON(): ToJSON<(readonly [T, number])[]>;
@@ -253,7 +275,8 @@ export namespace VariantMultiSetBase {
 		 * Returns false since this collection is known to be non-empty
 		 * @example
 		 * ```ts
-		 * HashMultiSet.of(1, 2, 2).isEmpty         // => false
+		 * import { HashMultiSet } from '@rimbu/multiset/hashed';
+		 * console.log(HashMultiSet.of(1, 2, 2).isEmpty); // => false
 		 * ```
 		 */
 		readonly isEmpty: false;
@@ -261,8 +284,10 @@ export namespace VariantMultiSetBase {
 		 * Returns the Map representation of this collection.
 		 * @example
 		 * ```ts
+		 * import { HashMultiSet } from '@rimbu/multiset/hashed';
+		 * import type { HashMap } from '@rimbu/hashed/map';
 		 * const m = HashMultiSet.of(1, 2, 2)
-		 * const map: HashMap.NonEmpty<number, number> = m.countMap
+		 * console.log(m.countMap.toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]
 		 * ```
 		 */
 		readonly countMap: WithElem<Tp, T>['countMapNonEmpty'];
@@ -270,7 +295,8 @@ export namespace VariantMultiSetBase {
 		 * Returns true since this collection is known to be non-empty
 		 * @example
 		 * ```ts
-		 * HashMultiSet.of(1, 2, 2).nonEmpty()   // => true
+		 * import { HashMultiSet } from '@rimbu/multiset/hashed';
+		 * console.log(HashMultiSet.of(1, 2, 2).nonEmpty()); // => true
 		 * ```
 		 */
 		nonEmpty(): this is WithElem<Tp, T>['nonEmpty'];
@@ -278,7 +304,8 @@ export namespace VariantMultiSetBase {
 		 * Returns this collection typed as a 'possibly empty' collection.
 		 * @example
 		 * ```ts
-		 * HashMultiSet.of(1, 2).asNormal();  // type: HashMultiSet<number>
+		 * import { HashMultiSet } from '@rimbu/multiset/hashed';
+		 * console.log(HashMultiSet.of(1, 2).asNormal().toArray()); // => [ 1, 2 ]
 		 * ```
 		 */
 		asNormal(): WithElem<Tp, T>['normal'];
@@ -286,7 +313,8 @@ export namespace VariantMultiSetBase {
 		 * Returns a non-empty Stream containing all values of this collection.
 		 * @example
 		 * ```ts
-		 * HashMultiSet.of(1, 2, 2).stream().toArray()  // => [1, 2, 2]
+		 * import { HashMultiSet } from '@rimbu/multiset/hashed';
+		 * console.log(HashMultiSet.of(1, 2, 2).stream().toArray()); // => [ 1, 2, 2 ]
 		 * ```
 		 */
 		stream(): Stream.NonEmpty<T>;
@@ -294,7 +322,8 @@ export namespace VariantMultiSetBase {
 		 * Returns a non-empty Stream containing all distinct values of this collection.
 		 * @example
 		 * ```ts
-		 * HashMultiSet.of(1, 2, 2).stream().toArray()  // => [1, 2]
+		 * import { HashMultiSet } from '@rimbu/multiset/hashed';
+		 * console.log(HashMultiSet.of(1, 2, 2).streamDistinct().toArray()); // => [ 1, 2 ]
 		 * ```
 		 */
 		streamDistinct(): Stream.NonEmpty<T>;
@@ -302,7 +331,8 @@ export namespace VariantMultiSetBase {
 		 * Returns a non-empty Stream of tuples containing each distinct value and its count.
 		 * @example
 		 * ```ts
-		 * HashMultiSet.of(1, 2, 2).streamWithCounts().toArray()  // => [[1, 1], [2, 2]]
+		 * import { HashMultiSet } from '@rimbu/multiset/hashed';
+		 * console.log(HashMultiSet.of(1, 2, 2).streamWithCounts().toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]
 		 * ```
 		 */
 		streamWithCounts(): Stream.NonEmpty<readonly [T, number]>;
@@ -310,7 +340,8 @@ export namespace VariantMultiSetBase {
 		 * Returns a non-empty array containing all values in this collection.
 		 * @example
 		 * ```ts
-		 * HashMultiSet.of(1, 2, 2).toArray()  // => [1, 2, 2]
+		 * import { HashMultiSet } from '@rimbu/multiset/hashed';
+		 * console.log(HashMultiSet.of(1, 2, 2).toArray()); // => [ 1, 2, 2 ]
 		 * ```
 		 * @note O(N)
 		 * @note it is safe to mutate the returned array, however, the array elements are not copied, thus should be treated as read-only
@@ -343,8 +374,9 @@ export interface MultiSetBase<
 	 * @param amount - (default: 1) the amount of values to add
 	 * @example
 	 * ```ts
-	 * HashMultiSet.of(1, 2).add(2).toArray()      // => [1, 2, 2]
-	 * HashMultiSet.of(1, 2).add(3, 2).toArray()   // => [1, 2, 3, 3]
+	 * import { HashMultiSet } from '@rimbu/multiset/hashed';
+	 * console.log(HashMultiSet.of(1, 2).add(2).toArray()); // => [ 1, 2, 2 ]
+	 * console.log(HashMultiSet.of(1, 2).add(3, 2).toArray()); // => [ 1, 2, 3, 3 ]
 	 * ```
 	 * @note amount < 0 will be normalized to 0
 	 */
@@ -355,7 +387,8 @@ export interface MultiSetBase<
 	 * @param values - a `StreamSource` containing values to add
 	 * @example
 	 * ```ts
-	 * HashMultiSet.of(1, 2).addAll([2, 3]).toArray()   // => [1, 2, 2, 3]
+	 * import { HashMultiSet } from '@rimbu/multiset/hashed';
+	 * console.log(HashMultiSet.of(1, 2).addAll([2, 3]).toArray()); // => [ 1, 2, 2, 3 ]
 	 * ```
 	 */
 	addAll(values: StreamSource.NonEmpty<T>): WithElem<Tp, T>['nonEmpty'];
@@ -366,6 +399,7 @@ export interface MultiSetBase<
 	 * @param entries - a `StreamSource` containing tuples that contain a value and an amount
 	 * @example
 	 * ```ts
+	 * import { HashMultiSet } from '@rimbu/multiset/hashed';
 	 * HashMultiSet.of(1, 2).addAllWithCounts([[2, 2], [3, 2]]).toArray()
 	 * // => [1, 2, 2, 2, 3, 3]
 	 * ```
@@ -381,9 +415,10 @@ export interface MultiSetBase<
 	 * @note if amount <= 0, the value will be removed
 	 * @example
 	 * ```ts
+	 * import { HashMultiSet } from '@rimbu/multiset/hashed';
 	 * const m = HashMultiSet.of(1, 2, 2)
-	 * m.setCount(1, 2).toArray()    // => [1, 1, 2, 2]
-	 * m.setCount(2, 0).toArray()    // => [1]
+	 * console.log(m.setCount(1, 2).toArray()); // => [ 1, 1, 2, 2 ]
+	 * console.log(m.setCount(2, 0).toArray()); // => [ 1, 2 ]
 	 * ```
 	 */
 	setCount(value: T, amount: number): WithElem<Tp, T>['normal'];
@@ -397,9 +432,10 @@ export interface MultiSetBase<
 	 * @note if the result of `update` is <= 0, the value will be removed (or not added)
 	 * @example
 	 * ```ts
+	 * import { HashMultiSet } from '@rimbu/multiset/hashed';
 	 * const m = HashMultiSet.of(1, 2, 2)
-	 * m.modifyCount(1, v => v + 1).toArray()   // => [1, 1, 2, 2]
-	 * m.modifyCount(3, v => v + 1).toArray()   // => [1, 2, 2, 3]
+	 * console.log(m.modifyCount(1, v => v + 1).toArray()); // => [ 1, 1, 2, 2 ]
+	 * console.log(m.modifyCount(3, v => v + 1).toArray()); // => [ 1, 2, 2, 3 ]
 	 * ```
 	 */
 	modifyCount(
@@ -412,8 +448,9 @@ export interface MultiSetBase<
 	 * @param other - a `MultiSet` to combine with
 	 * @example
 	 * ```ts
+	 * import { HashMultiSet } from '@rimbu/multiset/hashed';
 	 * HashMultiSet.of(1, 2, 2).union(HashMultiSet.of(2, 3)).toArray()
-	 * // => [1, 2, 2, 3]
+	 * // => [ 1, 2, 2, 3 ]
 	 * ```
 	 */
 	union<U extends T>(other: MultiSet.NonEmpty<U>): WithElem<Tp, T>['nonEmpty'];
@@ -424,6 +461,7 @@ export interface MultiSetBase<
 	 * @param other - a `MultiSet` to combine with
 	 * @example
 	 * ```ts
+	 * import { HashMultiSet } from '@rimbu/multiset/hashed';
 	 * HashMultiSet.of(1, 2, 2).intersect(HashMultiSet.of(2, 3)).toArray()
 	 * // => [2]
 	 * ```
@@ -435,8 +473,9 @@ export interface MultiSetBase<
 	 * @param other - a `MultiSet` to subtract
 	 * @example
 	 * ```ts
+	 * import { HashMultiSet } from '@rimbu/multiset/hashed';
 	 * HashMultiSet.of(1, 2, 2).difference(HashMultiSet.of(2, 3)).toArray()
-	 * // => [1, 2]
+	 * // => [ 1, 2 ]
 	 * ```
 	 */
 	difference<U extends T>(other: MultiSet<U>): WithElem<Tp, T>['normal'];
@@ -446,6 +485,7 @@ export interface MultiSetBase<
 	 * @param other - a `MultiSet` to combine with
 	 * @example
 	 * ```ts
+	 * import { HashMultiSet } from '@rimbu/multiset/hashed';
 	 * HashMultiSet.of(1, 2, 2).symDifference(HashMultiSet.of(2, 3)).toArray()
 	 * // => [1, 2, 3]
 	 * ```
@@ -455,8 +495,9 @@ export interface MultiSetBase<
 	 * Returns a builder object containing the entries of this collection.
 	 * @example
 	 * ```ts
-	 * const builder: HashMultiSet.Builder<number>
-	 *   = HashMultiSet.of(1, 2, 2).toBuilder()
+	 * import { HashMultiSet } from '@rimbu/multiset/hashed';
+	 * const builder = HashMultiSet.of(1, 2, 2).toBuilder()
+	 * console.log(builder.size); // => 3
 	 * ```
 	 */
 	toBuilder(): WithElem<Tp, T>['builder'];
@@ -473,7 +514,8 @@ export namespace MultiSetBase {
 		 * Returns a non-empty Stream containing all values of this collection.
 		 * @example
 		 * ```ts
-		 * HashMultiSet.of(1, 2, 2).stream().toArray()  // => [1, 2, 2]
+		 * import { HashMultiSet } from '@rimbu/multiset/hashed';
+		 * console.log(HashMultiSet.of(1, 2, 2).stream().toArray()); // => [ 1, 2, 2 ]
 		 * ```
 		 */
 		stream(): Stream.NonEmpty<T>;
@@ -483,8 +525,9 @@ export namespace MultiSetBase {
 		 * @param amount - (default: 1) the amount of values to add
 		 * @example
 		 * ```ts
-		 * HashMultiSet.of(1, 2).add(2).toArray()      // => [1, 2, 2]
-		 * HashMultiSet.of(1, 2).add(3, 2).toArray()   // => [1, 2, 3, 3]
+		 * import { HashMultiSet } from '@rimbu/multiset/hashed';
+		 * console.log(HashMultiSet.of(1, 2).add(2).toArray()); // => [ 1, 2, 2 ]
+		 * console.log(HashMultiSet.of(1, 2).add(3, 2).toArray()); // => [ 1, 2, 3, 3 ]
 		 * ```
 		 * @note amount < 0 will be normalized to 0
 		 */
@@ -494,7 +537,8 @@ export namespace MultiSetBase {
 		 * @param values - a `StreamSource` containing values to add
 		 * @example
 		 * ```ts
-		 * HashMultiSet.of(1, 2).addAll([2, 3]).toArray()   // => [1, 2, 2, 3]
+		 * import { HashMultiSet } from '@rimbu/multiset/hashed';
+		 * console.log(HashMultiSet.of(1, 2).addAll([2, 3]).toArray()); // => [ 1, 2, 2, 3 ]
 		 * ```
 		 */
 		addAll(values: StreamSource<T>): WithElem<Tp, T>['nonEmpty'];
@@ -504,6 +548,7 @@ export namespace MultiSetBase {
 		 * @param valueCounts - a `StreamSource` containing tuples of a value and an amount
 		 * @example
 		 * ```ts
+		 * import { HashMultiSet } from '@rimbu/multiset/hashed';
 		 * HashMultiSet.of(1, 2).addAllWithCounts([[2, 2], [3, 2]]).toArray()
 		 * // => [1, 2, 2, 2, 3, 3]
 		 * ```
@@ -524,8 +569,9 @@ export namespace MultiSetBase {
 		 * Returns the (singleton) empty instance of this type and context with given key and value types.
 		 * @example
 		 * ```ts
-		 * HashMultiSet.empty<number>()  // => HashMultiSet<number>
-		 * HashMultiSet.empty<string>()  // => HashMultiSet<string>
+		 * import { HashMultiSet } from '@rimbu/multiset/hashed';
+		 * console.log(HashMultiSet.empty<number>().toArray()); // => []
+		 * console.log(HashMultiSet.empty<string>().toArray()); // => []
 		 * ```
 		 */
 		empty<T extends UT>(): WithElem<Tp, T>['normal'];
@@ -534,7 +580,8 @@ export namespace MultiSetBase {
 		 * @param values - a non-empty array of values
 		 * @example
 		 * ```ts
-		 * HashMultiSet.of(1, 2, 2)    // => HashMultiSet.NonEmpty<number>
+		 * import { HashMultiSet } from '@rimbu/multiset/hashed';
+		 * console.log(HashMultiSet.of(1, 2, 2).toArray()); // => [ 1, 2, 2 ]
 		 * ```
 		 */
 		of<T extends UT>(...values: ArrayNonEmpty<T>): WithElem<Tp, T>['nonEmpty'];
@@ -544,7 +591,8 @@ export namespace MultiSetBase {
 		 * @param sources - a non-empty array of `StreamSource` instances containing values to add
 		 * @example
 		 * ```ts
-		 * HashMultiSet.from([1, 2], [2, 3, 4]).toArray()    // => [1, 2, 2, 3, 4]
+		 * import { HashMultiSet } from '@rimbu/multiset/hashed';
+		 * console.log(HashMultiSet.from([1, 2], [2, 3, 4]).toArray()); // => [ 1, 2, 2, 3, 4 ]
 		 * ```
 		 */
 		from<T extends UT>(
@@ -557,7 +605,8 @@ export namespace MultiSetBase {
 		 * Returns an empty builder instance for this type of collection and context.
 		 * @example
 		 * ```ts
-		 * HashMultiSet.builder<number>()    // => HashMultiSet.Builder<number>
+		 * import { HashMultiSet } from '@rimbu/multiset/hashed';
+		 * console.log(HashMultiSet.builder<number>().isEmpty); // => true
 		 * ```
 		 */
 		builder<T extends UT>(): WithElem<Tp, T>['builder'];
@@ -567,9 +616,11 @@ export namespace MultiSetBase {
 		 * @param source - (optional) an initial source of elements to add to
 		 * @example
 		 * ```ts
+		 * import { HashMultiSet } from '@rimbu/multiset/hashed';
+		 * import { Stream } from '@rimbu/stream';
 		 * const someSource = [1, 2, 3];
 		 * const result = Stream.range({ start: 20, amount: 5 }).reduce(HashMultiSet.reducer(someSource))
-		 * result.toArray()   // => [1, 2, 3, 20, 21, 22, 23, 24]
+		 * console.log(result.toArray()); // => [ 1, 2, 3, 20, 21, 22, 23, 24 ]
 		 * ```
 		 * @note uses a MultiSet builder under the hood. If the given `source` is a MultiSet in the same context, it will directly call `.toBuilder()`.
 		 */
@@ -586,7 +637,8 @@ export namespace MultiSetBase {
 		 * A string tag defining the specific collection type
 		 * @example
 		 * ```ts
-		 * HashMultiSet.defaultContext().typeTag   // => 'HashMultiSet'
+		 * import { HashMultiSet } from '@rimbu/multiset/hashed';
+		 * console.log(HashMultiSet.defaultContext().typeTag); // => HashMultiSet
 		 * ```
 		 */
 		readonly typeTag: string;
@@ -602,7 +654,8 @@ export namespace MultiSetBase {
 		 * @param obj - the object to check
 		 * @example
 		 * ```ts
-		 * HashMultiSet.defaultContext().isValidElem(1)   // => true
+		 * import { HashMultiSet } from '@rimbu/multiset/hashed';
+		 * console.log(HashMultiSet.defaultContext().isValidElem(1)); // => true
 		 * ```
 		 */
 		isValidElem(key: any): key is UT;
@@ -616,6 +669,7 @@ export namespace MultiSetBase {
 		 * Returns the amount of values in the builder.
 		 * @example
 		 * ```ts
+		 * import { HashMultiSet } from '@rimbu/multiset/hashed';
 		 * HashMultiSet.of(1, 2, 2).toBuilder().size
 		 * // => 3
 		 * ```
@@ -625,6 +679,7 @@ export namespace MultiSetBase {
 		 * Returns the amount of distinct values in the builder.
 		 * @example
 		 * ```ts
+		 * import { HashMultiSet } from '@rimbu/multiset/hashed';
 		 * HashMultiSet.of(1, 2, 2).toBuilder().sizeDistinct
 		 * // => 2
 		 * ```
@@ -634,6 +689,7 @@ export namespace MultiSetBase {
 		 * Returns true if there are no values in the builder.
 		 * @example
 		 * ```ts
+		 * import { HashMultiSet } from '@rimbu/multiset/hashed';
 		 * HashMultiSet.of(1, 2, 2).toBuilder().isEmpty
 		 * // => false
 		 * ```
@@ -644,9 +700,10 @@ export namespace MultiSetBase {
 		 * @param value - the value to look for
 		 * @example
 		 * ```ts
+		 * import { HashMultiSet } from '@rimbu/multiset/hashed';
 		 * const s = HashMultiSet.of(1, 2, 2).toBuilder()
-		 * s.has(2)   // => true
-		 * s.has(10)  // => false
+		 * console.log(s.has(2)); // => true
+		 * console.log(s.has(10)); // => false
 		 * ```
 		 */
 		has<U = T>(value: RelatedTo<T, U>): boolean;
@@ -656,10 +713,11 @@ export namespace MultiSetBase {
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
+		 * import { HashMultiSet } from '@rimbu/multiset/hashed';
 		 * const s = HashMultiSet.of(1, 2, 2).toBuilder()
-		 * s.add(2)     // => true
-		 * s.add(3, 5)  // => true
-		 * s.add(3, 0)  // => false
+		 * console.log(s.add(2)); // => true
+		 * console.log(s.add(3, 5)); // => true
+		 * console.log(s.add(3, 0)); // => false
 		 * ```
 		 */
 		add(value: T, amount?: number): boolean;
@@ -669,9 +727,10 @@ export namespace MultiSetBase {
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
+		 * import { HashMultiSet } from '@rimbu/multiset/hashed';
 		 * const s = HashMultiSet.of(1, 2, 2).toBuilder()
-		 * s.addAll(1, 3)   // => false
-		 * s.addAll(2, 10)  // => true
+		 * console.log(s.addAll([1, 3]));   // => true
+		 * console.log(s.addAll([2, 10]));  // => true
 		 * ```
 		 */
 		addAll(values: StreamSource<T>): boolean;
@@ -682,9 +741,10 @@ export namespace MultiSetBase {
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
+		 * import { HashMultiSet } from '@rimbu/multiset/hashed';
 		 * const s = HashMultiSet.of(1, 2, 2).toBuilder()
-		 * s.addAllWithCounts([[1, 2], [2, 3]])   // => true
-		 * s.addAllWithCounts([[1, 0], [3, 0]])   // => false
+		 * console.log(s.addAllWithCounts([[1, 2], [2, 3]])); // => true
+		 * console.log(s.addAllWithCounts([[1, 0], [3, 0]])); // => false
 		 * ```
 		 */
 		addAllWithCounts(valueCounts: StreamSource<readonly [T, number]>): boolean;
@@ -695,10 +755,11 @@ export namespace MultiSetBase {
 		 * @returns the amount of elements that are removed
 		 * @example
 		 * ```ts
+		 * import { HashMultiSet } from '@rimbu/multiset/hashed';
 		 * const s = HashMultiSet.of(1, 2, 2).toBuilder()
-		 * s.remove(10)    // => 0
-		 * s.remove(1, 2)  // => 1
-		 * s.remove(2, 2)  // => 2
+		 * console.log(s.remove(10)); // => 0
+		 * console.log(s.remove(1, 2)); // => 1
+		 * console.log(s.remove(2, 2)); // => 2
 		 * ```
 		 */
 		remove<U = T>(value: RelatedTo<T, U>, amount?: number | 'ALL'): number;
@@ -711,10 +772,11 @@ export namespace MultiSetBase {
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
+		 * import { HashMultiSet } from '@rimbu/multiset/hashed';
 		 * const s = HashMultiSet.of(1, 2, 2).toBuilder()
-		 * s.removeAll([10, 11])   // => false
-		 * s.removeAll([1, 11])    // => true
-		 * s.removeAll([2], { amount: 1 })  // => true
+		 * console.log(s.removeAll([10, 11])); // => false
+		 * console.log(s.removeAll([1, 11])); // => true
+		 * console.log(s.removeAll([2], { amount: 1 })); // => true
 		 * ```
 		 */
 		removeAll<U = T>(
@@ -729,9 +791,10 @@ export namespace MultiSetBase {
 		 * @note if amount <= 0, the value will be removed
 		 * @example
 		 * ```ts
+		 * import { HashMultiSet } from '@rimbu/multiset/hashed';
 		 * const s = HashMultiSet.of(1, 2, 2).toBuilder()
-		 * s.setCount(1, 1)    // => false
-		 * s.setCount(1, 3)    // => true
+		 * console.log(s.setCount(1, 1)); // => false
+		 * console.log(s.setCount(1, 3)); // => true
 		 * ```
 		 */
 		setCount(value: T, amount: number): boolean;
@@ -746,10 +809,11 @@ export namespace MultiSetBase {
 		 * @note if the result of `update` is <= 0, the value will be removed (or not added)
 		 * @example
 		 * ```ts
+		 * import { HashMultiSet } from '@rimbu/multiset/hashed';
 		 * const s = HashMultiSet.of(1, 2, 2).toBuilder()
-		 * s.modifyCount(3, v => v)      // => false
-		 * s.modifyCount(3, v => v + 1)  // => true
-		 * s.modifyCount(2, v => v + 1)  // => true
+		 * console.log(s.modifyCount(3, v => v)); // => false
+		 * console.log(s.modifyCount(3, v => v + 1)); // => true
+		 * console.log(s.modifyCount(2, v => v + 1)); // => true
 		 * ```
 		 */
 		modifyCount(value: T, update: (currentCount: number) => number): boolean;
@@ -758,9 +822,10 @@ export namespace MultiSetBase {
 		 * @param value - the value to look for
 		 * @example
 		 * ```ts
+		 * import { HashMultiSet } from '@rimbu/multiset/hashed';
 		 * const s = HashMultiSet.of(1, 2, 2).toBuilder()
-		 * s.count(10)    // => 0
-		 * s.count(2)     // => 2
+		 * console.log(s.count(10)); // => 0
+		 * console.log(s.count(2)); // => 2
 		 * ```
 		 */
 		count<U = T>(value: RelatedTo<T, U>): number;
@@ -776,11 +841,14 @@ export namespace MultiSetBase {
 		 * looping over it
 		 * @example
 		 * ```ts
+		 * import { HashMultiSet } from '@rimbu/multiset/hashed';
+		 * const result: number[] = [];
 		 * HashMultiSet.of(1, 2, 2, 3).toBuilder().forEach((value, i, halt) => {
-		 *   console.log(value)
-		 *   if (i >= 1) halt()
-		 * })
-		 * // => logs 1  2
+		 *   result.push(value);
+		 *   if (i >= 1) halt();
+		 * });
+		 * console.log(result);
+		 * // => [ 1, 2 ]
 		 * ```
 		 */
 		forEach(
@@ -791,8 +859,10 @@ export namespace MultiSetBase {
 		 * Returns an immutable instance containing the values in this builder.
 		 * @example
 		 * ```ts
+		 * import { HashMultiSet } from '@rimbu/multiset/hashed';
 		 * const s = HashMultiSet.of(1, 2, 2).toBuilder()
-		 * const s2: HashMultiSet<number> = s.build()
+		 * const s2 = s.build()
+		 * console.log(s2.toArray()); // => [ 1, 2, 2 ]
 		 * ```
 		 */
 		build(): WithElem<Tp, T>['normal'];

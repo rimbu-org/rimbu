@@ -17,8 +17,10 @@ import { createMultiSetContextModule } from '#multiset/context-factory';
  * the values.
  * @example
  * ```ts
- * const s1 = SortedMultiSet.empty<string>()
- * const s2 = SortedMultiSet.of('a', 'b', 'a', 'c')
+ * import { SortedMultiSet } from '@rimbu/multiset/sorted';
+ *
+ * console.log(SortedMultiSet.empty<string>().toArray()); // => []
+ * console.log(SortedMultiSet.of('a', 'b', 'a', 'c').toArray()); // => [ "a", "a", "b", "c" ]
  * ```
  */
 export interface SortedMultiSet<T>
@@ -37,8 +39,10 @@ export namespace SortedMultiSet {
 	 * the values.
 	 * @example
 	 * ```ts
-	 * const s1 = SortedMultiSet.empty<string>()
-	 * const s2 = SortedMultiSet.of('a', 'b', 'a', 'c')
+	 * import { SortedMultiSet } from '@rimbu/multiset/sorted';
+	 *
+	 * console.log(SortedMultiSet.empty<string>().toArray()); // => []
+	 * console.log(SortedMultiSet.of('a', 'b', 'a', 'c').toArray()); // => [ "a", "a", "b", "c" ]
 	 * ```
 	 */
 	export interface NonEmpty<T>

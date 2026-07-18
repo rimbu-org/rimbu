@@ -436,6 +436,56 @@ Real bugs / API facts the loop caught (now fixed):
 some older collection-types docs.
 
 
+**multiset — DONE (all 67 `@example` blocks rewritten).** Files edited:
+`src/internal/types.ts` (61 blocks: `VariantMultiSetBase`, `.NonEmpty`, `MultiSetBase`,
+`.NonEmpty`, `.Factory`, `.Context`, `.Builder`) and `src/public/hashed.ts` /
+`src/public/sorted.ts` (2 each — the `HashMultiSet` / `SortedMultiSet` interface
+showcases).
+
+Result (measured): **Gate 0 type errors**, **Verified 195 snippets / 258 output comments / 0 issues**.
+
+Reused the OLD-style workflow (import-injector, console.log-wrapper, report-driven
+apply-actuals — all deleted after use). The injector had a **critical bug** the first
+time: it computed all ```` ```ts ```` block ranges up front, then spliced imports in with
+the ORIGINAL indices — so after the first insert every later block shifted and imports
+landed OUTSIDE their comment (real code inside an interface body → cascading tsc parse
+errors). **Fix: process blocks in REVERSE order** so earlier insertions don't shift later
+blocks. Also: the injector's indent regex `^(\s*\*?\s*)` matched the space before `*` as
+the optional `*`, producing ` *import` (no space) that escaped the comment — changed to
+`^(\s*\*)\s*`. And cleanup scripts that delete injected imports MUST use a pattern that
+excludes the real top-of-file imports (which also start with `import type {`), or they
+silently delete the package's real imports.
+
+**Real bugs / API facts the loop caught (now fixed):**
+- **`remove(value, 1)` positional amount is WRONG** — signature is
+  `remove(value, options?: { amount?: number | 'ALL' })`. Must be `remove(2, { amount: 1 })`.
+  The old doc used `remove(2, 1)`.
+- **`Builder.addAll(1, 3)` is WRONG** — `addAll(values: StreamSource<T>)` takes ONE arg
+  (a StreamSource), not `(value, amount)`. Rewrote to `addAll([1, 3])` / `addAll([2, 10])`
+  (both `true` since they change the builder). `add(value, amount?)` is the 2-arg method.
+- **`nonEmpty()` examples used `stream().first(0)` (fallback arg)** — `Stream.first()`
+  takes NO fallback (use `first()`). The old doc showed `first(0)` "compiler allows /
+  errors" as a type-showcase; rewrote to `console.log(m.nonEmpty())` + `console.log(m.stream().first())`.
+- **`assumeNonEmpty()` example annotated `const m2: HashMultiSet.NonEmpty = m` where `m`
+  was widened to possibly-empty** → type error. Rewrote to `const m2 = m.assumeNonEmpty()`
+  and logged `m2.size`.
+- **`streamDistinct()` in the NonEmpty-variant example was calling `.stream()`** (copy-paste
+  from the `stream()` example above) → printed `[1,2,2]` instead of distinct `[1,2]`. Fixed.
+- **`countMap` type-showcase** (`const map: HashMap.NonEmpty<...> = m.countMap`) rewrote to
+  `console.log(m.countMap.toArray())` → `[ [1,1], [2,2] ]`.
+- **Factory `empty`/`of`/`builder` examples logged the RAW OBJECT** (Bun.inspect dump of
+  the whole instance) — unreadable. Rewrote to `.toArray()` / `.isEmpty` / `.size`.
+- **`forEach` examples** that logged per-iteration were rewritten to collect into an array
+  and `console.log(result)` once (per §6c) → `[1, 2]`.
+- **`HashMultiSet.toArray()` IS hash-ordered but for these inputs collides with sorted
+  order** — `of('a','b','a','c').toArray()` actually yields `['a','a','b','c']` (the two
+  `'a'`s group together), NOT insertion order `['a','b','a','c']`. Corrected.
+  (This is a good reminder: `HashMultiSet` iteration order is by hash, not insertion.)
+- All `// =>` values with string elements use **double quotes** (Bun runtime format), and
+  bare `// => 1` booleans were `true` (not `1`) — `isEmpty`/`nonEmpty`/`has`/`isValidElem`
+  return `boolean`.
+
+
 Root scripts:
 
 - `bun run docs` — full pipeline so far (extract + aggregate).

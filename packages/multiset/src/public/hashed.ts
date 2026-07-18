@@ -17,8 +17,10 @@ import { createMultiSetContextModule } from '#multiset/context-factory';
  * the values.
  * @example
  * ```ts
- * const m1 = HashMultiSet.empty<string>()
- * const m2 = HashMultiSet.of('a', 'b', 'a', 'c')
+ * import { HashMultiSet } from '@rimbu/multiset/hashed';
+ *
+ * console.log(HashMultiSet.empty<string>().toArray()); // => []
+ * console.log(HashMultiSet.of('a', 'b', 'a', 'c').toArray()); // => [ "a", "a", "b", "c" ]
  * ```
  */
 export interface HashMultiSet<T> extends MultiSetBase<T, HashMultiSet.Types> {}
@@ -34,8 +36,10 @@ export namespace HashMultiSet {
 	 * the values.
 	 * @example
 	 * ```ts
-	 * const m1 = HashMultiSet.empty<string>()
-	 * const m2 = HashMultiSet.of('a', 'b', 'a', 'c')
+	 * import { HashMultiSet } from '@rimbu/multiset/hashed';
+	 *
+	 * console.log(HashMultiSet.empty<string>().toArray()); // => []
+	 * console.log(HashMultiSet.of('a', 'b', 'a', 'c').toArray()); // => [ "a", "a", "b", "c" ]
 	 * ```
 	 */
 	export interface NonEmpty<T>
