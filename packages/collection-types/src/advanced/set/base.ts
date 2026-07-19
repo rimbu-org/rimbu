@@ -555,16 +555,6 @@ export namespace RSetBase {
 		 * ```
 		 */
 		isValidValue(value: any): value is UT;
-		/**
-		 * Returns the (singleton) empty instance of this type and context with given value type.
-		 * @example
-		 * ```ts
-		 * import { HashSet } from '@rimbu/hashed';
-		 *
-		 * console.log(HashSet.empty<number>().toString()); // => HashSet()
-		 * console.log(HashSet.empty<string>().toString()); // => HashSet()
-		 * ```
-		 */
 	}
 
 	export interface Builder<T, Tp extends RSetBase.Types = RSetBase.Types> {

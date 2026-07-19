@@ -1,4 +1,3 @@
-import type { RSet } from '@rimbu/collection-types';
 import type { Stream, Streamable } from '@rimbu/stream';
 
 import type { OrderedSetBase } from '#set/base';
@@ -80,9 +79,6 @@ export namespace OrderedSet {
 		readonly nonEmpty: OrderedSet.NonEmpty<this['_T']>;
 		readonly context: OrderedSet.Context<this['_T']>;
 		readonly builder: OrderedSet.Builder<this['_T']>;
-		readonly sourceContext: RSet.Context<this['_T']>;
-		readonly sourceSet: RSet<this['_T']>;
-		readonly sourceSetNonEmpty: RSet.NonEmpty<this['_T']>;
 	}
 }
 

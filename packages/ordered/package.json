@@ -45,6 +45,10 @@
 		}
 	},
 	"imports": {
+		"#ordered/*": {
+			"types": "./dist/internal/*.d.ts",
+			"default": "./dist/internal/*.js"
+		},
 		"#map/*": {
 			"types": "./dist/internal/map/*.d.ts",
 			"default": "./dist/internal/map/*.js"

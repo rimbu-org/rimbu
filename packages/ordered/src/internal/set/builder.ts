@@ -1,24 +1,27 @@
-import type { RSet } from '@rimbu/collection-types';
-import type { RSetBase } from '@rimbu/collection-types/advanced/set/base';
+import type { RMap } from '@rimbu/collection-types';
 import type { RelatedTo } from '@rimbu/common/types';
-import type { List } from '@rimbu/list';
 import type { OrderedSet } from '@rimbu/ordered/set';
+import type { SortedMap } from '@rimbu/sorted';
 
 import type { OrderedSetBase } from '#set/base';
 import type { ContextImpl } from '#set/context-factory';
+import type { OrderedSetNonEmpty } from '#set/non-empty';
 
 import * as RimbuError from '@rimbu/base/rimbu-error';
+import { Err } from '@rimbu/common';
 import { TraverseState } from '@rimbu/common/traverse-state';
 import { Stream, type StreamSource } from '@rimbu/stream';
+
+import { Indicator } from '#ordered/common/ordered-indicator';
 
 export class OrderedSetBuilder<T> implements OrderedSetBase.Builder<T> {
 	constructor(
 		readonly context: ContextImpl<T>,
-		public source?: OrderedSet.NonEmpty<T>,
+		public source?: OrderedSetNonEmpty<T>,
 	) {}
 
-	_orderBuilder?: List.Builder<T>;
-	_setBuilder?: RSet.Builder<T>;
+	#keyIndicatorMapBuilder?: RMap.Builder<T, Indicator>;
+	#indicatorMapBuilder?: SortedMap.Builder<Indicator, T>;
 
 	_lock = 0;
 
@@ -27,29 +30,32 @@ export class OrderedSetBuilder<T> implements OrderedSetBase.Builder<T> {
 	}
 
 	prepareMutate(): void {
-		if (undefined === this._orderBuilder || undefined === this._setBuilder) {
+		if (
+			undefined === this.#keyIndicatorMapBuilder ||
+			undefined === this.#indicatorMapBuilder
+		) {
 			if (undefined !== this.source) {
-				this._orderBuilder = this.source.order.toBuilder();
-				this._setBuilder = this.source.sourceSet.toBuilder();
+				this.#keyIndicatorMapBuilder = this.source.keyIndicatorMap.toBuilder();
+				this.#indicatorMapBuilder = this.source.indicatorKeyMap.toBuilder();
 			} else {
-				this._orderBuilder = this.context.listContext.builder();
-				this._setBuilder = this.context.setContext.builder();
+				this.#keyIndicatorMapBuilder = this.context.keyMapContext.builder();
+				this.#indicatorMapBuilder = this.context.indicatorMapContext.builder();
 			}
 		}
 	}
 
-	get orderBuilder(): List.Builder<T> {
+	get keyMapBuilder(): RMap.Builder<T, Indicator> {
 		this.prepareMutate();
-		return this._orderBuilder!;
+		return this.#keyIndicatorMapBuilder!;
 	}
 
-	get setBuilder(): RSetBase.Builder<T> {
+	get indicatorMapBuilder(): SortedMap.Builder<Indicator, T> {
 		this.prepareMutate();
-		return this._setBuilder!;
+		return this.#indicatorMapBuilder!;
 	}
 
 	get size(): number {
-		return this.source?.size ?? this.orderBuilder.length;
+		return this.source?.size ?? this.indicatorMapBuilder.size;
 	}
 
 	get isEmpty(): boolean {
@@ -57,20 +63,31 @@ export class OrderedSetBuilder<T> implements OrderedSetBase.Builder<T> {
 	}
 
 	has = <U>(value: RelatedTo<T, U>): boolean => {
-		return this.source?.has(value) ?? this.setBuilder.has(value);
+		return this.source?.has(value) ?? this.keyMapBuilder.hasKey(value);
 	};
 
 	add = (value: T): boolean => {
 		this.checkLock();
 
-		const changed = this.setBuilder.add(value);
-
-		if (changed) {
+		if (this.keyMapBuilder.isEmpty) {
 			this.source = undefined;
-			this.orderBuilder.append(value);
+			this.keyMapBuilder.set(value, Indicator.INIT_INDICATOR);
+			this.indicatorMapBuilder.set(Indicator.INIT_INDICATOR, value);
+			return true;
 		}
 
-		return changed;
+		return this.keyMapBuilder.modifyAt(value, {
+			ifNew: {
+				create: () => {
+					this.source = undefined;
+
+					const [lastIndicator] = this.indicatorMapBuilder.max(Err);
+					const nextIndicator = Indicator.after(lastIndicator);
+					this.indicatorMapBuilder.set(nextIndicator, value);
+					return nextIndicator;
+				},
+			},
+		});
 	};
 
 	addAll = (source: StreamSource<T>): boolean => {
@@ -82,24 +99,14 @@ export class OrderedSetBuilder<T> implements OrderedSetBase.Builder<T> {
 	remove = <U>(value: RelatedTo<T, U>): boolean => {
 		this.checkLock();
 
-		if (!this.context.setContext.isValidValue(value)) return false;
+		const indicator = this.keyMapBuilder.removeKey(value);
 
-		const changed = this.setBuilder.remove(value);
+		if (undefined === indicator) return false;
 
-		if (changed) {
-			this.source = undefined;
+		this.source = undefined;
+		this.indicatorMapBuilder.removeKey(indicator);
 
-			let index = -1;
-			this.orderBuilder.forEach((v, i, halt): void => {
-				if (Object.is(v, value)) {
-					index = i;
-					halt();
-				}
-			});
-			this.orderBuilder.remove(index);
-		}
-
-		return changed;
+		return true;
 	};
 
 	removeAll = <U>(values: StreamSource<RelatedTo<T, U>>): boolean => {
@@ -119,9 +126,16 @@ export class OrderedSetBuilder<T> implements OrderedSetBase.Builder<T> {
 		this._lock++;
 
 		if (undefined !== this.source) {
-			this.source.order.forEach(f, { reversed, state });
+			this.source.forEach(f, { reversed, state });
 		} else {
-			this.orderBuilder.forEach(f, { reversed, state });
+			this.indicatorMapBuilder.forEach(
+				([_, value], index, halt) => f(value, index, halt),
+				{
+					// TODO: add reversed support to map builders
+					// reversed,
+					state,
+				},
+			);
 		}
 
 		this._lock--;
@@ -131,9 +145,9 @@ export class OrderedSetBuilder<T> implements OrderedSetBase.Builder<T> {
 		if (undefined !== this.source) return this.source;
 		if (this.size === 0) return this.context.empty();
 
-		const order = this.orderBuilder.build().assumeNonEmpty();
-		const sourceMap = this.setBuilder.build().assumeNonEmpty();
+		const keyMap = this.keyMapBuilder.build().assumeNonEmpty();
+		const indicatorMap = this.indicatorMapBuilder.build().assumeNonEmpty();
 
-		return this.context.createNonEmpty(order, sourceMap);
+		return this.context.createNonEmpty(keyMap, indicatorMap);
 	};
 }
