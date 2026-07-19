@@ -5,15 +5,15 @@ import type { IndexRange } from '@rimbu/common/index-range';
 import type { OptLazy } from '@rimbu/common/opt-lazy';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type {
-	ArrayNonEmpty,
-	StringNonEmpty,
-	ToJSON,
+    ArrayNonEmpty,
+    StringNonEmpty,
+    ToJSON,
 } from '@rimbu/common/types';
 import type { Reducer } from '@rimbu/stream/reducer';
 import type {
-	FastIterable,
-	Streamable,
-	StreamSource,
+    FastIterable,
+    Streamable,
+    StreamSource,
 } from '@rimbu/stream/stream-types';
 import type { Transformer } from '@rimbu/stream/transformer';
 
@@ -27,6 +27,8 @@ export type * from '@rimbu/stream/stream-types';
  * @typeparam T - the element type
  * @example
  * ```ts
+ * import { Stream } from '@rimbu/stream';
+ *
  * const s1 = Stream.empty<number>()
  * const s2 = Stream.of(1, 3, 2)
  * const s3 = Stream.range({ start: 10, amount: 15 })
@@ -37,6 +39,8 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * Returns a stream of elements of type T.
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 *
 	 * Stream.of(1, 2, 3).stream()
 	 * // => returns itself
 	 * ```
@@ -50,8 +54,10 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * - negate: (default: false) when true will negate the `eq` function
 	 * @example
 	 * ```ts
-	 * Stream.of(1, 2, 3).equals([1, 2, 3])     // => true
-	 * Stream.of(1, 2, 3, 4).equals([1, 2, 3])  // => false
+	 * import { Stream } from '@rimbu/stream';
+	 *
+	 * console.log(Stream.of(1, 2, 3).equals([1, 2, 3])); // => true
+	 * console.log(Stream.of(1, 2, 3, 4).equals([1, 2, 3])); // => false
 	 * ```
 	 * @note don't use on potentially infinite streams
 	 * @note O(N)
@@ -65,6 +71,8 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * @throws RimbuError.EmptyCollectionAssumedNonEmptyError if the stream is known to be empty.
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 *
 	 * Stream.range({ amount: 100 }).assumeNonEmpty()
 	 * // => type: Stream.NonEmpty<number>
 	 * ```
@@ -77,6 +85,8 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * @param value - the value to prepend
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 *
 	 * Stream.of(1, 2, 3).prepend(0).toArray()
 	 * // => [0, 1, 2, 3]
 	 * ```
@@ -88,6 +98,8 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * @param value - the value to append
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 *
 	 * Stream.of(1, 2, 3).append(4).toArray()
 	 * // => [1, 2, 3, 4]
 	 * ```
@@ -104,6 +116,8 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * - state: (optional) the traverse state
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 *
 	 * Stream.of(1, 2, 3).forEach((v, i, halt) => {
 	 *  console.log(v);
 	 *  if (i >= 1) halt();
@@ -123,6 +137,8 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * @typeparam A - the type of the extra arguments to pass
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 *
 	 * Stream.of(1, 2, 3).forEachPure(console.log, 'sheep')
 	 * // => logs:
 	 * // 1 sheep
@@ -141,6 +157,8 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * - startIndex: (optional) an alternative start index to use
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 *
 	 * Stream.of(1, 2, 3).indexed().toArray()
 	 * // => [[0, 1], [1, 2], [2, 3]]
 	 * ```
@@ -153,6 +171,8 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * @param mapFun - a function taking an element and its index, and returning some new element
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 *
 	 * Stream.of(1, 2, 3).map((v, i) => `[${i}]: ${v}`).toArray()
 	 * // => ['[0]: 1', '[1]: 2', '[2]: 3']
 	 * ```
@@ -171,6 +191,8 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * @note can be used on function that really expect 1 argument, since the normal map will also pass more arguments
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 *
 	 * const s = Stream.of({ a: 1 }, { a: 2, c: { d: true } })
 	 * const s2 = s.mapPure(JSON.stringify, ['a'], 5)
 	 * // when stream is evaluated, will call JSON.stringify on each stream element with the given extra arguments
@@ -193,6 +215,8 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * @note O(1)
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 *
 	 * Stream.of(1, 2, 3).flatMap((v, i, halt) => {
 	 *   if (i >= 1) halt();
 	 *   return [v, i, v + i]
@@ -214,6 +238,8 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * @note O(1)
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 *
 	 * Stream.of(1, 2, 3).flatZip((v, i, halt) => {
 	 *   if (i >= 1) halt();
 	 *   return [v, i, v + i]
@@ -231,6 +257,9 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * @note O(1)
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 * import { Transformer } from '@rimbu/stream/transformer';
+	 *
 	 * Stream.of(1, 2, 3, 4, 5, 6)
 	 *   .transform(Transformer.window(3))
 	 *   .toArray()
@@ -249,6 +278,8 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * @note O(1)
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 *
 	 * Stream.of(1, 2, 3).filter((v, i) => v + i !== 3).toArray()
 	 * // => [1, 3]
 	 * Stream.of(1, 2, 3).filter((v, i) => v + i !== 3, { negate: true }).toArray()
@@ -280,6 +311,8 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * @note O(1)
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 *
 	 * Stream.of(1, 2, 3).filterPure({ pred: Object.is }, 2).toArray()
 	 * // => [2]
 	 * Stream.of(1, 2, 3).filterPure({ pred: Object.is, negate: true }, 2).toArray()
@@ -307,7 +340,9 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * @param values - an array of values to include
 	 * @example
 	 * ```ts
-	 * Stream.of(1, 2, 3, 4).withOnly([2, 4]).toArray()   // => [2, 4]
+	 * import { Stream } from '@rimbu/stream';
+	 *
+	 * console.log(Stream.of(1, 2, 3, 4).withOnly([2, 4]).toArray()); // => [2, 4]
 	 * ```
 	 */
 	withOnly<F extends T>(values: F[]): Stream<F>;
@@ -317,7 +352,9 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * @param values - an array of values to exclude
 	 * @example
 	 * ```ts
-	 * Stream.of(1, 2, 3, 4).without([2, 4]).toArray()   // => [1, 3]
+	 * import { Stream } from '@rimbu/stream';
+	 *
+	 * console.log(Stream.of(1, 2, 3, 4).without([2, 4]).toArray()); // => [1, 3]
 	 * ```
 	 */
 	without<F extends T>(
@@ -333,6 +370,8 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * - halt: a function that, if called, ensures that no new elements are passed
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 *
 	 * Stream.of(1, 2, 3).collect((v, i, skip) => (i === 0 ? skip : String(v))).toArray();
 	 * // => ['2', '3']
 	 * ```
@@ -345,9 +384,11 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * @param otherwise - (default: undefined) an `OptLazy` value to be returned if the Stream is empty.
 	 * @example
 	 * ```ts
-	 * Stream.of(1, 2, 3).first()      // => 1
-	 * Stream.empty<number>().first()  // => undefined
-	 * Stream.empty<number>().first(0) // => 0
+	 * import { Stream } from '@rimbu/stream';
+	 *
+	 * console.log(Stream.of(1, 2, 3).first()); // => 1
+	 * console.log(Stream.empty<number>().first()); // => undefined
+	 * console.log(Stream.empty<number>().first(0)); // => 0
 	 * ```
 	 * @note O(1)
 	 */
@@ -359,9 +400,11 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * @param otherwise - (default: undefined) an `OptLazy` value to return if the Stream is empty.
 	 * @example
 	 * ```ts
-	 * Stream.of(1, 2, 3).last()      // => 3
-	 * Stream.empty<number>().last()  // => undefined
-	 * Stream.empty<number>().last(0) // => 0
+	 * import { Stream } from '@rimbu/stream';
+	 *
+	 * console.log(Stream.of(1, 2, 3).last()); // => 3
+	 * console.log(Stream.empty<number>().last()); // => undefined
+	 * console.log(Stream.empty<number>().last(0)); // => 0
 	 * ```
 	 * @note O(N) for most types of Stream
 	 */
@@ -373,10 +416,12 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * @param otherwise - (default: undefined) an `OptLazy` value to return if the Stream does not have exactly one value.
 	 * @example
 	 * ```ts
-	 * Stream.empty<number>().single()  // => undefined
-	 * Stream.of(1, 2, 3).single()      // => undefined
-	 * Stream.of(1).single()            // => 1
-	 * Stream.of(1, 2, 3).single(0)     // => 0
+	 * import { Stream } from '@rimbu/stream';
+	 *
+	 * console.log(Stream.empty<number>().single()); // => undefined
+	 * console.log(Stream.of(1, 2, 3).single()); // => undefined
+	 * console.log(Stream.of(1).single()); // => 1
+	 * console.log(Stream.of(1, 2, 3).single(0)); // => 0
 	 * ```
 	 */
 	single(): T | undefined;
@@ -385,7 +430,9 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * Returns the amount of elements in the Stream.
 	 * @example
 	 * ```ts
-	 * Stream.of(1, 2, 3).count() // => 3
+	 * import { Stream } from '@rimbu/stream';
+	 *
+	 * console.log(Stream.of(1, 2, 3).count()); // => 3
 	 * ```
 	 * @note O(N) for most types of Stream
 	 * @note be careful not to use on infinite streams
@@ -399,8 +446,10 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * - negate: (default: false) when true will negate the given Eq function
 	 * @example
 	 * ```ts
-	 * Stream.of(1, 2, 3).countElement(2) // => 1
-	 * Stream.of(1, 2, 3).countElement(2, { negate: true }) // => 2
+	 * import { Stream } from '@rimbu/stream';
+	 *
+	 * console.log(Stream.of(1, 2, 3).countElement(2)); // => 1
+	 * console.log(Stream.of(1, 2, 3).countElement(2, { negate: true })); // => 2
 	 * ```
 	 * @note O(N) for most types of Stream
 	 * @note be careful not to use on infinite streams
@@ -418,10 +467,12 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * - otherwise: (default: undefined) an `OptLazy` value to be returned if the Stream is empty
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 *
 	 * const isEven = (v: number) => v % 2 === 0
-	 * Stream.of(1, 2, 3, 4).find(isEven)           // => 2
-	 * Stream.of(1, 2, 3, 4).find(isEven, { occurrence: 2 })        // => 4
-	 * Stream.of(1, 2, 3, 4).find(isEven, { occurrence: 3 })        // => undefined
+	 * console.log(Stream.of(1, 2, 3, 4).find(isEven)); // => 2
+	 * console.log(Stream.of(1, 2, 3, 4).find(isEven, { occurrence: 2 })); // => 4
+	 * console.log(Stream.of(1, 2, 3, 4).find(isEven, { occurrence: 3 })); // => undefined
 	 * Stream.of(1, 2, 3, 4).find(isEven, { occurrence: 3, otherwise: 'a' })
 	 * // => 'a'
 	 * ```
@@ -482,10 +533,12 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * @param otherwise - (optional) an `OptLazy` value to be returned if the element does not exist
 	 * @example
 	 * ```ts
-	 * Stream.of(1, 2, 3).at(1)        // => 2
-	 * Stream.of(1, 2, 3).at(5)        // => undefined
-	 * Stream.of(1, 2, 3).at(5, 'a')   // => 'a'
-	 * Stream.of(1, 2, 3).at(-1)       // => undefined  (negative indices not supported)
+	 * import { Stream } from '@rimbu/stream';
+	 *
+	 * console.log(Stream.of(1, 2, 3).at(1)); // => 2
+	 * console.log(Stream.of(1, 2, 3).at(5)); // => undefined
+	 * console.log(Stream.of(1, 2, 3).at(5, 'a')); // => 'a'
+	 * console.log(Stream.of(1, 2, 3).at(-1)); // => undefined  (negative indices not supported)
 	 * ```
 	 * @note O(N) for most types of Stream
 	 * @note negative indices are not supported on Stream because the stream may be infinite — use `last()` to access the last element
@@ -499,6 +552,8 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * - negate: (default: false) when true will negate the given predicate
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 *
 	 * Stream.of(1, 2, 3).indicesWhere((v, i) => v + i !== 3).toArray()
 	 * // => [0, 2]
 	 * ```
@@ -516,6 +571,8 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * - negate: (default: false) when true will negate the given Eq function
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 *
 	 * Stream.from('marmot').indicesOf('m').toArray()
 	 * // => [0, 3]
 	 * ```
@@ -534,8 +591,10 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * - negate: (default: false) when true will negate the given predicate
 	 * @example
 	 * ```ts
-	 * Stream.of(1, 2, 3).indexWhere((v, i) => v + i > 2)                      // => 1
-	 * Stream.of(1, 2, 3).indexWhere((v, i) => v + i > 2, { occurrence: 2 })   // => 2
+	 * import { Stream } from '@rimbu/stream';
+	 *
+	 * console.log(Stream.of(1, 2, 3).indexWhere((v, i) => v + i > 2)); // => 1
+	 * console.log(Stream.of(1, 2, 3).indexWhere((v, i) => v + i > 2, { occurrence: 2 })); // => 2
 	 * ```
 	 * @note O(N)
 	 */
@@ -553,11 +612,13 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * - negate: (default: false) when true will negate the given Eq function
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 *
 	 * const source = Stream.from('marmot')
-	 * source.indexOf('m')                    // => 0
-	 * source.indexOf('m', { occurrence: 2 }) // => 3
-	 * source.indexOf('m', { occurrence: 3 }) // => undefined
-	 * source.indexOf('q')                    // => undefined
+	 * console.log(source.indexOf('m')); // => 0
+	 * console.log(source.indexOf('m', { occurrence: 2 })); // => 3
+	 * console.log(source.indexOf('m', { occurrence: 3 })); // => undefined
+	 * console.log(source.indexOf('q')); // => undefined
 	 * ```
 	 * @note O(N)
 	 */
@@ -576,8 +637,10 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * - negate: (default: false) when true will negate the given predicate
 	 * @example
 	 * ```ts
-	 * Stream.of(1, 2, 3).some((v, i) => v + i > 10) // => false
-	 * Stream.of(1, 2, 3).some((v, i) => v + i > 1)  // => true
+	 * import { Stream } from '@rimbu/stream';
+	 *
+	 * console.log(Stream.of(1, 2, 3).some((v, i) => v + i > 10)); // => false
+	 * console.log(Stream.of(1, 2, 3).some((v, i) => v + i > 1)); // => true
 	 * ```
 	 * @note O(N)
 	 */
@@ -592,8 +655,10 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * - negate: (default: false) when true will negate the given predicate
 	 * @example
 	 * ```ts
-	 * Stream.of(1, 2, 3).every((v, i) => v + i > 10)  // => false
-	 * Stream.of(1, 2, 3).every((v, i) => v + i < 10)  // => true
+	 * import { Stream } from '@rimbu/stream';
+	 *
+	 * console.log(Stream.of(1, 2, 3).every((v, i) => v + i > 10)); // => false
+	 * console.log(Stream.of(1, 2, 3).every((v, i) => v + i < 10)); // => true
 	 * ```
 	 * @note O(N)
 	 */
@@ -610,10 +675,12 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * - negate: (default: false) when true will negate the given predicate
 	 * @example
 	 * ```ts
-	 * Stream.from('marmot').contains('m')                // => true
-	 * Stream.from('marmot').contains('m', { amount: 2 }) // => true
-	 * Stream.from('marmot').contains('m', { amount: 3 }) // => false
-	 * Stream.from('marmot').contains('q')                // => false
+	 * import { Stream } from '@rimbu/stream';
+	 *
+	 * console.log(Stream.from('marmot').contains('m')); // => true
+	 * console.log(Stream.from('marmot').contains('m', { amount: 2 })); // => true
+	 * console.log(Stream.from('marmot').contains('m', { amount: 3 })); // => false
+	 * console.log(Stream.from('marmot').contains('q')); // => false
 	 * ```
 	 * @note O(N)
 	 */
@@ -633,6 +700,8 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * - eq: (default: `Eq.objectIs`) the function to use to test element equality
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 *
 	 * Stream.of(1, 2, 3, 4, 5).containsSlice([2, 3, 4])
 	 * // => true
 	 * Stream.of(1, 2, 3, 4, 5).containsSlice([4, 3, 2])
@@ -650,6 +719,8 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * - negate: (default: false) when true will negate the given predicate
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 *
 	 * Stream.of(1, 2, 3).takeWhile(v => v < 3).toArray()
 	 * // => [1, 2]
 	 * ```
@@ -666,6 +737,8 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * - negate: (default: false) when true will negate the given predicate
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 *
 	 * Stream.of(1, 2, 3).dropWhile(v => v < 2).toArray()
 	 * // => [2, 3]
 	 * ```
@@ -680,7 +753,9 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * @param amount - the maximum amount of elements to return from the resulting Stream
 	 * @example
 	 * ```ts
-	 * Stream.of(1, 2, 3).take(2).toArray()   // => [1, 2]
+	 * import { Stream } from '@rimbu/stream';
+	 *
+	 * console.log(Stream.of(1, 2, 3).take(2).toArray()); // => [1, 2]
 	 * ```
 	 * @note O(N) for most types of Stream
 	 */
@@ -690,7 +765,9 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * @param amount - the amount of elements to skip
 	 * @example
 	 * ```ts
-	 * Stream.of(1, 2, 3).drop(1).toArray()   // => [2, 3]
+	 * import { Stream } from '@rimbu/stream';
+	 *
+	 * console.log(Stream.of(1, 2, 3).drop(1).toArray()); // => [2, 3]
 	 * ```
 	 * @note O(N) for most types of Stream
 	 */
@@ -700,10 +777,12 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * @param amount - (default: undefined) the amount of times to return this Stream
 	 * @example
 	 * ```ts
-	 * Stream.of(1, 2, 3).repeat()              // => Stream(1, 2, 3, 1, 2, 3, 1, 2, ...)
-	 * Stream.of(1, 2, 3).repeat(1).toArray()   // => [1, 2, 3]
-	 * Stream.of(1, 2, 3).repeat(3).toArray()   // => [1, 2, 3, 1, 2, 3, 1, 2, 3]
-	 * Stream.of(1, 2, 3).repeat(-3).toArray()  // => [1, 2, 3]
+	 * import { Stream } from '@rimbu/stream';
+	 *
+	 * console.log(Stream.of(1, 2, 3).repeat()); // => Stream(1, 2, 3, 1, 2, 3, 1, 2, ...)
+	 * console.log(Stream.of(1, 2, 3).repeat(1).toArray()); // => [1, 2, 3]
+	 * console.log(Stream.of(1, 2, 3).repeat(3).toArray()); // => [1, 2, 3, 1, 2, 3, 1, 2, 3]
+	 * console.log(Stream.of(1, 2, 3).repeat(-3).toArray()); // => [1, 2, 3]
 	 * ```
 	 * @note amount = undefined means that the Stream is repeated indefinitely
 	 * @note amount = 1 means that the Stream is not repeated
@@ -717,6 +796,8 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * @param others - a series of StreamSources to concatenate.
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 *
 	 * Stream.of(1, 2, 3).concat([4, 5], [6, 7]).toArray()
 	 * // [1, 2, 3, 4, 5, 6, 7]
 	 * ```
@@ -733,9 +814,11 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * @param otherwise - (default: undefined) the value to return if the Stream is empty
 	 * @example
 	 * ```ts
-	 * Stream.of(5, 1, 3).min()         // => 1
-	 * Stream.empty<number>().min()     // => undefined
-	 * Stream.empty<number>().min('a')  // => 'a'
+	 * import { Stream } from '@rimbu/stream';
+	 *
+	 * console.log(Stream.of(5, 1, 3).min()); // => 1
+	 * console.log(Stream.empty<number>().min()); // => undefined
+	 * console.log(Stream.empty<number>().min('a')); // => 'a'
 	 * ```
 	 * @note O(N)
 	 */
@@ -748,10 +831,12 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * @param otherwise - (default: undefined) the value to return if the Stream is empty
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 *
 	 * function compareLength(a: string, b: string): number { return b.length - a.length };
-	 * Stream.of('abc', 'a', 'ab').minBy(compareLength)   // => 'a'
-	 * Stream.empty<string>().minBy(compareLength)        // => undefined
-	 * Stream.empty<string>().minBy(compareLength, 'a')   // => 'a'
+	 * console.log(Stream.of('abc', 'a', 'ab').minBy(compareLength)); // => 'a'
+	 * console.log(Stream.empty<string>().minBy(compareLength)); // => undefined
+	 * console.log(Stream.empty<string>().minBy(compareLength, 'a')); // => 'a'
 	 * ```
 	 * @note O(N)
 	 */
@@ -764,9 +849,11 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * @param otherwise - (default: undefined) the value to return if the Stream is empty
 	 * @example
 	 * ```ts
-	 * Stream.of(5, 1, 3).max()         // => 5
-	 * Stream.empty<number>().max()     // => undefined
-	 * Stream.empty<number>().max('a')  // => 'a'
+	 * import { Stream } from '@rimbu/stream';
+	 *
+	 * console.log(Stream.of(5, 1, 3).max()); // => 5
+	 * console.log(Stream.empty<number>().max()); // => undefined
+	 * console.log(Stream.empty<number>().max('a')); // => 'a'
 	 * ```
 	 * @note O(N)
 	 */
@@ -779,10 +866,12 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * @param otherwise - (default: undefined) the value to return if the Stream is empty
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 *
 	 * function compareLength(a: string, b: string): number { return b.length - a.length };
-	 * Stream.of('abc', 'a', 'ab').maxBy(compareLength)   // => 'abc'
-	 * Stream.empty<string>().maxBy(compareLength)        // => undefined
-	 * Stream.empty<string>().maxBy(compareLength, 'a')   // => 'a'
+	 * console.log(Stream.of('abc', 'a', 'ab').maxBy(compareLength)); // => 'abc'
+	 * console.log(Stream.empty<string>().maxBy(compareLength)); // => undefined
+	 * console.log(Stream.empty<string>().maxBy(compareLength, 'a')); // => 'a'
 	 * ```
 	 * @note O(N)
 	 */
@@ -793,6 +882,8 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * @param sep - the StreamSource to insert between each element of this Stream
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 *
 	 * Stream.of(1, 2, 3).intersperse("ab").toArray()
 	 * // => [1, 'a', 'b', 2, 'a', 'b', 3]
 	 * ```
@@ -810,6 +901,8 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * - ifEmpty: (optional) a string to return instead of the start and end tag if the stream is empty
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 *
 	 * Stream.of(1, 2, 3).join({ start: '<', sep: ', ', end: '>' })
 	 * // => '<1, 2, 3>'
 	 * ```
@@ -831,6 +924,8 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * - end: (optional) an end StreamSource to append
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 *
 	 * Stream.of(1, 2, 3).joinStream({ start: '<<', sep: '-', end: '>>' }).toArray()
 	 * // => ['<', '<', 1, '-', 2, '-', 3, '>', '>']
 	 * ```
@@ -851,7 +946,9 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * @typeparam R - the result type of the collector and the resulting stream element type
 	 * @example
 	 * ```ts
-	 * Stream.of(1, 2, 3, 4).splitWhere(v => v == 3).toArray()  // => [[1, 2], [4]]
+	 * import { Stream } from '@rimbu/stream';
+	 *
+	 * console.log(Stream.of(1, 2, 3, 4).splitWhere(v => v == 3).toArray()); // => [[1, 2], [4]]
 	 * ```
 	 * @note O(1)
 	 */
@@ -874,7 +971,9 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * @typeparam R - the result type of the collector and the resulting stream element type
 	 * @example
 	 * ```ts
-	 * Stream.from('marmot').splitOn('m').toArray()  // => [[], ['a', 'r'], ['o', 't']]
+	 * import { Stream } from '@rimbu/stream';
+	 *
+	 * console.log(Stream.from('marmot').splitOn('m').toArray()); // => [[], ['a', 'r'], ['o', 't']]
 	 * ```
 	 * @note O(1)
 	 */
@@ -904,7 +1003,9 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * @typeparam R - the result type of the collector and the resulting stream element type
 	 * @example
 	 * ```ts
-	 * Stream.from('marmot').splitOnSlice('mo').toArray()  // => [['m', 'a', 'r'], ['t']]
+	 * import { Stream } from '@rimbu/stream';
+	 *
+	 * console.log(Stream.from('marmot').splitOnSlice('mo').toArray()); // => [['m', 'a', 'r'], ['t']]
 	 * ```
 	 * @note O(1)
 	 */
@@ -924,6 +1025,8 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * - negate: (default: false) when true will negate the given predicate
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 *
 	 * Stream.of(1, 1, 2, 2, 3, 1).distinctPrevious().toArray()
 	 * // => [1, 2, 3, 1]
 	 * ```
@@ -942,6 +1045,9 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * - collector: (default: `Reducer.toArray()`) the reducer to use to collect the window values
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 * import { Reducer } from '@rimbu/stream/reducer';
+	 *
 	 * console.log(Stream.of(1, 2, 3, 4, 5, 6, 7).window(3).toArray())
 	 * // => [[1, 2, 3], [4, 5, 6]]
 	 * console.log(Stream.of(1, 2, 3, 4, 5).window(3, { skipAmount: 1 }).toArray())
@@ -973,6 +1079,8 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * - halt: a function that, if called, ensures that no new elements are passed
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 *
 	 * console.log(Stream.empty<number>().fold(5, (current, value) => current + value))
 	 * // => 5
 	 * console.log(Stream.of(1, 2, 3).fold(5, (current, value) => current + value))
@@ -995,6 +1103,8 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * - halt: a function that, if called, ensures that no new elements are passed
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 *
 	 * console.log(
 	 *   Stream.empty<number>()
 	 *     .foldStream(5, (current, value) => current + value)
@@ -1019,6 +1129,9 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * @param reducer - the `Reducer` instance to use to apply to all Stream elements.
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 * import { Reducer } from '@rimbu/stream/reducer';
+	 *
 	 * console.log(Stream.of(1, 2, 4).reduce(Reducer.sum))
 	 * // => 7
 	 * console.log(Stream.of(1, 2, 4).reduce(Reducer.product))
@@ -1032,6 +1145,9 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * @param shape - the `Reducer` combined shape to use to apply to all stream elements.
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 * import { Reducer } from '@rimbu/stream/reducer';
+	 *
 	 * console.log(Stream.of(1, 2, 4).reduce([Reducer.sum, { prod: Reducer.product }]))
 	 * // => [7, { prod: 8 }]
 	 * ```
@@ -1045,6 +1161,9 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * @param reducer - the `Reducer` instance to use to apply to all Stream elements.
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 * import { Reducer } from '@rimbu/stream/reducer';
+	 *
 	 * console.log(
 	 *   Stream.of(1, 2, 4)
 	 *     .reduceStream(Reducer.sum)
@@ -1066,6 +1185,9 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * @param shape - the reducer shape containing instances of Reducers to use to apply to all stream elements.
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 * import { Reducer } from '@rimbu/stream/reducer';
+	 *
 	 * console.log(
 	 *   Stream.of(1, 2, 4)
 	 *     .reduceStream([Reducer.sum, { prod: Reducer.product }])
@@ -1092,6 +1214,8 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * @note if the predicate is a type guard, the return type is automatically inferred
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 *
 	 * Stream.of(1, 2, 3).partition((v) => v % 2 === 0)()
 	 * // => [[2], [1, 3]]
 	 * ```
@@ -1134,6 +1258,8 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * @typeparam R - the collector output type
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 *
 	 * Stream.of(1, 2, 3).groupBy((v) => v % 2)()
 	 * // => Map {0 => [2], 1 => [1, 3]}
 	 * ```
@@ -1150,7 +1276,9 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * Returns an Array containing all elements in the Stream.
 	 * @example
 	 * ```ts
-	 * Stream.of(1, 2, 3).toArray()   // => [1, 2, 3]
+	 * import { Stream } from '@rimbu/stream';
+	 *
+	 * console.log(Stream.of(1, 2, 3).toArray()); // => [1, 2, 3]
 	 * ```
 	 */
 	toArray(): T[];
@@ -1159,7 +1287,9 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * @note to avoid issues with potentially infinite stream, this method does not list the Stream elements. To do this, use `join`.
 	 * @example
 	 * ```ts
-	 * Stream.of(1, 2, 3).toString()   // => 'Stream(...<potentially empty>)'
+	 * import { Stream } from '@rimbu/stream';
+	 *
+	 * console.log(Stream.of(1, 2, 3).toString()); // => 'Stream(...<potentially empty>)'
 	 * ```
 	 */
 	toString(): string;
@@ -1168,7 +1298,9 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * @note take care not to call on infinite Streams
 	 * @example
 	 * ```ts
-	 * Stream.of(1, 2, 3).toJSON()   // => { dataType: 'Stream', value: [1, 2, 3] }
+	 * import { Stream } from '@rimbu/stream';
+	 *
+	 * console.log(Stream.of(1, 2, 3).toJSON()); // => { dataType: 'Stream', value: [1, 2, 3] }
 	 * ```
 	 */
 	toJSON(): ToJSON<T[], 'Stream'>;
@@ -1185,6 +1317,8 @@ export namespace Stream {
 		 * Returns this collection typed as a 'possibly empty' collection.
 		 * @example
 		 * ```ts
+		 * import { Stream } from '@rimbu/stream';
+		 *
 		 * Stream.of(0, 1, 2).asNormal();  // type: Stream<number>
 		 * ```
 		 */
@@ -1193,6 +1327,8 @@ export namespace Stream {
 		 * Returns a non-empty stream of elements of type T.
 		 * @example
 		 * ```ts
+		 * import { Stream } from '@rimbu/stream';
+		 *
 		 * Stream.of(1, 2, 3).stream()
 		 * // => returns itself
 		 * ```
@@ -1204,6 +1340,8 @@ export namespace Stream {
 		 * - startIndex: (optional) an alternative start index to use
 		 * @example
 		 * ```ts
+		 * import { Stream } from '@rimbu/stream';
+		 *
 		 * Stream.of(1, 2, 3).indexed().toArray()
 		 * // => [[0, 1], [1, 2], [2, 3]]
 		 * ```
@@ -1218,6 +1356,8 @@ export namespace Stream {
 		 * @param mapFun - a function taking an element and its index, and returning some new element
 		 * @example
 		 * ```ts
+		 * import { Stream } from '@rimbu/stream';
+		 *
 		 * Stream.of(1, 2, 3).map((v, i) => `[${i}]: ${v}`).toArray()
 		 * // => ['[0]: 1', '[1]: 2', '[2]: 3']
 		 * ```
@@ -1236,6 +1376,8 @@ export namespace Stream {
 		 * @note can be used on function that really expect 1 argument, since the normal map will also pass more arguments
 		 * @example
 		 * ```ts
+		 * import { Stream } from '@rimbu/stream';
+		 *
 		 * const s = Stream.of({ a: 1 }, { a: 2, c: { d: true } })
 		 * const s2 = s.mapPure(JSON.stringify, ['a'], 5)
 		 * // when stream is evaluated, will call JSON.stringify on each stream element with the given extra arguments
@@ -1258,6 +1400,8 @@ export namespace Stream {
 		 * @note O(1)
 		 * @example
 		 * ```ts
+		 * import { Stream } from '@rimbu/stream';
+		 *
 		 * Stream.of(1, 2, 3).flatMap((v, i, halt) => {
 		 *   if (i >= 1) halt();
 		 *   return [v, i, v + i]
@@ -1286,6 +1430,8 @@ export namespace Stream {
 		 * @note O(1)
 		 * @example
 		 * ```ts
+		 * import { Stream } from '@rimbu/stream';
+		 *
 		 * Stream.of(1, 2, 3).flatZip((v, i, halt) => {
 		 *   if (i >= 1) halt();
 		 *   return [v, i, v + i]
@@ -1310,6 +1456,9 @@ export namespace Stream {
 		 * @note O(1)
 		 * @example
 		 * ```ts
+		 * import { Stream } from '@rimbu/stream';
+		 * import { Transformer } from '@rimbu/stream/transformer';
+		 *
 		 * Stream.of(1, 2, 3, 4, 5, 6)
 		 *   .transform(Transformer.window(3))
 		 *   .toArray()
@@ -1326,7 +1475,9 @@ export namespace Stream {
 		 * Returns the first element of the Stream.
 		 * @example
 		 * ```ts
-		 * Stream.of(1, 2, 3).first()      // => 1
+		 * import { Stream } from '@rimbu/stream';
+		 *
+		 * console.log(Stream.of(1, 2, 3).first()); // => 1
 		 * ```
 		 * @note O(1)
 		 */
@@ -1335,7 +1486,9 @@ export namespace Stream {
 		 * Returns the last element of the Stream.
 		 * @example
 		 * ```ts
-		 * Stream.of(1, 2, 3).last()      // => 3
+		 * import { Stream } from '@rimbu/stream';
+		 *
+		 * console.log(Stream.of(1, 2, 3).last()); // => 3
 		 * ```
 		 * @note O(N) for most types of Stream
 		 */
@@ -1345,10 +1498,12 @@ export namespace Stream {
 		 * @param amount - (default: undefined) the amount of times to return this Stream
 		 * @example
 		 * ```ts
-		 * Stream.of(1, 2, 3).repeat()              // => Stream(1, 2, 3, 1, 2, 3, 1, 2, ...)
-		 * Stream.of(1, 2, 3).repeat(1).toArray()   // => [1, 2, 3]
-		 * Stream.of(1, 2, 3).repeat(3).toArray()   // => [1, 2, 3, 1, 2, 3, 1, 2, 3]
-		 * Stream.of(1, 2, 3).repeat(-3).toArray()  // => [1, 2, 3]
+		 * import { Stream } from '@rimbu/stream';
+		 *
+		 * console.log(Stream.of(1, 2, 3).repeat()); // => Stream(1, 2, 3, 1, 2, 3, 1, 2, ...)
+		 * console.log(Stream.of(1, 2, 3).repeat(1).toArray()); // => [1, 2, 3]
+		 * console.log(Stream.of(1, 2, 3).repeat(3).toArray()); // => [1, 2, 3, 1, 2, 3, 1, 2, 3]
+		 * console.log(Stream.of(1, 2, 3).repeat(-3).toArray()); // => [1, 2, 3]
 		 * ```
 		 * @note amount = undefined means that the Stream is repeated indefinitely
 		 * @note amount = 1 means that the Stream is not repeated
@@ -1361,6 +1516,8 @@ export namespace Stream {
 		 * @param others - a series of StreamSources to concatenate.
 		 * @example
 		 * ```ts
+		 * import { Stream } from '@rimbu/stream';
+		 *
 		 * Stream.of(1, 2, 3).concat([4, 5], [6, 7]).toArray()
 		 * // [1, 2, 3, 4, 5, 6, 7]
 		 * ```
@@ -1373,7 +1530,9 @@ export namespace Stream {
 		 * Returns the minimum element of the Stream according to a default compare function.
 		 * @example
 		 * ```ts
-		 * Stream.of(5, 1, 3).min()         // => 1
+		 * import { Stream } from '@rimbu/stream';
+		 *
+		 * console.log(Stream.of(5, 1, 3).min()); // => 1
 		 * ```
 		 * @note O(N)
 		 */
@@ -1382,8 +1541,10 @@ export namespace Stream {
 		 * Returns the minimum element of the Stream according to the provided `compare` function.
 		 * @example
 		 * ```ts
+		 * import { Stream } from '@rimbu/stream';
+		 *
 		 * function compareLength(a: string, b: string): number { return b.length - a.length };
-		 * Stream.of('abc', 'a', 'ab').minBy(compareLength)   // => 'a'
+		 * console.log(Stream.of('abc', 'a', 'ab').minBy(compareLength)); // => 'a'
 		 * ```
 		 * @note O(N)
 		 */
@@ -1392,7 +1553,9 @@ export namespace Stream {
 		 * Returns the maximum element of the Stream according to a default compare function.
 		 * @example
 		 * ```ts
-		 * Stream.of(5, 1, 3).max()         // => 5
+		 * import { Stream } from '@rimbu/stream';
+		 *
+		 * console.log(Stream.of(5, 1, 3).max()); // => 5
 		 * ```
 		 * @note O(N)
 		 */
@@ -1401,8 +1564,10 @@ export namespace Stream {
 		 * Returns the maximum element of the Stream according to the provided `compare` function.
 		 * @example
 		 * ```ts
+		 * import { Stream } from '@rimbu/stream';
+		 *
 		 * function compareLength(a: string, b: string): number { return b.length - a.length };
-		 * Stream.of('abc', 'a', 'ab').maxBy(compareLength)   // => 'abc'
+		 * console.log(Stream.of('abc', 'a', 'ab').maxBy(compareLength)); // => 'abc'
 		 * ```
 		 * @note O(N)
 		 */
@@ -1412,6 +1577,8 @@ export namespace Stream {
 		 * @param sep - the StreamSource to insert between each element of this Stream
 		 * @example
 		 * ```ts
+		 * import { Stream } from '@rimbu/stream';
+		 *
 		 * Stream.of(1, 2, 3).intersperse("ab").toArray()
 		 * // => [1, 'a', 'b', 2, 'a', 'b', 3]
 		 * ```
@@ -1427,6 +1594,8 @@ export namespace Stream {
 		 * - end: (optional) an end StreamSource to append
 		 * @example
 		 * ```ts
+		 * import { Stream } from '@rimbu/stream';
+		 *
 		 * Stream.of(1, 2, 3).joinStream({ start: '<<', sep: '-', end: '>>' }).toArray()
 		 * // => ['<', '<', 1, '-', 2, '-', 3, '>', '>']
 		 * ```
@@ -1445,6 +1614,8 @@ export namespace Stream {
 		 * - negate: (default: false) when true will negate the given predicate
 		 * @example
 		 * ```ts
+		 * import { Stream } from '@rimbu/stream';
+		 *
 		 * Stream.of(1, 1, 2, 2, 3, 1).distinctPrevious().toArray()
 		 * // => [1, 2, 3, 1]
 		 * ```
@@ -1465,6 +1636,8 @@ export namespace Stream {
 		 * - halt: a function that, if called, ensures that no new elements are passed
 		 * @example
 		 * ```ts
+		 * import { Stream } from '@rimbu/stream';
+		 *
 		 * console.log(
 		 *   Stream.empty<number>()
 		 *     .foldStream(5, (current, value) => current + value)
@@ -1491,7 +1664,9 @@ export namespace Stream {
 		 * Returns a non-empty Array containing all elements in the Stream.
 		 * @example
 		 * ```ts
-		 * Stream.of(1, 2, 3).toArray()   // => [1, 2, 3]
+		 * import { Stream } from '@rimbu/stream';
+		 *
+		 * console.log(Stream.of(1, 2, 3).toArray()); // => [1, 2, 3]
 		 * ```
 		 */
 		toArray(): ArrayNonEmpty<T>;
@@ -1516,7 +1691,9 @@ export namespace Stream {
 		 * @typeparam T - the Stream element type
 		 * @example
 		 * ```ts
-		 * Stream.empty<number>().toArray()   // => []
+		 * import { Stream } from '@rimbu/stream';
+		 *
+		 * console.log(Stream.empty<number>().toArray()); // => []
 		 * ```
 		 */
 		empty<T>(): Stream<T>;
@@ -1526,7 +1703,9 @@ export namespace Stream {
 		 * @param values - the values the Stream should return
 		 * @example
 		 * ```ts
-		 * Stream.of(1, 2, 3).toArray()   // => [1, 2, 3]
+		 * import { Stream } from '@rimbu/stream';
+		 *
+		 * console.log(Stream.of(1, 2, 3).toArray()); // => [1, 2, 3]
 		 * ```
 		 */
 		of<T>(...values: ArrayNonEmpty<T>): Stream.NonEmpty<T>;
@@ -1536,9 +1715,11 @@ export namespace Stream {
 		 * @param sources - a non-empty array of `StreamSource` instances containing values
 		 * @example
 		 * ```ts
-		 * Stream.from([1, 2, 3]).toArray()          // => [1, 2, 3]
-		 * Stream.from('marmot').toArray()           // => ['m', 'a', 'r', 'm', 'o', 't']
-		 * Stream.from([1, 2, 3], [4, 5]).toArray()  // => [1, 2, 3, 4, 5]
+		 * import { Stream } from '@rimbu/stream';
+		 *
+		 * console.log(Stream.from([1, 2, 3]).toArray()); // => [1, 2, 3]
+		 * console.log(Stream.from('marmot').toArray()); // => ['m', 'a', 'r', 'm', 'o', 't']
+		 * console.log(Stream.from([1, 2, 3], [4, 5]).toArray()); // => [1, 2, 3, 4, 5]
 		 * ```
 		 */
 		from<T>(
@@ -1554,9 +1735,11 @@ export namespace Stream {
 		 * - reversed: (default: false) if true reverses the order of the Stream
 		 * @example
 		 * ```ts
-		 * Stream.fromArray([1, 2, 3]).toArray()                                            // => [1, 2, 3]
-		 * Stream.fromArray([1, 2, 3], { range: { start: -2 } }).toArray()                  // => [2, 3]
-		 * Stream.fromArray([1, 2, 3], { range: { start: 1 }, reversed: true }).toArray()   // => [3, 2]
+		 * import { Stream } from '@rimbu/stream';
+		 *
+		 * console.log(Stream.fromArray([1, 2, 3]).toArray()); // => [1, 2, 3]
+		 * console.log(Stream.fromArray([1, 2, 3], { range: { start: -2 } }).toArray()); // => [2, 3]
+		 * console.log(Stream.fromArray([1, 2, 3], { range: { start: 1 }, reversed: true }).toArray()); // => [3, 2]
 		 * ```
 		 */
 		fromArray<T>(
@@ -1579,7 +1762,9 @@ export namespace Stream {
 		 * @param obj - the source object
 		 * @example
 		 * ```ts
-		 * Stream.fromObjectKeys({ a: 1, b: 'b' }).toArray()  // => ['a', 'b']
+		 * import { Stream } from '@rimbu/stream';
+		 *
+		 * console.log(Stream.fromObjectKeys({ a: 1, b: 'b' }).toArray()); // => ['a', 'b']
 		 * ```
 		 */
 		fromObjectKeys<K extends string | number | symbol>(
@@ -1591,7 +1776,9 @@ export namespace Stream {
 		 * @param obj - the source object
 		 * @example
 		 * ```ts
-		 * Stream.fromObjectValues({ a: 1, b: 'b' }).toArray()  // => [1, 'b']
+		 * import { Stream } from '@rimbu/stream';
+		 *
+		 * console.log(Stream.fromObjectValues({ a: 1, b: 'b' }).toArray()); // => [1, 'b']
 		 * ```
 		 */
 		fromObjectValues<V>(obj: Record<any, V> | readonly V[]): Stream<V>;
@@ -1602,7 +1789,9 @@ export namespace Stream {
 		 * @param obj - the source object
 		 * @example
 		 * ```ts
-		 * Stream.fromObject({ a: 1, b: 'b' }).toArray()   // => [['a', 1], ['b', 'b']]
+		 * import { Stream } from '@rimbu/stream';
+		 *
+		 * console.log(Stream.fromObject({ a: 1, b: 'b' }).toArray()); // => [['a', 1], ['b', 'b']]
 		 * ```
 		 */
 		fromObject<K extends string | number | symbol, V>(
@@ -1618,9 +1807,11 @@ export namespace Stream {
 		 * - reversed: (default: false) if true reverses the order of the Stream
 		 * @example
 		 * ```ts
-		 * Stream.fromString('marmot').toArray()                       // => ['m', 'a', 'r', 'm', 'o', 't']
-		 * Stream.fromString('marmot', { range: { start: -3 } }).toArray()        // => ['m', 'o', 't']
-		 * Stream.fromString('marmot', { range: { amount: 3 }, reversed: true}).toArray()  // => ['r', 'a', 'm']
+		 * import { Stream } from '@rimbu/stream';
+		 *
+		 * console.log(Stream.fromString('marmot').toArray()); // => ['m', 'a', 'r', 'm', 'o', 't']
+		 * console.log(Stream.fromString('marmot', { range: { start: -3 } }).toArray()); // => ['m', 'o', 't']
+		 * console.log(Stream.fromString('marmot', { range: { amount: 3 }, reversed: true}).toArray()); // => ['r', 'a', 'm']
 		 * ```
 		 */
 		fromString<S extends string>(
@@ -1643,6 +1834,8 @@ export namespace Stream {
 		 * @param value - the value to return
 		 * @example
 		 * ```ts
+		 * import { Stream } from '@rimbu/stream';
+		 *
 		 * console.log(Stream.always(5).take(4).toArray())
 		 * => [5, 5, 5, 5]
 		 * ```
@@ -1659,6 +1852,8 @@ export namespace Stream {
 		 * @note used mostly for performance since a new function is not needed to spread the tuples to arguments
 		 * @example
 		 * ```ts
+		 * import { Stream } from '@rimbu/stream';
+		 *
 		 * Stream.applyForEach([[1, 'a'], [2, 'b']], console.log, 'bongo')
 		 * // => logs:
 		 * // 1 a bongo
@@ -1684,6 +1879,8 @@ export namespace Stream {
 		 * @note used mostly for performance since a new function is not needed to spread the tuples to arguments
 		 * @example
 		 * ```ts
+		 * import { Stream } from '@rimbu/stream';
+		 *
 		 * const s = Stream.applyMap([[1, 'a'], [2, 'b']], List.of, true)
 		 * console.log(s.toArray())
 		 * // => [List(1, 'a', true), List(2, 'b', true)]
@@ -1713,6 +1910,8 @@ export namespace Stream {
 		 * @note used mostly for performance since a new function is not needed to spread the tuples to arguments
 		 * @example
 		 * ```ts
+		 * import { Stream } from '@rimbu/stream';
+		 *
 		 * function sumEq(a: number, b: number, total: number): boolean {
 		 *   return a + b === total
 		 * }
@@ -1737,9 +1936,11 @@ export namespace Stream {
 		 * - delta: (default: 1) the difference between a number and the next returned number
 		 * @example
 		 * ```ts
-		 * Stream.range({ amount: 3 }).toArray()              // => [0, 1, 2]
-		 * Stream.range({ start: 2, amount: 3 }).toArray()    // => [2, 3, 4]
-		 * Stream.range({ start: 5 }, { delta: 2 }).toArray()            // => [5, 7, 9, .... ]
+		 * import { Stream } from '@rimbu/stream';
+		 *
+		 * console.log(Stream.range({ amount: 3 }).toArray()); // => [0, 1, 2]
+		 * console.log(Stream.range({ start: 2, amount: 3 }).toArray()); // => [2, 3, 4]
+		 * console.log(Stream.range({ start: 5 }, { delta: 2 }).toArray()); // => [5, 7, 9, .... ]
 		 * ```
 		 */
 		range(range: IndexRange, options?: { delta?: number }): Stream<number>;
@@ -1747,7 +1948,9 @@ export namespace Stream {
 		 * Returns an infinite Stream containing random numbers between 0 and 1.
 		 * @example
 		 * ```ts
-		 * Stream.random().take(3).toArray()     // => [0.3243..., 0.19524...., 0.78324...]
+		 * import { Stream } from '@rimbu/stream';
+		 *
+		 * console.log(Stream.random().take(3).toArray()); // => [0.3243..., 0.19524...., 0.78324...]
 		 * ```
 		 */
 		random(): Stream.NonEmpty<number>;
@@ -1757,7 +1960,9 @@ export namespace Stream {
 		 * @param max - the maximum value
 		 * @example
 		 * ```ts
-		 * Stream.randomInt(0, 10).take(3).toArray()    // => [4, 9, 3]
+		 * import { Stream } from '@rimbu/stream';
+		 *
+		 * console.log(Stream.randomInt(0, 10).take(3).toArray()); // => [4, 9, 3]
 		 * ```
 		 */
 		randomInt(min: number, max: number): Stream.NonEmpty<number>;
@@ -1767,7 +1972,9 @@ export namespace Stream {
 		 * @param next - a function taking the last value, its index, and a stop token, and returning a new value or a stop token
 		 * @example
 		 * ```ts
-		 * Stream.unfold(2, v => v * v).take(4).toArray()   // => [2, 4, 16, 256]
+		 * import { Stream } from '@rimbu/stream';
+		 *
+		 * console.log(Stream.unfold(2, v => v * v).take(4).toArray()); // => [2, 4, 16, 256]
 		 * ```
 		 */
 		unfold<T>(
@@ -1779,9 +1986,11 @@ export namespace Stream {
 		 * @param sources - the input stream sources
 		 * @example
 		 * ```ts
-		 * Stream.zip([1, 2, 3], [4, 5], ['a', 'b', 'c']).toArray()    // => [[1, 4, 'a'], [2, 5, 'b']]
+		 * import { Stream } from '@rimbu/stream';
+		 *
+		 * console.log(Stream.zip([1, 2, 3], [4, 5], ['a', 'b', 'c']).toArray()); // => [[1, 4, 'a'], [2, 5, 'b']]
 		 * // to apply a transform, chain .map():
-		 * Stream.zip([1, 2], [3, 4, 5]).map(([a, b]) => a + b).toArray()  // => [4, 6]
+		 * console.log(Stream.zip([1, 2], [3, 4, 5]).map(([a, b]) => a + b).toArray()); // => [4, 6]
 		 * ```
 		 * @note ends the Stream when any of the given streams ends
 		 */
@@ -1798,6 +2007,8 @@ export namespace Stream {
 		 * @param sources - the input stream sources
 		 * @example
 		 * ```ts
+		 * import { Stream } from '@rimbu/stream';
+		 *
 		 * Stream.zipAll(
 		 *   0,
 		 *   [1, 2, 3],
@@ -1819,8 +2030,10 @@ export namespace Stream {
 		 * Returns a Stream concatenating the given `source` StreamSource containing StreamSources.
 		 * @example
 		 * ```ts
-		 * Stream.flatten(Stream.of([1, 2], [3], [], [4])).toArray()  // => [1, 2, 3, 4]
-		 * Stream.flatten(Stream.of('ma', 'r', '', 'mot')).toArray()   // => ['m', 'a', 'r', 'm', 'o', 't']
+		 * import { Stream } from '@rimbu/stream';
+		 *
+		 * console.log(Stream.flatten(Stream.of([1, 2], [3], [], [4])).toArray()); // => [1, 2, 3, 4]
+		 * console.log(Stream.flatten(Stream.of('ma', 'r', '', 'mot')).toArray()); // => ['m', 'a', 'r', 'm', 'o', 't']
 		 * ```
 		 */
 		flatten<T extends StreamSource.NonEmpty<unknown>>(
@@ -1835,9 +2048,11 @@ export namespace Stream {
 		 * - length: the stream element tuple length
 		 * @example
 		 * ```ts
+		 * import { Stream } from '@rimbu/stream';
+		 *
 		 * const [a, b] = Stream.unzip(Stream.of([[1, 'a'], [2, 'b']]), 2)
-		 * a.toArray()   // => [1, 2]
-		 * b.toArray()   // => ['a', 'b']
+		 * console.log(a.toArray()); // => [1, 2]
+		 * console.log(b.toArray()); // => ['a', 'b']
 		 * ```
 		 */
 		unzip<T extends readonly unknown[] & { length: L }, L extends number>(

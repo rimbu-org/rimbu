@@ -129,6 +129,8 @@ export interface AsyncReducerFactory {
 	 * @typeparam O - the fallback value type
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 *
 	 * const stream = Stream.of('abc', 'a', 'abcde', 'ab')
 	 * console.log(stream.minBy((s1, s2) => s1.length - s2.length))
 	 * // 'a'
@@ -150,6 +152,9 @@ export interface AsyncReducerFactory {
 	 * @typeparam O - the fallback value type
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 * import { Reducer } from '@rimbu/stream/reducer';
+	 *
 	 * console.log(Stream.of(5, 3, 7, 4).reduce(Reducer.min()))
 	 * // => 3
 	 * ```
@@ -167,6 +172,8 @@ export interface AsyncReducerFactory {
 	 * @typeparam O - the fallback value type
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 *
 	 * const stream = Stream.of('abc', 'a', 'abcde', 'ab')
 	 * console.log(stream.maxBy((s1, s2) => s1.length - s2.length))
 	 * // 'abcde'
@@ -188,6 +195,9 @@ export interface AsyncReducerFactory {
 	 * @typeparam O - the fallback value type
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 * import { Reducer } from '@rimbu/stream/reducer';
+	 *
 	 * console.log(Stream.of(5, 3, 7, 4).reduce(Reducer.max()))
 	 * // => 7
 	 * ```
@@ -204,6 +214,10 @@ export interface AsyncReducerFactory {
 	 * @typeparam O - the fallback value type
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 * import { AsyncReducer } from '@rimbu/stream/async/reducer';
+	 *
 	 * await AsyncStream.from(Stream.range({ amount: 10 })).reduce(
 	 *   AsyncReducer.first()
 	 * )
@@ -222,6 +236,10 @@ export interface AsyncReducerFactory {
 	 * @typeparam O - the fallback value type
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 * import { AsyncReducer } from '@rimbu/stream/async/reducer';
+	 *
 	 * await AsyncStream.from(Stream.range({ amount: 10 })).reduce(
 	 *   AsyncReducer.last()
 	 * )
@@ -288,6 +306,9 @@ export interface AsyncReducerFactory {
 	 * An `AsyncReducer` that outputs true if no input values are received, false otherwise.
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 * import { AsyncReducer } from '@rimbu/stream/async/reducer';
+	 *
 	 * await AsyncStream.of(1, 2, 3).reduce(AsyncReducer.isEmpty))
 	 * // => false
 	 * ```
@@ -298,6 +319,9 @@ export interface AsyncReducerFactory {
 	 * An `AsyncReducer` that outputs true if one or more input values are received, false otherwise.
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 * import { AsyncReducer } from '@rimbu/stream/async/reducer';
+	 *
 	 * await AsyncStream.of(1, 2, 3).reduce(AsyncReducer.nonEmpty))
 	 * // => true
 	 * ```
@@ -462,6 +486,11 @@ export interface AsyncReducerFactory {
 	 * @param reducer5 - (optional) the next reducer to apply to each output of this reducer.
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 * import { Reducer } from '@rimbu/stream/reducer';
+	 * import { AsyncReducer } from '@rimbu/stream/async/reducer';
+	 *
 	 * AsyncStream
 	 *  .from(Stream.of(1, 2, 3))
 	 *  .reduce(

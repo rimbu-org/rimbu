@@ -53,6 +53,8 @@ export namespace Reducer {
 		 * @note if the predicate is a type guard, the return type is automatically inferred
 		 * @example
 		 * ```ts
+		 * import { Reducer } from '@rimbu/stream/reducer';
+		 *
 		 * Reducer.sum.filterInput(v => v > 10)
 		 * // this reducer will only sum values larger than 10
 		 * ```
@@ -77,6 +79,8 @@ export namespace Reducer {
 		 * @typeparam I2 - the resulting reducer input type
 		 * @example
 		 * ```ts
+		 * import { Reducer } from '@rimbu/stream/reducer';
+		 *
 		 * Reducer.sum.mapInput(v => v * 2)
 		 * // this reducer will double all input values before summing them
 		 * ```
@@ -91,6 +95,8 @@ export namespace Reducer {
 		 * - index: the current input index
 		 * @example
 		 * ```ts
+		 * import { Reducer } from '@rimbu/stream/reducer';
+		 *
 		 * Reducer.sum.flatMapInput(v => [v, v + 1])
 		 * // this reducer will add v and v + 1 to the sum for each input value
 		 * ```
@@ -108,6 +114,8 @@ export namespace Reducer {
 		 * @typeparam I2 - the resulting reducer input type
 		 * @example
 		 * ```ts
+		 * import { Reducer } from '@rimbu/stream/reducer';
+		 *
 		 * Reducer.sum.collectInput((v, _, skip) => v <= 10 ? skip : v * 2)
 		 * // this reducer will double all input values larger than 10 before summing them,
 		 * // and will skip all values smaller than 10
@@ -121,6 +129,8 @@ export namespace Reducer {
 		 * @typeparam O2 - the new output type
 		 * @example
 		 * ```ts
+		 * import { Reducer } from '@rimbu/stream/reducer';
+		 *
 		 * Reducer.sum.mapOutput(String)
 		 * // this reducer will convert all its results to string before returning them
 		 * ```
@@ -133,6 +143,9 @@ export namespace Reducer {
 		 * @param amount - the amount of elements to accept
 		 * @example
 		 * ```ts
+		 * import { Stream } from '@rimbu/stream';
+		 * import { Reducer } from '@rimbu/stream/reducer';
+		 *
 		 * Stream.range({ end: 10 }).reduce(Reducer.sum.takeInput(2))
 		 * // => 1
 		 * ```
@@ -143,6 +156,9 @@ export namespace Reducer {
 		 * @param amount - the amount of elements to skip
 		 * @example
 		 * ```ts
+		 * import { Stream } from '@rimbu/stream';
+		 * import { Reducer } from '@rimbu/stream/reducer';
+		 *
 		 * Stream.range({ end: 10 }).reduce(Reducer.sum.dropInput(9))
 		 * // => 19
 		 * ```
@@ -153,6 +169,9 @@ export namespace Reducer {
 		 * @param range - (optional) an `IndexRange` specifying which input elements to process; if omitted, all elements are processed
 		 * @example
 		 * ```ts
+		 * import { Stream } from '@rimbu/stream';
+		 * import { Reducer } from '@rimbu/stream/reducer';
+		 *
 		 * Stream.range({ end: 10 }).reduce(Reducer.sum.sliceInput({ start: 1, amount: 2 }))
 		 * // => 3
 		 * Stream.range({ end: 10 }).reduce(Reducer.sum.sliceInput({ start: 2, end: 4 }))
@@ -187,6 +206,9 @@ export namespace Reducer {
 		 * @param nextReducers - an number of reducers consuming and producing the same types as the current reducer.
 		 * @example
 		 * ```ts
+		 * import { Stream } from '@rimbu/stream';
+		 * import { Reducer } from '@rimbu/stream/reducer';
+		 *
 		 * const result = Stream.range({ amount: 6 })
 		 *  .reduce(
 		 *    Reducer.sum
@@ -208,6 +230,8 @@ export namespace Reducer {
 		 * retrieved when needed. The state is kept private.
 		 * @example
 		 * ```ts
+		 * import { Reducer } from '@rimbu/stream/reducer';
+		 *
 		 * const reducer = Reducer.sum.mapOutput(v => v * 2);
 		 * const instance = reducer.compile();
 		 * instance.next(3);

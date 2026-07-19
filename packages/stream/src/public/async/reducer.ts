@@ -68,6 +68,8 @@ export namespace AsyncReducer {
 		 * @note if the predicate is a type guard, the return type is automatically inferred
 		 * @example
 		 * ```ts
+		 * import { AsyncReducer } from '@rimbu/stream/async/reducer';
+		 *
 		 * AsyncReducer
 		 *   .createMono(0, async (c, v) => c + v)
 		 *   .filterInput(async v => v > 10)
@@ -98,6 +100,8 @@ export namespace AsyncReducer {
 		 * @typeparam I2 - the new input type
 		 * @example
 		 * ```ts
+		 * import { AsyncReducer } from '@rimbu/stream/async/reducer';
+		 *
 		 * AsyncReducer
 		 *   .createMono(0, async (c, v) => c + v)
 		 *   .mapInput(async v => v * 2)
@@ -115,6 +119,8 @@ export namespace AsyncReducer {
 		 * @typeparam I2 - the new input type
 		 * @example
 		 * ```ts
+		 * import { AsyncReducer } from '@rimbu/stream/async/reducer';
+		 *
 		 * AsyncReducer
 		 *   .createMono(0, async (c, v) => c + v)
 		 *   .flatMapInput(async v => [v, v])
@@ -137,6 +143,8 @@ export namespace AsyncReducer {
 		 * - `halt`: a function that, when called, ensures no next elements are passed
 		 * @example
 		 * ```ts
+		 * import { AsyncReducer } from '@rimbu/stream/async/reducer';
+		 *
 		 * AsyncReducer
 		 *   .createMono(0, async (c, v) => c + v)
 		 *   .collectInput(async (v, _, skip) => v <= 10 ? skip : v * 2)
@@ -151,6 +159,8 @@ export namespace AsyncReducer {
 		 * @typeparam O2 - the new output type
 		 * @example
 		 * ```ts
+		 * import { AsyncReducer } from '@rimbu/stream/async/reducer';
+		 *
 		 * AsyncReducer
 		 *   .createMono(0, async (c, v) => c + v)
 		 *   .mapOutput(async v => String(v))
@@ -165,6 +175,10 @@ export namespace AsyncReducer {
 		 * @param amount - the amount of elements to accept
 		 * @example
 		 * ```ts
+		 * import { Stream } from '@rimbu/stream';
+		 * import { AsyncStream } from '@rimbu/stream/async';
+		 * import { AsyncReducer } from '@rimbu/stream/async/reducer';
+		 *
 		 * await AsyncStream
 		 *   .from(Stream.range({ end: 10 }))
 		 *   .reduce(
@@ -181,6 +195,10 @@ export namespace AsyncReducer {
 		 * @param amount - the amount of elements to skip
 		 * @example
 		 * ```ts
+		 * import { Stream } from '@rimbu/stream';
+		 * import { AsyncStream } from '@rimbu/stream/async';
+		 * import { AsyncReducer } from '@rimbu/stream/async/reducer';
+		 *
 		 * await AsyncStream
 		 *   .from(Stream.range({ end: 10 }))
 		 *   .reduce(
@@ -197,6 +215,10 @@ export namespace AsyncReducer {
 		 * @param range - (optional) an `IndexRange` specifying which input elements to process; if omitted, all elements are processed
 		 * @example
 		 * ```ts
+		 * import { Stream } from '@rimbu/stream';
+		 * import { AsyncStream } from '@rimbu/stream/async';
+		 * import { AsyncReducer } from '@rimbu/stream/async/reducer';
+		 *
 		 * await AsyncStream
 		 *   .from(Stream.range({ end: 10 }))
 		 *   .reduce(
@@ -233,6 +255,10 @@ export namespace AsyncReducer {
 		 * @param nextReducers - a stream source of reducers consuming and producing the same types as the current reducer.
 		 * @example
 		 * ```ts
+		 * import { Stream } from '@rimbu/stream';
+		 * import { AsyncStream } from '@rimbu/stream/async';
+		 * import { Reducer } from '@rimbu/stream/reducer';
+		 *
 		 * const result = await AsyncStream.from(Stream.range({ amount: 6 }))
 		 *  .reduce(
 		 *    Reducer.sum
@@ -257,6 +283,9 @@ export namespace AsyncReducer {
 		 * retrieved when needed. The state is kept private.
 		 * @example
 		 * ```ts
+		 * import { Reducer } from '@rimbu/stream/reducer';
+		 * import { AsyncReducer } from '@rimbu/stream/async/reducer';
+		 *
 		 * const reducer = AsyncReducer.from(Reducer.sum.mapOutput(v => v * 2));
 		 * const instance = reducer.compile();
 		 * await instance.next(3);

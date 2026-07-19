@@ -33,6 +33,8 @@ export interface AsyncStreamConstructors {
 	 * @param sources - the input async stream sources
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
 	 * await AsyncStream.zip(
 	 *   [1, 2, 3],
 	 *   [4, 5],
@@ -40,7 +42,7 @@ export interface AsyncStreamConstructors {
 	 * ).toArray()
 	 * // => [[1, 4, 'a'], [2, 5, 'b']]
 	 * // to apply a transform, chain .map():
-	 * await AsyncStream.zip([1, 2], [3, 4, 5]).map(([a, b]) => a + b).toArray()  // => [4, 6]
+	 * console.log(await AsyncStream.zip([1, 2], [3, 4, 5]).map(([a, b]) => a + b).toArray()); // => [4, 6]
 	 * ```
 	 * @note ends the AsyncStream when any of the given streams ends
 	 */
@@ -57,6 +59,8 @@ export interface AsyncStreamConstructors {
 	 * @param sources - the input async stream sources
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
 	 * await AsyncStream.zipAll(
 	 *   0,
 	 *   [1, 2, 3],
@@ -80,7 +84,9 @@ export interface AsyncStreamConstructors {
 	 * @param source - a StreamSource containing nested StreamSources
 	 * @example
 	 * ```ts
-	 * await AsyncStream.flatten(AsyncStream.of([[1, 2], [3], [], [4]])).toArray()  // => [1, 2, 3, 4]
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
+	 * console.log(await AsyncStream.flatten(AsyncStream.of([[1, 2], [3], [], [4]])).toArray()); // => [1, 2, 3, 4]
 	 * await AsyncStream.flatten(AsyncStream.of(['ma', 'r', '', 'mot')).toArray()   // => ['m', 'a', 'r', 'm', 'o', 't']
 	 * ```
 	 */
@@ -96,9 +102,11 @@ export interface AsyncStreamConstructors {
 	 * @param length - the tuple length
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
 	 * const [a, b] = AsyncStream.unzip(AsyncStream.of([[1, 'a'], [2, 'b']]), 2)
-	 * await a.toArray()   // => [1, 2]
-	 * await b.toArray()   // => ['a', 'b']
+	 * console.log(await a.toArray()); // => [1, 2]
+	 * console.log(await b.toArray()); // => ['a', 'b']
 	 * ```
 	 */
 	unzip<T extends readonly unknown[] & { length: L }, L extends number>(
@@ -117,7 +125,9 @@ export interface AsyncStreamConstructors {
 	 * @param next - a function taking the last value, its index, and a stop token, and returning a new value or a stop token
 	 * @example
 	 * ```ts
-	 * Stream.unfold(2, v => v * v).take(4).toArray()   // => [2, 4, 16, 256]
+	 * import { Stream } from '@rimbu/stream';
+	 *
+	 * console.log(Stream.unfold(2, v => v * v).take(4).toArray()); // => [2, 4, 16, 256]
 	 * ```
 	 */
 	unfold<T>(

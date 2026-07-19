@@ -18,6 +18,9 @@ export interface ReducerFactory {
 	 * @typeparam S - the internal state type
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 * import { Reducer } from '@rimbu/stream/reducer';
+	 *
 	 * const evenNumberOfOnes = Reducer.create(
 	 *   true,
 	 *   (current, value: number) => (value === 1 ? !current : current),
@@ -46,6 +49,9 @@ export interface ReducerFactory {
 	 * @typeparam T - the overall value type
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 * import { Reducer } from '@rimbu/stream/reducer';
+	 *
 	 * const sum = Reducer.createMono(
 	 *   0,
 	 *   (current, value) => current + value
@@ -74,6 +80,9 @@ export interface ReducerFactory {
 	 * @typeparam O - the output value type
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 * import { Reducer } from '@rimbu/stream/reducer';
+	 *
 	 * const boolToString = Reducer.createOutput(
 	 *   '',
 	 *   (current, value: boolean) => current + (value ? 'T' : 'F')
@@ -110,6 +119,9 @@ export interface ReducerFactory {
 	 * A `Reducer` that sums all given numeric input values.
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 * import { Reducer } from '@rimbu/stream/reducer';
+	 *
 	 * console.log(Stream.range({ amount: 5 }).reduce(Reducer.sum))
 	 * // => 10
 	 * ```
@@ -120,6 +132,9 @@ export interface ReducerFactory {
 	 * A `Reducer` that calculates the product of all given numeric input values.
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 * import { Reducer } from '@rimbu/stream/reducer';
+	 *
 	 * console.log(Stream.range({ start: 1, amount: 5 }).reduce(Reducer.product))
 	 * // => 120
 	 * ```
@@ -130,6 +145,9 @@ export interface ReducerFactory {
 	 * A `Reducer` that calculates the average of all given numeric input values.
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 * import { Reducer } from '@rimbu/stream/reducer';
+	 *
 	 * console.log(Stream.range({ amount: 5 }).reduce(Reducer.average));
 	 * // => 2
 	 * ```
@@ -144,6 +162,8 @@ export interface ReducerFactory {
 	 * @typeparam O - the fallback value type
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 *
 	 * const stream = Stream.of('abc', 'a', 'abcde', 'ab')
 	 * console.log(stream.minBy((s1, s2) => s1.length - s2.length))
 	 * // 'a'
@@ -163,6 +183,9 @@ export interface ReducerFactory {
 	 * @typeparam O - the fallback value type
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 * import { Reducer } from '@rimbu/stream/reducer';
+	 *
 	 * console.log(Stream.of(5, 3, 7, 4).reduce(Reducer.min()))
 	 * // => 3
 	 * ```
@@ -180,6 +203,8 @@ export interface ReducerFactory {
 	 * @typeparam O - the fallback value type
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 *
 	 * const stream = Stream.of('abc', 'a', 'abcde', 'ab')
 	 * console.log(stream.maxBy((s1, s2) => s1.length - s2.length))
 	 * // 'abcde'
@@ -199,6 +224,9 @@ export interface ReducerFactory {
 	 * @typeparam O - the fallback value type
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 * import { Reducer } from '@rimbu/stream/reducer';
+	 *
 	 * console.log(Stream.of(5, 3, 7, 4).reduce(Reducer.max()))
 	 * // => 7
 	 * ```
@@ -217,6 +245,9 @@ export interface ReducerFactory {
 	 * @typeparam T - the input element type
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 * import { Reducer } from '@rimbu/stream/reducer';
+	 *
 	 * console.log(Stream.of(1, 2, 3).reduce(Reducer.join({ sep: '-' })))
 	 * // => '1-2-3'
 	 * ```
@@ -236,6 +267,9 @@ export interface ReducerFactory {
 	 * A `Reducer` that remembers the amount of input items provided.
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 * import { Reducer } from '@rimbu/stream/reducer';
+	 *
 	 * const stream = Stream.range({ amount: 10 })
 	 * console.log(stream.reduce(Reducer.count))
 	 * // => 10
@@ -250,6 +284,9 @@ export interface ReducerFactory {
 	 * @typeparam O - the fallback value type
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 * import { Reducer } from '@rimbu/stream/reducer';
+	 *
 	 * console.log(Stream.range({ amount: 10 }).reduce(Reducer.first()))
 	 * // => 0
 	 * ```
@@ -266,6 +303,9 @@ export interface ReducerFactory {
 	 * @typeparam O - the fallback value type
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 * import { Reducer } from '@rimbu/stream/reducer';
+	 *
 	 * console.log(Stream.range({ amount: 10 }).reduce(Reducer.last()))
 	 * // => 9
 	 * ```
@@ -295,6 +335,9 @@ export interface ReducerFactory {
 	 * - negate: (default: false) when true will invert the given predicate
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 * import { Reducer } from '@rimbu/stream/reducer';
+	 *
 	 * console.log(
 	 *   Stream.range({ amount: 10 }).reduce(Reducer.some((v) => v > 5))
 	 * )
@@ -314,6 +357,9 @@ export interface ReducerFactory {
 	 * - negate: (default: false) when true will invert the given predicate
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 * import { Reducer } from '@rimbu/stream/reducer';
+	 *
 	 * console.log(
 	 *   Stream.range({ amount: 10 }).reduce(Reducer.every((v) => v < 5))
 	 * )
@@ -348,6 +394,9 @@ export interface ReducerFactory {
 	 * - negate: (default: false) when true will invert the given predicate
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 * import { Reducer } from '@rimbu/stream/reducer';
+	 *
 	 * console.log(Stream.range({ amount: 10 }).reduce(Reducer.contains(5)))
 	 * // => true
 	 * ```
@@ -412,6 +461,9 @@ export interface ReducerFactory {
 	 * A `Reducer` that takes boolean values and outputs true if all input values are true, and false otherwise.
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 * import { Reducer } from '@rimbu/stream/reducer';
+	 *
 	 * console.log(Stream.of(true, false, true).reduce(Reducer.and))
 	 * // => false
 	 * ```
@@ -422,6 +474,9 @@ export interface ReducerFactory {
 	 * A `Reducer` that takes boolean values and outputs true if one or more input values are true, and false otherwise.
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 * import { Reducer } from '@rimbu/stream/reducer';
+	 *
 	 * console.log(Stream.of(true, false, true).reduce(Reducer.or))
 	 * // => true
 	 * ```
@@ -432,6 +487,9 @@ export interface ReducerFactory {
 	 * A `Reducer` that outputs true if no input values are received, false otherwise.
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 * import { Reducer } from '@rimbu/stream/reducer';
+	 *
 	 * console.log(Stream.of(1, 2, 3).reduce(Reducer.isEmpty))
 	 * // => false
 	 * ```
@@ -442,6 +500,9 @@ export interface ReducerFactory {
 	 * A `Reducer` that outputs true if one or more input values are received, false otherwise.
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 * import { Reducer } from '@rimbu/stream/reducer';
+	 *
 	 * console.log(Stream.of(1, 2, 3).reduce(Reducer.nonEmpty))
 	 * // => true
 	 * ```
@@ -467,6 +528,9 @@ export interface ReducerFactory {
 	 * @note if the predicate is a type guard, the return type is automatically inferred
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 * import { Reducer } from '@rimbu/stream/reducer';
+	 *
 	 * Stream.of(1, 2, 3).partition((v) => v % 2 === 0)()
 	 * // => [[2], [1, 3]]
 	 *
@@ -525,6 +589,8 @@ export interface ReducerFactory {
 	 * @typeparam R - the collector output type
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 *
 	 * Stream.of(1, 2, 3).groupBy((v) => v % 2)()
 	 * // => Map {0 => [2], 1 => [1, 3]}
 	 * ```
@@ -568,6 +634,9 @@ export interface ReducerFactory {
 	 * - reversed: (optional) when true will create a reversed array
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 * import { Reducer } from '@rimbu/stream/reducer';
+	 *
 	 * console.log(Stream.of(1, 2, 3).reduce(Reducer.toArray()))
 	 * // => [1, 2, 3]
 	 * console.log(Stream.of(1, 2, 3).reduce(Reducer.toArray({ reversed: true })))
@@ -585,6 +654,9 @@ export interface ReducerFactory {
 	 * @typeparam V - the map value type
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 * import { Reducer } from '@rimbu/stream/reducer';
+	 *
 	 * console.log(Stream.of([1, 'a'], [2, 'b']).reduce(Reducer.toJSMap()))
 	 * // Map { 1 => 'a', 2 => 'b' }
 	 * ```
@@ -598,6 +670,9 @@ export interface ReducerFactory {
 	 * @typeparam V - the map value type
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 * import { Reducer } from '@rimbu/stream/reducer';
+	 *
 	 * console.log(Stream.of([1, 'a'], [1, 'b'], [2, 'c']).reduce(Reducer.toJSMultiMap()))
 	 * // Map { 1 => ['a', 'b'], 2 => ['c'] }
 	 * ```
@@ -610,6 +685,9 @@ export interface ReducerFactory {
 	 * @typeparam T - the element type
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 * import { Reducer } from '@rimbu/stream/reducer';
+	 *
 	 * console.log(Stream.of(1, 2, 3).reduce(Reducer.toJSSet()))
 	 * // Set {1, 2, 3}
 	 * ```
@@ -623,6 +701,9 @@ export interface ReducerFactory {
 	 * @typeparam V - the result object value type
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 * import { Reducer } from '@rimbu/stream/reducer';
+	 *
 	 * console.log(Stream.of(['a', 1], ['b', true]).reduce(Reducer.toJSObject()))
 	 * // { a: 1, b: true }
 	 * ```
@@ -639,6 +720,9 @@ export interface ReducerFactory {
 	 * @param shape - a shape defining where reducer outputs will be located in the result. It can consist of a single reducer, an array of shapes, or an object with string keys and shapes as values.
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 * import { Reducer } from '@rimbu/stream/reducer';
+	 *
 	 * const red = Reducer.combine([Reducer.sum, { av: [Reducer.average] }])
 	 * console.log(Stream.range({amount: 9 }).reduce(red))
 	 * // => [36, { av: [4] }]
@@ -668,6 +752,9 @@ export interface ReducerFactory {
 	 * @param reducer5 - (optional) the next reducer to apply to each output of this reducer.
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 * import { Reducer } from '@rimbu/stream/reducer';
+	 *
 	 * Stream.of(1, 2, 3)
 	 *  .reduce(
 	 *    Reducer.pipe(Reducer.product, Reducer.sum)

@@ -30,6 +30,9 @@ export namespace Transformer {
 	 * - collector - (default: Reducer.toArray()) the reducer to use to convert elements to windows
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 * import { Transformer } from '@rimbu/stream/transformer';
+	 *
 	 * Stream.of(1, 2, 3, 4, 5, 6)
 	 *   .transform(Transformer.window(3))
 	 *   .toArray()
@@ -99,6 +102,9 @@ export namespace Transformer {
 	 * - negate: (default: false) when true will negate the given predicate
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 * import { Transformer } from '@rimbu/stream/transformer';
+	 *
 	 * Stream.of(1, 1, 2, 3, 2, 2)
 	 *   .transform(Transformer.distinctPrevious())
 	 *   .toArray()

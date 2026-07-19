@@ -66,6 +66,9 @@ export namespace AsyncTransformer {
 	 * - collector: (default: Reducer.toArray()) the reducer to use to convert elements to windows
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 * import { AsyncTransformer } from '@rimbu/stream/async/transformer';
+	 *
 	 * await AsyncStream.of(1, 2, 3, 4, 5, 6)
 	 *   .transform(AsyncTransformer.window(3))
 	 *   .toArray()

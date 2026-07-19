@@ -23,6 +23,9 @@ export type * from '@rimbu/stream/async/async-stream-types';
  * @typeparam T - the element type
  * @example
  * ```ts
+ * import { Stream } from '@rimbu/stream';
+ * import { AsyncStream } from '@rimbu/stream/async';
+ *
  * const s1 = AsyncStream.empty<number>()
  * const s2 = AsyncStream.of(1, 3, 2)
  * const s3 = AsyncStream.from(Stream.range({ start: 10, amount: 15 }))
@@ -35,6 +38,8 @@ export interface AsyncStream<T>
 	 * Returns an async stream of elements of type T.
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
 	 * AsyncStream.of(1, 2, 3).asyncStream()
 	 * // => returns itself
 	 * ```
@@ -48,8 +53,10 @@ export interface AsyncStream<T>
 	 * - negate: (default: false) when true will negate the `eq` function
 	 * @example
 	 * ```ts
-	 * await AsyncStream.of(1, 2, 3).equals([1, 2, 3])     // => true
-	 * await AsyncStream.of(1, 2, 3, 4).equals([1, 2, 3])  // => false
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
+	 * console.log(await AsyncStream.of(1, 2, 3).equals([1, 2, 3])); // => true
+	 * console.log(await AsyncStream.of(1, 2, 3, 4).equals([1, 2, 3])); // => false
 	 * ```
 	 * @note don't use on potentially infinite streams
 	 * @note O(N)
@@ -63,6 +70,9 @@ export interface AsyncStream<T>
 	 * @throws RimbuError.EmptyCollectionAssumedNonEmptyError if the stream is known to be empty.
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
 	 * AsyncStream.from(Stream.range({ amount: 100 })).assumeNonEmpty()
 	 * // => type: AsyncStream.NonEmpty<number>
 	 * ```
@@ -75,6 +85,8 @@ export interface AsyncStream<T>
 	 * @param value - the value to prepend
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
 	 * await AsyncStream.of(1, 2, 3).prepend(0).toArray()
 	 * // => [0, 1, 2, 3]
 	 * ```
@@ -86,6 +98,8 @@ export interface AsyncStream<T>
 	 * @param value - the value to append
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
 	 * await AsyncStream.of(1, 2, 3).append(4).toArray()
 	 * // => [1, 2, 3, 4]
 	 * ```
@@ -103,6 +117,8 @@ export interface AsyncStream<T>
 	 * @note if f is an async function, each call will be awaited consecutively
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
 	 * await AsyncStream.of(1, 2, 3).forEach(async (v, i, halt) => {
 	 *  console.log(v);
 	 *  if (i >= 1) halt();
@@ -124,6 +140,8 @@ export interface AsyncStream<T>
 	 * @note if f is an async function, each call will be awaited consecutively
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
 	 * await AsyncStream.of(1, 2, 3).forEachPure(console.log, 'sheep')
 	 * // => logs:
 	 * // 1 sheep
@@ -142,6 +160,8 @@ export interface AsyncStream<T>
 	 * - startIndex: (optional) an alternative start index to use
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
 	 * await AsyncStream.of(1, 2, 3).indexed().toArray()
 	 * // => [[0, 1], [1, 2], [2, 3]]
 	 * ```
@@ -156,6 +176,8 @@ export interface AsyncStream<T>
 	 * @param mapFun - a potentially asynchronous function taking an element and its index, and returning some new element
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
 	 * await AsyncStream.of(1, 2, 3).map(async (v, i) => `[${i}]: ${v}`).toArray()
 	 * // => ['[0]: 1', '[1]: 2', '[2]: 3']
 	 * ```
@@ -175,6 +197,8 @@ export interface AsyncStream<T>
 	 * @note can be used on function that really expect 1 argument, since the normal map will also pass more arguments
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
 	 * const s = AsyncStream.of({ a: 1 }, { a: 2, c: { d: true } })
 	 * const s2 = s.mapPure(JSON.stringify, ['a'], 5)
 	 * // when stream is evaluated, will call JSON.stringify on each stream element with the given extra arguments
@@ -196,6 +220,8 @@ export interface AsyncStream<T>
 	 * @note O(1)
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
 	 * await AsyncStream.of(1, 2, 3).flatMap(async (v, i, halt) => {
 	 *   if (i >= 1) halt();
 	 *   return [v, i, v + i]
@@ -220,6 +246,8 @@ export interface AsyncStream<T>
 	 * @note O(1)
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
 	 * await AsyncStream.of(1, 2, 3).flatZip((v, i, halt) => {
 	 *   if (i >= 1) halt();
 	 *   return [v, i, v + i]
@@ -241,6 +269,9 @@ export interface AsyncStream<T>
 	 * @note O(1)
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 * import { AsyncTransformer } from '@rimbu/stream/async/transformer';
+	 *
 	 * await AsyncStream.of(1, 2, 3, 4, 5, 6).transform(AsyncTransformer.window(3)).toArray()
 	 * // => [[1, 2, 3], [4, 5, 6]]
 	 * ```
@@ -257,6 +288,8 @@ export interface AsyncStream<T>
 	 * @note O(1)
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
 	 * await AsyncStream.of(1, 2, 3).filter(async (v, i) => v + i !== 3).toArray()
 	 * // => [1, 3]
 	 * await AsyncStream.of(1, 2, 3).filter(async (v, i) => v + i !== 3, { negate: true }).toArray()
@@ -286,6 +319,8 @@ export interface AsyncStream<T>
 	 * @note O(1)
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
 	 * await AsyncStream.of(1, 2, 3).filterPure({ pred: Object.is }, 2).toArray()
 	 * // => [2]
 	 * await AsyncStream.of(1, 2, 3).filterPure({ pred: Object.is, negate: true }, 2).toArray()
@@ -337,6 +372,8 @@ export interface AsyncStream<T>
 	 * - halt: a function that, if called, ensures that no new elements are passed
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
 	 * await AsyncStream.of(1, 2, 3).collect(async (v, i, skip, halt) => {
 	 *   if (i === 0) return skip;
 	 *   if (i === 1) halt();
@@ -353,10 +390,12 @@ export interface AsyncStream<T>
 	 * @param otherwise - (default: undefined) an `AsyncOptLazy` value to be returned if the stream is empty.
 	 * @example
 	 * ```ts
-	 * await AsyncStream.of(1, 2, 3).first()      // => 1
-	 * await AsyncStream.empty<number>().first()  // => undefined
-	 * await AsyncStream.empty<number>().first(0) // => 0
-	 * await AsyncStream.empty<number>().first(async () => 0) // => 0
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
+	 * console.log(await AsyncStream.of(1, 2, 3).first()); // => 1
+	 * console.log(await AsyncStream.empty<number>().first()); // => undefined
+	 * console.log(await AsyncStream.empty<number>().first(0)); // => 0
+	 * console.log(await AsyncStream.empty<number>().first(async () => 0)); // => 0
 	 * ```
 	 * @note O(1)
 	 */
@@ -368,10 +407,12 @@ export interface AsyncStream<T>
 	 * @param otherwise - (default: undefined) an `AsyncOptLazy` value to be returned if the stream is empty.
 	 * @example
 	 * ```ts
-	 * await AsyncStream.of(1, 2, 3).last()      // => 3
-	 * await AsyncStream.empty<number>().last()  // => undefined
-	 * await AsyncStream.empty<number>().last(0) // => 0
-	 * await AsyncStream.empty<number>().last(async () => 0) // => 0
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
+	 * console.log(await AsyncStream.of(1, 2, 3).last()); // => 3
+	 * console.log(await AsyncStream.empty<number>().last()); // => undefined
+	 * console.log(await AsyncStream.empty<number>().last(0)); // => 0
+	 * console.log(await AsyncStream.empty<number>().last(async () => 0)); // => 0
 	 * ```
 	 * @note O(N)
 	 */
@@ -383,11 +424,13 @@ export interface AsyncStream<T>
 	 * @param otherwise - (default: undefined) an `AsyncOptLazy` value to return if the stream does not have exactly one value.
 	 * @example
 	 * ```ts
-	 * await AsyncStream.empty<number>().single()              // => undefined
-	 * await AsyncStream.of(1, 2, 3).single()                 // => undefined
-	 * await AsyncStream.of(1).single()                       // => 1
-	 * await AsyncStream.of(1, 2, 3).single(0)                // => 0
-	 * await AsyncStream.of(1, 2, 3).single(async () => 0)    // => 0
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
+	 * console.log(await AsyncStream.empty<number>().single()); // => undefined
+	 * console.log(await AsyncStream.of(1, 2, 3).single()); // => undefined
+	 * console.log(await AsyncStream.of(1).single()); // => 1
+	 * console.log(await AsyncStream.of(1, 2, 3).single(0)); // => 0
+	 * console.log(await AsyncStream.of(1, 2, 3).single(async () => 0)); // => 0
 	 * ```
 	 */
 	single(): Promise<T | undefined>;
@@ -396,7 +439,9 @@ export interface AsyncStream<T>
 	 * Returns the amount of elements in the AsyncStream.
 	 * @example
 	 * ```ts
-	 * await AsyncStream.of(1, 2, 3).count() // => 3
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
+	 * console.log(await AsyncStream.of(1, 2, 3).count()); // => 3
 	 * ```
 	 * @note O(N) for most types of Stream
 	 * @note be careful not to use on infinite streams
@@ -410,8 +455,10 @@ export interface AsyncStream<T>
 	 * - negate: (default: false) when true will negate the given Eq function
 	 * @example
 	 * ```ts
-	 * await AsyncStream.of(1, 2, 3).countElement(2) // => 1
-	 * await AsyncStream.of(1, 2, 3).countElement(2, { negate: true }) // => 2
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
+	 * console.log(await AsyncStream.of(1, 2, 3).countElement(2)); // => 1
+	 * console.log(await AsyncStream.of(1, 2, 3).countElement(2, { negate: true })); // => 2
 	 * ```
 	 * @note O(N)
 	 * @note be careful not to use on infinite streams
@@ -430,10 +477,12 @@ export interface AsyncStream<T>
 	 * @note if the predicate is a type guard, the return type is automatically inferred
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
 	 * const isEven = async (v: number) => v % 2 === 0
-	 * await AsyncStream.of(1, 2, 3, 4).find(isEven)           // => 2
-	 * await AsyncStream.of(1, 2, 3, 4).find(isEven, { occurrence: 2 })        // => 4
-	 * await AsyncStream.of(1, 2, 3, 4).find(isEven, { occurrence: 3 })        // => undefined
+	 * console.log(await AsyncStream.of(1, 2, 3, 4).find(isEven)); // => 2
+	 * console.log(await AsyncStream.of(1, 2, 3, 4).find(isEven, { occurrence: 2 })); // => 4
+	 * console.log(await AsyncStream.of(1, 2, 3, 4).find(isEven, { occurrence: 3 })); // => undefined
 	 * await AsyncStream.of(1, 2, 3, 4).find(isEven, { occurrence: 3, otherwise: 'a' })
 	 * // => 'a'
 	 * ```
@@ -494,11 +543,13 @@ export interface AsyncStream<T>
 	 * @param otherwise - (optional) an `AsyncOptLazy` value to be returned if the index is out of bounds
 	 * @example
 	 * ```ts
-	 * await AsyncStream.of(1, 2, 3).at(1)        // => 2
-	 * await AsyncStream.of(1, 2, 3).at(5)        // => undefined
-	 * await AsyncStream.of(1, 2, 3).at(5, 'a')   // => 'a'
-	 * await AsyncStream.of(1, 2, 3).at(5, async () => 'a')   // => 'a'
-	 * await AsyncStream.of(1, 2, 3).at(-1)       // => undefined  (negative indices not supported)
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
+	 * console.log(await AsyncStream.of(1, 2, 3).at(1)); // => 2
+	 * console.log(await AsyncStream.of(1, 2, 3).at(5)); // => undefined
+	 * console.log(await AsyncStream.of(1, 2, 3).at(5, 'a')); // => 'a'
+	 * console.log(await AsyncStream.of(1, 2, 3).at(5, async () => 'a')); // => 'a'
+	 * console.log(await AsyncStream.of(1, 2, 3).at(-1)); // => undefined  (negative indices not supported)
 	 * ```
 	 * @note O(N) for most types of Stream
 	 * @note negative indices are not supported on AsyncStream because the stream may be infinite — use `last()` to access the last element
@@ -512,6 +563,8 @@ export interface AsyncStream<T>
 	 * - negate: (default: false) when true will negate the given predicate
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
 	 * await AsyncStream.of(1, 2, 3).indicesWhere((v, i) => v + i !== 3).toArray()
 	 * // => [0, 2]
 	 * ```
@@ -529,6 +582,8 @@ export interface AsyncStream<T>
 	 * - negate: (default: false) when true will negate the given Eq function
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
 	 * await AsyncStream.from('marmot').indicesOf('m').toArray()
 	 * // => [0, 3]
 	 * ```
@@ -547,8 +602,10 @@ export interface AsyncStream<T>
 	 * - negate: (default: false) when true will negate the given predicate
 	 * @example
 	 * ```ts
-	 * await AsyncStream.of(1, 2, 3).indexWhere((v, i) => v + i > 2)      // => 1
-	 * await AsyncStream.of(1, 2, 3).indexWhere(async (v, i) => v + i > 2, { occurrence: 2 })   // => 2
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
+	 * console.log(await AsyncStream.of(1, 2, 3).indexWhere((v, i) => v + i > 2)); // => 1
+	 * console.log(await AsyncStream.of(1, 2, 3).indexWhere(async (v, i) => v + i > 2, { occurrence: 2 })); // => 2
 	 * ```
 	 * @note O(N)
 	 */
@@ -566,11 +623,13 @@ export interface AsyncStream<T>
 	 * - negate: (default: false) when true will negate the given Eq function
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
 	 * const source = AsyncStream.from('marmot')
-	 * await source.indexOf('m')                    // => 0
-	 * await source.indexOf('m', { occurrence: 2 }) // => 3
-	 * await source.indexOf('m', { occurrence: 3 }) // => undefined
-	 * await source.indexOf('q')                    // => undefined
+	 * console.log(await source.indexOf('m')); // => 0
+	 * console.log(await source.indexOf('m', { occurrence: 2 })); // => 3
+	 * console.log(await source.indexOf('m', { occurrence: 3 })); // => undefined
+	 * console.log(await source.indexOf('q')); // => undefined
 	 * ```
 	 * @note O(N)
 	 */
@@ -589,8 +648,10 @@ export interface AsyncStream<T>
 	 * - negate: (default: false) when true will negate the given predicate
 	 * @example
 	 * ```ts
-	 * await AsyncStream.of(1, 2, 3).some((v, i) => v + i > 10) // => false
-	 * await AsyncStream.of(1, 2, 3).some(async (v, i) => v + i > 1)  // => true
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
+	 * console.log(await AsyncStream.of(1, 2, 3).some((v, i) => v + i > 10)); // => false
+	 * console.log(await AsyncStream.of(1, 2, 3).some(async (v, i) => v + i > 1)); // => true
 	 * ```
 	 * @note O(N)
 	 */
@@ -605,8 +666,10 @@ export interface AsyncStream<T>
 	 * - negate: (default: false) when true will negate the given predicate
 	 * @example
 	 * ```ts
-	 * await AsyncStream.of(1, 2, 3).every((v, i) => v + i > 10)  // => false
-	 * await AsyncStream.of(1, 2, 3).every(async (v, i) => v + i < 10)  // => true
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
+	 * console.log(await AsyncStream.of(1, 2, 3).every((v, i) => v + i > 10)); // => false
+	 * console.log(await AsyncStream.of(1, 2, 3).every(async (v, i) => v + i < 10)); // => true
 	 * ```
 	 * @note O(N)
 	 */
@@ -623,11 +686,13 @@ export interface AsyncStream<T>
 	 * - negate: (default: false) when true will negate the given predicate
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
 	 * const source = AsyncStream.from('marmot')
-	 * await source.contains('m')                // => true
-	 * await source.contains('m', { amount: 2 }) // => true
-	 * await source.contains('m', { amount: 3 }) // => false
-	 * await source.contains('q')                // => false
+	 * console.log(await source.contains('m')); // => true
+	 * console.log(await source.contains('m', { amount: 2 })); // => true
+	 * console.log(await source.contains('m', { amount: 3 })); // => false
+	 * console.log(await source.contains('q')); // => false
 	 * ```
 	 * @note O(N)
 	 */
@@ -648,6 +713,8 @@ export interface AsyncStream<T>
 	 * - negate: (default: false) when true will negate the given Eq function
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
 	 * await AsyncStream.of(1, 2, 3, 4, 5).containsSlice([2, 3, 4])
 	 * // => true
 	 * await AsyncStream.of(1, 2, 3, 4, 5).containsSlice([4, 3, 2])
@@ -665,6 +732,8 @@ export interface AsyncStream<T>
 	 * - negate: (default: false) when true will negate the given predicate
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
 	 * await AsyncStream.of(1, 2, 3).takeWhile(async v => v < 3).toArray()
 	 * // => [1, 2]
 	 * ```
@@ -681,6 +750,8 @@ export interface AsyncStream<T>
 	 * - negate: (default: false) when true will negate the given predicate
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
 	 * await AsyncStream.of(1, 2, 3).dropWhile(async v => v < 2).toArray()
 	 * // => [2, 3]
 	 * ```
@@ -695,7 +766,9 @@ export interface AsyncStream<T>
 	 * @param amount - the maximum amount of elements to return from the resulting Stream
 	 * @example
 	 * ```ts
-	 * await AsyncStream.of(1, 2, 3).take(2).toArray()   // => [1, 2]
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
+	 * console.log(await AsyncStream.of(1, 2, 3).take(2).toArray()); // => [1, 2]
 	 * ```
 	 * @note O(N)
 	 */
@@ -705,7 +778,9 @@ export interface AsyncStream<T>
 	 * @param amount - the amount of elements to skip
 	 * @example
 	 * ```ts
-	 * await AsyncStream.of(1, 2, 3).drop(1).toArray()   // => [2, 3]
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
+	 * console.log(await AsyncStream.of(1, 2, 3).drop(1).toArray()); // => [2, 3]
 	 * ```
 	 * @note O(N)
 	 */
@@ -715,11 +790,13 @@ export interface AsyncStream<T>
 	 * @param amount - (default: undefined) the amount of times to return this Stream
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
 	 * const source = AsyncStream.of(1, 2, 3)
-	 * source.repeat()              // => AsyncStream(1, 2, 3, 1, 2, 3, 1, 2, ...)
-	 * await source.repeat(1).toArray()   // => [1, 2, 3]
-	 * await source.repeat(3).toArray()   // => [1, 2, 3, 1, 2, 3, 1, 2, 3]
-	 * await source.repeat(-3).toArray()  // => [1, 2, 3]
+	 * console.log(source.repeat()); // => AsyncStream(1, 2, 3, 1, 2, 3, 1, 2, ...)
+	 * console.log(await source.repeat(1).toArray()); // => [1, 2, 3]
+	 * console.log(await source.repeat(3).toArray()); // => [1, 2, 3, 1, 2, 3, 1, 2, 3]
+	 * console.log(await source.repeat(-3).toArray()); // => [1, 2, 3]
 	 * ```
 	 * @note amount = undefined means that the AsyncStream is repeated indefinitely
 	 * @note amount = 1 means that the AsyncStream is not repeated
@@ -733,6 +810,8 @@ export interface AsyncStream<T>
 	 * @param others - a series of AsyncStreamSources to concatenate.
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
 	 * await AsyncStream.of(1, 2, 3).concat([4, 5], () => [6, 7]).toArray()
 	 * // [1, 2, 3, 4, 5, 6, 7]
 	 * ```
@@ -751,10 +830,12 @@ export interface AsyncStream<T>
 	 * @param otherwise - (default: undefined) the value to return if the stream is empty
 	 * @example
 	 * ```ts
-	 * await AsyncStream.of(5, 1, 3).min()         // => 1
-	 * await AsyncStream.empty<number>().min()     // => undefined
-	 * await AsyncStream.empty<number>().min('a')  // => 'a'
-	 * await AsyncStream.empty<number>().min(async () => 'a')  // => 'a'
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
+	 * console.log(await AsyncStream.of(5, 1, 3).min()); // => 1
+	 * console.log(await AsyncStream.empty<number>().min()); // => undefined
+	 * console.log(await AsyncStream.empty<number>().min('a')); // => 'a'
+	 * console.log(await AsyncStream.empty<number>().min(async () => 'a')); // => 'a'
 	 * ```
 	 * @note O(N)
 	 */
@@ -767,10 +848,12 @@ export interface AsyncStream<T>
 	 * @param otherwise - (default: undefined) the value to return if the Stream is empty
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
 	 * function compareLength(a: string, b: string): number { return b.length - a.length };
-	 * await AsyncStream.of('abc', 'a', 'ab').minBy(compareLength)   // => 'a'
-	 * await AsyncStream.empty<string>().minBy(compareLength)        // => undefined
-	 * await AsyncStream.empty<string>().minBy(compareLength, 'a')   // => 'a'
+	 * console.log(await AsyncStream.of('abc', 'a', 'ab').minBy(compareLength)); // => 'a'
+	 * console.log(await AsyncStream.empty<string>().minBy(compareLength)); // => undefined
+	 * console.log(await AsyncStream.empty<string>().minBy(compareLength, 'a')); // => 'a'
 	 * ```
 	 * @note O(N)
 	 */
@@ -786,9 +869,11 @@ export interface AsyncStream<T>
 	 * @param otherwise - (default: undefined) the value to return if the Stream is empty
 	 * @example
 	 * ```ts
-	 * await AsyncStream.of(5, 1, 3).max()         // => 5
-	 * await AsyncStream.empty<number>().max()     // => undefined
-	 * await AsyncStream.empty<number>().max('a')  // => 'a'
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
+	 * console.log(await AsyncStream.of(5, 1, 3).max()); // => 5
+	 * console.log(await AsyncStream.empty<number>().max()); // => undefined
+	 * console.log(await AsyncStream.empty<number>().max('a')); // => 'a'
 	 * ```
 	 * @note O(N)
 	 */
@@ -801,10 +886,12 @@ export interface AsyncStream<T>
 	 * @param otherwise - (default: undefined) the value to return if the Stream is empty
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
 	 * function compareLength(a: string, b: string): number { return b.length - a.length };
-	 * await AsyncStream.of('abc', 'a', 'ab').maxBy(compareLength)   // => 'abc'
-	 * await AsyncStream.empty<string>().maxBy(compareLength)        // => undefined
-	 * await AsyncStream.empty<string>().maxBy(compareLength, 'a')   // => 'a'
+	 * console.log(await AsyncStream.of('abc', 'a', 'ab').maxBy(compareLength)); // => 'abc'
+	 * console.log(await AsyncStream.empty<string>().maxBy(compareLength)); // => undefined
+	 * console.log(await AsyncStream.empty<string>().maxBy(compareLength, 'a')); // => 'a'
 	 * ```
 	 * @note O(N)
 	 */
@@ -818,6 +905,8 @@ export interface AsyncStream<T>
 	 * @param sep - the AsyncStreamSource to insert between each element of this Stream
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
 	 * await AsyncStream.of(1, 2, 3).intersperse("ab").toArray()
 	 * // => [1, 'a', 'b', 2, 'a', 'b', 3]
 	 * ```
@@ -835,6 +924,8 @@ export interface AsyncStream<T>
 	 * - ifEmpty: (optional) a string to return instead of the start and end tag if the stream is empty
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
 	 * await AsyncStream.of(1, 2, 3).join({ start: '<', sep: ', ', end: '>' })
 	 * // => '<1, 2, 3>'
 	 * ```
@@ -856,6 +947,8 @@ export interface AsyncStream<T>
 	 * - end: (optional) an end AsyncStreamSource to append
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
 	 * await AsyncStream.of(1, 2, 3).joinStream({ start: '<<', sep: '-', end: '>>' }).toArray()
 	 * // => ['<', '<', 1, '-', 2, '-', 3, '>', '>']
 	 * ```
@@ -876,6 +969,8 @@ export interface AsyncStream<T>
 	 * @typeparam R - the result type of the collector and the resulting stream element type
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
 	 * await AsyncStream.of(1, 2, 3, 4).splitWhere(async v => v == 3).toArray()
 	 * // => [[1, 2], [4]]
 	 * ```
@@ -903,7 +998,9 @@ export interface AsyncStream<T>
 	 * @typeparam R - the result type of the collector and the resulting stream element type
 	 * @example
 	 * ```ts
-	 * await AsyncStream.from('marmot').splitOn('m').toArray()  // => [[], ['a', 'r'], ['o', 't']]
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
+	 * console.log(await AsyncStream.from('marmot').splitOn('m').toArray()); // => [[], ['a', 'r'], ['o', 't']]
 	 * ```
 	 * @note O(1)
 	 */
@@ -933,7 +1030,9 @@ export interface AsyncStream<T>
 	 * @typeparam R - the result type of the collector and the resulting stream element type
 	 * @example
 	 * ```ts
-	 * await AsyncStream.from('marmalade').splitSeq('ma').toArray()  // => [[], ['r'], ['l', 'a', 'd', 'e']]
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
+	 * console.log(await AsyncStream.from('marmalade').splitOnSlice('ma').toArray()); // => [[], ['r'], ['l', 'a', 'd', 'e']]
 	 * ```
 	 * @note O(1)
 	 */
@@ -956,6 +1055,8 @@ export interface AsyncStream<T>
 	 * - negate: (default: false) when true will negate the given predicate
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
 	 * await AsyncStream.of(1, 1, 2, 2, 3, 1).distinctPrevious().toArray()
 	 * // => [1, 2, 3, 1]
 	 * ```
@@ -974,11 +1075,14 @@ export interface AsyncStream<T>
 	 * - collector: (default: `Reducer.toArray()`) the async reducer to use to collect the window values
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 * import { Reducer } from '@rimbu/stream/reducer';
+	 *
 	 * await AsyncStream.of(1, 2, 3, 4, 5, 6, 7).window(3).toArray()
 	 * // => [[1, 2, 3], [4, 5, 6]]
 	 * await AsyncStream.of(1, 2, 3, 4, 5).window(3, { skipAmount: 1 }).toArray()
 	 * // => [[1, 2, 3], [2, 3, 4], [3, 4, 5]]
-	 * await AsyncStream.of(1, 2, 3, 4).window(2, { collector: AsyncReducer.toJSSet() }).toArray()
+	 * await AsyncStream.of(1, 2, 3, 4).window(2, { collector: Reducer.toJSSet() }).toArray()
 	 * // => [Set(1, 2), Set(3, 4)]
 	 * ```
 	 */
@@ -1005,6 +1109,8 @@ export interface AsyncStream<T>
 	 * - halt: a function that, if called, ensures that no new elements are passed
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
 	 * console.log(await AsyncStream.empty<number>().fold(5, async (current, value) => current + value))
 	 * // => 5
 	 * console.log(await AsyncStream.of(1, 2, 3).fold(() => 5, (current, value) => current + value))
@@ -1032,6 +1138,8 @@ export interface AsyncStream<T>
 	 * - halt: a function that, if called, ensures that no new elements are passed
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
 	 * console.log(
 	 *   await AsyncStream.empty<number>()
 	 *     .foldStream(5, async (current, value) => current + value)
@@ -1061,6 +1169,9 @@ export interface AsyncStream<T>
 	 * @param reducer - the `(Async)Reducer` instance to use to apply to all stream elements.
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 * import { Reducer } from '@rimbu/stream/reducer';
+	 *
 	 * console.log(await AsyncStream.of(1, 2, 4).reduce(Reducer.sum))
 	 * // => 7
 	 * console.log(await AsyncStream.of(1, 2, 4).reduce(Reducer.product))
@@ -1076,7 +1187,10 @@ export interface AsyncStream<T>
 	 * @param shape - the `(Async)Reducer` combined shape to use to apply to all stream elements.
 	 * @example
 	 * ```ts
-	 * console.log(await AsyncStream.of(1, 2, 4).reduce([AsyncReducer.sum, { prod: AsyncReducer.product }]))
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 * import { Reducer } from '@rimbu/stream/reducer';
+	 *
+	 * console.log(await AsyncStream.of(1, 2, 4).reduce([Reducer.sum, { prod: Reducer.product }]))
 	 * // => [7, { prod: 8 }]
 	 * ```
 	 */
@@ -1089,6 +1203,9 @@ export interface AsyncStream<T>
 	 * @param reducer - the `(Async)Reducer` instance to use to apply to all stream elements.
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 * import { Reducer } from '@rimbu/stream/reducer';
+	 *
 	 * console.log(
 	 *   await AsyncStream.of(1, 2, 4)
 	 *     .reduceStream(Reducer.sum)
@@ -1112,9 +1229,12 @@ export interface AsyncStream<T>
 	 * @param shape - the reducer shape containing instances of AsyncReducers to use to apply to all stream elements.
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 * import { Reducer } from '@rimbu/stream/reducer';
+	 *
 	 * console.log(
 	 *   await AsyncStream.of(1, 2, 4)
-	 *     .reduceStream([Reducer.sum, { prod: AsyncReducer.product }])
+	 *     .reduceStream([Reducer.sum, { prod: Reducer.product }])
 	 *     .toArray()
 	 * )
 	 * // => [[1, { prod: 1 }], [3, { prod: 2 }], [7, { prod: 8 }]]
@@ -1137,6 +1257,8 @@ export interface AsyncStream<T>
 	 * @note if the predicate is a type guard, the return type is automatically inferred
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
 	 * await AsyncStream.of(1, 2, 3).partition((v) => v % 2 === 0)()
 	 * // => [[2], [1, 3]]
 	 * ```
@@ -1178,6 +1300,8 @@ export interface AsyncStream<T>
 	 * @typeparam R - the collector output type
 	 * @example
 	 * ```ts
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
 	 * await AsyncStream.of(1, 2, 3).groupBy((v) => v % 2)
 	 * // => Map {0 => [2], 1 => [1, 3]}
 	 * ```
@@ -1194,7 +1318,9 @@ export interface AsyncStream<T>
 	 * Returns an Array containing all elements in the AsyncStream.
 	 * @example
 	 * ```ts
-	 * await AsyncStream.of(1, 2, 3).toArray()   // => [1, 2, 3]
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
+	 * console.log(await AsyncStream.of(1, 2, 3).toArray()); // => [1, 2, 3]
 	 * ```
 	 */
 	toArray(): Promise<T[]>;
@@ -1203,7 +1329,9 @@ export interface AsyncStream<T>
 	 * @note to avoid issues with potentially infinite stream, this method does not list the stream elements. To do this, use `join`.
 	 * @example
 	 * ```ts
-	 * AsyncStream.of(1, 2, 3).toString()   // => 'AsyncStream(...<potentially empty>)'
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
+	 * console.log(AsyncStream.of(1, 2, 3).toString()); // => 'AsyncStream(...<potentially empty>)'
 	 * ```
 	 */
 	toString(): string;
@@ -1212,7 +1340,9 @@ export interface AsyncStream<T>
 	 * @note take care not to call on infinite Streams
 	 * @example
 	 * ```ts
-	 * await AsyncStream.of(1, 2, 3).toJSON()   // => { dataType: 'AsyncStream', value: [1, 2, 3] }
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
+	 * console.log(await AsyncStream.of(1, 2, 3).toJSON()); // => { dataType: 'AsyncStream', value: [1, 2, 3] }
 	 * ```
 	 */
 	toJSON(): Promise<ToJSON<T[], 'AsyncStream'>>;
@@ -1225,6 +1355,9 @@ export namespace AsyncStream {
 	 * @typeparam T - the element type
 	 * @example
 	 * ```ts
+	 * import { Stream } from '@rimbu/stream';
+	 * import { AsyncStream } from '@rimbu/stream/async';
+	 *
 	 * const s1 = AsyncStream.of(1, 3, 2)
 	 * const s2 = AsyncStream.from(Stream.range({ start: 10, amount: 15 }))
 	 * ```
@@ -1234,6 +1367,8 @@ export namespace AsyncStream {
 		 * Returns this collection typed as a 'possibly empty' collection.
 		 * @example
 		 * ```ts
+		 * import { AsyncStream } from '@rimbu/stream/async';
+		 *
 		 * AsyncStream.of(0, 1, 2).asNormal();  // type: AsyncStream<number>
 		 * ```
 		 */
@@ -1242,6 +1377,8 @@ export namespace AsyncStream {
 		 * Returns a non-empty async stream of elements of type T.
 		 * @example
 		 * ```ts
+		 * import { AsyncStream } from '@rimbu/stream/async';
+		 *
 		 * AsyncStream.of(1, 2, 3).asyncStream()
 		 * // => returns itself
 		 * ```
@@ -1253,6 +1390,8 @@ export namespace AsyncStream {
 		 * - startIndex: (optional) an alternative start index to use
 		 * @example
 		 * ```ts
+		 * import { AsyncStream } from '@rimbu/stream/async';
+		 *
 		 * await AsyncStream.of(1, 2, 3).indexed().toArray()
 		 * // => [[0, 1], [1, 2], [2, 3]]
 		 * ```
@@ -1267,6 +1406,8 @@ export namespace AsyncStream {
 		 * @param mapFun - a potentially asynchronous function taking an element and its index, and returning some new element
 		 * @example
 		 * ```ts
+		 * import { AsyncStream } from '@rimbu/stream/async';
+		 *
 		 * await AsyncStream.of(1, 2, 3).map(async (v, i) => `[${i}]: ${v}`).toArray()
 		 * // => ['[0]: 1', '[1]: 2', '[2]: 3']
 		 * ```
@@ -1286,6 +1427,8 @@ export namespace AsyncStream {
 		 * @note can be used on function that really expect 1 argument, since the normal map will also pass more arguments
 		 * @example
 		 * ```ts
+		 * import { AsyncStream } from '@rimbu/stream/async';
+		 *
 		 * const s = AsyncStream.of({ a: 1 }, { a: 2, c: { d: true } })
 		 * const s2 = s.mapPure(JSON.stringify, ['a'], 5)
 		 * // when stream is evaluated, will call JSON.stringify on each stream element with the given extra arguments
@@ -1307,6 +1450,8 @@ export namespace AsyncStream {
 		 * @note O(1)
 		 * @example
 		 * ```ts
+		 * import { AsyncStream } from '@rimbu/stream/async';
+		 *
 		 * await AsyncStream.of(1, 2, 3).flatMap(async (v, i, halt) => {
 		 *   if (i >= 1) halt();
 		 *   return [v, i, v + i]
@@ -1335,6 +1480,8 @@ export namespace AsyncStream {
 		 * @note O(1)
 		 * @example
 		 * ```ts
+		 * import { AsyncStream } from '@rimbu/stream/async';
+		 *
 		 * await AsyncStream.of(1, 2, 3).flatZip((v, i, halt) => {
 		 *   if (i >= 1) halt();
 		 *   return [v, i, v + i]
@@ -1359,6 +1506,9 @@ export namespace AsyncStream {
 		 * @note O(1)
 		 * @example
 		 * ```ts
+		 * import { AsyncStream } from '@rimbu/stream/async';
+		 * import { AsyncTransformer } from '@rimbu/stream/async/transformer';
+		 *
 		 * await AsyncStream.of(1, 2, 3, 4, 5, 6).transform(AsyncTransformer.window(3)).toArray()
 		 * // => [[1, 2, 3], [4, 5, 6]]
 		 * ```
@@ -1373,7 +1523,9 @@ export namespace AsyncStream {
 		 * Returns the first element of the AsyncStream.
 		 * @example
 		 * ```ts
-		 * await AsyncStream.of(1, 2, 3).first()      // => 1
+		 * import { AsyncStream } from '@rimbu/stream/async';
+		 *
+		 * console.log(await AsyncStream.of(1, 2, 3).first()); // => 1
 		 * ```
 		 * @note O(1)
 		 */
@@ -1382,7 +1534,9 @@ export namespace AsyncStream {
 		 * Returns the last element of the AsyncStream.
 		 * @example
 		 * ```ts
-		 * await AsyncStream.of(1, 2, 3).last()      // => 3
+		 * import { AsyncStream } from '@rimbu/stream/async';
+		 *
+		 * console.log(await AsyncStream.of(1, 2, 3).last()); // => 3
 		 * ```
 		 * @note O(N)
 		 */
@@ -1392,11 +1546,13 @@ export namespace AsyncStream {
 		 * @param amount - (default: undefined) the amount of times to return this Stream
 		 * @example
 		 * ```ts
+		 * import { AsyncStream } from '@rimbu/stream/async';
+		 *
 		 * const source = AsyncStream.of(1, 2, 3)
-		 * source.repeat()              // => AsyncStream(1, 2, 3, 1, 2, 3, 1, 2, ...)
-		 * await source.repeat(1).toArray()   // => [1, 2, 3]
-		 * await source.repeat(3).toArray()   // => [1, 2, 3, 1, 2, 3, 1, 2, 3]
-		 * await source.repeat(-3).toArray()  // => [1, 2, 3]
+		 * console.log(source.repeat()); // => AsyncStream(1, 2, 3, 1, 2, 3, 1, 2, ...)
+		 * console.log(await source.repeat(1).toArray()); // => [1, 2, 3]
+		 * console.log(await source.repeat(3).toArray()); // => [1, 2, 3, 1, 2, 3, 1, 2, 3]
+		 * console.log(await source.repeat(-3).toArray()); // => [1, 2, 3]
 		 * ```
 		 * @note amount = undefined means that the AsyncStream is repeated indefinitely
 		 * @note amount = 1 means that the AsyncStream is not repeated
@@ -1410,6 +1566,8 @@ export namespace AsyncStream {
 		 * @param others - a series of AsyncStreamSources to concatenate.
 		 * @example
 		 * ```ts
+		 * import { AsyncStream } from '@rimbu/stream/async';
+		 *
 		 * await AsyncStream.of(1, 2, 3).concat([4, 5], () => [6, 7]).toArray()
 		 * // [1, 2, 3, 4, 5, 6, 7]
 		 * ```
@@ -1422,7 +1580,9 @@ export namespace AsyncStream {
 		 * Returns the minimum element of the AsyncStream according to a default compare function.
 		 * @example
 		 * ```ts
-		 * await AsyncStream.of(5, 1, 3).min()         // => 1
+		 * import { AsyncStream } from '@rimbu/stream/async';
+		 *
+		 * console.log(await AsyncStream.of(5, 1, 3).min()); // => 1
 		 * ```
 		 * @note O(N)
 		 */
@@ -1431,8 +1591,10 @@ export namespace AsyncStream {
 		 * Returns the minimum element of the AsyncStream according to the provided `compare` function.
 		 * @example
 		 * ```ts
+		 * import { AsyncStream } from '@rimbu/stream/async';
+		 *
 		 * function compareLength(a: string, b: string): number { return b.length - a.length };
-		 * await AsyncStream.of('abc', 'a', 'ab').minBy(compareLength)   // => 'a'
+		 * console.log(await AsyncStream.of('abc', 'a', 'ab').minBy(compareLength)); // => 'a'
 		 * ```
 		 * @note O(N)
 		 */
@@ -1441,7 +1603,9 @@ export namespace AsyncStream {
 		 * Returns the maximum element of the AsyncStream according to a default compare function.
 		 * @example
 		 * ```ts
-		 * await AsyncStream.of(5, 1, 3).max()         // => 5
+		 * import { AsyncStream } from '@rimbu/stream/async';
+		 *
+		 * console.log(await AsyncStream.of(5, 1, 3).max()); // => 5
 		 * ```
 		 * @note O(N)
 		 */
@@ -1450,8 +1614,10 @@ export namespace AsyncStream {
 		 * Returns the maximum element of the AsyncStream according to the provided `compare` function.
 		 * @example
 		 * ```ts
+		 * import { AsyncStream } from '@rimbu/stream/async';
+		 *
 		 * function compareLength(a: string, b: string): number { return b.length - a.length };
-		 * await AsyncStream.of('abc', 'a', 'ab').maxBy(compareLength)   // => 'abc'
+		 * console.log(await AsyncStream.of('abc', 'a', 'ab').maxBy(compareLength)); // => 'abc'
 		 * ```
 		 * @note O(N)
 		 */
@@ -1461,6 +1627,8 @@ export namespace AsyncStream {
 		 * @param sep - the AsyncStreamSource to insert between each element of this Stream
 		 * @example
 		 * ```ts
+		 * import { AsyncStream } from '@rimbu/stream/async';
+		 *
 		 * await AsyncStream.of(1, 2, 3).intersperse("ab").toArray()
 		 * // => [1, 'a', 'b', 2, 'a', 'b', 3]
 		 * ```
@@ -1476,6 +1644,8 @@ export namespace AsyncStream {
 		 * - end: (optional) an end AsyncStreamSource to append
 		 * @example
 		 * ```ts
+		 * import { AsyncStream } from '@rimbu/stream/async';
+		 *
 		 * await AsyncStream.of(1, 2, 3).joinStream({ start: '<<', sep: '-', end: '>>' }).toArray()
 		 * // => ['<', '<', 1, '-', 2, '-', 3, '>', '>']
 		 * ```
@@ -1494,6 +1664,8 @@ export namespace AsyncStream {
 		 * - negate: (default: false) when true will negate the given predicate
 		 * @example
 		 * ```ts
+		 * import { AsyncStream } from '@rimbu/stream/async';
+		 *
 		 * await AsyncStream.of(1, 1, 2, 2, 3, 1).distinctPrevious().toArray()
 		 * // => [1, 2, 3, 1]
 		 * ```
@@ -1514,6 +1686,8 @@ export namespace AsyncStream {
 		 * - halt: a function that, if called, ensures that no new elements are passed
 		 * @example
 		 * ```ts
+		 * import { AsyncStream } from '@rimbu/stream/async';
+		 *
 		 * console.log(
 		 *   await AsyncStream.empty<number>()
 		 *     .foldStream(5, async (current, value) => current + value)
@@ -1545,7 +1719,9 @@ export namespace AsyncStream {
 		 * Returns a non-empty Array containing all elements in the AsyncStream.
 		 * @example
 		 * ```ts
-		 * await AsyncStream.of(1, 2, 3).toArray()   // => [1, 2, 3]
+		 * import { AsyncStream } from '@rimbu/stream/async';
+		 *
+		 * console.log(await AsyncStream.of(1, 2, 3).toArray()); // => [1, 2, 3]
 		 * ```
 		 */
 		toArray(): Promise<ArrayNonEmpty<T>>;
