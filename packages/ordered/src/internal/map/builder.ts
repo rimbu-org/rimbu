@@ -1,10 +1,12 @@
 import type { RMap } from '@rimbu/collection-types';
+import type { TraverseState } from '@rimbu/common';
 import type { RelatedTo } from '@rimbu/common/types';
-import type { List } from '@rimbu/list';
 import type { OrderedMap } from '@rimbu/ordered/map';
+import type { SortedMap } from '@rimbu/sorted';
 
 import type { OrderedMapBase } from '#map/base';
 import type { ContextImpl } from '#map/context-factory';
+import type { OrderedMapNonEmpty } from '#map/non-empty';
 
 import * as RimbuError from '@rimbu/base/rimbu-error';
 import {
@@ -12,17 +14,18 @@ import {
 	type ModifyOptions,
 } from '@rimbu/collection-types/advanced/common';
 import { OptLazy } from '@rimbu/common/opt-lazy';
-import { TraverseState } from '@rimbu/common/traverse-state';
 import { Stream, type StreamSource } from '@rimbu/stream';
+
+import { Indicator } from '#ordered/common/ordered-indicator';
 
 export class OrderedMapBuilder<K, V> implements OrderedMapBase.Builder<K, V> {
 	constructor(
 		readonly context: ContextImpl<K>,
-		public source?: OrderedMap.NonEmpty<K, V>,
+		public source?: OrderedMapNonEmpty<K, V>,
 	) {}
 
-	_keyOrderBuilder?: List.Builder<K>;
-	_mapBuilder?: RMap.Builder<K, V>;
+	_keyMapBuilder?: RMap.Builder<K, [V, Indicator]>;
+	_indicatorMapBuilder?: SortedMap.Builder<Indicator, [K, V]>;
 
 	_lock = false;
 
@@ -31,29 +34,32 @@ export class OrderedMapBuilder<K, V> implements OrderedMapBase.Builder<K, V> {
 	}
 
 	prepareMutate(): void {
-		if (undefined === this._keyOrderBuilder || undefined === this._mapBuilder) {
+		if (
+			undefined === this._keyMapBuilder ||
+			undefined === this._indicatorMapBuilder
+		) {
 			if (undefined !== this.source) {
-				this._keyOrderBuilder = this.source.keyOrder.toBuilder();
-				this._mapBuilder = this.source.sourceMap.toBuilder();
-			} else if (undefined === this._keyOrderBuilder) {
-				this._keyOrderBuilder = this.context.listContext.builder();
-				this._mapBuilder = this.context.mapContext.builder();
+				this._keyMapBuilder = this.source.keyIndicatorMap.toBuilder();
+				this._indicatorMapBuilder = this.source.indicatorKeyMap.toBuilder();
+			} else if (undefined === this._keyMapBuilder) {
+				this._keyMapBuilder = this.context.keyMapContext.builder();
+				this._indicatorMapBuilder = this.context.indicatorMapContext.builder();
 			}
 		}
 	}
 
-	get keyOrderBuilder(): List.Builder<K> {
+	get keyMapBuilder(): RMap.Builder<K, [V, Indicator]> {
 		this.prepareMutate();
-		return this._keyOrderBuilder!;
+		return this._keyMapBuilder!;
 	}
 
-	get mapBuilder(): RMap.Builder<K, V> {
+	get indicatorMapBuilder(): SortedMap.Builder<Indicator, [K, V]> {
 		this.prepareMutate();
-		return this._mapBuilder!;
+		return this._indicatorMapBuilder!;
 	}
 
 	get size(): number {
-		return this.source?.size ?? this.keyOrderBuilder.length;
+		return this.source?.size ?? this.keyMapBuilder.size;
 	}
 
 	get isEmpty(): boolean {
@@ -61,31 +67,66 @@ export class OrderedMapBuilder<K, V> implements OrderedMapBase.Builder<K, V> {
 	}
 
 	hasKey = <UK>(key: RelatedTo<K, UK>): boolean => {
-		return this.source?.hasKey(key) ?? this.mapBuilder.hasKey(key);
+		return this.source?.hasKey(key) ?? this.keyMapBuilder.hasKey(key);
 	};
 
 	at = <UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O => {
 		if (undefined !== this.source) return this.source.at(key, otherwise!);
 
-		return this.mapBuilder.at(key, otherwise!);
+		const entry = this.keyMapBuilder.at(key);
+		if (undefined === entry) return OptLazy(otherwise!);
+
+		return entry[0];
 	};
 
 	set = (key: K, value: V): boolean => {
 		return this.addEntry([key, value]);
 	};
 
+	#nextIndicator(): Indicator {
+		const lastIndicator = this.indicatorMapBuilder.max();
+		if (undefined === lastIndicator) return Indicator.INIT_INDICATOR;
+		return Indicator.after(lastIndicator[0]);
+	}
+
 	addEntry = (entry: readonly [K, V]): boolean => {
 		this.checkLock();
 
-		const preSize = this.mapBuilder.size;
+		const [key, value] = entry;
 
-		if (!this.mapBuilder.addEntry(entry)) return false;
+		let oldIndicator: Indicator | undefined;
+		let newEntry: [V, Indicator] | undefined;
 
-		this.source = undefined;
+		const modified = this.keyMapBuilder.modifyAt(key, {
+			ifNew: {
+				create: () => {
+					newEntry = [value, this.#nextIndicator()];
+					return newEntry;
+				},
+			},
+			ifExists: {
+				update: (entry) => {
+					const [currentValue, currentIndicator] = entry;
+					if (Object.is(currentValue, value)) return entry;
 
-		const diff = this.mapBuilder.size - preSize;
+					oldIndicator = currentIndicator;
+					newEntry = [value, this.#nextIndicator()];
+					return newEntry;
+				},
+			},
+		});
 
-		if (diff > 0) this.keyOrderBuilder.append(entry[0]);
+		if (!modified) {
+			return false;
+		}
+
+		if (undefined !== oldIndicator) {
+			this.indicatorMapBuilder.removeKey(oldIndicator);
+		}
+
+		if (undefined !== newEntry) {
+			this.indicatorMapBuilder.set(newEntry[1], [key, newEntry[0]]);
+		}
 
 		return true;
 	};
@@ -99,20 +140,20 @@ export class OrderedMapBuilder<K, V> implements OrderedMapBase.Builder<K, V> {
 	removeKey = <UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O => {
 		this.checkLock();
 
-		if (!this.context.mapContext.isValidKey(key)) {
+		if (!this.context.isValidKey(key)) {
 			return OptLazy(otherwise) as O;
 		}
 
-		const token = Symbol();
-		const removedValue = this.mapBuilder.removeKey(key, token);
+		const removeResult = this.keyMapBuilder.removeKey(key);
 
-		if (token === removedValue) {
+		if (undefined === removeResult) {
 			return OptLazy(otherwise) as O;
 		}
 
 		this.source = undefined;
+		const [removedValue, removedIndicator] = removeResult;
 
-		this.removeFromKeyOrderInternal(key as K);
+		this.indicatorMapBuilder.removeKey(removedIndicator);
 
 		return removedValue;
 	};
@@ -159,48 +200,82 @@ export class OrderedMapBuilder<K, V> implements OrderedMapBase.Builder<K, V> {
 
 		if (checkEmptyModifyOptions(options)) return false;
 
-		const preSize = this.mapBuilder.size;
-		const changed = this.mapBuilder.modifyAt(key, options);
+		const { ifNew, ifExists } = options;
 
-		if (changed) this.source = undefined;
+		const modifyOptions: ModifyOptions<[V, Indicator]> = {};
 
-		const diff = this.mapBuilder.size - preSize;
+		let previousIndicator: Indicator | undefined;
+		let newEntry: [V, Indicator] | undefined;
 
-		if (diff === 0) return changed;
-		if (diff > 0) {
-			this.keyOrderBuilder.append(key);
-		} else {
-			this.removeFromKeyOrderInternal(key);
+		if (undefined !== ifNew) {
+			modifyOptions.ifNew = {
+				create: (skip) => {
+					const { set, create } = ifNew;
+
+					if (undefined !== create) {
+						const newValue = create(skip);
+						if (skip === newValue) return skip;
+						newEntry = [newValue as V, this.#nextIndicator()];
+						return newEntry;
+					}
+
+					newEntry = [set!, this.#nextIndicator()];
+					return newEntry;
+				},
+			};
 		}
+		if (undefined !== ifExists) {
+			modifyOptions.ifExists = {
+				update: (currentEntry, remove) => {
+					const [currentValue] = currentEntry;
+
+					const { set, update } = ifExists;
+
+					if (undefined !== update) {
+						const newValue = update(currentValue, remove);
+						if (remove === newValue) return remove;
+						if (Object.is(currentValue, newValue)) return currentEntry;
+
+						newEntry = [newValue as V, this.#nextIndicator()];
+						return newEntry;
+					}
+
+					if (Object.is(currentValue, set)) return currentEntry;
+
+					newEntry = [set!, this.#nextIndicator()];
+					return newEntry;
+				},
+			};
+		}
+
+		const changed = this.keyMapBuilder.modifyAt(key, modifyOptions);
+
+		if (!changed) return false;
+
+		this.source = undefined;
+
+		if (undefined !== previousIndicator) {
+			this.indicatorMapBuilder.removeKey(previousIndicator);
+		}
+
+		if (undefined !== newEntry) {
+			this.indicatorMapBuilder.set(newEntry[1], [key, newEntry[0]]);
+		}
+
 		return true;
 	};
 
 	forEach = (
 		f: (entry: readonly [K, V], index: number, halt: () => void) => void,
-		options: { reversed?: boolean; state?: TraverseState } = {},
+		options?: { reversed?: boolean; state?: TraverseState },
 	): void => {
-		const { reversed = false, state = TraverseState() } = options;
-
-		if (state.halted) return;
-
 		this._lock = true;
 
 		if (undefined !== this.source) this.source.forEach(f, options);
 		else {
-			const { halt } = state;
-			const mapBuilder = this.mapBuilder;
-
-			this.keyOrderBuilder.forEach(
-				(key, _, outerHalt): void => {
-					f(
-						[key, mapBuilder.at(key, RimbuError.throwInvalidStateError)],
-						state.nextIndex(),
-						halt,
-					);
-					if (state.halted) outerHalt();
-				},
-				{ reversed },
-			);
+			this.indicatorMapBuilder.forEach(([_, entry], index, halt): void => {
+				f(entry, index, halt);
+			}, options);
 		}
 
 		this._lock = false;
@@ -211,30 +286,26 @@ export class OrderedMapBuilder<K, V> implements OrderedMapBase.Builder<K, V> {
 
 		if (this.size === 0) return this.context.empty();
 
-		const keyOrder = this.keyOrderBuilder.build().assumeNonEmpty();
-		const sourceMap = this.mapBuilder.buildMapValues(f).assumeNonEmpty();
+		const keyMap = this.keyMapBuilder
+			.buildMapValues(
+				([value, indicator], key) =>
+					[f(value, key), indicator] as [V2, Indicator],
+			)
+			.assumeNonEmpty();
+		const indicatorMap = this.indicatorMapBuilder
+			.buildMapValues(([key, value]) => [key, f(value, key)] as [K, V2])
+			.assumeNonEmpty();
 
-		return this.context.createNonEmpty<K, V2>(keyOrder, sourceMap) as any;
+		return this.context.createNonEmpty<K, V2>(keyMap, indicatorMap) as any;
 	};
 
 	build = (): OrderedMap<K, V> => {
 		if (undefined !== this.source) return this.source as any;
 		if (this.size === 0) return this.context.empty();
 
-		const keyOrder = this.keyOrderBuilder.build().assumeNonEmpty();
-		const sourceMap = this.mapBuilder.build().assumeNonEmpty();
+		const keyMap = this.keyMapBuilder.build().assumeNonEmpty();
+		const indicatorMap = this.indicatorMapBuilder.build().assumeNonEmpty();
 
-		return this.context.createNonEmpty<K, V>(keyOrder, sourceMap) as any;
+		return this.context.createNonEmpty<K, V>(keyMap, indicatorMap) as any;
 	};
-
-	removeFromKeyOrderInternal(key: K): void {
-		let index = -1;
-		this.keyOrderBuilder.forEach((k, i, halt): void => {
-			if (Object.is(k, key)) {
-				index = i;
-				halt();
-			}
-		});
-		this.keyOrderBuilder.remove(index);
-	}
 }

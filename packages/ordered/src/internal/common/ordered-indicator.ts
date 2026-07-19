@@ -13,6 +13,8 @@
  * splits blocks. This is the known trade-off of pure-string fractional indexing.
  */
 
+import { Comp } from '@rimbu/common';
+
 const ALPHABET =
 	'0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 const BASE = ALPHABET.length;
@@ -40,6 +42,7 @@ function chr(i: number): string {
 export type Indicator = string;
 
 export namespace Indicator {
+	export const COMP_INSTANCE: Comp<Indicator> = Comp.string();
 	export const PrecisionWall = PrecisionWallError;
 
 	export const INIT_INDICATOR: Indicator = MID_CHAR;

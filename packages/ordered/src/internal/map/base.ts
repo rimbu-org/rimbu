@@ -1,39 +1,15 @@
 import type { RMap } from '@rimbu/collection-types';
-import type { WithKeyValue } from '@rimbu/collection-types/advanced/common';
 import type { RMapBase } from '@rimbu/collection-types/advanced/map/base';
-import type { List } from '@rimbu/list';
+import type { SortedMap } from '@rimbu/sorted';
 import type { Streamable } from '@rimbu/stream';
+
+import type { Indicator } from '#ordered/common/ordered-indicator';
 
 export interface OrderedMapBase<
 	K,
 	V,
 	Tp extends OrderedMapBase.Types = OrderedMapBase.Types,
-> extends RMapBase<K, V, Tp> {
-	/**
-	 * Returns a `List` instance containing the key order of the Map.
-	 * @example
-	 * ```ts
-	 * import { OrderedHashMap } from '@rimbu/ordered/map/hashed';
-	 *
-	 * const m = OrderedHashMap.of([2, 'b'], [1, 'a'], [3, 'c'])
-	 * console.log(m.keyOrder.toArray())
-	 * // => [ 2, 1, 3 ]
-	 * ```
-	 */
-	readonly keyOrder: List<K>;
-	/**
-	 * Returns the contained `Map` instance.
-	 * @example
-	 * ```ts
-	 * import { OrderedHashMap } from '@rimbu/ordered/map/hashed';
-	 *
-	 * const m = OrderedHashMap.of([2, 'b'], [1, 'a'])
-	 * console.log(m.sourceMap.toString())
-	 * // => HashMap(1 -> a, 2 -> b)
-	 * ```
-	 */
-	readonly sourceMap: WithKeyValue<Tp, K, V>['sourceMap'];
-}
+> extends RMapBase<K, V, Tp> {}
 
 export namespace OrderedMapBase {
 	export interface NonEmpty<
@@ -41,32 +17,7 @@ export namespace OrderedMapBase {
 		V,
 		Tp extends OrderedMapBase.Types = OrderedMapBase.Types,
 	> extends RMapBase.NonEmpty<K, V, Tp>,
-			Streamable.NonEmpty<readonly [K, V]> {
-		/**
-		 * Returns a non-empty `List` instance containing the key order of the Map.
-		 * @example
-		 * ```ts
-		 * import { OrderedHashMap } from '@rimbu/ordered/map/hashed';
-		 *
-		 * const m = OrderedHashMap.of([2, 'b'], [1, 'a'], [3, 'c'])
-		 * console.log(m.keyOrder.toArray())
-		 * // => [ 2, 1, 3 ]
-		 * ```
-		 */
-		readonly keyOrder: List.NonEmpty<K>;
-		/**
-		 * Returns the contained non-empty `Map` instance.
-		 * @example
-		 * ```ts
-		 * import { OrderedHashMap } from '@rimbu/ordered/map/hashed';
-		 *
-		 * const m = OrderedHashMap.of([2, 'b'], [1, 'a'])
-		 * console.log(m.sourceMap.toString())
-		 * // => HashMap(1 -> a, 2 -> b)
-		 * ```
-		 */
-		readonly sourceMap: WithKeyValue<Tp, K, V>['sourceMapNonEmpty'];
-	}
+			Streamable.NonEmpty<readonly [K, V]> {}
 
 	export interface Builder<
 		K,
@@ -80,14 +31,8 @@ export namespace OrderedMapBase {
 	> extends RMapBase.Context<UK, Tp> {
 		readonly typeTag: 'OrderedMap';
 
-		/**
-		 * The List context used to create Lists to keep value insertion order.
-		 */
-		readonly listContext: List.Context;
-		/**
-		 * The Map context used to create the wrapped Map instances.
-		 */
-		readonly mapContext: WithKeyValue<Tp, UK, unknown>['sourceContext'];
+		readonly keyMapContext: RMap.Context<UK>;
+		readonly indicatorMapContext: SortedMap.Context<Indicator>;
 	}
 
 	/**

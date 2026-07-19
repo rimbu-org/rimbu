@@ -77,11 +77,12 @@ export type NonEmptyString<S extends string> = '' extends S ? never : unknown;
 export type StartsWith<
 	S extends string,
 	Start extends string & NonEmptyString<Start>,
-> = S extends Append<Start, infer Rest>
-	? S extends Append<infer StartInstance, Rest>
-		? [StartInstance, Rest]
-		: false
-	: false;
+> =
+	S extends Append<Start, infer Rest>
+		? S extends Append<infer StartInstance, Rest>
+			? [StartInstance, Rest]
+			: false
+		: false;
 
 /**
  * If the given string does not end with the given `End` type, returns false.
@@ -97,11 +98,12 @@ export type StartsWith<
 export type EndsWith<
 	S extends string,
 	End extends string & NonEmptyString<End>,
-> = S extends Append<infer Start, End>
-	? S extends Append<Start, infer EndInstance>
-		? [Start, EndInstance]
-		: false
-	: false;
+> =
+	S extends Append<infer Start, End>
+		? S extends Append<Start, infer EndInstance>
+			? [Start, EndInstance]
+			: false
+		: false;
 
 /**
  * Returns a 3-tuple containing the start, the matched middle, and the rest if the given string
@@ -116,11 +118,12 @@ export type EndsWith<
 export type SplitAt<
 	S extends string,
 	Middle extends string & NonEmptyString<Middle>,
-> = S extends AppendTwo<infer Start, Middle, infer End>
-	? S extends AppendTwo<Start, infer MiddleInstance, End>
-		? [Start, MiddleInstance, End]
-		: false
-	: ['', '', S];
+> =
+	S extends AppendTwo<infer Start, Middle, infer End>
+		? S extends AppendTwo<Start, infer MiddleInstance, End>
+			? [Start, MiddleInstance, End]
+			: false
+		: ['', '', S];
 
 /**
  * Returns a string containing all the elements that do not match the given Sub type.
@@ -389,18 +392,19 @@ type RepeatAtMostTimesHelper<
 	Sub extends string & NonEmptyString<Sub>,
 	N extends number,
 	Processed extends string,
-> = S extends Append<Sub, infer Rest>
-	? N extends 0
-		? false
-		: S extends Append<infer SubInstance, Rest>
-			? RepeatAtMostTimesHelper<
-					Rest,
-					Sub,
-					Num.Decr<N>,
-					Append<Processed, SubInstance>
-				>
-			: never
-	: [Processed, S];
+> =
+	S extends Append<Sub, infer Rest>
+		? N extends 0
+			? false
+			: S extends Append<infer SubInstance, Rest>
+				? RepeatAtMostTimesHelper<
+						Rest,
+						Sub,
+						Num.Decr<N>,
+						Append<Processed, SubInstance>
+					>
+				: never
+		: [Processed, S];
 
 /**
  * Returns a tuple containing the matched part and the rest of the given string if the string
@@ -425,20 +429,21 @@ type RepeatExactTimesHelper<
 	Sub extends string & NonEmptyString<Sub>,
 	N extends number,
 	Processed extends string,
-> = S extends Append<Sub, infer Rest>
-	? N extends 0
-		? false
-		: S extends Append<infer SubInstance, Rest>
-			? RepeatExactTimesHelper<
-					Rest,
-					Sub,
-					Num.Decr<N>,
-					Append<Processed, SubInstance>
-				>
-			: never
-	: N extends 0
-		? [Processed, S]
-		: false;
+> =
+	S extends Append<Sub, infer Rest>
+		? N extends 0
+			? false
+			: S extends Append<infer SubInstance, Rest>
+				? RepeatExactTimesHelper<
+						Rest,
+						Sub,
+						Num.Decr<N>,
+						Append<Processed, SubInstance>
+					>
+				: never
+		: N extends 0
+			? [Processed, S]
+			: false;
 
 /**
  * Returns the first N characters of the given string, or false if the string does
@@ -504,9 +509,10 @@ type TakeWhileHelper<
 	S extends string,
 	Sub extends string & NonEmptyString<Sub>,
 	Result extends string,
-> = StartsWith<S, Sub> extends [infer SubInstance, infer Rest]
-	? TakeWhileHelper<string & Rest, Sub, Append<Result, string & SubInstance>>
-	: Result;
+> =
+	StartsWith<S, Sub> extends [infer SubInstance, infer Rest]
+		? TakeWhileHelper<string & Rest, Sub, Append<Result, string & SubInstance>>
+		: Result;
 
 /**
  * Skips part of the string as long as its parts match Sub.
@@ -517,12 +523,8 @@ type TakeWhileHelper<
  * DropWhile<'aabc', 'q'> => 'aabc'
  * ```
  */
-export type DropWhile<S extends string, Sub extends string> = S extends Append<
-	Sub,
-	infer Rest
->
-	? DropWhile<Rest, Sub>
-	: S;
+export type DropWhile<S extends string, Sub extends string> =
+	S extends Append<Sub, infer Rest> ? DropWhile<Rest, Sub> : S;
 
 /**
  * Returns the given string reversed.
@@ -533,12 +535,10 @@ export type DropWhile<S extends string, Sub extends string> = S extends Append<
  */
 export type Reverse<S extends string> = ReverseHelper<S, ''>;
 
-type ReverseHelper<S extends string, Result extends string> = S extends Append<
-	infer First,
-	infer Rest
->
-	? ReverseHelper<Rest, Append<First, Result>>
-	: Result;
+type ReverseHelper<S extends string, Result extends string> =
+	S extends Append<infer First, infer Rest>
+		? ReverseHelper<Rest, Append<First, Result>>
+		: Result;
 
 /**
  * Returns the given string without the first N characters, or false if the
@@ -602,12 +602,10 @@ export type Tail<S extends string> =
  */
 export type Init<S extends string> = InitHelper<S, ''>;
 
-type InitHelper<S extends string, Result extends string> = S extends Append<
-	infer First,
-	infer Rest
->
-	? U.Extends<Rest, '', Result, InitHelper<Rest, Append<Result, First>>>
-	: false;
+type InitHelper<S extends string, Result extends string> =
+	S extends Append<infer First, infer Rest>
+		? U.Extends<Rest, '', Result, InitHelper<Rest, Append<Result, First>>>
+		: false;
 
 /**
  * Returns the last character of the given string, or false if the string if empty.
@@ -631,9 +629,7 @@ export type Last<S extends string> =
  * CharAt<'abcd', 5> => false
  * ```
  */
-export type CharAt<S extends string, Index extends number> = S extends Append<
-	infer Start,
-	infer Rest
->
-	? U.Extends<Index, 0, Start, CharAt<Rest, Num.Decr<Index>>>
-	: false;
+export type CharAt<S extends string, Index extends number> =
+	S extends Append<infer Start, infer Rest>
+		? U.Extends<Index, 0, Start, CharAt<Rest, Num.Decr<Index>>>
+		: false;

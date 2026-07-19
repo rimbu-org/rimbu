@@ -181,12 +181,8 @@ export type NotEqual<N1 extends number, N2 extends number> = N1 extends N2
  * GreaterThanOrEqual<15, 6> => true
  * ```
  */
-export type GreaterThanOrEqual<N1 extends number, N2 extends number> = Subtract<
-	N1,
-	N2
-> extends never
-	? false
-	: true;
+export type GreaterThanOrEqual<N1 extends number, N2 extends number> =
+	Subtract<N1, N2> extends never ? false : true;
 
 /**
  * Returns true if the first given number is greater than the second.
@@ -210,12 +206,8 @@ export type GreaterThan<N1 extends number, N2 extends number> = N1 extends N2
  * LessThan<3, 7> => true
  * ```
  */
-export type LessThan<N1 extends number, N2 extends number> = Subtract<
-	N1,
-	N2
-> extends never
-	? true
-	: false;
+export type LessThan<N1 extends number, N2 extends number> =
+	Subtract<N1, N2> extends never ? true : false;
 
 /**
  * Returns true if the first given number is less than or equal to the second.

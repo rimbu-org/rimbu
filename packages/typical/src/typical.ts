@@ -15,4 +15,4 @@ import type * as Str from '#typical/str';
 import type * as StrNum from '#typical/strnum';
 import type * as U from '#typical/utils';
 
-export type { U, Str, StrNum, Num };
+export type { Num, Str, StrNum, U };

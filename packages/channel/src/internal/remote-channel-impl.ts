@@ -1,8 +1,8 @@
 import type { RemoteChannel } from '@rimbu/channel/remote-channel';
 
 import { Channel, ChannelError } from '@rimbu/channel';
-import { AsyncStream, type AsyncStreamSource } from '@rimbu/stream/async';
 import { AsyncFromStream } from '@rimbu/stream/advanced/async/stream-base';
+import { AsyncStream, type AsyncStreamSource } from '@rimbu/stream/async';
 
 import { ChannelFastIterator } from '#channel/channel-impl';
 import {

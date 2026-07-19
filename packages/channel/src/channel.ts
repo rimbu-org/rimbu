@@ -6,8 +6,6 @@ import { ChannelError } from '#channel/channel-error';
 import { ChannelImpl } from '#channel/channel-impl';
 import { attachAbort, createCleaner } from '#channel/utils';
 
-export { ChannelError };
-
 // Re-export all sub-modules from the main entry point
 export { CrossChannel } from '@rimbu/channel/cross-channel';
 export { Mutex } from '@rimbu/channel/mutex';
@@ -18,6 +16,8 @@ export { RemoteObject, RemoteObjectError } from '@rimbu/channel/remote-object';
 export { RpcProxy, RpcProxyError } from '@rimbu/channel/rpc-proxy';
 export { Semaphore, SemaphoreError } from '@rimbu/channel/semaphore';
 export { WaitGroup, WaitGroupError } from '@rimbu/channel/wait-group';
+
+export { ChannelError };
 
 /**
  * A Rimbu Channel offers various ways to synchronize communication between asynchronous processes. These processes can send and receive

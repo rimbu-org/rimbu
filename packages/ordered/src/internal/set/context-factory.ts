@@ -1,16 +1,15 @@
 import type { RMap } from '@rimbu/collection-types';
 import type { RMapBase } from '@rimbu/collection-types/advanced/map/base';
 import type { OrderedSet } from '@rimbu/ordered/set';
-import type { Indicator } from '../common/ordered-indicator';
 
 import type { OrderedSetBase } from '#set/base';
 import type { OrderedSetCreators } from '#set/creators';
 
 import { RSetContextBaseModule } from '@rimbu/collection-types/advanced/set/base-module';
-import { Comp } from '@rimbu/common';
 import { Module } from '@rimbu/common/module';
 import { HashMap } from '@rimbu/hashed';
 import { SortedMap } from '@rimbu/sorted';
+import { Indicator } from '../common/ordered-indicator';
 
 import { OrderedSetBuilder } from '#set/builder';
 import { OrderedSetEmpty } from '#set/empty';
@@ -99,7 +98,7 @@ export function createOrderedSetContextModule<UT>(
 			() => options?.keyMapContext ?? HashMap.defaultContext<UT>(),
 		),
 		indicatorMapContext: Module.lazyGetter(() =>
-			SortedMap.createContext<Indicator>({ comp: Comp.string() }),
+			SortedMap.createContext<Indicator>({ comp: Indicator.COMP_INSTANCE }),
 		),
 
 		isValidValue(value: any): value is UT {

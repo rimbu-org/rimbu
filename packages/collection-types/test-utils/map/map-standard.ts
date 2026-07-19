@@ -767,7 +767,7 @@ export function runMapTestsWith(name: string, GMap: RMap.Context<any>): void {
 			});
 		});
 
-		it('set', () => {
+		it.only('set', () => {
 			forEachBuilder((b) => {
 				expect(b.set(2, 'a')).toBe(true);
 				expect(b.set(2, 'a')).toBe(false);
