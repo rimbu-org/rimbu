@@ -531,9 +531,13 @@ export class RangeDownIterator extends FastIteratorBase<number> {
 	}
 }
 
-export class RandomIterator extends FastIteratorBase<number> {
-	fastNext(): number {
-		return Math.random();
+export class RandomIterator<T> extends FastIteratorBase<T> {
+	constructor(readonly nextValue: () => T) {
+		super();
+	}
+
+	fastNext(): T {
+		return this.nextValue();
 	}
 }
 

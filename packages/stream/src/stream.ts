@@ -5,15 +5,15 @@ import type { IndexRange } from '@rimbu/common/index-range';
 import type { OptLazy } from '@rimbu/common/opt-lazy';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type {
-    ArrayNonEmpty,
-    StringNonEmpty,
-    ToJSON,
+	ArrayNonEmpty,
+	StringNonEmpty,
+	ToJSON,
 } from '@rimbu/common/types';
 import type { Reducer } from '@rimbu/stream/reducer';
 import type {
-    FastIterable,
-    Streamable,
-    StreamSource,
+	FastIterable,
+	Streamable,
+	StreamSource,
 } from '@rimbu/stream/stream-types';
 import type { Transformer } from '@rimbu/stream/transformer';
 
@@ -1954,6 +1954,7 @@ export namespace Stream {
 		 * ```
 		 */
 		random(): Stream.NonEmpty<number>;
+		random<T>(next: () => T): Stream.NonEmpty<T>;
 		/**
 		 * Returns an infinite Stream containing random integer numbers between given `min` and `max`
 		 * @param min - the minimum value
