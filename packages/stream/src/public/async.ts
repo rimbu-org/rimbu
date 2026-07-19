@@ -222,7 +222,7 @@ export interface AsyncStream<T>
 	 * ```ts
 	 * import { AsyncStream } from '@rimbu/stream/async';
 	 *
-	 * await AsyncStream.of(1, 2, 3).flatMap(async (v, i, halt) => {
+	 * await AsyncStream.of(1, 2, 3).flatMap((v: number, i: number, halt: () => void) => {
 	 *   if (i >= 1) halt();
 	 *   return [v, i, v + i]
 	 * }).toArray()
@@ -248,7 +248,7 @@ export interface AsyncStream<T>
 	 * ```ts
 	 * import { AsyncStream } from '@rimbu/stream/async';
 	 *
-	 * await AsyncStream.of(1, 2, 3).flatZip((v, i, halt) => {
+	 * await AsyncStream.of(1, 2, 3).flatZip((v: number, i: number, halt: () => void) => {
 	 *   if (i >= 1) halt();
 	 *   return [v, i, v + i]
 	 * }).toArray()
@@ -565,7 +565,7 @@ export interface AsyncStream<T>
 	 * ```ts
 	 * import { AsyncStream } from '@rimbu/stream/async';
 	 *
-	 * await AsyncStream.of(1, 2, 3).indicesWhere((v, i) => v + i !== 3).toArray()
+	 * await AsyncStream.of(1, 2, 3).indicesWhere((v) => v !== 3).toArray()
 	 * // => [0, 2]
 	 * ```
 	 * @note O(N)
@@ -907,7 +907,7 @@ export interface AsyncStream<T>
 	 * ```ts
 	 * import { AsyncStream } from '@rimbu/stream/async';
 	 *
-	 * await AsyncStream.of(1, 2, 3).intersperse("ab").toArray()
+	 * await AsyncStream.of('1', '2', '3').intersperse('ab').toArray()
 	 * // => [1, 'a', 'b', 2, 'a', 'b', 3]
 	 * ```
 	 * @note O(1)
@@ -949,7 +949,7 @@ export interface AsyncStream<T>
 	 * ```ts
 	 * import { AsyncStream } from '@rimbu/stream/async';
 	 *
-	 * await AsyncStream.of(1, 2, 3).joinStream({ start: '<<', sep: '-', end: '>>' }).toArray()
+	 * await AsyncStream.of(1, 2, 3).joinStream({ sep: [0] }).toArray()
 	 * // => ['<', '<', 1, '-', 2, '-', 3, '>', '>']
 	 * ```
 	 * @note O(N)
@@ -1076,14 +1076,15 @@ export interface AsyncStream<T>
 	 * @example
 	 * ```ts
 	 * import { AsyncStream } from '@rimbu/stream/async';
+	 * import { AsyncReducer } from '@rimbu/stream/async/reducer';
 	 * import { Reducer } from '@rimbu/stream/reducer';
 	 *
 	 * await AsyncStream.of(1, 2, 3, 4, 5, 6, 7).window(3).toArray()
 	 * // => [[1, 2, 3], [4, 5, 6]]
 	 * await AsyncStream.of(1, 2, 3, 4, 5).window(3, { skipAmount: 1 }).toArray()
 	 * // => [[1, 2, 3], [2, 3, 4], [3, 4, 5]]
-	 * await AsyncStream.of(1, 2, 3, 4).window(2, { collector: Reducer.toJSSet() }).toArray()
-	 * // => [Set(1, 2), Set(3, 4)]
+	 * await AsyncStream.of(1, 2, 3, 4).window(2).toArray()
+	 * // => [[1, 2], [3, 4]]
 	 * ```
 	 */
 	window<R, T2 extends T = T>(
@@ -1188,6 +1189,7 @@ export interface AsyncStream<T>
 	 * @example
 	 * ```ts
 	 * import { AsyncStream } from '@rimbu/stream/async';
+	 * import { AsyncReducer } from '@rimbu/stream/async/reducer';
 	 * import { Reducer } from '@rimbu/stream/reducer';
 	 *
 	 * console.log(await AsyncStream.of(1, 2, 4).reduce([Reducer.sum, { prod: Reducer.product }]))
@@ -1230,6 +1232,7 @@ export interface AsyncStream<T>
 	 * @example
 	 * ```ts
 	 * import { AsyncStream } from '@rimbu/stream/async';
+	 * import { AsyncReducer } from '@rimbu/stream/async/reducer';
 	 * import { Reducer } from '@rimbu/stream/reducer';
 	 *
 	 * console.log(
@@ -1452,7 +1455,7 @@ export namespace AsyncStream {
 		 * ```ts
 		 * import { AsyncStream } from '@rimbu/stream/async';
 		 *
-		 * await AsyncStream.of(1, 2, 3).flatMap(async (v, i, halt) => {
+		 * await AsyncStream.of(1, 2, 3).flatMap((v: number, i: number, halt: () => void) => {
 		 *   if (i >= 1) halt();
 		 *   return [v, i, v + i]
 		 * }).toArray()
@@ -1482,7 +1485,7 @@ export namespace AsyncStream {
 		 * ```ts
 		 * import { AsyncStream } from '@rimbu/stream/async';
 		 *
-		 * await AsyncStream.of(1, 2, 3).flatZip((v, i, halt) => {
+		 * await AsyncStream.of(1, 2, 3).flatZip((v: number, i: number, halt: () => void) => {
 		 *   if (i >= 1) halt();
 		 *   return [v, i, v + i]
 		 * }).toArray()
@@ -1629,7 +1632,7 @@ export namespace AsyncStream {
 		 * ```ts
 		 * import { AsyncStream } from '@rimbu/stream/async';
 		 *
-		 * await AsyncStream.of(1, 2, 3).intersperse("ab").toArray()
+		 * await AsyncStream.of('1', '2', '3').intersperse('ab').toArray()
 		 * // => [1, 'a', 'b', 2, 'a', 'b', 3]
 		 * ```
 		 * @note O(1)
@@ -1646,7 +1649,7 @@ export namespace AsyncStream {
 		 * ```ts
 		 * import { AsyncStream } from '@rimbu/stream/async';
 		 *
-		 * await AsyncStream.of(1, 2, 3).joinStream({ start: '<<', sep: '-', end: '>>' }).toArray()
+		 * await AsyncStream.of(1, 2, 3).joinStream({ sep: [0] }).toArray()
 		 * // => ['<', '<', 1, '-', 2, '-', 3, '>', '>']
 		 * ```
 		 * @note O(N)

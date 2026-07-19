@@ -217,7 +217,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * ```ts
 	 * import { Stream } from '@rimbu/stream';
 	 *
-	 * Stream.of(1, 2, 3).flatMap((v, i, halt) => {
+	 * Stream.of(1, 2, 3).flatMap((v: number, i: number, halt: () => void) => {
 	 *   if (i >= 1) halt();
 	 *   return [v, i, v + i]
 	 * }).toArray()
@@ -240,7 +240,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * ```ts
 	 * import { Stream } from '@rimbu/stream';
 	 *
-	 * Stream.of(1, 2, 3).flatZip((v, i, halt) => {
+	 * Stream.of(1, 2, 3).flatZip((v: number, i: number, halt: () => void) => {
 	 *   if (i >= 1) halt();
 	 *   return [v, i, v + i]
 	 * }).toArray()
@@ -554,8 +554,8 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * ```ts
 	 * import { Stream } from '@rimbu/stream';
 	 *
-	 * Stream.of(1, 2, 3).indicesWhere((v, i) => v + i !== 3).toArray()
-	 * // => [0, 2]
+	 * Stream.of(1, 2, 3).indicesWhere((v) => v !== 3).toArray()
+	 * // => [0, 1]
 	 * ```
 	 * @note O(N)
 	 */
@@ -884,8 +884,8 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * ```ts
 	 * import { Stream } from '@rimbu/stream';
 	 *
-	 * Stream.of(1, 2, 3).intersperse("ab").toArray()
-	 * // => [1, 'a', 'b', 2, 'a', 'b', 3]
+		 * Stream.of('1', '2', '3').intersperse('ab').toArray()
+		 * // => ['1', 'a', 'b', '2', 'a', 'b', '3']
 	 * ```
 	 * @note O(1)
 	 */
@@ -926,8 +926,8 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * ```ts
 	 * import { Stream } from '@rimbu/stream';
 	 *
-	 * Stream.of(1, 2, 3).joinStream({ start: '<<', sep: '-', end: '>>' }).toArray()
-	 * // => ['<', '<', 1, '-', 2, '-', 3, '>', '>']
+	 * Stream.of(1, 2, 3).joinStream({ sep: [0] }).toArray()
+	 * // => [1, 0, 2, 0, 3]
 	 * ```
 	 * @note O(N)
 	 */
@@ -1052,7 +1052,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * // => [[1, 2, 3], [4, 5, 6]]
 	 * console.log(Stream.of(1, 2, 3, 4, 5).window(3, { skipAmount: 1 }).toArray())
 	 * // => [[1, 2, 3], [2, 3, 4], [3, 4, 5]]
-	 * console.log(Stream.of(1, 2, 3, 4).window(2, { collector: Reducer.toJSSet() }).toArray())
+	 * console.log(Stream.of(1, 2, 3, 4).window(2, { collector: Reducer.toJSSet<number>() }).toArray())
 	 * // => [Set(1, 2), Set(3, 4)]
 	 * ```
 	 */
@@ -1402,7 +1402,7 @@ export namespace Stream {
 		 * ```ts
 		 * import { Stream } from '@rimbu/stream';
 		 *
-		 * Stream.of(1, 2, 3).flatMap((v, i, halt) => {
+		 * Stream.of(1, 2, 3).flatMap((v: number, i: number, halt: () => void) => {
 		 *   if (i >= 1) halt();
 		 *   return [v, i, v + i]
 		 * }).toArray()
@@ -1432,7 +1432,7 @@ export namespace Stream {
 		 * ```ts
 		 * import { Stream } from '@rimbu/stream';
 		 *
-		 * Stream.of(1, 2, 3).flatZip((v, i, halt) => {
+		 * Stream.of(1, 2, 3).flatZip((v: number, i: number, halt: () => void) => {
 		 *   if (i >= 1) halt();
 		 *   return [v, i, v + i]
 		 * }).toArray()
@@ -1579,8 +1579,8 @@ export namespace Stream {
 		 * ```ts
 		 * import { Stream } from '@rimbu/stream';
 		 *
-		 * Stream.of(1, 2, 3).intersperse("ab").toArray()
-		 * // => [1, 'a', 'b', 2, 'a', 'b', 3]
+		 * Stream.of('1', '2', '3').intersperse('ab').toArray()
+		 * // => ['1', 'a', 'b', '2', 'a', 'b', '3']
 		 * ```
 		 * @note O(1)
 		 */
@@ -1596,8 +1596,8 @@ export namespace Stream {
 		 * ```ts
 		 * import { Stream } from '@rimbu/stream';
 		 *
-		 * Stream.of(1, 2, 3).joinStream({ start: '<<', sep: '-', end: '>>' }).toArray()
-		 * // => ['<', '<', 1, '-', 2, '-', 3, '>', '>']
+		 * Stream.of(1, 2, 3).joinStream({ sep: [0] }).toArray()
+		 * // => [1, 0, 2, 0, 3]
 		 * ```
 		 * @note O(N)
 		 */
@@ -1837,7 +1837,7 @@ export namespace Stream {
 		 * import { Stream } from '@rimbu/stream';
 		 *
 		 * console.log(Stream.always(5).take(4).toArray())
-		 * => [5, 5, 5, 5]
+		 * // => [5, 5, 5, 5]
 		 * ```
 		 */
 		always<T>(value: T): Stream.NonEmpty<T>;
@@ -1880,8 +1880,13 @@ export namespace Stream {
 		 * @example
 		 * ```ts
 		 * import { Stream } from '@rimbu/stream';
+		 * import { List } from '@rimbu/list';
 		 *
-		 * const s = Stream.applyMap([[1, 'a'], [2, 'b']], List.of, true)
+		 * const s = Stream.applyMap<[number, string], [boolean], List.NonEmpty<unknown>>(
+		 *   [[1, 'a'], [2, 'b']],
+		 *   (n, str, flag) => List.of<unknown>(n, str, flag),
+		 *   true,
+		 * )
 		 * console.log(s.toArray())
 		 * // => [List(1, 'a', true), List(2, 'b', true)]
 		 * ```
@@ -1950,20 +1955,10 @@ export namespace Stream {
 		 * ```ts
 		 * import { Stream } from '@rimbu/stream';
 		 *
-		 * // a deterministic pseudo-random source for reproducible examples
-		 * const next = (() => {
-		 *   let s = 42;
-		 *   return () => {
-		 *     s = (s * 1103515245 + 12345) & 0x7fffffff;
-		 *     return s / 0x7fffffff;
-		 *   };
-		 * })();
-		 *
-		 * console.log(Stream.random(next).take(3).toArray()); // => [0.4286..., 0.4155..., 0.4704...]
+		 * console.log(Stream.random().take(3).toArray()); // => [0.3243..., 0.19524...., 0.78324...]
 		 * ```
 		 */
 		random(): Stream.NonEmpty<number>;
-		random<T>(next: () => T): Stream.NonEmpty<T>;
 		/**
 		 * Returns an infinite Stream containing random integer numbers between given `min` and `max`
 		 * @param min - the minimum value
@@ -1972,18 +1967,7 @@ export namespace Stream {
 		 * ```ts
 		 * import { Stream } from '@rimbu/stream';
 		 *
-		 * // Stream.randomInt uses an internal RNG; to make a reproducible example
-		 * // we emulate the same idea with a deterministic source:
-		 * const seeded = (() => {
-		 *   let s = 7;
-		 *   return () => {
-		 *     s = (s * 1103515245 + 12345) & 0x7fffffff;
-		 *     return s;
-		 *   };
-		 * })();
-		 * console.log(
-		 *   Stream.random(seeded).map((v) => (v * 11) | 0).take(3).toArray()
-		 * ); // => [4, 3, 6]
+		 * console.log(Stream.randomInt(0, 10).take(3).toArray()); // => [4, 9, 3]
 		 * ```
 		 */
 		randomInt(min: number, max: number): Stream.NonEmpty<number>;
@@ -2071,7 +2055,7 @@ export namespace Stream {
 		 * ```ts
 		 * import { Stream } from '@rimbu/stream';
 		 *
-		 * const [a, b] = Stream.unzip(Stream.of([[1, 'a'], [2, 'b']]), 2)
+		 * const [a, b] = Stream.unzip(Stream.of([[1, 'a'], [2, 'b']] as const), { length: 2 })
 		 * console.log(a.toArray()); // => [1, 2]
 		 * console.log(b.toArray()); // => ['a', 'b']
 		 * ```
