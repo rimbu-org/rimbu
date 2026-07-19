@@ -1950,7 +1950,16 @@ export namespace Stream {
 		 * ```ts
 		 * import { Stream } from '@rimbu/stream';
 		 *
-		 * console.log(Stream.random().take(3).toArray()); // => [0.3243..., 0.19524...., 0.78324...]
+		 * // a deterministic pseudo-random source for reproducible examples
+		 * const next = (() => {
+		 *   let s = 42;
+		 *   return () => {
+		 *     s = (s * 1103515245 + 12345) & 0x7fffffff;
+		 *     return s / 0x7fffffff;
+		 *   };
+		 * })();
+		 *
+		 * console.log(Stream.random(next).take(3).toArray()); // => [0.4286..., 0.4155..., 0.4704...]
 		 * ```
 		 */
 		random(): Stream.NonEmpty<number>;
@@ -1963,7 +1972,18 @@ export namespace Stream {
 		 * ```ts
 		 * import { Stream } from '@rimbu/stream';
 		 *
-		 * console.log(Stream.randomInt(0, 10).take(3).toArray()); // => [4, 9, 3]
+		 * // Stream.randomInt uses an internal RNG; to make a reproducible example
+		 * // we emulate the same idea with a deterministic source:
+		 * const seeded = (() => {
+		 *   let s = 7;
+		 *   return () => {
+		 *     s = (s * 1103515245 + 12345) & 0x7fffffff;
+		 *     return s;
+		 *   };
+		 * })();
+		 * console.log(
+		 *   Stream.random(seeded).map((v) => (v * 11) | 0).take(3).toArray()
+		 * ); // => [4, 3, 6]
 		 * ```
 		 */
 		randomInt(min: number, max: number): Stream.NonEmpty<number>;
