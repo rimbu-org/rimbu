@@ -90,7 +90,9 @@ class GraphDepthFirstIterable<
  * and returning true if the node has been traversed before, or false otherwise
  * @example
  * ```ts
+import { EdgeGraphHashed } from '@rimbu/graph/non-valued/edge/hashed'
  * const g = EdgeGraphHashed.of([1, 2], [2, 3], [1, 3], [3, 4])
+ * import { traverseDepthFirstCustom, traverseDepthFirstHashed, traverseDepthFirstSorted } from '@rimbu/graph/traverse-depth-first'
  * const stream = traverseDepthFirstCustom(g, 1)
  * console.log(stream.toArray())
  * // => [[1, 2], [2, 3], [1, 3], [3, 4]]
@@ -114,7 +116,9 @@ export function traverseDepthFirstCustom<G extends VariantGraphBase<N, any>, N>(
  * @param startNode - the start node within the graph
  * @example
  * ```ts
+import { EdgeGraphHashed } from '@rimbu/graph/non-valued/edge/hashed'
  * const g = EdgeGraphHashed.of([1, 2], [2, 3], [1, 3], [3, 4])
+ * import { traverseDepthFirstCustom, traverseDepthFirstHashed, traverseDepthFirstSorted } from '@rimbu/graph/traverse-depth-first'
  * const stream = traverseDepthFirstHashed(g, 1)
  * console.log(stream.toArray())
  * // => [[1, 2], [2, 3], [1, 3], [3, 4]]
@@ -138,7 +142,9 @@ export function traverseDepthFirstHashed<G extends VariantGraphBase<N, any>, N>(
  * @param startNode - the start node within the graph
  * @example
  * ```ts
+import { EdgeGraphHashed } from '@rimbu/graph/non-valued/edge/hashed'
  * const g = EdgeGraphHashed.of([1, 2], [2, 3], [1, 3], [3, 4])
+ * import { traverseDepthFirstCustom, traverseDepthFirstHashed, traverseDepthFirstSorted } from '@rimbu/graph/traverse-depth-first'
  * const stream = traverseDepthFirstSorted(g, 1)
  * console.log(stream.toArray())
  * // => [[1, 2], [2, 3], [1, 3], [3, 4]]

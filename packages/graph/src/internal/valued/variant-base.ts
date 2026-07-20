@@ -16,6 +16,8 @@ export interface VariantValuedGraphBase<
 	 * Returns the nested Map representation of the graph connections.
 	 * @example
 	 * ```ts
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
+import { HashMap } from '@rimbu/hashed'
 	 * ArrowValuedGraphHashed.of([1, 2, 'a'], [2, 3, 'b']).linkMap.toArray()
 	 * // => [[1, HashMap(2 -> 'a')], [2, HashMap(3 -> 'b')]]
 	 * ```
@@ -28,6 +30,7 @@ export interface VariantValuedGraphBase<
 	 * @param otherwise - (default: undefined) the fallback value to return if the connection does not exist
 	 * @example
 	 * ```ts
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 	 * const g = ArrowValuedGraphHashed.of([1, 2, 'a'], [2, 3, 'b'])
 	 * g.getValue(1, 2) // => 'a'
 	 * g.getValue(3, 4) // => undefined
@@ -49,7 +52,8 @@ export interface VariantValuedGraphBase<
 	 * @param mapFun - a function taking a `value` and connection's `node1` and `node2`, and returning a new value
 	 * @example
 	 * ```ts
-	 * ArrowValuedGraphHashed.of([1, 2, 'a'], [2, 3, 'bc']).mapValues(v => v.length).toArray()
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
+	 * ArrowValuedGraphHashed.of([1, 2, 'a'], [2, 3, 'bc']).mapValues(v => v.length).stream().toArray()
 	 * // => [[1, 2, 1], [2, 3, 2]]
 	 * ```
 	 */
@@ -73,6 +77,8 @@ export namespace VariantValuedGraphBase {
 		 * Returns the nested non-empty Map representation of the graph connections.
 		 * @example
 		 * ```ts
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
+import { HashMap } from '@rimbu/hashed'
 		 * ArrowValuedGraphHashed.of([1, 2, 'a'], [2, 3, 'b']).linkMap.toArray()
 		 * // => [[1, HashMap(2 -> 'a')], [2, HashMap(3 -> 'b')]]
 		 * ```
@@ -83,6 +89,7 @@ export namespace VariantValuedGraphBase {
 		 * and 3-valued tuples containing the source node, target node, and connection value for connections.
 		 * @example
 		 * ```ts
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 		 * ArrowValuedGraphHashed.of([1, 2, 'a'], [2, 3, 'b']).stream().toArray()
 		 * // => [[1, 2, 'a'], [2, 3, 'b']]
 		 * ```
@@ -93,7 +100,8 @@ export namespace VariantValuedGraphBase {
 		 * @param mapFun - a function taking a `value` and connection's `node1` and `node2`, and returning a new value
 		 * @example
 		 * ```ts
-		 * ArrowValuedGraphHashed.of([1, 2, 'a'], [2, 3, 'bc']).mapValues(v => v.length).toArray()
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
+		 * ArrowValuedGraphHashed.of([1, 2, 'a'], [2, 3, 'bc']).mapValues(v => v.length).stream().toArray()
 		 * // => [[1, 2, 1], [2, 3, 2]]
 		 * ```
 		 */

@@ -15,6 +15,8 @@ export interface VariantGraph<N>
 	 * Returns the nested Map representation of the graph connections.
 	 * @example
 	 * ```ts
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
+import { HashMap } from '@rimbu/hashed'
 	 * ArrowValuedGraphHashed.of([1, 2, 'a'], [2, 3, 'b']).linkMap.toArray()
 	 * // => [[1, HashMap(2 -> 'a')], [2, HashMap(3 -> 'b')]]
 	 * ```
@@ -36,6 +38,8 @@ export namespace VariantGraph {
 		 * Returns the nested Map representation of the graph connections.
 		 * @example
 		 * ```ts
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
+import { HashMap } from '@rimbu/hashed'
 		 * ArrowValuedGraphHashed.of([1, 2, 'a'], [2, 3, 'b']).linkMap.toArray()
 		 * // => [[1, HashMap(2 -> 'a')], [2, HashMap(3 -> 'b')]]
 		 * ```
@@ -47,6 +51,7 @@ export namespace VariantGraph {
 		 * and 2-valued tuples of nodes for connections.
 		 * @example
 		 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 		 * ArrowGraphHashed.of([1], [2, 3]).stream().toArray()  // => [[1], [2, 3]]
 		 * ```
 		 */

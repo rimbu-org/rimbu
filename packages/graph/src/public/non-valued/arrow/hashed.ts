@@ -16,6 +16,7 @@ import { createGraphContextModule } from '#graph/non-valued/context-factory';
  * @typeparam N - the node type
  * @example
  * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
  * const g1 = ArrowGraphHashed.empty<number>()
  * const g2 = ArrowGraphHashed.of([1], [2, 3], [2, 4])
  * ```
@@ -39,6 +40,7 @@ export namespace ArrowGraphHashed {
 		 * and 2-valued tuples of nodes for connections.
 		 * @example
 		 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 		 * ArrowGraphHashed.of([1], [2, 3]).stream().toArray()  // => [[1], [2, 3]]
 		 * ```
 		 */

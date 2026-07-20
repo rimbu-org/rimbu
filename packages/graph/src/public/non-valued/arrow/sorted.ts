@@ -16,6 +16,7 @@ import { createGraphContextModule } from '#graph/non-valued/context-factory';
  * @typeparam N - the node type
  * @example
  * ```ts
+import { ArrowGraphSorted } from '@rimbu/graph/non-valued/arrow/sorted'
  * const g1 = ArrowGraphSorted.empty<number>()
  * const g2 = ArrowGraphSorted.of([1], [2, 3], [2, 4])
  * ```
@@ -39,6 +40,7 @@ export namespace ArrowGraphSorted {
 		 * and 2-valued tuples of nodes for connections.
 		 * @example
 		 * ```ts
+import { ArrowGraphSorted } from '@rimbu/graph/non-valued/arrow/sorted'
 		 * ArrowGraphSorted.of([1], [2, 3]).stream().toArray()
 		 * // => [[1], [2, 3]]
 		 * ```

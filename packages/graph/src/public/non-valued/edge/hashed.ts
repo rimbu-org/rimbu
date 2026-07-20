@@ -16,6 +16,7 @@ import { createGraphContextModule } from '#graph/non-valued/context-factory';
  * @typeparam N - the node type
  * @example
  * ```ts
+import { EdgeGraphHashed } from '@rimbu/graph/non-valued/edge/hashed'
  * const g1 = EdgeGraphHashed.empty<number>()
  * const g2 = EdgeGraphHashed.of([1], [2, 3], [2, 4])
  * ```
@@ -39,6 +40,7 @@ export namespace EdgeGraphHashed {
 		 * and 2-valued tuples of nodes for connections.
 		 * @example
 		 * ```ts
+import { EdgeGraphHashed } from '@rimbu/graph/non-valued/edge/hashed'
 		 * EdgeGraphHashed.of([1], [2, 3]).stream().toArray()  // => [[1], [2, 3]]
 		 * ```
 		 */

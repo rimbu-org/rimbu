@@ -25,6 +25,7 @@ export namespace EdgeGraphBase {
 		 * and 2-valued tuples of nodes for connections.
 		 * @example
 		 * ```ts
+import { EdgeGraphHashed } from '@rimbu/graph/non-valued/edge/hashed'
 		 * EdgeGraphHashed.of([1], [2, 3]).stream().toArray()  // => [[1], [2, 3]]
 		 * ```
 		 */

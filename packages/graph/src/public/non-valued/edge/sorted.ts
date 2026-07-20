@@ -16,6 +16,7 @@ import { createGraphContextModule } from '#graph/non-valued/context-factory';
  * @typeparam N - the node type
  * @example
  * ```ts
+import { EdgeGraphSorted } from '@rimbu/graph/non-valued/edge/sorted'
  * const g1 = EdgeGraphSorted.empty<number>()
  * const g2 = EdgeGraphSorted.of([1], [2, 3], [2, 4])
  * ```
@@ -39,6 +40,7 @@ export namespace EdgeGraphSorted {
 		 * and 2-valued tuples of nodes for connections.
 		 * @example
 		 * ```ts
+import { EdgeGraphSorted } from '@rimbu/graph/non-valued/edge/sorted'
 		 * EdgeGraphSorted.of([1], [2, 3]).stream().toArray()  // => [[1], [2, 3]]
 		 * ```
 		 */

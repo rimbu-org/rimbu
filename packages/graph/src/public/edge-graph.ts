@@ -29,6 +29,7 @@ export namespace EdgeGraph {
 		 * See the [Graph documentation](https://rimbu.org/docs/collections/graph) and the [EdgeGraph API documentation](https://rimbu.org/api/rimbu/graph/EdgeGraph/interface)
 		 * @example
 		 * ```ts
+import { EdgeGraphHashed } from '@rimbu/graph/non-valued/edge/hashed'
 		 * EdgeGraphHashed.of([1], [2, 3]).stream().toArray()  // => [[1], [2, 3]]
 		 * ```
 		 */

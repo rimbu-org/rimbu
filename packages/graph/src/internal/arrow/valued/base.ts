@@ -19,7 +19,8 @@ export interface ArrowValuedGraphBase<
 	 * @param node - the node to check
 	 * @example
 	 * ```ts
-	 * const g = ArrowValuesGraphSorted.of([1, 2, 'a'], [2, 3, 'b'])
+	 * import { ArrowValuedGraphSorted } from '@rimbu/graph/valued/arrow/sorted'
+	 * const g = ArrowValuedGraphSorted.of([1, 2, 'a'], [2, 3, 'b'])
 	 * g.isSink(1)  // => false
 	 * g.isSink(3)  // => true
 	 * ```
@@ -31,7 +32,8 @@ export interface ArrowValuedGraphBase<
 	 * @param node - the node to check
 	 * @example
 	 * ```ts
-	 * const g = ArrowValuesGraphSorted.of([1, 2, 'a'], [2, 3, 'b'])
+	 * import { ArrowValuedGraphSorted } from '@rimbu/graph/valued/arrow/sorted'
+	 * const g = ArrowValuedGraphSorted.of([1, 2, 'a'], [2, 3, 'b'])
 	 * g.isSource(1)  // => true
 	 * g.isSource(3)  // => false
 	 * ```
@@ -55,6 +57,7 @@ export namespace ArrowValuedGraphBase {
 		 * and 3-valued tuples containing the source node, target node, and connection value for connections.
 		 * @example
 		 * ```ts
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 		 * ArrowValuedGraphHashed.of([1, 2, 'a'], [2, 3, 'b']).stream().toArray()
 		 * // => [[1, 2, 'a'], [2, 3, 'b']]
 		 * ```
