@@ -45,6 +45,10 @@
 		}
 	},
 	"imports": {
+		"#ordered/*": {
+			"types": "./dist/internal/*.d.ts",
+			"default": "./dist/internal/*.js"
+		},
 		"#map/*": {
 			"types": "./dist/internal/map/*.d.ts",
 			"default": "./dist/internal/map/*.js"
@@ -66,7 +70,7 @@
 		"clean:build": "rimraf dist",
 		"format:check": "biome format src",
 		"lint:check": "biome lint src",
-		"test": "bun test test/* --tsconfig-override tsconfig.common.json",
+		"test": "bun test test/*",
 		"test:random": "bun test test-random",
 		"typecheck": "tsc -p tsconfig.json --noEmit"
 	},

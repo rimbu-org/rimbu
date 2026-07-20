@@ -1,5 +1,5 @@
-import type { RSet } from '@rimbu/collection-types';
-import type { WithElem } from '@rimbu/collection-types/advanced/common';
+import type { RMap } from '@rimbu/collection-types';
+import type { RMapBase } from '@rimbu/collection-types/advanced/map/base';
 import type { OrderedSet } from '@rimbu/ordered/set';
 
 import type { OrderedSetBase } from '#set/base';
@@ -7,7 +7,9 @@ import type { OrderedSetCreators } from '#set/creators';
 
 import { RSetContextBaseModule } from '@rimbu/collection-types/advanced/set/base-module';
 import { Module } from '@rimbu/common/module';
-import { List } from '@rimbu/list';
+import { HashMap } from '@rimbu/hashed';
+import { SortedMap } from '@rimbu/sorted';
+import { Indicator } from '../common/ordered-indicator';
 
 import { OrderedSetBuilder } from '#set/builder';
 import { OrderedSetEmpty } from '#set/empty';
@@ -15,8 +17,8 @@ import { OrderedSetNonEmpty } from '#set/non-empty';
 
 interface ImmutableFactory<UT> {
 	createNonEmpty<T extends UT>(
-		order: List.NonEmpty<T>,
-		sourceSet: WithElem<OrderedSetBase.Types, T>['sourceSetNonEmpty'],
+		keyIndicatorMap: RMap.NonEmpty<T, Indicator>,
+		indicatorKeyMap: SortedMap.NonEmpty<Indicator, T>,
 	): OrderedSet.NonEmpty<T>;
 }
 
@@ -34,13 +36,16 @@ export interface ContextImpl<UT>
 		BuilderFactory<UT>,
 		OrderedSetCreators {
 	defaultContext<T extends UT>(): OrderedSet.Context<T>;
+	readonly keyMapContext: RMapBase.Context<UT>;
+	readonly indicatorMapContext: SortedMap.Context<Indicator>;
 }
 
 export function createOrderedSetContextModule<UT>(
-	options: {
-		listContext?: List.Context;
-		setContext: RSet.Context<UT>;
-	},
+	options?:
+		| {
+				keyMapContext?: RMap.Context<UT> | undefined;
+		  }
+		| undefined,
 	_defaultContext?: OrderedSet.Context<UT> | undefined,
 ): Module<ContextImpl<UT>> {
 	const baseModule = RSetContextBaseModule.createContextModuleBase<
@@ -53,13 +58,13 @@ export function createOrderedSetContextModule<UT>(
 		requires: ContextImpl<UT>;
 	}>((mod) => ({
 		createNonEmpty: <T extends UT>(
-			order: List.NonEmpty<T>,
-			sourceSet: RSet.NonEmpty<T>,
-		): OrderedSetNonEmpty<T> => {
+			keyIndicatorMap: RMap.NonEmpty<T, Indicator>,
+			indicatorKeyMap: SortedMap.NonEmpty<Indicator, T>,
+		): OrderedSet.NonEmpty<T> => {
 			return new OrderedSetNonEmpty<T>(
 				mod as unknown as ContextImpl<T>,
-				order,
-				sourceSet,
+				keyIndicatorMap,
+				indicatorKeyMap,
 			);
 		},
 	}));
@@ -89,13 +94,15 @@ export function createOrderedSetContextModule<UT>(
 
 		typeTag: 'OrderedSet',
 
-		listContext: Module.lazyGetter(
-			() => options.listContext ?? List.defaultContext,
+		keyMapContext: Module.lazyGetter(
+			() => options?.keyMapContext ?? HashMap.defaultContext<UT>(),
 		),
-		setContext: Module.lazyGetter(() => options.setContext),
+		indicatorMapContext: Module.lazyGetter(() =>
+			SortedMap.createContext<Indicator>({ comp: Indicator.COMP_INSTANCE }),
+		),
 
 		isValidValue(value: any): value is UT {
-			return mod.setContext.isValidValue(value);
+			return mod.keyMapContext.isValidKey(value);
 		},
 		isNonEmptyInstance(source: any): source is any {
 			return source instanceof OrderedSetNonEmpty;

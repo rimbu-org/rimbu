@@ -33,19 +33,20 @@ export namespace PathInternal {
 		Write extends boolean,
 		Maybe extends boolean,
 		First extends boolean,
-	> = PathInternal.IsOptional<T> extends true
-		? // the value T may be null or undefined, check whether further chaining is allowed
-			Write extends false
-			? // path is not used to write to, so optional chaining is allowed
-				PathInternal.Generic<Exclude<T, undefined | null>, Write, true>
-			: // path can be written to, no optional chaining allowed
-				never
-		: // determine separator, and continue with non-optional value
-			`${PathInternal.Separator<
-				First,
-				Maybe,
-				IsArray<T>
-			>}${PathInternal.NonOptional<T, Write, Maybe>}`;
+	> =
+		PathInternal.IsOptional<T> extends true
+			? // the value T may be null or undefined, check whether further chaining is allowed
+				Write extends false
+				? // path is not used to write to, so optional chaining is allowed
+					PathInternal.Generic<Exclude<T, undefined | null>, Write, true>
+				: // path can be written to, no optional chaining allowed
+					never
+			: // determine separator, and continue with non-optional value
+				`${PathInternal.Separator<
+					First,
+					Maybe,
+					IsArray<T>
+				>}${PathInternal.NonOptional<T, Write, Maybe>}`;
 
 	/**
 	 * Determines the allowed paths into a non-optional value of type `T`.
@@ -53,25 +54,22 @@ export namespace PathInternal {
 	 * @typeparam Write - if true the path should be writable (no optional chaining)
 	 * @typeparam Maybe - if true the value at the current path is optional
 	 */
-	export type NonOptional<
-		T,
-		Write extends boolean,
-		Maybe extends boolean,
-	> = Tuple.IsTuple<T> extends true
-		? // determine allowed paths for tuple
-			PathInternal.Tup<T, Write, Maybe>
-		: T extends readonly any[]
-			? // determine allowed paths for array
-				Write extends false
-				? // path is not writable so arrays are allowed
-					PathInternal.Arr<T>
-				: // path is writable, no arrays allowed
-					never
-			: IsPlainObj<T> extends true
-				? // determine allowed paths for object
-					PathInternal.Obj<T, Write, Maybe>
-				: // no match
-					never;
+	export type NonOptional<T, Write extends boolean, Maybe extends boolean> =
+		Tuple.IsTuple<T> extends true
+			? // determine allowed paths for tuple
+				PathInternal.Tup<T, Write, Maybe>
+			: T extends readonly any[]
+				? // determine allowed paths for array
+					Write extends false
+					? // path is not writable so arrays are allowed
+						PathInternal.Arr<T>
+					: // path is writable, no arrays allowed
+						never
+				: IsPlainObj<T> extends true
+					? // determine allowed paths for object
+						PathInternal.Obj<T, Write, Maybe>
+					: // no match
+						never;
 
 	/**
 	 * Determines the allowed paths for a tuple. Since tuples have fixed types, they do not
@@ -218,17 +216,18 @@ export namespace PathResultInternal {
 	 * @typeparam K - the key to get from the source type
 	 * @typeparam Maybe - if true indicates that the path may be undefined
 	 */
-	export type Part<T, K, Maybe extends boolean> = IsArray<T> extends true
-		? Tuple.IsTuple<T> extends true
-			? // Tuple: use K to look up the specific per-index type
-				PathInternal.MaybeValue<T[K & keyof T], Maybe>
-			: // Regular array: all indices share the same element type T[number].
-				// Using T[number] is explicit and avoids relying on TypeScript's implicit
-				// string-to-number coercion when indexing arrays with a string literal key.
-				// Array element access is always potentially out-of-bounds, so Maybe=true.
-				PathInternal.MaybeValue<T[number & keyof T], true>
-		: // Plain object or other: use K to look up the key
-			PathInternal.MaybeValue<T[K & keyof T], Maybe>;
+	export type Part<T, K, Maybe extends boolean> =
+		IsArray<T> extends true
+			? Tuple.IsTuple<T> extends true
+				? // Tuple: use K to look up the specific per-index type
+					PathInternal.MaybeValue<T[K & keyof T], Maybe>
+				: // Regular array: all indices share the same element type T[number].
+					// Using T[number] is explicit and avoids relying on TypeScript's implicit
+					// string-to-number coercion when indexing arrays with a string literal key.
+					// Array element access is always potentially out-of-bounds, so Maybe=true.
+					PathInternal.MaybeValue<T[number & keyof T], true>
+			: // Plain object or other: use K to look up the key
+				PathInternal.MaybeValue<T[K & keyof T], Maybe>;
 
 	/**
 	 * Converts a path string into separate tokens in a string array.

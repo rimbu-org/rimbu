@@ -6,16 +6,18 @@ import type { OrderedMapCreators } from '#map/creators';
 
 import { RMapContextBaseModule } from '@rimbu/collection-types/advanced/map/base-module';
 import { Module } from '@rimbu/common/module';
-import { List } from '@rimbu/list';
+import { HashMap } from '@rimbu/hashed';
+import { SortedMap } from '@rimbu/sorted';
 
 import { OrderedMapBuilder } from '#map/builder';
 import { OrderedMapEmpty } from '#map/empty';
 import { OrderedMapNonEmpty } from '#map/non-empty';
+import { Indicator } from '#ordered/common/ordered-indicator';
 
 interface ImmutableFactory<UK> {
 	createNonEmpty<K extends UK, V>(
-		order: List.NonEmpty<K>,
-		sourceMap: RMap.NonEmpty<K, V>,
+		indicatorKeyMap: RMap.NonEmpty<K, [V, Indicator]>,
+		keyIndicatorMap: SortedMap.NonEmpty<Indicator, [K, V]>,
 	): OrderedMapNonEmpty<K, V>;
 }
 
@@ -37,8 +39,7 @@ export interface ContextImpl<UK>
 
 export function createOrderedMapContextModule<UK>(
 	options: {
-		listContext?: List.Context | undefined;
-		mapContext: RMap.Context<UK>;
+		keyMapContext?: RMap.Context<UK> | undefined;
 	},
 	_defaultContext?: OrderedMap.Context<UK> | undefined,
 ): Module<ContextImpl<UK>> {
@@ -52,13 +53,13 @@ export function createOrderedMapContextModule<UK>(
 		requires: ContextImpl<UK>;
 	}>((mod) => ({
 		createNonEmpty<K extends UK, V>(
-			order: List.NonEmpty<K>,
-			sourceMap: RMap.NonEmpty<K, V>,
+			indicatorKeyMap: RMap.NonEmpty<K, [V, Indicator]>,
+			keyIndicatorMap: SortedMap.NonEmpty<Indicator, [K, V]>,
 		) {
 			return new OrderedMapNonEmpty(
 				mod as unknown as ContextImpl<K>,
-				order,
-				sourceMap,
+				indicatorKeyMap,
+				keyIndicatorMap,
 			);
 		},
 	}));
@@ -92,16 +93,18 @@ export function createOrderedMapContextModule<UK>(
 		),
 
 		typeTag: 'OrderedMap',
-		listContext: Module.lazyGetter(
-			() => options.listContext ?? List.defaultContext,
+		keyMapContext: Module.lazyGetter(
+			() => options.keyMapContext ?? HashMap.defaultContext<UK>(),
 		),
-		mapContext: Module.lazyGetter(() => options.mapContext),
+		indicatorMapContext: Module.lazyGetter(() =>
+			SortedMap.defaultContext<Indicator>({ comp: Indicator.COMP_INSTANCE }),
+		),
 
 		isNonEmptyInstance(source: any): source is any {
 			return source instanceof OrderedMapNonEmpty;
 		},
 		isValidKey(key: any): key is UK {
-			return mod.mapContext.isValidKey(key);
+			return mod.keyMapContext.isValidKey(key);
 		},
 
 		empty: Module.lazy(<K>() =>

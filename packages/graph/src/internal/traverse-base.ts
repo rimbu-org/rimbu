@@ -9,7 +9,5 @@ import type { VariantGraphBase } from '#graph/variant-base';
  * @typeparam G - a graph subtype
  * @typeparam N - the graph's node type
  */
-export type LinkType<
-	G extends VariantGraphBase<any, any>,
-	N,
-> = G extends VariantValuedGraphBase<N, infer V> ? ValuedLink<N, V> : Link<N>;
+export type LinkType<G extends VariantGraphBase<any, any>, N> =
+	G extends VariantValuedGraphBase<N, infer V> ? ValuedLink<N, V> : Link<N>;

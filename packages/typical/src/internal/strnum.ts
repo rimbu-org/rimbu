@@ -174,38 +174,39 @@ export type AddDigit<D1 extends Digit, D2 extends Digit> = D1 extends '0'
  * SAdd<'139', '5232'> => '5371'
  * ```
  */
-export type Add<N1 extends string, N2 extends string> = N1 extends Str.Append<
-	// Check if N1 is non-empty
-	infer N1Start,
-	Digit
->
-	? // Check if N2 is non-empty
-		N2 extends Str.Append<infer N2Start, Digit>
-		? // Retrieve last digit of N1
-			N1 extends Str.Append<N1Start, infer N1LastDigit>
-			? // Retrieve last digit of N2
-				N2 extends Str.Append<N2Start, infer N2LastDigit>
-				? // Calculate new digit and overflow
-					AddDigit<N1LastDigit & Digit, N2LastDigit & Digit> extends [
-						infer NewDigit,
-						infer Overflow,
-					]
-					? Overflow extends true
-						? // check if more digits
-							[N1Start, N2Start] extends ['', '']
-							? // overflow and no more digits
-								Str.Append<'1', string & NewDigit>
-							: // more digits and overflow, so add 1
-								Str.Append<Add<Add<N1Start, N2Start>, '1'>, NewDigit & string>
-						: // no overflow, simple addition
-							Str.Append<Add<N1Start, N2Start>, NewDigit & string>
+export type Add<N1 extends string, N2 extends string> =
+	N1 extends Str.Append<
+		// Check if N1 is non-empty
+		infer N1Start,
+		Digit
+	>
+		? // Check if N2 is non-empty
+			N2 extends Str.Append<infer N2Start, Digit>
+			? // Retrieve last digit of N1
+				N1 extends Str.Append<N1Start, infer N1LastDigit>
+				? // Retrieve last digit of N2
+					N2 extends Str.Append<N2Start, infer N2LastDigit>
+					? // Calculate new digit and overflow
+						AddDigit<N1LastDigit & Digit, N2LastDigit & Digit> extends [
+							infer NewDigit,
+							infer Overflow,
+						]
+						? Overflow extends true
+							? // check if more digits
+								[N1Start, N2Start] extends ['', '']
+								? // overflow and no more digits
+									Str.Append<'1', string & NewDigit>
+								: // more digits and overflow, so add 1
+									Str.Append<Add<Add<N1Start, N2Start>, '1'>, NewDigit & string>
+							: // no overflow, simple addition
+								Str.Append<Add<N1Start, N2Start>, NewDigit & string>
+						: never
 					: never
 				: never
-			: never
-		: // N2 is empty, return N1
-			N1
-	: // N1 is empty, return N2
-		N2;
+			: // N2 is empty, return N1
+				N1
+		: // N1 is empty, return N2
+			N2;
 
 /**
  * Given two string digits, returns a tuple of which the first element is the resulting digit from subtracting the second from the first,
@@ -430,15 +431,13 @@ export type DigitToTup<T extends unknown[] = [unknown]> = {
  */
 export type BuildTuple<N extends string> = BuildTupleHelper<N, []>;
 
-type BuildTupleHelper<
-	N extends string,
-	Result extends unknown[],
-> = N extends Str.Append<Digit & infer D, infer Rest>
-	? BuildTupleHelper<
-			Rest,
-			[...DigitToTup[Digit & D], ...DigitToTup<Result>['10']]
-		>
-	: Result;
+type BuildTupleHelper<N extends string, Result extends unknown[]> =
+	N extends Str.Append<Digit & infer D, infer Rest>
+		? BuildTupleHelper<
+				Rest,
+				[...DigitToTup[Digit & D], ...DigitToTup<Result>['10']]
+			>
+		: Result;
 
 /**
  * Converts the given string-number to its corresponding number.
@@ -486,16 +485,14 @@ export type MultDigit<N1 extends string, D extends Digit> = N1 extends '0'
 												? Add<N1, MultDigit<N1, '8'>>
 												: never;
 
-export type Mult<N1 extends string, N2 extends string> = N2 extends Str.Append<
-	infer N2Start,
-	Digit
->
-	? N2Start extends ''
-		? MultDigit<N1, Digit & N2>
-		: N2 extends Str.Append<N2Start, infer N2Last>
-			? Add<MultDigit<N1, Digit & N2Last>, Str.Append<Mult<N1, N2Start>, '0'>>
-			: never
-	: never;
+export type Mult<N1 extends string, N2 extends string> =
+	N2 extends Str.Append<infer N2Start, Digit>
+		? N2Start extends ''
+			? MultDigit<N1, Digit & N2>
+			: N2 extends Str.Append<N2Start, infer N2Last>
+				? Add<MultDigit<N1, Digit & N2Last>, Str.Append<Mult<N1, N2Start>, '0'>>
+				: never
+		: never;
 
 export type AmountTimesIn<
 	Small extends string,

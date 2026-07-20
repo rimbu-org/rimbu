@@ -68,14 +68,12 @@ expectTypeOf(genNonEmpty.context).toEqualTypeOf<HashMap.Context<number>>();
 expectTypeOf(genEmpty.filter(() => true)).toEqualTypeOf<G_Empty>();
 expectTypeOf(genNonEmpty.filter(() => true)).toEqualTypeOf<G_Empty>();
 
-// .get(..)
-expectTypeOf(genEmpty.get(2, 'a')).toEqualTypeOf<string>();
-expectTypeOf(genNonEmpty.get(2, 'a')).toEqualTypeOf<string>();
+// .at(..)
+expectTypeOf(genEmpty.at(2, 'a')).toEqualTypeOf<string>();
+expectTypeOf(genNonEmpty.at(2, 'a')).toEqualTypeOf<string>();
 
-expectTypeOf(genEmpty.get(2, true as boolean)).toEqualTypeOf<
-	string | boolean
->();
-expectTypeOf(genNonEmpty.get(2, true as boolean)).toEqualTypeOf<
+expectTypeOf(genEmpty.at(2, true as boolean)).toEqualTypeOf<string | boolean>();
+expectTypeOf(genNonEmpty.at(2, true as boolean)).toEqualTypeOf<
 	string | boolean
 >();
 

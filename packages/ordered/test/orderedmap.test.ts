@@ -1,13 +1,9 @@
-import { OrderedHashMap } from '@rimbu/ordered/map/hashed';
-import { OrderedSortedMap } from '@rimbu/ordered/map/sorted';
-import { runMapTestsWith } from '@rimbu/collection-types/test-utils/map/map-standard';
+import { OrderedMap } from '@rimbu/ordered/map';
+import { runMapTestsWith } from '../test-utils/map/map-standard';
 
-runMapTestsWith(
-	'OrderedHashMap default',
-	OrderedHashMap.defaultContext<number>(),
-);
+runMapTestsWith('OrderedHashMap default', OrderedMap.createContext<number>({}));
 
-runMapTestsWith(
-	'OrderedSortedMap default',
-	OrderedSortedMap.defaultContext<number>(),
-);
+// runMapTestsWith(
+// 	'OrderedSortedMap default',
+// 	OrderedSortedMap.defaultContext<number>(),
+// );

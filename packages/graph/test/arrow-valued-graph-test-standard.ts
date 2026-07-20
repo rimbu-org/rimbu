@@ -316,7 +316,7 @@ export function runGraphTestsWith(
 		it('linkMap', () => {
 			expect(graphEmpty.linkMap).toBe(G.linkMapContext.empty());
 			expect(graph3.linkMap.size).toBe(3);
-			expect(graph3.linkMap.get('a')!.toArray()).toEqual([['b', 1]]);
+			expect(graph3.linkMap.at('a')!.toArray()).toEqual([['b', 1]]);
 		});
 
 		it('mapValues', () => {

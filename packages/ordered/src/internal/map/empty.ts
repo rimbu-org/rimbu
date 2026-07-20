@@ -1,6 +1,4 @@
-import type { RMap } from '@rimbu/collection-types';
 import type { ToJSON, WithValueResult } from '@rimbu/common/types';
-import type { List } from '@rimbu/list';
 import type { OrderedMap } from '@rimbu/ordered/map';
 
 import type { OrderedMapBase } from '#map/base';
@@ -14,6 +12,8 @@ import { EmptyBase } from '@rimbu/collection-types/advanced/common/empty-base';
 import { OptLazy } from '@rimbu/common/opt-lazy';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
+import { Indicator } from '#ordered/common/ordered-indicator';
+
 export class OrderedMapEmpty<K = any, V = any>
 	extends EmptyBase
 	implements OrderedMapBase<K, V>
@@ -22,14 +22,6 @@ export class OrderedMapEmpty<K = any, V = any>
 
 	constructor(readonly context: ContextImpl<K>) {
 		super();
-	}
-
-	get keyOrder(): List<K> {
-		return this.context.listContext.empty();
-	}
-
-	get sourceMap(): RMap<K, V> {
-		return this.context.mapContext.empty();
 	}
 
 	streamKeys(): Stream<K> {
@@ -52,10 +44,13 @@ export class OrderedMapEmpty<K = any, V = any>
 		return this.addEntry([key, value]);
 	}
 
-	addEntry(entry: readonly [K, V]): OrderedMap.NonEmpty<K, V> {
+	addEntry(entry: [K, V]): OrderedMap.NonEmpty<K, V> {
 		return this.context.createNonEmpty<K, V>(
-			this.context.listContext.of(entry[0]),
-			this.context.mapContext.of(entry),
+			this.context.keyMapContext.of([
+				entry[0],
+				[entry[1], Indicator.INIT_INDICATOR],
+			]),
+			this.context.indicatorMapContext.of([Indicator.INIT_INDICATOR, entry]),
 		);
 	}
 

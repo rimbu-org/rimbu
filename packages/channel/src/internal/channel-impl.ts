@@ -1,9 +1,9 @@
 import type { Channel } from '@rimbu/channel';
 
 import { AsyncOptLazy } from '@rimbu/common/async-opt-lazy';
-import { AsyncStream, type AsyncStreamSource } from '@rimbu/stream/async';
 import { AsyncFastIteratorBase } from '@rimbu/stream/advanced/async/fast-iterator-base';
 import { AsyncFromStream } from '@rimbu/stream/advanced/async/stream-base';
+import { AsyncStream, type AsyncStreamSource } from '@rimbu/stream/async';
 
 import { ChannelError } from '#channel/channel-error';
 import { attachAbort, createCleaner, timeoutAction } from '#channel/utils';
