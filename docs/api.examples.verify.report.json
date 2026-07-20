@@ -1,10 +1,146 @@
 {
-  "generatedAt": "2026-07-20T07:01:13.810Z",
-  "filter": "task/",
-  "totalSnippets": 1,
+  "generatedAt": "2026-07-20T07:48:54.748Z",
+  "filter": "table/",
+  "totalSnippets": 312,
   "checkedOutputs": 0,
   "checkedInferredTypes": 0,
-  "mismatches": 0,
+  "mismatches": 18,
   "strict": false,
-  "details": []
+  "details": [
+    {
+      "key": "table/VariantTableBase::forEach::0::0",
+      "ownerId": "table/VariantTableBase",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "console.log #1 has no \"// =>\" output comment",
+      "actual": "[ [ 1, 2, 3 ] ]"
+    },
+    {
+      "key": "table/VariantTableBase::forEach::0::0",
+      "ownerId": "table/VariantTableBase",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "captured 2 logs but only 1 console.log statements parsed"
+    },
+    {
+      "key": "table/TableBase.Builder::forEach::0::0",
+      "ownerId": "table/TableBase.Builder",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "console.log #1 has no \"// =>\" output comment",
+      "actual": "[ [ 1, 2, 3 ] ]"
+    },
+    {
+      "key": "table/TableBase.Builder::forEach::0::0",
+      "ownerId": "table/TableBase.Builder",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "captured 2 logs but only 1 console.log statements parsed"
+    },
+    {
+      "key": "table/TableBase::forEach::0::0",
+      "ownerId": "table/TableBase",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "console.log #1 has no \"// =>\" output comment",
+      "actual": "[ [ 1, 2, 3 ] ]"
+    },
+    {
+      "key": "table/TableBase::forEach::0::0",
+      "ownerId": "table/TableBase",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "captured 2 logs but only 1 console.log statements parsed"
+    },
+    {
+      "key": "table/HashTableHashColumn::forEach::0::0",
+      "ownerId": "table/HashTableHashColumn",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "console.log #1 has no \"// =>\" output comment",
+      "actual": "[ [ 1, 2, 3 ] ]"
+    },
+    {
+      "key": "table/HashTableHashColumn::forEach::0::0",
+      "ownerId": "table/HashTableHashColumn",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "captured 2 logs but only 1 console.log statements parsed"
+    },
+    {
+      "key": "table/HashTableSortedColumn::forEach::0::0",
+      "ownerId": "table/HashTableSortedColumn",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "console.log #1 has no \"// =>\" output comment",
+      "actual": "[ [ 1, 2, 3 ] ]"
+    },
+    {
+      "key": "table/HashTableSortedColumn::forEach::0::0",
+      "ownerId": "table/HashTableSortedColumn",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "captured 2 logs but only 1 console.log statements parsed"
+    },
+    {
+      "key": "table/SortedTableHashColumn::forEach::0::0",
+      "ownerId": "table/SortedTableHashColumn",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "console.log #1 has no \"// =>\" output comment",
+      "actual": "[ [ 1, 2, 3 ] ]"
+    },
+    {
+      "key": "table/SortedTableHashColumn::forEach::0::0",
+      "ownerId": "table/SortedTableHashColumn",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "captured 2 logs but only 1 console.log statements parsed"
+    },
+    {
+      "key": "table/SortedTableSortedColumn::forEach::0::0",
+      "ownerId": "table/SortedTableSortedColumn",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "console.log #1 has no \"// =>\" output comment",
+      "actual": "[ [ 1, 2, 3 ] ]"
+    },
+    {
+      "key": "table/SortedTableSortedColumn::forEach::0::0",
+      "ownerId": "table/SortedTableSortedColumn",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "captured 2 logs but only 1 console.log statements parsed"
+    },
+    {
+      "key": "table/Table::forEach::0::0",
+      "ownerId": "table/Table",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "console.log #1 has no \"// =>\" output comment",
+      "actual": "[ [ 1, 2, 3 ] ]"
+    },
+    {
+      "key": "table/Table::forEach::0::0",
+      "ownerId": "table/Table",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "captured 2 logs but only 1 console.log statements parsed"
+    },
+    {
+      "key": "table/VariantTable::forEach::0::0",
+      "ownerId": "table/VariantTable",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "console.log #1 has no \"// =>\" output comment",
+      "actual": "[ [ 1, 2, 3 ] ]"
+    },
+    {
+      "key": "table/VariantTable::forEach::0::0",
+      "ownerId": "table/VariantTable",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "captured 2 logs but only 1 console.log statements parsed"
+    }
+  ]
 }

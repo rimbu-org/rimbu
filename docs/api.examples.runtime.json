@@ -13601,1564 +13601,2218 @@
     "typeChecks": true
   },
   "table/VariantTableBase.NonEmpty::rowMap::0::0": {
-    "code": "const m = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nconst map: HashMap.NonEmpty<number, HashMap.NonEmpty<number, number>> = m.rowMap",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nimport { HashMap } from '@rimbu/hashed'\nconst m = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nconst map: HashMap.NonEmpty<number, HashMap.NonEmpty<number, number>> = m.rowMap",
+    "packages": [
+      "@rimbu/hashed",
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTableBase.NonEmpty::isEmpty::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).isEmpty   // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).isEmpty   // => false",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTableBase.NonEmpty::assumeNonEmpty::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt === t.assumeNonEmpty()  // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt === t.assumeNonEmpty()  // => true",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTableBase.NonEmpty::asNormal::0::0": {
-    "code": "Table.of([1, 1, 1], [2, 2, 2]).asNormal();  // type: Table<number, number, number>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 1, 1], [2, 2, 2]).asNormal();  // type: Table<number, number, number>",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTableBase.NonEmpty::nonEmpty::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).nonEmpty()   // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).nonEmpty()   // => true",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTableBase.NonEmpty::stream::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).stream().toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).stream().toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTableBase.NonEmpty::streamRows::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).streamRows().toArray()\n// => [1]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).streamRows().toArray()\n// => [1]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTableBase.NonEmpty::streamValues::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).streamValues().toArray()\n// => [3, 5]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).streamValues().toArray()\n// => [3, 5]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTableBase.NonEmpty::mapValues::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .mapValues(value => value * 2)\n// => [[1, 2, 6], [1, 4, 10], [2, 3, 10]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .mapValues(value => value * 2)\n// => [[1, 2, 6], [1, 4, 10], [2, 3, 10]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTableBase.NonEmpty::toArray::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTableBase::rowMap::0::0": {
-    "code": "const m = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nconst map: HashMap<number, HashMap.NonEmpty<number, number>> = m.rowMap",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nimport { HashMap } from '@rimbu/hashed'\nconst m = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nconst map: HashMap<number, HashMap.NonEmpty<number, number>> = m.rowMap",
+    "packages": [
+      "@rimbu/hashed",
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTableBase::isEmpty::0::0": {
-    "code": "HashTableHashColumn.empty<number, number, number>().isEmpty   // => true\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).isEmpty          // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.empty<number, number, number>().isEmpty   // => true\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).isEmpty          // => false",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTableBase::size::0::0": {
-    "code": "HashTableHashColumn.empty<number, number, number>().size   // => 0\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).size          // => 2",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.empty<number, number, number>().size   // => 0\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).size          // => 2",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTableBase::amountRows::0::0": {
-    "code": "HashTableHashColumn.empty<number, number, number>().amountRows   // => 0\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).amountRows          // => 1",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.empty<number, number, number>().amountRows   // => 0\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).amountRows          // => 1",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTableBase::nonEmpty::0::0": {
-    "code": "const m: Table<number, number> = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nm.stream().first(0)     // compiler allows fallback value since the Stream may be empty\nif (m.nonEmpty()) {\n  m.stream().first(0)   // compiler error: fallback value not allowed since Stream is not empty\n}",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nimport { Table } from '@rimbu/table'\nimport { Stream } from '@rimbu/stream'\nconst m: Table<number, number, number> = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nif (m.nonEmpty()) {\n  const n: Table.NonEmpty<number, number, number> = m\n}",
+    "packages": [
+      "@rimbu/stream",
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTableBase::assumeNonEmpty::0::0": {
-    "code": "HashTableHashColumn.empty<number, number, number>().assumeNonEmpty()   // => throws\nconst m: Table<number, number, number> = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nconst m2: Table.NonEmpty<number, number> = m     // => compiler error\nconst m3: Table.NonEmpty<number, number> = m.assumeNonEmpty()",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nimport { Table } from '@rimbu/table'\nHashTableHashColumn.empty<number, number, number>().assumeNonEmpty()   // => throws\nconst m = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).assumeNonEmpty()",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTableBase::stream::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).stream().toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).stream().toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTableBase::streamRows::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).streamRows().toArray()\n// => [1]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).streamRows().toArray()\n// => [1]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTableBase::streamValues::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).streamValues().toArray()\n// => [3, 5]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).streamValues().toArray()\n// => [3, 5]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTableBase::hasRowKey::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.hasRowKey(10)    // => false\nt.hasRowKey(1)     // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.hasRowKey(10)    // => false\nt.hasRowKey(1)     // => true",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTableBase::hasValueAt::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.hasValueAt(10, 1)    // => false\nt.hasValueAt(1, 4)     // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.hasValueAt(10, 1)    // => false\nt.hasValueAt(1, 4)     // => true",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTableBase::at::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.at(10, 1)     // => undefined\nt.at(10, 1, 0)  // => 0\nt.at(1, 2)      // => 3\nt.at(1, 2, 0)   // => 3",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.at(10, 1)     // => undefined\nt.at(10, 1, 0)  // => 0\nt.at(1, 2)      // => 3\nt.at(1, 2, 0)   // => 3",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTableBase::rowAt::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.getRow(10).toArray()    // => []\nt.getRow(1).toArray()     // => [[2, 3], [4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.rowAt(10).toArray()    // => []\nt.rowAt(1).toArray()     // => [[2, 3], [4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTableBase::remove::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.remove(10, 11).toArray()   // => [[1, 2, 3], [1, 4, 5]]\nt.remove(1, 4).toArray()     // => [[1, 2, 3]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.remove(10, 11).toArray()   // => [[1, 2, 3], [1, 4, 5]]\nt.remove(1, 4).toArray()     // => [[1, 2, 3]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTableBase::removeRow::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 2, 3])\nt.removeRow(10).toArray()   // => [[1, 2, 3], [1, 4, 5], [2, 2, 3]]\nt.removeRow(1).toArray()    // => [[2, 2, 3]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 2, 3])\nt.removeRow(10).toArray()   // => [[1, 2, 3], [1, 4, 5], [2, 2, 3]]\nt.removeRow(1).toArray()    // => [[2, 2, 3]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTableBase::removeAndGet::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeAndGet(10, 11)  // => [HashTableHashColumn([1, 2, 3], [1, 4, 5]), undefined, false]\nt.removeAndGet(1, 2)    // => [HashTableHashColumn([1, 4, 5]), 3, true]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeAndGet(10, 11)  // => [HashTableHashColumn([1, 2, 3], [1, 4, 5]), undefined, false]\nt.removeAndGet(1, 2)    // => [HashTableHashColumn([1, 4, 5]), 3, true]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTableBase::removeRowAndGet::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeRowAndGet(10)    // => [HashTableHashColumn([1, 2, 3], [1, 4, 5]), undefined, false]\nt.removeRowAndGet(1)     // => [HashTableHashColumn(), HashMap(2 => 3, 4 => 5), true]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nimport { HashMap } from '@rimbu/hashed'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeRowAndGet(10)    // => [HashTableHashColumn([1, 2, 3], [1, 4, 5]), undefined, false]\nt.removeRowAndGet(1)     // => [HashTableHashColumn(), HashMap(2 => 3, 4 => 5), true]",
+    "packages": [
+      "@rimbu/hashed",
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTableBase::removeRows::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeRows([10, 11]).toArray()   // => [[1, 2, 3], [1, 4, 5]]\nt.removeRows([1, 10]).toArray()    // => []",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeRows([10, 11]).toArray()   // => [[1, 2, 3], [1, 4, 5]]\nt.removeRows([1, 10]).toArray()    // => []",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTableBase::removeEntries::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeEntries([[6, 7, 8], [7, 8, 9]]).toArray()  // => [[1, 2, 3], [1, 4, 5]]\nt.removeEntries([[6, 7, 8], [1, 2, 3]]).toArray()  // => [[1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeEntries([[6, 7], [7, 8]]).toArray()  // => [[1, 2, 3], [1, 4, 5]]\nt.removeEntries([[1, 2]]).toArray()  // => [[1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTableBase::forEach::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .forEach((entry, i, halt) => {\n    console.log([entry]);\n    if (i >= 1) halt();\n  })\n// => logs [1, 2, 3]  [1, 4, 5]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .forEach((entry, i, halt) => {\n    console.log([entry]);\n    if (i >= 1) halt();\n  })\n// => logs [1, 2, 3]  [1, 4, 5]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTableBase::filter::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .filter(entry => entry[2] === 5).toArray()\n// => [[1, 4, 5], [2, 3, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .filter(entry => entry[2] === 5).toArray()\n// => [[1, 4, 5], [2, 3, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTableBase::filterRows::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .filterRows((rowKey, values) => rowKey === 1 && values.hasKey(4)).toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .filterRows(([rowKey, values]) => rowKey === 1 && values.hasKey(4)).toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTableBase::mapValues::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .mapValues(value => value * 2)\n// => [[1, 2, 6], [1, 4, 10], [2, 3, 10]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .mapValues(value => value * 2)\n// => [[1, 2, 6], [1, 4, 10], [2, 3, 10]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTableBase::toArray::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTableBase::toString::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toString()\n// => HashTableHashColumn([1, 2] -> 3, [1, 4] -> 5)",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toString()\n// => HashTableHashColumn([1, 2] -> 3, [1, 4] -> 5)",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTableBase::toJSON::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toJSON()\n// => { dataType: 'HashTableHashColumn', value: [[1, [[2, 3], [4, 5]]]] }",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toJSON()\n// => { dataType: 'HashTableHashColumn', value: [[1, [[2, 3], [4, 5]]]] }",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase.NonEmpty::stream::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).stream().toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).stream().toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase.NonEmpty::addEntries::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3])\nt.addEntries([[1, 4, 5], [2, 6, 8]]).toArray()\n// => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3])\nt.addEntries([[1, 4, 5], [2, 6, 8]]).toArray()\n// => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase.NonEmpty::updateAt::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.updateAt(1, 2, v => v * 2).toArray()\n// => [[1, 2, 6], [1, 4, 5]]\nt.updateAt(3, 4, v => v * 2)\n// => [[1, 2, 3], [1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.updateAt(1, 2, v => v * 2).toArray()\n// => [[1, 2, 6], [1, 4, 5]]\nt.updateAt(3, 4, v => v * 2)\n// => [[1, 2, 3], [1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase.Factory::empty::0::0": {
-    "code": "HashTableHashColumn.empty<number, string, boolean>()    // => HashTableHashColumn<number, string, boolean>\nHashTableHashColumn.empty<string, boolean, number>()    // => HashTableHashColumn<string, boolean, number>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.empty<number, string, boolean>()    // => HashTableHashColumn<number, string, boolean>\nHashTableHashColumn.empty<string, boolean, number>()    // => HashTableHashColumn<string, boolean, number>",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase.Factory::of::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5])    // => HashTableHashColumn.NonEmpty<number, number, number>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5])    // => HashTableHashColumn.NonEmpty<number, number, number>",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase.Factory::from::0::0": {
-    "code": "HashTableHashColumn.from([[1, 2, 3], [1, 4, 5]])    // => HashTableHashColumn.NonEmpty<number, number, number>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.from([[1, 2, 3], [1, 4, 5]])    // => HashTableHashColumn.NonEmpty<number, number, number>",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase.Factory::builder::0::0": {
-    "code": "HashTableHashColumn.builder<number, string, boolean>()    // => HashTableHashColumn.Builder<number, string, boolean>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.builder<number, string, boolean>()    // => HashTableHashColumn.Builder<number, string, boolean>",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase.Factory::reducer::0::0": {
-    "code": "const someSource = HashTableHashColumn.of([1, 'a', true], [2, 'b', false]);\nconst result = Stream.of([1, 'c', true], [3, 'a', false]).reduce(HashTableHashColumn.reducer(someSource))\nresult.toArray()   // => [[1, 'a', true], [1, 'c', true], [2, 'b', false], [3, 'a', false]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nimport { Stream } from '@rimbu/stream'\nconst someSource = HashTableHashColumn.of([1, 'a', true], [2, 'b', false]);\nconst result = Stream.of<readonly [number, string, boolean]>([1, 'c', true], [3, 'a', false]).reduce(HashTableHashColumn.reducer(someSource))\nresult.toArray()   // => [[1, 'a', true], [1, 'c', true], [2, 'b', false], [3, 'a', false]]",
+    "packages": [
+      "@rimbu/stream",
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase.Context::typeTag::0::0": {
-    "code": "HashTableHashColumn.defaultContext().typeTag   // => 'HashTableHashColumn'",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.defaultContext().typeTag   // => 'HashTableHashColumn'",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase.Builder::size::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .toBuilder()\n  .size\n// => 3",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .toBuilder()\n  .size\n// => 3",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase.Builder::isEmpty::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .toBuilder()\n  .isEmpty\n// => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .toBuilder()\n  .isEmpty\n// => false",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase.Builder::amountRows::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .toBuilder()\n  .amountRows\n// => 2",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .toBuilder()\n  .amountRows\n// => 2",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase.Builder::get::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()\nt.get(10, 1)     // => undefined\nt.get(10, 1, 0)  // => 0\nt.get(1, 2)      // => 3\nt.get(1, 2, 0)   // => 3",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()\nt.get(10, 1)     // => undefined\nt.get(10, 1, 0)  // => 0\nt.get(1, 2)      // => 3\nt.get(1, 2, 0)   // => 3",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase.Builder::getRow::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()\nt.getRow(10).toArray()    // => []\nt.getRow(1).toArray()     // => [[2, 3], [4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()\nt.getRow(10).toArray()    // => []\nt.getRow(1).toArray()     // => [[2, 3], [4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase.Builder::hasValueAt::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()\nt.hasValueAt(10, 1)    // => false\nt.hasValueAt(1, 4)     // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()\nt.hasValueAt(10, 1)    // => false\nt.hasValueAt(1, 4)     // => true",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase.Builder::hasRowKey::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()\nt.hasRowKey(10)    // => false\nt.hasRowKey(1)     // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()\nt.hasRowKey(10)    // => false\nt.hasRowKey(1)     // => true",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase.Builder::set::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()\nt.set(1, 2, 3)   // => false\nt.set(1, 3, 8)   // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()\nt.set(1, 2, 3)   // => false\nt.set(1, 3, 8)   // => true",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase.Builder::addEntry::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()\nt.addEntry([1, 2, 3])   // => false\nt.addEntry([1, 3, 8])   // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()\nt.addEntry([1, 2, 3])   // => false\nt.addEntry([1, 3, 8])   // => true",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase.Builder::addEntries::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()\nt.addEntries([[1, 2, 3], [1, 2, 3]])  // => false\nt.addEntries([[1, 2, 3], [2, 3, 4]])  // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()\nt.addEntries([[1, 2, 3], [1, 2, 3]])  // => false\nt.addEntries([[1, 2, 3], [2, 3, 4]])  // => true",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase.Builder::remove::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()\nt.remove(5, 6)        // => undefined\nt.remove(5, 6, 'a')   // => 'a'\nt.remove(1, 2)        // => 3\nt.remove(1, 4, 'a')   // => 5",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()\nt.remove(5, 6)        // => undefined\nt.remove(5, 6, 'a')   // => 'a'\nt.remove(1, 2)        // => 3\nt.remove(1, 4, 'a')   // => 5",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase.Builder::removeRow::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5]).toBuilder()\nt.removeRow(5)   // => false\nt.removeRow(1)   // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5]).toBuilder()\nt.removeRow(5)   // => false\nt.removeRow(1)   // => true",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase.Builder::removeRows::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5]).toBuilder()\nt.removeRows([10, 11])  // => false\nt.removeRows([1, 10])   // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5]).toBuilder()\nt.removeRows([10, 11])  // => false\nt.removeRows([1, 10])   // => true",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase.Builder::removeEntries::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5]).toBuilder()\nt.removeEntries([[7, 8, 9], [9, 8, 7]])  // => false\nt.removeEntries([[7, 8, 9], [1, 2, 3]])  // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5]).toBuilder()\nt.removeEntries([[7, 8], [9, 8]])  // => false\nt.removeEntries([[7, 8], [1, 2]])  // => true",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase.Builder::forEach::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .toBuilder()\n  .forEach((entry, i, halt) => {\n    console.log([entry]);\n    if (i >= 1) halt();\n  })\n// => logs [1, 2, 3]  [1, 4, 5]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .toBuilder()\n  .forEach((entry, i, halt) => {\n    console.log([entry]);\n    if (i >= 1) halt();\n  })\n// => logs [1, 2, 3]  [1, 4, 5]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase.Builder::modifyAt::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()\nt.modifyAt(2, 5, { ifNew: 8 })\n// => true\nt.modifyAt(2, 6, { ifNew: (none) => 1 < 2 ? none : 8 })\n// => false\nt.modifyAt(1, 2, { ifExists: (v) => v * 2 })\n// => true\nt.modifyAt(1, 2, { ifExists: (v, remove) => remove })\n// => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()\nt.modifyAt(2, 5, { ifNew: { set: 8 } })\n// => true\nt.modifyAt(2, 6, { ifNew: { create: () => 8 } })\n// => false\nt.modifyAt(1, 2, { ifExists: { set: 6 } })\n// => true\nt.modifyAt(1, 2, { ifExists: { update: (v, remove) => remove } })\n// => true",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase.Builder::updateAt::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.updateAt(3, 4, v => v * 2)        // => undefined\nt.updateAt(3, 4, v => v * 2, 'a')   // => 'a'\nt.updateAt(1, 2, v => v * 2)        // => true\nt.updateAt(1, 2, v => v * 2, 'a')   // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.updateAt(3, 4, v => v * 2)        // => undefined\nt.updateAt(1, 2, v => v * 2)        // => 3",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase.Builder::build::0::0": {
-    "code": "const m = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()\nconst m2: HashTableHashColumn<number, number, number> = m.build()",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst m = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()\nconst m2: HashTableHashColumn<number, number, number> = m.build()",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase.Builder::buildMapValues::0::0": {
-    "code": "const m = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()\nconst m2: HashTableHashColumn<number, number, boolean> = m.buildMapValues(v => v > 3)",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst m = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()\nconst m2: HashTableHashColumn<number, number, boolean> = m.buildMapValues(v => v > 3)",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase::set::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.set(1, 2, 10).toArray()    // => [[1, 2, 10], [1, 4, 5]]\nt.set(2, 6, 8).toArray()     // => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.set(1, 2, 10).toArray()    // => [[1, 2, 10], [1, 4, 5]]\nt.set(2, 6, 8).toArray()     // => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase::addEntry::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.addEntry([2, 6, 8]).toArray()   // => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.addEntry([2, 6, 8]).toArray()   // => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase::addEntries::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3])\nt.addEntries([[1, 4, 5], [2, 6, 8]]).toArray()\n// => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3])\nt.addEntries([[1, 4, 5], [2, 6, 8]]).toArray()\n// => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase::modifyAt::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.modifyAt(2, 5, { ifNew: 8 }).toArray()\n// => [[1, 2, 3], [1, 4, 5], [2, 5, 8]]\nt.modifyAt(2, 5, { ifNew: (none) => 1 < 2 ? none : 8 }).toArray()\n// => [[1, 2, 3], [1, 4, 5]]\nt.modifyAt(1, 2, { ifExists: (v) => v * 2 }).toArray()\n// => [[1, 2, 6], [1, 4, 5]]\nt.modifyAt(1, 2, { ifExists: (v, remove) => remove }).toArray()\n// => [[1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.modifyAt(2, 5, { ifNew: { set: 8 } }).toArray()\n// => [[1, 2, 3], [1, 4, 5], [2, 5, 8]]\nt.modifyAt(2, 5, { ifNew: { create: () => 8 } }).toArray()\n// => [[1, 2, 3], [1, 4, 5], [2, 5, 8]]\nt.modifyAt(1, 2, { ifExists: { set: 6 } }).toArray()\n// => [[1, 2, 6], [1, 4, 5]]\nt.modifyAt(1, 2, { ifExists: { update: (v, remove) => remove } }).toArray()\n// => [[1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase::updateAt::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.updateAt(1, 2, v => v * 2).toArray()\n// => [[1, 2, 6], [1, 4, 5]]\nt.updateAt(3, 4, v => v * 2)\n// => [[1, 2, 3], [1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.updateAt(1, 2, v => v * 2).toArray()\n// => [[1, 2, 6], [1, 4, 5]]\nt.updateAt(3, 4, v => v * 2)\n// => [[1, 2, 3], [1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase::toBuilder::0::0": {
-    "code": "const builder: HashTableHashColumn.Builder<number, number, number>\n  = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst builder: HashTableHashColumn.Builder<number, number, number>\n  = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase::rowMap::0::0": {
-    "code": "const m = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nconst map: HashMap<number, HashMap.NonEmpty<number, number>> = m.rowMap",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nimport { HashMap } from '@rimbu/hashed'\nconst m = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nconst map: HashMap<number, HashMap.NonEmpty<number, number>> = m.rowMap",
+    "packages": [
+      "@rimbu/hashed",
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase::isEmpty::0::0": {
-    "code": "HashTableHashColumn.empty<number, number, number>().isEmpty   // => true\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).isEmpty          // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.empty<number, number, number>().isEmpty   // => true\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).isEmpty          // => false",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase::size::0::0": {
-    "code": "HashTableHashColumn.empty<number, number, number>().size   // => 0\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).size          // => 2",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.empty<number, number, number>().size   // => 0\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).size          // => 2",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase::amountRows::0::0": {
-    "code": "HashTableHashColumn.empty<number, number, number>().amountRows   // => 0\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).amountRows          // => 1",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.empty<number, number, number>().amountRows   // => 0\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).amountRows          // => 1",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase::nonEmpty::0::0": {
-    "code": "const m: Table<number, number> = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nm.stream().first(0)     // compiler allows fallback value since the Stream may be empty\nif (m.nonEmpty()) {\n  m.stream().first(0)   // compiler error: fallback value not allowed since Stream is not empty\n}",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nimport { Table } from '@rimbu/table'\nimport { Stream } from '@rimbu/stream'\nconst m: Table<number, number, number> = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nif (m.nonEmpty()) {\n  const n: Table.NonEmpty<number, number, number> = m\n}",
+    "packages": [
+      "@rimbu/stream",
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase::assumeNonEmpty::0::0": {
-    "code": "HashTableHashColumn.empty<number, number, number>().assumeNonEmpty()   // => throws\nconst m: Table<number, number, number> = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nconst m2: Table.NonEmpty<number, number> = m     // => compiler error\nconst m3: Table.NonEmpty<number, number> = m.assumeNonEmpty()",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nimport { Table } from '@rimbu/table'\nHashTableHashColumn.empty<number, number, number>().assumeNonEmpty()   // => throws\nconst m = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).assumeNonEmpty()",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase::stream::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).stream().toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).stream().toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase::streamRows::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).streamRows().toArray()\n// => [1]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).streamRows().toArray()\n// => [1]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase::streamValues::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).streamValues().toArray()\n// => [3, 5]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).streamValues().toArray()\n// => [3, 5]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase::hasRowKey::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.hasRowKey(10)    // => false\nt.hasRowKey(1)     // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.hasRowKey(10)    // => false\nt.hasRowKey(1)     // => true",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase::hasValueAt::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.hasValueAt(10, 1)    // => false\nt.hasValueAt(1, 4)     // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.hasValueAt(10, 1)    // => false\nt.hasValueAt(1, 4)     // => true",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase::at::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.at(10, 1)     // => undefined\nt.at(10, 1, 0)  // => 0\nt.at(1, 2)      // => 3\nt.at(1, 2, 0)   // => 3",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.at(10, 1)     // => undefined\nt.at(10, 1, 0)  // => 0\nt.at(1, 2)      // => 3\nt.at(1, 2, 0)   // => 3",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase::rowAt::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.getRow(10).toArray()    // => []\nt.getRow(1).toArray()     // => [[2, 3], [4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.rowAt(10).toArray()    // => []\nt.rowAt(1).toArray()     // => [[2, 3], [4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase::remove::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.remove(10, 11).toArray()   // => [[1, 2, 3], [1, 4, 5]]\nt.remove(1, 4).toArray()     // => [[1, 2, 3]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.remove(10, 11).toArray()   // => [[1, 2, 3], [1, 4, 5]]\nt.remove(1, 4).toArray()     // => [[1, 2, 3]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase::removeRow::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 2, 3])\nt.removeRow(10).toArray()   // => [[1, 2, 3], [1, 4, 5], [2, 2, 3]]\nt.removeRow(1).toArray()    // => [[2, 2, 3]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 2, 3])\nt.removeRow(10).toArray()   // => [[1, 2, 3], [1, 4, 5], [2, 2, 3]]\nt.removeRow(1).toArray()    // => [[2, 2, 3]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase::removeAndGet::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeAndGet(10, 11)  // => [HashTableHashColumn([1, 2, 3], [1, 4, 5]), undefined, false]\nt.removeAndGet(1, 2)    // => [HashTableHashColumn([1, 4, 5]), 3, true]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeAndGet(10, 11)  // => [HashTableHashColumn([1, 2, 3], [1, 4, 5]), undefined, false]\nt.removeAndGet(1, 2)    // => [HashTableHashColumn([1, 4, 5]), 3, true]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase::removeRowAndGet::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeRowAndGet(10)    // => [HashTableHashColumn([1, 2, 3], [1, 4, 5]), undefined, false]\nt.removeRowAndGet(1)     // => [HashTableHashColumn(), HashMap(2 => 3, 4 => 5), true]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nimport { HashMap } from '@rimbu/hashed'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeRowAndGet(10)    // => [HashTableHashColumn([1, 2, 3], [1, 4, 5]), undefined, false]\nt.removeRowAndGet(1)     // => [HashTableHashColumn(), HashMap(2 => 3, 4 => 5), true]",
+    "packages": [
+      "@rimbu/hashed",
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase::removeRows::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeRows([10, 11]).toArray()   // => [[1, 2, 3], [1, 4, 5]]\nt.removeRows([1, 10]).toArray()    // => []",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeRows([10, 11]).toArray()   // => [[1, 2, 3], [1, 4, 5]]\nt.removeRows([1, 10]).toArray()    // => []",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase::removeEntries::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeEntries([[6, 7, 8], [7, 8, 9]]).toArray()  // => [[1, 2, 3], [1, 4, 5]]\nt.removeEntries([[6, 7, 8], [1, 2, 3]]).toArray()  // => [[1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeEntries([[6, 7], [7, 8]]).toArray()  // => [[1, 2, 3], [1, 4, 5]]\nt.removeEntries([[1, 2]]).toArray()  // => [[1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase::forEach::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .forEach((entry, i, halt) => {\n    console.log([entry]);\n    if (i >= 1) halt();\n  })\n// => logs [1, 2, 3]  [1, 4, 5]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .forEach((entry, i, halt) => {\n    console.log([entry]);\n    if (i >= 1) halt();\n  })\n// => logs [1, 2, 3]  [1, 4, 5]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase::filter::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .filter(entry => entry[2] === 5).toArray()\n// => [[1, 4, 5], [2, 3, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .filter(entry => entry[2] === 5).toArray()\n// => [[1, 4, 5], [2, 3, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase::filterRows::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .filterRows((rowKey, values) => rowKey === 1 && values.hasKey(4)).toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .filterRows(([rowKey, values]) => rowKey === 1 && values.hasKey(4)).toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase::mapValues::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .mapValues(value => value * 2)\n// => [[1, 2, 6], [1, 4, 10], [2, 3, 10]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .mapValues(value => value * 2)\n// => [[1, 2, 6], [1, 4, 10], [2, 3, 10]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase::toArray::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase::toString::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toString()\n// => HashTableHashColumn([1, 2] -> 3, [1, 4] -> 5)",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toString()\n// => HashTableHashColumn([1, 2] -> 3, [1, 4] -> 5)",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/TableBase::toJSON::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toJSON()\n// => { dataType: 'HashTableHashColumn', value: [[1, [[2, 3], [4, 5]]]] }",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toJSON()\n// => { dataType: 'HashTableHashColumn', value: [[1, [[2, 3], [4, 5]]]] }",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableHashColumn.NonEmpty::::-1::0": {
-    "code": "const t1 = HashTableHashColumn.empty<number, string, boolean>()\nconst t2 = HashTableHashColumn.of([1, 'a', true], [2, 'a', false])",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t1 = HashTableHashColumn.empty<number, string, boolean>()\nconst t2 = HashTableHashColumn.of([1, 'a', true], [2, 'a', false])",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableHashColumn::::-1::0": {
-    "code": "const t1 = HashTableHashColumn.empty<number, string, boolean>()\nconst t2 = HashTableHashColumn.of([1, 'a', true], [2, 'a', false])",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t1 = HashTableHashColumn.empty<number, string, boolean>()\nconst t2 = HashTableHashColumn.of([1, 'a', true], [2, 'a', false])",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableHashColumn::set::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.set(1, 2, 10).toArray()    // => [[1, 2, 10], [1, 4, 5]]\nt.set(2, 6, 8).toArray()     // => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.set(1, 2, 10).toArray()    // => [[1, 2, 10], [1, 4, 5]]\nt.set(2, 6, 8).toArray()     // => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableHashColumn::addEntry::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.addEntry([2, 6, 8]).toArray()   // => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.addEntry([2, 6, 8]).toArray()   // => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableHashColumn::addEntries::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3])\nt.addEntries([[1, 4, 5], [2, 6, 8]]).toArray()\n// => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3])\nt.addEntries([[1, 4, 5], [2, 6, 8]]).toArray()\n// => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableHashColumn::modifyAt::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.modifyAt(2, 5, { ifNew: 8 }).toArray()\n// => [[1, 2, 3], [1, 4, 5], [2, 5, 8]]\nt.modifyAt(2, 5, { ifNew: (none) => 1 < 2 ? none : 8 }).toArray()\n// => [[1, 2, 3], [1, 4, 5]]\nt.modifyAt(1, 2, { ifExists: (v) => v * 2 }).toArray()\n// => [[1, 2, 6], [1, 4, 5]]\nt.modifyAt(1, 2, { ifExists: (v, remove) => remove }).toArray()\n// => [[1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.modifyAt(2, 5, { ifNew: { set: 8 } }).toArray()\n// => [[1, 2, 3], [1, 4, 5], [2, 5, 8]]\nt.modifyAt(2, 5, { ifNew: { create: () => 8 } }).toArray()\n// => [[1, 2, 3], [1, 4, 5], [2, 5, 8]]\nt.modifyAt(1, 2, { ifExists: { set: 6 } }).toArray()\n// => [[1, 2, 6], [1, 4, 5]]\nt.modifyAt(1, 2, { ifExists: { update: (v, remove) => remove } }).toArray()\n// => [[1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableHashColumn::updateAt::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.updateAt(1, 2, v => v * 2).toArray()\n// => [[1, 2, 6], [1, 4, 5]]\nt.updateAt(3, 4, v => v * 2)\n// => [[1, 2, 3], [1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.updateAt(1, 2, v => v * 2).toArray()\n// => [[1, 2, 6], [1, 4, 5]]\nt.updateAt(3, 4, v => v * 2)\n// => [[1, 2, 3], [1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableHashColumn::toBuilder::0::0": {
-    "code": "const builder: HashTableHashColumn.Builder<number, number, number>\n  = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst builder: HashTableHashColumn.Builder<number, number, number>\n  = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableHashColumn::rowMap::0::0": {
-    "code": "const m = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nconst map: HashMap<number, HashMap.NonEmpty<number, number>> = m.rowMap",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nimport { HashMap } from '@rimbu/hashed'\nconst m = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nconst map: HashMap<number, HashMap.NonEmpty<number, number>> = m.rowMap",
+    "packages": [
+      "@rimbu/hashed",
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableHashColumn::isEmpty::0::0": {
-    "code": "HashTableHashColumn.empty<number, number, number>().isEmpty   // => true\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).isEmpty          // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.empty<number, number, number>().isEmpty   // => true\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).isEmpty          // => false",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableHashColumn::size::0::0": {
-    "code": "HashTableHashColumn.empty<number, number, number>().size   // => 0\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).size          // => 2",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.empty<number, number, number>().size   // => 0\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).size          // => 2",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableHashColumn::amountRows::0::0": {
-    "code": "HashTableHashColumn.empty<number, number, number>().amountRows   // => 0\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).amountRows          // => 1",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.empty<number, number, number>().amountRows   // => 0\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).amountRows          // => 1",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableHashColumn::nonEmpty::0::0": {
-    "code": "const m: Table<number, number> = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nm.stream().first(0)     // compiler allows fallback value since the Stream may be empty\nif (m.nonEmpty()) {\n  m.stream().first(0)   // compiler error: fallback value not allowed since Stream is not empty\n}",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nimport { Table } from '@rimbu/table'\nimport { Stream } from '@rimbu/stream'\nconst m: Table<number, number, number> = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nif (m.nonEmpty()) {\n  const n: Table.NonEmpty<number, number, number> = m\n}",
+    "packages": [
+      "@rimbu/stream",
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableHashColumn::assumeNonEmpty::0::0": {
-    "code": "HashTableHashColumn.empty<number, number, number>().assumeNonEmpty()   // => throws\nconst m: Table<number, number, number> = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nconst m2: Table.NonEmpty<number, number> = m     // => compiler error\nconst m3: Table.NonEmpty<number, number> = m.assumeNonEmpty()",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nimport { Table } from '@rimbu/table'\nHashTableHashColumn.empty<number, number, number>().assumeNonEmpty()   // => throws\nconst m = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).assumeNonEmpty()",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableHashColumn::stream::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).stream().toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).stream().toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableHashColumn::streamRows::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).streamRows().toArray()\n// => [1]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).streamRows().toArray()\n// => [1]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableHashColumn::streamValues::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).streamValues().toArray()\n// => [3, 5]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).streamValues().toArray()\n// => [3, 5]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableHashColumn::hasRowKey::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.hasRowKey(10)    // => false\nt.hasRowKey(1)     // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.hasRowKey(10)    // => false\nt.hasRowKey(1)     // => true",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableHashColumn::hasValueAt::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.hasValueAt(10, 1)    // => false\nt.hasValueAt(1, 4)     // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.hasValueAt(10, 1)    // => false\nt.hasValueAt(1, 4)     // => true",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableHashColumn::at::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.at(10, 1)     // => undefined\nt.at(10, 1, 0)  // => 0\nt.at(1, 2)      // => 3\nt.at(1, 2, 0)   // => 3",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.at(10, 1)     // => undefined\nt.at(10, 1, 0)  // => 0\nt.at(1, 2)      // => 3\nt.at(1, 2, 0)   // => 3",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableHashColumn::rowAt::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.getRow(10).toArray()    // => []\nt.getRow(1).toArray()     // => [[2, 3], [4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.rowAt(10).toArray()    // => []\nt.rowAt(1).toArray()     // => [[2, 3], [4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableHashColumn::remove::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.remove(10, 11).toArray()   // => [[1, 2, 3], [1, 4, 5]]\nt.remove(1, 4).toArray()     // => [[1, 2, 3]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.remove(10, 11).toArray()   // => [[1, 2, 3], [1, 4, 5]]\nt.remove(1, 4).toArray()     // => [[1, 2, 3]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableHashColumn::removeRow::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 2, 3])\nt.removeRow(10).toArray()   // => [[1, 2, 3], [1, 4, 5], [2, 2, 3]]\nt.removeRow(1).toArray()    // => [[2, 2, 3]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 2, 3])\nt.removeRow(10).toArray()   // => [[1, 2, 3], [1, 4, 5], [2, 2, 3]]\nt.removeRow(1).toArray()    // => [[2, 2, 3]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableHashColumn::removeAndGet::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeAndGet(10, 11)  // => [HashTableHashColumn([1, 2, 3], [1, 4, 5]), undefined, false]\nt.removeAndGet(1, 2)    // => [HashTableHashColumn([1, 4, 5]), 3, true]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeAndGet(10, 11)  // => [HashTableHashColumn([1, 2, 3], [1, 4, 5]), undefined, false]\nt.removeAndGet(1, 2)    // => [HashTableHashColumn([1, 4, 5]), 3, true]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableHashColumn::removeRowAndGet::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeRowAndGet(10)    // => [HashTableHashColumn([1, 2, 3], [1, 4, 5]), undefined, false]\nt.removeRowAndGet(1)     // => [HashTableHashColumn(), HashMap(2 => 3, 4 => 5), true]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nimport { HashMap } from '@rimbu/hashed'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeRowAndGet(10)    // => [HashTableHashColumn([1, 2, 3], [1, 4, 5]), undefined, false]\nt.removeRowAndGet(1)     // => [HashTableHashColumn(), HashMap(2 => 3, 4 => 5), true]",
+    "packages": [
+      "@rimbu/hashed",
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableHashColumn::removeRows::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeRows([10, 11]).toArray()   // => [[1, 2, 3], [1, 4, 5]]\nt.removeRows([1, 10]).toArray()    // => []",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeRows([10, 11]).toArray()   // => [[1, 2, 3], [1, 4, 5]]\nt.removeRows([1, 10]).toArray()    // => []",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableHashColumn::removeEntries::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeEntries([[6, 7, 8], [7, 8, 9]]).toArray()  // => [[1, 2, 3], [1, 4, 5]]\nt.removeEntries([[6, 7, 8], [1, 2, 3]]).toArray()  // => [[1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeEntries([[6, 7], [7, 8]]).toArray()  // => [[1, 2, 3], [1, 4, 5]]\nt.removeEntries([[1, 2]]).toArray()  // => [[1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableHashColumn::forEach::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .forEach((entry, i, halt) => {\n    console.log([entry]);\n    if (i >= 1) halt();\n  })\n// => logs [1, 2, 3]  [1, 4, 5]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .forEach((entry, i, halt) => {\n    console.log([entry]);\n    if (i >= 1) halt();\n  })\n// => logs [1, 2, 3]  [1, 4, 5]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableHashColumn::filter::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .filter(entry => entry[2] === 5).toArray()\n// => [[1, 4, 5], [2, 3, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .filter(entry => entry[2] === 5).toArray()\n// => [[1, 4, 5], [2, 3, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableHashColumn::filterRows::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .filterRows((rowKey, values) => rowKey === 1 && values.hasKey(4)).toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .filterRows(([rowKey, values]) => rowKey === 1 && values.hasKey(4)).toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableHashColumn::mapValues::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .mapValues(value => value * 2)\n// => [[1, 2, 6], [1, 4, 10], [2, 3, 10]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .mapValues(value => value * 2)\n// => [[1, 2, 6], [1, 4, 10], [2, 3, 10]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableHashColumn::toArray::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableHashColumn::toString::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toString()\n// => HashTableHashColumn([1, 2] -> 3, [1, 4] -> 5)",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toString()\n// => HashTableHashColumn([1, 2] -> 3, [1, 4] -> 5)",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableHashColumn::toJSON::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toJSON()\n// => { dataType: 'HashTableHashColumn', value: [[1, [[2, 3], [4, 5]]]] }",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toJSON()\n// => { dataType: 'HashTableHashColumn', value: [[1, [[2, 3], [4, 5]]]] }",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableHashColumn::empty::0::0": {
-    "code": "HashTableHashColumn.empty<number, string, boolean>()    // => HashTableHashColumn<number, string, boolean>\nHashTableHashColumn.empty<string, boolean, number>()    // => HashTableHashColumn<string, boolean, number>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.empty<number, string, boolean>()    // => HashTableHashColumn<number, string, boolean>\nHashTableHashColumn.empty<string, boolean, number>()    // => HashTableHashColumn<string, boolean, number>",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableHashColumn::of::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5])    // => HashTableHashColumn.NonEmpty<number, number, number>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5])    // => HashTableHashColumn.NonEmpty<number, number, number>",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableHashColumn::from::0::0": {
-    "code": "HashTableHashColumn.from([[1, 2, 3], [1, 4, 5]])    // => HashTableHashColumn.NonEmpty<number, number, number>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.from([[1, 2, 3], [1, 4, 5]])    // => HashTableHashColumn.NonEmpty<number, number, number>",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableHashColumn::builder::0::0": {
-    "code": "HashTableHashColumn.builder<number, string, boolean>()    // => HashTableHashColumn.Builder<number, string, boolean>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.builder<number, string, boolean>()    // => HashTableHashColumn.Builder<number, string, boolean>",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableHashColumn::reducer::0::0": {
-    "code": "const someSource = HashTableHashColumn.of([1, 'a', true], [2, 'b', false]);\nconst result = Stream.of([1, 'c', true], [3, 'a', false]).reduce(HashTableHashColumn.reducer(someSource))\nresult.toArray()   // => [[1, 'a', true], [1, 'c', true], [2, 'b', false], [3, 'a', false]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nimport { Stream } from '@rimbu/stream'\nconst someSource = HashTableHashColumn.of([1, 'a', true], [2, 'b', false]);\nconst result = Stream.of<readonly [number, string, boolean]>([1, 'c', true], [3, 'a', false]).reduce(HashTableHashColumn.reducer(someSource))\nresult.toArray()   // => [[1, 'a', true], [1, 'c', true], [2, 'b', false], [3, 'a', false]]",
+    "packages": [
+      "@rimbu/stream",
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableSortedColumn.NonEmpty::::-1::0": {
-    "code": "const t1 = HashTableSortedColumn.empty<number, string, boolean>()\nconst t2 = HashTableSortedColumn.of([1, 'a', true], [2, 'a', false])",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableSortedColumn } from '@rimbu/table/hash-row/sorted-column'\nconst t1 = HashTableSortedColumn.empty<number, string, boolean>()\nconst t2 = HashTableSortedColumn.of([1, 'a', true], [2, 'a', false])",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableSortedColumn::::-1::0": {
-    "code": "const t1 = HashTableSortedColumn.empty<number, string, boolean>()\nconst t2 = HashTableSortedColumn.of([1, 'a', true], [2, 'a', false])",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableSortedColumn } from '@rimbu/table/hash-row/sorted-column'\nconst t1 = HashTableSortedColumn.empty<number, string, boolean>()\nconst t2 = HashTableSortedColumn.of([1, 'a', true], [2, 'a', false])",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableSortedColumn::set::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.set(1, 2, 10).toArray()    // => [[1, 2, 10], [1, 4, 5]]\nt.set(2, 6, 8).toArray()     // => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.set(1, 2, 10).toArray()    // => [[1, 2, 10], [1, 4, 5]]\nt.set(2, 6, 8).toArray()     // => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableSortedColumn::addEntry::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.addEntry([2, 6, 8]).toArray()   // => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.addEntry([2, 6, 8]).toArray()   // => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableSortedColumn::addEntries::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3])\nt.addEntries([[1, 4, 5], [2, 6, 8]]).toArray()\n// => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3])\nt.addEntries([[1, 4, 5], [2, 6, 8]]).toArray()\n// => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableSortedColumn::modifyAt::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.modifyAt(2, 5, { ifNew: 8 }).toArray()\n// => [[1, 2, 3], [1, 4, 5], [2, 5, 8]]\nt.modifyAt(2, 5, { ifNew: (none) => 1 < 2 ? none : 8 }).toArray()\n// => [[1, 2, 3], [1, 4, 5]]\nt.modifyAt(1, 2, { ifExists: (v) => v * 2 }).toArray()\n// => [[1, 2, 6], [1, 4, 5]]\nt.modifyAt(1, 2, { ifExists: (v, remove) => remove }).toArray()\n// => [[1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.modifyAt(2, 5, { ifNew: { set: 8 } }).toArray()\n// => [[1, 2, 3], [1, 4, 5], [2, 5, 8]]\nt.modifyAt(2, 5, { ifNew: { create: () => 8 } }).toArray()\n// => [[1, 2, 3], [1, 4, 5], [2, 5, 8]]\nt.modifyAt(1, 2, { ifExists: { set: 6 } }).toArray()\n// => [[1, 2, 6], [1, 4, 5]]\nt.modifyAt(1, 2, { ifExists: { update: (v, remove) => remove } }).toArray()\n// => [[1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableSortedColumn::updateAt::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.updateAt(1, 2, v => v * 2).toArray()\n// => [[1, 2, 6], [1, 4, 5]]\nt.updateAt(3, 4, v => v * 2)\n// => [[1, 2, 3], [1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.updateAt(1, 2, v => v * 2).toArray()\n// => [[1, 2, 6], [1, 4, 5]]\nt.updateAt(3, 4, v => v * 2)\n// => [[1, 2, 3], [1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableSortedColumn::toBuilder::0::0": {
-    "code": "const builder: HashTableHashColumn.Builder<number, number, number>\n  = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst builder: HashTableHashColumn.Builder<number, number, number>\n  = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableSortedColumn::rowMap::0::0": {
-    "code": "const m = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nconst map: HashMap<number, HashMap.NonEmpty<number, number>> = m.rowMap",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nimport { HashMap } from '@rimbu/hashed'\nconst m = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nconst map: HashMap<number, HashMap.NonEmpty<number, number>> = m.rowMap",
+    "packages": [
+      "@rimbu/hashed",
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableSortedColumn::isEmpty::0::0": {
-    "code": "HashTableHashColumn.empty<number, number, number>().isEmpty   // => true\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).isEmpty          // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.empty<number, number, number>().isEmpty   // => true\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).isEmpty          // => false",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableSortedColumn::size::0::0": {
-    "code": "HashTableHashColumn.empty<number, number, number>().size   // => 0\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).size          // => 2",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.empty<number, number, number>().size   // => 0\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).size          // => 2",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableSortedColumn::amountRows::0::0": {
-    "code": "HashTableHashColumn.empty<number, number, number>().amountRows   // => 0\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).amountRows          // => 1",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.empty<number, number, number>().amountRows   // => 0\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).amountRows          // => 1",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableSortedColumn::nonEmpty::0::0": {
-    "code": "const m: Table<number, number> = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nm.stream().first(0)     // compiler allows fallback value since the Stream may be empty\nif (m.nonEmpty()) {\n  m.stream().first(0)   // compiler error: fallback value not allowed since Stream is not empty\n}",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nimport { Table } from '@rimbu/table'\nimport { Stream } from '@rimbu/stream'\nconst m: Table<number, number, number> = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nif (m.nonEmpty()) {\n  const n: Table.NonEmpty<number, number, number> = m\n}",
+    "packages": [
+      "@rimbu/stream",
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableSortedColumn::assumeNonEmpty::0::0": {
-    "code": "HashTableHashColumn.empty<number, number, number>().assumeNonEmpty()   // => throws\nconst m: Table<number, number, number> = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nconst m2: Table.NonEmpty<number, number> = m     // => compiler error\nconst m3: Table.NonEmpty<number, number> = m.assumeNonEmpty()",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nimport { Table } from '@rimbu/table'\nHashTableHashColumn.empty<number, number, number>().assumeNonEmpty()   // => throws\nconst m = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).assumeNonEmpty()",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableSortedColumn::stream::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).stream().toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).stream().toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableSortedColumn::streamRows::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).streamRows().toArray()\n// => [1]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).streamRows().toArray()\n// => [1]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableSortedColumn::streamValues::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).streamValues().toArray()\n// => [3, 5]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).streamValues().toArray()\n// => [3, 5]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableSortedColumn::hasRowKey::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.hasRowKey(10)    // => false\nt.hasRowKey(1)     // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.hasRowKey(10)    // => false\nt.hasRowKey(1)     // => true",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableSortedColumn::hasValueAt::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.hasValueAt(10, 1)    // => false\nt.hasValueAt(1, 4)     // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.hasValueAt(10, 1)    // => false\nt.hasValueAt(1, 4)     // => true",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableSortedColumn::at::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.at(10, 1)     // => undefined\nt.at(10, 1, 0)  // => 0\nt.at(1, 2)      // => 3\nt.at(1, 2, 0)   // => 3",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.at(10, 1)     // => undefined\nt.at(10, 1, 0)  // => 0\nt.at(1, 2)      // => 3\nt.at(1, 2, 0)   // => 3",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableSortedColumn::rowAt::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.getRow(10).toArray()    // => []\nt.getRow(1).toArray()     // => [[2, 3], [4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.rowAt(10).toArray()    // => []\nt.rowAt(1).toArray()     // => [[2, 3], [4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableSortedColumn::remove::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.remove(10, 11).toArray()   // => [[1, 2, 3], [1, 4, 5]]\nt.remove(1, 4).toArray()     // => [[1, 2, 3]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.remove(10, 11).toArray()   // => [[1, 2, 3], [1, 4, 5]]\nt.remove(1, 4).toArray()     // => [[1, 2, 3]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableSortedColumn::removeRow::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 2, 3])\nt.removeRow(10).toArray()   // => [[1, 2, 3], [1, 4, 5], [2, 2, 3]]\nt.removeRow(1).toArray()    // => [[2, 2, 3]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 2, 3])\nt.removeRow(10).toArray()   // => [[1, 2, 3], [1, 4, 5], [2, 2, 3]]\nt.removeRow(1).toArray()    // => [[2, 2, 3]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableSortedColumn::removeAndGet::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeAndGet(10, 11)  // => [HashTableHashColumn([1, 2, 3], [1, 4, 5]), undefined, false]\nt.removeAndGet(1, 2)    // => [HashTableHashColumn([1, 4, 5]), 3, true]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeAndGet(10, 11)  // => [HashTableHashColumn([1, 2, 3], [1, 4, 5]), undefined, false]\nt.removeAndGet(1, 2)    // => [HashTableHashColumn([1, 4, 5]), 3, true]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableSortedColumn::removeRowAndGet::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeRowAndGet(10)    // => [HashTableHashColumn([1, 2, 3], [1, 4, 5]), undefined, false]\nt.removeRowAndGet(1)     // => [HashTableHashColumn(), HashMap(2 => 3, 4 => 5), true]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nimport { HashMap } from '@rimbu/hashed'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeRowAndGet(10)    // => [HashTableHashColumn([1, 2, 3], [1, 4, 5]), undefined, false]\nt.removeRowAndGet(1)     // => [HashTableHashColumn(), HashMap(2 => 3, 4 => 5), true]",
+    "packages": [
+      "@rimbu/hashed",
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableSortedColumn::removeRows::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeRows([10, 11]).toArray()   // => [[1, 2, 3], [1, 4, 5]]\nt.removeRows([1, 10]).toArray()    // => []",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeRows([10, 11]).toArray()   // => [[1, 2, 3], [1, 4, 5]]\nt.removeRows([1, 10]).toArray()    // => []",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableSortedColumn::removeEntries::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeEntries([[6, 7, 8], [7, 8, 9]]).toArray()  // => [[1, 2, 3], [1, 4, 5]]\nt.removeEntries([[6, 7, 8], [1, 2, 3]]).toArray()  // => [[1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeEntries([[6, 7], [7, 8]]).toArray()  // => [[1, 2, 3], [1, 4, 5]]\nt.removeEntries([[1, 2]]).toArray()  // => [[1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableSortedColumn::forEach::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .forEach((entry, i, halt) => {\n    console.log([entry]);\n    if (i >= 1) halt();\n  })\n// => logs [1, 2, 3]  [1, 4, 5]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .forEach((entry, i, halt) => {\n    console.log([entry]);\n    if (i >= 1) halt();\n  })\n// => logs [1, 2, 3]  [1, 4, 5]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableSortedColumn::filter::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .filter(entry => entry[2] === 5).toArray()\n// => [[1, 4, 5], [2, 3, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .filter(entry => entry[2] === 5).toArray()\n// => [[1, 4, 5], [2, 3, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableSortedColumn::filterRows::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .filterRows((rowKey, values) => rowKey === 1 && values.hasKey(4)).toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .filterRows(([rowKey, values]) => rowKey === 1 && values.hasKey(4)).toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableSortedColumn::mapValues::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .mapValues(value => value * 2)\n// => [[1, 2, 6], [1, 4, 10], [2, 3, 10]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .mapValues(value => value * 2)\n// => [[1, 2, 6], [1, 4, 10], [2, 3, 10]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableSortedColumn::toArray::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableSortedColumn::toString::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toString()\n// => HashTableHashColumn([1, 2] -> 3, [1, 4] -> 5)",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toString()\n// => HashTableHashColumn([1, 2] -> 3, [1, 4] -> 5)",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableSortedColumn::toJSON::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toJSON()\n// => { dataType: 'HashTableHashColumn', value: [[1, [[2, 3], [4, 5]]]] }",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toJSON()\n// => { dataType: 'HashTableHashColumn', value: [[1, [[2, 3], [4, 5]]]] }",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableSortedColumn::empty::0::0": {
-    "code": "HashTableHashColumn.empty<number, string, boolean>()    // => HashTableHashColumn<number, string, boolean>\nHashTableHashColumn.empty<string, boolean, number>()    // => HashTableHashColumn<string, boolean, number>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.empty<number, string, boolean>()    // => HashTableHashColumn<number, string, boolean>\nHashTableHashColumn.empty<string, boolean, number>()    // => HashTableHashColumn<string, boolean, number>",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableSortedColumn::of::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5])    // => HashTableHashColumn.NonEmpty<number, number, number>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5])    // => HashTableHashColumn.NonEmpty<number, number, number>",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableSortedColumn::from::0::0": {
-    "code": "HashTableHashColumn.from([[1, 2, 3], [1, 4, 5]])    // => HashTableHashColumn.NonEmpty<number, number, number>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.from([[1, 2, 3], [1, 4, 5]])    // => HashTableHashColumn.NonEmpty<number, number, number>",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableSortedColumn::builder::0::0": {
-    "code": "HashTableHashColumn.builder<number, string, boolean>()    // => HashTableHashColumn.Builder<number, string, boolean>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.builder<number, string, boolean>()    // => HashTableHashColumn.Builder<number, string, boolean>",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/HashTableSortedColumn::reducer::0::0": {
-    "code": "const someSource = HashTableHashColumn.of([1, 'a', true], [2, 'b', false]);\nconst result = Stream.of([1, 'c', true], [3, 'a', false]).reduce(HashTableHashColumn.reducer(someSource))\nresult.toArray()   // => [[1, 'a', true], [1, 'c', true], [2, 'b', false], [3, 'a', false]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nimport { Stream } from '@rimbu/stream'\nconst someSource = HashTableHashColumn.of([1, 'a', true], [2, 'b', false]);\nconst result = Stream.of<readonly [number, string, boolean]>([1, 'c', true], [3, 'a', false]).reduce(HashTableHashColumn.reducer(someSource))\nresult.toArray()   // => [[1, 'a', true], [1, 'c', true], [2, 'b', false], [3, 'a', false]]",
+    "packages": [
+      "@rimbu/stream",
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableHashColumn.NonEmpty::::-1::0": {
-    "code": "const t1 = SortedTableHashColumn.empty<number, string, boolean>()\nconst t2 = SortedTableHashColumn.of([1, 'a', true], [2, 'a', false])",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedTableHashColumn } from '@rimbu/table/sorted-row/hash-column'\nconst t1 = SortedTableHashColumn.empty<number, string, boolean>()\nconst t2 = SortedTableHashColumn.of([1, 'a', true], [2, 'a', false])",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableHashColumn::::-1::0": {
-    "code": "const t1 = SortedTableHashColumn.empty<number, string, boolean>()\nconst t2 = SortedTableHashColumn.of([1, 'a', true], [2, 'a', false])",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedTableHashColumn } from '@rimbu/table/sorted-row/hash-column'\nconst t1 = SortedTableHashColumn.empty<number, string, boolean>()\nconst t2 = SortedTableHashColumn.of([1, 'a', true], [2, 'a', false])",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableHashColumn::set::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.set(1, 2, 10).toArray()    // => [[1, 2, 10], [1, 4, 5]]\nt.set(2, 6, 8).toArray()     // => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.set(1, 2, 10).toArray()    // => [[1, 2, 10], [1, 4, 5]]\nt.set(2, 6, 8).toArray()     // => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableHashColumn::addEntry::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.addEntry([2, 6, 8]).toArray()   // => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.addEntry([2, 6, 8]).toArray()   // => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableHashColumn::addEntries::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3])\nt.addEntries([[1, 4, 5], [2, 6, 8]]).toArray()\n// => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3])\nt.addEntries([[1, 4, 5], [2, 6, 8]]).toArray()\n// => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableHashColumn::modifyAt::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.modifyAt(2, 5, { ifNew: 8 }).toArray()\n// => [[1, 2, 3], [1, 4, 5], [2, 5, 8]]\nt.modifyAt(2, 5, { ifNew: (none) => 1 < 2 ? none : 8 }).toArray()\n// => [[1, 2, 3], [1, 4, 5]]\nt.modifyAt(1, 2, { ifExists: (v) => v * 2 }).toArray()\n// => [[1, 2, 6], [1, 4, 5]]\nt.modifyAt(1, 2, { ifExists: (v, remove) => remove }).toArray()\n// => [[1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.modifyAt(2, 5, { ifNew: { set: 8 } }).toArray()\n// => [[1, 2, 3], [1, 4, 5], [2, 5, 8]]\nt.modifyAt(2, 5, { ifNew: { create: () => 8 } }).toArray()\n// => [[1, 2, 3], [1, 4, 5], [2, 5, 8]]\nt.modifyAt(1, 2, { ifExists: { set: 6 } }).toArray()\n// => [[1, 2, 6], [1, 4, 5]]\nt.modifyAt(1, 2, { ifExists: { update: (v, remove) => remove } }).toArray()\n// => [[1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableHashColumn::updateAt::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.updateAt(1, 2, v => v * 2).toArray()\n// => [[1, 2, 6], [1, 4, 5]]\nt.updateAt(3, 4, v => v * 2)\n// => [[1, 2, 3], [1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.updateAt(1, 2, v => v * 2).toArray()\n// => [[1, 2, 6], [1, 4, 5]]\nt.updateAt(3, 4, v => v * 2)\n// => [[1, 2, 3], [1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableHashColumn::toBuilder::0::0": {
-    "code": "const builder: HashTableHashColumn.Builder<number, number, number>\n  = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst builder: HashTableHashColumn.Builder<number, number, number>\n  = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableHashColumn::rowMap::0::0": {
-    "code": "const m = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nconst map: HashMap<number, HashMap.NonEmpty<number, number>> = m.rowMap",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nimport { HashMap } from '@rimbu/hashed'\nconst m = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nconst map: HashMap<number, HashMap.NonEmpty<number, number>> = m.rowMap",
+    "packages": [
+      "@rimbu/hashed",
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableHashColumn::isEmpty::0::0": {
-    "code": "HashTableHashColumn.empty<number, number, number>().isEmpty   // => true\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).isEmpty          // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.empty<number, number, number>().isEmpty   // => true\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).isEmpty          // => false",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableHashColumn::size::0::0": {
-    "code": "HashTableHashColumn.empty<number, number, number>().size   // => 0\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).size          // => 2",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.empty<number, number, number>().size   // => 0\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).size          // => 2",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableHashColumn::amountRows::0::0": {
-    "code": "HashTableHashColumn.empty<number, number, number>().amountRows   // => 0\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).amountRows          // => 1",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.empty<number, number, number>().amountRows   // => 0\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).amountRows          // => 1",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableHashColumn::nonEmpty::0::0": {
-    "code": "const m: Table<number, number> = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nm.stream().first(0)     // compiler allows fallback value since the Stream may be empty\nif (m.nonEmpty()) {\n  m.stream().first(0)   // compiler error: fallback value not allowed since Stream is not empty\n}",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nimport { Table } from '@rimbu/table'\nimport { Stream } from '@rimbu/stream'\nconst m: Table<number, number, number> = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nif (m.nonEmpty()) {\n  const n: Table.NonEmpty<number, number, number> = m\n}",
+    "packages": [
+      "@rimbu/stream",
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableHashColumn::assumeNonEmpty::0::0": {
-    "code": "HashTableHashColumn.empty<number, number, number>().assumeNonEmpty()   // => throws\nconst m: Table<number, number, number> = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nconst m2: Table.NonEmpty<number, number> = m     // => compiler error\nconst m3: Table.NonEmpty<number, number> = m.assumeNonEmpty()",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nimport { Table } from '@rimbu/table'\nHashTableHashColumn.empty<number, number, number>().assumeNonEmpty()   // => throws\nconst m = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).assumeNonEmpty()",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableHashColumn::stream::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).stream().toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).stream().toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableHashColumn::streamRows::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).streamRows().toArray()\n// => [1]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).streamRows().toArray()\n// => [1]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableHashColumn::streamValues::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).streamValues().toArray()\n// => [3, 5]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).streamValues().toArray()\n// => [3, 5]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableHashColumn::hasRowKey::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.hasRowKey(10)    // => false\nt.hasRowKey(1)     // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.hasRowKey(10)    // => false\nt.hasRowKey(1)     // => true",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableHashColumn::hasValueAt::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.hasValueAt(10, 1)    // => false\nt.hasValueAt(1, 4)     // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.hasValueAt(10, 1)    // => false\nt.hasValueAt(1, 4)     // => true",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableHashColumn::at::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.at(10, 1)     // => undefined\nt.at(10, 1, 0)  // => 0\nt.at(1, 2)      // => 3\nt.at(1, 2, 0)   // => 3",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.at(10, 1)     // => undefined\nt.at(10, 1, 0)  // => 0\nt.at(1, 2)      // => 3\nt.at(1, 2, 0)   // => 3",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableHashColumn::rowAt::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.getRow(10).toArray()    // => []\nt.getRow(1).toArray()     // => [[2, 3], [4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.rowAt(10).toArray()    // => []\nt.rowAt(1).toArray()     // => [[2, 3], [4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableHashColumn::remove::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.remove(10, 11).toArray()   // => [[1, 2, 3], [1, 4, 5]]\nt.remove(1, 4).toArray()     // => [[1, 2, 3]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.remove(10, 11).toArray()   // => [[1, 2, 3], [1, 4, 5]]\nt.remove(1, 4).toArray()     // => [[1, 2, 3]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableHashColumn::removeRow::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 2, 3])\nt.removeRow(10).toArray()   // => [[1, 2, 3], [1, 4, 5], [2, 2, 3]]\nt.removeRow(1).toArray()    // => [[2, 2, 3]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 2, 3])\nt.removeRow(10).toArray()   // => [[1, 2, 3], [1, 4, 5], [2, 2, 3]]\nt.removeRow(1).toArray()    // => [[2, 2, 3]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableHashColumn::removeAndGet::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeAndGet(10, 11)  // => [HashTableHashColumn([1, 2, 3], [1, 4, 5]), undefined, false]\nt.removeAndGet(1, 2)    // => [HashTableHashColumn([1, 4, 5]), 3, true]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeAndGet(10, 11)  // => [HashTableHashColumn([1, 2, 3], [1, 4, 5]), undefined, false]\nt.removeAndGet(1, 2)    // => [HashTableHashColumn([1, 4, 5]), 3, true]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableHashColumn::removeRowAndGet::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeRowAndGet(10)    // => [HashTableHashColumn([1, 2, 3], [1, 4, 5]), undefined, false]\nt.removeRowAndGet(1)     // => [HashTableHashColumn(), HashMap(2 => 3, 4 => 5), true]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nimport { HashMap } from '@rimbu/hashed'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeRowAndGet(10)    // => [HashTableHashColumn([1, 2, 3], [1, 4, 5]), undefined, false]\nt.removeRowAndGet(1)     // => [HashTableHashColumn(), HashMap(2 => 3, 4 => 5), true]",
+    "packages": [
+      "@rimbu/hashed",
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableHashColumn::removeRows::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeRows([10, 11]).toArray()   // => [[1, 2, 3], [1, 4, 5]]\nt.removeRows([1, 10]).toArray()    // => []",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeRows([10, 11]).toArray()   // => [[1, 2, 3], [1, 4, 5]]\nt.removeRows([1, 10]).toArray()    // => []",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableHashColumn::removeEntries::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeEntries([[6, 7, 8], [7, 8, 9]]).toArray()  // => [[1, 2, 3], [1, 4, 5]]\nt.removeEntries([[6, 7, 8], [1, 2, 3]]).toArray()  // => [[1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeEntries([[6, 7], [7, 8]]).toArray()  // => [[1, 2, 3], [1, 4, 5]]\nt.removeEntries([[1, 2]]).toArray()  // => [[1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableHashColumn::forEach::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .forEach((entry, i, halt) => {\n    console.log([entry]);\n    if (i >= 1) halt();\n  })\n// => logs [1, 2, 3]  [1, 4, 5]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .forEach((entry, i, halt) => {\n    console.log([entry]);\n    if (i >= 1) halt();\n  })\n// => logs [1, 2, 3]  [1, 4, 5]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableHashColumn::filter::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .filter(entry => entry[2] === 5).toArray()\n// => [[1, 4, 5], [2, 3, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .filter(entry => entry[2] === 5).toArray()\n// => [[1, 4, 5], [2, 3, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableHashColumn::filterRows::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .filterRows((rowKey, values) => rowKey === 1 && values.hasKey(4)).toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .filterRows(([rowKey, values]) => rowKey === 1 && values.hasKey(4)).toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableHashColumn::mapValues::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .mapValues(value => value * 2)\n// => [[1, 2, 6], [1, 4, 10], [2, 3, 10]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .mapValues(value => value * 2)\n// => [[1, 2, 6], [1, 4, 10], [2, 3, 10]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableHashColumn::toArray::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableHashColumn::toString::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toString()\n// => HashTableHashColumn([1, 2] -> 3, [1, 4] -> 5)",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toString()\n// => HashTableHashColumn([1, 2] -> 3, [1, 4] -> 5)",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableHashColumn::toJSON::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toJSON()\n// => { dataType: 'HashTableHashColumn', value: [[1, [[2, 3], [4, 5]]]] }",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toJSON()\n// => { dataType: 'HashTableHashColumn', value: [[1, [[2, 3], [4, 5]]]] }",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableHashColumn::empty::0::0": {
-    "code": "HashTableHashColumn.empty<number, string, boolean>()    // => HashTableHashColumn<number, string, boolean>\nHashTableHashColumn.empty<string, boolean, number>()    // => HashTableHashColumn<string, boolean, number>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.empty<number, string, boolean>()    // => HashTableHashColumn<number, string, boolean>\nHashTableHashColumn.empty<string, boolean, number>()    // => HashTableHashColumn<string, boolean, number>",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableHashColumn::of::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5])    // => HashTableHashColumn.NonEmpty<number, number, number>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5])    // => HashTableHashColumn.NonEmpty<number, number, number>",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableHashColumn::from::0::0": {
-    "code": "HashTableHashColumn.from([[1, 2, 3], [1, 4, 5]])    // => HashTableHashColumn.NonEmpty<number, number, number>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.from([[1, 2, 3], [1, 4, 5]])    // => HashTableHashColumn.NonEmpty<number, number, number>",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableHashColumn::builder::0::0": {
-    "code": "HashTableHashColumn.builder<number, string, boolean>()    // => HashTableHashColumn.Builder<number, string, boolean>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.builder<number, string, boolean>()    // => HashTableHashColumn.Builder<number, string, boolean>",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableHashColumn::reducer::0::0": {
-    "code": "const someSource = HashTableHashColumn.of([1, 'a', true], [2, 'b', false]);\nconst result = Stream.of([1, 'c', true], [3, 'a', false]).reduce(HashTableHashColumn.reducer(someSource))\nresult.toArray()   // => [[1, 'a', true], [1, 'c', true], [2, 'b', false], [3, 'a', false]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nimport { Stream } from '@rimbu/stream'\nconst someSource = HashTableHashColumn.of([1, 'a', true], [2, 'b', false]);\nconst result = Stream.of<readonly [number, string, boolean]>([1, 'c', true], [3, 'a', false]).reduce(HashTableHashColumn.reducer(someSource))\nresult.toArray()   // => [[1, 'a', true], [1, 'c', true], [2, 'b', false], [3, 'a', false]]",
+    "packages": [
+      "@rimbu/stream",
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableSortedColumn.NonEmpty::::-1::0": {
-    "code": "const t1 = SortedTableSortedColumn.empty<number, string, boolean>()\nconst t2 = SortedTableSortedColumn.of([1, 'a', true], [2, 'a', false])",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedTableSortedColumn } from '@rimbu/table/sorted-row/sorted-column'\nconst t1 = SortedTableSortedColumn.empty<number, string, boolean>()\nconst t2 = SortedTableSortedColumn.of([1, 'a', true], [2, 'a', false])",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableSortedColumn::::-1::0": {
-    "code": "const t1 = SortedTableSortedColumn.empty<number, string, boolean>()\nconst t2 = SortedTableSortedColumn.of([1, 'a', true], [2, 'a', false])",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedTableSortedColumn } from '@rimbu/table/sorted-row/sorted-column'\nconst t1 = SortedTableSortedColumn.empty<number, string, boolean>()\nconst t2 = SortedTableSortedColumn.of([1, 'a', true], [2, 'a', false])",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableSortedColumn::set::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.set(1, 2, 10).toArray()    // => [[1, 2, 10], [1, 4, 5]]\nt.set(2, 6, 8).toArray()     // => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.set(1, 2, 10).toArray()    // => [[1, 2, 10], [1, 4, 5]]\nt.set(2, 6, 8).toArray()     // => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableSortedColumn::addEntry::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.addEntry([2, 6, 8]).toArray()   // => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.addEntry([2, 6, 8]).toArray()   // => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableSortedColumn::addEntries::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3])\nt.addEntries([[1, 4, 5], [2, 6, 8]]).toArray()\n// => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3])\nt.addEntries([[1, 4, 5], [2, 6, 8]]).toArray()\n// => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableSortedColumn::modifyAt::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.modifyAt(2, 5, { ifNew: 8 }).toArray()\n// => [[1, 2, 3], [1, 4, 5], [2, 5, 8]]\nt.modifyAt(2, 5, { ifNew: (none) => 1 < 2 ? none : 8 }).toArray()\n// => [[1, 2, 3], [1, 4, 5]]\nt.modifyAt(1, 2, { ifExists: (v) => v * 2 }).toArray()\n// => [[1, 2, 6], [1, 4, 5]]\nt.modifyAt(1, 2, { ifExists: (v, remove) => remove }).toArray()\n// => [[1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.modifyAt(2, 5, { ifNew: { set: 8 } }).toArray()\n// => [[1, 2, 3], [1, 4, 5], [2, 5, 8]]\nt.modifyAt(2, 5, { ifNew: { create: () => 8 } }).toArray()\n// => [[1, 2, 3], [1, 4, 5], [2, 5, 8]]\nt.modifyAt(1, 2, { ifExists: { set: 6 } }).toArray()\n// => [[1, 2, 6], [1, 4, 5]]\nt.modifyAt(1, 2, { ifExists: { update: (v, remove) => remove } }).toArray()\n// => [[1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableSortedColumn::updateAt::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.updateAt(1, 2, v => v * 2).toArray()\n// => [[1, 2, 6], [1, 4, 5]]\nt.updateAt(3, 4, v => v * 2)\n// => [[1, 2, 3], [1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.updateAt(1, 2, v => v * 2).toArray()\n// => [[1, 2, 6], [1, 4, 5]]\nt.updateAt(3, 4, v => v * 2)\n// => [[1, 2, 3], [1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableSortedColumn::toBuilder::0::0": {
-    "code": "const builder: HashTableHashColumn.Builder<number, number, number>\n  = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst builder: HashTableHashColumn.Builder<number, number, number>\n  = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableSortedColumn::rowMap::0::0": {
-    "code": "const m = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nconst map: HashMap<number, HashMap.NonEmpty<number, number>> = m.rowMap",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nimport { HashMap } from '@rimbu/hashed'\nconst m = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nconst map: HashMap<number, HashMap.NonEmpty<number, number>> = m.rowMap",
+    "packages": [
+      "@rimbu/hashed",
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableSortedColumn::isEmpty::0::0": {
-    "code": "HashTableHashColumn.empty<number, number, number>().isEmpty   // => true\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).isEmpty          // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.empty<number, number, number>().isEmpty   // => true\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).isEmpty          // => false",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableSortedColumn::size::0::0": {
-    "code": "HashTableHashColumn.empty<number, number, number>().size   // => 0\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).size          // => 2",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.empty<number, number, number>().size   // => 0\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).size          // => 2",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableSortedColumn::amountRows::0::0": {
-    "code": "HashTableHashColumn.empty<number, number, number>().amountRows   // => 0\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).amountRows          // => 1",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.empty<number, number, number>().amountRows   // => 0\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).amountRows          // => 1",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableSortedColumn::nonEmpty::0::0": {
-    "code": "const m: Table<number, number> = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nm.stream().first(0)     // compiler allows fallback value since the Stream may be empty\nif (m.nonEmpty()) {\n  m.stream().first(0)   // compiler error: fallback value not allowed since Stream is not empty\n}",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nimport { Table } from '@rimbu/table'\nimport { Stream } from '@rimbu/stream'\nconst m: Table<number, number, number> = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nif (m.nonEmpty()) {\n  const n: Table.NonEmpty<number, number, number> = m\n}",
+    "packages": [
+      "@rimbu/stream",
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableSortedColumn::assumeNonEmpty::0::0": {
-    "code": "HashTableHashColumn.empty<number, number, number>().assumeNonEmpty()   // => throws\nconst m: Table<number, number, number> = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nconst m2: Table.NonEmpty<number, number> = m     // => compiler error\nconst m3: Table.NonEmpty<number, number> = m.assumeNonEmpty()",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nimport { Table } from '@rimbu/table'\nHashTableHashColumn.empty<number, number, number>().assumeNonEmpty()   // => throws\nconst m = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).assumeNonEmpty()",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableSortedColumn::stream::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).stream().toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).stream().toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableSortedColumn::streamRows::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).streamRows().toArray()\n// => [1]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).streamRows().toArray()\n// => [1]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableSortedColumn::streamValues::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).streamValues().toArray()\n// => [3, 5]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).streamValues().toArray()\n// => [3, 5]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableSortedColumn::hasRowKey::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.hasRowKey(10)    // => false\nt.hasRowKey(1)     // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.hasRowKey(10)    // => false\nt.hasRowKey(1)     // => true",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableSortedColumn::hasValueAt::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.hasValueAt(10, 1)    // => false\nt.hasValueAt(1, 4)     // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.hasValueAt(10, 1)    // => false\nt.hasValueAt(1, 4)     // => true",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableSortedColumn::at::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.at(10, 1)     // => undefined\nt.at(10, 1, 0)  // => 0\nt.at(1, 2)      // => 3\nt.at(1, 2, 0)   // => 3",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.at(10, 1)     // => undefined\nt.at(10, 1, 0)  // => 0\nt.at(1, 2)      // => 3\nt.at(1, 2, 0)   // => 3",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableSortedColumn::rowAt::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.getRow(10).toArray()    // => []\nt.getRow(1).toArray()     // => [[2, 3], [4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.rowAt(10).toArray()    // => []\nt.rowAt(1).toArray()     // => [[2, 3], [4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableSortedColumn::remove::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.remove(10, 11).toArray()   // => [[1, 2, 3], [1, 4, 5]]\nt.remove(1, 4).toArray()     // => [[1, 2, 3]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.remove(10, 11).toArray()   // => [[1, 2, 3], [1, 4, 5]]\nt.remove(1, 4).toArray()     // => [[1, 2, 3]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableSortedColumn::removeRow::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 2, 3])\nt.removeRow(10).toArray()   // => [[1, 2, 3], [1, 4, 5], [2, 2, 3]]\nt.removeRow(1).toArray()    // => [[2, 2, 3]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 2, 3])\nt.removeRow(10).toArray()   // => [[1, 2, 3], [1, 4, 5], [2, 2, 3]]\nt.removeRow(1).toArray()    // => [[2, 2, 3]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableSortedColumn::removeAndGet::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeAndGet(10, 11)  // => [HashTableHashColumn([1, 2, 3], [1, 4, 5]), undefined, false]\nt.removeAndGet(1, 2)    // => [HashTableHashColumn([1, 4, 5]), 3, true]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeAndGet(10, 11)  // => [HashTableHashColumn([1, 2, 3], [1, 4, 5]), undefined, false]\nt.removeAndGet(1, 2)    // => [HashTableHashColumn([1, 4, 5]), 3, true]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableSortedColumn::removeRowAndGet::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeRowAndGet(10)    // => [HashTableHashColumn([1, 2, 3], [1, 4, 5]), undefined, false]\nt.removeRowAndGet(1)     // => [HashTableHashColumn(), HashMap(2 => 3, 4 => 5), true]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nimport { HashMap } from '@rimbu/hashed'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeRowAndGet(10)    // => [HashTableHashColumn([1, 2, 3], [1, 4, 5]), undefined, false]\nt.removeRowAndGet(1)     // => [HashTableHashColumn(), HashMap(2 => 3, 4 => 5), true]",
+    "packages": [
+      "@rimbu/hashed",
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableSortedColumn::removeRows::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeRows([10, 11]).toArray()   // => [[1, 2, 3], [1, 4, 5]]\nt.removeRows([1, 10]).toArray()    // => []",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeRows([10, 11]).toArray()   // => [[1, 2, 3], [1, 4, 5]]\nt.removeRows([1, 10]).toArray()    // => []",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableSortedColumn::removeEntries::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeEntries([[6, 7, 8], [7, 8, 9]]).toArray()  // => [[1, 2, 3], [1, 4, 5]]\nt.removeEntries([[6, 7, 8], [1, 2, 3]]).toArray()  // => [[1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeEntries([[6, 7], [7, 8]]).toArray()  // => [[1, 2, 3], [1, 4, 5]]\nt.removeEntries([[1, 2]]).toArray()  // => [[1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableSortedColumn::forEach::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .forEach((entry, i, halt) => {\n    console.log([entry]);\n    if (i >= 1) halt();\n  })\n// => logs [1, 2, 3]  [1, 4, 5]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .forEach((entry, i, halt) => {\n    console.log([entry]);\n    if (i >= 1) halt();\n  })\n// => logs [1, 2, 3]  [1, 4, 5]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableSortedColumn::filter::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .filter(entry => entry[2] === 5).toArray()\n// => [[1, 4, 5], [2, 3, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .filter(entry => entry[2] === 5).toArray()\n// => [[1, 4, 5], [2, 3, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableSortedColumn::filterRows::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .filterRows((rowKey, values) => rowKey === 1 && values.hasKey(4)).toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .filterRows(([rowKey, values]) => rowKey === 1 && values.hasKey(4)).toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableSortedColumn::mapValues::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .mapValues(value => value * 2)\n// => [[1, 2, 6], [1, 4, 10], [2, 3, 10]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .mapValues(value => value * 2)\n// => [[1, 2, 6], [1, 4, 10], [2, 3, 10]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableSortedColumn::toArray::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableSortedColumn::toString::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toString()\n// => HashTableHashColumn([1, 2] -> 3, [1, 4] -> 5)",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toString()\n// => HashTableHashColumn([1, 2] -> 3, [1, 4] -> 5)",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableSortedColumn::toJSON::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toJSON()\n// => { dataType: 'HashTableHashColumn', value: [[1, [[2, 3], [4, 5]]]] }",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toJSON()\n// => { dataType: 'HashTableHashColumn', value: [[1, [[2, 3], [4, 5]]]] }",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableSortedColumn::empty::0::0": {
-    "code": "HashTableHashColumn.empty<number, string, boolean>()    // => HashTableHashColumn<number, string, boolean>\nHashTableHashColumn.empty<string, boolean, number>()    // => HashTableHashColumn<string, boolean, number>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.empty<number, string, boolean>()    // => HashTableHashColumn<number, string, boolean>\nHashTableHashColumn.empty<string, boolean, number>()    // => HashTableHashColumn<string, boolean, number>",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableSortedColumn::of::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5])    // => HashTableHashColumn.NonEmpty<number, number, number>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5])    // => HashTableHashColumn.NonEmpty<number, number, number>",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableSortedColumn::from::0::0": {
-    "code": "HashTableHashColumn.from([[1, 2, 3], [1, 4, 5]])    // => HashTableHashColumn.NonEmpty<number, number, number>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.from([[1, 2, 3], [1, 4, 5]])    // => HashTableHashColumn.NonEmpty<number, number, number>",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableSortedColumn::builder::0::0": {
-    "code": "HashTableHashColumn.builder<number, string, boolean>()    // => HashTableHashColumn.Builder<number, string, boolean>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.builder<number, string, boolean>()    // => HashTableHashColumn.Builder<number, string, boolean>",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/SortedTableSortedColumn::reducer::0::0": {
-    "code": "const someSource = HashTableHashColumn.of([1, 'a', true], [2, 'b', false]);\nconst result = Stream.of([1, 'c', true], [3, 'a', false]).reduce(HashTableHashColumn.reducer(someSource))\nresult.toArray()   // => [[1, 'a', true], [1, 'c', true], [2, 'b', false], [3, 'a', false]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nimport { Stream } from '@rimbu/stream'\nconst someSource = HashTableHashColumn.of([1, 'a', true], [2, 'b', false]);\nconst result = Stream.of<readonly [number, string, boolean]>([1, 'c', true], [3, 'a', false]).reduce(HashTableHashColumn.reducer(someSource))\nresult.toArray()   // => [[1, 'a', true], [1, 'c', true], [2, 'b', false], [3, 'a', false]]",
+    "packages": [
+      "@rimbu/stream",
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/Table.NonEmpty::::-1::0": {
-    "code": "const t1 = HashTableHashColumn.empty<number, string, boolean>()\nconst t2 = HashTableHashColumn.of([1, 'a', true], [2, 'a', false])",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t1 = HashTableHashColumn.empty<number, string, boolean>()\nconst t2 = HashTableHashColumn.of([1, 'a', true], [2, 'a', false])",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/Table::::-1::0": {
-    "code": "const t1 = HashTableHashColumn.empty<number, string, boolean>()\nconst t2 = HashTableHashColumn.of([1, 'a', true], [2, 'a', false])",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t1 = HashTableHashColumn.empty<number, string, boolean>()\nconst t2 = HashTableHashColumn.of([1, 'a', true], [2, 'a', false])",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/Table::set::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.set(1, 2, 10).toArray()    // => [[1, 2, 10], [1, 4, 5]]\nt.set(2, 6, 8).toArray()     // => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.set(1, 2, 10).toArray()    // => [[1, 2, 10], [1, 4, 5]]\nt.set(2, 6, 8).toArray()     // => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/Table::addEntry::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.addEntry([2, 6, 8]).toArray()   // => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.addEntry([2, 6, 8]).toArray()   // => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/Table::addEntries::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3])\nt.addEntries([[1, 4, 5], [2, 6, 8]]).toArray()\n// => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3])\nt.addEntries([[1, 4, 5], [2, 6, 8]]).toArray()\n// => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/Table::modifyAt::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.modifyAt(2, 5, { ifNew: 8 }).toArray()\n// => [[1, 2, 3], [1, 4, 5], [2, 5, 8]]\nt.modifyAt(2, 5, { ifNew: (none) => 1 < 2 ? none : 8 }).toArray()\n// => [[1, 2, 3], [1, 4, 5]]\nt.modifyAt(1, 2, { ifExists: (v) => v * 2 }).toArray()\n// => [[1, 2, 6], [1, 4, 5]]\nt.modifyAt(1, 2, { ifExists: (v, remove) => remove }).toArray()\n// => [[1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.modifyAt(2, 5, { ifNew: { set: 8 } }).toArray()\n// => [[1, 2, 3], [1, 4, 5], [2, 5, 8]]\nt.modifyAt(2, 5, { ifNew: { create: () => 8 } }).toArray()\n// => [[1, 2, 3], [1, 4, 5], [2, 5, 8]]\nt.modifyAt(1, 2, { ifExists: { set: 6 } }).toArray()\n// => [[1, 2, 6], [1, 4, 5]]\nt.modifyAt(1, 2, { ifExists: { update: (v, remove) => remove } }).toArray()\n// => [[1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/Table::updateAt::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.updateAt(1, 2, v => v * 2).toArray()\n// => [[1, 2, 6], [1, 4, 5]]\nt.updateAt(3, 4, v => v * 2)\n// => [[1, 2, 3], [1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.updateAt(1, 2, v => v * 2).toArray()\n// => [[1, 2, 6], [1, 4, 5]]\nt.updateAt(3, 4, v => v * 2)\n// => [[1, 2, 3], [1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/Table::toBuilder::0::0": {
-    "code": "const builder: HashTableHashColumn.Builder<number, number, number>\n  = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst builder: HashTableHashColumn.Builder<number, number, number>\n  = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/Table::rowMap::0::0": {
-    "code": "const m = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nconst map: HashMap<number, HashMap.NonEmpty<number, number>> = m.rowMap",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nimport { HashMap } from '@rimbu/hashed'\nconst m = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nconst map: HashMap<number, HashMap.NonEmpty<number, number>> = m.rowMap",
+    "packages": [
+      "@rimbu/hashed",
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/Table::isEmpty::0::0": {
-    "code": "HashTableHashColumn.empty<number, number, number>().isEmpty   // => true\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).isEmpty          // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.empty<number, number, number>().isEmpty   // => true\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).isEmpty          // => false",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/Table::size::0::0": {
-    "code": "HashTableHashColumn.empty<number, number, number>().size   // => 0\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).size          // => 2",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.empty<number, number, number>().size   // => 0\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).size          // => 2",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/Table::amountRows::0::0": {
-    "code": "HashTableHashColumn.empty<number, number, number>().amountRows   // => 0\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).amountRows          // => 1",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.empty<number, number, number>().amountRows   // => 0\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).amountRows          // => 1",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/Table::nonEmpty::0::0": {
-    "code": "const m: Table<number, number> = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nm.stream().first(0)     // compiler allows fallback value since the Stream may be empty\nif (m.nonEmpty()) {\n  m.stream().first(0)   // compiler error: fallback value not allowed since Stream is not empty\n}",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nimport { Table } from '@rimbu/table'\nimport { Stream } from '@rimbu/stream'\nconst m: Table<number, number, number> = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nif (m.nonEmpty()) {\n  const n: Table.NonEmpty<number, number, number> = m\n}",
+    "packages": [
+      "@rimbu/stream",
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/Table::assumeNonEmpty::0::0": {
-    "code": "HashTableHashColumn.empty<number, number, number>().assumeNonEmpty()   // => throws\nconst m: Table<number, number, number> = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nconst m2: Table.NonEmpty<number, number> = m     // => compiler error\nconst m3: Table.NonEmpty<number, number> = m.assumeNonEmpty()",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nimport { Table } from '@rimbu/table'\nHashTableHashColumn.empty<number, number, number>().assumeNonEmpty()   // => throws\nconst m = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).assumeNonEmpty()",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/Table::stream::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).stream().toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).stream().toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/Table::streamRows::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).streamRows().toArray()\n// => [1]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).streamRows().toArray()\n// => [1]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/Table::streamValues::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).streamValues().toArray()\n// => [3, 5]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).streamValues().toArray()\n// => [3, 5]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/Table::hasRowKey::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.hasRowKey(10)    // => false\nt.hasRowKey(1)     // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.hasRowKey(10)    // => false\nt.hasRowKey(1)     // => true",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/Table::hasValueAt::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.hasValueAt(10, 1)    // => false\nt.hasValueAt(1, 4)     // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.hasValueAt(10, 1)    // => false\nt.hasValueAt(1, 4)     // => true",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/Table::at::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.at(10, 1)     // => undefined\nt.at(10, 1, 0)  // => 0\nt.at(1, 2)      // => 3\nt.at(1, 2, 0)   // => 3",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.at(10, 1)     // => undefined\nt.at(10, 1, 0)  // => 0\nt.at(1, 2)      // => 3\nt.at(1, 2, 0)   // => 3",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/Table::rowAt::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.getRow(10).toArray()    // => []\nt.getRow(1).toArray()     // => [[2, 3], [4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.rowAt(10).toArray()    // => []\nt.rowAt(1).toArray()     // => [[2, 3], [4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/Table::remove::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.remove(10, 11).toArray()   // => [[1, 2, 3], [1, 4, 5]]\nt.remove(1, 4).toArray()     // => [[1, 2, 3]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.remove(10, 11).toArray()   // => [[1, 2, 3], [1, 4, 5]]\nt.remove(1, 4).toArray()     // => [[1, 2, 3]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/Table::removeRow::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 2, 3])\nt.removeRow(10).toArray()   // => [[1, 2, 3], [1, 4, 5], [2, 2, 3]]\nt.removeRow(1).toArray()    // => [[2, 2, 3]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 2, 3])\nt.removeRow(10).toArray()   // => [[1, 2, 3], [1, 4, 5], [2, 2, 3]]\nt.removeRow(1).toArray()    // => [[2, 2, 3]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/Table::removeAndGet::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeAndGet(10, 11)  // => [HashTableHashColumn([1, 2, 3], [1, 4, 5]), undefined, false]\nt.removeAndGet(1, 2)    // => [HashTableHashColumn([1, 4, 5]), 3, true]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeAndGet(10, 11)  // => [HashTableHashColumn([1, 2, 3], [1, 4, 5]), undefined, false]\nt.removeAndGet(1, 2)    // => [HashTableHashColumn([1, 4, 5]), 3, true]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/Table::removeRowAndGet::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeRowAndGet(10)    // => [HashTableHashColumn([1, 2, 3], [1, 4, 5]), undefined, false]\nt.removeRowAndGet(1)     // => [HashTableHashColumn(), HashMap(2 => 3, 4 => 5), true]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nimport { HashMap } from '@rimbu/hashed'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeRowAndGet(10)    // => [HashTableHashColumn([1, 2, 3], [1, 4, 5]), undefined, false]\nt.removeRowAndGet(1)     // => [HashTableHashColumn(), HashMap(2 => 3, 4 => 5), true]",
+    "packages": [
+      "@rimbu/hashed",
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/Table::removeRows::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeRows([10, 11]).toArray()   // => [[1, 2, 3], [1, 4, 5]]\nt.removeRows([1, 10]).toArray()    // => []",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeRows([10, 11]).toArray()   // => [[1, 2, 3], [1, 4, 5]]\nt.removeRows([1, 10]).toArray()    // => []",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/Table::removeEntries::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeEntries([[6, 7, 8], [7, 8, 9]]).toArray()  // => [[1, 2, 3], [1, 4, 5]]\nt.removeEntries([[6, 7, 8], [1, 2, 3]]).toArray()  // => [[1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeEntries([[6, 7], [7, 8]]).toArray()  // => [[1, 2, 3], [1, 4, 5]]\nt.removeEntries([[1, 2]]).toArray()  // => [[1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/Table::forEach::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .forEach((entry, i, halt) => {\n    console.log([entry]);\n    if (i >= 1) halt();\n  })\n// => logs [1, 2, 3]  [1, 4, 5]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .forEach((entry, i, halt) => {\n    console.log([entry]);\n    if (i >= 1) halt();\n  })\n// => logs [1, 2, 3]  [1, 4, 5]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/Table::filter::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .filter(entry => entry[2] === 5).toArray()\n// => [[1, 4, 5], [2, 3, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .filter(entry => entry[2] === 5).toArray()\n// => [[1, 4, 5], [2, 3, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/Table::filterRows::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .filterRows((rowKey, values) => rowKey === 1 && values.hasKey(4)).toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .filterRows(([rowKey, values]) => rowKey === 1 && values.hasKey(4)).toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/Table::mapValues::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .mapValues(value => value * 2)\n// => [[1, 2, 6], [1, 4, 10], [2, 3, 10]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .mapValues(value => value * 2)\n// => [[1, 2, 6], [1, 4, 10], [2, 3, 10]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/Table::toArray::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/Table::toString::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toString()\n// => HashTableHashColumn([1, 2] -> 3, [1, 4] -> 5)",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toString()\n// => HashTableHashColumn([1, 2] -> 3, [1, 4] -> 5)",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/Table::toJSON::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toJSON()\n// => { dataType: 'HashTableHashColumn', value: [[1, [[2, 3], [4, 5]]]] }",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toJSON()\n// => { dataType: 'HashTableHashColumn', value: [[1, [[2, 3], [4, 5]]]] }",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTable::rowMap::0::0": {
-    "code": "const m = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nconst map: HashMap<number, HashMap.NonEmpty<number, number>> = m.rowMap",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nimport { HashMap } from '@rimbu/hashed'\nconst m = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nconst map: HashMap<number, HashMap.NonEmpty<number, number>> = m.rowMap",
+    "packages": [
+      "@rimbu/hashed",
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTable::isEmpty::0::0": {
-    "code": "HashTableHashColumn.empty<number, number, number>().isEmpty   // => true\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).isEmpty          // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.empty<number, number, number>().isEmpty   // => true\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).isEmpty          // => false",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTable::size::0::0": {
-    "code": "HashTableHashColumn.empty<number, number, number>().size   // => 0\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).size          // => 2",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.empty<number, number, number>().size   // => 0\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).size          // => 2",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTable::amountRows::0::0": {
-    "code": "HashTableHashColumn.empty<number, number, number>().amountRows   // => 0\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).amountRows          // => 1",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.empty<number, number, number>().amountRows   // => 0\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).amountRows          // => 1",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTable::nonEmpty::0::0": {
-    "code": "const m: Table<number, number> = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nm.stream().first(0)     // compiler allows fallback value since the Stream may be empty\nif (m.nonEmpty()) {\n  m.stream().first(0)   // compiler error: fallback value not allowed since Stream is not empty\n}",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nimport { Table } from '@rimbu/table'\nimport { Stream } from '@rimbu/stream'\nconst m: Table<number, number, number> = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nif (m.nonEmpty()) {\n  const n: Table.NonEmpty<number, number, number> = m\n}",
+    "packages": [
+      "@rimbu/stream",
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTable::assumeNonEmpty::0::0": {
-    "code": "HashTableHashColumn.empty<number, number, number>().assumeNonEmpty()   // => throws\nconst m: Table<number, number, number> = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nconst m2: Table.NonEmpty<number, number> = m     // => compiler error\nconst m3: Table.NonEmpty<number, number> = m.assumeNonEmpty()",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nimport { Table } from '@rimbu/table'\nHashTableHashColumn.empty<number, number, number>().assumeNonEmpty()   // => throws\nconst m = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).assumeNonEmpty()",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTable::stream::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).stream().toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).stream().toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTable::streamRows::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).streamRows().toArray()\n// => [1]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).streamRows().toArray()\n// => [1]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTable::streamValues::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).streamValues().toArray()\n// => [3, 5]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).streamValues().toArray()\n// => [3, 5]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTable::hasRowKey::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.hasRowKey(10)    // => false\nt.hasRowKey(1)     // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.hasRowKey(10)    // => false\nt.hasRowKey(1)     // => true",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTable::hasValueAt::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.hasValueAt(10, 1)    // => false\nt.hasValueAt(1, 4)     // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.hasValueAt(10, 1)    // => false\nt.hasValueAt(1, 4)     // => true",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTable::at::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.at(10, 1)     // => undefined\nt.at(10, 1, 0)  // => 0\nt.at(1, 2)      // => 3\nt.at(1, 2, 0)   // => 3",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.at(10, 1)     // => undefined\nt.at(10, 1, 0)  // => 0\nt.at(1, 2)      // => 3\nt.at(1, 2, 0)   // => 3",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTable::rowAt::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.getRow(10).toArray()    // => []\nt.getRow(1).toArray()     // => [[2, 3], [4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.rowAt(10).toArray()    // => []\nt.rowAt(1).toArray()     // => [[2, 3], [4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTable::remove::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.remove(10, 11).toArray()   // => [[1, 2, 3], [1, 4, 5]]\nt.remove(1, 4).toArray()     // => [[1, 2, 3]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.remove(10, 11).toArray()   // => [[1, 2, 3], [1, 4, 5]]\nt.remove(1, 4).toArray()     // => [[1, 2, 3]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTable::removeRow::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 2, 3])\nt.removeRow(10).toArray()   // => [[1, 2, 3], [1, 4, 5], [2, 2, 3]]\nt.removeRow(1).toArray()    // => [[2, 2, 3]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 2, 3])\nt.removeRow(10).toArray()   // => [[1, 2, 3], [1, 4, 5], [2, 2, 3]]\nt.removeRow(1).toArray()    // => [[2, 2, 3]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTable::removeAndGet::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeAndGet(10, 11)  // => [HashTableHashColumn([1, 2, 3], [1, 4, 5]), undefined, false]\nt.removeAndGet(1, 2)    // => [HashTableHashColumn([1, 4, 5]), 3, true]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeAndGet(10, 11)  // => [HashTableHashColumn([1, 2, 3], [1, 4, 5]), undefined, false]\nt.removeAndGet(1, 2)    // => [HashTableHashColumn([1, 4, 5]), 3, true]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTable::removeRowAndGet::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeRowAndGet(10)    // => [HashTableHashColumn([1, 2, 3], [1, 4, 5]), undefined, false]\nt.removeRowAndGet(1)     // => [HashTableHashColumn(), HashMap(2 => 3, 4 => 5), true]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nimport { HashMap } from '@rimbu/hashed'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeRowAndGet(10)    // => [HashTableHashColumn([1, 2, 3], [1, 4, 5]), undefined, false]\nt.removeRowAndGet(1)     // => [HashTableHashColumn(), HashMap(2 => 3, 4 => 5), true]",
+    "packages": [
+      "@rimbu/hashed",
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTable::removeRows::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeRows([10, 11]).toArray()   // => [[1, 2, 3], [1, 4, 5]]\nt.removeRows([1, 10]).toArray()    // => []",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeRows([10, 11]).toArray()   // => [[1, 2, 3], [1, 4, 5]]\nt.removeRows([1, 10]).toArray()    // => []",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTable::removeEntries::0::0": {
-    "code": "const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeEntries([[6, 7, 8], [7, 8, 9]]).toArray()  // => [[1, 2, 3], [1, 4, 5]]\nt.removeEntries([[6, 7, 8], [1, 2, 3]]).toArray()  // => [[1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nconst t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nt.removeEntries([[6, 7], [7, 8]]).toArray()  // => [[1, 2, 3], [1, 4, 5]]\nt.removeEntries([[1, 2]]).toArray()  // => [[1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTable::forEach::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .forEach((entry, i, halt) => {\n    console.log([entry]);\n    if (i >= 1) halt();\n  })\n// => logs [1, 2, 3]  [1, 4, 5]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .forEach((entry, i, halt) => {\n    console.log([entry]);\n    if (i >= 1) halt();\n  })\n// => logs [1, 2, 3]  [1, 4, 5]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTable::filter::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .filter(entry => entry[2] === 5).toArray()\n// => [[1, 4, 5], [2, 3, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .filter(entry => entry[2] === 5).toArray()\n// => [[1, 4, 5], [2, 3, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTable::filterRows::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .filterRows((rowKey, values) => rowKey === 1 && values.hasKey(4)).toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .filterRows(([rowKey, values]) => rowKey === 1 && values.hasKey(4)).toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTable::mapValues::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .mapValues(value => value * 2)\n// => [[1, 2, 6], [1, 4, 10], [2, 3, 10]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])\n  .mapValues(value => value * 2)\n// => [[1, 2, 6], [1, 4, 10], [2, 3, 10]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTable::toArray::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toArray()\n// => [[1, 2, 3], [1, 4, 5]]",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTable::toString::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toString()\n// => HashTableHashColumn([1, 2] -> 3, [1, 4] -> 5)",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toString()\n// => HashTableHashColumn([1, 2] -> 3, [1, 4] -> 5)",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "table/VariantTable::toJSON::0::0": {
-    "code": "HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toJSON()\n// => { dataType: 'HashTableHashColumn', value: [[1, [[2, 3], [4, 5]]]] }",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'\nHashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toJSON()\n// => { dataType: 'HashTableHashColumn', value: [[1, [[2, 3], [4, 5]]]] }",
+    "packages": [
+      "@rimbu/table"
+    ],
+    "typeChecks": true
   },
   "multimap/VariantMultiMapBase.NonEmpty::isEmpty::0::0": {
     "code": "import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';\nconsole.log(HashMultiMapHashValue.of([1, 1], [2, 2]).isEmpty); // => false",

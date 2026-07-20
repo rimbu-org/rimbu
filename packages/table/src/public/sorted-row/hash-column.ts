@@ -20,6 +20,7 @@ import { createTableContextModule } from '#table/context-factory';
  * @typeparam V - the value type
  * @example
  * ```ts
+ * import { SortedTableHashColumn } from '@rimbu/table/sorted-row/hash-column'
  * const t1 = SortedTableHashColumn.empty<number, string, boolean>()
  * const t2 = SortedTableHashColumn.of([1, 'a', true], [2, 'a', false])
  * ```
@@ -40,6 +41,7 @@ export namespace SortedTableHashColumn {
 	 * @typeparam V - the value type
 	 * @example
 	 * ```ts
+	 * import { SortedTableHashColumn } from '@rimbu/table/sorted-row/hash-column'
 	 * const t1 = SortedTableHashColumn.empty<number, string, boolean>()
 	 * const t2 = SortedTableHashColumn.of([1, 'a', true], [2, 'a', false])
 	 * ```

@@ -30,6 +30,8 @@ export interface VariantTableBase<
 	 * Returns the Map representation of this collection.
 	 * @example
 	 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
+import { HashMap } from '@rimbu/hashed'
 	 * const m = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])
 	 * const map: HashMap<number, HashMap.NonEmpty<number, number>> = m.rowMap
 	 * ```
@@ -39,6 +41,7 @@ export interface VariantTableBase<
 	 * Returns true if the collection is empty.
 	 * @example
 	 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 	 * HashTableHashColumn.empty<number, number, number>().isEmpty   // => true
 	 * HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).isEmpty          // => false
 	 * ```
@@ -48,6 +51,7 @@ export interface VariantTableBase<
 	 * Returns the amount of entries in the collection.
 	 * @example
 	 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 	 * HashTableHashColumn.empty<number, number, number>().size   // => 0
 	 * HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).size          // => 2
 	 * ```
@@ -57,6 +61,7 @@ export interface VariantTableBase<
 	 * Returns the amount of rows in the collection.
 	 * @example
 	 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 	 * HashTableHashColumn.empty<number, number, number>().amountRows   // => 0
 	 * HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).amountRows          // => 1
 	 * ```
@@ -67,10 +72,12 @@ export interface VariantTableBase<
 	 * as a .NonEmpty type.
 	 * @example
 	 * ```ts
-	 * const m: Table<number, number> = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])
-	 * m.stream().first(0)     // compiler allows fallback value since the Stream may be empty
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
+import { Table } from '@rimbu/table'
+import { Stream } from '@rimbu/stream'
+	 * const m: Table<number, number, number> = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])
 	 * if (m.nonEmpty()) {
-	 *   m.stream().first(0)   // compiler error: fallback value not allowed since Stream is not empty
+	 *   const n: Table.NonEmpty<number, number, number> = m
 	 * }
 	 * ```
 	 */
@@ -80,10 +87,10 @@ export interface VariantTableBase<
 	 * @throws RimbuError.EmptyCollectionAssumedNonEmptyError if the collection is empty
 	 * @example
 	 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
+import { Table } from '@rimbu/table'
 	 * HashTableHashColumn.empty<number, number, number>().assumeNonEmpty()   // => throws
-	 * const m: Table<number, number, number> = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])
-	 * const m2: Table.NonEmpty<number, number> = m     // => compiler error
-	 * const m3: Table.NonEmpty<number, number> = m.assumeNonEmpty()
+	 * const m = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).assumeNonEmpty()
 	 * ```
 	 * @note returns reference to this collection
 	 */
@@ -93,6 +100,7 @@ export interface VariantTableBase<
 	 * column key, and value.
 	 * @example
 	 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 	 * HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).stream().toArray()
 	 * // => [[1, 2, 3], [1, 4, 5]]
 	 * ```
@@ -102,6 +110,7 @@ export interface VariantTableBase<
 	 * Returns a Stream containing all row keys of this collection.
 	 * @example
 	 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 	 * HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).streamRows().toArray()
 	 * // => [1]
 	 * ```
@@ -111,6 +120,7 @@ export interface VariantTableBase<
 	 * Returns a Stream containing all values of this collection.
 	 * @example
 	 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 	 * HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).streamValues().toArray()
 	 * // => [3, 5]
 	 * ```
@@ -121,6 +131,7 @@ export interface VariantTableBase<
 	 * @param row - the row key to look for
 	 * @example
 	 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 	 * const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])
 	 * t.hasRowKey(10)    // => false
 	 * t.hasRowKey(1)     // => true
@@ -133,6 +144,7 @@ export interface VariantTableBase<
 	 * @param column - the column key
 	 * @example
 	 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 	 * const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])
 	 * t.hasValueAt(10, 1)    // => false
 	 * t.hasValueAt(1, 4)     // => true
@@ -150,6 +162,7 @@ export interface VariantTableBase<
 	 * @param otherwise - (default: undefined) the value to return if no value is found
 	 * @example
 	 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 	 * const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])
 	 * t.at(10, 1)     // => undefined
 	 * t.at(10, 1, 0)  // => 0
@@ -171,9 +184,10 @@ export interface VariantTableBase<
 	 * @param row - the row key
 	 * @example
 	 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 	 * const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])
-	 * t.getRow(10).toArray()    // => []
-	 * t.getRow(1).toArray()     // => [[2, 3], [4, 5]]
+	 * t.rowAt(10).toArray()    // => []
+	 * t.rowAt(1).toArray()     // => [[2, 3], [4, 5]]
 	 * ```
 	 */
 	rowAt<UR = R>(row: RelatedTo<R, UR>): WithRow<Tp, R, C, V>['row'];
@@ -183,6 +197,7 @@ export interface VariantTableBase<
 	 * @param column - the column key
 	 * @example
 	 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 	 * const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])
 	 * t.remove(10, 11).toArray()   // => [[1, 2, 3], [1, 4, 5]]
 	 * t.remove(1, 4).toArray()     // => [[1, 2, 3]]
@@ -197,6 +212,7 @@ export interface VariantTableBase<
 	 * @param row - the row key
 	 * @example
 	 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 	 * const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 2, 3])
 	 * t.removeRow(10).toArray()   // => [[1, 2, 3], [1, 4, 5], [2, 2, 3]]
 	 * t.removeRow(1).toArray()    // => [[2, 2, 3]]
@@ -211,6 +227,7 @@ export interface VariantTableBase<
 	 * @param column - the column key
 	 * @example
 	 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 	 * const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])
 	 * t.removeAndGet(10, 11)  // => [HashTableHashColumn([1, 2, 3], [1, 4, 5]), undefined, false]
 	 * t.removeAndGet(1, 2)    // => [HashTableHashColumn([1, 4, 5]), 3, true]
@@ -227,6 +244,8 @@ export interface VariantTableBase<
 	 * @param row - the row key
 	 * @example
 	 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
+import { HashMap } from '@rimbu/hashed'
 	 * const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])
 	 * t.removeRowAndGet(10)    // => [HashTableHashColumn([1, 2, 3], [1, 4, 5]), undefined, false]
 	 * t.removeRowAndGet(1)     // => [HashTableHashColumn(), HashMap(2 => 3, 4 => 5), true]
@@ -243,6 +262,7 @@ export interface VariantTableBase<
 	 * @param rows - a `StreamSource` of row keys
 	 * @example
 	 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 	 * const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])
 	 * t.removeRows([10, 11]).toArray()   // => [[1, 2, 3], [1, 4, 5]]
 	 * t.removeRows([1, 10]).toArray()    // => []
@@ -256,9 +276,10 @@ export interface VariantTableBase<
 	 * @param entries - a `StreamSource` of table entries
 	 * @example
 	 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 	 * const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])
-	 * t.removeEntries([[6, 7, 8], [7, 8, 9]]).toArray()  // => [[1, 2, 3], [1, 4, 5]]
-	 * t.removeEntries([[6, 7, 8], [1, 2, 3]]).toArray()  // => [[1, 4, 5]]
+	 * t.removeEntries([[6, 7], [7, 8]]).toArray()  // => [[1, 2, 3], [1, 4, 5]]
+	 * t.removeEntries([[1, 2]]).toArray()  // => [[1, 4, 5]]
 	 * ```
 	 */
 	removeEntries<UR = R, UC = C>(
@@ -274,6 +295,7 @@ export interface VariantTableBase<
 	 * - state: (optional) the traverse state
 	 * @example
 	 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 	 * HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])
 	 *   .forEach((entry, i, halt) => {
 	 *     console.log([entry]);
@@ -297,6 +319,7 @@ export interface VariantTableBase<
 	 * - negate: (default: false) when true will negate the given predicate
 	 * @example
 	 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 	 * HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])
 	 *   .filter(entry => entry[2] === 5).toArray()
 	 * // => [[1, 4, 5], [2, 3, 5]]
@@ -316,8 +339,9 @@ export interface VariantTableBase<
 	 * - negate: (default: false) when true will negate the given predicate
 	 * @example
 	 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 	 * HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])
-	 *   .filterRows((rowKey, values) => rowKey === 1 && values.hasKey(4)).toArray()
+	 *   .filterRows(([rowKey, values]) => rowKey === 1 && values.hasKey(4)).toArray()
 	 * // => [[1, 2, 3], [1, 4, 5]]
 	 * ```
 	 */
@@ -334,6 +358,7 @@ export interface VariantTableBase<
 	 * @param mapFun - a function taking a `value` and a row and column key, and returning a new value
 	 * @example
 	 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 	 * HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])
 	 *   .mapValues(value => value * 2)
 	 * // => [[1, 2, 6], [1, 4, 10], [2, 3, 10]]
@@ -346,6 +371,7 @@ export interface VariantTableBase<
 	 * Returns an array containing all entries in this collection.
 	 * @example
 	 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 	 * HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toArray()
 	 * // => [[1, 2, 3], [1, 4, 5]]
 	 * ```
@@ -357,6 +383,7 @@ export interface VariantTableBase<
 	 * Returns a string representation of this collection.
 	 * @example
 	 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 	 * HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toString()
 	 * // => HashTableHashColumn([1, 2] -> 3, [1, 4] -> 5)
 	 * ```
@@ -366,6 +393,7 @@ export interface VariantTableBase<
 	 * Returns a JSON representation of this collection.
 	 * @example
 	 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 	 * HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toJSON()
 	 * // => { dataType: 'HashTableHashColumn', value: [[1, [[2, 3], [4, 5]]]] }
 	 * ```
@@ -385,6 +413,8 @@ export namespace VariantTableBase {
 		 * Returns the Map representation of this collection.
 		 * @example
 		 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
+import { HashMap } from '@rimbu/hashed'
 		 * const m = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])
 		 * const map: HashMap.NonEmpty<number, HashMap.NonEmpty<number, number>> = m.rowMap
 		 * ```
@@ -394,6 +424,7 @@ export namespace VariantTableBase {
 		 * Returns false since this collection is known to be non-empty
 		 * @example
 		 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 		 * HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).isEmpty   // => false
 		 * ```
 		 */
@@ -402,6 +433,7 @@ export namespace VariantTableBase {
 		 * Returns a self reference since this collection is known to be non-empty.
 		 * @example
 		 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 		 * const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])
 		 * t === t.assumeNonEmpty()  // => true
 		 * ```
@@ -411,7 +443,8 @@ export namespace VariantTableBase {
 		 * Returns this collection typed as a 'possibly empty' collection.
 		 * @example
 		 * ```ts
-		 * Table.of([1, 1, 1], [2, 2, 2]).asNormal();  // type: Table<number, number, number>
+		 * import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
+		 * HashTableHashColumn.of([1, 1, 1], [2, 2, 2]).asNormal();  // type: Table<number, number, number>
 		 * ```
 		 */
 		asNormal(): WithRow<Tp, R, C, V>['normal'];
@@ -419,6 +452,7 @@ export namespace VariantTableBase {
 		 * Returns true since this collection is known to be non-empty
 		 * @example
 		 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 		 * HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).nonEmpty()   // => true
 		 * ```
 		 */
@@ -428,6 +462,7 @@ export namespace VariantTableBase {
 		 * column key, and value.
 		 * @example
 		 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 		 * HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).stream().toArray()
 		 * // => [[1, 2, 3], [1, 4, 5]]
 		 * ```
@@ -437,6 +472,7 @@ export namespace VariantTableBase {
 		 * Returns a non-empty Stream containing all row keys of this collection.
 		 * @example
 		 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 		 * HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).streamRows().toArray()
 		 * // => [1]
 		 * ```
@@ -446,6 +482,7 @@ export namespace VariantTableBase {
 		 * Returns a non-empty Stream containing all values of this collection.
 		 * @example
 		 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 		 * HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).streamValues().toArray()
 		 * // => [3, 5]
 		 * ```
@@ -486,6 +523,7 @@ export namespace VariantTableBase {
 		 * @param mapFun - a function taking a `value` and a row and column key, and returning a new value
 		 * @example
 		 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 		 * HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])
 		 *   .mapValues(value => value * 2)
 		 * // => [[1, 2, 6], [1, 4, 10], [2, 3, 10]]
@@ -498,6 +536,7 @@ export namespace VariantTableBase {
 		 * Returns a non-empty array containing all entries in this collection.
 		 * @example
 		 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 		 * HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toArray()
 		 * // => [[1, 2, 3], [1, 4, 5]]
 		 * ```
@@ -548,6 +587,7 @@ export interface TableBase<
 	 * @param value - the value to add
 	 * @example
 	 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 	 * const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])
 	 * t.set(1, 2, 10).toArray()    // => [[1, 2, 10], [1, 4, 5]]
 	 * t.set(2, 6, 8).toArray()     // => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]
@@ -559,6 +599,7 @@ export interface TableBase<
 	 * @param entry - the entry to add
 	 * @example
 	 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 	 * const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])
 	 * t.addEntry([2, 6, 8]).toArray()   // => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]
 	 * ```
@@ -569,6 +610,7 @@ export interface TableBase<
 	 * @param entries - a `StreamSource` containing entries to add
 	 * @example
 	 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 	 * const t = HashTableHashColumn.of([1, 2, 3])
 	 * t.addEntries([[1, 4, 5], [2, 6, 8]]).toArray()
 	 * // => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]
@@ -592,14 +634,15 @@ export interface TableBase<
 	 * entry is removed.
 	 * @example
 	 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 	 * const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])
-	 * t.modifyAt(2, 5, { ifNew: 8 }).toArray()
+	 * t.modifyAt(2, 5, { ifNew: { set: 8 } }).toArray()
 	 * // => [[1, 2, 3], [1, 4, 5], [2, 5, 8]]
-	 * t.modifyAt(2, 5, { ifNew: (none) => 1 < 2 ? none : 8 }).toArray()
-	 * // => [[1, 2, 3], [1, 4, 5]]
-	 * t.modifyAt(1, 2, { ifExists: (v) => v * 2 }).toArray()
+	 * t.modifyAt(2, 5, { ifNew: { create: () => 8 } }).toArray()
+	 * // => [[1, 2, 3], [1, 4, 5], [2, 5, 8]]
+	 * t.modifyAt(1, 2, { ifExists: { set: 6 } }).toArray()
 	 * // => [[1, 2, 6], [1, 4, 5]]
-	 * t.modifyAt(1, 2, { ifExists: (v, remove) => remove }).toArray()
+	 * t.modifyAt(1, 2, { ifExists: { update: (v, remove) => remove } }).toArray()
 	 * // => [[1, 4, 5]]
 	 * ```
 	 */
@@ -616,6 +659,7 @@ export interface TableBase<
 	 * @param update - a function taking the current value and returning a new value
 	 * @example
 	 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 	 * const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])
 	 * t.updateAt(1, 2, v => v * 2).toArray()
 	 * // => [[1, 2, 6], [1, 4, 5]]
@@ -632,6 +676,7 @@ export interface TableBase<
 	 * Returns a builder object containing the entries of this collection.
 	 * @example
 	 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 	 * const builder: HashTableHashColumn.Builder<number, number, number>
 	 *   = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()
 	 * ```
@@ -656,6 +701,7 @@ export namespace TableBase {
 		 * column key, and value.
 		 * @example
 		 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 		 * HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).stream().toArray()
 		 * // => [[1, 2, 3], [1, 4, 5]]
 		 * ```
@@ -666,6 +712,7 @@ export namespace TableBase {
 		 * @param entries - a `StreamSource` containing entries to add
 		 * @example
 		 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 		 * const t = HashTableHashColumn.of([1, 2, 3])
 		 * t.addEntries([[1, 4, 5], [2, 6, 8]]).toArray()
 		 * // => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]
@@ -682,6 +729,7 @@ export namespace TableBase {
 		 * @param update - a function taking the current value and returning a new value
 		 * @example
 		 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 		 * const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])
 		 * t.updateAt(1, 2, v => v * 2).toArray()
 		 * // => [[1, 2, 6], [1, 4, 5]]
@@ -705,6 +753,7 @@ export namespace TableBase {
 		 * Returns the (singleton) empty instance of this type and context with given key and value types.
 		 * @example
 		 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 		 * HashTableHashColumn.empty<number, string, boolean>()    // => HashTableHashColumn<number, string, boolean>
 		 * HashTableHashColumn.empty<string, boolean, number>()    // => HashTableHashColumn<string, boolean, number>
 		 * ```
@@ -715,6 +764,7 @@ export namespace TableBase {
 		 * @param entries - a non-empty array of row-column-value entries
 		 * @example
 		 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 		 * HashTableHashColumn.of([1, 2, 3], [1, 4, 5])    // => HashTableHashColumn.NonEmpty<number, number, number>
 		 * ```
 		 */
@@ -726,6 +776,7 @@ export namespace TableBase {
 		 * @param sources - an array of `StreamSource` instances containing row-column-value entries
 		 * @example
 		 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 		 * HashTableHashColumn.from([[1, 2, 3], [1, 4, 5]])    // => HashTableHashColumn.NonEmpty<number, number, number>
 		 * ```
 		 */
@@ -739,6 +790,7 @@ export namespace TableBase {
 		 * Returns an empty builder instance for this type of collection and context.
 		 * @example
 		 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 		 * HashTableHashColumn.builder<number, string, boolean>()    // => HashTableHashColumn.Builder<number, string, boolean>
 		 * ```
 		 */
@@ -749,8 +801,10 @@ export namespace TableBase {
 		 * @param source - (optional) an initial source of tuples to add to
 		 * @example
 		 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
+import { Stream } from '@rimbu/stream'
 		 * const someSource = HashTableHashColumn.of([1, 'a', true], [2, 'b', false]);
-		 * const result = Stream.of([1, 'c', true], [3, 'a', false]).reduce(HashTableHashColumn.reducer(someSource))
+		 * const result = Stream.of<readonly [number, string, boolean]>([1, 'c', true], [3, 'a', false]).reduce(HashTableHashColumn.reducer(someSource))
 		 * result.toArray()   // => [[1, 'a', true], [1, 'c', true], [2, 'b', false], [3, 'a', false]]
 		 * ```
 		 * @note uses a builder under the hood. If the given `source` is a Table in the same context, it will directly call `.toBuilder()`.
@@ -767,6 +821,7 @@ export namespace TableBase {
 		 * A string tag defining the specific collection type
 		 * @example
 		 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 		 * HashTableHashColumn.defaultContext().typeTag   // => 'HashTableHashColumn'
 		 * ```
 		 */
@@ -794,6 +849,7 @@ export namespace TableBase {
 		 * Returns the amount of entries in the builder.
 		 * @example
 		 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 		 * HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])
 		 *   .toBuilder()
 		 *   .size
@@ -805,6 +861,7 @@ export namespace TableBase {
 		 * Returns true if there are no entries in the builder.
 		 * @example
 		 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 		 * HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])
 		 *   .toBuilder()
 		 *   .isEmpty
@@ -816,6 +873,7 @@ export namespace TableBase {
 		 * Returns the amount of rows in the builder.
 		 * @example
 		 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 		 * HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])
 		 *   .toBuilder()
 		 *   .amountRows
@@ -831,6 +889,7 @@ export namespace TableBase {
 		 * @param otherwise - (default: undefined) the value to return if no value is found
 		 * @example
 		 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 		 * const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()
 		 * t.get(10, 1)     // => undefined
 		 * t.get(10, 1, 0)  // => 0
@@ -852,6 +911,7 @@ export namespace TableBase {
 		 * @param row - the row key
 		 * @example
 		 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 		 * const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()
 		 * t.getRow(10).toArray()    // => []
 		 * t.getRow(1).toArray()     // => [[2, 3], [4, 5]]
@@ -864,6 +924,7 @@ export namespace TableBase {
 		 * @param column - the column key
 		 * @example
 		 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 		 * const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()
 		 * t.hasValueAt(10, 1)    // => false
 		 * t.hasValueAt(1, 4)     // => true
@@ -878,6 +939,7 @@ export namespace TableBase {
 		 * @param row - the row key to look for
 		 * @example
 		 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 		 * const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()
 		 * t.hasRowKey(10)    // => false
 		 * t.hasRowKey(1)     // => true
@@ -892,6 +954,7 @@ export namespace TableBase {
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 		 * const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()
 		 * t.set(1, 2, 3)   // => false
 		 * t.set(1, 3, 8)   // => true
@@ -904,6 +967,7 @@ export namespace TableBase {
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 		 * const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()
 		 * t.addEntry([1, 2, 3])   // => false
 		 * t.addEntry([1, 3, 8])   // => true
@@ -916,6 +980,7 @@ export namespace TableBase {
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 		 * const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()
 		 * t.addEntries([[1, 2, 3], [1, 2, 3]])  // => false
 		 * t.addEntries([[1, 2, 3], [2, 3, 4]])  // => true
@@ -931,6 +996,7 @@ export namespace TableBase {
 		 * if no such value was found
 		 * @example
 		 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 		 * const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()
 		 * t.remove(5, 6)        // => undefined
 		 * t.remove(5, 6, 'a')   // => 'a'
@@ -953,6 +1019,7 @@ export namespace TableBase {
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 		 * const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5]).toBuilder()
 		 * t.removeRow(5)   // => false
 		 * t.removeRow(1)   // => true
@@ -965,6 +1032,7 @@ export namespace TableBase {
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 		 * const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5]).toBuilder()
 		 * t.removeRows([10, 11])  // => false
 		 * t.removeRows([1, 10])   // => true
@@ -977,9 +1045,10 @@ export namespace TableBase {
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 		 * const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5]).toBuilder()
-		 * t.removeEntries([[7, 8, 9], [9, 8, 7]])  // => false
-		 * t.removeEntries([[7, 8, 9], [1, 2, 3]])  // => true
+		 * t.removeEntries([[7, 8], [9, 8]])  // => false
+		 * t.removeEntries([[7, 8], [1, 2]])  // => true
 		 * ```
 		 */
 		removeEntries<UR = R, UC = C>(
@@ -995,6 +1064,7 @@ export namespace TableBase {
 		 * - state: (optional) the traverse state
 		 * @example
 		 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 		 * HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])
 		 *   .toBuilder()
 		 *   .forEach((entry, i, halt) => {
@@ -1022,14 +1092,15 @@ export namespace TableBase {
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 		 * const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()
-		 * t.modifyAt(2, 5, { ifNew: 8 })
+		 * t.modifyAt(2, 5, { ifNew: { set: 8 } })
 		 * // => true
-		 * t.modifyAt(2, 6, { ifNew: (none) => 1 < 2 ? none : 8 })
+		 * t.modifyAt(2, 6, { ifNew: { create: () => 8 } })
 		 * // => false
-		 * t.modifyAt(1, 2, { ifExists: (v) => v * 2 })
+		 * t.modifyAt(1, 2, { ifExists: { set: 6 } })
 		 * // => true
-		 * t.modifyAt(1, 2, { ifExists: (v, remove) => remove })
+		 * t.modifyAt(1, 2, { ifExists: { update: (v, remove) => remove } })
 		 * // => true
 		 * ```
 		 */
@@ -1045,11 +1116,10 @@ export namespace TableBase {
 		 * no value was found.
 		 * @example
 		 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 		 * const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])
 		 * t.updateAt(3, 4, v => v * 2)        // => undefined
-		 * t.updateAt(3, 4, v => v * 2, 'a')   // => 'a'
-		 * t.updateAt(1, 2, v => v * 2)        // => true
-		 * t.updateAt(1, 2, v => v * 2, 'a')   // => true
+		 * t.updateAt(1, 2, v => v * 2)        // => 3
 		 * ```
 		 */
 		updateAt(row: R, column: C, update: (value: V) => V): V | undefined;
@@ -1063,6 +1133,7 @@ export namespace TableBase {
 		 * Returns an immutable collection instance containing the entries in this builder.
 		 * @example
 		 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 		 * const m = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()
 		 * const m2: HashTableHashColumn<number, number, number> = m.build()
 		 * ```
@@ -1073,6 +1144,7 @@ export namespace TableBase {
 		 * @param mapFun - a function receiving the `value`, `row` and `column`, and returning a new value
 		 * @example
 		 * ```ts
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 		 * const m = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()
 		 * const m2: HashTableHashColumn<number, number, boolean> = m.buildMapValues(v => v > 3)
 		 * ```

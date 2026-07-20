@@ -17,6 +17,7 @@ export * from '#table/variant';
  * @typeparam V - the value type
  * @example
  * ```ts
+ * import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
  * const t1 = HashTableHashColumn.empty<number, string, boolean>()
  * const t2 = HashTableHashColumn.of([1, 'a', true], [2, 'a', false])
  * ```
@@ -33,6 +34,7 @@ export namespace Table {
 	 * @typeparam V - the value type
 	 * @example
 	 * ```ts
+	 * import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
 	 * const t1 = HashTableHashColumn.empty<number, string, boolean>()
 	 * const t2 = HashTableHashColumn.of([1, 'a', true], [2, 'a', false])
 	 * ```
