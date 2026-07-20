@@ -65,6 +65,7 @@ export namespace Select {
  * @returns the selected value of type `Select.Result<T, SL>`
  * @example
  * ```ts
+ * import { select, selectWith, selectAt, selectAtWith } from '@rimbu/deep/select';
  * const item = { a: { b:  1, c: 'a' } };
  * select(item, { q: 'a.c', y: ['a.b', 'a.c'], z: (v) => v.a.b + 1 });
  * // => { q: 'a', y: [1, 'a'], z: 2 }
@@ -105,6 +106,7 @@ export function select<T, const SL extends Select<T>>(
  * @returns a function that accepts a `source` value and returns `Select.Result<T, SL>`
  * @example
  * ```ts
+ * import { select, selectWith, selectAt, selectAtWith } from '@rimbu/deep/select';
  * const items = [{ a: { b:  1, c: 'a' } }, { a: { b: 2, c: 'b' } }];
  * items.map(selectWith({ q: 'a.c', z: ['a.b', v => v.a.b + 1] as const }));
  * // => [{ q: 'a', z: [1, 2] }, { q: 'b', z: [2, 3] }]
@@ -127,6 +129,7 @@ export function selectWith<T, const SL extends Select<T>>(
  * @returns the selected value at `path` of type `Select.Result<Path.Result<T, P>, SL>`
  * @example
  * ```ts
+ * import { select, selectWith, selectAt, selectAtWith } from '@rimbu/deep/select';
  * const item = { a: { b:  1, c: 'a' } };
  * selectAt(item, 'a', { q: 'c', z: ['b', v => v.b + 1] as const });
  * // => { q: 'a', z: [1, 2] }
@@ -154,6 +157,7 @@ export function selectAt<
  * @returns a function that accepts a `source` value and returns `Select.Result<Path.Result<T, P>, SL>`
  * @example
  * ```ts
+ * import { select, selectWith, selectAt, selectAtWith } from '@rimbu/deep/select';
  * const items = [{ a: { b:  1, c: 'a' } }, { a: { b: 2, c: 'b' } }];
  * items.map(selectAtWith('a', { q: 'c', z: ['b', v => v.b + 1] as const }));
  * // => [{ q: 'a', z: [1, 2] }, { q: 'b', z: [2, 3] }]

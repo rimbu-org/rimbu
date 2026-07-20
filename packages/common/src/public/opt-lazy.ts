@@ -13,6 +13,7 @@ export type OptLazy<T, A extends any[] = []> = T | ((...args: A) => T);
  * @typeparam A - (default: []) types of the argument array that can be passed in the lazy case
  * @example
  * ```ts
+ * import { OptLazy, OptLazyOr } from '@rimbu/common/opt-lazy';
  * OptLazy(1)              // => 1
  * OptLazy(() => 1)        // => 1
  * OptLazy(() => () => 1)  // => () => 1
@@ -44,6 +45,7 @@ export type OptLazyOr<T, O> = T | ((none: O) => T | O);
  * @typeparam O - the default value type
  * @example
  * ```ts
+ * import { OptLazy, OptLazyOr } from '@rimbu/common/opt-lazy';
  * OptLazyOr(1, 'a')               // => 1
  * OptLazyOr(() => 1, 'a')         // => 1
  * OptLazyOr((none) => none, 'a')  // => 'a'

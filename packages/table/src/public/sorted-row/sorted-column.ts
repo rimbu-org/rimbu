@@ -19,6 +19,7 @@ import { createTableContextModule } from '#table/context-factory';
  * @typeparam V - the value type
  * @example
  * ```ts
+ * import { SortedTableSortedColumn } from '@rimbu/table/sorted-row/sorted-column'
  * const t1 = SortedTableSortedColumn.empty<number, string, boolean>()
  * const t2 = SortedTableSortedColumn.of([1, 'a', true], [2, 'a', false])
  * ```
@@ -39,6 +40,7 @@ export namespace SortedTableSortedColumn {
 	 * @typeparam V - the value type
 	 * @example
 	 * ```ts
+	 * import { SortedTableSortedColumn } from '@rimbu/table/sorted-row/sorted-column'
 	 * const t1 = SortedTableSortedColumn.empty<number, string, boolean>()
 	 * const t2 = SortedTableSortedColumn.of([1, 'a', true], [2, 'a', false])
 	 * ```

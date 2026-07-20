@@ -51,13 +51,6 @@ export namespace Reducer {
 		 * @param options - (optional) an object containing the following properties:<br/>
 		 * - negate: (default: false) when true will invert the given predicate
 		 * @note if the predicate is a type guard, the return type is automatically inferred
-		 * @example
-		 * ```ts
-		 * import { Reducer } from '@rimbu/stream/reducer';
-		 *
-		 * Reducer.sum.filterInput(v => v > 10)
-		 * // this reducer will only sum values larger than 10
-		 * ```
 		 */
 		filterInput<IF extends I>(
 			pred: (value: I, index: number, halt: () => void) => value is IF,
@@ -77,13 +70,6 @@ export namespace Reducer {
 		 * - value: the current input value<br/>
 		 * - index: the current input index
 		 * @typeparam I2 - the resulting reducer input type
-		 * @example
-		 * ```ts
-		 * import { Reducer } from '@rimbu/stream/reducer';
-		 *
-		 * Reducer.sum.mapInput(v => v * 2)
-		 * // this reducer will double all input values before summing them
-		 * ```
 		 */
 		mapInput: <I2>(mapFun: (value: I2, index: number) => I) => Reducer<I2, O>;
 		/**
@@ -93,13 +79,6 @@ export namespace Reducer {
 		 * @param mapFun - a function that returns a new value to pass to the reducer based on the following inputs:<br/>
 		 * - value: the current input value<br/>
 		 * - index: the current input index
-		 * @example
-		 * ```ts
-		 * import { Reducer } from '@rimbu/stream/reducer';
-		 *
-		 * Reducer.sum.flatMapInput(v => [v, v + 1])
-		 * // this reducer will add v and v + 1 to the sum for each input value
-		 * ```
 		 */
 		flatMapInput<I2>(
 			flatMapFun: (value: I2, index: number) => StreamSource<I>,
@@ -112,14 +91,6 @@ export namespace Reducer {
 		 * - `skip`: a token that, when returned, will not add a value to the resulting collection<br/>
 		 * - `halt`: a function that, when called, ensures no next elements are passed
 		 * @typeparam I2 - the resulting reducer input type
-		 * @example
-		 * ```ts
-		 * import { Reducer } from '@rimbu/stream/reducer';
-		 *
-		 * Reducer.sum.collectInput((v, _, skip) => v <= 10 ? skip : v * 2)
-		 * // this reducer will double all input values larger than 10 before summing them,
-		 * // and will skip all values smaller than 10
-		 * ```
 		 */
 		collectInput<I2>(collectFun: CollectFun<I2, I>): Reducer<I2, O>;
 		/**
@@ -127,13 +98,6 @@ export namespace Reducer {
 		 * @typeparam O2 - the resulting reducer output type
 		 * @param mapFun - a function that takes the current output value and converts it to a new output value
 		 * @typeparam O2 - the new output type
-		 * @example
-		 * ```ts
-		 * import { Reducer } from '@rimbu/stream/reducer';
-		 *
-		 * Reducer.sum.mapOutput(String)
-		 * // this reducer will convert all its results to string before returning them
-		 * ```
 		 */
 		mapOutput<O2>(
 			mapFun: (value: O, index: number, halted: boolean) => O2,
@@ -141,44 +105,16 @@ export namespace Reducer {
 		/**
 		 * Returns a `Reducer` instance that takes at most the given `amount` of input elements, and will ignore subsequent elements.
 		 * @param amount - the amount of elements to accept
-		 * @example
-		 * ```ts
-		 * import { Stream } from '@rimbu/stream';
-		 * import { Reducer } from '@rimbu/stream/reducer';
-		 *
-		 * Stream.range({ end: 10 }).reduce(Reducer.sum.takeInput(2))
-		 * // => 1
-		 * ```
 		 */
 		takeInput(amount: number): Reducer<I, O>;
 		/**
 		 * Returns a `Reducer` instance that skips the first given `amount` of input elements, and will process subsequent elements.
 		 * @param amount - the amount of elements to skip
-		 * @example
-		 * ```ts
-		 * import { Stream } from '@rimbu/stream';
-		 * import { Reducer } from '@rimbu/stream/reducer';
-		 *
-		 * Stream.range({ end: 10 }).reduce(Reducer.sum.dropInput(9))
-		 * // => 19
-		 * ```
 		 */
 		dropInput(amount: number): Reducer<I, O>;
 		/**
 		 * Returns a `Reducer` instance that only processes elements within the given `range`, and ignores other elements.
 		 * @param range - (optional) an `IndexRange` specifying which input elements to process; if omitted, all elements are processed
-		 * @example
-		 * ```ts
-		 * import { Stream } from '@rimbu/stream';
-		 * import { Reducer } from '@rimbu/stream/reducer';
-		 *
-		 * Stream.range({ end: 10 }).reduce(Reducer.sum.sliceInput({ start: 1, amount: 2 }))
-		 * // => 3
-		 * Stream.range({ end: 10 }).reduce(Reducer.sum.sliceInput({ start: 2, end: 4 }))
-		 * // => 9
-		 * Stream.range({ end: 10 }).reduce(Reducer.sum.sliceInput({ start: 5 }))
-		 * // => 35
-		 * ```
 		 */
 		sliceInput(range?: IndexRange): Reducer<I, O>;
 		/**
@@ -204,22 +140,6 @@ export namespace Reducer {
 		 * Returns a reducer that applies this reducer and then the `nextReducers` sequentially on halting of each reducer.
 		 * It provides the last output value of the active reducer.
 		 * @param nextReducers - an number of reducers consuming and producing the same types as the current reducer.
-		 * @example
-		 * ```ts
-		 * import { Stream } from '@rimbu/stream';
-		 * import { Reducer } from '@rimbu/stream/reducer';
-		 *
-		 * const result = Stream.range({ amount: 6 })
-		 *  .reduce(
-		 *    Reducer.sum
-		 *      .takeInput(3)
-		 *      .chain(
-		 *        [v => v > 10 ? Reducer.product : Reducer.sum]
-		 *      )
-		 *    )
-		 * console.log(result)
-		 * // => 21
-		 * ```
 		 */
 		chain<O2 extends O>(
 			nextReducers: StreamSource<OptLazy<Reducer<I, O2>, [O2]>>,
@@ -228,17 +148,6 @@ export namespace Reducer {
 		 * Returns a 'runnable' instance of the current reducer specification. This instance maintains its own state
 		 * and indices, so that the instance only needs to be provided the input values, and output values can be
 		 * retrieved when needed. The state is kept private.
-		 * @example
-		 * ```ts
-		 * import { Reducer } from '@rimbu/stream/reducer';
-		 *
-		 * const reducer = Reducer.sum.mapOutput(v => v * 2);
-		 * const instance = reducer.compile();
-		 * instance.next(3);
-		 * instance.next(5);
-		 * console.log(instance.getOutput());
-		 * // => 16
-		 * ```
 		 */
 		compile(): Reducer.Instance<I, O>;
 	}

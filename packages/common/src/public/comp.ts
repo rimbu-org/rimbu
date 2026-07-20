@@ -13,6 +13,7 @@ export interface Comp<K> {
 	 * @param value2 - the second value to compare
 	 * @example
 	 * ```ts
+	 * import { Comp } from '@rimbu/common/comp';
 	 * const c = Comp.number
 	 * console.log(c.compare(5, 5))
 	 * // => 0
@@ -29,7 +30,8 @@ export interface Comp<K> {
 	 * @param obj - the object to check
 	 * @example
 	 * ```ts
-	 * const c = Comp.numberComp()
+	 * import { Comp } from '@rimbu/common/comp';
+	 * const c = Comp.number
 	 * console.log(c.isComparable(5))
 	 * // => true
 	 * console.log(c.isComparable('a'))
@@ -43,7 +45,8 @@ export interface Comp<K> {
 	 * @param comp - the `Comp` comparable instance to convert
 	 * @example
 	 * ```ts
-	 * const eq = Comp.object.toEq()
+	 * import { Comp } from '@rimbu/common/comp';
+	 * const eq = Comp.object().toEq()
 	 * console.log(eq({ a: 1, b: 2 }, { b: 2, a: 1 }))
 	 * // => true
 	 * ```
@@ -54,6 +57,7 @@ export interface Comp<K> {
 	 * Returns a Comp instance that reverses the order of the current `comp` instance.
 	 * @example
 	 * ```ts
+	 * import { Comp } from '@rimbu/common/comp';
 	 * const c = Comp.number.inverted()
 	 * console.log(c.compare(3, 5) > 0)
 	 * // => true
@@ -68,6 +72,7 @@ export interface Comp<K> {
 	 * than any other value, and equal to another undefined.
 	 * @example
 	 * ```ts
+	 * import { Comp } from '@rimbu/common/comp';
 	 * const c = Comp.number.withUndefined()
 	 * console.log(c.compare(undefined, 5) < 0)
 	 * // => true
@@ -82,6 +87,7 @@ export interface Comp<K> {
 	 * than any other value, and equal to another null.
 	 * @example
 	 * ```ts
+	 * import { Comp } from '@rimbu/common/comp';
 	 * const c = Comp.number.withNull()
 	 * console.log(c.compare(null, 5) < 0)
 	 * // => true
@@ -96,6 +102,7 @@ export interface Comp<K> {
 	 * @param itemComp - (optional) the Comp instance to use to compare the Iterable's elements.
 	 * @example
 	 * ```ts
+	 * import { Comp } from '@rimbu/common/comp';
 	 * const c = Comp.number.forIterable();
 	 * console.log(c.compare([1, 3, 2], [1, 3, 2]))
 	 * // => 0

@@ -26,6 +26,7 @@ export type Match<T, C extends Partial<T> = Partial<T>> = MatchInternal.Entry<
  * @returns true if the value matches the matcher, false otherwise
  * @example
  * ```ts
+ * import { match, matchVerbose, matchAt, matchWith, matchAtWith } from '@rimbu/deep/match';
  * const input = { a: 1, b: { c: true, d: 'a' } }
  * match(input, { a: 1 }) // => true
  * match(input, { a: 2 }) // => false
@@ -53,6 +54,7 @@ export function match<T, C extends Partial<T> = Partial<T>>(
  * (an array of human-readable descriptions of each sub-matcher that failed; empty when `result` is true)
  * @example
  * ```ts
+ * import { match, matchVerbose, matchAt, matchWith, matchAtWith } from '@rimbu/deep/match';
  * const input = { a: 1, b: { c: true, d: 'a' } }
  * matchVerbose(input, { a: 1 })        // => { result: true, failureLog: [] }
  * matchVerbose(input, { a: 2 })        // => { result: false, failureLog: [...] }
@@ -420,6 +422,7 @@ function matchTraverseCompound<T extends any[], C extends any[], R>(
  * Returns true if the given `source` matches the given `matcher` at the given `path`, false otherwise.
  * @example
  * ```ts
+ * import { match, matchVerbose, matchAt, matchWith, matchAtWith } from '@rimbu/deep/match';
  * const input = { a: 1, b: { c: true, d: 'a' } }
  * matchAt(input, 'b', { c: true }) // => true
  * ```
@@ -436,6 +439,7 @@ export function matchAt<T, P extends Path.Get<T>>(
  * Returns a function that matches a given `source` with the given `matcher`.
  * @example
  * ```ts
+ * import { match, matchVerbose, matchAt, matchWith, matchAtWith } from '@rimbu/deep/match';
  * const items = [{ a: 1, b: 'a' }, { a: 2, b: 'b' }];
  * items.filter(matchWith({ a: 2 }));
  * // => [{ a: 2, b: 'b' }]
@@ -449,6 +453,7 @@ export function matchWith<T>(matcher: Match<T>): (source: T) => boolean {
  * Returns a function that matches a given `source` with the given `matcher` at the given string `path`.
  * @example
  * ```ts
+ * import { match, matchVerbose, matchAt, matchWith, matchAtWith } from '@rimbu/deep/match';
  * const items = [{ a: { b: 1, c: 'a' } }, { a: { b: 2, c: 'b' } }];
  * items.filter(matchAtWith('a.b', 2));
  * // => [{ a: 2, b: 'b' }]

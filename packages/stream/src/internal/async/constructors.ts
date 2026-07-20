@@ -87,7 +87,7 @@ export interface AsyncStreamConstructors {
 	 * import { AsyncStream } from '@rimbu/stream/async';
 	 *
 	 * console.log(await AsyncStream.flatten(AsyncStream.of([[1, 2], [3], [], [4]])).toArray()); // => [1, 2, 3, 4]
-	 * await AsyncStream.flatten(AsyncStream.of(['ma', 'r', '', 'mot')).toArray()   // => ['m', 'a', 'r', 'm', 'o', 't']
+	 * console.log(await AsyncStream.flatten(AsyncStream.of(['ma', 'r', '', 'mot'])).toArray()); // => ['m', 'a', 'r', 'm', 'o', 't']
 	 * ```
 	 */
 	flatten<T extends AsyncStreamSource.NonEmpty<unknown>>(
@@ -104,7 +104,7 @@ export interface AsyncStreamConstructors {
 	 * ```ts
 	 * import { AsyncStream } from '@rimbu/stream/async';
 	 *
-	 * const [a, b] = AsyncStream.unzip(AsyncStream.of([[1, 'a'], [2, 'b']]), 2)
+	 * const [a, b] = AsyncStream.unzip(AsyncStream.of([[1, 'a'], [2, 'b']] as const), { length: 2 })
 	 * console.log(await a.toArray()); // => [1, 2]
 	 * console.log(await b.toArray()); // => ['a', 'b']
 	 * ```

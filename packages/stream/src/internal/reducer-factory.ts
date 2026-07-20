@@ -22,7 +22,7 @@ export interface ReducerFactory {
 	 * import { Reducer } from '@rimbu/stream/reducer';
 	 *
 	 * const evenNumberOfOnes = Reducer.create(
-	 *   true,
+	 *   () => true,
 	 *   (current, value: number) => (value === 1 ? !current : current),
 	 *   (state) => (state ? 'even' : 'not even')
 	 * );
@@ -53,7 +53,7 @@ export interface ReducerFactory {
 	 * import { Reducer } from '@rimbu/stream/reducer';
 	 *
 	 * const sum = Reducer.createMono(
-	 *   0,
+	 *   () => 0,
 	 *   (current, value) => current + value
 	 * );
 	 * const result = Stream.of(1, 2, 3, 2, 1).reduce(sum);
@@ -84,7 +84,7 @@ export interface ReducerFactory {
 	 * import { Reducer } from '@rimbu/stream/reducer';
 	 *
 	 * const boolToString = Reducer.createOutput(
-	 *   '',
+	 *   () => '',
 	 *   (current, value: boolean) => current + (value ? 'T' : 'F')
 	 * );
 	 * const result = Stream.of(true, false, true).reduce(boolToString);
@@ -531,18 +531,12 @@ export interface ReducerFactory {
 	 * import { Stream } from '@rimbu/stream';
 	 * import { Reducer } from '@rimbu/stream/reducer';
 	 *
-	 * Stream.of(1, 2, 3).partition((v) => v % 2 === 0)()
-	 * // => [[2], [1, 3]]
-	 *
-	 * Stream.of<number | string>(1, 'a', 'b', 2)
-	 *   .partition((v): v is string => typeof v === 'string')()
-	 * // => [['a', 'b'], [1, 2]]
-	 * // return type is: [string[], number[]]
-	 *
-	 * Stream.of(1, 2, 3, 4).partition(
-	 *   (v) => v % 2 === 0,
-	 *   { collectorTrue: Reducer.toJSSet(), collectorFalse: Reducer.sum }
-	 * )()
+	 * Stream.of(1, 2, 3, 4).reduce(
+	 *   Reducer.partition(
+	 *     (v) => v % 2 === 0,
+	 *     { collectorTrue: Reducer.toJSSet<number>(), collectorFalse: Reducer.sum }
+	 *   )
+	 * )
 	 * // => [Set(2, 4), 4]
 	 * ```
 	 */
@@ -657,7 +651,7 @@ export interface ReducerFactory {
 	 * import { Stream } from '@rimbu/stream';
 	 * import { Reducer } from '@rimbu/stream/reducer';
 	 *
-	 * console.log(Stream.of([1, 'a'], [2, 'b']).reduce(Reducer.toJSMap()))
+	 * console.log(Stream.of<readonly [number, string]>([1, 'a'], [2, 'b']).reduce(Reducer.toJSMap()))
 	 * // Map { 1 => 'a', 2 => 'b' }
 	 * ```
 	 */
@@ -673,7 +667,7 @@ export interface ReducerFactory {
 	 * import { Stream } from '@rimbu/stream';
 	 * import { Reducer } from '@rimbu/stream/reducer';
 	 *
-	 * console.log(Stream.of([1, 'a'], [1, 'b'], [2, 'c']).reduce(Reducer.toJSMultiMap()))
+	 * console.log(Stream.of<readonly [number, string]>([1, 'a'], [1, 'b'], [2, 'c']).reduce(Reducer.toJSMultiMap()))
 	 * // Map { 1 => ['a', 'b'], 2 => ['c'] }
 	 * ```
 	 */
@@ -688,7 +682,7 @@ export interface ReducerFactory {
 	 * import { Stream } from '@rimbu/stream';
 	 * import { Reducer } from '@rimbu/stream/reducer';
 	 *
-	 * console.log(Stream.of(1, 2, 3).reduce(Reducer.toJSSet()))
+	 * console.log(Stream.of(1, 2, 3).reduce(Reducer.toJSSet<number>()))
 	 * // Set {1, 2, 3}
 	 * ```
 	 */
@@ -704,7 +698,7 @@ export interface ReducerFactory {
 	 * import { Stream } from '@rimbu/stream';
 	 * import { Reducer } from '@rimbu/stream/reducer';
 	 *
-	 * console.log(Stream.of(['a', 1], ['b', true]).reduce(Reducer.toJSObject()))
+	 * console.log(Stream.of<readonly [string, number | boolean]>(['a', 1], ['b', true]).reduce(Reducer.toJSObject()))
 	 * // { a: 1, b: true }
 	 * ```
 	 */

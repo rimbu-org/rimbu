@@ -309,7 +309,7 @@ export interface AsyncReducerFactory {
 	 * import { AsyncStream } from '@rimbu/stream/async';
 	 * import { AsyncReducer } from '@rimbu/stream/async/reducer';
 	 *
-	 * await AsyncStream.of(1, 2, 3).reduce(AsyncReducer.isEmpty))
+	 * await AsyncStream.of(1, 2, 3).reduce(AsyncReducer.isEmpty)
 	 * // => false
 	 * ```
 	 */
@@ -322,7 +322,7 @@ export interface AsyncReducerFactory {
 	 * import { AsyncStream } from '@rimbu/stream/async';
 	 * import { AsyncReducer } from '@rimbu/stream/async/reducer';
 	 *
-	 * await AsyncStream.of(1, 2, 3).reduce(AsyncReducer.nonEmpty))
+	 * await AsyncStream.of(1, 2, 3).reduce(AsyncReducer.nonEmpty)
 	 * // => true
 	 * ```
 	 */

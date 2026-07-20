@@ -235,9 +235,19 @@ function parseDoc(node: ts.Node): DocComment | undefined {
   const full = doc.comment;
   const summary = typeof full === 'string' ? full.split('\n\n')[0].trim() : '';
   const description = typeof full === 'string' ? full.trim() : '';
+  // Strip JSDoc ` * ` (optional indentation + star + optional space) line
+  // prefixes that TypeScript sometimes preserves inside multi-line tag text
+  // (notably @example blocks). Without this, fenced code keeps ` * ` markers
+  // and fails to type-check.
+  const stripJsDocPrefixes = (text: string): string =>
+    text
+      .split('\n')
+      .map((line) => line.replace(/^\s*\*\s?/, ''))
+      .join('\n');
+
   const out: DocComment = { summary, description, params: [], examples: [], notes: [], see: [] };
   for (const t of doc.tags ?? []) {
-    const tagText = typeof t.comment === 'string' ? t.comment : '';
+    const tagText = typeof t.comment === 'string' ? stripJsDocPrefixes(t.comment) : '';
     switch (t.tagName.text) {
       case 'param': {
         const name = (t as ts.JSDocParameterTag).name.getText();

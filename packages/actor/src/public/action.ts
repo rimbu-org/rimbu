@@ -26,6 +26,7 @@ export namespace Action {
 	 * @returns an action creator function that, when called, produces a new `Action` instance
 	 * @example
 	 * ```ts
+	 * import { Action } from '@rimbu/actor/action';
 	 * const inc = Action.create<number>();
 	 * inc(1);
 	 * // => { tag: '...', type: 'ANON_...', payload: 1 }

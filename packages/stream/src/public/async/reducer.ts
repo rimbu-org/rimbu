@@ -66,15 +66,6 @@ export namespace AsyncReducer {
 		 * @param options - (optional) an object containing the following properties:<br/>
 		 * - negate: (default: false) when true will invert the given predicate
 		 * @note if the predicate is a type guard, the return type is automatically inferred
-		 * @example
-		 * ```ts
-		 * import { AsyncReducer } from '@rimbu/stream/async/reducer';
-		 *
-		 * AsyncReducer
-		 *   .createMono(0, async (c, v) => c + v)
-		 *   .filterInput(async v => v > 10)
-		 * // this reducer will only sum values larger than 10
-		 * ```
 		 */
 		filterInput<IF extends I>(
 			pred: (value: I, index: number, halt: () => void) => value is IF,
@@ -98,15 +89,6 @@ export namespace AsyncReducer {
 		 * - value: the current input value<br/>
 		 * - index: the current input index
 		 * @typeparam I2 - the new input type
-		 * @example
-		 * ```ts
-		 * import { AsyncReducer } from '@rimbu/stream/async/reducer';
-		 *
-		 * AsyncReducer
-		 *   .createMono(0, async (c, v) => c + v)
-		 *   .mapInput(async v => v * 2)
-		 * // this reducer will double all input values before summing them
-		 * ```
 		 */
 		mapInput: <I2>(
 			mapFun: (value: I2, index: number) => MaybePromise<I>,
@@ -117,15 +99,6 @@ export namespace AsyncReducer {
 		 * - value: the current input value<br/>
 		 * - index: the current input index
 		 * @typeparam I2 - the new input type
-		 * @example
-		 * ```ts
-		 * import { AsyncReducer } from '@rimbu/stream/async/reducer';
-		 *
-		 * AsyncReducer
-		 *   .createMono(0, async (c, v) => c + v)
-		 *   .flatMapInput(async v => [v, v])
-		 * // this reducer will include all input values twice before summing them
-		 * ```
 		 */
 		flatMapInput<I2>(
 			flatMapFun: (
@@ -141,31 +114,12 @@ export namespace AsyncReducer {
 		 * - `index`: the value index<br/>
 		 * - `skip`: a token that, when returned, will not add a value to the resulting collection<br/>
 		 * - `halt`: a function that, when called, ensures no next elements are passed
-		 * @example
-		 * ```ts
-		 * import { AsyncReducer } from '@rimbu/stream/async/reducer';
-		 *
-		 * AsyncReducer
-		 *   .createMono(0, async (c, v) => c + v)
-		 *   .collectInput(async (v, _, skip) => v <= 10 ? skip : v * 2)
-		 * // this reducer will double all input values larger than 10 before summing them,
-		 * // and will skip all values smaller than 10
-		 * ```
 		 */
 		collectInput<I2>(collectFun: AsyncCollectFun<I2, I>): AsyncReducer<I2, O>;
 		/**
 		 * Returns an `AsyncReducer` instance that converts its output values using given `mapFun`.
 		 * @param mapFun - a potentially asynchronous function that takes the current output value and converts it to a new output value
 		 * @typeparam O2 - the new output type
-		 * @example
-		 * ```ts
-		 * import { AsyncReducer } from '@rimbu/stream/async/reducer';
-		 *
-		 * AsyncReducer
-		 *   .createMono(0, async (c, v) => c + v)
-		 *   .mapOutput(async v => String(v))
-		 * // this reducer will convert all its results to string before returning them
-		 * ```
 		 */
 		mapOutput<O2>(
 			mapFun: (value: O, index: number, halted: boolean) => MaybePromise<O2>,
@@ -173,61 +127,16 @@ export namespace AsyncReducer {
 		/**
 		 * Returns an `AsyncReducer` instance that takes at most the given `amount` of input elements, and will ignore subsequent elements.
 		 * @param amount - the amount of elements to accept
-		 * @example
-		 * ```ts
-		 * import { Stream } from '@rimbu/stream';
-		 * import { AsyncStream } from '@rimbu/stream/async';
-		 * import { AsyncReducer } from '@rimbu/stream/async/reducer';
-		 *
-		 * await AsyncStream
-		 *   .from(Stream.range({ end: 10 }))
-		 *   .reduce(
-		 *     AsyncReducer
-		 *       .createMono(0, async (c, v) => c + v)
-		 *       .takeInput(2)
-		 *   )
-		 * // => 1
-		 * ```
 		 */
 		takeInput(amount: number): AsyncReducer<I, O>;
 		/**
 		 * Returns an `AsyncReducer` instance that skips the first given `amount` of input elements, and will process subsequent elements.
 		 * @param amount - the amount of elements to skip
-		 * @example
-		 * ```ts
-		 * import { Stream } from '@rimbu/stream';
-		 * import { AsyncStream } from '@rimbu/stream/async';
-		 * import { AsyncReducer } from '@rimbu/stream/async/reducer';
-		 *
-		 * await AsyncStream
-		 *   .from(Stream.range({ end: 10 }))
-		 *   .reduce(
-		 *     AsyncReducer
-		 *       .createMono(0, async (c, v) => c + v)
-		 *       .dropInput(9)
-		 *   )
-		 * // => 19
-		 * ```
 		 */
 		dropInput(amount: number): AsyncReducer<I, O>;
 		/**
 		 * Returns an `AsyncReducer` instance that only processes elements within the given `range`, and ignores other elements.
 		 * @param range - (optional) an `IndexRange` specifying which input elements to process; if omitted, all elements are processed
-		 * @example
-		 * ```ts
-		 * import { Stream } from '@rimbu/stream';
-		 * import { AsyncStream } from '@rimbu/stream/async';
-		 * import { AsyncReducer } from '@rimbu/stream/async/reducer';
-		 *
-		 * await AsyncStream
-		 *   .from(Stream.range({ end: 10 }))
-		 *   .reduce(
-		 *     AsyncReducer
-		 *       .createMono(0, async (c, v) => c + v)
-		 *       .sliceInput({ start: 1, amount: 2 })
-		 *   )
-		 * // => 3
-		 * ```
 		 */
 		sliceInput(range?: IndexRange): AsyncReducer<I, O>;
 		/**
@@ -253,23 +162,6 @@ export namespace AsyncReducer {
 		 * has halted, and moving on to the next provided reducer until it is halted. Optionally, it provides the last output
 		 * value of the previous reducer.
 		 * @param nextReducers - a stream source of reducers consuming and producing the same types as the current reducer.
-		 * @example
-		 * ```ts
-		 * import { Stream } from '@rimbu/stream';
-		 * import { AsyncStream } from '@rimbu/stream/async';
-		 * import { Reducer } from '@rimbu/stream/reducer';
-		 *
-		 * const result = await AsyncStream.from(Stream.range({ amount: 6 }))
-		 *  .reduce(
-		 *    Reducer.sum
-		 *      .takeInput(3)
-		 *      .chain(
-		 *        [v => v > 10 ? Reducer.product : Reducer.sum]
-		 *      )
-		 *    )
-		 * console.log(result)
-		 * // => 21
-		 * ```
 		 */
 		chain<O2 extends O>(
 			nextReducers: AsyncStreamSource<
@@ -281,18 +173,6 @@ export namespace AsyncReducer {
 		 * Returns a promise that resolves to a 'runnable' instance of the current reducer specification. This instance maintains its own state
 		 * and indices, so that the instance only needs to be provided the input values, and output values can be
 		 * retrieved when needed. The state is kept private.
-		 * @example
-		 * ```ts
-		 * import { Reducer } from '@rimbu/stream/reducer';
-		 * import { AsyncReducer } from '@rimbu/stream/async/reducer';
-		 *
-		 * const reducer = AsyncReducer.from(Reducer.sum.mapOutput(v => v * 2));
-		 * const instance = reducer.compile();
-		 * await instance.next(3);
-		 * await instance.next(5);
-		 * console.log(await instance.getOutput());
-		 * // => 16
-		 * ```
 		 */
 		compile(): Promise<AsyncReducer.Instance<I, O>>;
 	}
