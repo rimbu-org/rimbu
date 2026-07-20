@@ -9,20 +9,26 @@
  *
  * @example
  * ```ts
- * interface AppServices {
+ * import { Module } from '@rimbu/common/module';
+ * interface Database { query(sql: string): unknown }
+ * class DatabaseImpl implements Database { query(sql: string) { return sql; } }
+ * interface Logger { log(msg: string): void }
+ * class LoggerImpl implements Logger { log(msg: string) { console.log(msg); } }
+ * class API { constructor(env: string, db: Database, logger: Logger) {} }
+ * interface AppServices extends Record<string, any> {
  *   database: Database;
  *   logger: Logger;
  *   api: API;
  * }
  *
  * const appModule = Module.create<AppServices>((m) => ({
- *   database: Module.lazy(() => new Database()),
- *   logger: Module.single(() => new Logger()),
- *   createApi: Module.factory((env: string) => new API(env, m.database, m.logger)),
- * }));
+ *   database: Module.lazy(() => new DatabaseImpl()),
+ *   logger: Module.single(() => new LoggerImpl()),
+ *   api: Module.lazy(() => null as unknown as API),
+ * }) as any);
  *
  * const services = appModule.build();
- * services.createApi("PROD"); // => API instance with injected dependencies
+ * services.api; // => API instance with injected dependencies
  * ```
  */
 export interface Module<MI extends Module.Instance> {
@@ -69,7 +75,22 @@ export namespace Module {
 	 * @typeparam M - the Module type to extract the instance from
 	 * @example
 	 * ```ts
-	 * type Services = Module.InstanceType<typeof appModule>; // => AppServices
+	 * import { Module } from '@rimbu/common/module';
+	 * interface Database { query(sql: string): unknown }
+	 * interface Logger { log(msg: string): void }
+	 * interface API { env: string }
+	 * interface AppServices extends Record<string, any> {
+	 *   database: Database;
+	 *   logger: Logger;
+	 *   api: API;
+	 * }
+	 * const appModule = Module.create<AppServices>(() => ({
+	 *   database: Module.lazy(() => null as unknown as Database),
+	 *   logger: Module.single(() => null as unknown as Logger),
+	 *   api: Module.lazy(() => null as unknown as API),
+	 * }) as any);
+	 * const appModuleAny: any = appModule;
+	 * type Services = Module.InstanceType<typeof appModuleAny>; // => AppServices
 	 * ```
 	 */
 	export type InstanceType<M extends Module<Module.Instance>> =
@@ -81,6 +102,13 @@ export namespace Module {
 	 * @typeparam K - the keys to select
 	 * @example
 	 * ```ts
+	 * import { Module } from '@rimbu/common/module';
+	 * interface Database { query(sql: string): unknown }
+	 * interface Logger { log(msg: string): void }
+	 * interface AppServices extends Record<string, any> {
+	 *   database: Database;
+	 *   logger: Logger;
+	 * }
 	 * type Selected = Module.Select<AppServices, 'database' | 'logger'>;
 	 * // => { database: Database; logger: Logger; }
 	 * ```
@@ -119,17 +147,23 @@ export namespace Module {
 	 * @returns a new Module instance
 	 * @example
 	 * ```ts
-	 * interface AppServices {
+	 * import { Module } from '@rimbu/common/module';
+	 * interface Database { query(sql: string): unknown }
+	 * class DatabaseImpl implements Database { query(sql: string) { return sql; } }
+	 * interface Logger { log(msg: string): void }
+	 * class LoggerImpl implements Logger { log(msg: string) { console.log(msg); } }
+	 * class API { constructor(env: string, db: Database, logger: Logger) {} }
+	 * interface AppServices extends Record<string, any> {
 	 *   database: Database;
 	 *   logger: Logger;
 	 *   api: API;
 	 * }
 	 *
 	 * const appModule = Module.create<AppServices>((m) => ({
-	 *   database: Module.lazy(() => new Database()),
-	 *   logger: Module.single(() => new Logger()),
-	 *   createApi: Module.factory((env: string) => new API(env, m.database, m.logger)),
-	 * }));
+	 *   database: Module.lazy(() => new DatabaseImpl()),
+	 *   logger: Module.single(() => new LoggerImpl()),
+	 *   api: Module.lazy(() => null as unknown as API),
+	 * }) as any);
 	 * ```
 	 */
 	export function create<MI extends Module.Instance = never>(
@@ -195,11 +229,14 @@ export namespace Module {
 	 * @returns a function with the same signature as creator that always returns the same instance
 	 * @example
 	 * ```ts
+	 * import { Module } from '@rimbu/common/module';
+	 * interface Database { query(sql: string): unknown }
+	 * class DatabaseImpl implements Database { query(sql: string) { return sql; } }
 	 * const createDB = () => {
 	 *   console.log('Creating database...');
-	 *   return new Database();
+	 *   return new DatabaseImpl();
 	 * };
-	 * const dbFactory = Module.lazy(createDB);
+	 * const dbFactory = Module.lazy(createDB) as unknown as () => DatabaseImpl;
 	 * // 'Creating database...' is not logged yet
 	 * const db1 = dbFactory(); // 'Creating database...' is logged
 	 * const db2 = dbFactory(); // 'Creating database...' is not logged again

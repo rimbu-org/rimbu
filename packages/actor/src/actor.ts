@@ -88,8 +88,15 @@ export namespace Actor {
 	 * @returns the configured (and possibly enhanced) actor instance
 	 * @example
 	 * ```ts
-	 * const actor = Actor.configure({
-	 *   reducer: Reducer....,
+	 * import { Actor } from '@rimbu/actor';
+	 * import { Reducer } from '@rimbu/stream/reducer';
+	 * type Action = { type: string; payload?: unknown };
+	 * const actor = Actor.configure<number>({
+	 *   reducer: Reducer.create<Action, number, number>(
+	 *     () => 0,
+	 *     (s) => s,
+	 *     (s) => s,
+	 *   ) as unknown as Actor.ActionReducer<number>,
 	 * });
 	 * actor.getState();
 	 * // => <initial state>

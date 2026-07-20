@@ -11,10 +11,13 @@ import { cleanupOn } from '#task/task-utils';
  * @example
  * ```ts
  * import { taskify } from '@rimbu/task/ops';
- * import { readFile } from 'fs/promises';
+ * import { Task } from '@rimbu/task';
  *
- * const readFileTask = taskify(readFile, 1);
- * const job = Task.launch(readFileTask, ['path/to/file', { encoding: 'utf-8' }]);
+ * const myTask = taskify(
+ *   async (signal: AbortSignal, msg: string) => msg.toUpperCase(),
+ *   1,
+ * );
+ * const job: any = Task.launch(myTask as any, ['hello'] as any);
  * job.cancel();
  * await job.join({ recover: () => {} }); // recovers from error or cancellation
  * ```

@@ -22,6 +22,7 @@ export namespace AsyncOptLazy {
 	 * @typeparam A - (default: []) types of the argument array that can be passed in the lazy case
 	 * @example
 	 * ```ts
+	 * import { AsyncOptLazy } from '@rimbu/common/async-opt-lazy';
 	 * AsyncOptLazy.toMaybePromise(1)              // => 1
 	 * AsyncOptLazy.toMaybePromise(() => 1)        // => 1
 	 * AsyncOptLazy.toMaybePromise(() => () => 1)  // => () => 1
@@ -46,6 +47,7 @@ export namespace AsyncOptLazy {
 	 * @typeparam A - (default: []) types of the argument array that can be passed in the lazy case
 	 * @example
 	 * ```ts
+	 * import { AsyncOptLazy } from '@rimbu/common/async-opt-lazy';
 	 * AsyncOptLazy.toPromise(1)              // => Promise(1)
 	 * AsyncOptLazy.toPromise(() => 1)        // => Promise(1)
 	 * AsyncOptLazy.toPromise(() => () => 1)  // => Promise(() => 1)

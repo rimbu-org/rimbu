@@ -2,8 +2,8 @@
  * Throws an `ErrBase.ForcedError` error when called.
  * @example
  * ```ts
- * const emptyMap = HashMap.empty<number, string>()
- * emptyMap.get(5, Err);
+ * import { Err, ErrBase } from '@rimbu/common/err';
+ * Err();
  * // throws: ErrBase.ForcedError(message: 'Err: Forced to throw error')
  * ```
  * @returns never — always throws an `ErrBase.ForcedError`
@@ -34,8 +34,8 @@ export namespace ErrBase {
 	 * @param message - the message to put in the `Err.ForcedError` instance.
 	 * @example
 	 * ```ts
-	 * const emptyMap = HashMap.empty<number, string>()
-	 * emptyMap.get(5, ErrBase.msg('not found'));
+	 * import { Err, ErrBase } from '@rimbu/common/err';
+	 * ErrBase.msg('not found')();
 	 * // throws: ErrBase.ForcedError(message: 'not found')
 	 * ```
 	 * @returns a function that always throws a `ErrBase.ForcedError` when invoked

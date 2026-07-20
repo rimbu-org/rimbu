@@ -83,6 +83,25 @@ export namespace Slice {
 	 * @returns a combined slice whose reducer and actions merge all input slices
 	 * @example
 	 * ```ts
+	 * import { Slice } from '@rimbu/actor/slice';
+	 * import { Reducer } from '@rimbu/stream/reducer';
+	 * type Action = { type: string; payload?: unknown };
+	 * const userSlice: Slice<{ name: string }> = {
+	 *   reducer: Reducer.create<Action, { name: string }, { name: string }>(
+	 *     () => ({ name: '' }),
+	 *     (s) => s,
+	 *     (s) => s,
+	 *   ) as unknown as Slice<{ name: string }>['reducer'],
+	 *   actions: {},
+	 * };
+	 * const cartSlice: Slice<{ items: string[] }> = {
+	 *   reducer: Reducer.create<Action, { items: string[] }, { items: string[] }>(
+	 *     () => ({ items: [] }),
+	 *     (s) => s,
+	 *     (s) => s,
+	 *   ) as unknown as Slice<{ items: string[] }>['reducer'],
+	 *   actions: {},
+	 * };
 	 * const combined = Slice.combine({ user: userSlice, cart: cartSlice });
 	 * combined.reducer; // reducer over { user: ..., cart: ... }
 	 * ```

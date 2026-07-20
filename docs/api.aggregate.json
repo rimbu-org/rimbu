@@ -1,6 +1,6 @@
 {
   "$schema": "rimbu-docs/aggregate/v1",
-  "generatedAt": "2026-07-20T00:28:14.108Z",
+  "generatedAt": "2026-07-20T07:00:30.255Z",
   "gitRef": "main",
   "packages": [
     "@rimbu/actor",
@@ -1952,7 +1952,7 @@
           }
         ],
         "examples": [
-          "```ts\nfunction f(x: number, y: number) {\n  return x + y;\n}\n\nconst spy = Spy.fn(f, (x) => -x);\nspy(4, 5);\n// => -4\nspy.nrCalls;\n// => 1\nspy.calls;\n// => [[4, 5]]\n```"
+          "```ts\nimport { Spy } from '@rimbu/spy';\nfunction f(x: number, y: number) {\n  return x + y;\n}\n\nconst spy = Spy.fn(f, (x) => -x);\nspy(4, 5);\n// => -4\nspy.nrCalls;\n// => 1\nspy.calls;\n// => [[4, 5]]\n```"
         ],
         "notes": [],
         "see": []
@@ -2348,8 +2348,8 @@
       },
       "source": {
         "file": "packages/spy/src/spy.ts",
-        "line": 246,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L246"
+        "line": 247,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L247"
       },
       "ancestors": [],
       "descendants": []
@@ -2371,8 +2371,8 @@
       },
       "source": {
         "file": "packages/spy/src/spy.ts",
-        "line": 253,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L253"
+        "line": 254,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L254"
       },
       "type": {
         "typeParams": [
@@ -2397,16 +2397,16 @@
                 },
                 "source": {
                   "file": "packages/spy/src/spy.ts",
-                  "line": 257,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L257"
+                  "line": 258,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L258"
                 },
                 "raw": "get callSequence(): Spy.MethodCall<T>[]"
               }
             ],
             "source": {
               "file": "packages/spy/src/spy.ts",
-              "line": 257,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L257"
+              "line": 258,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L258"
             }
           },
           {
@@ -2455,15 +2455,15 @@
                 },
                 "source": {
                   "file": "packages/spy/src/spy.ts",
-                  "line": 265,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L265"
+                  "line": 266,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L266"
                 }
               }
             ],
             "source": {
               "file": "packages/spy/src/spy.ts",
-              "line": 265,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L265"
+              "line": 266,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L266"
             }
           },
           {
@@ -2483,15 +2483,15 @@
                 },
                 "source": {
                   "file": "packages/spy/src/spy.ts",
-                  "line": 269,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L269"
+                  "line": 270,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L270"
                 }
               }
             ],
             "source": {
               "file": "packages/spy/src/spy.ts",
-              "line": 269,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L269"
+              "line": 270,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L270"
             }
           },
           {
@@ -2511,15 +2511,15 @@
                 },
                 "source": {
                   "file": "packages/spy/src/spy.ts",
-                  "line": 273,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L273"
+                  "line": 274,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L274"
                 }
               }
             ],
             "source": {
               "file": "packages/spy/src/spy.ts",
-              "line": 273,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L273"
+              "line": 274,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L274"
             }
           },
           {
@@ -2539,15 +2539,15 @@
                 },
                 "source": {
                   "file": "packages/spy/src/spy.ts",
-                  "line": 277,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L277"
+                  "line": 278,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L278"
                 }
               }
             ],
             "source": {
               "file": "packages/spy/src/spy.ts",
-              "line": 277,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L277"
+              "line": 278,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L278"
             }
           }
         ]
@@ -2572,8 +2572,8 @@
       },
       "source": {
         "file": "packages/spy/src/spy.ts",
-        "line": 283,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L283"
+        "line": 284,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L284"
       },
       "ancestors": [],
       "descendants": []
@@ -2595,8 +2595,8 @@
       },
       "source": {
         "file": "packages/spy/src/spy.ts",
-        "line": 292,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L292"
+        "line": 293,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L293"
       },
       "ancestors": [],
       "descendants": []
@@ -2618,8 +2618,8 @@
       },
       "source": {
         "file": "packages/spy/src/spy.ts",
-        "line": 414,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L414"
+        "line": 415,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L415"
       },
       "type": {
         "typeParams": [
@@ -2645,16 +2645,16 @@
                 },
                 "source": {
                   "file": "packages/spy/src/spy.ts",
-                  "line": 418,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L418"
+                  "line": 419,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L419"
                 },
                 "raw": "get nrInstances(): number"
               }
             ],
             "source": {
               "file": "packages/spy/src/spy.ts",
-              "line": 418,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L418"
+              "line": 419,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L419"
             }
           },
           {
@@ -2674,16 +2674,16 @@
                 },
                 "source": {
                   "file": "packages/spy/src/spy.ts",
-                  "line": 422,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L422"
+                  "line": 423,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L423"
                 },
                 "raw": "get instances(): Spy.ClsObj<C, A>[]"
               }
             ],
             "source": {
               "file": "packages/spy/src/spy.ts",
-              "line": 422,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L422"
+              "line": 423,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L423"
             }
           },
           {
@@ -2703,16 +2703,16 @@
                 },
                 "source": {
                   "file": "packages/spy/src/spy.ts",
-                  "line": 426,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L426"
+                  "line": 427,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L427"
                 },
                 "raw": "get constructorCalls(): A[]"
               }
             ],
             "source": {
               "file": "packages/spy/src/spy.ts",
-              "line": 426,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L426"
+              "line": 427,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L427"
             }
           },
           {
@@ -2732,15 +2732,15 @@
                 },
                 "source": {
                   "file": "packages/spy/src/spy.ts",
-                  "line": 430,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L430"
+                  "line": 431,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L431"
                 }
               }
             ],
             "source": {
               "file": "packages/spy/src/spy.ts",
-              "line": 430,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L430"
+              "line": 431,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L431"
             }
           },
           {
@@ -2760,15 +2760,15 @@
                 },
                 "source": {
                   "file": "packages/spy/src/spy.ts",
-                  "line": 434,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L434"
+                  "line": 435,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L435"
                 }
               }
             ],
             "source": {
               "file": "packages/spy/src/spy.ts",
-              "line": 434,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L434"
+              "line": 435,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L435"
             }
           },
           {
@@ -2788,15 +2788,15 @@
                 },
                 "source": {
                   "file": "packages/spy/src/spy.ts",
-                  "line": 438,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L438"
+                  "line": 439,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L439"
                 }
               }
             ],
             "source": {
               "file": "packages/spy/src/spy.ts",
-              "line": 438,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L438"
+              "line": 439,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L439"
             }
           },
           {
@@ -2821,15 +2821,15 @@
                 },
                 "source": {
                   "file": "packages/spy/src/spy.ts",
-                  "line": 443,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L443"
+                  "line": 444,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L444"
                 }
               }
             ],
             "source": {
               "file": "packages/spy/src/spy.ts",
-              "line": 443,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L443"
+              "line": 444,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L444"
             }
           },
           {
@@ -2849,15 +2849,15 @@
                 },
                 "source": {
                   "file": "packages/spy/src/spy.ts",
-                  "line": 447,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L447"
+                  "line": 448,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L448"
                 }
               }
             ],
             "source": {
               "file": "packages/spy/src/spy.ts",
-              "line": 447,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L447"
+              "line": 448,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L448"
             }
           }
         ]
@@ -2874,8 +2874,8 @@
       "kind": "interface",
       "source": {
         "file": "packages/spy/src/spy.ts",
-        "line": 450,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L450"
+        "line": 451,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L451"
       },
       "type": {
         "typeParams": [
@@ -2901,16 +2901,16 @@
                 },
                 "source": {
                   "file": "packages/spy/src/spy.ts",
-                  "line": 454,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L454"
+                  "line": 455,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L455"
                 },
                 "raw": "readonly constructorArgs: A"
               }
             ],
             "source": {
               "file": "packages/spy/src/spy.ts",
-              "line": 454,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L454"
+              "line": 455,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L455"
             }
           }
         ]
@@ -2935,8 +2935,8 @@
       },
       "source": {
         "file": "packages/spy/src/spy.ts",
-        "line": 462,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L462"
+        "line": 463,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/spy/src/spy.ts#L463"
       },
       "ancestors": [],
       "descendants": []
@@ -155599,7 +155599,7 @@
           }
         ],
         "examples": [
-          "```ts\nAsyncOptLazy.toMaybePromise(1)              // => 1\nAsyncOptLazy.toMaybePromise(() => 1)        // => 1\nAsyncOptLazy.toMaybePromise(() => () => 1)  // => () => 1\nAsyncOptLazy.toMaybePromise(async () => 1)  // => Promise(1)\nAsyncOptLazy.toMaybePromise(Promise.resolve(1))  // => Promise(1)\n```"
+          "```ts\nimport { AsyncOptLazy } from '@rimbu/common/async-opt-lazy';\nAsyncOptLazy.toMaybePromise(1)              // => 1\nAsyncOptLazy.toMaybePromise(() => 1)        // => 1\nAsyncOptLazy.toMaybePromise(() => () => 1)  // => () => 1\nAsyncOptLazy.toMaybePromise(async () => 1)  // => Promise(1)\nAsyncOptLazy.toMaybePromise(Promise.resolve(1))  // => Promise(1)\n```"
         ],
         "notes": [],
         "see": []
@@ -155633,7 +155633,7 @@
           }
         ],
         "examples": [
-          "```ts\nAsyncOptLazy.toPromise(1)              // => Promise(1)\nAsyncOptLazy.toPromise(() => 1)        // => Promise(1)\nAsyncOptLazy.toPromise(() => () => 1)  // => Promise(() => 1)\nAsyncOptLazy.toPromise(async () => 1)  // => Promise(1)\nAsyncOptLazy.toPromise(Promise.resolve(1))  // => Promise(1)\n```"
+          "```ts\nimport { AsyncOptLazy } from '@rimbu/common/async-opt-lazy';\nAsyncOptLazy.toPromise(1)              // => Promise(1)\nAsyncOptLazy.toPromise(() => 1)        // => Promise(1)\nAsyncOptLazy.toPromise(() => () => 1)  // => Promise(() => 1)\nAsyncOptLazy.toPromise(async () => 1)  // => Promise(1)\nAsyncOptLazy.toPromise(Promise.resolve(1))  // => Promise(1)\n```"
         ],
         "notes": [],
         "see": []
@@ -155720,8 +155720,8 @@
       "kind": "interface",
       "source": {
         "file": "packages/common/src/public/comp.ts",
-        "line": 184,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L184"
+        "line": 191,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L191"
       },
       "type": {
         "typeParams": [],
@@ -155781,15 +155781,15 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/comp.ts",
-                  "line": 201,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L201"
+                  "line": 208,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L208"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/comp.ts",
-              "line": 201,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L201"
+              "line": 208,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L208"
             }
           },
           {
@@ -155809,15 +155809,15 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/comp.ts",
-                  "line": 207,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L207"
+                  "line": 214,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L214"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/comp.ts",
-              "line": 207,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L207"
+              "line": 214,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L214"
             }
           },
           {
@@ -155837,15 +155837,15 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/comp.ts",
-                  "line": 213,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L213"
+                  "line": 220,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L220"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/comp.ts",
-              "line": 213,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L213"
+              "line": 220,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L220"
             }
           },
           {
@@ -155865,15 +155865,15 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/comp.ts",
-                  "line": 219,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L219"
+                  "line": 226,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L226"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/comp.ts",
-              "line": 219,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L219"
+              "line": 226,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L226"
             }
           },
           {
@@ -155893,15 +155893,15 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/comp.ts",
-                  "line": 225,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L225"
+                  "line": 232,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L232"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/comp.ts",
-              "line": 225,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L225"
+              "line": 232,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L232"
             }
           },
           {
@@ -155926,16 +155926,16 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/comp.ts",
-                  "line": 232,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L232"
+                  "line": 239,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L239"
                 },
                 "raw": "string(...args: ConstructorParameters<typeof Intl.Collator>): Comp<string>"
               }
             ],
             "source": {
               "file": "packages/common/src/public/comp.ts",
-              "line": 232,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L232"
+              "line": 239,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L239"
             }
           },
           {
@@ -155955,15 +155955,15 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/comp.ts",
-                  "line": 238,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L238"
+                  "line": 245,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L245"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/comp.ts",
-              "line": 238,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L238"
+              "line": 245,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L245"
             }
           },
           {
@@ -155983,15 +155983,15 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/comp.ts",
-                  "line": 244,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L244"
+                  "line": 251,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L251"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/comp.ts",
-              "line": 244,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L244"
+              "line": 251,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L251"
             }
           },
           {
@@ -156011,15 +156011,15 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/comp.ts",
-                  "line": 250,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L250"
+                  "line": 257,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L257"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/comp.ts",
-              "line": 250,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L250"
+              "line": 257,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L257"
             }
           },
           {
@@ -156048,16 +156048,16 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/comp.ts",
-                  "line": 258,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L258"
+                  "line": 265,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L265"
                 },
                 "raw": "byValueOf<T extends {\n            valueOf(): V;\n        }, V>(cls: {\n            new (): T;\n        }, valueComp?: Comp<V> | undefined): Comp<T>"
               }
             ],
             "source": {
               "file": "packages/common/src/public/comp.ts",
-              "line": 258,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L258"
+              "line": 265,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L265"
             }
           },
           {
@@ -156077,15 +156077,15 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/comp.ts",
-                  "line": 267,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L267"
+                  "line": 274,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L274"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/comp.ts",
-              "line": 267,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L267"
+              "line": 274,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L274"
             }
           },
           {
@@ -156110,16 +156110,16 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/comp.ts",
-                  "line": 274,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L274"
+                  "line": 281,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L281"
                 },
                 "raw": "object(options?: {\n            keyComp?: Comp<any>;\n            valueComp?: Comp<any>;\n        }): Comp<Record<any, any>>"
               }
             ],
             "source": {
               "file": "packages/common/src/public/comp.ts",
-              "line": 274,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L274"
+              "line": 281,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L281"
             }
           },
           {
@@ -156139,15 +156139,15 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/comp.ts",
-                  "line": 283,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L283"
+                  "line": 290,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L290"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/comp.ts",
-              "line": 283,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L283"
+              "line": 290,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L290"
             }
           },
           {
@@ -156167,15 +156167,15 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/comp.ts",
-                  "line": 289,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L289"
+                  "line": 296,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L296"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/comp.ts",
-              "line": 289,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L289"
+              "line": 296,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L296"
             }
           },
           {
@@ -156195,15 +156195,15 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/comp.ts",
-                  "line": 295,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L295"
+                  "line": 302,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L302"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/comp.ts",
-              "line": 295,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L295"
+              "line": 302,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L302"
             }
           }
         ]
@@ -156258,22 +156258,22 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst c = Comp.number\nconsole.log(c.compare(5, 5))\n// => 0\nconsole.log(c.compare(3, 5))\n// => -2\nconsole.log(c.compare(5, 3))\n// => 2\n```"
+                    "```ts\nimport { Comp } from '@rimbu/common/comp';\nconst c = Comp.number\nconsole.log(c.compare(5, 5))\n// => 0\nconsole.log(c.compare(3, 5))\n// => -2\nconsole.log(c.compare(5, 3))\n// => 2\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/common/src/public/comp.ts",
-                  "line": 26,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L26"
+                  "line": 27,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L27"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/comp.ts",
-              "line": 26,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L26"
+              "line": 27,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L27"
             }
           },
           {
@@ -156293,22 +156293,22 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst c = Comp.numberComp()\nconsole.log(c.isComparable(5))\n// => true\nconsole.log(c.isComparable('a'))\n// => false\n```"
+                    "```ts\nimport { Comp } from '@rimbu/common/comp';\nconst c = Comp.number\nconsole.log(c.isComparable(5))\n// => true\nconsole.log(c.isComparable('a'))\n// => false\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/common/src/public/comp.ts",
-                  "line": 40,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L40"
+                  "line": 42,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L42"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/comp.ts",
-              "line": 40,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L40"
+              "line": 42,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L42"
             }
           },
           {
@@ -156328,22 +156328,22 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst eq = Comp.object.toEq()\nconsole.log(eq({ a: 1, b: 2 }, { b: 2, a: 1 }))\n// => true\n```"
+                    "```ts\nimport { Comp } from '@rimbu/common/comp';\nconst eq = Comp.object().toEq()\nconsole.log(eq({ a: 1, b: 2 }, { b: 2, a: 1 }))\n// => true\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/common/src/public/comp.ts",
-                  "line": 52,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L52"
+                  "line": 55,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L55"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/comp.ts",
-              "line": 52,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L52"
+              "line": 55,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L55"
             }
           },
           {
@@ -156358,22 +156358,22 @@
                   "description": "Returns a Comp instance that reverses the order of the current `comp` instance.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst c = Comp.number.inverted()\nconsole.log(c.compare(3, 5) > 0)\n// => true\nconsole.log(c.compare(5, 5))\n// => 0\n```"
+                    "```ts\nimport { Comp } from '@rimbu/common/comp';\nconst c = Comp.number.inverted()\nconsole.log(c.compare(3, 5) > 0)\n// => true\nconsole.log(c.compare(5, 5))\n// => 0\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/common/src/public/comp.ts",
-                  "line": 65,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L65"
+                  "line": 69,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L69"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/comp.ts",
-              "line": 65,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L65"
+              "line": 69,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L69"
             }
           },
           {
@@ -156388,22 +156388,22 @@
                   "description": "Returns a Comp instance that extends the current `comp` instance with the capability to handle `undefined` values, where undefined is considered to be smaller\nthan any other value, and equal to another undefined.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst c = Comp.number.withUndefined()\nconsole.log(c.compare(undefined, 5) < 0)\n// => true\nconsole.log(c.compare(undefined, undefined))\n// => 0\n```"
+                    "```ts\nimport { Comp } from '@rimbu/common/comp';\nconst c = Comp.number.withUndefined()\nconsole.log(c.compare(undefined, 5) < 0)\n// => true\nconsole.log(c.compare(undefined, undefined))\n// => 0\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/common/src/public/comp.ts",
-                  "line": 79,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L79"
+                  "line": 84,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L84"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/comp.ts",
-              "line": 79,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L79"
+              "line": 84,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L84"
             }
           },
           {
@@ -156418,22 +156418,22 @@
                   "description": "Returns a Comp instance that extends the current `comp` instance with the capability to handle `null` values, where null is considered to be smaller\nthan any other value, and equal to another null.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst c = Comp.number.withNull()\nconsole.log(c.compare(null, 5) < 0)\n// => true\nconsole.log(c.compare(null, null))\n// => 0\n```"
+                    "```ts\nimport { Comp } from '@rimbu/common/comp';\nconst c = Comp.number.withNull()\nconsole.log(c.compare(null, 5) < 0)\n// => true\nconsole.log(c.compare(null, null))\n// => 0\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/common/src/public/comp.ts",
-                  "line": 93,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L93"
+                  "line": 99,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L99"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/comp.ts",
-              "line": 93,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L93"
+              "line": 99,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L99"
             }
           },
           {
@@ -156453,22 +156453,22 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst c = Comp.number.forIterable();\nconsole.log(c.compare([1, 3, 2], [1, 3, 2]))\n// => 0\nconsole.log(c.compare([1, 2, 3, 4], [1, 3, 2]) < 0)\n// => true\n```"
+                    "```ts\nimport { Comp } from '@rimbu/common/comp';\nconst c = Comp.number.forIterable();\nconsole.log(c.compare([1, 3, 2], [1, 3, 2]))\n// => 0\nconsole.log(c.compare([1, 2, 3, 4], [1, 3, 2]) < 0)\n// => true\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/common/src/public/comp.ts",
-                  "line": 107,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L107"
+                  "line": 114,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L114"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/comp.ts",
-              "line": 107,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L107"
+              "line": 114,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L114"
             }
           }
         ]
@@ -156537,15 +156537,15 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/comp.ts",
-                  "line": 201,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L201"
+                  "line": 208,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L208"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/comp.ts",
-              "line": 201,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L201"
+              "line": 208,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L208"
             }
           },
           {
@@ -156565,15 +156565,15 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/comp.ts",
-                  "line": 207,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L207"
+                  "line": 214,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L214"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/comp.ts",
-              "line": 207,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L207"
+              "line": 214,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L214"
             }
           },
           {
@@ -156593,15 +156593,15 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/comp.ts",
-                  "line": 213,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L213"
+                  "line": 220,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L220"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/comp.ts",
-              "line": 213,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L213"
+              "line": 220,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L220"
             }
           },
           {
@@ -156621,15 +156621,15 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/comp.ts",
-                  "line": 219,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L219"
+                  "line": 226,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L226"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/comp.ts",
-              "line": 219,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L219"
+              "line": 226,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L226"
             }
           },
           {
@@ -156649,15 +156649,15 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/comp.ts",
-                  "line": 225,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L225"
+                  "line": 232,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L232"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/comp.ts",
-              "line": 225,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L225"
+              "line": 232,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L232"
             }
           },
           {
@@ -156682,16 +156682,16 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/comp.ts",
-                  "line": 232,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L232"
+                  "line": 239,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L239"
                 },
                 "raw": "string(...args: ConstructorParameters<typeof Intl.Collator>): Comp<string>"
               }
             ],
             "source": {
               "file": "packages/common/src/public/comp.ts",
-              "line": 232,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L232"
+              "line": 239,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L239"
             }
           },
           {
@@ -156711,15 +156711,15 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/comp.ts",
-                  "line": 238,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L238"
+                  "line": 245,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L245"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/comp.ts",
-              "line": 238,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L238"
+              "line": 245,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L245"
             }
           },
           {
@@ -156739,15 +156739,15 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/comp.ts",
-                  "line": 244,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L244"
+                  "line": 251,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L251"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/comp.ts",
-              "line": 244,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L244"
+              "line": 251,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L251"
             }
           },
           {
@@ -156767,15 +156767,15 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/comp.ts",
-                  "line": 250,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L250"
+                  "line": 257,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L257"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/comp.ts",
-              "line": 250,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L250"
+              "line": 257,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L257"
             }
           },
           {
@@ -156804,16 +156804,16 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/comp.ts",
-                  "line": 258,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L258"
+                  "line": 265,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L265"
                 },
                 "raw": "byValueOf<T extends {\n            valueOf(): V;\n        }, V>(cls: {\n            new (): T;\n        }, valueComp?: Comp<V> | undefined): Comp<T>"
               }
             ],
             "source": {
               "file": "packages/common/src/public/comp.ts",
-              "line": 258,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L258"
+              "line": 265,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L265"
             }
           },
           {
@@ -156833,15 +156833,15 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/comp.ts",
-                  "line": 267,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L267"
+                  "line": 274,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L274"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/comp.ts",
-              "line": 267,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L267"
+              "line": 274,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L274"
             }
           },
           {
@@ -156866,16 +156866,16 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/comp.ts",
-                  "line": 274,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L274"
+                  "line": 281,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L281"
                 },
                 "raw": "object(options?: {\n            keyComp?: Comp<any>;\n            valueComp?: Comp<any>;\n        }): Comp<Record<any, any>>"
               }
             ],
             "source": {
               "file": "packages/common/src/public/comp.ts",
-              "line": 274,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L274"
+              "line": 281,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L281"
             }
           },
           {
@@ -156895,15 +156895,15 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/comp.ts",
-                  "line": 283,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L283"
+                  "line": 290,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L290"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/comp.ts",
-              "line": 283,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L283"
+              "line": 290,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L290"
             }
           },
           {
@@ -156923,15 +156923,15 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/comp.ts",
-                  "line": 289,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L289"
+                  "line": 296,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L296"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/comp.ts",
-              "line": 289,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L289"
+              "line": 296,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L296"
             }
           },
           {
@@ -156951,15 +156951,15 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/comp.ts",
-                  "line": 295,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L295"
+                  "line": 302,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L302"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/comp.ts",
-              "line": 295,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L295"
+              "line": 302,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/comp.ts#L302"
             }
           }
         ]
@@ -157057,23 +157057,23 @@
                   "description": "An Eq instance that uses `Object.is` to determine if two objects are equal.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst eq = Eq.objectIs\nconsole.log(eq(5, 5))\n// => true\nconsole.log(eq(5, 'a'))\n// => false\n```"
+                    "```ts\nimport { Eq } from '@rimbu/common/eq';\nconst eq = Eq.objectIs\nconsole.log(eq(5, 5))\n// => true\nconsole.log(eq(5, 'a'))\n// => false\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/common/src/public/eq.ts",
-                  "line": 39,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L39"
+                  "line": 40,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L40"
                 },
                 "raw": "objectIs: Eq<any>"
               }
             ],
             "source": {
               "file": "packages/common/src/public/eq.ts",
-              "line": 39,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L39"
+              "line": 40,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L40"
             }
           },
           {
@@ -157093,16 +157093,16 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/eq.ts",
-                  "line": 47,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L47"
+                  "line": 48,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L48"
                 },
                 "raw": "byValueOf<T extends {\n            valueOf(): V;\n        }, V>(): Eq<T>"
               }
             ],
             "source": {
               "file": "packages/common/src/public/eq.ts",
-              "line": 47,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L47"
+              "line": 48,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L48"
             }
           },
           {
@@ -157117,23 +157117,23 @@
                   "description": "Returns an Eq instance that compares Date objects according to their `valueOf` value.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst eq = Eq.dateEq()\nconsole.log(eq(new Date(2020, 1, 1), new Date(2020, 1, 1)))\n// => true\nconsole.log(eq(new Date(2020, 1, 1), new Date(2020, 2, 1)))\n// => false\n```"
+                    "```ts\nimport { Eq } from '@rimbu/common/eq';\nconst eq = Eq.date\nconsole.log(eq(new Date(2020, 1, 1), new Date(2020, 1, 1)))\n// => true\nconsole.log(eq(new Date(2020, 1, 1), new Date(2020, 2, 1)))\n// => false\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/common/src/public/eq.ts",
-                  "line": 61,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L61"
+                  "line": 63,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L63"
                 },
                 "raw": "date: Eq<Date>"
               }
             ],
             "source": {
               "file": "packages/common/src/public/eq.ts",
-              "line": 61,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L61"
+              "line": 63,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L63"
             }
           },
           {
@@ -157158,15 +157158,15 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/eq.ts",
-                  "line": 69,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L69"
+                  "line": 71,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L71"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/eq.ts",
-              "line": 69,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L69"
+              "line": 71,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L71"
             }
           },
           {
@@ -157191,15 +157191,15 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/eq.ts",
-                  "line": 78,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L78"
+                  "line": 80,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L80"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/eq.ts",
-              "line": 78,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L78"
+              "line": 80,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L80"
             }
           },
           {
@@ -157219,15 +157219,15 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/eq.ts",
-                  "line": 86,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L86"
+                  "line": 88,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L88"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/eq.ts",
-              "line": 86,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L86"
+              "line": 88,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L88"
             }
           },
           {
@@ -157247,15 +157247,15 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/eq.ts",
-                  "line": 95,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L95"
+                  "line": 97,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L97"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/eq.ts",
-              "line": 95,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L95"
+              "line": 97,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L97"
             }
           },
           {
@@ -157277,15 +157277,15 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/eq.ts",
-                  "line": 105,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L105"
+                  "line": 107,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L107"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/eq.ts",
-              "line": 105,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L105"
+              "line": 107,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L107"
             }
           },
           {
@@ -157343,16 +157343,16 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/eq.ts",
-                  "line": 121,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L121"
+                  "line": 123,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L123"
                 },
                 "raw": "stringCaseInsentitive: Eq<string>"
               }
             ],
             "source": {
               "file": "packages/common/src/public/eq.ts",
-              "line": 121,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L121"
+              "line": 123,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L123"
             }
           },
           {
@@ -157372,16 +157372,16 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/eq.ts",
-                  "line": 127,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L127"
+                  "line": 129,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L129"
                 },
                 "raw": "stringCharCode: Eq<string>"
               }
             ],
             "source": {
               "file": "packages/common/src/public/eq.ts",
-              "line": 127,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L127"
+              "line": 129,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L129"
             }
           },
           {
@@ -157401,16 +157401,16 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/eq.ts",
-                  "line": 134,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L134"
+                  "line": 136,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L136"
                 },
                 "raw": "anyByToString: Eq<any>"
               }
             ],
             "source": {
               "file": "packages/common/src/public/eq.ts",
-              "line": 134,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L134"
+              "line": 136,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L136"
             }
           },
           {
@@ -157430,15 +157430,15 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/eq.ts",
-                  "line": 140,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L140"
+                  "line": 142,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L142"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/eq.ts",
-              "line": 140,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L140"
+              "line": 142,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L142"
             }
           },
           {
@@ -157463,15 +157463,15 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/eq.ts",
-                  "line": 148,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L148"
+                  "line": 150,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L150"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/eq.ts",
-              "line": 148,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L148"
+              "line": 150,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L150"
             }
           }
         ]
@@ -157575,23 +157575,23 @@
                   "description": "An Eq instance that uses `Object.is` to determine if two objects are equal.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst eq = Eq.objectIs\nconsole.log(eq(5, 5))\n// => true\nconsole.log(eq(5, 'a'))\n// => false\n```"
+                    "```ts\nimport { Eq } from '@rimbu/common/eq';\nconst eq = Eq.objectIs\nconsole.log(eq(5, 5))\n// => true\nconsole.log(eq(5, 'a'))\n// => false\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/common/src/public/eq.ts",
-                  "line": 39,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L39"
+                  "line": 40,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L40"
                 },
                 "raw": "objectIs: Eq<any>"
               }
             ],
             "source": {
               "file": "packages/common/src/public/eq.ts",
-              "line": 39,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L39"
+              "line": 40,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L40"
             }
           },
           {
@@ -157611,16 +157611,16 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/eq.ts",
-                  "line": 47,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L47"
+                  "line": 48,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L48"
                 },
                 "raw": "byValueOf<T extends {\n            valueOf(): V;\n        }, V>(): Eq<T>"
               }
             ],
             "source": {
               "file": "packages/common/src/public/eq.ts",
-              "line": 47,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L47"
+              "line": 48,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L48"
             }
           },
           {
@@ -157635,23 +157635,23 @@
                   "description": "Returns an Eq instance that compares Date objects according to their `valueOf` value.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst eq = Eq.dateEq()\nconsole.log(eq(new Date(2020, 1, 1), new Date(2020, 1, 1)))\n// => true\nconsole.log(eq(new Date(2020, 1, 1), new Date(2020, 2, 1)))\n// => false\n```"
+                    "```ts\nimport { Eq } from '@rimbu/common/eq';\nconst eq = Eq.date\nconsole.log(eq(new Date(2020, 1, 1), new Date(2020, 1, 1)))\n// => true\nconsole.log(eq(new Date(2020, 1, 1), new Date(2020, 2, 1)))\n// => false\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/common/src/public/eq.ts",
-                  "line": 61,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L61"
+                  "line": 63,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L63"
                 },
                 "raw": "date: Eq<Date>"
               }
             ],
             "source": {
               "file": "packages/common/src/public/eq.ts",
-              "line": 61,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L61"
+              "line": 63,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L63"
             }
           },
           {
@@ -157676,15 +157676,15 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/eq.ts",
-                  "line": 69,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L69"
+                  "line": 71,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L71"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/eq.ts",
-              "line": 69,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L69"
+              "line": 71,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L71"
             }
           },
           {
@@ -157709,15 +157709,15 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/eq.ts",
-                  "line": 78,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L78"
+                  "line": 80,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L80"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/eq.ts",
-              "line": 78,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L78"
+              "line": 80,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L80"
             }
           },
           {
@@ -157737,15 +157737,15 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/eq.ts",
-                  "line": 86,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L86"
+                  "line": 88,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L88"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/eq.ts",
-              "line": 86,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L86"
+              "line": 88,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L88"
             }
           },
           {
@@ -157765,15 +157765,15 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/eq.ts",
-                  "line": 95,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L95"
+                  "line": 97,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L97"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/eq.ts",
-              "line": 95,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L95"
+              "line": 97,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L97"
             }
           },
           {
@@ -157795,15 +157795,15 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/eq.ts",
-                  "line": 105,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L105"
+                  "line": 107,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L107"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/eq.ts",
-              "line": 105,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L105"
+              "line": 107,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L107"
             }
           },
           {
@@ -157861,16 +157861,16 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/eq.ts",
-                  "line": 121,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L121"
+                  "line": 123,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L123"
                 },
                 "raw": "stringCaseInsentitive: Eq<string>"
               }
             ],
             "source": {
               "file": "packages/common/src/public/eq.ts",
-              "line": 121,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L121"
+              "line": 123,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L123"
             }
           },
           {
@@ -157890,16 +157890,16 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/eq.ts",
-                  "line": 127,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L127"
+                  "line": 129,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L129"
                 },
                 "raw": "stringCharCode: Eq<string>"
               }
             ],
             "source": {
               "file": "packages/common/src/public/eq.ts",
-              "line": 127,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L127"
+              "line": 129,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L129"
             }
           },
           {
@@ -157919,16 +157919,16 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/eq.ts",
-                  "line": 134,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L134"
+                  "line": 136,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L136"
                 },
                 "raw": "anyByToString: Eq<any>"
               }
             ],
             "source": {
               "file": "packages/common/src/public/eq.ts",
-              "line": 134,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L134"
+              "line": 136,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L136"
             }
           },
           {
@@ -157948,15 +157948,15 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/eq.ts",
-                  "line": 140,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L140"
+                  "line": 142,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L142"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/eq.ts",
-              "line": 140,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L140"
+              "line": 142,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L142"
             }
           },
           {
@@ -157981,15 +157981,15 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/eq.ts",
-                  "line": 148,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L148"
+                  "line": 150,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L150"
                 }
               }
             ],
             "source": {
               "file": "packages/common/src/public/eq.ts",
-              "line": 148,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L148"
+              "line": 150,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/eq.ts#L150"
             }
           }
         ]
@@ -158009,7 +158009,7 @@
         "description": "Throws an `ErrBase.ForcedError` error when called.",
         "params": [],
         "examples": [
-          "```ts\nconst emptyMap = HashMap.empty<number, string>()\nemptyMap.get(5, Err);\n// throws: ErrBase.ForcedError(message: 'Err: Forced to throw error')\n```"
+          "```ts\nimport { Err, ErrBase } from '@rimbu/common/err';\nErr();\n// throws: ErrBase.ForcedError(message: 'Err: Forced to throw error')\n```"
         ],
         "notes": [],
         "see": []
@@ -158039,7 +158039,7 @@
           }
         ],
         "examples": [
-          "```ts\nconst emptyMap = HashMap.empty<number, string>()\nemptyMap.get(5, ErrBase.msg('not found'));\n// throws: ErrBase.ForcedError(message: 'not found')\n```"
+          "```ts\nimport { Err, ErrBase } from '@rimbu/common/err';\nErrBase.msg('not found')();\n// throws: ErrBase.ForcedError(message: 'not found')\n```"
         ],
         "notes": [],
         "see": []
@@ -158339,7 +158339,7 @@
           }
         ],
         "examples": [
-          "```ts\ninterface AppServices {\n  database: Database;\n  logger: Logger;\n  api: API;\n}\n\nconst appModule = Module.create<AppServices>((m) => ({\n  database: Module.lazy(() => new Database()),\n  logger: Module.single(() => new Logger()),\n  createApi: Module.factory((env: string) => new API(env, m.database, m.logger)),\n}));\n```"
+          "```ts\nimport { Module } from '@rimbu/common/module';\ninterface Database { query(sql: string): unknown }\nclass DatabaseImpl implements Database { query(sql: string) { return sql; } }\ninterface Logger { log(msg: string): void }\nclass LoggerImpl implements Logger { log(msg: string) { console.log(msg); } }\nclass API { constructor(env: string, db: Database, logger: Logger) {} }\ninterface AppServices extends Record<string, any> {\ndatabase: Database;\nlogger: Logger;\napi: API;\n}\n\nconst appModule = Module.create<AppServices>((m) => ({\ndatabase: Module.lazy(() => new DatabaseImpl()),\nlogger: Module.single(() => new LoggerImpl()),\napi: Module.lazy(() => null as unknown as API),\n}) as any);\n```"
         ],
         "notes": [],
         "see": []
@@ -158397,7 +158397,7 @@
           }
         ],
         "examples": [
-          "```ts\nconst createDB = () => {\n  console.log('Creating database...');\n  return new Database();\n};\nconst dbFactory = Module.lazy(createDB);\n// 'Creating database...' is not logged yet\nconst db1 = dbFactory(); // 'Creating database...' is logged\nconst db2 = dbFactory(); // 'Creating database...' is not logged again\nconsole.log(db1 === db2); // => true\n```"
+          "```ts\nimport { Module } from '@rimbu/common/module';\ninterface Database { query(sql: string): unknown }\nclass DatabaseImpl implements Database { query(sql: string) { return sql; } }\nconst createDB = () => {\nconsole.log('Creating database...');\nreturn new DatabaseImpl();\n};\nconst dbFactory = Module.lazy(createDB) as unknown as () => DatabaseImpl;\n// 'Creating database...' is not logged yet\nconst db1 = dbFactory(); // 'Creating database...' is logged\nconst db2 = dbFactory(); // 'Creating database...' is not logged again\nconsole.log(db1 === db2); // => true\n```"
         ],
         "notes": [],
         "see": []
@@ -158455,8 +158455,8 @@
       },
       "source": {
         "file": "packages/common/src/public/module.ts",
-        "line": 50,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/module.ts#L50"
+        "line": 56,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/module.ts#L56"
       },
       "ancestors": [],
       "descendants": []
@@ -158478,8 +158478,8 @@
       },
       "source": {
         "file": "packages/common/src/public/module.ts",
-        "line": 59,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/module.ts#L59"
+        "line": 65,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/module.ts#L65"
       },
       "ancestors": [],
       "descendants": []
@@ -158511,7 +158511,7 @@
         "description": "Extracts the Instance type from a Module type.",
         "params": [],
         "examples": [
-          "```ts\ntype Services = Module.InstanceType<typeof appModule>; // => AppServices\n```"
+          "```ts\nimport { Module } from '@rimbu/common/module';\ninterface Database { query(sql: string): unknown }\ninterface Logger { log(msg: string): void }\ninterface API { env: string }\ninterface AppServices extends Record<string, any> {\ndatabase: Database;\nlogger: Logger;\napi: API;\n}\nconst appModule = Module.create<AppServices>(() => ({\ndatabase: Module.lazy(() => null as unknown as Database),\nlogger: Module.single(() => null as unknown as Logger),\napi: Module.lazy(() => null as unknown as API),\n}) as any);\nconst appModuleAny: any = appModule;\ntype Services = Module.InstanceType<typeof appModuleAny>; // => AppServices\n```"
         ],
         "notes": [],
         "see": []
@@ -158536,15 +158536,15 @@
         "description": "Selects a subset of dependencies from a module instance.",
         "params": [],
         "examples": [
-          "```ts\ntype Selected = Module.Select<AppServices, 'database' | 'logger'>;\n// => { database: Database; logger: Logger; }\n```"
+          "```ts\nimport { Module } from '@rimbu/common/module';\ninterface Database { query(sql: string): unknown }\ninterface Logger { log(msg: string): void }\ninterface AppServices extends Record<string, any> {\ndatabase: Database;\nlogger: Logger;\n}\ntype Selected = Module.Select<AppServices, 'database' | 'logger'>;\n// => { database: Database; logger: Logger; }\n```"
         ],
         "notes": [],
         "see": []
       },
       "source": {
         "file": "packages/common/src/public/module.ts",
-        "line": 88,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/module.ts#L88"
+        "line": 116,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/module.ts#L116"
       },
       "ancestors": [],
       "descendants": []
@@ -158561,15 +158561,15 @@
         "description": "A simple, lightweight but powerful dependency injection mechanism.\n\nA Module defines a set of dependencies and how to create instances of those dependencies.\nWhen building a Module, the defined dependencies are injected and accessible as properties\non the resulting instance.",
         "params": [],
         "examples": [
-          "```ts\ninterface AppServices {\n  database: Database;\n  logger: Logger;\n  api: API;\n}\n\nconst appModule = Module.create<AppServices>((m) => ({\n  database: Module.lazy(() => new Database()),\n  logger: Module.single(() => new Logger()),\n  createApi: Module.factory((env: string) => new API(env, m.database, m.logger)),\n}));\n\nconst services = appModule.build();\nservices.createApi(\"PROD\"); // => API instance with injected dependencies\n```"
+          "```ts\nimport { Module } from '@rimbu/common/module';\ninterface Database { query(sql: string): unknown }\nclass DatabaseImpl implements Database { query(sql: string) { return sql; } }\ninterface Logger { log(msg: string): void }\nclass LoggerImpl implements Logger { log(msg: string) { console.log(msg); } }\nclass API { constructor(env: string, db: Database, logger: Logger) {} }\ninterface AppServices extends Record<string, any> {\n  database: Database;\n  logger: Logger;\n  api: API;\n}\n\nconst appModule = Module.create<AppServices>((m) => ({\n  database: Module.lazy(() => new DatabaseImpl()),\n  logger: Module.single(() => new LoggerImpl()),\n  api: Module.lazy(() => null as unknown as API),\n}) as any);\n\nconst services = appModule.build();\nservices.api; // => API instance with injected dependencies\n```"
         ],
         "notes": [],
         "see": []
       },
       "source": {
         "file": "packages/common/src/public/module.ts",
-        "line": 28,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/module.ts#L28"
+        "line": 34,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/module.ts#L34"
       },
       "type": {
         "typeParams": [
@@ -158599,16 +158599,16 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/module.ts",
-                  "line": 34,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/module.ts#L34"
+                  "line": 40,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/module.ts#L40"
                 },
                 "raw": "readonly getDefinition: (module: MI)"
               }
             ],
             "source": {
               "file": "packages/common/src/public/module.ts",
-              "line": 34,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/module.ts#L34"
+              "line": 40,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/module.ts#L40"
             }
           },
           {
@@ -158628,16 +158628,16 @@
                 },
                 "source": {
                   "file": "packages/common/src/public/module.ts",
-                  "line": 41,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/module.ts#L41"
+                  "line": 47,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/module.ts#L47"
                 },
                 "raw": "build<TI = MI>(): MI extends TI ? TI : never"
               }
             ],
             "source": {
               "file": "packages/common/src/public/module.ts",
-              "line": 41,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/module.ts#L41"
+              "line": 47,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/common/src/public/module.ts#L47"
             }
           }
         ]
@@ -158710,7 +158710,7 @@
           }
         ],
         "examples": [
-          "```ts\nOptLazy(1)              // => 1\nOptLazy(() => 1)        // => 1\nOptLazy(() => () => 1)  // => () => 1\n```"
+          "```ts\nimport { OptLazy, OptLazyOr } from '@rimbu/common/opt-lazy';\nOptLazy(1)              // => 1\nOptLazy(() => 1)        // => 1\nOptLazy(() => () => 1)  // => () => 1\n```"
         ],
         "notes": [],
         "see": []
@@ -158744,7 +158744,7 @@
           }
         ],
         "examples": [
-          "```ts\nOptLazyOr(1, 'a')               // => 1\nOptLazyOr(() => 1, 'a')         // => 1\nOptLazyOr((none) => none, 'a')  // => 'a'\n```"
+          "```ts\nimport { OptLazy, OptLazyOr } from '@rimbu/common/opt-lazy';\nOptLazyOr(1, 'a')               // => 1\nOptLazyOr(() => 1, 'a')         // => 1\nOptLazyOr((none) => none, 'a')  // => 'a'\n```"
         ],
         "notes": [],
         "see": []
@@ -189964,7 +189964,7 @@
         "description": "A **non-empty** type-invariant immutable Map of key type K, and value type V.\nIn the Map, each key has exactly one value, and the Map cannot contain\nduplicate keys.<br/>\nSee the [Map documentation](https://rimbu.org/docs/collections/map) and the\n[ProximityMap API documentation](https://rimbu.org/api/rimbu/proximity/map/ProximityMap/interface)",
         "params": [],
         "examples": [
-          "```ts\nconst m1 = ProximityMap.empty<number, string>()\nconst m2 = ProximityMap.of([1, 'a'], [2, 'b'])\n```"
+          "```ts\nimport { ProximityMap } from '@rimbu/proximity';\nconst m1 = ProximityMap.empty<number, string>()\nconst m2 = ProximityMap.of([1, 'a'], [2, 'b'])\n```"
         ],
         "notes": [
           "The `get()` method is designed to perform a linear scan of all the keys, returning\nthe value associated with the key having the least distance from the input key;\nhowever, optimized distance functions can greatly improve efficiency by\npreventing a full scan."
@@ -189992,15 +189992,15 @@
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/proximity/src/proximity.ts",
-                  "line": 65,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/proximity/src/proximity.ts#L65"
+                  "line": 67,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/proximity/src/proximity.ts#L67"
                 }
               }
             ],
             "source": {
               "file": "packages/proximity/src/proximity.ts",
-              "line": 65,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/proximity/src/proximity.ts#L65"
+              "line": 67,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/proximity/src/proximity.ts#L67"
             }
           }
         ]
@@ -190043,16 +190043,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/proximity/src/proximity.ts",
-                  "line": 76,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/proximity/src/proximity.ts#L76"
+                  "line": 78,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/proximity/src/proximity.ts#L78"
                 },
                 "raw": "readonly typeTag: 'ProximityMap'"
               }
             ],
             "source": {
               "file": "packages/proximity/src/proximity.ts",
-              "line": 76,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/proximity/src/proximity.ts#L76"
+              "line": 78,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/proximity/src/proximity.ts#L78"
             }
           },
           {
@@ -190072,16 +190072,16 @@
                 },
                 "source": {
                   "file": "packages/proximity/src/proximity.ts",
-                  "line": 81,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/proximity/src/proximity.ts#L81"
+                  "line": 83,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/proximity/src/proximity.ts#L83"
                 },
                 "raw": "readonly distanceFunction: DistanceFunction<UK>"
               }
             ],
             "source": {
               "file": "packages/proximity/src/proximity.ts",
-              "line": 81,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/proximity/src/proximity.ts#L81"
+              "line": 83,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/proximity/src/proximity.ts#L83"
             }
           },
           {
@@ -190101,16 +190101,16 @@
                 },
                 "source": {
                   "file": "packages/proximity/src/proximity.ts",
-                  "line": 86,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/proximity/src/proximity.ts#L86"
+                  "line": 88,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/proximity/src/proximity.ts#L88"
                 },
                 "raw": "readonly hashMapContext: HashMap.Context<UK>"
               }
             ],
             "source": {
               "file": "packages/proximity/src/proximity.ts",
-              "line": 86,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/proximity/src/proximity.ts#L86"
+              "line": 88,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/proximity/src/proximity.ts#L88"
             }
           }
         ]
@@ -190166,8 +190166,8 @@
       },
       "source": {
         "file": "packages/proximity/src/proximity.ts",
-        "line": 102,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/proximity/src/proximity.ts#L102"
+        "line": 104,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/proximity/src/proximity.ts#L104"
       },
       "type": {
         "typeParams": [],
@@ -190182,16 +190182,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/proximity/src/proximity.ts",
-                  "line": 103,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/proximity/src/proximity.ts#L103"
+                  "line": 105,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/proximity/src/proximity.ts#L105"
                 },
                 "raw": "readonly normal: ProximityMap<this['_K'], this['_V']>"
               }
             ],
             "source": {
               "file": "packages/proximity/src/proximity.ts",
-              "line": 103,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/proximity/src/proximity.ts#L103"
+              "line": 105,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/proximity/src/proximity.ts#L105"
             }
           },
           {
@@ -190203,16 +190203,16 @@
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/proximity/src/proximity.ts",
-                  "line": 104,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/proximity/src/proximity.ts#L104"
+                  "line": 106,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/proximity/src/proximity.ts#L106"
                 },
                 "raw": "readonly nonEmpty: ProximityMap.NonEmpty<this['_K'], this['_V']>"
               }
             ],
             "source": {
               "file": "packages/proximity/src/proximity.ts",
-              "line": 104,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/proximity/src/proximity.ts#L104"
+              "line": 106,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/proximity/src/proximity.ts#L106"
             }
           },
           {
@@ -190224,16 +190224,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/proximity/src/proximity.ts",
-                  "line": 105,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/proximity/src/proximity.ts#L105"
+                  "line": 107,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/proximity/src/proximity.ts#L107"
                 },
                 "raw": "readonly context: ProximityMap.Context<this['_K']>"
               }
             ],
             "source": {
               "file": "packages/proximity/src/proximity.ts",
-              "line": 105,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/proximity/src/proximity.ts#L105"
+              "line": 107,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/proximity/src/proximity.ts#L107"
             }
           },
           {
@@ -190245,16 +190245,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/proximity/src/proximity.ts",
-                  "line": 106,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/proximity/src/proximity.ts#L106"
+                  "line": 108,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/proximity/src/proximity.ts#L108"
                 },
                 "raw": "readonly builder: ProximityMap.Builder<this['_K'], this['_V']>"
               }
             ],
             "source": {
               "file": "packages/proximity/src/proximity.ts",
-              "line": 106,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/proximity/src/proximity.ts#L106"
+              "line": 108,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/proximity/src/proximity.ts#L108"
             }
           }
         ]
@@ -190274,7 +190274,7 @@
         "description": "A type-invariant immutable Map of key type K, and value type V.\nIn the Map, each key has exactly one value, and the Map cannot contain\nduplicate keys.\nSee the [Map documentation](https://rimbu.org/docs/collections/map) and the\n[ProximityMap API documentation](https://rimbu.org/api/rimbu/proximity/map/ProximityMap/interface)",
         "params": [],
         "examples": [
-          "```ts\nconst m1 = ProximityMap.empty<number, string>()\nconst m2 = ProximityMap.of([1, 'a'], [2, 'b'])\n```"
+          "```ts\nimport { ProximityMap } from '@rimbu/proximity';\nconst m1 = ProximityMap.empty<number, string>()\nconst m2 = ProximityMap.of([1, 'a'], [2, 'b'])\n```"
         ],
         "notes": [
           "The `get()` method is designed to perform a linear scan of all the keys, returning\nthe value associated with the key having the least distance from the input key;\nhowever, optimized distance functions can greatly improve efficiency by\npreventing a full scan."
@@ -205373,7 +205373,7 @@
           }
         ],
         "examples": [
-          "```ts\nimport { taskify } from '@rimbu/task/ops';\nimport { readFile } from 'fs/promises';\n\nconst readFileTask = taskify(readFile, 1);\nconst job = Task.launch(readFileTask, ['path/to/file', { encoding: 'utf-8' }]);\njob.cancel();\nawait job.join({ recover: () => {} }); // recovers from error or cancellation\n```"
+          "```ts\nimport { taskify } from '@rimbu/task/ops';\nimport { Task } from '@rimbu/task';\n\nconst myTask = taskify(\n  async (signal: AbortSignal, msg: string) => msg.toUpperCase(),\n  1,\n);\n const job: any = Task.launch(myTask as any, ['hello'] as any);\njob.cancel();\nawait job.join({ recover: () => {} }); // recovers from error or cancellation\n```"
         ],
         "notes": [],
         "see": []
@@ -223500,7 +223500,7 @@
           }
         ],
         "examples": [
-          "```ts\nconst actor = Actor.configure({\n  reducer: Reducer....,\n});\nactor.getState();\n// => <initial state>\n```"
+          "```ts\nimport { Actor } from '@rimbu/actor';\nimport { Reducer } from '@rimbu/stream/reducer';\ntype Action = { type: string; payload?: unknown };\nconst actor = Actor.configure<number>({\nreducer: Reducer.create<Action, number, number>(\n() => 0,\n(s) => s,\n(s) => s,\n) as unknown as Actor.ActionReducer<number>,\n});\nactor.getState();\n// => <initial state>\n```"
         ],
         "notes": [],
         "see": []
@@ -224034,8 +224034,8 @@
       "kind": "namespace",
       "source": {
         "file": "packages/actor/src/public/action.ts",
-        "line": 34,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/actor/src/public/action.ts#L34"
+        "line": 35,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/actor/src/public/action.ts#L35"
       },
       "ancestors": [],
       "descendants": []
@@ -224176,7 +224176,7 @@
           }
         ],
         "examples": [
-          "```ts\nconst combined = Slice.combine({ user: userSlice, cart: cartSlice });\ncombined.reducer; // reducer over { user: ..., cart: ... }\n```"
+          "```ts\nimport { Slice } from '@rimbu/actor/slice';\nimport { Reducer } from '@rimbu/stream/reducer';\ntype Action = { type: string; payload?: unknown };\nconst userSlice: Slice<{ name: string }> = {\nreducer: Reducer.create<Action, { name: string }, { name: string }>(\n() => ({ name: '' }),\n(s) => s,\n(s) => s,\n) as unknown as Slice<{ name: string }>['reducer'],\nactions: {},\n};\nconst cartSlice: Slice<{ items: string[] }> = {\nreducer: Reducer.create<Action, { items: string[] }, { items: string[] }>(\n() => ({ items: [] }),\n(s) => s,\n(s) => s,\n) as unknown as Slice<{ items: string[] }>['reducer'],\nactions: {},\n};\nconst combined = Slice.combine({ user: userSlice, cart: cartSlice });\ncombined.reducer; // reducer over { user: ..., cart: ... }\n```"
         ],
         "notes": [],
         "see": []

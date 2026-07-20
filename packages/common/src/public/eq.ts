@@ -29,6 +29,7 @@ export namespace Eq {
 		 * An Eq instance that uses `Object.is` to determine if two objects are equal.
 		 * @example
 		 * ```ts
+		 * import { Eq } from '@rimbu/common/eq';
 		 * const eq = Eq.objectIs
 		 * console.log(eq(5, 5))
 		 * // => true
@@ -50,7 +51,8 @@ export namespace Eq {
 		 * Returns an Eq instance that compares Date objects according to their `valueOf` value.
 		 * @example
 		 * ```ts
-		 * const eq = Eq.dateEq()
+		 * import { Eq } from '@rimbu/common/eq';
+		 * const eq = Eq.date
 		 * console.log(eq(new Date(2020, 1, 1), new Date(2020, 1, 1)))
 		 * // => true
 		 * console.log(eq(new Date(2020, 1, 1), new Date(2020, 2, 1)))

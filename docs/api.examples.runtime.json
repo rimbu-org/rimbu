@@ -1,8 +1,10 @@
 {
   "spy/Spy.fn::::-1::0": {
-    "code": "function f(x: number, y: number) {\n  return x + y;\n}\n\nconst spy = Spy.fn(f, (x) => -x);\nspy(4, 5);\n// => -4\nspy.nrCalls;\n// => 1\nspy.calls;\n// => [[4, 5]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Spy } from '@rimbu/spy';\nfunction f(x: number, y: number) {\n  return x + y;\n}\n\nconst spy = Spy.fn(f, (x) => -x);\nspy(4, 5);\n// => -4\nspy.nrCalls;\n// => 1\nspy.calls;\n// => [[4, 5]]",
+    "packages": [
+      "@rimbu/spy"
+    ],
+    "typeChecks": true
   },
   "stream/AsyncStream.NonEmpty::::-1::0": {
     "code": "import { Stream } from '@rimbu/stream';\nimport { AsyncStream } from '@rimbu/stream/async';\n\nconst s1 = AsyncStream.of(1, 3, 2)\nconst s2 = AsyncStream.from(Stream.range({ start: 10, amount: 15 }))",
@@ -13445,114 +13447,158 @@
     "typeChecks": true
   },
   "common/AsyncOptLazy.toMaybePromise::::-1::0": {
-    "code": "AsyncOptLazy.toMaybePromise(1)              // => 1\nAsyncOptLazy.toMaybePromise(() => 1)        // => 1\nAsyncOptLazy.toMaybePromise(() => () => 1)  // => () => 1\nAsyncOptLazy.toMaybePromise(async () => 1)  // => Promise(1)\nAsyncOptLazy.toMaybePromise(Promise.resolve(1))  // => Promise(1)",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { AsyncOptLazy } from '@rimbu/common/async-opt-lazy';\nAsyncOptLazy.toMaybePromise(1)              // => 1\nAsyncOptLazy.toMaybePromise(() => 1)        // => 1\nAsyncOptLazy.toMaybePromise(() => () => 1)  // => () => 1\nAsyncOptLazy.toMaybePromise(async () => 1)  // => Promise(1)\nAsyncOptLazy.toMaybePromise(Promise.resolve(1))  // => Promise(1)",
+    "packages": [
+      "@rimbu/common"
+    ],
+    "typeChecks": true
   },
   "common/AsyncOptLazy.toPromise::::-1::0": {
-    "code": "AsyncOptLazy.toPromise(1)              // => Promise(1)\nAsyncOptLazy.toPromise(() => 1)        // => Promise(1)\nAsyncOptLazy.toPromise(() => () => 1)  // => Promise(() => 1)\nAsyncOptLazy.toPromise(async () => 1)  // => Promise(1)\nAsyncOptLazy.toPromise(Promise.resolve(1))  // => Promise(1)",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { AsyncOptLazy } from '@rimbu/common/async-opt-lazy';\nAsyncOptLazy.toPromise(1)              // => Promise(1)\nAsyncOptLazy.toPromise(() => 1)        // => Promise(1)\nAsyncOptLazy.toPromise(() => () => 1)  // => Promise(() => 1)\nAsyncOptLazy.toPromise(async () => 1)  // => Promise(1)\nAsyncOptLazy.toPromise(Promise.resolve(1))  // => Promise(1)",
+    "packages": [
+      "@rimbu/common"
+    ],
+    "typeChecks": true
   },
   "common/Comp::compare::0::0": {
-    "code": "const c = Comp.number\nconsole.log(c.compare(5, 5))\n// => 0\nconsole.log(c.compare(3, 5))\n// => -2\nconsole.log(c.compare(5, 3))\n// => 2",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Comp } from '@rimbu/common/comp';\nconst c = Comp.number\nconsole.log(c.compare(5, 5))\n// => 0\nconsole.log(c.compare(3, 5))\n// => -2\nconsole.log(c.compare(5, 3))\n// => 2",
+    "packages": [
+      "@rimbu/common"
+    ],
+    "typeChecks": true
   },
   "common/Comp::isComparable::0::0": {
-    "code": "const c = Comp.numberComp()\nconsole.log(c.isComparable(5))\n// => true\nconsole.log(c.isComparable('a'))\n// => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Comp } from '@rimbu/common/comp';\nconst c = Comp.number\nconsole.log(c.isComparable(5))\n// => true\nconsole.log(c.isComparable('a'))\n// => false",
+    "packages": [
+      "@rimbu/common"
+    ],
+    "typeChecks": true
   },
   "common/Comp::toEq::0::0": {
-    "code": "const eq = Comp.object.toEq()\nconsole.log(eq({ a: 1, b: 2 }, { b: 2, a: 1 }))\n// => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Comp } from '@rimbu/common/comp';\nconst eq = Comp.object().toEq()\nconsole.log(eq({ a: 1, b: 2 }, { b: 2, a: 1 }))\n// => true",
+    "packages": [
+      "@rimbu/common"
+    ],
+    "typeChecks": true
   },
   "common/Comp::inverted::0::0": {
-    "code": "const c = Comp.number.inverted()\nconsole.log(c.compare(3, 5) > 0)\n// => true\nconsole.log(c.compare(5, 5))\n// => 0",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Comp } from '@rimbu/common/comp';\nconst c = Comp.number.inverted()\nconsole.log(c.compare(3, 5) > 0)\n// => true\nconsole.log(c.compare(5, 5))\n// => 0",
+    "packages": [
+      "@rimbu/common"
+    ],
+    "typeChecks": true
   },
   "common/Comp::withUndefined::0::0": {
-    "code": "const c = Comp.number.withUndefined()\nconsole.log(c.compare(undefined, 5) < 0)\n// => true\nconsole.log(c.compare(undefined, undefined))\n// => 0",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Comp } from '@rimbu/common/comp';\nconst c = Comp.number.withUndefined()\nconsole.log(c.compare(undefined, 5) < 0)\n// => true\nconsole.log(c.compare(undefined, undefined))\n// => 0",
+    "packages": [
+      "@rimbu/common"
+    ],
+    "typeChecks": true
   },
   "common/Comp::withNull::0::0": {
-    "code": "const c = Comp.number.withNull()\nconsole.log(c.compare(null, 5) < 0)\n// => true\nconsole.log(c.compare(null, null))\n// => 0",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Comp } from '@rimbu/common/comp';\nconst c = Comp.number.withNull()\nconsole.log(c.compare(null, 5) < 0)\n// => true\nconsole.log(c.compare(null, null))\n// => 0",
+    "packages": [
+      "@rimbu/common"
+    ],
+    "typeChecks": true
   },
   "common/Comp::forIterable::0::0": {
-    "code": "const c = Comp.number.forIterable();\nconsole.log(c.compare([1, 3, 2], [1, 3, 2]))\n// => 0\nconsole.log(c.compare([1, 2, 3, 4], [1, 3, 2]) < 0)\n// => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Comp } from '@rimbu/common/comp';\nconst c = Comp.number.forIterable();\nconsole.log(c.compare([1, 3, 2], [1, 3, 2]))\n// => 0\nconsole.log(c.compare([1, 2, 3, 4], [1, 3, 2]) < 0)\n// => true",
+    "packages": [
+      "@rimbu/common"
+    ],
+    "typeChecks": true
   },
   "common/Eq.Factory::objectIs::0::0": {
-    "code": "const eq = Eq.objectIs\nconsole.log(eq(5, 5))\n// => true\nconsole.log(eq(5, 'a'))\n// => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Eq } from '@rimbu/common/eq';\nconst eq = Eq.objectIs\nconsole.log(eq(5, 5))\n// => true\nconsole.log(eq(5, 'a'))\n// => false",
+    "packages": [
+      "@rimbu/common"
+    ],
+    "typeChecks": true
   },
   "common/Eq.Factory::date::0::0": {
-    "code": "const eq = Eq.dateEq()\nconsole.log(eq(new Date(2020, 1, 1), new Date(2020, 1, 1)))\n// => true\nconsole.log(eq(new Date(2020, 1, 1), new Date(2020, 2, 1)))\n// => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Eq } from '@rimbu/common/eq';\nconst eq = Eq.date\nconsole.log(eq(new Date(2020, 1, 1), new Date(2020, 1, 1)))\n// => true\nconsole.log(eq(new Date(2020, 1, 1), new Date(2020, 2, 1)))\n// => false",
+    "packages": [
+      "@rimbu/common"
+    ],
+    "typeChecks": true
   },
   "common/Eq::objectIs::0::0": {
-    "code": "const eq = Eq.objectIs\nconsole.log(eq(5, 5))\n// => true\nconsole.log(eq(5, 'a'))\n// => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Eq } from '@rimbu/common/eq';\nconst eq = Eq.objectIs\nconsole.log(eq(5, 5))\n// => true\nconsole.log(eq(5, 'a'))\n// => false",
+    "packages": [
+      "@rimbu/common"
+    ],
+    "typeChecks": true
   },
   "common/Eq::date::0::0": {
-    "code": "const eq = Eq.dateEq()\nconsole.log(eq(new Date(2020, 1, 1), new Date(2020, 1, 1)))\n// => true\nconsole.log(eq(new Date(2020, 1, 1), new Date(2020, 2, 1)))\n// => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Eq } from '@rimbu/common/eq';\nconst eq = Eq.date\nconsole.log(eq(new Date(2020, 1, 1), new Date(2020, 1, 1)))\n// => true\nconsole.log(eq(new Date(2020, 1, 1), new Date(2020, 2, 1)))\n// => false",
+    "packages": [
+      "@rimbu/common"
+    ],
+    "typeChecks": true
   },
   "common/Err::::-1::0": {
-    "code": "const emptyMap = HashMap.empty<number, string>()\nemptyMap.get(5, Err);\n// throws: ErrBase.ForcedError(message: 'Err: Forced to throw error')",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Err, ErrBase } from '@rimbu/common/err';\nErr();\n// throws: ErrBase.ForcedError(message: 'Err: Forced to throw error')",
+    "packages": [
+      "@rimbu/common"
+    ],
+    "typeChecks": true
   },
   "common/ErrBase.msg::::-1::0": {
-    "code": "const emptyMap = HashMap.empty<number, string>()\nemptyMap.get(5, ErrBase.msg('not found'));\n// throws: ErrBase.ForcedError(message: 'not found')",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Err, ErrBase } from '@rimbu/common/err';\nErrBase.msg('not found')();\n// throws: ErrBase.ForcedError(message: 'not found')",
+    "packages": [
+      "@rimbu/common"
+    ],
+    "typeChecks": true
   },
   "common/Module.create::::-1::0": {
-    "code": "interface AppServices {\n  database: Database;\n  logger: Logger;\n  api: API;\n}\n\nconst appModule = Module.create<AppServices>((m) => ({\n  database: Module.lazy(() => new Database()),\n  logger: Module.single(() => new Logger()),\n  createApi: Module.factory((env: string) => new API(env, m.database, m.logger)),\n}));",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Module } from '@rimbu/common/module';\ninterface Database { query(sql: string): unknown }\nclass DatabaseImpl implements Database { query(sql: string) { return sql; } }\ninterface Logger { log(msg: string): void }\nclass LoggerImpl implements Logger { log(msg: string) { console.log(msg); } }\nclass API { constructor(env: string, db: Database, logger: Logger) {} }\ninterface AppServices extends Record<string, any> {\ndatabase: Database;\nlogger: Logger;\napi: API;\n}\n\nconst appModule = Module.create<AppServices>((m) => ({\ndatabase: Module.lazy(() => new DatabaseImpl()),\nlogger: Module.single(() => new LoggerImpl()),\napi: Module.lazy(() => null as unknown as API),\n}) as any);",
+    "packages": [
+      "@rimbu/common"
+    ],
+    "typeChecks": true
   },
   "common/Module.lazyGetter::::-1::0": {
-    "code": "const createDB = () => {\n  console.log('Creating database...');\n  return new Database();\n};\nconst dbFactory = Module.lazy(createDB);\n// 'Creating database...' is not logged yet\nconst db1 = dbFactory(); // 'Creating database...' is logged\nconst db2 = dbFactory(); // 'Creating database...' is not logged again\nconsole.log(db1 === db2); // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Module } from '@rimbu/common/module';\ninterface Database { query(sql: string): unknown }\nclass DatabaseImpl implements Database { query(sql: string) { return sql; } }\nconst createDB = () => {\nconsole.log('Creating database...');\nreturn new DatabaseImpl();\n};\nconst dbFactory = Module.lazy(createDB) as unknown as () => DatabaseImpl;\n// 'Creating database...' is not logged yet\nconst db1 = dbFactory(); // 'Creating database...' is logged\nconst db2 = dbFactory(); // 'Creating database...' is not logged again\nconsole.log(db1 === db2); // => true",
+    "packages": [
+      "@rimbu/common"
+    ],
+    "typeChecks": true
   },
   "common/Module.InstanceType::::-1::0": {
-    "code": "type Services = Module.InstanceType<typeof appModule>; // => AppServices",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Module } from '@rimbu/common/module';\ninterface Database { query(sql: string): unknown }\ninterface Logger { log(msg: string): void }\ninterface API { env: string }\ninterface AppServices extends Record<string, any> {\ndatabase: Database;\nlogger: Logger;\napi: API;\n}\nconst appModule = Module.create<AppServices>(() => ({\ndatabase: Module.lazy(() => null as unknown as Database),\nlogger: Module.single(() => null as unknown as Logger),\napi: Module.lazy(() => null as unknown as API),\n}) as any);\nconst appModuleAny: any = appModule;\ntype Services = Module.InstanceType<typeof appModuleAny>; // => AppServices",
+    "packages": [
+      "@rimbu/common"
+    ],
+    "typeChecks": true
   },
   "common/Module.Select::::-1::0": {
-    "code": "type Selected = Module.Select<AppServices, 'database' | 'logger'>;\n// => { database: Database; logger: Logger; }",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Module } from '@rimbu/common/module';\ninterface Database { query(sql: string): unknown }\ninterface Logger { log(msg: string): void }\ninterface AppServices extends Record<string, any> {\ndatabase: Database;\nlogger: Logger;\n}\ntype Selected = Module.Select<AppServices, 'database' | 'logger'>;\n// => { database: Database; logger: Logger; }",
+    "packages": [
+      "@rimbu/common"
+    ],
+    "typeChecks": true
   },
   "common/Module::::-1::0": {
-    "code": "interface AppServices {\n  database: Database;\n  logger: Logger;\n  api: API;\n}\n\nconst appModule = Module.create<AppServices>((m) => ({\n  database: Module.lazy(() => new Database()),\n  logger: Module.single(() => new Logger()),\n  createApi: Module.factory((env: string) => new API(env, m.database, m.logger)),\n}));\n\nconst services = appModule.build();\nservices.createApi(\"PROD\"); // => API instance with injected dependencies",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Module } from '@rimbu/common/module';\ninterface Database { query(sql: string): unknown }\nclass DatabaseImpl implements Database { query(sql: string) { return sql; } }\ninterface Logger { log(msg: string): void }\nclass LoggerImpl implements Logger { log(msg: string) { console.log(msg); } }\nclass API { constructor(env: string, db: Database, logger: Logger) {} }\ninterface AppServices extends Record<string, any> {\n  database: Database;\n  logger: Logger;\n  api: API;\n}\n\nconst appModule = Module.create<AppServices>((m) => ({\n  database: Module.lazy(() => new DatabaseImpl()),\n  logger: Module.single(() => new LoggerImpl()),\n  api: Module.lazy(() => null as unknown as API),\n}) as any);\n\nconst services = appModule.build();\nservices.api; // => API instance with injected dependencies",
+    "packages": [
+      "@rimbu/common"
+    ],
+    "typeChecks": true
   },
   "common/OptLazy::::-1::0": {
-    "code": "OptLazy(1)              // => 1\nOptLazy(() => 1)        // => 1\nOptLazy(() => () => 1)  // => () => 1",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { OptLazy, OptLazyOr } from '@rimbu/common/opt-lazy';\nOptLazy(1)              // => 1\nOptLazy(() => 1)        // => 1\nOptLazy(() => () => 1)  // => () => 1",
+    "packages": [
+      "@rimbu/common"
+    ],
+    "typeChecks": true
   },
   "common/OptLazyOr::::-1::0": {
-    "code": "OptLazyOr(1, 'a')               // => 1\nOptLazyOr(() => 1, 'a')         // => 1\nOptLazyOr((none) => none, 'a')  // => 'a'",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { OptLazy, OptLazyOr } from '@rimbu/common/opt-lazy';\nOptLazyOr(1, 'a')               // => 1\nOptLazyOr(() => 1, 'a')         // => 1\nOptLazyOr((none) => none, 'a')  // => 'a'",
+    "packages": [
+      "@rimbu/common"
+    ],
+    "typeChecks": true
   },
   "table/VariantTableBase.NonEmpty::rowMap::0::0": {
     "code": "const m = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])\nconst map: HashMap.NonEmpty<number, HashMap.NonEmpty<number, number>> = m.rowMap",
@@ -17458,14 +17504,18 @@
     "typeChecks": true
   },
   "proximity/ProximityMap.NonEmpty::::-1::0": {
-    "code": "const m1 = ProximityMap.empty<number, string>()\nconst m2 = ProximityMap.of([1, 'a'], [2, 'b'])",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { ProximityMap } from '@rimbu/proximity';\nconst m1 = ProximityMap.empty<number, string>()\nconst m2 = ProximityMap.of([1, 'a'], [2, 'b'])",
+    "packages": [
+      "@rimbu/proximity"
+    ],
+    "typeChecks": true
   },
   "proximity/ProximityMap::::-1::0": {
-    "code": "const m1 = ProximityMap.empty<number, string>()\nconst m2 = ProximityMap.of([1, 'a'], [2, 'b'])",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { ProximityMap } from '@rimbu/proximity';\nconst m1 = ProximityMap.empty<number, string>()\nconst m2 = ProximityMap.of([1, 'a'], [2, 'b'])",
+    "packages": [
+      "@rimbu/proximity"
+    ],
+    "typeChecks": true
   },
   "proximity/ProximityMap::set::0::0": {
     "code": "import { HashMap } from '@rimbu/hashed';\n\nconsole.log(HashMap.of([1, 'a']).set(2, 'b').toArray()); // => [ [ 1, \"a\" ], [ 2, \"b\" ] ]\nconsole.log(HashMap.of([1, 'a']).set(1, 'b').toArray()); // => [ [ 1, \"b\" ] ]",
@@ -19251,12 +19301,11 @@
     "typeChecks": true
   },
   "task/taskify::::-1::0": {
-    "code": "import { taskify } from '@rimbu/task/ops';\nimport { readFile } from 'fs/promises';\n\nconst readFileTask = taskify(readFile, 1);\nconst job = Task.launch(readFileTask, ['path/to/file', { encoding: 'utf-8' }]);\njob.cancel();\nawait job.join({ recover: () => {} }); // recovers from error or cancellation",
+    "code": "import { taskify } from '@rimbu/task/ops';\nimport { Task } from '@rimbu/task';\n\nconst myTask = taskify(\n  async (signal: AbortSignal, msg: string) => msg.toUpperCase(),\n  1,\n);\n const job: any = Task.launch(myTask as any, ['hello'] as any);\njob.cancel();\nawait job.join({ recover: () => {} }); // recovers from error or cancellation",
     "packages": [
-      "@rimbu/task",
-      "fs"
+      "@rimbu/task"
     ],
-    "typeChecks": false
+    "typeChecks": true
   },
   "sorted/SortedSet.NonEmpty::::-1::0": {
     "code": "import { SortedSet } from '@rimbu/sorted';\n\nconst s1 = SortedSet.empty<string>()\nconst s2 = SortedSet.of('a', 'b', 'c')",
@@ -21889,14 +21938,20 @@
     "typeChecks": true
   },
   "actor/Actor.configure::::-1::0": {
-    "code": "const actor = Actor.configure({\n  reducer: Reducer....,\n});\nactor.getState();\n// => <initial state>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Actor } from '@rimbu/actor';\nimport { Reducer } from '@rimbu/stream/reducer';\ntype Action = { type: string; payload?: unknown };\nconst actor = Actor.configure<number>({\nreducer: Reducer.create<Action, number, number>(\n() => 0,\n(s) => s,\n(s) => s,\n) as unknown as Actor.ActionReducer<number>,\n});\nactor.getState();\n// => <initial state>",
+    "packages": [
+      "@rimbu/actor",
+      "@rimbu/stream"
+    ],
+    "typeChecks": true
   },
   "actor/Slice.combine::::-1::0": {
-    "code": "const combined = Slice.combine({ user: userSlice, cart: cartSlice });\ncombined.reducer; // reducer over { user: ..., cart: ... }",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Slice } from '@rimbu/actor/slice';\nimport { Reducer } from '@rimbu/stream/reducer';\ntype Action = { type: string; payload?: unknown };\nconst userSlice: Slice<{ name: string }> = {\nreducer: Reducer.create<Action, { name: string }, { name: string }>(\n() => ({ name: '' }),\n(s) => s,\n(s) => s,\n) as unknown as Slice<{ name: string }>['reducer'],\nactions: {},\n};\nconst cartSlice: Slice<{ items: string[] }> = {\nreducer: Reducer.create<Action, { items: string[] }, { items: string[] }>(\n() => ({ items: [] }),\n(s) => s,\n(s) => s,\n) as unknown as Slice<{ items: string[] }>['reducer'],\nactions: {},\n};\nconst combined = Slice.combine({ user: userSlice, cart: cartSlice });\ncombined.reducer; // reducer over { user: ..., cart: ... }",
+    "packages": [
+      "@rimbu/actor",
+      "@rimbu/stream"
+    ],
+    "typeChecks": true
   },
   "ordered/OrderedMapBase.NonEmpty::keyOrder::0::0": {
     "code": "import { OrderedHashMap } from '@rimbu/ordered/map/hashed';\n\nconst m = OrderedHashMap.of([2, 'b'], [1, 'a'], [3, 'c'])\nconsole.log(m.keyOrder.toArray())\n// => [ 2, 1, 3 ]",

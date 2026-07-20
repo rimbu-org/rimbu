@@ -1,67 +1,10 @@
 {
-  "generatedAt": "2026-07-20T00:28:54.926Z",
-  "filter": "deep/",
-  "totalSnippets": 30,
-  "checkedOutputs": 9,
+  "generatedAt": "2026-07-20T07:01:13.810Z",
+  "filter": "task/",
+  "totalSnippets": 1,
+  "checkedOutputs": 0,
   "checkedInferredTypes": 0,
-  "mismatches": 7,
+  "mismatches": 0,
   "strict": false,
-  "details": [
-    {
-      "key": "deep/Tuple.at::::-1::0",
-      "ownerId": "deep/Tuple.at",
-      "kind": "output",
-      "detail": "console.log #1 output mismatch (next-line)",
-      "expected": "'a'",
-      "actual": "a"
-    },
-    {
-      "key": "deep/Tuple.second::::-1::0",
-      "ownerId": "deep/Tuple.second",
-      "kind": "output",
-      "detail": "console.log #1 output mismatch (next-line)",
-      "expected": "'a'",
-      "actual": "a"
-    },
-    {
-      "key": "deep/Tuple.updateAt::::-1::0",
-      "ownerId": "deep/Tuple.updateAt",
-      "kind": "output",
-      "detail": "console.log #1 output mismatch (next-line)",
-      "expected": "[1, 'b', true]",
-      "actual": "[ 1, \"b\", true ]"
-    },
-    {
-      "key": "deep/Tuple.append::::-1::0",
-      "ownerId": "deep/Tuple.append",
-      "kind": "output",
-      "detail": "console.log #1 output mismatch (next-line)",
-      "expected": "[1, 'a', true, 5]",
-      "actual": "[ 1, \"a\", true, 5 ]"
-    },
-    {
-      "key": "deep/Tuple.concat::::-1::0",
-      "ownerId": "deep/Tuple.concat",
-      "kind": "output",
-      "detail": "console.log #1 output mismatch (next-line)",
-      "expected": "[1, 'a', true, 5]",
-      "actual": "[ 1, \"a\", true, 5 ]"
-    },
-    {
-      "key": "deep/Tuple.init::::-1::0",
-      "ownerId": "deep/Tuple.init",
-      "kind": "output",
-      "detail": "console.log #1 output mismatch (next-line)",
-      "expected": "[1, 'a']",
-      "actual": "[ 1, \"a\" ]"
-    },
-    {
-      "key": "deep/Tuple.tail::::-1::0",
-      "ownerId": "deep/Tuple.tail",
-      "kind": "output",
-      "detail": "console.log #1 output mismatch (next-line)",
-      "expected": "['a', true]",
-      "actual": "[ \"a\", true ]"
-    }
-  ]
+  "details": []
 }
