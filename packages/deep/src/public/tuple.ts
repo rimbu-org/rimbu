@@ -41,6 +41,7 @@ export namespace Tuple {
 	 * @returns a `Tuple<T>` containing the provided values
 	 * @example
 	 * ```ts
+	 * import { Tuple } from '@rimbu/deep/tuple';
 	 * const t = Tuple.of(1, 'a', true)
 	 * // type of t => Tuple<[number, string, boolean]>
 	 * ```
@@ -58,6 +59,7 @@ export namespace Tuple {
 	 * @returns the tuple element at `index`
 	 * @example
 	 * ```ts
+	 * import { Tuple } from '@rimbu/deep/tuple';
 	 * const t = Tuple.of(1, 'a', true)
 	 * console.log(Tuple.at(t, 1))
 	 * // => 'a'
@@ -77,6 +79,7 @@ export namespace Tuple {
 	 * @returns the first element of `tuple`
 	 * @example
 	 * ```ts
+	 * import { Tuple } from '@rimbu/deep/tuple';
 	 * const t = Tuple.of(1, 'a', true)
 	 * console.log(Tuple.first(t))
 	 * // => 1
@@ -93,6 +96,7 @@ export namespace Tuple {
 	 * @returns the second element of `tuple`
 	 * @example
 	 * ```ts
+	 * import { Tuple } from '@rimbu/deep/tuple';
 	 * const t = Tuple.of(1, 'a', true)
 	 * console.log(Tuple.second(t))
 	 * // => 'a'
@@ -110,6 +114,7 @@ export namespace Tuple {
 	 * @returns the last element of `tuple`
 	 * @example
 	 * ```ts
+	 * import { Tuple } from '@rimbu/deep/tuple';
 	 * const t = Tuple.of(1, 'a', true)
 	 * console.log(Tuple.last(t))
 	 * // => true
@@ -138,8 +143,9 @@ export namespace Tuple {
 	 * @returns a new tuple with the value at `index` updated
 	 * @example
 	 * ```ts
+	 * import { Tuple } from '@rimbu/deep/tuple';
 	 * const t = Tuple.of(1, 'a', true)
-	 * console.log(Tuple.updateAt(t, 1, 'b'))
+	 * console.log(Tuple.updateAt(t, 1, (v) => 'b'))
 	 * // => [1, 'b', true]
 	 * ```
 	 */
@@ -161,6 +167,7 @@ export namespace Tuple {
 	 * @returns a new tuple with `values` appended to `tuple`
 	 * @example
 	 * ```ts
+	 * import { Tuple } from '@rimbu/deep/tuple';
 	 * const t = Tuple.of(1, 'a')
 	 * console.log(Tuple.append(t, true, 5))
 	 * // => [1, 'a', true, 5]
@@ -183,6 +190,7 @@ export namespace Tuple {
 	 * @returns a new tuple containing elements of `tuple1` followed by `tuple2`
 	 * @example
 	 * ```ts
+	 * import { Tuple } from '@rimbu/deep/tuple';
 	 * const t1 = Tuple.of(1, 'a')
 	 * const t2 = Tuple.of(true, 5)
 	 * console.log(Tuple.concat(t1, t2))
@@ -203,6 +211,7 @@ export namespace Tuple {
 	 * @returns a tuple with the last element removed
 	 * @example
 	 * ```ts
+	 * import { Tuple } from '@rimbu/deep/tuple';
 	 * const t = Tuple.of(1, 'a', true)
 	 * console.log(Tuple.init(t))
 	 * // => [1, 'a']
@@ -221,6 +230,7 @@ export namespace Tuple {
 	 * @returns a tuple containing all but the first element
 	 * @example
 	 * ```ts
+	 * import { Tuple } from '@rimbu/deep/tuple';
 	 * const t = Tuple.of(1, 'a', true)
 	 * console.log(Tuple.tail(t))
 	 * // => ['a', true]

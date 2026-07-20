@@ -12644,154 +12644,214 @@
     "typeChecks": false
   },
   "deep/Path.Get::::-1::0": {
-    "code": "const p: Path.Get<{ a: { b: { c : 5 } } }> = 'a.b'",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Path } from '@rimbu/deep/path';\nconst p: Path.Get<{ a: { b: { c : 5 } } }> = 'a.b'",
+    "packages": [
+      "@rimbu/deep"
+    ],
+    "typeChecks": true
   },
   "deep/Path.Set::::-1::0": {
-    "code": "const p: Path.Set<{ a: { b: { c : 5 } } }> = 'a.b'",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Path } from '@rimbu/deep/path';\nconst p: Path.Set<{ a: { b: { c : 5 } } }> = 'a.b'",
+    "packages": [
+      "@rimbu/deep"
+    ],
+    "typeChecks": true
   },
   "deep/Path.Result::::-1::0": {
-    "code": "let r!: Path.Result<{ a: { b: { c: number } } }, 'a.b'>;\n// => type of r: { c: number }",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Path } from '@rimbu/deep/path';\nlet r!: Path.Result<{ a: { b: { c: number } } }, 'a.b'>;\n// => type of r: { c: number }",
+    "packages": [
+      "@rimbu/deep"
+    ],
+    "typeChecks": true
   },
   "deep/withType::::-1::0": {
-    "code": "type Person = { name: string; age: number };\nconst wt = withType<Person>();\nconst people: Person[] = [{ name: 'Alice', age: 34 }, { name: 'Bob', age: 25 }];\n\npeople.map(wt.getAtWith('name'));                      // => ['Alice', 'Bob']\npeople.filter(wt.matchAtWith('age', (n) => n > 30));  // => [{ name: 'Alice', age: 34 }]\npeople.map(wt.patchWith([{ age: 0 }]));               // => [{ name: 'Alice', age: 0 }, ...]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { withType } from '@rimbu/deep/with-type';\ntype Person = { name: string; age: number };\nconst wt = withType<Person>();\nconst people: Person[] = [{ name: 'Alice', age: 34 }, { name: 'Bob', age: 25 }];\n\npeople.map(wt.getAtWith('name'));                      // => ['Alice', 'Bob']\npeople.filter(wt.matchAtWith('age', (n) => n > 30));  // => [{ name: 'Alice', age: 34 }]\npeople.map(wt.patchWith([{ age: 0 }]));               // => [{ name: 'Alice', age: 0 }, ...]",
+    "packages": [
+      "@rimbu/deep"
+    ],
+    "typeChecks": true
   },
   "deep/WithType::::-1::0": {
-    "code": "type Person = { name: string; address: { street: string; number: number } };\nconst wt = withType<Person>();\n\nconst people: Person[] = [\n  { name: 'Alice', address: { street: 'Main St', number: 1 } },\n  { name: 'Bob',   address: { street: 'Oak Ave',  number: 2 } },\n];\n\npeople.map(wt.getAtWith('address.street'));\n// => ['Main St', 'Oak Ave']\n\npeople.filter(wt.matchAtWith('address.number', (n) => n > 1));\n// => [{ name: 'Bob', ... }]\n\npeople.map(wt.patchWith([{ address: [{ street: 'New Rd' }] }]));\n// => [{ name: 'Alice', address: { street: 'New Rd', number: 1 } }, ...]\n\npeople.map(wt.patchAtWith('address', [{ street: 'New Rd' }]));\n// => [{ name: 'Alice', address: { street: 'New Rd', number: 1 } }, ...]\n\npeople.map(wt.selectAtWith('address', { road: 'street' }));\n// => [{ road: 'Main St' }, { road: 'Oak Ave' }]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { withType } from '@rimbu/deep/with-type';\ntype Person = { name: string; address: { street: string; number: number } };\nconst wt = withType<Person>();\n\nconst people: Person[] = [\n  { name: 'Alice', address: { street: 'Main St', number: 1 } },\n  { name: 'Bob',   address: { street: 'Oak Ave',  number: 2 } },\n];\n\npeople.map(wt.getAtWith('address.street'));\n// => ['Main St', 'Oak Ave']\n\npeople.filter(wt.matchAtWith('address.number', (n) => n > 1));\n// => [{ name: 'Bob', ... }]\n\npeople.map(wt.patchWith([{ address: [{ street: 'New Rd' }] }]));\n// => [{ name: 'Alice', address: { street: 'New Rd', number: 1 } }, ...]\n\npeople.map(wt.patchAtWith('address', [{ street: 'New Rd' }]));\n// => [{ name: 'Alice', address: { street: 'New Rd', number: 1 } }, ...]\n\npeople.map(wt.selectAtWith('address', { road: 'street' }));\n// => [{ road: 'Main St' }, { road: 'Oak Ave' }]",
+    "packages": [
+      "@rimbu/deep"
+    ],
+    "typeChecks": true
   },
   "deep/match::::-1::0": {
-    "code": "const input = { a: 1, b: { c: true, d: 'a' } }\nmatch(input, { a: 1 }) // => true\nmatch(input, { a: 2 }) // => false\nmatch(input, { a: (v) => v > 10 }) // => false\nmatch(input, { b: { c: true }}) // => true\nmatch(input, { b: { c: (v, parent, root) => v && parent.d.length > 0 && root.a > 0 } })\n // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { match, matchVerbose, matchAt, matchWith, matchAtWith } from '@rimbu/deep/match';\nconst input = { a: 1, b: { c: true, d: 'a' } }\nmatch(input, { a: 1 }) // => true\nmatch(input, { a: 2 }) // => false\nmatch(input, { a: (v) => v > 10 }) // => false\nmatch(input, { b: { c: true }}) // => true\nmatch(input, { b: { c: (v, parent, root) => v && parent.d.length > 0 && root.a > 0 } })\n // => true",
+    "packages": [
+      "@rimbu/deep"
+    ],
+    "typeChecks": true
   },
   "deep/matchVerbose::::-1::0": {
-    "code": "const input = { a: 1, b: { c: true, d: 'a' } }\nmatchVerbose(input, { a: 1 })        // => { result: true, failureLog: [] }\nmatchVerbose(input, { a: 2 })        // => { result: false, failureLog: [...] }\nmatchVerbose(input, { b: { c: false } }) // => { result: false, failureLog: [...] }",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { match, matchVerbose, matchAt, matchWith, matchAtWith } from '@rimbu/deep/match';\nconst input = { a: 1, b: { c: true, d: 'a' } }\nmatchVerbose(input, { a: 1 })        // => { result: true, failureLog: [] }\nmatchVerbose(input, { a: 2 })        // => { result: false, failureLog: [...] }\nmatchVerbose(input, { b: { c: false } }) // => { result: false, failureLog: [...] }",
+    "packages": [
+      "@rimbu/deep"
+    ],
+    "typeChecks": true
   },
   "deep/matchAt::::-1::0": {
-    "code": "const input = { a: 1, b: { c: true, d: 'a' } }\nmatchAt(input, 'b', { c: true }) // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { match, matchVerbose, matchAt, matchWith, matchAtWith } from '@rimbu/deep/match';\nconst input = { a: 1, b: { c: true, d: 'a' } }\nmatchAt(input, 'b', { c: true }) // => true",
+    "packages": [
+      "@rimbu/deep"
+    ],
+    "typeChecks": true
   },
   "deep/matchWith::::-1::0": {
-    "code": "const items = [{ a: 1, b: 'a' }, { a: 2, b: 'b' }];\nitems.filter(matchWith({ a: 2 }));\n// => [{ a: 2, b: 'b' }]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { match, matchVerbose, matchAt, matchWith, matchAtWith } from '@rimbu/deep/match';\nconst items = [{ a: 1, b: 'a' }, { a: 2, b: 'b' }];\nitems.filter(matchWith({ a: 2 }));\n// => [{ a: 2, b: 'b' }]",
+    "packages": [
+      "@rimbu/deep"
+    ],
+    "typeChecks": true
   },
   "deep/matchAtWith::::-1::0": {
-    "code": "const items = [{ a: { b: 1, c: 'a' } }, { a: { b: 2, c: 'b' } }];\nitems.filter(matchAtWith('a.b', 2));\n// => [{ a: 2, b: 'b' }]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { match, matchVerbose, matchAt, matchWith, matchAtWith } from '@rimbu/deep/match';\nconst items = [{ a: { b: 1, c: 'a' } }, { a: { b: 2, c: 'b' } }];\nitems.filter(matchAtWith('a.b', 2));\n// => [{ a: 2, b: 'b' }]",
+    "packages": [
+      "@rimbu/deep"
+    ],
+    "typeChecks": true
   },
   "deep/Tuple.of::::-1::0": {
-    "code": "const t = Tuple.of(1, 'a', true)\n// type of t => Tuple<[number, string, boolean]>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Tuple } from '@rimbu/deep/tuple';\nconst t = Tuple.of(1, 'a', true)\n// type of t => Tuple<[number, string, boolean]>",
+    "packages": [
+      "@rimbu/deep"
+    ],
+    "typeChecks": true
   },
   "deep/Tuple.at::::-1::0": {
-    "code": "const t = Tuple.of(1, 'a', true)\nconsole.log(Tuple.at(t, 1))\n// => 'a'",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Tuple } from '@rimbu/deep/tuple';\nconst t = Tuple.of(1, 'a', true)\nconsole.log(Tuple.at(t, 1))\n// => 'a'",
+    "packages": [
+      "@rimbu/deep"
+    ],
+    "typeChecks": true
   },
   "deep/Tuple.first::::-1::0": {
-    "code": "const t = Tuple.of(1, 'a', true)\nconsole.log(Tuple.first(t))\n// => 1",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Tuple } from '@rimbu/deep/tuple';\nconst t = Tuple.of(1, 'a', true)\nconsole.log(Tuple.first(t))\n// => 1",
+    "packages": [
+      "@rimbu/deep"
+    ],
+    "typeChecks": true
   },
   "deep/Tuple.second::::-1::0": {
-    "code": "const t = Tuple.of(1, 'a', true)\nconsole.log(Tuple.second(t))\n// => 'a'",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Tuple } from '@rimbu/deep/tuple';\nconst t = Tuple.of(1, 'a', true)\nconsole.log(Tuple.second(t))\n// => 'a'",
+    "packages": [
+      "@rimbu/deep"
+    ],
+    "typeChecks": true
   },
   "deep/Tuple.last::::-1::0": {
-    "code": "const t = Tuple.of(1, 'a', true)\nconsole.log(Tuple.last(t))\n// => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Tuple } from '@rimbu/deep/tuple';\nconst t = Tuple.of(1, 'a', true)\nconsole.log(Tuple.last(t))\n// => true",
+    "packages": [
+      "@rimbu/deep"
+    ],
+    "typeChecks": true
   },
   "deep/Tuple.updateAt::::-1::0": {
-    "code": "const t = Tuple.of(1, 'a', true)\nconsole.log(Tuple.updateAt(t, 1, 'b'))\n// => [1, 'b', true]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Tuple } from '@rimbu/deep/tuple';\nconst t = Tuple.of(1, 'a', true)\nconsole.log(Tuple.updateAt(t, 1, (v) => 'b'))\n// => [1, 'b', true]",
+    "packages": [
+      "@rimbu/deep"
+    ],
+    "typeChecks": true
   },
   "deep/Tuple.append::::-1::0": {
-    "code": "const t = Tuple.of(1, 'a')\nconsole.log(Tuple.append(t, true, 5))\n// => [1, 'a', true, 5]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Tuple } from '@rimbu/deep/tuple';\nconst t = Tuple.of(1, 'a')\nconsole.log(Tuple.append(t, true, 5))\n// => [1, 'a', true, 5]",
+    "packages": [
+      "@rimbu/deep"
+    ],
+    "typeChecks": true
   },
   "deep/Tuple.concat::::-1::0": {
-    "code": "const t1 = Tuple.of(1, 'a')\nconst t2 = Tuple.of(true, 5)\nconsole.log(Tuple.concat(t1, t2))\n// => [1, 'a', true, 5]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Tuple } from '@rimbu/deep/tuple';\nconst t1 = Tuple.of(1, 'a')\nconst t2 = Tuple.of(true, 5)\nconsole.log(Tuple.concat(t1, t2))\n// => [1, 'a', true, 5]",
+    "packages": [
+      "@rimbu/deep"
+    ],
+    "typeChecks": true
   },
   "deep/Tuple.init::::-1::0": {
-    "code": "const t = Tuple.of(1, 'a', true)\nconsole.log(Tuple.init(t))\n// => [1, 'a']",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Tuple } from '@rimbu/deep/tuple';\nconst t = Tuple.of(1, 'a', true)\nconsole.log(Tuple.init(t))\n// => [1, 'a']",
+    "packages": [
+      "@rimbu/deep"
+    ],
+    "typeChecks": true
   },
   "deep/Tuple.tail::::-1::0": {
-    "code": "const t = Tuple.of(1, 'a', true)\nconsole.log(Tuple.tail(t))\n// => ['a', true]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Tuple } from '@rimbu/deep/tuple';\nconst t = Tuple.of(1, 'a', true)\nconsole.log(Tuple.tail(t))\n// => ['a', true]",
+    "packages": [
+      "@rimbu/deep"
+    ],
+    "typeChecks": true
   },
   "deep/patch::::-1::0": {
-    "code": "const input = { a: 1, b: { c: true, d: 'a' } }\npatch(input, [{ a: 2 }])  // => { a: 2, b: { c: true, d: 'a' } }\npatch(input, [{ b: [{ c: (v) => !v }] }] )\n// => { a: 1, b: { c: false, d: 'a' } }\npatch(input, [{ a: (v) => v + 1, b: [{ d: 'q' }] }] )\n// => { a: 2, b: { c: true, d: 'q' } }",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { patch, patchWith, patchAt } from '@rimbu/deep/patch';\nconst input = { a: 1, b: { c: true, d: 'a' } }\npatch(input, [{ a: 2 }])  // => { a: 2, b: { c: true, d: 'a' } }\npatch(input, [{ b: [{ c: (v) => !v }] }] )\n// => { a: 1, b: { c: false, d: 'a' } }\npatch(input, [{ a: (v) => v + 1, b: [{ d: 'q' }] }] )\n// => { a: 2, b: { c: true, d: 'q' } }",
+    "packages": [
+      "@rimbu/deep"
+    ],
+    "typeChecks": true
   },
   "deep/patchWith::::-1::0": {
-    "code": "const items = [{ a: 1, b: 'a' }, { a: 2, b: 'b' }];\nitems.map(patchWith([{ a: v => v + 1 }]));\n// => [{ a: 2, b: 'a' }, { a: 3, b: 'b' }]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { patch, patchWith, patchAt } from '@rimbu/deep/patch';\nconst items = [{ a: 1, b: 'a' }, { a: 2, b: 'b' }];\nitems.map(patchWith([{ a: (v: number) => v + 1 }]));\n// => [{ a: 2, b: 'a' }, { a: 3, b: 'b' }]",
+    "packages": [
+      "@rimbu/deep"
+    ],
+    "typeChecks": true
   },
   "deep/patchAt::::-1::0": {
-    "code": "const value = { a: { b: { c: 5 } } };\npatchAt(value, 'a.b.c', v => v + 5);\n// => { a: { b: { c: 6 } } }",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { patch, patchWith, patchAt } from '@rimbu/deep/patch';\nconst value = { a: { b: { c: 5 } } };\npatchAt(value, 'a.b.c', v => v + 5);\n// => { a: { b: { c: 6 } } }",
+    "packages": [
+      "@rimbu/deep"
+    ],
+    "typeChecks": true
   },
   "deep/select::::-1::0": {
-    "code": "const item = { a: { b:  1, c: 'a' } };\nselect(item, { q: 'a.c', y: ['a.b', 'a.c'], z: (v) => v.a.b + 1 });\n// => { q: 'a', y: [1, 'a'], z: 2 }",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { select, selectWith, selectAt, selectAtWith } from '@rimbu/deep/select';\nconst item = { a: { b:  1, c: 'a' } };\nselect(item, { q: 'a.c', y: ['a.b', 'a.c'], z: (v) => v.a.b + 1 });\n// => { q: 'a', y: [1, 'a'], z: 2 }",
+    "packages": [
+      "@rimbu/deep"
+    ],
+    "typeChecks": true
   },
   "deep/selectWith::::-1::0": {
-    "code": "const items = [{ a: { b:  1, c: 'a' } }, { a: { b: 2, c: 'b' } }];\nitems.map(selectWith({ q: 'a.c', z: ['a.b', v => v.a.b + 1] as const }));\n// => [{ q: 'a', z: [1, 2] }, { q: 'b', z: [2, 3] }]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { select, selectWith, selectAt, selectAtWith } from '@rimbu/deep/select';\nconst items = [{ a: { b:  1, c: 'a' } }, { a: { b: 2, c: 'b' } }];\nitems.map(selectWith({ q: 'a.c', z: ['a.b', v => v.a.b + 1] as const }));\n// => [{ q: 'a', z: [1, 2] }, { q: 'b', z: [2, 3] }]",
+    "packages": [
+      "@rimbu/deep"
+    ],
+    "typeChecks": true
   },
   "deep/selectAt::::-1::0": {
-    "code": "const item = { a: { b:  1, c: 'a' } };\nselectAt(item, 'a', { q: 'c', z: ['b', v => v.b + 1] as const });\n// => { q: 'a', z: [1, 2] }",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { select, selectWith, selectAt, selectAtWith } from '@rimbu/deep/select';\nconst item = { a: { b:  1, c: 'a' } };\nselectAt(item, 'a', { q: 'c', z: ['b', v => v.b + 1] as const });\n// => { q: 'a', z: [1, 2] }",
+    "packages": [
+      "@rimbu/deep"
+    ],
+    "typeChecks": true
   },
   "deep/selectAtWith::::-1::0": {
-    "code": "const items = [{ a: { b:  1, c: 'a' } }, { a: { b: 2, c: 'b' } }];\nitems.map(selectAtWith('a', { q: 'c', z: ['b', v => v.b + 1] as const }));\n// => [{ q: 'a', z: [1, 2] }, { q: 'b', z: [2, 3] }]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { select, selectWith, selectAt, selectAtWith } from '@rimbu/deep/select';\nconst items = [{ a: { b:  1, c: 'a' } }, { a: { b: 2, c: 'b' } }];\nitems.map(selectAtWith('a', { q: 'c', z: ['b', v => v.b + 1] as const }));\n// => [{ q: 'a', z: [1, 2] }, { q: 'b', z: [2, 3] }]",
+    "packages": [
+      "@rimbu/deep"
+    ],
+    "typeChecks": true
   },
   "deep/protect::::-1::0": {
-    "code": "const obj = protect({ a: 1, b: { c: true, d: [1] } })\nobj.a = 2        // compiler error: a is readonly\nobj.b.c = false  // compiler error: c is readonly\nobj.b.d.push(2)  // compiler error: d is a readonly array\n(obj as any).b.d.push(2)  // will actually mutate the object",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { protect, getAt, getAtWith } from '@rimbu/deep';\nconst obj = protect({ a: 1, b: { c: true, d: [1] } })\n// obj is deeply readonly: reassigning any property (e.g. obj.a = 2) is a compiler error",
+    "packages": [
+      "@rimbu/deep"
+    ],
+    "typeChecks": true
   },
   "deep/getAt::::-1::0": {
-    "code": "const value = { a: { b: [{ c: 5 }] } }\ngetAt(value, 'a.b[0].c')   // => 5\ngetAt(value, 'a.b[0]')     // => { c: 5 }",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { protect, getAt, getAtWith } from '@rimbu/deep';\nconst value = { a: { b: [{ c: 5 }] } } as const\ngetAt(value, 'a.b[0].c')   // => 5\ngetAt(value, 'a.b[0]')     // => { c: 5 }",
+    "packages": [
+      "@rimbu/deep"
+    ],
+    "typeChecks": true
   },
   "deep/getAtWith::::-1::0": {
-    "code": "const items = [{ a: { b:  1, c: 'a' } }, { a: { b: 2, c: 'b' } }];\nitems.map(getAtWith('a.c'));\n// => ['a', 'b']",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { protect, getAt, getAtWith } from '@rimbu/deep';\nconst items = [{ a: { b:  1, c: 'a' } }, { a: { b: 2, c: 'b' } }];\nitems.map(getAtWith('a.c'));\n// => ['a', 'b']",
+    "packages": [
+      "@rimbu/deep"
+    ],
+    "typeChecks": true
   },
   "hashed/HashSet.NonEmpty::::-1::0": {
     "code": "import { HashSet } from '@rimbu/hashed';\n\nconst s1 = HashSet.empty<string>();\nconst s2 = HashSet.of('a', 'b', 'c');\nconsole.log(s2.toString()); // => HashSet(a, b, c)",

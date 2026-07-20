@@ -1,6 +1,6 @@
 {
   "$schema": "rimbu-docs/aggregate/v1",
-  "generatedAt": "2026-07-19T22:47:43.196Z",
+  "generatedAt": "2026-07-20T00:28:14.108Z",
   "gitRef": "main",
   "packages": [
     "@rimbu/actor",
@@ -145474,15 +145474,15 @@
         "description": "A string representing a path into an (nested) object of type T.",
         "params": [],
         "examples": [
-          "```ts\nconst p: Path.Get<{ a: { b: { c : 5 } } }> = 'a.b'\n```"
+          "```ts\nimport { Path } from '@rimbu/deep/path';\nconst p: Path.Get<{ a: { b: { c : 5 } } }> = 'a.b'\n```"
         ],
         "notes": [],
         "see": []
       },
       "source": {
         "file": "packages/deep/src/public/path.ts",
-        "line": 15,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/deep/src/public/path.ts#L15"
+        "line": 16,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/deep/src/public/path.ts#L16"
       },
       "ancestors": [],
       "descendants": []
@@ -145499,15 +145499,15 @@
         "description": "A string representing a path into an (nested) object of type T.",
         "params": [],
         "examples": [
-          "```ts\nconst p: Path.Set<{ a: { b: { c : 5 } } }> = 'a.b'\n```"
+          "```ts\nimport { Path } from '@rimbu/deep/path';\nconst p: Path.Set<{ a: { b: { c : 5 } } }> = 'a.b'\n```"
         ],
         "notes": [],
         "see": []
       },
       "source": {
         "file": "packages/deep/src/public/path.ts",
-        "line": 25,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/deep/src/public/path.ts#L25"
+        "line": 27,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/deep/src/public/path.ts#L27"
       },
       "ancestors": [],
       "descendants": []
@@ -145524,7 +145524,7 @@
         "description": "The result type when selecting from object type T a path with type P.",
         "params": [],
         "examples": [
-          "```ts\nlet r!: Path.Result<{ a: { b: { c: number } } }, 'a.b'>;\n// => type of r: { c: number }\n```"
+          "```ts\nimport { Path } from '@rimbu/deep/path';\nlet r!: Path.Result<{ a: { b: { c: number } } }, 'a.b'>;\n// => type of r: { c: number }\n```"
         ],
         "notes": [],
         "see": []
@@ -145588,7 +145588,7 @@
         "description": "Returns a builder object whose methods all operate on the root type `T`.\nThis fixes the inference problem with the standalone `xAtWith` helpers and\n`patchWith`: TypeScript cannot infer `T` from a path string alone, but the\nbuilder captures `T` once at construction time so every subsequent method call\ninfers paths, matchers, patches, and selectors precisely.",
         "params": [],
         "examples": [
-          "```ts\ntype Person = { name: string; age: number };\nconst wt = withType<Person>();\nconst people: Person[] = [{ name: 'Alice', age: 34 }, { name: 'Bob', age: 25 }];\n\npeople.map(wt.getAtWith('name'));                      // => ['Alice', 'Bob']\npeople.filter(wt.matchAtWith('age', (n) => n > 30));  // => [{ name: 'Alice', age: 34 }]\npeople.map(wt.patchWith([{ age: 0 }]));               // => [{ name: 'Alice', age: 0 }, ...]\n```"
+          "```ts\nimport { withType } from '@rimbu/deep/with-type';\ntype Person = { name: string; age: number };\nconst wt = withType<Person>();\nconst people: Person[] = [{ name: 'Alice', age: 34 }, { name: 'Bob', age: 25 }];\n\npeople.map(wt.getAtWith('name'));                      // => ['Alice', 'Bob']\npeople.filter(wt.matchAtWith('age', (n) => n > 30));  // => [{ name: 'Alice', age: 34 }]\npeople.map(wt.patchWith([{ age: 0 }]));               // => [{ name: 'Alice', age: 0 }, ...]\n```"
         ],
         "notes": [],
         "see": []
@@ -145613,15 +145613,15 @@
         "description": "A builder object that fixes the root type `T` for the `xWith` helper functions\nwhose `T` cannot be inferred from their arguments alone.\n\nThe standalone `xWith` helpers accept a path string as their first argument.\nTypeScript has nothing to infer `T` from at that call site, so the path\nconstraint degenerates to `string` and the return type is `unknown`.\nThe builder captures `T` once — via the `withType<T>()` call — so every\nsubsequent method call infers paths, matchers, patches, and selectors precisely.\n\nFunctions where `T` is already inferrable from other arguments\n(`matchWith`, `selectWith`, `match`, `patch`, `select`, etc.) are intentionally\nomitted — they work correctly as standalone calls and adding them here would\nclutter the API without benefit.\n\nUse `withType<T>()` to obtain the builder, then call any method on it.",
         "params": [],
         "examples": [
-          "```ts\ntype Person = { name: string; address: { street: string; number: number } };\nconst wt = withType<Person>();\n\nconst people: Person[] = [\n  { name: 'Alice', address: { street: 'Main St', number: 1 } },\n  { name: 'Bob',   address: { street: 'Oak Ave',  number: 2 } },\n];\n\npeople.map(wt.getAtWith('address.street'));\n// => ['Main St', 'Oak Ave']\n\npeople.filter(wt.matchAtWith('address.number', (n) => n > 1));\n// => [{ name: 'Bob', ... }]\n\npeople.map(wt.patchWith([{ address: [{ street: 'New Rd' }] }]));\n// => [{ name: 'Alice', address: { street: 'New Rd', number: 1 } }, ...]\n\npeople.map(wt.patchAtWith('address', [{ street: 'New Rd' }]));\n// => [{ name: 'Alice', address: { street: 'New Rd', number: 1 } }, ...]\n\npeople.map(wt.selectAtWith('address', { road: 'street' }));\n// => [{ road: 'Main St' }, { road: 'Oak Ave' }]\n```"
+          "```ts\nimport { withType } from '@rimbu/deep/with-type';\ntype Person = { name: string; address: { street: string; number: number } };\nconst wt = withType<Person>();\n\nconst people: Person[] = [\n  { name: 'Alice', address: { street: 'Main St', number: 1 } },\n  { name: 'Bob',   address: { street: 'Oak Ave',  number: 2 } },\n];\n\npeople.map(wt.getAtWith('address.street'));\n// => ['Main St', 'Oak Ave']\n\npeople.filter(wt.matchAtWith('address.number', (n) => n > 1));\n// => [{ name: 'Bob', ... }]\n\npeople.map(wt.patchWith([{ address: [{ street: 'New Rd' }] }]));\n// => [{ name: 'Alice', address: { street: 'New Rd', number: 1 } }, ...]\n\npeople.map(wt.patchAtWith('address', [{ street: 'New Rd' }]));\n// => [{ name: 'Alice', address: { street: 'New Rd', number: 1 } }, ...]\n\npeople.map(wt.selectAtWith('address', { road: 'street' }));\n// => [{ road: 'Main St' }, { road: 'Oak Ave' }]\n```"
         ],
         "notes": [],
         "see": []
       },
       "source": {
         "file": "packages/deep/src/public/with-type.ts",
-        "line": 55,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/deep/src/public/with-type.ts#L55"
+        "line": 56,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/deep/src/public/with-type.ts#L56"
       },
       "type": {
         "typeParams": [
@@ -145651,15 +145651,15 @@
                 },
                 "source": {
                   "file": "packages/deep/src/public/with-type.ts",
-                  "line": 60,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/deep/src/public/with-type.ts#L60"
+                  "line": 61,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/deep/src/public/with-type.ts#L61"
                 }
               }
             ],
             "source": {
               "file": "packages/deep/src/public/with-type.ts",
-              "line": 60,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/deep/src/public/with-type.ts#L60"
+              "line": 61,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/deep/src/public/with-type.ts#L61"
             }
           },
           {
@@ -145721,15 +145721,15 @@
                 },
                 "source": {
                   "file": "packages/deep/src/public/with-type.ts",
-                  "line": 78,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/deep/src/public/with-type.ts#L78"
+                  "line": 79,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/deep/src/public/with-type.ts#L79"
                 }
               }
             ],
             "source": {
               "file": "packages/deep/src/public/with-type.ts",
-              "line": 78,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/deep/src/public/with-type.ts#L78"
+              "line": 79,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/deep/src/public/with-type.ts#L79"
             }
           },
           {
@@ -145832,7 +145832,7 @@
           }
         ],
         "examples": [
-          "```ts\nconst input = { a: 1, b: { c: true, d: 'a' } }\nmatch(input, { a: 1 }) // => true\nmatch(input, { a: 2 }) // => false\nmatch(input, { a: (v) => v > 10 }) // => false\nmatch(input, { b: { c: true }}) // => true\nmatch(input, { b: { c: (v, parent, root) => v && parent.d.length > 0 && root.a > 0 } })\n // => true\n```"
+          "```ts\nimport { match, matchVerbose, matchAt, matchWith, matchAtWith } from '@rimbu/deep/match';\nconst input = { a: 1, b: { c: true, d: 'a' } }\nmatch(input, { a: 1 }) // => true\nmatch(input, { a: 2 }) // => false\nmatch(input, { a: (v) => v > 10 }) // => false\nmatch(input, { b: { c: true }}) // => true\nmatch(input, { b: { c: (v, parent, root) => v && parent.d.length > 0 && root.a > 0 } })\n // => true\n```"
         ],
         "notes": [],
         "see": []
@@ -145866,7 +145866,7 @@
           }
         ],
         "examples": [
-          "```ts\nconst input = { a: 1, b: { c: true, d: 'a' } }\nmatchVerbose(input, { a: 1 })        // => { result: true, failureLog: [] }\nmatchVerbose(input, { a: 2 })        // => { result: false, failureLog: [...] }\nmatchVerbose(input, { b: { c: false } }) // => { result: false, failureLog: [...] }\n```"
+          "```ts\nimport { match, matchVerbose, matchAt, matchWith, matchAtWith } from '@rimbu/deep/match';\nconst input = { a: 1, b: { c: true, d: 'a' } }\nmatchVerbose(input, { a: 1 })        // => { result: true, failureLog: [] }\nmatchVerbose(input, { a: 2 })        // => { result: false, failureLog: [...] }\nmatchVerbose(input, { b: { c: false } }) // => { result: false, failureLog: [...] }\n```"
         ],
         "notes": [],
         "see": []
@@ -145891,7 +145891,7 @@
         "description": "Returns true if the given `source` matches the given `matcher` at the given `path`, false otherwise.",
         "params": [],
         "examples": [
-          "```ts\nconst input = { a: 1, b: { c: true, d: 'a' } }\nmatchAt(input, 'b', { c: true }) // => true\n```"
+          "```ts\nimport { match, matchVerbose, matchAt, matchWith, matchAtWith } from '@rimbu/deep/match';\nconst input = { a: 1, b: { c: true, d: 'a' } }\nmatchAt(input, 'b', { c: true }) // => true\n```"
         ],
         "notes": [],
         "see": []
@@ -145916,7 +145916,7 @@
         "description": "Returns a function that matches a given `source` with the given `matcher`.",
         "params": [],
         "examples": [
-          "```ts\nconst items = [{ a: 1, b: 'a' }, { a: 2, b: 'b' }];\nitems.filter(matchWith({ a: 2 }));\n// => [{ a: 2, b: 'b' }]\n```"
+          "```ts\nimport { match, matchVerbose, matchAt, matchWith, matchAtWith } from '@rimbu/deep/match';\nconst items = [{ a: 1, b: 'a' }, { a: 2, b: 'b' }];\nitems.filter(matchWith({ a: 2 }));\n// => [{ a: 2, b: 'b' }]\n```"
         ],
         "notes": [],
         "see": []
@@ -145941,7 +145941,7 @@
         "description": "Returns a function that matches a given `source` with the given `matcher` at the given string `path`.",
         "params": [],
         "examples": [
-          "```ts\nconst items = [{ a: { b: 1, c: 'a' } }, { a: { b: 2, c: 'b' } }];\nitems.filter(matchAtWith('a.b', 2));\n// => [{ a: 2, b: 'b' }]\n```"
+          "```ts\nimport { match, matchVerbose, matchAt, matchWith, matchAtWith } from '@rimbu/deep/match';\nconst items = [{ a: { b: 1, c: 'a' } }, { a: { b: 2, c: 'b' } }];\nitems.filter(matchAtWith('a.b', 2));\n// => [{ a: 2, b: 'b' }]\n```"
         ],
         "notes": [],
         "see": []
@@ -145986,7 +145986,7 @@
           }
         ],
         "examples": [
-          "```ts\nconst t = Tuple.of(1, 'a', true)\n// type of t => Tuple<[number, string, boolean]>\n```"
+          "```ts\nimport { Tuple } from '@rimbu/deep/tuple';\nconst t = Tuple.of(1, 'a', true)\n// type of t => Tuple<[number, string, boolean]>\n```"
         ],
         "notes": [],
         "see": []
@@ -146020,7 +146020,7 @@
           }
         ],
         "examples": [
-          "```ts\nconst t = Tuple.of(1, 'a', true)\nconsole.log(Tuple.at(t, 1))\n// => 'a'\n```"
+          "```ts\nimport { Tuple } from '@rimbu/deep/tuple';\nconst t = Tuple.of(1, 'a', true)\nconsole.log(Tuple.at(t, 1))\n// => 'a'\n```"
         ],
         "notes": [],
         "see": []
@@ -146050,7 +146050,7 @@
           }
         ],
         "examples": [
-          "```ts\nconst t = Tuple.of(1, 'a', true)\nconsole.log(Tuple.first(t))\n// => 1\n```"
+          "```ts\nimport { Tuple } from '@rimbu/deep/tuple';\nconst t = Tuple.of(1, 'a', true)\nconsole.log(Tuple.first(t))\n// => 1\n```"
         ],
         "notes": [],
         "see": []
@@ -146080,7 +146080,7 @@
           }
         ],
         "examples": [
-          "```ts\nconst t = Tuple.of(1, 'a', true)\nconsole.log(Tuple.second(t))\n// => 'a'\n```"
+          "```ts\nimport { Tuple } from '@rimbu/deep/tuple';\nconst t = Tuple.of(1, 'a', true)\nconsole.log(Tuple.second(t))\n// => 'a'\n```"
         ],
         "notes": [],
         "see": []
@@ -146110,7 +146110,7 @@
           }
         ],
         "examples": [
-          "```ts\nconst t = Tuple.of(1, 'a', true)\nconsole.log(Tuple.last(t))\n// => true\n```"
+          "```ts\nimport { Tuple } from '@rimbu/deep/tuple';\nconst t = Tuple.of(1, 'a', true)\nconsole.log(Tuple.last(t))\n// => true\n```"
         ],
         "notes": [],
         "see": []
@@ -146163,7 +146163,7 @@
           }
         ],
         "examples": [
-          "```ts\nconst t = Tuple.of(1, 'a', true)\nconsole.log(Tuple.updateAt(t, 1, 'b'))\n// => [1, 'b', true]\n```"
+          "```ts\nimport { Tuple } from '@rimbu/deep/tuple';\nconst t = Tuple.of(1, 'a', true)\nconsole.log(Tuple.updateAt(t, 1, (v) => 'b'))\n// => [1, 'b', true]\n```"
         ],
         "notes": [],
         "see": []
@@ -146197,7 +146197,7 @@
           }
         ],
         "examples": [
-          "```ts\nconst t = Tuple.of(1, 'a')\nconsole.log(Tuple.append(t, true, 5))\n// => [1, 'a', true, 5]\n```"
+          "```ts\nimport { Tuple } from '@rimbu/deep/tuple';\nconst t = Tuple.of(1, 'a')\nconsole.log(Tuple.append(t, true, 5))\n// => [1, 'a', true, 5]\n```"
         ],
         "notes": [],
         "see": []
@@ -146231,7 +146231,7 @@
           }
         ],
         "examples": [
-          "```ts\nconst t1 = Tuple.of(1, 'a')\nconst t2 = Tuple.of(true, 5)\nconsole.log(Tuple.concat(t1, t2))\n// => [1, 'a', true, 5]\n```"
+          "```ts\nimport { Tuple } from '@rimbu/deep/tuple';\nconst t1 = Tuple.of(1, 'a')\nconst t2 = Tuple.of(true, 5)\nconsole.log(Tuple.concat(t1, t2))\n// => [1, 'a', true, 5]\n```"
         ],
         "notes": [],
         "see": []
@@ -146261,7 +146261,7 @@
           }
         ],
         "examples": [
-          "```ts\nconst t = Tuple.of(1, 'a', true)\nconsole.log(Tuple.init(t))\n// => [1, 'a']\n```"
+          "```ts\nimport { Tuple } from '@rimbu/deep/tuple';\nconst t = Tuple.of(1, 'a', true)\nconsole.log(Tuple.init(t))\n// => [1, 'a']\n```"
         ],
         "notes": [],
         "see": []
@@ -146291,7 +146291,7 @@
           }
         ],
         "examples": [
-          "```ts\nconst t = Tuple.of(1, 'a', true)\nconsole.log(Tuple.tail(t))\n// => ['a', true]\n```"
+          "```ts\nimport { Tuple } from '@rimbu/deep/tuple';\nconst t = Tuple.of(1, 'a', true)\nconsole.log(Tuple.tail(t))\n// => ['a', true]\n```"
         ],
         "notes": [],
         "see": []
@@ -146484,7 +146484,7 @@
           }
         ],
         "examples": [
-          "```ts\nconst input = { a: 1, b: { c: true, d: 'a' } }\npatch(input, [{ a: 2 }])  // => { a: 2, b: { c: true, d: 'a' } }\npatch(input, [{ b: [{ c: (v) => !v }] }] )\n// => { a: 1, b: { c: false, d: 'a' } }\npatch(input, [{ a: (v) => v + 1, b: [{ d: 'q' }] }] )\n// => { a: 2, b: { c: true, d: 'q' } }\n```"
+          "```ts\nimport { patch, patchWith, patchAt } from '@rimbu/deep/patch';\nconst input = { a: 1, b: { c: true, d: 'a' } }\npatch(input, [{ a: 2 }])  // => { a: 2, b: { c: true, d: 'a' } }\npatch(input, [{ b: [{ c: (v) => !v }] }] )\n// => { a: 1, b: { c: false, d: 'a' } }\npatch(input, [{ a: (v) => v + 1, b: [{ d: 'q' }] }] )\n// => { a: 2, b: { c: true, d: 'q' } }\n```"
         ],
         "notes": [],
         "see": []
@@ -146518,7 +146518,7 @@
           }
         ],
         "examples": [
-          "```ts\nconst items = [{ a: 1, b: 'a' }, { a: 2, b: 'b' }];\nitems.map(patchWith([{ a: v => v + 1 }]));\n// => [{ a: 2, b: 'a' }, { a: 3, b: 'b' }]\n```"
+          "```ts\nimport { patch, patchWith, patchAt } from '@rimbu/deep/patch';\nconst items = [{ a: 1, b: 'a' }, { a: 2, b: 'b' }];\nitems.map(patchWith([{ a: (v: number) => v + 1 }]));\n// => [{ a: 2, b: 'a' }, { a: 3, b: 'b' }]\n```"
         ],
         "notes": [],
         "see": []
@@ -146556,7 +146556,7 @@
           }
         ],
         "examples": [
-          "```ts\nconst value = { a: { b: { c: 5 } } };\npatchAt(value, 'a.b.c', v => v + 5);\n// => { a: { b: { c: 6 } } }\n```"
+          "```ts\nimport { patch, patchWith, patchAt } from '@rimbu/deep/patch';\nconst value = { a: { b: { c: 5 } } };\npatchAt(value, 'a.b.c', v => v + 5);\n// => { a: { b: { c: 6 } } }\n```"
         ],
         "notes": [],
         "see": []
@@ -146803,7 +146803,7 @@
           }
         ],
         "examples": [
-          "```ts\nconst item = { a: { b:  1, c: 'a' } };\nselect(item, { q: 'a.c', y: ['a.b', 'a.c'], z: (v) => v.a.b + 1 });\n// => { q: 'a', y: [1, 'a'], z: 2 }\n```"
+          "```ts\nimport { select, selectWith, selectAt, selectAtWith } from '@rimbu/deep/select';\nconst item = { a: { b:  1, c: 'a' } };\nselect(item, { q: 'a.c', y: ['a.b', 'a.c'], z: (v) => v.a.b + 1 });\n// => { q: 'a', y: [1, 'a'], z: 2 }\n```"
         ],
         "notes": [],
         "see": []
@@ -146833,7 +146833,7 @@
           }
         ],
         "examples": [
-          "```ts\nconst items = [{ a: { b:  1, c: 'a' } }, { a: { b: 2, c: 'b' } }];\nitems.map(selectWith({ q: 'a.c', z: ['a.b', v => v.a.b + 1] as const }));\n// => [{ q: 'a', z: [1, 2] }, { q: 'b', z: [2, 3] }]\n```"
+          "```ts\nimport { select, selectWith, selectAt, selectAtWith } from '@rimbu/deep/select';\nconst items = [{ a: { b:  1, c: 'a' } }, { a: { b: 2, c: 'b' } }];\nitems.map(selectWith({ q: 'a.c', z: ['a.b', v => v.a.b + 1] as const }));\n// => [{ q: 'a', z: [1, 2] }, { q: 'b', z: [2, 3] }]\n```"
         ],
         "notes": [],
         "see": []
@@ -146871,7 +146871,7 @@
           }
         ],
         "examples": [
-          "```ts\nconst item = { a: { b:  1, c: 'a' } };\nselectAt(item, 'a', { q: 'c', z: ['b', v => v.b + 1] as const });\n// => { q: 'a', z: [1, 2] }\n```"
+          "```ts\nimport { select, selectWith, selectAt, selectAtWith } from '@rimbu/deep/select';\nconst item = { a: { b:  1, c: 'a' } };\nselectAt(item, 'a', { q: 'c', z: ['b', v => v.b + 1] as const });\n// => { q: 'a', z: [1, 2] }\n```"
         ],
         "notes": [],
         "see": []
@@ -146905,7 +146905,7 @@
           }
         ],
         "examples": [
-          "```ts\nconst items = [{ a: { b:  1, c: 'a' } }, { a: { b: 2, c: 'b' } }];\nitems.map(selectAtWith('a', { q: 'c', z: ['b', v => v.b + 1] as const }));\n// => [{ q: 'a', z: [1, 2] }, { q: 'b', z: [2, 3] }]\n```"
+          "```ts\nimport { select, selectWith, selectAt, selectAtWith } from '@rimbu/deep/select';\nconst items = [{ a: { b:  1, c: 'a' } }, { a: { b: 2, c: 'b' } }];\nitems.map(selectAtWith('a', { q: 'c', z: ['b', v => v.b + 1] as const }));\n// => [{ q: 'a', z: [1, 2] }, { q: 'b', z: [2, 3] }]\n```"
         ],
         "notes": [],
         "see": []
@@ -147008,7 +147008,7 @@
           }
         ],
         "examples": [
-          "```ts\nconst obj = protect({ a: 1, b: { c: true, d: [1] } })\nobj.a = 2        // compiler error: a is readonly\nobj.b.c = false  // compiler error: c is readonly\nobj.b.d.push(2)  // compiler error: d is a readonly array\n(obj as any).b.d.push(2)  // will actually mutate the object\n```"
+          "```ts\nimport { protect, getAt, getAtWith } from '@rimbu/deep';\nconst obj = protect({ a: 1, b: { c: true, d: [1] } })\n// obj is deeply readonly: reassigning any property (e.g. obj.a = 2) is a compiler error\n```"
         ],
         "notes": [
           "does not perform any runtime protection, it is only a utility to easily add the `Protected`\ntype to a value"
@@ -147044,7 +147044,7 @@
           }
         ],
         "examples": [
-          "```ts\nconst value = { a: { b: [{ c: 5 }] } }\ngetAt(value, 'a.b[0].c')   // => 5\ngetAt(value, 'a.b[0]')     // => { c: 5 }\n```"
+          "```ts\nimport { protect, getAt, getAtWith } from '@rimbu/deep';\nconst value = { a: { b: [{ c: 5 }] } } as const\ngetAt(value, 'a.b[0].c')   // => 5\ngetAt(value, 'a.b[0]')     // => { c: 5 }\n```"
         ],
         "notes": [],
         "see": []
@@ -147074,7 +147074,7 @@
           }
         ],
         "examples": [
-          "```ts\nconst items = [{ a: { b:  1, c: 'a' } }, { a: { b: 2, c: 'b' } }];\nitems.map(getAtWith('a.c'));\n// => ['a', 'b']\n```"
+          "```ts\nimport { protect, getAt, getAtWith } from '@rimbu/deep';\nconst items = [{ a: { b:  1, c: 'a' } }, { a: { b: 2, c: 'b' } }];\nitems.map(getAtWith('a.c'));\n// => ['a', 'b']\n```"
         ],
         "notes": [],
         "see": []

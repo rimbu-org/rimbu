@@ -130,6 +130,7 @@ export namespace Patch {
  * @param patchItem - the `Patch` value to apply to the input value
  * @example
  * ```ts
+ * import { patch, patchWith, patchAt } from '@rimbu/deep/patch';
  * const input = { a: 1, b: { c: true, d: 'a' } }
  * patch(input, [{ a: 2 }])  // => { a: 2, b: { c: true, d: 'a' } }
  * patch(input, [{ b: [{ c: (v) => !v }] }] )
@@ -324,8 +325,9 @@ function patchArr<T extends any[], C, R>(
  * @returns a function that accepts a `source` value and returns the patched result
  * @example
  * ```ts
+ * import { patch, patchWith, patchAt } from '@rimbu/deep/patch';
  * const items = [{ a: 1, b: 'a' }, { a: 2, b: 'b' }];
- * items.map(patchWith([{ a: v => v + 1 }]));
+ * items.map(patchWith([{ a: (v: number) => v + 1 }]));
  * // => [{ a: 2, b: 'a' }, { a: 3, b: 'b' }]
  * ```
  */
@@ -346,6 +348,7 @@ export function patchWith<T, TE extends T = T, TT = T>(
  * @returns the updated value with the patch applied
  * @example
  * ```ts
+ * import { patch, patchWith, patchAt } from '@rimbu/deep/patch';
  * const value = { a: { b: { c: 5 } } };
  * patchAt(value, 'a.b.c', v => v + 5);
  * // => { a: { b: { c: 6 } } }

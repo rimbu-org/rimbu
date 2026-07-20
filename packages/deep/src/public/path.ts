@@ -9,6 +9,7 @@ export namespace Path {
 	 * @typeparam T - the object type to select in
 	 * @example
 	 * ```ts
+	 * import { Path } from '@rimbu/deep/path';
 	 * const p: Path.Get<{ a: { b: { c : 5 } } }> = 'a.b'
 	 * ```
 	 */
@@ -19,6 +20,7 @@ export namespace Path {
 	 * @typeparam T - the object type to select in
 	 * @example
 	 * ```ts
+	 * import { Path } from '@rimbu/deep/path';
 	 * const p: Path.Set<{ a: { b: { c : 5 } } }> = 'a.b'
 	 * ```
 	 */
@@ -30,6 +32,7 @@ export namespace Path {
 	 * @typeparam P - a path in object type T
 	 * @example
 	 * ```ts
+	 * import { Path } from '@rimbu/deep/path';
 	 * let r!: Path.Result<{ a: { b: { c: number } } }, 'a.b'>;
 	 * // => type of r: { c: number }
 	 * ```

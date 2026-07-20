@@ -28,6 +28,7 @@ import { selectAtWith } from '@rimbu/deep/select';
  * @typeparam T - the root object type that all methods operate on
  * @example
  * ```ts
+ * import { withType } from '@rimbu/deep/with-type';
  * type Person = { name: string; address: { street: string; number: number } };
  * const wt = withType<Person>();
  *
@@ -111,6 +112,7 @@ export interface WithType<T> {
  * @typeparam T - the root object type that all methods operate on
  * @example
  * ```ts
+ * import { withType } from '@rimbu/deep/with-type';
  * type Person = { name: string; age: number };
  * const wt = withType<Person>();
  * const people: Person[] = [{ name: 'Alice', age: 34 }, { name: 'Bob', age: 25 }];

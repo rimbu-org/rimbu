@@ -21,11 +21,9 @@ export { withType } from '@rimbu/deep/with-type';
  * type to a value
  * @example
  * ```ts
+ * import { protect, getAt, getAtWith } from '@rimbu/deep';
  * const obj = protect({ a: 1, b: { c: true, d: [1] } })
- * obj.a = 2        // compiler error: a is readonly
- * obj.b.c = false  // compiler error: c is readonly
- * obj.b.d.push(2)  // compiler error: d is a readonly array
- * (obj as any).b.d.push(2)  // will actually mutate the object
+ * // obj is deeply readonly: reassigning any property (e.g. obj.a = 2) is a compiler error
  * ```
  * @returns the same value with the `Protected<T>` type applied (compile-time only)
  */
@@ -44,7 +42,8 @@ export function protect<T>(source: T): Protected<T> {
  * @param path - the path into the object
  * @example
  * ```ts
- * const value = { a: { b: [{ c: 5 }] } }
+ * import { protect, getAt, getAtWith } from '@rimbu/deep';
+ * const value = { a: { b: [{ c: 5 }] } } as const
  * getAt(value, 'a.b[0].c')   // => 5
  * getAt(value, 'a.b[0]')     // => { c: 5 }
  * ```
@@ -95,6 +94,7 @@ export function getAt<T, P extends Path.Get<T>>(
  * @returns a function that receives `source: T` and returns `Path.Result<T, P>` for that `path`
  * @example
  * ```ts
+ * import { protect, getAt, getAtWith } from '@rimbu/deep';
  * const items = [{ a: { b:  1, c: 'a' } }, { a: { b: 2, c: 'b' } }];
  * items.map(getAtWith('a.c'));
  * // => ['a', 'b']
