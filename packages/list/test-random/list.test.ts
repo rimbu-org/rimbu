@@ -123,7 +123,7 @@ function runWith(nrOfBits: number): void {
 
 		checkGet(index: number): void {
 			const getArr = this.arr[index];
-			const getList = this.list.get(index, undefined);
+			const getList = this.list.at(index, undefined);
 			expect(getList).toEqual(getArr);
 
 			if (!this.disableListBuilder) {

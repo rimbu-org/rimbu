@@ -191,32 +191,32 @@ describe('List methods', () => {
 		expect(list6_2.last()).toBe(6);
 	});
 
-	it('get', () => {
-		expect(listEmpty.get(1)).toBe(undefined);
-		expect(listEmpty.get(1, 'a')).toBe('a');
+	it('at', () => {
+		expect(listEmpty.at(1)).toBe(undefined);
+		expect(listEmpty.at(1, 'a')).toBe('a');
 
-		expect(list3_1.get(1)).toBe(2);
-		expect(list3_1.get(1, 'a')).toBe(2);
-		expect(list3_1.get(5)).toBe(undefined);
-		expect(list3_1.get(5, 'a')).toBe('a');
-		expect(list3_1.get(-1)).toBe(3);
-		expect(list3_1.get(-5)).toBe(undefined);
-		expect(list3_1.get(-5, 'a')).toBe('a');
+		expect(list3_1.at(1)).toBe(2);
+		expect(list3_1.at(1, 'a')).toBe(2);
+		expect(list3_1.at(5)).toBe(undefined);
+		expect(list3_1.at(5, 'a')).toBe('a');
+		expect(list3_1.at(-1)).toBe(3);
+		expect(list3_1.at(-5)).toBe(undefined);
+		expect(list3_1.at(-5, 'a')).toBe('a');
 
-		expect(list3_2.get(1)).toBe(2);
-		expect(list3_2.get(1, 'a')).toBe(2);
-		expect(list3_2.get(5)).toBe(undefined);
-		expect(list3_2.get(5, 'a')).toBe('a');
-		expect(list3_2.get(-1)).toBe(3);
-		expect(list3_2.get(-5)).toBe(undefined);
-		expect(list3_2.get(-5, 'a')).toBe('a');
+		expect(list3_2.at(1)).toBe(2);
+		expect(list3_2.at(1, 'a')).toBe(2);
+		expect(list3_2.at(5)).toBe(undefined);
+		expect(list3_2.at(5, 'a')).toBe('a');
+		expect(list3_2.at(-1)).toBe(3);
+		expect(list3_2.at(-5)).toBe(undefined);
+		expect(list3_2.at(-5, 'a')).toBe('a');
 
-		expect(list6_1.get(3)).toBe(4);
-		expect(list6_1.get(3, 'a')).toBe(4);
-		expect(list6_1.get(-3)).toBe(4);
-		expect(list6_2.get(3)).toBe(4);
-		expect(list6_2.get(3, 'a')).toBe(4);
-		expect(list6_2.get(-3)).toBe(4);
+		expect(list6_1.at(3)).toBe(4);
+		expect(list6_1.at(3, 'a')).toBe(4);
+		expect(list6_1.at(-3)).toBe(4);
+		expect(list6_2.at(3)).toBe(4);
+		expect(list6_2.at(3, 'a')).toBe(4);
+		expect(list6_2.at(-3)).toBe(4);
 	});
 
 	it('prepend', () => {

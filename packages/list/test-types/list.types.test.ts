@@ -136,17 +136,17 @@ expectTypeOf(List.flatten(List.of(List.from([1, 2])))).toEqualTypeOf<
 >();
 expectTypeOf(List.flatten(List.of('abc'))).toEqualTypeOf<List<string>>();
 
-// .get(..)
-expectTypeOf(List.of(1).get(3)).toEqualTypeOf<number | undefined>();
-expectTypeOf(List.empty<number>().get(3)).toEqualTypeOf<number | undefined>();
-expectTypeOf(List.empty<number>().get(2, 3)).toEqualTypeOf<number>();
-expectTypeOf(List.of(1).get(2, 3)).toEqualTypeOf<number>();
-expectTypeOf(List.empty<number>().get(2, () => 3)).toEqualTypeOf<number>();
-expectTypeOf(List.of(1).get(2, () => 3)).toEqualTypeOf<number>();
-expectTypeOf(List.empty<number>().get(2, 'a' as string)).toEqualTypeOf<
+// .at(..)
+expectTypeOf(List.of(1).at(3)).toEqualTypeOf<number | undefined>();
+expectTypeOf(List.empty<number>().at(3)).toEqualTypeOf<number | undefined>();
+expectTypeOf(List.empty<number>().at(2, 3)).toEqualTypeOf<number>();
+expectTypeOf(List.of(1).at(2, 3)).toEqualTypeOf<number>();
+expectTypeOf(List.empty<number>().at(2, () => 3)).toEqualTypeOf<number>();
+expectTypeOf(List.of(1).at(2, () => 3)).toEqualTypeOf<number>();
+expectTypeOf(List.empty<number>().at(2, 'a' as string)).toEqualTypeOf<
 	number | string
 >();
-expectTypeOf(List.of(1).get(2, 'a' as string)).toEqualTypeOf<number | string>();
+expectTypeOf(List.of(1).at(2, 'a' as string)).toEqualTypeOf<number | string>();
 
 // .insert(..)
 expectTypeOf(
@@ -287,7 +287,6 @@ const tNonEmptyNE: List.NonEmpty<number> = List.of(1).transform((s) =>
 );
 
 void [tEmpty, tNonEmpty, tNonEmptyNE];
-
 
 // .unzip(..)
 try {

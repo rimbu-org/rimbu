@@ -89,7 +89,8 @@ export class OrderedMapNonEmpty<K, V>
 		const newKeyIndicatorMap = this.keyIndicatorMap.modifyAt(key, {
 			ifNew: {
 				create: () => {
-					return [value, this.#nextIndicator()];
+					newIndicator = this.#nextIndicator();
+					return [value, newIndicator];
 				},
 			},
 			ifExists: {
@@ -97,22 +98,26 @@ export class OrderedMapNonEmpty<K, V>
 					const [currentValue, currentIndicator] = currentEntry;
 					if (Object.is(currentValue, value)) return currentEntry;
 
-					const nextIndicator = this.#nextIndicator();
 					oldIndicator = currentIndicator;
-					newIndicator = nextIndicator;
+					newIndicator = this.#nextIndicator();
 
 					return [value, newIndicator];
 				},
 			},
 		});
 
-		if (undefined === oldIndicator || undefined === newIndicator) return this;
+		if (newKeyIndicatorMap === this.keyIndicatorMap) return this;
 
-		const newIndicatorKeyMap = this.indicatorKeyMap
-			.removeKey(oldIndicator)
-			.set(newIndicator, [key, value]);
+		const newIndicatorKeyMap1 =
+			undefined === oldIndicator
+				? this.indicatorKeyMap
+				: this.indicatorKeyMap.removeKey(oldIndicator);
+		const newIndicatorKeyMap2 = newIndicatorKeyMap1.set(newIndicator!, [
+			key,
+			value,
+		]);
 
-		return this.copy(newKeyIndicatorMap.assumeNonEmpty(), newIndicatorKeyMap);
+		return this.copy(newKeyIndicatorMap.assumeNonEmpty(), newIndicatorKeyMap2);
 	}
 
 	addEntry(entry: readonly [K, V]): OrderedMap.NonEmpty<K, V> {

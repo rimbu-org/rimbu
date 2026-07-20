@@ -327,7 +327,7 @@ export function runGraphTestsWith(
 		it('linkMap', () => {
 			expect(graphEmpty.linkMap).toBe(G.linkMapContext.empty());
 			expect(graph3.linkMap.size).toBe(3);
-			expect(new Set(graph3.linkMap.get('a')!)).toEqual(
+			expect(new Set(graph3.linkMap.at('a')!)).toEqual(
 				new Set([
 					['b', 1],
 					['c', 3],

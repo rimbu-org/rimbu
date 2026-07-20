@@ -120,12 +120,15 @@ export class OrderedMapBuilder<K, V> implements OrderedMapBase.Builder<K, V> {
 			return false;
 		}
 
+		this.source = undefined;
+
 		if (undefined !== oldIndicator) {
 			this.indicatorMapBuilder.removeKey(oldIndicator);
 		}
 
 		if (undefined !== newEntry) {
-			this.indicatorMapBuilder.set(newEntry[1], [key, newEntry[0]]);
+			const [newValue, newIndicator] = newEntry;
+			this.indicatorMapBuilder.set(newIndicator, [key, newValue]);
 		}
 
 		return true;
@@ -215,6 +218,7 @@ export class OrderedMapBuilder<K, V> implements OrderedMapBase.Builder<K, V> {
 					if (undefined !== create) {
 						const newValue = create(skip);
 						if (skip === newValue) return skip;
+
 						newEntry = [newValue as V, this.#nextIndicator()];
 						return newEntry;
 					}
@@ -224,10 +228,12 @@ export class OrderedMapBuilder<K, V> implements OrderedMapBase.Builder<K, V> {
 				},
 			};
 		}
+
 		if (undefined !== ifExists) {
 			modifyOptions.ifExists = {
 				update: (currentEntry, remove) => {
-					const [currentValue] = currentEntry;
+					const [currentValue, currentIndicator] = currentEntry;
+					previousIndicator = currentIndicator;
 
 					const { set, update } = ifExists;
 
