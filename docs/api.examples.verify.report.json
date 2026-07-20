@@ -1,143 +1,408 @@
 {
-  "generatedAt": "2026-07-20T07:48:54.748Z",
-  "filter": "table/",
-  "totalSnippets": 312,
-  "checkedOutputs": 0,
+  "generatedAt": "2026-07-20T08:31:22.832Z",
+  "filter": "graph/",
+  "totalSnippets": 726,
+  "checkedOutputs": 5,
   "checkedInferredTypes": 0,
-  "mismatches": 18,
+  "mismatches": 53,
   "strict": false,
   "details": [
     {
-      "key": "table/VariantTableBase::forEach::0::0",
-      "ownerId": "table/VariantTableBase",
+      "key": "graph/traverseBreadthFirstCustom::::-1::0",
+      "ownerId": "graph/traverseBreadthFirstCustom",
+      "kind": "runtime-error",
+      "detail": "snippet threw at runtime",
+      "actual": "unknown error"
+    },
+    {
+      "key": "graph/traverseBreadthFirstHashed::::-1::0",
+      "ownerId": "graph/traverseBreadthFirstHashed",
+      "kind": "output",
+      "detail": "console.log #1 output mismatch (next-line)",
+      "expected": "[[1, 2], [1, 3], [2, 3], [3, 4]]",
+      "actual": "[ [ 1, 2 ], [ 1, 3 ], [ 3, 4 ] ]"
+    },
+    {
+      "key": "graph/traverseBreadthFirstSorted::::-1::0",
+      "ownerId": "graph/traverseBreadthFirstSorted",
+      "kind": "output",
+      "detail": "console.log #1 output mismatch (next-line)",
+      "expected": "[[1, 2], [1, 3], [2, 3], [3, 4]]",
+      "actual": "[ [ 1, 2 ], [ 1, 3 ], [ 3, 4 ] ]"
+    },
+    {
+      "key": "graph/VariantGraphBase::forEach::0::0",
+      "ownerId": "graph/VariantGraphBase",
       "member": "forEach",
       "kind": "output",
       "detail": "console.log #1 has no \"// =>\" output comment",
-      "actual": "[ [ 1, 2, 3 ] ]"
+      "actual": "[ [ 1 ] ]"
     },
     {
-      "key": "table/VariantTableBase::forEach::0::0",
-      "ownerId": "table/VariantTableBase",
+      "key": "graph/VariantGraphBase::forEach::0::0",
+      "ownerId": "graph/VariantGraphBase",
       "member": "forEach",
       "kind": "output",
       "detail": "captured 2 logs but only 1 console.log statements parsed"
     },
     {
-      "key": "table/TableBase.Builder::forEach::0::0",
-      "ownerId": "table/TableBase.Builder",
+      "key": "graph/GraphConnect::forEach::0::0",
+      "ownerId": "graph/GraphConnect",
       "member": "forEach",
       "kind": "output",
       "detail": "console.log #1 has no \"// =>\" output comment",
-      "actual": "[ [ 1, 2, 3 ] ]"
+      "actual": "[ [ 1 ] ]"
     },
     {
-      "key": "table/TableBase.Builder::forEach::0::0",
-      "ownerId": "table/TableBase.Builder",
+      "key": "graph/GraphConnect::forEach::0::0",
+      "ownerId": "graph/GraphConnect",
       "member": "forEach",
       "kind": "output",
       "detail": "captured 2 logs but only 1 console.log statements parsed"
     },
     {
-      "key": "table/TableBase::forEach::0::0",
-      "ownerId": "table/TableBase",
+      "key": "graph/GraphBase.Builder::forEach::0::0",
+      "ownerId": "graph/GraphBase.Builder",
       "member": "forEach",
       "kind": "output",
       "detail": "console.log #1 has no \"// =>\" output comment",
-      "actual": "[ [ 1, 2, 3 ] ]"
+      "actual": "[ [ 1 ] ]"
     },
     {
-      "key": "table/TableBase::forEach::0::0",
-      "ownerId": "table/TableBase",
+      "key": "graph/GraphBase.Builder::forEach::0::0",
+      "ownerId": "graph/GraphBase.Builder",
       "member": "forEach",
       "kind": "output",
       "detail": "captured 2 logs but only 1 console.log statements parsed"
     },
     {
-      "key": "table/HashTableHashColumn::forEach::0::0",
-      "ownerId": "table/HashTableHashColumn",
+      "key": "graph/GraphBase.Builder::build::0::0",
+      "ownerId": "graph/GraphBase.Builder",
+      "member": "build",
+      "kind": "output",
+      "detail": "console.log #1 output mismatch (next-line)",
+      "expected": "[[1, 2], [3]]",
+      "actual": "[ [ 1, 2 ], [ 2 ], [ 3 ] ]"
+    },
+    {
+      "key": "graph/GraphBase::forEach::0::0",
+      "ownerId": "graph/GraphBase",
       "member": "forEach",
       "kind": "output",
       "detail": "console.log #1 has no \"// =>\" output comment",
-      "actual": "[ [ 1, 2, 3 ] ]"
+      "actual": "[ [ 1 ] ]"
     },
     {
-      "key": "table/HashTableHashColumn::forEach::0::0",
-      "ownerId": "table/HashTableHashColumn",
+      "key": "graph/GraphBase::forEach::0::0",
+      "ownerId": "graph/GraphBase",
       "member": "forEach",
       "kind": "output",
       "detail": "captured 2 logs but only 1 console.log statements parsed"
     },
     {
-      "key": "table/HashTableSortedColumn::forEach::0::0",
-      "ownerId": "table/HashTableSortedColumn",
+      "key": "graph/EdgeGraphBase::forEach::0::0",
+      "ownerId": "graph/EdgeGraphBase",
       "member": "forEach",
       "kind": "output",
       "detail": "console.log #1 has no \"// =>\" output comment",
-      "actual": "[ [ 1, 2, 3 ] ]"
+      "actual": "[ [ 1 ] ]"
     },
     {
-      "key": "table/HashTableSortedColumn::forEach::0::0",
-      "ownerId": "table/HashTableSortedColumn",
+      "key": "graph/EdgeGraphBase::forEach::0::0",
+      "ownerId": "graph/EdgeGraphBase",
       "member": "forEach",
       "kind": "output",
       "detail": "captured 2 logs but only 1 console.log statements parsed"
     },
     {
-      "key": "table/SortedTableHashColumn::forEach::0::0",
-      "ownerId": "table/SortedTableHashColumn",
+      "key": "graph/EdgeGraph::forEach::0::0",
+      "ownerId": "graph/EdgeGraph",
       "member": "forEach",
       "kind": "output",
       "detail": "console.log #1 has no \"// =>\" output comment",
-      "actual": "[ [ 1, 2, 3 ] ]"
+      "actual": "[ [ 1 ] ]"
     },
     {
-      "key": "table/SortedTableHashColumn::forEach::0::0",
-      "ownerId": "table/SortedTableHashColumn",
+      "key": "graph/EdgeGraph::forEach::0::0",
+      "ownerId": "graph/EdgeGraph",
       "member": "forEach",
       "kind": "output",
       "detail": "captured 2 logs but only 1 console.log statements parsed"
     },
     {
-      "key": "table/SortedTableSortedColumn::forEach::0::0",
-      "ownerId": "table/SortedTableSortedColumn",
+      "key": "graph/ArrowGraphBase::forEach::0::0",
+      "ownerId": "graph/ArrowGraphBase",
       "member": "forEach",
       "kind": "output",
       "detail": "console.log #1 has no \"// =>\" output comment",
-      "actual": "[ [ 1, 2, 3 ] ]"
+      "actual": "[ [ 1 ] ]"
     },
     {
-      "key": "table/SortedTableSortedColumn::forEach::0::0",
-      "ownerId": "table/SortedTableSortedColumn",
+      "key": "graph/ArrowGraphBase::forEach::0::0",
+      "ownerId": "graph/ArrowGraphBase",
       "member": "forEach",
       "kind": "output",
       "detail": "captured 2 logs but only 1 console.log statements parsed"
     },
     {
-      "key": "table/Table::forEach::0::0",
-      "ownerId": "table/Table",
+      "key": "graph/ArrowGraph::forEach::0::0",
+      "ownerId": "graph/ArrowGraph",
       "member": "forEach",
       "kind": "output",
       "detail": "console.log #1 has no \"// =>\" output comment",
-      "actual": "[ [ 1, 2, 3 ] ]"
+      "actual": "[ [ 1 ] ]"
     },
     {
-      "key": "table/Table::forEach::0::0",
-      "ownerId": "table/Table",
+      "key": "graph/ArrowGraph::forEach::0::0",
+      "ownerId": "graph/ArrowGraph",
       "member": "forEach",
       "kind": "output",
       "detail": "captured 2 logs but only 1 console.log statements parsed"
     },
     {
-      "key": "table/VariantTable::forEach::0::0",
-      "ownerId": "table/VariantTable",
+      "key": "graph/VariantValuedGraphBase::forEach::0::0",
+      "ownerId": "graph/VariantValuedGraphBase",
       "member": "forEach",
       "kind": "output",
       "detail": "console.log #1 has no \"// =>\" output comment",
-      "actual": "[ [ 1, 2, 3 ] ]"
+      "actual": "[ [ 1 ] ]"
     },
     {
-      "key": "table/VariantTable::forEach::0::0",
-      "ownerId": "table/VariantTable",
+      "key": "graph/VariantValuedGraphBase::forEach::0::0",
+      "ownerId": "graph/VariantValuedGraphBase",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "captured 2 logs but only 1 console.log statements parsed"
+    },
+    {
+      "key": "graph/ValuedGraphBase.Builder::forEach::0::0",
+      "ownerId": "graph/ValuedGraphBase.Builder",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "console.log #1 has no \"// =>\" output comment",
+      "actual": "[ [ 1 ] ]"
+    },
+    {
+      "key": "graph/ValuedGraphBase.Builder::forEach::0::0",
+      "ownerId": "graph/ValuedGraphBase.Builder",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "captured 2 logs but only 1 console.log statements parsed"
+    },
+    {
+      "key": "graph/ValuedGraphBase::forEach::0::0",
+      "ownerId": "graph/ValuedGraphBase",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "console.log #1 has no \"// =>\" output comment",
+      "actual": "[ [ 1 ] ]"
+    },
+    {
+      "key": "graph/ValuedGraphBase::forEach::0::0",
+      "ownerId": "graph/ValuedGraphBase",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "captured 2 logs but only 1 console.log statements parsed"
+    },
+    {
+      "key": "graph/ArrowValuedGraphBase::forEach::0::0",
+      "ownerId": "graph/ArrowValuedGraphBase",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "console.log #1 has no \"// =>\" output comment",
+      "actual": "[ [ 1 ] ]"
+    },
+    {
+      "key": "graph/ArrowValuedGraphBase::forEach::0::0",
+      "ownerId": "graph/ArrowValuedGraphBase",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "captured 2 logs but only 1 console.log statements parsed"
+    },
+    {
+      "key": "graph/ArrowValuedGraph::forEach::0::0",
+      "ownerId": "graph/ArrowValuedGraph",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "console.log #1 has no \"// =>\" output comment",
+      "actual": "[ [ 1 ] ]"
+    },
+    {
+      "key": "graph/ArrowValuedGraph::forEach::0::0",
+      "ownerId": "graph/ArrowValuedGraph",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "captured 2 logs but only 1 console.log statements parsed"
+    },
+    {
+      "key": "graph/EdgeValuedGraphBase::forEach::0::0",
+      "ownerId": "graph/EdgeValuedGraphBase",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "console.log #1 has no \"// =>\" output comment",
+      "actual": "[ [ 1 ] ]"
+    },
+    {
+      "key": "graph/EdgeValuedGraphBase::forEach::0::0",
+      "ownerId": "graph/EdgeValuedGraphBase",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "captured 2 logs but only 1 console.log statements parsed"
+    },
+    {
+      "key": "graph/EdgeValuedGraph::forEach::0::0",
+      "ownerId": "graph/EdgeValuedGraph",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "console.log #1 has no \"// =>\" output comment",
+      "actual": "[ [ 1 ] ]"
+    },
+    {
+      "key": "graph/EdgeValuedGraph::forEach::0::0",
+      "ownerId": "graph/EdgeValuedGraph",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "captured 2 logs but only 1 console.log statements parsed"
+    },
+    {
+      "key": "graph/ArrowGraphHashed::forEach::0::0",
+      "ownerId": "graph/ArrowGraphHashed",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "console.log #1 has no \"// =>\" output comment",
+      "actual": "[ [ 1 ] ]"
+    },
+    {
+      "key": "graph/ArrowGraphHashed::forEach::0::0",
+      "ownerId": "graph/ArrowGraphHashed",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "captured 2 logs but only 1 console.log statements parsed"
+    },
+    {
+      "key": "graph/ArrowGraphSorted::forEach::0::0",
+      "ownerId": "graph/ArrowGraphSorted",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "console.log #1 has no \"// =>\" output comment",
+      "actual": "[ [ 1 ] ]"
+    },
+    {
+      "key": "graph/ArrowGraphSorted::forEach::0::0",
+      "ownerId": "graph/ArrowGraphSorted",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "captured 2 logs but only 1 console.log statements parsed"
+    },
+    {
+      "key": "graph/EdgeGraphHashed::forEach::0::0",
+      "ownerId": "graph/EdgeGraphHashed",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "console.log #1 has no \"// =>\" output comment",
+      "actual": "[ [ 1 ] ]"
+    },
+    {
+      "key": "graph/EdgeGraphHashed::forEach::0::0",
+      "ownerId": "graph/EdgeGraphHashed",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "captured 2 logs but only 1 console.log statements parsed"
+    },
+    {
+      "key": "graph/EdgeGraphSorted::forEach::0::0",
+      "ownerId": "graph/EdgeGraphSorted",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "console.log #1 has no \"// =>\" output comment",
+      "actual": "[ [ 1 ] ]"
+    },
+    {
+      "key": "graph/EdgeGraphSorted::forEach::0::0",
+      "ownerId": "graph/EdgeGraphSorted",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "captured 2 logs but only 1 console.log statements parsed"
+    },
+    {
+      "key": "graph/traverseDepthFirstCustom::::-1::0",
+      "ownerId": "graph/traverseDepthFirstCustom",
+      "kind": "runtime-error",
+      "detail": "snippet threw at runtime",
+      "actual": "214 |         return Stream.fromObjectValues(this.entrySets).flatMap((entrySet) => entrySet.stream());\n215 |     }\n216 |     at(key, otherwise, hash) {\n217 |         if (!this.context.hasher.isValid(key))\n218 |             return OptLazy(otherwise);\n219 |         const keyHash = hash ?? this.context.hash(key);"
+    },
+    {
+      "key": "graph/traverseDepthFirstHashed::::-1::0",
+      "ownerId": "graph/traverseDepthFirstHashed",
+      "kind": "output",
+      "detail": "console.log #1 output mismatch (next-line)",
+      "expected": "[[1, 2], [2, 3], [1, 3], [3, 4]]",
+      "actual": "[ [ 1, 2 ], [ 2, 3 ], [ 3, 4 ] ]"
+    },
+    {
+      "key": "graph/traverseDepthFirstSorted::::-1::0",
+      "ownerId": "graph/traverseDepthFirstSorted",
+      "kind": "output",
+      "detail": "console.log #1 output mismatch (next-line)",
+      "expected": "[[1, 2], [2, 3], [1, 3], [3, 4]]",
+      "actual": "[ [ 1, 2 ], [ 2, 3 ], [ 3, 4 ] ]"
+    },
+    {
+      "key": "graph/ArrowValuedGraphHashed::forEach::0::0",
+      "ownerId": "graph/ArrowValuedGraphHashed",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "console.log #1 has no \"// =>\" output comment",
+      "actual": "[ [ 1 ] ]"
+    },
+    {
+      "key": "graph/ArrowValuedGraphHashed::forEach::0::0",
+      "ownerId": "graph/ArrowValuedGraphHashed",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "captured 2 logs but only 1 console.log statements parsed"
+    },
+    {
+      "key": "graph/ArrowValuedGraphSorted::forEach::0::0",
+      "ownerId": "graph/ArrowValuedGraphSorted",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "console.log #1 has no \"// =>\" output comment",
+      "actual": "[ [ 1 ] ]"
+    },
+    {
+      "key": "graph/ArrowValuedGraphSorted::forEach::0::0",
+      "ownerId": "graph/ArrowValuedGraphSorted",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "captured 2 logs but only 1 console.log statements parsed"
+    },
+    {
+      "key": "graph/EdgeValuedGraphHashed::forEach::0::0",
+      "ownerId": "graph/EdgeValuedGraphHashed",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "console.log #1 has no \"// =>\" output comment",
+      "actual": "[ [ 1 ] ]"
+    },
+    {
+      "key": "graph/EdgeValuedGraphHashed::forEach::0::0",
+      "ownerId": "graph/EdgeValuedGraphHashed",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "captured 2 logs but only 1 console.log statements parsed"
+    },
+    {
+      "key": "graph/EdgeValuedGraphSorted::forEach::0::0",
+      "ownerId": "graph/EdgeValuedGraphSorted",
+      "member": "forEach",
+      "kind": "output",
+      "detail": "console.log #1 has no \"// =>\" output comment",
+      "actual": "[ [ 1 ] ]"
+    },
+    {
+      "key": "graph/EdgeValuedGraphSorted::forEach::0::0",
+      "ownerId": "graph/EdgeValuedGraphSorted",
       "member": "forEach",
       "kind": "output",
       "detail": "captured 2 logs but only 1 console.log statements parsed"

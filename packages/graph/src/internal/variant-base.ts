@@ -23,6 +23,7 @@ export interface VariantGraphBase<
 	 * Returns true if the graph has no nodes.
 	 * @example
 	 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 	 * ArrowGraphHashed.empty<number>().isEmpty  // => true
 	 * ArrowGraphHashed.of([1]).isEmpty          // => false
 	 * ```
@@ -32,6 +33,7 @@ export interface VariantGraphBase<
 	 * Returns the amount of nodes in the graph.
 	 * @example
 	 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 	 * ArrowGraphHashed.empty<number>().nodeSize  // => 0
 	 * ArrowGraphHashed.of([1], [2, 3]).nodeSize  // => 3
 	 * ```
@@ -41,6 +43,7 @@ export interface VariantGraphBase<
 	 * Returns the amount of connections in the graph.
 	 * @example
 	 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 	 * ArrowGraphHashed.empty<number>().connectionSize  // => 0
 	 * ArrowGraphHashed.of([1], [2, 3]).connectionSize  // => 1
 	 * ```
@@ -51,10 +54,11 @@ export interface VariantGraphBase<
 	 * as a .NonEmpty type.
 	 * @example
 	 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
+import { Stream } from '@rimbu/stream'
 	 * const g: ArrowGraphHashed<number> = ArrowGraphHashed.of([1, 1], [2, 2])
-	 * g.streamNodes().first(0)     // compiler allows fallback value since the Stream may be empty
 	 * if (g.nonEmpty()) {
-	 *   g.streamNodes().first(0)   // compiler error: fallback value not allowed since Stream is not empty
+	 *   const h: ArrowGraphHashed.NonEmpty<number> = g
 	 * }
 	 * ```
 	 */
@@ -64,10 +68,9 @@ export interface VariantGraphBase<
 	 * @throws RimbuError.EmptyCollectionAssumedNonEmptyError if the collection is empty
 	 * @example
 	 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 	 * ArrowGraphHashed.empty<number>().assumeNonEmpty()   // => throws
-	 * const g: ArrowGraphHashed<number> = ArrowGraphHashed.of([1, 1], [2, 2])
-	 * const g2: ArrowGraphHashed.NonEmpty<number> = g     // => compiler error
-	 * const g3: ArrowGraphHashed.NonEmpty<number> = g.assumeNonEmpty()
+	 * const g = ArrowGraphHashed.of([1, 1], [2, 2]).assumeNonEmpty()
 	 * ```
 	 * @note returns reference to this collection
 	 */
@@ -77,6 +80,7 @@ export interface VariantGraphBase<
 	 * and 2-valued tuples of nodes for connections.
 	 * @example
 	 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 	 * ArrowGraphHashed.of([1], [2, 3]).stream().toArray()  // => [[1], [2, 3]]
 	 * ```
 	 */
@@ -85,6 +89,7 @@ export interface VariantGraphBase<
 	 * Returns a `Stream` containing all nodes of this collection.
 	 * @example
 	 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 	 * ArrowGraphHashed.of([1], [2, 3]).stream().toArray()   // => [1, 2, 3]
 	 * ```
 	 */
@@ -93,6 +98,7 @@ export interface VariantGraphBase<
 	 * Returns a `Stream` containing all connections of this collection.
 	 * @example
 	 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 	 * ArrowGraphHashed.of([1], [2, 3]).stream().toArray()   // => [[2, 3]]
 	 * ```
 	 */
@@ -102,6 +108,7 @@ export interface VariantGraphBase<
 	 * @param node - the node to search
 	 * @example
 	 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 	 * const g = ArrowGraphHashed.of([1], [2, 3])
 	 * g.hasNode(2)   // => true
 	 * g.hasNode(5)   // => false
@@ -114,6 +121,7 @@ export interface VariantGraphBase<
 	 * @param node2 - the second connection node
 	 * @example
 	 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 	 * const g = ArrowGraphHashed.of([1], [2, 3])
 	 * g.hasConnection(2, 3)   // => true
 	 * g.hasConnection(3, 1)   // => false
@@ -128,6 +136,7 @@ export interface VariantGraphBase<
 	 * @param node1 - the first connection node
 	 * @example
 	 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 	 * const g = ArrowGraphHashed.of([1], [2, 3])
 	 * g.getConnectionStreamFrom(2).toArray()   // => [3]
 	 * g.getConnectionStreamFrom(5).toArray()   // => []
@@ -141,6 +150,7 @@ export interface VariantGraphBase<
 	 * @param node2 - the second connection node
 	 * @example
 	 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 	 * const g = ArrowGraphHashed.of([1], [2, 3])
 	 * g.getConnectionStreamTo(3).toArray()   // => [2]
 	 * g.getConnectionStreamTo(5).toArray()   // => []
@@ -154,6 +164,7 @@ export interface VariantGraphBase<
 	 * @param node - the node to remove
 	 * @example
 	 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 	 * const g = ArrowGraphHashed.of([1], [2, 3])
 	 * g.removeNode(2).stream().toArray()  // => [[1]]
 	 * g.removeNode(6).stream().toArray()  // => [[1], [2, 3]]
@@ -168,6 +179,7 @@ export interface VariantGraphBase<
 	 * @param nodes - a `StreamSource` containing the nodes to remove
 	 * @example
 	 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 	 * const g = ArrowGraphHashed.of([1], [2, 3])
 	 * g.removeNodes([2, 3]).stream().toArray()  // => [[1]]
 	 * g.removeNodes([4, 5]).stream().toArray()  // => [[1], [2, 3]]
@@ -182,6 +194,7 @@ export interface VariantGraphBase<
 	 * @param node2 - the second connection node
 	 * @example
 	 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 	 * const g = ArrowGraphHashed.of([1], [2, 3])
 	 * g.disconnect(2, 3).stream().toArray()  // => [[1], [2], [3]]
 	 * g.disconnect(1, 2).stream().toArray()  // => [[1], [2, 3]]
@@ -196,6 +209,7 @@ export interface VariantGraphBase<
 	 * @param links - a `StreamSource` containing tuples of nodes representing connections
 	 * @example
 	 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 	 * const g = ArrowGraphHashed.of([1], [2, 3])
 	 * g.disconnectAll([[1, 2], [3, 4]]).stream().toArray() // => [[1], [2, 3]]
 	 * g.disconnectAll([[2, 3], [3, 4]]).stream().toArray() // => [[1], [2], [3]]
@@ -208,6 +222,7 @@ export interface VariantGraphBase<
 	 * Returns the graph with all isolated nodes removed.
 	 * @example
 	 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 	 * const g = ArrowGraphHashed.of([1], [2, 3])
 	 * g.removeUnconnectedNodes().stream().toArray()   // => [[2, 3]]
 	 * ```
@@ -223,6 +238,7 @@ export interface VariantGraphBase<
 	 * - state: (optional) the traverse state
 	 * @example
 	 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 	 * const g = ArrowGraphHashed.of([1], [2, 3], [4])
 	 * g.forEach((entry, i, halt) => {
 	 *   console.log([entry]);
@@ -244,6 +260,7 @@ export interface VariantGraphBase<
 	 * Returns a string representation of this collection.
 	 * @example
 	 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 	 * ArrowGraphHashed.of([1], [2, 3]).toString()   // => ArrowGraphHashed(1 => [], 2 => [3])
 	 * ```
 	 */
@@ -252,6 +269,7 @@ export interface VariantGraphBase<
 	 * Returns a JSON representation of this collection.
 	 * @example
 	 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 	 * ArrowGraphHashed.of([1], [2, 3]).toJSON()
 	 * // => { dataType: 'ArrowGraphHashed', value: [[1, []], [2, [3]]] }
 	 * ```
@@ -270,6 +288,7 @@ export namespace VariantGraphBase {
 		 * Returns false since the graph is known to be non-empty.
 		 * @example
 		 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 		 * ArrowGraphHashed.empty<number>().isEmpty  // => true
 		 * ArrowGraphHashed.of([1]).isEmpty          // => false
 		 * ```
@@ -279,6 +298,7 @@ export namespace VariantGraphBase {
 		 * Returns true since this collection is known to be non-empty
 		 * @example
 		 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 		 * ArrowGraphHashed.of([1], [2, 3]).nonEmpty()   // => true
 		 * ```
 		 */
@@ -287,7 +307,8 @@ export namespace VariantGraphBase {
 		 * Returns this collection typed as a 'possibly empty' collection.
 		 * @example
 		 * ```ts
-		 * ArrowGraphHashed.of([1], [2, 3]).asNormal();  // type: ArrowGraphHashed<number>
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
+		 * ArrowGraphHashed.of([1], [2, 3]).stream().toArray()  // => [[1], [2, 3]]
 		 * ```
 		 */
 		asNormal(): WithGraphValues<Tp, N, V>['normal'];
@@ -296,6 +317,7 @@ export namespace VariantGraphBase {
 		 * and 2-valued tuples of nodes for connections.
 		 * @example
 		 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 		 * ArrowGraphHashed.of([1], [2, 3]).stream().toArray()  // => [[1], [2, 3]]
 		 * ```
 		 */
@@ -304,6 +326,7 @@ export namespace VariantGraphBase {
 		 * Returns a non-empty `Stream` containing all nodes of this collection.
 		 * @example
 		 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 		 * ArrowGraphHashed.of([1], [2, 3]).stream().toArray()   // => [1, 2, 3]
 		 * ```
 		 */

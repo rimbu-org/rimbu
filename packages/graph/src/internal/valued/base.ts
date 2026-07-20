@@ -32,6 +32,8 @@ export interface ValuedGraphBase<
 	 * @param node1 - the node from which to find the connections
 	 * @example
 	 * ```ts
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
+import { HashMap } from '@rimbu/hashed'
 	 * const g = ArrowValuedGraphHashed.of([1, 2, 'a'], [2, 3, 'b'])
 	 * g.getConnectionsFrom(1)  // => HashMap(2 -> 'a')
 	 * g.getConnectionsFrom(3)  // => HashMap()
@@ -48,6 +50,7 @@ export interface ValuedGraphBase<
 	 * @param value - the connection value
 	 * @example
 	 * ```ts
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 	 * const g = ArrowValuedGraphHashed.of([1, 2, 'a'], [2, 3, 'b'])
 	 * g.connect(3, 1, 'c').stream().toArray()
 	 * // => [[1, 2, 'a'], [2, 3, 'b'], [3, 1, 'c']]
@@ -66,16 +69,17 @@ export interface ValuedGraphBase<
 	 * connection is removed.
 	 * @example
 	 * ```ts
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 	 * const g = ArrowValuedGraphHashed.of([1, 2, 'a'], [2, 3, 'b'])
-	 * g.modifyAt(3, 4, { ifNew: 'c' }).toArray()
+	 * g.modifyAt(3, 4, { ifNew: { set: 'c' } }).stream().toArray()
 	 * // => [[1, 2, 'a'], [2, 3, 'b'], [3, 4, 'c']]
-	 * g.modifyAt(3, 4, { ifNew: (none) => 1 < 2 ? none : 'c' }).toArray()
+	 * g.modifyAt(3, 4, { ifNew: { create: () => 'c' } }).stream().toArray()
 	 * // => [[1, 2, 'a'], [2, 3, 'b']]
-	 * g.modifyAt(1, 2, { ifExists: () => 'c' }).toArray()
+	 * g.modifyAt(1, 2, { ifExists: { set: 'c' } }).stream().toArray()
 	 * // => [[1, 2, 'c'], [2, 3, 'b']]
-	 * g.modifyAt(1, 2, { ifExists: (v) => v + 'z' }).toArray()
+	 * g.modifyAt(1, 2, { ifExists: { update: (v) => v + 'z' } }).stream().toArray()
 	 * // => [[1, 2, 'az'], [2, 3, 'b']]
-	 * g.modifyAt(2, 3, { ifExists: (v, remove) => v === 'a' ? v : remove }).toArray()
+	 * g.modifyAt(2, 3, { ifExists: { update: (v, remove) => v === 'a' ? v : remove } }).stream().toArray()
 	 * // => [[1, 2, 'a']]
 	 * ```
 	 */
@@ -88,6 +92,7 @@ export interface ValuedGraphBase<
 	 * Returns a builder object containing the entries of this collection.
 	 * @example
 	 * ```ts
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 	 * const builder: ArrowValuedGraphHashed.Builder<number, string> = ArrowValuedGraphHashed.of([1, 2, 'a'], [2, 3, 'b']).toBuilder()
 	 * ```
 	 */
@@ -115,6 +120,7 @@ export namespace ValuedGraphBase {
 		 * and 3-valued tuples containing the source node, target node, and connection value for connections.
 		 * @example
 		 * ```ts
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 		 * ArrowValuedGraphHashed.of([1, 2, 'a'], [2, 3, 'b']).stream().toArray()
 		 * // => [[1, 2, 'a'], [2, 3, 'b']]
 		 * ```
@@ -135,9 +141,9 @@ export namespace ValuedGraphBase {
 		 * Returns true if there are no entries in the builder.
 		 * @example
 		 * ```ts
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 		 * ArrowValuedGraphHashed
-		 *  .of([[1, 2, 'a'], [2, 3, 'b']])
-		 *  .toBuilder()
+		 *  .builder<number, string>()
 		 *  .isEmpty
 		 * // => false
 		 * ```
@@ -147,9 +153,9 @@ export namespace ValuedGraphBase {
 		 * Returns the amount of nodes in the graph.
 		 * @example
 		 * ```ts
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 		 * ArrowValuedGraphHashed
-		 *  .of([[1, 2, 'a'], [2, 3, 'b']])
-		 *  .toBuilder()
+		 *  .builder<number, string>()
 		 *  .nodeSize
 		 * // => 3
 		 * ```
@@ -159,10 +165,10 @@ export namespace ValuedGraphBase {
 		 * Returns the amount of connections in the graph.
 		 * @example
 		 * ```ts
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 		 * ArrowValuedGraphHashed
-		 *  .of([[1, 2, 'a'], [2, 3, 'b']])
-		 *  .toBuilder()
-		 *  .connectionsSize
+		 *  .builder<number, string>()
+		 *  .connectionSize
 		 * // => 2
 		 * ```
 		 */
@@ -172,9 +178,9 @@ export namespace ValuedGraphBase {
 		 * @param node - the node to search
 		 * @example
 		 * ```ts
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 		 * const b = ArrowValuedGraphHashed
-		 *  .of([[1, 2, 'a'], [2, 3, 'b']])
-		 *  .toBuilder()
+		 *  .builder<number, string>()
 		 * b.hasNode(1)   // => true
 		 * b.hasNode(6)   // => false
 		 * ```
@@ -186,9 +192,9 @@ export namespace ValuedGraphBase {
 		 * @param node2 - the second connection node
 		 * @example
 		 * ```ts
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 		 * const b = ArrowValuedGraphHashed
-		 *  .of([[1, 2, 'a'], [2, 3, 'b']])
-		 *  .toBuilder()
+		 *  .builder<number, string>()
 		 * b.hasConnection(1, 2)   // => true
 		 * b.hasConnection(6, 7)   // => false
 		 * ```
@@ -204,13 +210,13 @@ export namespace ValuedGraphBase {
 		 * @param otherwise - (default: undefined) the fallback value to return if the connection is not present
 		 * @example
 		 * ```ts
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 		 * const b = ArrowValuedGraphHashed
-		 *  .of([[1, 2, 'a'], [2, 3, 'b']])
-		 *  .toBuilder()
-		 * m.getValue(2, 3)          // => 'b'
-		 * m.getValue(3, 4)          // => undefined
-		 * m.getValue(2, 3, 'none')  // => 'b'
-		 * m.getValue(3, 4, 'none')  // => 'none'
+		 *  .builder<number, string>()
+		 * b.getValue(2, 3)          // => 'b'
+		 * b.getValue(3, 4)          // => undefined
+		 * b.getValue(2, 3, 'none')  // => 'b'
+		 * b.getValue(3, 4, 'none')  // => 'none'
 		 * ```
 		 */
 		getValue<UN = N>(
@@ -228,9 +234,9 @@ export namespace ValuedGraphBase {
 		 * @returns true if the node was not already present
 		 * @example
 		 * ```ts
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 		 * const b = ArrowValuedGraphHashed
-		 *  .of([[1, 2, 'a'], [2, 3, 'b']])
-		 *  .toBuilder()
+		 *  .builder<number, string>()
 		 * b.addNode(6)   // => true
 		 * b.addNode(1)   // => false
 		 * ```
@@ -242,9 +248,9 @@ export namespace ValuedGraphBase {
 		 * @returns true if any of the nodes was not yet present
 		 * @example
 		 * ```ts
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 		 * const b = ArrowValuedGraphHashed
-		 *  .of([[1, 2, 'a'], [2, 3, 'b']])
-		 *  .toBuilder()
+		 *  .builder<number, string>()
 		 * b.addNodes([3, 4, 5]) // => true
 		 * b.addNodes([1, 2])    // => false
 		 * ```
@@ -256,9 +262,9 @@ export namespace ValuedGraphBase {
 		 * @returns true if the element was not already in the graph
 		 * @example
 		 * ```ts
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 		 * const b = ArrowValuedGraphHashed
-		 *  .of([[1, 2, 'a'], [2, 3, 'b']])
-		 *  .toBuilder()
+		 *  .builder<number, string>()
 		 * b.addGraphElement([4])         // => true
 		 * b.addGraphElement([3, 1, 'c']) // => true
 		 * b.addGraphElement([1, 2, 'a']) // => false
@@ -271,9 +277,9 @@ export namespace ValuedGraphBase {
 		 * @returns true if the graph has changed
 		 * @example
 		 * ```ts
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 		 * const b = ArrowValuedGraphHashed
-		 *  .of([[1, 2, 'a'], [2, 3, 'b']])
-		 *  .toBuilder()
+		 *  .builder<number, string>()
 		 * b.addGraphElements([[4], [5]])          // => true
 		 * b.addGraphElements([[3, 1, 'c'], [1]])  // => true
 		 * b.addGraphElements([[1, 2, 'a'], [1]])  // => false
@@ -286,9 +292,9 @@ export namespace ValuedGraphBase {
 		 * @returns true if the node was present
 		 * @example
 		 * ```ts
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 		 * const b = ArrowValuedGraphHashed
-		 *  .of([[1, 2, 'a'], [2, 3, 'b']])
-		 *  .toBuilder()
+		 *  .builder<number, string>()
 		 * b.removeNode(1)  // => true
 		 * b.removeNode(6)  // => false
 		 * ```
@@ -300,9 +306,9 @@ export namespace ValuedGraphBase {
 		 * @returns true if any of the nodes were present
 		 * @example
 		 * ```ts
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 		 * const b = ArrowValuedGraphHashed
-		 *  .of([[1, 2, 'a'], [2, 3, 'b']])
-		 *  .toBuilder()
+		 *  .builder<number, string>()
 		 * b.removeNodes([1, 6, 7])  // => true
 		 * b.removeNodes([6, 7])     // => false
 		 * ```
@@ -316,9 +322,9 @@ export namespace ValuedGraphBase {
 		 * @returns true if the connection did not exist, or if the given value differs from the previous value
 		 * @example
 		 * ```ts
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 		 * const b = ArrowValuedGraphHashed
-		 *  .of([[1, 2, 'a'], [2, 3, 'b']])
-		 *  .toBuilder()
+		 *  .builder<number, string>()
 		 * b.connect(3, 1, 'c')  // => true
 		 * b.connect(1, 2, 'a')  // => false
 		 * b.connect(1, 2, 'z')  // => true
@@ -331,9 +337,9 @@ export namespace ValuedGraphBase {
 		 * @returns true if any of the connections changed the collection
 		 * @example
 		 * ```ts
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 		 * const b = ArrowValuedGraphHashed
-		 *  .of([[1, 2, 'a'], [2, 3, 'b']])
-		 *  .toBuilder()
+		 *  .builder<number, string>()
 		 * b.connectAll([[1, 2, 'a'], [3, 1, 'c']]) // => true
 		 * b.connectAll([[1, 2, 'a']])              // => false
 		 * ```
@@ -354,15 +360,15 @@ export namespace ValuedGraphBase {
 		 * @returns true if the collection changed
 		 * @example
 		 * ```ts
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 		 * const b = ArrowValuedGraphHashed
-		 *  .of([[1, 2, 'a'], [2, 3, 'b']])
-		 *  .toBuilder()
-		 * b.modifyAt(3, 4, { ifNew: 'c' })                           // => true
-		 * g.modifyAt(4, 5, { ifNew: (none) => 1 < 2 ? none : 'c' })  // => false
-		 * g.modifyAt(1, 2, { ifNew: 'a' })                           // => false
-		 * g.modifyAt(1, 2, { ifExists: () => 'c' })                        // => false
-		 * g.modifyAt(1, 2, { ifExists: (v) => v + 'z' })               // => true
-		 * g.modifyAt(2, 3, { ifExists: (v, remove) => v === 'a' ? v : remove })
+		 *  .builder<number, string>()
+		 * b.modifyAt(3, 4, { ifNew: { set: 'c' } })                           // => true
+		 * b.modifyAt(4, 5, { ifNew: { create: () => 'c' } })  // => false
+		 * b.modifyAt(1, 2, { ifNew: { set: 'a' } })                           // => false
+		 * b.modifyAt(1, 2, { ifExists: { set: 'c' } })                        // => false
+		 * b.modifyAt(1, 2, { ifExists: { update: (v) => v + 'z' } })               // => true
+		 * b.modifyAt(2, 3, { ifExists: { update: (v, remove) => v === 'a' ? v : remove } })
 		 * // => true
 		 * ```
 		 */
@@ -374,9 +380,9 @@ export namespace ValuedGraphBase {
 		 * @returns true if the collection changed
 		 * @example
 		 * ```ts
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 		 * const b = ArrowValuedGraphHashed
-		 *  .of([[1, 2, 'a'], [2, 3, 'b']])
-		 *  .toBuilder()
+		 *  .builder<number, string>()
 		 * b.disconnect(1, 2)  // => true
 		 * b.disconnect(3, 4)  // => false
 		 * ```
@@ -391,9 +397,9 @@ export namespace ValuedGraphBase {
 		 * @returns true if the collection changed
 		 * @example
 		 * ```ts
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 		 * const b = ArrowValuedGraphHashed
-		 *  .of([[1, 2, 'a'], [2, 3, 'b']])
-		 *  .toBuilder()
+		 *  .builder<number, string>()
 		 * b.disconnectAll([[1, 2], [3, 4]])  // => true
 		 * b.disconnectAll([[3, 4], [5, 6]])  // => false
 		 * ```
@@ -411,6 +417,7 @@ export namespace ValuedGraphBase {
 		 * - state: (optional) the traverse state
 		 * @example
 		 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 		 * const b = ArrowGraphHashed.of([1], [2, 3], [4]).toBuilder();
 		 * b.forEach((entry, i, halt) => {
 		 *   console.log([entry]);
@@ -432,9 +439,9 @@ export namespace ValuedGraphBase {
 		 * Returns an immutable graph containing the nodes and connections of this builder.
 		 * @example
 		 * ```ts
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 		 * const b = ArrowValuedGraphHashed
-		 *  .of([[1, 2, 'a'], [2, 3, 'b']])
-		 *  .toBuilder()
+		 *  .builder<number, string>()
 		 * const g: ArrowValuedGraphHashed<number, string> = b.build()
 		 * ```
 		 */
@@ -445,9 +452,9 @@ export namespace ValuedGraphBase {
 		 * @param mapFun - a function taking the value
 		 * @example
 		 * ```ts
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 		 * const b = ArrowValuedGraphHashed
-		 *  .of([[1, 2, 'a'], [2, 3, 'b']])
-		 *  .toBuilder()
+		 *  .builder<number, string>()
 		 * const g: ArrowValuedGraphHashed<number, string> = b.buildMapValues(v => v.toUpperCase())
 		 * ```
 		 */
@@ -461,6 +468,7 @@ export namespace ValuedGraphBase {
 		 * Returns the (singleton) empty instance of this type and context with given key and value types.
 		 * @example
 		 * ```ts
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 		 * ArrowValuedGraphHashed.empty<number, string>()    // => ArrowValuedGraphHashed<number, string>
 		 * ArrowValuedGraphHashed.empty<string, boolean>()   // => ArrowValuedGraphHashed<string, boolean>
 		 * ```
@@ -473,6 +481,7 @@ export namespace ValuedGraphBase {
 		 * two connection nodes and the connection value.
 		 * @example
 		 * ```ts
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 		 * ArrowValuedGraphHashed.of([1], [2], [3, 4, 'a']) // => ArrowValuedGraphHashed.NonEmpty<number, string>
 		 * ```
 		 */
@@ -485,6 +494,7 @@ export namespace ValuedGraphBase {
 		 * @param sources - an array of `StreamSource` instances containing graph elements to add
 		 * @example
 		 * ```ts
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 		 * ArrowValuedGraphHashed.from([[1], [2]], [[3, 4, 'c']])  // => ArrowValuedGraphHashed.NonEmpty<number, string>
 		 * ```
 		 */
@@ -498,6 +508,7 @@ export namespace ValuedGraphBase {
 		 * Returns an empty builder instance.
 		 * @example
 		 * ```ts
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 		 * ArrowValuedGraphHashed.builder<number, string>()    // => ArrowValuedGraphHashed.Builder<number, string>
 		 * ```
 		 */
@@ -508,9 +519,16 @@ export namespace ValuedGraphBase {
 		 * @param source - (optional) an initial source of graph elements to add to
 		 * @example
 		 * ```ts
-		 * const someSource: ValuedGraphElement<number, string>[] = [[1, 2, 'a'], [3], [5]];
-		 * const result = Stream.of([1, 3, 'b'], [4, 3, 'c']).reduce(ArrowGraphSorted.reducer(someSource))
-		 * result.toArray()   // => [[1, 2, 'a'], [1, 3, 'b'], [4, 3, 'c'], [5]]
+import { ArrowValuedGraphSorted } from '@rimbu/graph/valued/arrow/sorted'
+import { Stream } from '@rimbu/stream'
+import { ArrayNonEmpty } from '@rimbu/common/types'
+import { ValuedGraphElement } from '@rimbu/graph/valued-link'
+		 * const someSource = [[1, 2, 'a'], [3], [5]] as ArrayNonEmpty<ValuedGraphElement<number, string>>;
+		 * const result = Stream.of<ValuedGraphElement<number, string>>(
+		 *   [1, 3, 'b'],
+		 *   [4, 3, 'c'],
+		 * ).reduce(ArrowValuedGraphSorted.reducer(someSource))
+		 * result.stream().toArray()   // => [[1, 2, 'a'], [1, 3, 'b'], [4, 3, 'c'], [5]]
 		 * ```
 		 * @note uses a builder under the hood. If the given `source` is a ValuedGraph in the same context, it will directly call `.toBuilder()`.
 		 */
@@ -529,6 +547,7 @@ export namespace ValuedGraphBase {
 		 * A string tag defining the specific collection type
 		 * @example
 		 * ```ts
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 		 * ArrowValuedGraphHashed.defaultContext().typeTag   // => 'ArrowValuedGraphHashed'
 		 * ```
 		 */

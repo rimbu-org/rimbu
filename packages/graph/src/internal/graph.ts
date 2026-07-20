@@ -25,6 +25,7 @@ export namespace Graph {
 		 * and 2-valued tuples of nodes for connections.
 		 * @example
 		 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 		 * ArrowGraphHashed.of([1], [2, 3]).stream().toArray()  // => [[1], [2, 3]]
 		 * ```
 		 */

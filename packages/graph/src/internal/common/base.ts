@@ -17,6 +17,7 @@ export interface GraphConnect<N, V, Tp extends VariantGraphBase.Types>
 	 * @param node - the node to add
 	 * @example
 	 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 	 * const g = ArrowGraphHashed.of([1], [2, 3])
 	 * g.addNode(4).stream().toArray()  // => [[1], [2, 3], [4]]
 	 * g.addNode(1).stream().toArray()  // => [[1], [2, 3]]
@@ -28,6 +29,7 @@ export interface GraphConnect<N, V, Tp extends VariantGraphBase.Types>
 	 * @param nodes - a `StreamSource` containing the nodes to add
 	 * @example
 	 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 	 * const g = ArrowGraphHashed.of([1], [2, 3])
 	 * g.addNodes([4, 1]).stream().toArray()  // => [[1], [2, 3], [4]]
 	 * g.addNodes([1, 2]).stream().toArray()  // => [[1], [2, 3]]
@@ -42,6 +44,8 @@ export interface GraphConnect<N, V, Tp extends VariantGraphBase.Types>
 	 * @param connections - a `StreamSource` containing tuples representing the connections to add
 	 * @example
 	 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 	 * const g = ArrowGraphHashed.of([1], [2, 3])
 	 * g.connectAll([[1, 2], [3, 1]]).stream().toArray()  // => [[1, 2], [2, 3], [3, 1]]
 	 * const g2 = ArrowValuedGraphHashed.of([1], [2, 3, 'a'])
@@ -64,6 +68,7 @@ export interface GraphConnectNonEmpty<N, V, Tp extends VariantGraphBase.Types>
 	 * @param nodes - a `StreamSource` containing the nodes to add
 	 * @example
 	 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 	 * const g = ArrowGraphHashed.of([1], [2, 3])
 	 * g.addNodes([4, 1]).stream().toArray()  // => [[1], [2, 3], [4]]
 	 * g.addNodes([1, 2]).stream().toArray()  // => [[1], [2, 3]]
@@ -75,6 +80,8 @@ export interface GraphConnectNonEmpty<N, V, Tp extends VariantGraphBase.Types>
 	 * @param connections - a `StreamSource` containing tuples representing the connections to add
 	 * @example
 	 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 	 * const g = ArrowGraphHashed.of([1], [2, 3])
 	 * g.connectAll([[1, 2], [3, 1]]).stream().toArray()  // => [[1, 2], [2, 3], [3, 1]]
 	 * const g2 = ArrowValuedGraphHashed.of([1], [2, 3, 'a'])

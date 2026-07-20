@@ -91,6 +91,8 @@ class DirectedGraphBreadthFirstIterable<
  * and returning true if the node has been traversed before, or false otherwise
  * @example
  * ```ts
+ * import { EdgeGraphHashed } from '@rimbu/graph/non-valued/edge/hashed'
+ * import { traverseBreadthFirstCustom, traverseBreadthFirstHashed, traverseBreadthFirstSorted } from '@rimbu/graph/traverse-breadth-first'
  * const g = EdgeGraphHashed.of([1, 2], [2, 3], [1, 3], [3, 4])
  * const stream = traverseBreadthFirstCustom(g, 1)
  * console.log(stream.toArray())
@@ -118,6 +120,8 @@ export function traverseBreadthFirstCustom<
  * @param startNode - the start node within the graph
  * @example
  * ```ts
+ * import { EdgeGraphHashed } from '@rimbu/graph/non-valued/edge/hashed'
+ * import { traverseBreadthFirstCustom, traverseBreadthFirstHashed, traverseBreadthFirstSorted } from '@rimbu/graph/traverse-breadth-first'
  * const g = EdgeGraphHashed.of([1, 2], [2, 3], [1, 3], [3, 4])
  * const stream = traverseBreadthFirstHashed(g, 1)
  * console.log(stream.toArray())
@@ -143,6 +147,8 @@ export function traverseBreadthFirstHashed<
  * @param startNode - the start node within the graph
  * @example
  * ```ts
+ * import { EdgeGraphHashed } from '@rimbu/graph/non-valued/edge/hashed'
+ * import { traverseBreadthFirstCustom, traverseBreadthFirstHashed, traverseBreadthFirstSorted } from '@rimbu/graph/traverse-breadth-first'
  * const g = EdgeGraphHashed.of([1, 2], [2, 3], [1, 3], [3, 4])
  * const stream = traverseBreadthFirstSorted(g, 1)
  * console.log(stream.toArray())

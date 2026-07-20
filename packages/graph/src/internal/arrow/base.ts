@@ -18,6 +18,7 @@ export interface ArrowGraphBase<
 	 * @param node - the node to check
 	 * @example
 	 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 	 * const g = ArrowGraphHashed.of([1, 2], [2, 3])
 	 * g.isSink(1)  // => false
 	 * g.isSink(3)  // => true
@@ -30,6 +31,7 @@ export interface ArrowGraphBase<
 	 * @param node - the node to check
 	 * @example
 	 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 	 * const g = ArrowGraphHashed.of([1, 2], [2, 3])
 	 * g.isSource(1)  // => true
 	 * g.isSource(3)  // => false
@@ -55,6 +57,7 @@ export namespace ArrowGraphBase {
 		 * and 2-valued tuples of nodes for connections.
 		 * @example
 		 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 		 * ArrowGraphHashed.of([1], [2, 3]).stream().toArray()  // => [[1], [2, 3]]
 		 * ```
 		 */

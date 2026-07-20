@@ -16,6 +16,7 @@ import { createValuedGraphContextModule } from '#graph/valued/context-factory';
  * @typeparam V - the connection value type
  * @example
  * ```ts
+import { EdgeValuedGraphSorted } from '@rimbu/graph/valued/edge/sorted'
  * const g1 = EdgeValuedGraphSorted.empty<number, string>()
  * const g2 = EdgeValuedGraphSorted.of([1], [2, 3, 'a'], [2, 4, 'b'])
  * ```
@@ -43,6 +44,7 @@ export namespace EdgeValuedGraphSorted {
 		 * and 3-valued tuples containing the source node, target node, and connection value for connections.
 		 * @example
 		 * ```ts
+import { EdgeValuedGraphHashed } from '@rimbu/graph/valued/edge/hashed'
 		 * EdgeValuedGraphHashed.of([1, 2, 'a'], [2, 3, 'b']).stream().toArray()
 		 * // => [[1, 2, 'a'], [2, 3, 'b']]
 		 * ```

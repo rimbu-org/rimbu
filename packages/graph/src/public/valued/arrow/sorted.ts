@@ -16,6 +16,7 @@ import { createValuedGraphContextModule } from '#graph/valued/context-factory';
  * @typeparam V - the connection value type
  * @example
  * ```ts
+import { ArrowValuedGraphSorted } from '@rimbu/graph/valued/arrow/sorted'
  * const g1 = ArrowValuedGraphSorted.empty<number, string>()
  * const g2 = ArrowValuedGraphSorted.of([1], [2, 3, 'a'], [2, 4, 'b'])
  * ```
@@ -43,6 +44,7 @@ export namespace ArrowValuedGraphSorted {
 		 * and 3-valued tuples containing the source node, target node, and connection value for connections.
 		 * @example
 		 * ```ts
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 		 * ArrowValuedGraphHashed.of([1, 2, 'a'], [2, 3, 'b']).stream().toArray()
 		 * // => [[1, 2, 'a'], [2, 3, 'b']]
 		 * ```

@@ -19,6 +19,8 @@ export interface GraphBase<N, Tp extends GraphBase.Types = GraphBase.Types>
 	 * Returns the nested Map representation of the graph connections.
 	 * @example
 	 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
+import { HashSet } from '@rimbu/hashed'
 	 * ArrowGraphHashed.of([1, 2], [2, 3]).linkMap.toArray()
 	 * // => [[1, HashSet(2)], [2, HashSet(3)]]
 	 * ```
@@ -34,6 +36,8 @@ export interface GraphBase<N, Tp extends GraphBase.Types = GraphBase.Types>
 	 * @param node1 - the node from which to find the connections
 	 * @example
 	 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
+import { HashSet } from '@rimbu/hashed'
 	 * const g = ArrowGraphHashed.of([1, 2], [2, 3])
 	 * g.getConnectionsFrom(1)  // => HashSet(2)
 	 * g.getConnectionsFrom(3)  // => HashSet()
@@ -48,6 +52,7 @@ export interface GraphBase<N, Tp extends GraphBase.Types = GraphBase.Types>
 	 * @param node2 - the second node
 	 * @example
 	 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 	 * const g = ArrowGraphHashed.of([1, 2], [2, 3])
 	 * g.connect(3, 1).stream().toArray()
 	 * // => [[1, 2], [2, 3], [3, 1]]
@@ -58,6 +63,7 @@ export interface GraphBase<N, Tp extends GraphBase.Types = GraphBase.Types>
 	 * Returns a builder object containing the entries of this collection.
 	 * @example
 	 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 	 * const builder: ArrowGraphHashed.Builder<number> = ArrowGraphHashed.of([1, 2], [2, 3]).toBuilder()
 	 * ```
 	 */
@@ -81,6 +87,8 @@ export namespace GraphBase {
 		 * Returns the nested non-empty Map representation of the graph connections.
 		 * @example
 		 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
+import { HashSet } from '@rimbu/hashed'
 		 * ArrowGraphHashed.of([1, 2], [2, 3]).linkMap.toArray()
 		 * // => [[1, HashSet(2)], [2, HashSet(3)]]
 		 * ```
@@ -91,6 +99,7 @@ export namespace GraphBase {
 		 * and 2-valued tuples of nodes for connections.
 		 * @example
 		 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 		 * ArrowGraphHashed.of([1], [2, 3]).stream().toArray()  // => [[1], [2, 3]]
 		 * ```
 		 */
@@ -106,9 +115,9 @@ export namespace GraphBase {
 		 * Returns true if there are no entries in the builder.
 		 * @example
 		 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 		 * ArrowGraphHashed
-		 *  .of([[1, 2], [2, 3]])
-		 *  .toBuilder()
+		 *  .builder<number>()
 		 *  .isEmpty
 		 * // => false
 		 * ```
@@ -118,9 +127,9 @@ export namespace GraphBase {
 		 * Returns the amount of nodes in the graph.
 		 * @example
 		 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 		 * ArrowGraphHashed
-		 *  .of([[1, 2], [2, 3]])
-		 *  .toBuilder()
+		 *  .builder<number>()
 		 *  .nodeSize
 		 * // => 3
 		 * ```
@@ -130,10 +139,10 @@ export namespace GraphBase {
 		 * Returns the amount of connections in the graph.
 		 * @example
 		 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 		 * ArrowGraphHashed
-		 *  .of([[1, 2], [2, 3]])
-		 *  .toBuilder()
-		 *  .connectionsSize
+		 *  .builder<number>()
+		 *  .connectionSize
 		 * // => 2
 		 * ```
 		 */
@@ -143,9 +152,9 @@ export namespace GraphBase {
 		 * @param node - the node to search
 		 * @example
 		 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 		 * const b = ArrowGraphHashed
-		 *  .of([[1, 2], [2, 3]])
-		 *  .toBuilder()
+		 *  .builder<number>()
 		 * b.hasNode(1)   // => true
 		 * b.hasNode(6)   // => false
 		 * ```
@@ -157,9 +166,9 @@ export namespace GraphBase {
 		 * @param node2 - the second connection node
 		 * @example
 		 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 		 * const b = ArrowGraphHashed
-		 *  .of([[1, 2], [2, 3]])
-		 *  .toBuilder()
+		 *  .builder<number>()
 		 * b.hasConnection(1, 2)   // => true
 		 * b.hasConnection(6, 7)   // => false
 		 * ```
@@ -174,9 +183,9 @@ export namespace GraphBase {
 		 * @returns true if the node was not already present
 		 * @example
 		 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 		 * const b = ArrowGraphHashed
-		 *  .of([[1, 2], [2, 3]])
-		 *  .toBuilder()
+		 *  .builder<number>()
 		 * b.addNode(6)   // => true
 		 * b.addNode(1)   // => false
 		 * ```
@@ -188,9 +197,9 @@ export namespace GraphBase {
 		 * @returns true if any of the nodes was not yet present
 		 * @example
 		 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 		 * const b = ArrowGraphHashed
-		 *  .of([[1, 2], [2, 3]])
-		 *  .toBuilder()
+		 *  .builder<number>()
 		 * b.addNodes([3, 4, 5]) // => true
 		 * b.addNodes([1, 2])    // => false
 		 * ```
@@ -204,9 +213,9 @@ export namespace GraphBase {
 		 * @returns true if the builder has changed
 		 * @example
 		 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 		 * const b = ArrowGraphHashed
-		 *  .of([[1, 2], [2, 3]])
-		 *  .toBuilder()
+		 *  .builder<number>()
 		 * b.addGraphElement([1])  // => false
 		 * b.addGraphElement([4])  // => true
 		 * b.addGraphElement([2, 3])  // => false
@@ -220,9 +229,9 @@ export namespace GraphBase {
 		 * @returns true if the graph has changed
 		 * @example
 		 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 		 * const b = ArrowGraphHashed
-		 *  .of([[1, 2], [2, 3]])
-		 *  .toBuilder()
+		 *  .builder<number>()
 		 * b.addGraphElements([[4], [5]])      // => true
 		 * b.addGraphElements([[3, 1], [1]])  // => true
 		 * b.addGraphElements([[1, 2], [1]])  // => false
@@ -235,9 +244,9 @@ export namespace GraphBase {
 		 * @returns true if the node was present
 		 * @example
 		 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 		 * const b = ArrowGraphHashed
-		 *  .of([[1, 2], [2, 3]])
-		 *  .toBuilder()
+		 *  .builder<number>()
 		 * b.removeNode(1)  // => true
 		 * b.removeNode(6)  // => false
 		 * ```
@@ -249,9 +258,9 @@ export namespace GraphBase {
 		 * @returns true if any of the nodes were present
 		 * @example
 		 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 		 * const b = ArrowGraphHashed
-		 *  .of([[1, 2], [2, 3]])
-		 *  .toBuilder()
+		 *  .builder<number>()
 		 * b.removeNodes([1, 6, 7])  // => true
 		 * b.removeNodes([6, 7])     // => false
 		 * ```
@@ -264,9 +273,9 @@ export namespace GraphBase {
 		 * @returns true if the connection did not exist
 		 * @example
 		 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 		 * const b = ArrowGraphHashed
-		 *  .of([[1, 2], [2, 3]])
-		 *  .toBuilder()
+		 *  .builder<number>()
 		 * b.connect(3, 1)  // => true
 		 * b.connect(1, 2)  // => false
 		 * ```
@@ -278,9 +287,9 @@ export namespace GraphBase {
 		 * @returns true if any of the connections changed the collection
 		 * @example
 		 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 		 * const b = ArrowGraphHashed
-		 *  .of([[1, 2], [2, 3]])
-		 *  .toBuilder()
+		 *  .builder<number>()
 		 * b.connectAll([[1, 2], [3, 1]])   // => true
 		 * b.connectAll([[1, 2]])           // => false
 		 * ```
@@ -294,9 +303,9 @@ export namespace GraphBase {
 		 * @returns true if the graph has changed
 		 * @example
 		 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 		 * const b = ArrowGraphHashed
-		 *  .of([[1, 2], [2, 3]])
-		 *  .toBuilder()
+		 *  .builder<number>()
 		 * b.connectIfNodesExist(3, 1)   // => true
 		 * b.connectIfNodesExist(3, 4)   // => false
 		 * ```
@@ -309,9 +318,9 @@ export namespace GraphBase {
 		 * @returns true if the collection changed
 		 * @example
 		 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 		 * const b = ArrowGraphHashed
-		 *  .of([[1, 2], [2, 3]])
-		 *  .toBuilder()
+		 *  .builder<number>()
 		 * b.disconnect(1, 2)  // => true
 		 * b.disconnect(3, 4)  // => false
 		 * ```
@@ -326,9 +335,9 @@ export namespace GraphBase {
 		 * @returns true if the collection changed
 		 * @example
 		 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 		 * const b = ArrowGraphHashed
-		 *  .of([[1, 2], [2, 3]])
-		 *  .toBuilder()
+		 *  .builder<number>()
 		 * b.disconnectAll([[1, 2], [3, 4]])  // => true
 		 * b.disconnectAll([[3, 4], [5, 6]])  // => false
 		 * ```
@@ -346,6 +355,7 @@ export namespace GraphBase {
 		 * - state: (optional) the traverse state
 		 * @example
 		 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 		 * const b = ArrowGraphHashed.of([1], [2, 3], [4]).toBuilder();
 		 * b.forEach((entry, i, halt) => {
 		 *   console.log([entry]);
@@ -367,11 +377,12 @@ export namespace GraphBase {
 		 * Returns an immutable Graph containing the links in this Builder instance.
 		 * @example
 		 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 		 * const b = ArrowGraphHashed.builder<number>()
 		 * b.connect(1, 2)
 		 * b.addNode(3)
 		 * const g = b.build()
-		 * console.log(g.toArray())
+		 * console.log(g.stream().toArray())
 		 * // => [[1, 2], [3]]
 		 * ```
 		 */
@@ -383,6 +394,7 @@ export namespace GraphBase {
 		 * Returns the (singleton) empty instance of this type and context with given key and value types.
 		 * @example
 		 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 		 * ArrowGraphHashed.empty<number>()    // => ArrowGraphHashed<number>
 		 * ArrowGraphHashed.empty<string>()    // => ArrowGraphHashed<string>
 		 * ```
@@ -395,6 +407,7 @@ export namespace GraphBase {
 		 * two connection nodes and the connection value.
 		 * @example
 		 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 		 * ArrowGraphHashed.of([1], [2], [3, 4]) // => ArrowGraphHashed.NonEmpty<number>
 		 * ```
 		 */
@@ -407,6 +420,7 @@ export namespace GraphBase {
 		 * @param sources - an array of `StreamSource` instances containing graph elements to add
 		 * @example
 		 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 		 * ArrowGraphHashed.from([[1], [2]], [[3, 4]])  // => ArrowGraphHashed.NonEmpty<number>
 		 * ```
 		 */
@@ -420,6 +434,7 @@ export namespace GraphBase {
 		 * Returns an empty builder instance.
 		 * @example
 		 * ```ts
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 		 * ArrowValuedGraphHashed.builder<number, string>()    // => ArrowValuedGraphHashed.Builder<number, string>
 		 * ```
 		 */
@@ -430,9 +445,13 @@ export namespace GraphBase {
 		 * @param source - (optional) an initial source of graph elements to add to
 		 * @example
 		 * ```ts
-		 * const someSource: GraphElement<number>[] = [[1, 2], [3], [5]];
-		 * const result = Stream.of([1, 3], [4, 3]).reduce(ArrowGraphHashed.reducer(someSource))
-		 * result.toArray()   // => [[1, 2], [1, 3], [4, 3], [5]]
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
+import { Stream } from '@rimbu/stream'
+import { ArrayNonEmpty } from '@rimbu/common/types'
+import { GraphElement } from '@rimbu/graph/link'
+		 * const someSource: ArrayNonEmpty<GraphElement<number>> = [[1, 2], [3], [5]];
+		 * const result = Stream.of<GraphElement<number>>([1, 3], [4, 3]).reduce(ArrowGraphHashed.reducer(someSource))
+		 * result.stream().toArray()   // => [[1, 2], [1, 3], [4, 3], [5]]
 		 * ```
 		 * @note uses a builder under the hood. If the given `source` is a Graph in the same context, it will directly call `.toBuilder()`.
 		 */
@@ -449,6 +468,7 @@ export namespace GraphBase {
 		 * A string tag defining the specific collection type
 		 * @example
 		 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 		 * ArrowGraphHashed.defaultContext().typeTag   // => 'ArrowGraphHashed'
 		 * ```
 		 */
