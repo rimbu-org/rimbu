@@ -6,6 +6,7 @@ pass: implementation
 package: common
 confidence: high
 effort_estimate: 0.5d
+status: solved
 title: "Comp.number.compare is not a consistent total order for NaN vs Infinity"
 ---
 
@@ -25,3 +26,6 @@ Cross-package. `Comp.number` is the default ordering for number-keyed sorted col
 
 ## Recommendation
 Define a single, explicit total ordering for the extended number domain (e.g. `-Inf < finite < +Inf < NaN`, or group NaN with one end) and implement both branches to honor `compare(a,b) === -compare(b,a)`. Add inverse-direction assertions (`compare(-Inf, NaN)`, `compare(NaN, finite)` from both sides) to `comp.test.ts`.
+
+## Resolution
+`Comp.number` now uses the explicit total order `-Infinity < finite < +Infinity < NaN`, with inverse-direction and finite/infinity regression tests.

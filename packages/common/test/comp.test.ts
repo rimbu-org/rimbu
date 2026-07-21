@@ -83,15 +83,18 @@ describe('Comp', () => {
 		expect(c.compare(5, 7)).toBeLessThan(0);
 		expect(c.compare(5, 3)).toBeGreaterThan(0);
 		expect(c.compare(Number.NaN, Number.NaN)).toBe(0);
-		expect(c.compare(Number.NaN, 1)).toBeLessThan(0);
+		expect(c.compare(Number.NaN, 1)).toBeGreaterThan(0);
 		expect(c.compare(Number.NaN, Number.POSITIVE_INFINITY)).toBeGreaterThan(0);
-		expect(c.compare(Number.NaN, Number.NEGATIVE_INFINITY)).toBeLessThan(0);
+		expect(c.compare(Number.NaN, Number.NEGATIVE_INFINITY)).toBeGreaterThan(0);
+		expect(c.compare(1, Number.NaN)).toBeLessThan(0);
+		expect(c.compare(Number.POSITIVE_INFINITY, Number.NaN)).toBeLessThan(0);
+		expect(c.compare(Number.NEGATIVE_INFINITY, Number.NaN)).toBeLessThan(0);
 
 		expect(c.compare(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY)).toBe(
 			0,
 		);
 		expect(c.compare(Number.POSITIVE_INFINITY, 1)).toBeGreaterThan(0);
-		expect(c.compare(Number.POSITIVE_INFINITY, Number.NaN)).toBeGreaterThan(0);
+		expect(c.compare(Number.POSITIVE_INFINITY, Number.NaN)).toBeLessThan(0);
 		expect(
 			c.compare(Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY),
 		).toBeGreaterThan(0);
@@ -101,6 +104,7 @@ describe('Comp', () => {
 		);
 		expect(c.compare(Number.NEGATIVE_INFINITY, 1)).toBeLessThan(0);
 		expect(c.compare(Number.NEGATIVE_INFINITY, Number.NaN)).toBeLessThan(0);
+		expect(c.compare(1, Number.NEGATIVE_INFINITY)).toBeGreaterThan(0);
 		expect(
 			c.compare(Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY),
 		).toBeLessThan(0);

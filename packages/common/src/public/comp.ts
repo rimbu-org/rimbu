@@ -471,23 +471,11 @@ const compModule = Module.create<CompModule>((mod) => ({
 		mod.create(
 			(obj): obj is number => typeof obj === 'number',
 			(v1, v2): number => {
-				if (Number.isFinite(v1) && Number.isFinite(v2)) {
-					return v1 - v2;
-				}
-				if (Number.isNaN(v1)) {
-					if (Number.isNaN(v2)) return 0;
-					if (v2 === Number.POSITIVE_INFINITY) return 1;
-					if (v2 === Number.NEGATIVE_INFINITY) return -1;
-					return -1;
-				}
-
-				// only infinities remain
-				if (v1 === Number.POSITIVE_INFINITY) {
-					return v2 === Number.POSITIVE_INFINITY ? 0 : 1;
-				}
-
-				// v1 === Number.NEGATIVE_INFINITY
-				return v2 === Number.NEGATIVE_INFINITY ? 0 : -1;
+				if (v1 === v2) return 0;
+				if (Number.isNaN(v1) && Number.isNaN(v2)) return 0;
+				if (Number.isNaN(v1)) return 1;
+				if (Number.isNaN(v2)) return -1;
+				return v1 < v2 ? -1 : 1;
 			},
 		),
 	),
