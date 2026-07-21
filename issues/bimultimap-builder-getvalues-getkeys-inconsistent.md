@@ -6,6 +6,7 @@ pass: api
 package: bimultimap
 confidence: high
 effort_estimate: 0.5d
+status: solved
 title: "BiMultiMap.Builder lookup methods use getValues/getKeys, diverging from immutable valuesAt/keysAt"
 ---
 
@@ -22,4 +23,7 @@ On the immutable `BiMultiMap` the directional lookups are `valuesAt(key)` and `k
 Breaks the builder↔immutable parity convention shared by every other keyed collection, forcing callers to learn two different lookup vocabularies. Increases the chance of type errors when converting between builder and immutable code paths.
 
 ## Recommendation
-Rename `BiMultiMap.Builder.getValues` → `valuesAt` and `getKeys` → `keysAt`, with the same OptLazy-free (set-returning) semantics as the immutable side. Keep old names as deprecated aliases only if needed for back-compat.
+Rename `BiMultiMap.Builder.getValues` → `valuesAt` and `getKeys` → `keysAt`, with the same OptLazy-free (set-returning) semantics as the immutable side.
+
+## Resolution
+`BiMultiMap.Builder` now exposes only `valuesAt` and `keysAt`, matching the immutable API. Builder tests cover both source-backed and mutable builders.

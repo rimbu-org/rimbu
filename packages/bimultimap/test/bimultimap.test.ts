@@ -223,14 +223,14 @@ function runWith(name: string, BMM: BiMultiMap.Context<any, any>) {
 			expect(result).toEqual(new Set([1, 2, 3, 4, 5, 6]));
 		});
 
-		it('getKeys', () => {
+		it('keysAt', () => {
 			expect(mapEmpty.keysAt('b').toArray()).toEqual([]);
 			expect(map3_1.keysAt('b').toArray()).toEqual([2]);
 			expect(map6_1.keysAt('b').toArray()).toEqual([2]);
 			expect(mapDouble.keysAt('b').toArray()).toEqual([1, 2]);
 		});
 
-		it('getValues', () => {
+		it('valuesAt', () => {
 			expect(mapEmpty.valuesAt(2).toArray()).toEqual([]);
 			expect(map3_1.valuesAt(2).toArray()).toEqual(['b']);
 			expect(map6_1.valuesAt(2).toArray()).toEqual(['b']);
@@ -629,18 +629,18 @@ function runWith(name: string, BMM: BiMultiMap.Context<any, any>) {
 			}
 			{
 				const b = map3_1.toBuilder();
-				expect(b.getValues(2).toArray()).toEqual(['b']);
-				expect(b.getValues(10).toArray()).toEqual([]);
+				expect(b.valuesAt(2).toArray()).toEqual(['b']);
+				expect(b.valuesAt(10).toArray()).toEqual([]);
 			}
 			{
 				const b = map6_1.toBuilder();
-				expect(b.getValues(2).toArray()).toEqual(['b']);
-				expect(b.getValues(10).toArray()).toEqual([]);
+				expect(b.valuesAt(2).toArray()).toEqual(['b']);
+				expect(b.valuesAt(10).toArray()).toEqual([]);
 			}
 			{
 				const b = mapDouble.toBuilder();
-				expect(b.getValues(2).toArray()).toEqual(['a', 'b']);
-				expect(b.getValues(10).toArray()).toEqual([]);
+				expect(b.valuesAt(2).toArray()).toEqual(['a', 'b']);
+				expect(b.valuesAt(10).toArray()).toEqual([]);
 			}
 		});
 
@@ -748,17 +748,17 @@ function runWith(name: string, BMM: BiMultiMap.Context<any, any>) {
 			});
 		});
 
-		it('getKeys', () => {
+		it('keysAt', () => {
 			forEachBuilder((b) => {
-				expect(b.getKeys('b').toArray()).toEqual([2]);
-				expect(b.getKeys('z').isEmpty).toBe(true);
+				expect(b.keysAt('b').toArray()).toEqual([2]);
+				expect(b.keysAt('z').isEmpty).toBe(true);
 			});
 		});
 
-		it('getValues', () => {
+		it('valuesAt', () => {
 			forEachBuilder((b) => {
-				expect(b.getValues(2).toArray()).toEqual(['b']);
-				expect(b.getValues(10).isEmpty).toBe(true);
+				expect(b.valuesAt(2).toArray()).toEqual(['b']);
+				expect(b.valuesAt(10).isEmpty).toBe(true);
 			});
 		});
 

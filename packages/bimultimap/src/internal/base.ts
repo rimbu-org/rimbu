@@ -698,16 +698,16 @@ export namespace BiMultiMapBase {
 		 * @param key - the key for which to find the values
 		 *
 		 * @note since it is unsafe to return the internal builder object, the result collection will
-		 * be built upon each call to `getValues`.
+		 * be built upon each call to `valuesAt`.
 		 * @example
 		 * ```ts
 		 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
 		 * const m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * console.log(m.getValues(1).toArray()); // => [ "a" ]
-		 * console.log(m.getValues(3).toArray()); // => []
+		 * console.log(m.valuesAt(1).toArray()); // => [ "a" ]
+		 * console.log(m.valuesAt(3).toArray()); // => []
 		 * ```
 		 */
-		getValues<UK = K>(
+		valuesAt<UK = K>(
 			key: RelatedTo<K, UK>,
 		): WithKeyValue<Tp, K, V>['keyMultiMapValues'];
 		/**
@@ -715,16 +715,16 @@ export namespace BiMultiMapBase {
 		 * @param value - the value for which to find the keys
 		 *
 		 * @note since it is unsafe to return the internal builder object, the result collection will
-		 * be built upon each call to `getKeys`.
+		 * be built upon each call to `keysAt`.
 		 * @example
 		 * ```ts
 		 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
 		 * const m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * console.log(m.getKeys('a').toArray()); // => [ 1 ]
-		 * console.log(m.getKeys('z').toArray()); // => []
+		 * console.log(m.keysAt('a').toArray()); // => [ 1 ]
+		 * console.log(m.keysAt('z').toArray()); // => []
 		 * ```
 		 */
-		getKeys<UV = V>(
+		keysAt<UV = V>(
 			value: RelatedTo<V, UV>,
 		): WithKeyValue<Tp, K, V>['valueMultiMapValues'];
 		/**
@@ -736,7 +736,7 @@ export namespace BiMultiMapBase {
 		 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
 		 * const m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()
 		 * m.setValues(1, ['b', 'c']);
-		 * console.log(m.getValues(1).toArray()); // => [ "b", "c" ]
+		 * console.log(m.valuesAt(1).toArray()); // => [ "b", "c" ]
 		 * ```
 		 */
 		setValues(key: K, values: StreamSource<V>): boolean;
@@ -749,7 +749,7 @@ export namespace BiMultiMapBase {
 		 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
 		 * const m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()
 		 * m.setKeys('a', [3, 4]);
-		 * console.log(m.getKeys('a').toArray()); // => [ 3, 4 ]
+		 * console.log(m.keysAt('a').toArray()); // => [ 3, 4 ]
 		 * ```
 		 */
 		setKeys(value: V, keys: StreamSource<K>): boolean;

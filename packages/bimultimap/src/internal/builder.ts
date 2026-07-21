@@ -80,7 +80,7 @@ export class BiMultiMapBuilder<K, V> implements BiMultiMapBase.Builder<K, V> {
 		);
 	};
 
-	getValues = <UK = K>(key: RelatedTo<K, UK>): RSet<V> => {
+	valuesAt = <UK = K>(key: RelatedTo<K, UK>): RSet<V> => {
 		if (undefined !== this.source) {
 			return this.source.valuesAt(key);
 		}
@@ -88,7 +88,7 @@ export class BiMultiMapBuilder<K, V> implements BiMultiMapBase.Builder<K, V> {
 		return this.keyValueMultiMap.valuesAt(key);
 	};
 
-	getKeys = <UV = V>(value: RelatedTo<V, UV>): RSet<K> => {
+	keysAt = <UV = V>(value: RelatedTo<V, UV>): RSet<K> => {
 		if (undefined !== this.source) {
 			return this.source.keysAt(value);
 		}
@@ -133,7 +133,7 @@ export class BiMultiMapBuilder<K, V> implements BiMultiMapBase.Builder<K, V> {
 	removeKey = <UK = K>(key: RelatedTo<K, UK>): boolean => {
 		this.checkLock();
 
-		const values = this.getValues(key);
+		const values = this.valuesAt(key);
 
 		if (values.isEmpty) return false;
 
@@ -155,7 +155,7 @@ export class BiMultiMapBuilder<K, V> implements BiMultiMapBase.Builder<K, V> {
 	removeValue = <UV = V>(value: RelatedTo<V, UV>): boolean => {
 		this.checkLock();
 
-		const keys = this.getKeys(value);
+		const keys = this.keysAt(value);
 
 		if (keys.isEmpty) return false;
 
