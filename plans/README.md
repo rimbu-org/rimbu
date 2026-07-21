@@ -2,6 +2,10 @@
 
 Per-package handoff plans implementing the **locked target model** (decisions B / B1 / A / C1 / D1 / F1 / G1):
 
+## Cross-cutting API plans
+
+- [Orthogonal collection capabilities](collection-capabilities.md) — breaking API redesign for Collection, Indexed, Valued, Keyed, Sorted, map/set family, List, Sorted, Ordered, and Proximity contracts.
+
 - **B / B1** — a scoped, curated `public/` folder behind a wildcard: `exports["./*"] → "./dist/public/*"`. Short subpath names are preserved; `internal/` is unreachable from outside the package.
 - **A** — the root `.` re-exports the package's **whole** public surface. (React hooks stay subpath-only, not in the root.)
 - **C1** — three explicit tiers via three folders:
