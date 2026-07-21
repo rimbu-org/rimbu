@@ -6,6 +6,7 @@ pass: api
 package: channel
 confidence: high
 effort_estimate: 0.5d
+status: solved
 title: "Channel.select/selectCase leak a raw AggregateError and mislabel all-exhausted as TimeoutError"
 ---
 
@@ -35,3 +36,6 @@ Callers relying on `try/catch` around `Channel.select` seeing a `ChannelError`, 
 
 ## Recommendation
 Introduce a dedicated `ChannelError` for the "all channels failed" case (e.g. a new aggregate/subtype), populate it from the underlying per-channel `ChannelError`s, and surface that consistently both when `recover` is and isn't supplied. Do not coerce exhaustion into `TimeoutError`.
+
+## Resolution
+Added `ChannelError.SelectError`, which stores the underlying selection failures. Both `select` and `selectCase` convert `Promise.any` aggregate failures to this error before recovery or rethrowing, including all-exhausted cases.

@@ -432,9 +432,27 @@ describe('Channel buffer 1', () => {
 
 describe('Channel.select', () => {
 	it('select empty', () => {
-		expect(Channel.select([])).rejects.toThrow();
-		expect(Channel.select([], { timeoutMs: 100 })).rejects.toThrow();
-		expect(Channel.select([], { recover: () => MSG })).resolves.toBe(MSG);
+		expect(Channel.select([])).rejects.toBeInstanceOf(ChannelError.SelectError);
+		expect(Channel.select([], { timeoutMs: 100 })).rejects.toBeInstanceOf(
+			ChannelError.SelectError,
+		);
+		expect(Channel.select([], { recover: (error) => error })).resolves.toBeInstanceOf(
+			ChannelError.SelectError,
+		);
+	});
+
+	it('select exhausted channels returns SelectError', async () => {
+		const ch1 = Channel.create<string>();
+		const ch2 = Channel.create<number>();
+		ch1.close();
+		ch2.close();
+
+		await expect(Channel.select([ch1, ch2])).rejects.toBeInstanceOf(
+			ChannelError.SelectError,
+		);
+		await expect(
+			Channel.select([ch1, ch2], { recover: (error) => error }),
+		).resolves.toBeInstanceOf(ChannelError.SelectError);
 	});
 
 	it('selects', async () => {
@@ -493,5 +511,29 @@ describe('Channel.select', () => {
 			await ch2.send(5);
 			expect(promise).resolves.toBe(10);
 		}
+	});
+
+	it('selectCase exhausted channels returns SelectError', async () => {
+		const ch1 = Channel.create<string>();
+		const ch2 = Channel.create<number>();
+		ch1.close();
+		ch2.close();
+
+		const cases: [
+			[Channel.Read<string>, (value: string) => string],
+			[Channel.Read<number>, (value: number) => number],
+		] = [
+			[ch1, (value: string) => value],
+			[ch2, (value: number) => value],
+		];
+
+		await expect(
+			Channel.selectCase(cases),
+		).rejects.toBeInstanceOf(
+			ChannelError.SelectError,
+		);
+		await expect(
+			Channel.selectCase(cases, { recover: (error) => error }),
+		).resolves.toBeInstanceOf(ChannelError.SelectError);
 	});
 });

@@ -55,6 +55,15 @@ export namespace ChannelError {
 	}
 
 	/**
+	 * Error indicating that every channel in a select operation failed.
+	 */
+	export class SelectError extends ChannelError {
+		constructor(readonly errors: readonly unknown[]) {
+			super('All selected channels failed.');
+		}
+	}
+
+	/**
 	 * Error indicating that a Channel message has an incorrect type.
 	 */
 	export class InvalidMessageTypeError extends ChannelError {

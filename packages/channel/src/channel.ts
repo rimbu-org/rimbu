@@ -347,11 +347,13 @@ const channelModule = Module.create<Channel.Constructors>(() => ({
 		try {
 			return await Promise.any(mappedChannels);
 		} catch (err) {
+			if (err instanceof AggregateError) {
+				err = new ChannelError.SelectError(err.errors);
+			}
+
 			if (recover !== undefined) {
 				if (ChannelError.isChannelError(err)) {
 					return recover(err);
-				} else if (err instanceof AggregateError) {
-					return recover(new ChannelError.TimeoutError());
 				}
 			}
 
@@ -411,11 +413,13 @@ const channelModule = Module.create<Channel.Constructors>(() => ({
 
 			return handler(value);
 		} catch (err) {
+			if (err instanceof AggregateError) {
+				err = new ChannelError.SelectError(err.errors);
+			}
+
 			if (recover !== undefined) {
 				if (ChannelError.isChannelError(err)) {
 					return recover(err);
-				} else if (err instanceof AggregateError) {
-					return recover(new ChannelError.TimeoutError());
 				}
 			}
 
