@@ -45,7 +45,7 @@ export function findNearestKeyMatch<K, V>(
 	for (const [currentKey, currentValue] of entries) {
 		const currentDistance = distanceFunction(currentKey, key);
 
-		if (!currentDistance) {
+		if (currentDistance === 0) {
 			return {
 				key: currentKey,
 				value: currentValue,

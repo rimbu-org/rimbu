@@ -192,4 +192,24 @@ describe('Getting the nearest key match', () => {
 		expect(value).toBe('beta');
 		expect(distance).toBe(0);
 	});
+
+	it('should ignore NaN distances', () => {
+		const keyMatch = findNearestKeyMatch(
+			(currentKey, inputKey) =>
+				currentKey === 1
+					? Number.NaN
+					: Math.abs(currentKey - inputKey),
+			2,
+			[
+				[1, 'invalid distance'],
+				[4, 'closest valid key'],
+			],
+		);
+
+		expect(keyMatch).toEqual({
+			key: 4,
+			value: 'closest valid key',
+			distance: 2,
+		});
+	});
 });

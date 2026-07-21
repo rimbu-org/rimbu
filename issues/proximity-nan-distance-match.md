@@ -6,6 +6,7 @@ pass: implementation
 package: proximity
 confidence: high
 effort_estimate: 0.2d
+status: solved
 title: "findNearestKeyMatch treats NaN distance as an exact (distance-0) match"
 ---
 
@@ -30,3 +31,6 @@ A buggy or adversarial `DistanceFunction` returning `NaN` produces wrong lookups
 
 ## Recommendation
 Replace `if (!currentDistance)` with an explicit `if (currentDistance === 0)` (or guard `Number.isNaN`), so `NaN` distances fall through to the normal `currentDistance < bestDistance` comparison (where `NaN < bestDistance` is `false`, correctly ignored). Add a test asserting `NaN` is not treated as a match.
+
+## Resolution
+The exact-match short circuit now checks `currentDistance === 0`, so invalid `NaN` distances are ignored by nearest-key selection. Regression coverage verifies that a valid finite match wins over an earlier `NaN` result.
