@@ -412,13 +412,13 @@ export namespace VariantMapBase {
 		transform<V2, K2 extends K = K>(
 			transformFun: (
 				stream: Stream.NonEmpty<readonly [K, V]>,
-			) => StreamSource<[K2, V2]>,
-		): (Tp & KeyValue<K2, V2>)['normal'];
+			) => StreamSource.NonEmpty<[K2, V2]>,
+		): (Tp & KeyValue<K2, V2>)['nonEmpty'];
 		transform<V2, K2 extends K = K>(
 			transformFun: (
 				stream: Stream.NonEmpty<readonly [K, V]>,
-			) => StreamSource.NonEmpty<[K2, V2]>,
-		): (Tp & KeyValue<K2, V2>)['nonEmpty'];
+			) => StreamSource<[K2, V2]>,
+		): (Tp & KeyValue<K2, V2>)['normal'];
 		/**
 		 * Returns a non-empty collection with the same keys, but where the given `mapFun` function is
 		 * applied to each entry value.

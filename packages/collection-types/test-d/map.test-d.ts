@@ -142,6 +142,38 @@ expectTypeOf(genNonEmpty.mapValues(() => true as boolean)).toEqualTypeOf<
 	GNE<number, boolean>
 >();
 
+// .transform(..)
+expectTypeOf(
+	varEmpty.transform((s) =>
+		s.map(([k, v]) => [k, v] as [number, string]),
+	),
+).toEqualTypeOf<V_Empty>();
+expectTypeOf(
+	varNonEmpty.transform((s) =>
+		s.filter(() => true).map(([k, v]) => [k, v] as [number, string]),
+	),
+).toEqualTypeOf<V_Empty>();
+expectTypeOf(
+	genEmpty.transform((s) =>
+		s.map(([k, v]) => [k, v] as [number, string]),
+	),
+).toEqualTypeOf<G_Empty>();
+expectTypeOf(
+	genNonEmpty.transform((s) =>
+		s.filter(() => true).map(([k, v]) => [k, v] as [number, string]),
+	),
+).toEqualTypeOf<G_Empty>();
+expectTypeOf(
+	varNonEmpty.transform((s) =>
+		s.map(([k, v]) => [k, v] as [number, string]).assumeNonEmpty(),
+	),
+).toEqualTypeOf<V_NonEmpty>();
+expectTypeOf(
+	genNonEmpty.transform((s) =>
+		s.map(([k, v]) => [k, v] as [number, string]).assumeNonEmpty(),
+	),
+).toEqualTypeOf<G_NonEmpty>();
+
 // .modifyAt(..)
 expectTypeOf(genEmpty.modifyAt(2, {})).toEqualTypeOf<GE<number, string>>();
 expectTypeOf(genNonEmpty.modifyAt(2, {})).toEqualTypeOf<GE<number, string>>();

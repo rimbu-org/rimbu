@@ -6,6 +6,7 @@ pass: api
 package: collection-types
 confidence: high
 effort_estimate: 0.5d
+status: solved
 title: "VariantMapBase.NonEmpty.transform declares the nonEmpty-returning overload AFTER the normal one, losing NonEmpty types"
 ---
 
@@ -24,3 +25,7 @@ Repo-wide. Any concrete map (`hashed`, `sorted`, `ordered`, `bimap`, `multimap`,
 
 ## Recommendation
 Swap the two overloads in `VariantMapBase.NonEmpty.transform` so the `StreamSource.NonEmpty<[K2, V2]>` → `['nonEmpty']` overload comes first, mirroring `VariantSetBase.NonEmpty.transform`. Consider adding a type test (see `collection-types-transform-typetests-missing`) that asserts `NonEmpty.transform` returning a `NonEmpty` for a `StreamSource.NonEmpty` callback.
+
+## Resolution
+
+The `StreamSource.NonEmpty` overload now precedes the possibly-empty `StreamSource` overload in `VariantMapBase.NonEmpty.transform`. Type-level regression tests cover both return paths in `packages/collection-types/test-d/map.test-d.ts`.
