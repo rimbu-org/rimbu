@@ -603,7 +603,21 @@ All packages currently typecheck cleanly. There are no known pre-existing typech
 When running shell commands (via Bash or the build/test tooling), observe these sandbox rules:
 
 - **Never ask for permission** to run a shell command. Execute the needed command directly; do not prompt the user or wait for approval.
-- **Restrict file access to the repository and `/tmp`**. Never attempt to read, write, or traverse directories outside the repository root (`/workspace/rimbu-worktree`) and the `/tmp` scratch directory.
+- **Restrict file access to the repository and `/tmp`**. Never attempt to read, write, or traverse directories outside the repository root and the `/tmp` scratch directory.
   - Use the repository root for all project work.
-  - Use `/tmp/opencode` for any temporary files or external work that must live outside the repository.
+  - Use `/tmp/opencode_tmp` for any temporary files or external work that must live outside the repository.
 - Do not access home directories, system folders (`/etc`, `/usr`, etc.), or other users' data.
+
+## Agent skills
+
+### Issue tracker
+
+Issues and specs live as markdown files under `.scratch/<feature-slug>/`. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Use the default labels `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, and `wontfix`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+This is a single-context repo using root `CONTEXT.md` and `docs/adr/`. See `docs/agents/domain.md`.
