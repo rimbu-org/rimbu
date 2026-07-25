@@ -1,7 +1,9 @@
 import { describe, expectTypeOf, it } from 'bun:test';
 
-import type { Collection } from '@rimbu/collection-types/capabilities';
-import type { IndexedCollection } from '@rimbu/collection-types/capabilities';
+import type {
+	Collection,
+	IndexedCollection,
+} from '@rimbu/collection-types/capabilities';
 import type { Stream } from '@rimbu/stream';
 
 interface WithMapNonEmpty<E> extends IndexedCollection.WithMap<E> {
@@ -243,9 +245,9 @@ describe('IndexedCollection.WithOrderEditable', () => {
 	});
 
 	it('extends IndexedCollection', () => {
-		expectTypeOf<
-			IndexedCollection.WithOrderEditable<number>
-		>().toExtend<IndexedCollection<number>>();
+		expectTypeOf<IndexedCollection.WithOrderEditable<number>>().toExtend<
+			IndexedCollection<number>
+		>();
 	});
 });
 
@@ -265,15 +267,15 @@ describe('IndexedCollection.WithMoveTo', () => {
 
 describe('IndexedCollection.Types', () => {
 	it('_NORMAL is IndexedCollection', () => {
-		expectTypeOf<
-			IndexedCollection.Types<number>['_NORMAL']
-		>().toEqualTypeOf<IndexedCollection<number>>();
+		expectTypeOf<IndexedCollection.Types<number>['_NORMAL']>().toEqualTypeOf<
+			IndexedCollection<number>
+		>();
 	});
 
 	it('_NON_EMPTY is IndexedCollection.NonEmpty', () => {
-		expectTypeOf<
-			IndexedCollection.Types<number>['_NON_EMPTY']
-		>().toEqualTypeOf<IndexedCollection.NonEmpty<number>>();
+		expectTypeOf<IndexedCollection.Types<number>['_NON_EMPTY']>().toEqualTypeOf<
+			IndexedCollection.NonEmpty<number>
+		>();
 	});
 
 	it('_stream takes optional reversed option', () => {

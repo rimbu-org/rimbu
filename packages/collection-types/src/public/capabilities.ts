@@ -363,7 +363,11 @@ export interface IndexedValuedCollection<T>
 
 export declare namespace IndexedValuedCollection {
 	export interface NonEmpty<T>
-		extends IndexedValuedCollection<T>,
+		extends Omit<
+				IndexedValuedCollection<T>,
+				keyof IndexedCollection.NonEmpty<T> | keyof ValuedCollection.NonEmpty<T>
+			>,
+			IndexedCollection.NonEmpty<T>,
 			ValuedCollection.NonEmpty<T> {
 		readonly context: {
 			__types: IndexedValuedCollection.Types.NonEmpty<T>;
@@ -413,7 +417,12 @@ export interface IndexedKeyedCollection<K, V>
 
 export declare namespace IndexedKeyedCollection {
 	export interface NonEmpty<K, V>
-		extends IndexedKeyedCollection<K, V>,
+		extends Omit<
+				IndexedKeyedCollection<K, V>,
+				| keyof IndexedCollection.NonEmpty<readonly [K, V]>
+				| keyof KeyedCollection.NonEmpty<K, V>
+			>,
+			IndexedCollection.NonEmpty<readonly [K, V]>,
 			KeyedCollection.NonEmpty<K, V> {
 		readonly context: {
 			__types: IndexedKeyedCollection.Types.NonEmpty<K, V>;

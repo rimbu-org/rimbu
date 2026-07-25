@@ -160,9 +160,9 @@ describe('Collection.WithFilter', () => {
 	it('filterIndexed boolean predicate returns _NORMAL', () => {
 		const c: Collection.WithFilter<number> = 0 as any;
 
-		expectTypeOf(
-			c.filterIndexed((v, i) => i % 2 === 0),
-		).toEqualTypeOf<Collection<number>>();
+		expectTypeOf(c.filterIndexed((v, i) => i % 2 === 0)).toEqualTypeOf<
+			Collection<number>
+		>();
 	});
 
 	it('NonEmpty context still returns normal after filter', () => {
@@ -178,7 +178,9 @@ describe('Collection.WithFilter', () => {
 	});
 
 	it('can be assigned to Collection', () => {
-		expectTypeOf<Collection.WithFilter<number>>().toExtend<Collection<number>>();
+		expectTypeOf<Collection.WithFilter<number>>().toExtend<
+			Collection<number>
+		>();
 	});
 
 	it('negate with type guard returns complement', () => {
@@ -223,27 +225,29 @@ describe('Collection.WithFilter', () => {
 		expectTypeOf<Collection.WithFilter<string>>().toExtend<
 			Collection.WithFilter<string | number>
 		>();
-		expectTypeOf<
-			Collection.WithFilter<string | number>
-		>().not.toExtend<Collection.WithFilter<string>>();
+		expectTypeOf<Collection.WithFilter<string | number>>().not.toExtend<
+			Collection.WithFilter<string>
+		>();
 	});
 });
 
 describe('Collection.Types', () => {
 	it('_SELF equals _NORMAL', () => {
-		expectTypeOf<
-			Collection.Types<number>['_SELF']
-		>().toEqualTypeOf<Collection.Types<number>['_NORMAL']>();
+		expectTypeOf<Collection.Types<number>['_SELF']>().toEqualTypeOf<
+			Collection.Types<number>['_NORMAL']
+		>();
 	});
 
 	it('NonEmpty._SELF equals NonEmpty._NON_EMPTY', () => {
-		expectTypeOf<
-			Collection.Types.NonEmpty<number>['_SELF']
-		>().toEqualTypeOf<Collection.Types.NonEmpty<number>['_NON_EMPTY']>();
+		expectTypeOf<Collection.Types.NonEmpty<number>['_SELF']>().toEqualTypeOf<
+			Collection.Types.NonEmpty<number>['_NON_EMPTY']
+		>();
 	});
 
 	it('_UPPER_E is unknown', () => {
-		expectTypeOf<Collection.Types<number>['_UPPER_E']>().toEqualTypeOf<unknown>();
+		expectTypeOf<
+			Collection.Types<number>['_UPPER_E']
+		>().toEqualTypeOf<unknown>();
 	});
 
 	it('_NEW_E defaults to _UPPER_E (unknown)', () => {
