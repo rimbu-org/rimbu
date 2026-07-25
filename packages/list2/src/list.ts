@@ -53,7 +53,7 @@ export declare namespace List {
 		): (this['__types'] & { _NEW_E: T })['_NEW_TYPES']['_NORMAL'];
 	}
 
-	export type Factory = Pick<List.Context<any>, 'empty' | 'of'>;
+	export type Factory = Pick<List.Context<any>, 'empty' | 'of' | 'from'>;
 
 	export interface Types<T> extends IndexedCollection.Types<T> {
 		_NORMAL: List<T>;
