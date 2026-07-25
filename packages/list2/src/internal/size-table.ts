@@ -8,24 +8,24 @@ export type SizeTable = number[] | 'regular';
 export function computeSizeTable(
 	children: { get size(): number }[],
 	size: number,
-	maxBlockSize: number,
+	blockSizeBits: number,
+	level: number,
 ): SizeTable {
 	const nrChildren = children.length;
+	const maxChildSize = 1 << (blockSizeBits * level);
 
-	if (size === maxBlockSize * nrChildren) {
+	if (size === maxChildSize * nrChildren) {
 		return 'regular';
 	}
 
 	let total = 0;
-	let irregular = false;
 
-	const sizes = new Array<number>(nrChildren);
+	const sizeTable = new Array<number>(nrChildren);
 
 	for (let i = 0; i < nrChildren; i++) {
 		total += children[i].size;
-		sizes[i] = total;
-		if (children[i].size !== maxBlockSize) irregular = true;
+		sizeTable[i] = total;
 	}
 
-	return irregular ? sizes : 'regular';
+	return sizeTable;
 }

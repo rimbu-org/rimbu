@@ -27,7 +27,8 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 			this.#_computedSizeTable = computeSizeTable(
 				this.#children,
 				this.size,
-				this.context.maxBlockSize,
+				this.context.blockSizeBits,
+				this.level,
 			);
 		}
 
