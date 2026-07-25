@@ -36,6 +36,8 @@ export declare namespace Collection {
 		readonly context: {
 			__types: Collection.Types.NonEmpty<E>;
 		};
+
+		asNormal(): this['context']['__types']['_NORMAL'];
 	}
 
 	export interface Builder<E> {
@@ -135,7 +137,9 @@ export interface IndexedCollection<E> extends Collection<E> {
 }
 
 export declare namespace IndexedCollection {
-	export interface NonEmpty<E> extends IndexedCollection<E> {
+	export interface NonEmpty<E>
+		extends IndexedCollection<E>,
+			Collection.NonEmpty<E> {
 		readonly context: {
 			__types: IndexedCollection.Types.NonEmpty<E>;
 		};
@@ -243,7 +247,9 @@ export interface ValuedCollection<T> extends Collection<T> {
 }
 
 export declare namespace ValuedCollection {
-	export interface NonEmpty<T> extends ValuedCollection<T> {
+	export interface NonEmpty<T>
+		extends ValuedCollection<T>,
+			Collection.NonEmpty<T> {
 		readonly context: {
 			__types: ValuedCollection.Types.NonEmpty<T>;
 		};
@@ -286,7 +292,9 @@ export interface KeyedCollection<K, V> extends Collection<readonly [K, V]> {
 }
 
 export declare namespace KeyedCollection {
-	export interface NonEmpty<K, V> extends KeyedCollection<K, V> {
+	export interface NonEmpty<K, V>
+		extends KeyedCollection<K, V>,
+			Collection.NonEmpty<readonly [K, V]> {
 		readonly context: {
 			__types: KeyedCollection.Types.NonEmpty<K, V>;
 		};
@@ -354,7 +362,9 @@ export interface IndexedValuedCollection<T>
 }
 
 export declare namespace IndexedValuedCollection {
-	export interface NonEmpty<T> extends IndexedValuedCollection<T> {
+	export interface NonEmpty<T>
+		extends IndexedValuedCollection<T>,
+			ValuedCollection.NonEmpty<T> {
 		readonly context: {
 			__types: IndexedValuedCollection.Types.NonEmpty<T>;
 		};
@@ -371,10 +381,14 @@ export declare namespace IndexedValuedCollection {
 		indexOf<UT, O>(value: RelatedTo<T, UT>, otherwise: OptLazy<O>): number | O;
 	}
 
-	export interface Types<T> extends IndexedCollection.Types<T> {
+	export interface Types<T>
+		extends IndexedCollection.Types<T>,
+			ValuedCollection.Types<T> {
 		_NORMAL: IndexedValuedCollection<T>;
 		_NON_EMPTY: IndexedValuedCollection.NonEmpty<T>;
 		_NEW_TYPES: IndexedValuedCollection.Types<this['_NEW_E']>;
+
+		_stream: IndexedCollection.Types<T>['_stream'];
 	}
 
 	export namespace Types {
@@ -398,7 +412,9 @@ export interface IndexedKeyedCollection<K, V>
 }
 
 export declare namespace IndexedKeyedCollection {
-	export interface NonEmpty<K, V> extends IndexedKeyedCollection<K, V> {
+	export interface NonEmpty<K, V>
+		extends IndexedKeyedCollection<K, V>,
+			KeyedCollection.NonEmpty<K, V> {
 		readonly context: {
 			__types: IndexedKeyedCollection.Types.NonEmpty<K, V>;
 		};
@@ -490,7 +506,9 @@ export interface SortedCollection<S, E> extends Collection<E> {
 }
 
 export declare namespace SortedCollection {
-	export interface NonEmpty<S, E> extends SortedCollection<S, E> {
+	export interface NonEmpty<S, E>
+		extends SortedCollection<S, E>,
+			Collection.NonEmpty<E> {
 		readonly context: {
 			__types: SortedCollection.Types.NonEmpty<S, E>;
 		};

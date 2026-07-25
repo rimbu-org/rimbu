@@ -1,6 +1,7 @@
 import type { ListContext } from '#list/context';
 import type { Block, Inner } from '#list/immutable/common';
 import type { InnerBlock } from '#list/immutable/inner-block';
+import type { InnerTreeBuilder } from '#list/mutable/inner-tree-builder';
 
 export class InnerTree<T, C extends Block<T>> {
 	constructor(
@@ -40,5 +41,9 @@ export class InnerTree<T, C extends Block<T>> {
 		level = this.level,
 	): InnerTree<T2, C2> {
 		return this.context.innerTree(left, right, middle, size, level);
+	}
+
+	toBuilder(): InnerTreeBuilder<T, C> {
+		return this.context.innerTreeBuilderSource(this);
 	}
 }

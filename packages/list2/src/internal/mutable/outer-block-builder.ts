@@ -26,8 +26,8 @@ export class OuterBlockBuilder<T> implements OuterBuilder<T> {
 		this.#_children = children;
 	}
 
-	#source?: OuterBlock<T> | undefined;
-	#_children?: OuterChildren<T> | undefined;
+	#source: OuterBlock<T> | undefined;
+	#_children: OuterChildren<T> | undefined;
 
 	get #ops() {
 		return this.context.childrenOps;

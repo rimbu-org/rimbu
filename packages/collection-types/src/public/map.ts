@@ -7,7 +7,9 @@ export interface MapCollection<K, V> extends KeyedCollection<K, V> {
 }
 
 export namespace MapCollection {
-	export interface NonEmpty<K, V> extends MapCollection<K, V> {
+	export interface NonEmpty<K, V>
+		extends MapCollection<K, V>,
+			KeyedCollection.NonEmpty<K, V> {
 		readonly context: {
 			__types: MapCollection.Types.NonEmpty<K, V>;
 		};

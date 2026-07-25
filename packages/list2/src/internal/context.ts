@@ -1,14 +1,17 @@
 import type { List } from '@rimbu/list';
 import type { StreamSource } from '@rimbu/stream';
-import type { InnerBuilder } from './mutable/common';
 
 import type { ChildrenOps, OuterChildren } from '#advanced/children-ops';
 import type { Block, Inner } from '#list/immutable/common';
+import type { InnerBuilder } from '#list/mutable/common';
+import type { SizeTable } from '#list/size-table';
 
 import { type ArrayNonEmpty, Module } from '@rimbu/common';
+import { InnerBlockBuilder } from './mutable/inner-block-builder';
+import { InnerTreeBuilder } from './mutable/inner-tree-builder';
 
 import { ListEmptyBase } from '#advanced/immutable/empty-base';
-import { InnerBlock, type SizeTable } from '#list/immutable/inner-block';
+import { InnerBlock } from '#list/immutable/inner-block';
 import { InnerTree } from '#list/immutable/inner-tree';
 import { OuterBlock } from '#list/immutable/outer-block';
 import { OuterTree } from '#list/immutable/outer-tree';
@@ -44,12 +47,25 @@ export interface ListContext<T, IsNonEmpty extends boolean = boolean>
 		level: number,
 	): InnerTree<T, C>;
 	outerBlockBuilder<T>(children: OuterChildren<T>): OuterBlockBuilder<T>;
+	outerBlockBuilderSource<T>(source: OuterBlock<T>): OuterBlockBuilder<T>;
 	outerTreeBuilder<T>(
 		left: OuterBlockBuilder<T>,
 		right: OuterBlockBuilder<T>,
 		middle: InnerBuilder<T, OuterBlockBuilder<T>> | undefined,
 		size: number,
 	): OuterTreeBuilder<T>;
+	innerBlockBuilderC<T, C extends Block<T>>(
+		children: C[],
+		size: number,
+		level: number,
+		sizeTable?: SizeTable | undefined,
+	): InnerBuilder<T, C>;
+	innerBlockBuilderSource<T, C extends Block<T>>(
+		source: InnerBlock<T, C>,
+	): InnerBuilder<T, C>;
+	innerTreeBuilderSource<T, C extends Block<T>>(
+		source: InnerTree<T, C>,
+	): InnerBuilder<T, C>;
 }
 
 export function createListContextModule<UT>(options: {
@@ -113,12 +129,50 @@ export function createListContextModule<UT>(options: {
 				undefined,
 				children,
 			),
+		outerBlockBuilderSource: <T>(source: OuterBlock<T>) =>
+			new OuterBlockBuilder<T>(mod as unknown as ListContext<T>, source),
 		outerTreeBuilder: <T>(
 			left: OuterBlockBuilder<T>,
 			right: OuterBlockBuilder<T>,
 			middle: InnerBuilder<T, OuterBlockBuilder<T>> | undefined,
 			size: number,
-		) => new OuterTreeBuilder<T>() as any,
+		) =>
+			new OuterTreeBuilder<T>(
+				mod as unknown as ListContext<T>,
+				undefined,
+				left,
+				right,
+				middle,
+				size,
+			),
+		innerBlockBuilderC: <T, C extends Block<T>>(
+			children: C[],
+			size: number,
+			level: number,
+			sizeTable?: SizeTable | undefined,
+		) =>
+			new InnerBlockBuilder<T, C>(
+				mod as unknown as ListContext<T>,
+				level,
+				undefined,
+				children,
+				size,
+				sizeTable,
+			),
+		innerBlockBuilderSource: <T, C extends Block<T>>(
+			source: InnerBlock<T, C>,
+		) =>
+			new InnerBlockBuilder<T, C>(
+				mod as unknown as ListContext<T>,
+				source.level,
+				source,
+			),
+		innerTreeBuilderSource: <T, C extends Block<T>>(source: InnerTree<T, C>) =>
+			new InnerTreeBuilder<T, C>(
+				mod as unknown as ListContext<T>,
+				source.level,
+				source,
+			),
 		empty: Module.lazy(
 			<T>() => new ListEmptyBase<T>(mod as unknown as ListContext<T>),
 		),

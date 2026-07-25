@@ -7,7 +7,9 @@ export interface SetCollection<T> extends ValuedCollection<T> {
 }
 
 export namespace SetCollection {
-	export interface NonEmpty<T> extends ValuedCollection<T> {
+	export interface NonEmpty<T>
+		extends SetCollection<T>,
+			ValuedCollection.NonEmpty<T> {
 		readonly context: {
 			__types: SetCollection.Types.NonEmpty<T>;
 		};

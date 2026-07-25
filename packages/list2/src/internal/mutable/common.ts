@@ -13,3 +13,5 @@ export interface OuterBuilder<T> {
 }
 
 export type InnerBuilder<T, C> = any;
+
+export type BlockBuilder<T, C = unknown> = any;

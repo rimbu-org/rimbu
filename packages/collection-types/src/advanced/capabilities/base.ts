@@ -96,6 +96,10 @@ export abstract class CollectionNonEmptyBase<T>
 		return this;
 	}
 
+	asNormal(): this['context']['__types']['_NORMAL'] {
+		return this;
+	}
+
 	forEachIndexed(
 		f: (value: T, index: number, halt: () => void) => void,
 		options: { state?: TraverseState } = {},

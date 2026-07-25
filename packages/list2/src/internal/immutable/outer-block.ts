@@ -4,6 +4,7 @@ import type { Stream } from '@rimbu/stream';
 import type { ChildrenOps, OuterChildren } from '#advanced/children-ops';
 import type { ListContext } from '#list/context';
 import type { Block } from '#list/immutable/common';
+import type { OuterBlockBuilder } from '#list/mutable/outer-block-builder';
 
 import { type ArrayNonEmpty, type IndexRange, OptLazy } from '@rimbu/common';
 
@@ -173,5 +174,9 @@ export class OuterBlock<T> extends ListNonEmptyBase<T> implements Block<T, T> {
 
 	copyChildren(): OuterChildren<T> {
 		return this.#ops.safeCopy(this.#children);
+	}
+
+	toBuilder(): OuterBlockBuilder<T> {
+		return this.context.outerBlockBuilderSource(this);
 	}
 }

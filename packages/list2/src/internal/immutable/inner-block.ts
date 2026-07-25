@@ -1,37 +1,8 @@
 import type { ListContext } from '#list/context';
 import type { Block } from '#list/immutable/common';
+import type { InnerBlockBuilder } from '#list/mutable/inner-block-builder';
 
-export type SizeTable = number[] | 'regular';
-
-/**
- * Compute a cumulative size table for an array of child blocks.
- * sizes[k] = sum of children[0..k].size (inclusive).
- * Returns 'regular' if the block is regular (all children have the same full subtree size).
- */
-function computeSizeTable<T>(
-	children: Block<T>[],
-	size: number,
-	maxBlockSize: number,
-): SizeTable {
-	const nrChildren = children.length;
-
-	if (size === maxBlockSize * nrChildren) {
-		return 'regular';
-	}
-
-	let total = 0;
-	let irregular = false;
-
-	const sizes = new Array<number>(nrChildren);
-
-	for (let i = 0; i < nrChildren; i++) {
-		total += children[i].size;
-		sizes[i] = total;
-		if (children[i].size !== maxBlockSize) irregular = true;
-	}
-
-	return irregular ? sizes : 'regular';
-}
+import { computeSizeTable, type SizeTable } from '#list/size-table';
 
 export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 	constructor(
@@ -60,6 +31,14 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 			);
 		}
 
+		return this.#_computedSizeTable;
+	}
+
+	// Returns a copy of the computed size table if computed for builders.
+	get computedSizeTable(): SizeTable | undefined {
+		if (Array.isArray(this.#_computedSizeTable)) {
+			return this.#_computedSizeTable.slice();
+		}
 		return this.#_computedSizeTable;
 	}
 
@@ -131,6 +110,20 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 		}
 
 		return this.copy(newChildren, newSize, newSizeTable);
+	}
+
+	forEach(f: (element: T) => void): void {
+		for (const child of this.#children) {
+			child.forEach(f);
+		}
+	}
+
+	mapChildren<C2>(f: (child: C) => C2): C2[] {
+		return this.#children.map(f);
+	}
+
+	toBuilder(): InnerBlockBuilder<T, C> {
+		return this.context.innerBlockBuilderSource(this);
 	}
 
 	#getCoordinates(
