@@ -10,22 +10,25 @@ import type { ChildrenOps } from '#advanced/children-ops';
 import { ArrayOuterChildrenOps } from '#list/children-ops/array';
 import { createListContextModule } from '#list/context';
 
-export interface List<T>
-	extends IndexedCollection<T>,
-		Collection.WithFilter<T>,
-		IndexedCollection.WithOrderEditable<T>,
-		IndexedCollection.WithMap<T> {
+export interface List<T> extends IndexedCollection<T>, List.Capabilities<T> {
 	readonly context: List.Context<T>;
 }
 
 export declare namespace List {
 	export interface NonEmpty<T>
-		extends Omit<List<T>, keyof IndexedCollection.NonEmpty<T>>,
-			IndexedCollection.NonEmpty<T> {
+		extends IndexedCollection.NonEmpty<T>,
+			List.Capabilities<T> {
 		readonly context: List.Context<T, true>;
 	}
 
 	export interface Builder<T> extends IndexedCollection.Builder<T> {
+		readonly context: List.Context<T>;
+	}
+
+	export interface Capabilities<T>
+		extends Collection.WithFilter<T>,
+			IndexedCollection.WithOrderEditable<T>,
+			IndexedCollection.WithMap<T> {
 		readonly context: List.Context<T>;
 	}
 

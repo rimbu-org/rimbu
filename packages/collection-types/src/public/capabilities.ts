@@ -131,7 +131,7 @@ export interface IndexedCollection<E> extends Collection<E> {
 	first: this['context']['__types']['_firstLast'];
 	last: this['context']['__types']['_firstLast'];
 
-	take(amount: number): this['context']['__types']['_NORMAL'];
+	take: this['context']['__types']['_take'];
 	drop(amount: number): this['context']['__types']['_NORMAL'];
 	slice(range: IndexRange): this['context']['__types']['_NORMAL'];
 }
@@ -144,12 +144,6 @@ export declare namespace IndexedCollection {
 			__types: IndexedCollection.Types.NonEmpty<E>;
 		};
 
-		take<const N extends number>(
-			amount: N,
-		): 0 extends N
-			? this['context']['__types']['_NORMAL']
-			: this['context']['__types']['_NON_EMPTY'];
-		take(amount: number): this['context']['__types']['_NORMAL'];
 		drop(amount: number): this['context']['__types']['_NORMAL'];
 	}
 
@@ -170,11 +164,17 @@ export declare namespace IndexedCollection {
 		<O>(otherwise: OptLazy<O>): IsNonEmpty extends true ? R : R | O;
 	}
 
+	export interface TakeNonEmpty<RN, RNE> {
+		<const N extends number>(amount: N): 0 extends N ? RN : RNE;
+		(amount: number): RN;
+	}
+
 	export interface Types<E> extends Collection.Types<E> {
 		_NORMAL: IndexedCollection<E>;
 		_NON_EMPTY: IndexedCollection.NonEmpty<E>;
 
 		_firstLast: IndexedCollection.FirstLast<E>;
+		_take: (amount: number) => this['_NORMAL'];
 		_stream: (
 			options?: { reversed?: boolean | undefined } | undefined,
 		) => Stream<E>;
@@ -188,6 +188,8 @@ export declare namespace IndexedCollection {
 			_NON_EMPTY: IndexedCollection.NonEmpty<E>;
 
 			_firstLast: IndexedCollection.FirstLast<E, true>;
+			_take: TakeNonEmpty<this['_NORMAL'], this['_NON_EMPTY']>;
+
 			_stream: (
 				options?: { reversed?: boolean | undefined } | undefined,
 			) => Stream.NonEmpty<E>;
@@ -352,15 +354,14 @@ export interface IndexedValuedCollection<T>
 
 export declare namespace IndexedValuedCollection {
 	export interface NonEmpty<T>
-		extends Omit<
-				IndexedValuedCollection<T>,
-				keyof IndexedCollection.NonEmpty<T> | keyof ValuedCollection.NonEmpty<T>
-			>,
-			IndexedCollection.NonEmpty<T>,
+		extends IndexedCollection.NonEmpty<T>,
 			ValuedCollection.NonEmpty<T> {
 		readonly context: {
 			__types: IndexedValuedCollection.Types.NonEmpty<T>;
 		};
+
+		indexOf<UT = T>(value: RelatedTo<T, UT>): number | undefined;
+		indexOf<UT, O>(value: RelatedTo<T, UT>, otherwise: OptLazy<O>): number | O;
 	}
 
 	export interface Builder<T>
@@ -406,16 +407,14 @@ export interface IndexedKeyedCollection<K, V>
 
 export declare namespace IndexedKeyedCollection {
 	export interface NonEmpty<K, V>
-		extends Omit<
-				IndexedKeyedCollection<K, V>,
-				| keyof IndexedCollection.NonEmpty<readonly [K, V]>
-				| keyof KeyedCollection.NonEmpty<K, V>
-			>,
-			IndexedCollection.NonEmpty<readonly [K, V]>,
+		extends IndexedCollection.NonEmpty<readonly [K, V]>,
 			KeyedCollection.NonEmpty<K, V> {
 		readonly context: {
 			__types: IndexedKeyedCollection.Types.NonEmpty<K, V>;
 		};
+
+		indexOf<UK = K>(key: RelatedTo<K, UK>): number | undefined;
+		indexOf<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): number | O;
 	}
 
 	export interface Builder<K, V>
