@@ -19,7 +19,9 @@ export interface List<T>
 }
 
 export declare namespace List {
-	export interface NonEmpty<T> extends List<T> {
+	export interface NonEmpty<T>
+		extends Omit<List<T>, keyof IndexedCollection.NonEmpty<T>>,
+			IndexedCollection.NonEmpty<T> {
 		readonly context: List.Context<T, true>;
 	}
 
