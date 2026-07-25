@@ -231,16 +231,13 @@ describe('IndexedCollection.WithOrderEditable', () => {
 		const c: IndexedCollection.WithOrderEditable<number> = 0 as any;
 
 		expectTypeOf(c.prepend(1)).toEqualTypeOf<
-			IndexedCollection.NonEmpty<number> &
-				IndexedCollection.WithOrderEditable<number>
+			IndexedCollection.NonEmpty<number>
 		>();
 		expectTypeOf(c.append(1)).toEqualTypeOf<
-			IndexedCollection.NonEmpty<number> &
-				IndexedCollection.WithOrderEditable<number>
+			IndexedCollection.NonEmpty<number>
 		>();
 		expectTypeOf(c.placeAt(0, 1)).toEqualTypeOf<
-			IndexedCollection.NonEmpty<number> &
-				IndexedCollection.WithOrderEditable<number>
+			IndexedCollection.NonEmpty<number>
 		>();
 	});
 

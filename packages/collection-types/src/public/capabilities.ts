@@ -214,23 +214,12 @@ export declare namespace IndexedCollection {
 	}
 
 	export interface WithOrderEditable<E> extends IndexedCollection<E> {
-		readonly context: {
-			__types: IndexedCollection.WithOrderEditable.Types<E>;
-		};
-
 		prepend(element: E): this['context']['__types']['_NON_EMPTY'];
 		append(element: E): this['context']['__types']['_NON_EMPTY'];
 		placeAt(
 			index: number,
 			element: E,
 		): this['context']['__types']['_NON_EMPTY'];
-	}
-
-	export namespace WithOrderEditable {
-		export interface Types<E> extends IndexedCollection.Types<E> {
-			_NORMAL: WithOrderEditable<E>;
-			_NON_EMPTY: IndexedCollection.NonEmpty<E> & WithOrderEditable<E>;
-		}
 	}
 
 	export interface WithMoveTo<I, E> extends IndexedCollection<E> {
