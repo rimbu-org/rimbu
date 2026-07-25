@@ -128,6 +128,9 @@ describe('Collection.WithFilter', () => {
 		const c: Collection.WithFilter<number> = 0 as any;
 
 		expectTypeOf(c.filter((v) => v > 0)).toEqualTypeOf<Collection<number>>();
+		expectTypeOf(c.filter((v) => v > 0, { negate: true })).toEqualTypeOf<
+			Collection<number>
+		>();
 	});
 
 	it('type guard narrows element type', () => {
@@ -176,6 +179,44 @@ describe('Collection.WithFilter', () => {
 
 	it('can be assigned to Collection', () => {
 		expectTypeOf<Collection.WithFilter<number>>().toExtend<Collection<number>>();
+	});
+
+	it('negate with type guard returns complement', () => {
+		const c: Collection.WithFilter<string | number> = 0 as any;
+
+		expectTypeOf(
+			c.filter((v): v is string => typeof v === 'string', { negate: true }),
+		).toEqualTypeOf<Collection<number>>();
+
+		expectTypeOf(
+			c.filter((v): v is number => typeof v === 'number', { negate: true }),
+		).toEqualTypeOf<Collection<string>>();
+	});
+
+	it('filterIndexed negate with type guard returns complement', () => {
+		const c: Collection.WithFilter<string | number> = 0 as any;
+
+		expectTypeOf(
+			c.filterIndexed((v): v is string => typeof v === 'string', {
+				negate: true,
+			}),
+		).toEqualTypeOf<Collection<number>>();
+	});
+
+	it('negate with type guard on three-member union', () => {
+		const c: Collection.WithFilter<string | number | boolean> = 0 as any;
+
+		expectTypeOf(
+			c.filter((v): v is string => typeof v === 'string', { negate: true }),
+		).toEqualTypeOf<Collection<number | boolean>>();
+	});
+
+	it('negate on NonEmpty context returns complement as normal', () => {
+		const c: WithFilterNonEmpty<string | number> = 0 as any;
+
+		expectTypeOf(
+			c.filter((v): v is string => typeof v === 'string', { negate: true }),
+		).toEqualTypeOf<Collection<number>>();
 	});
 
 	it('is covariant in E', () => {

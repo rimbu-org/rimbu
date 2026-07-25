@@ -87,7 +87,7 @@ export declare namespace Collection {
 	}
 
 	export interface WithFilter<E> extends Collection<E> {
-		filter<E2 extends E, NE2 = Exclude<E2, E>>(
+		filter<E2 extends E, NE2 = Exclude<E, E2>>(
 			pred: (element: E) => element is E2,
 			options: { negate: true },
 		): (this['context']['__types'] & { _NEW_E: NE2 })['_NEW_TYPES']['_NORMAL'];
@@ -100,7 +100,7 @@ export declare namespace Collection {
 			options?: { negate?: boolean | undefined } | undefined,
 		): this['context']['__types']['_NORMAL'];
 
-		filterIndexed<E2 extends E, NE2 = Exclude<E2, E>>(
+		filterIndexed<E2 extends E, NE2 = Exclude<E, E2>>(
 			pred: (element: E, index: number, halt: () => void) => element is E2,
 			options: { negate: true },
 		): (this['context']['__types'] & { _NEW_E: NE2 })['_NEW_TYPES']['_NORMAL'];
