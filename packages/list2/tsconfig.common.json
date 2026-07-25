@@ -1,0 +1,12 @@
+{
+	"compilerOptions": {
+		"paths": {
+			"@rimbu/list": ["./src/list.ts"],
+			"@rimbu/list/*": ["./src/public/*.ts"],
+			"@rimbu/list/char": ["./src/public/char.ts"],
+			"@rimbu/list/bit": ["./src/public/bit.ts"],
+			"#advanced/*": ["./src/advanced/*.ts"],
+			"#list/*": ["./src/internal/*.ts"]
+		}
+	}
+}

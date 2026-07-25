@@ -1,9 +1,14 @@
 {
-	"name": "@rimbu/collection-types",
-	"version": "2.1.10",
-	"description": "Type definitions for the basic generic Rimbu collections",
+	"name": "@rimbu/list2",
+	"version": "3.0.0",
+	"description": "An efficient immutable ordered sequence of elements akin to a Vector",
 	"keywords": [
-		"definitions",
+		"list",
+		"vector",
+		"random access",
+		"sequence",
+		"elements",
+		"trie",
 		"immutable",
 		"collection",
 		"rimbu",
@@ -25,18 +30,14 @@
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/rimbu-org/rimbu.git",
-		"directory": "packages/collection-types"
+		"directory": "packages/list"
 	},
 	"type": "module",
 	"sideEffects": false,
 	"exports": {
 		".": {
-			"types": "./dist/collection-types.d.ts",
-			"default": "./dist/collection-types.js"
-		},
-		"./advanced/*": {
-			"types": "./dist/advanced/*.d.ts",
-			"default": "./dist/advanced/*.js"
+			"types": "./dist/list.d.ts",
+			"default": "./dist/list.js"
 		},
 		"./*": {
 			"types": "./dist/public/*.d.ts",
@@ -44,7 +45,11 @@
 		}
 	},
 	"imports": {
-		"#collection-types/*": {
+		"#advanced/*": {
+			"types": "./dist/advanced/*.d.ts",
+			"default": "./dist/advanced/*.js"
+		},
+		"#list/*": {
 			"types": "./dist/internal/*.d.ts",
 			"default": "./dist/internal/*.js"
 		}
@@ -61,10 +66,13 @@
 		"clean:build": "rimraf dist",
 		"format:check": "biome format src",
 		"lint:check": "biome lint src",
+		"test": "bun test test/* --tsconfig-override tsconfig.common.json",
+		"test:random": "bun test test-random",
 		"typecheck": "tsc -p tsconfig.json --noEmit"
 	},
 	"dependencies": {
 		"@rimbu/base": "workspace:*",
+		"@rimbu/collection-types": "workspace:*",
 		"@rimbu/common": "workspace:*",
 		"@rimbu/stream": "workspace:*"
 	},

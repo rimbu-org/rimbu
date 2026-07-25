@@ -884,8 +884,8 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * ```ts
 	 * import { Stream } from '@rimbu/stream';
 	 *
-		 * Stream.of('1', '2', '3').intersperse('ab').toArray()
-		 * // => ['1', 'a', 'b', '2', 'a', 'b', '3']
+	 * Stream.of('1', '2', '3').intersperse('ab').toArray()
+	 * // => ['1', 'a', 'b', '2', 'a', 'b', '3']
 	 * ```
 	 * @note O(1)
 	 */
@@ -1744,17 +1744,21 @@ export namespace Stream {
 		 */
 		fromArray<T>(
 			array: ArrayNonEmpty<T>,
-			options?: {
-				range?: undefined;
-				reversed?: boolean;
-			},
+			options?:
+				| {
+						range?: undefined;
+						reversed?: boolean | undefined;
+				  }
+				| undefined,
 		): Stream.NonEmpty<T>;
 		fromArray<T>(
 			array: readonly T[],
-			options?: {
-				range?: IndexRange | undefined;
-				reversed?: boolean;
-			},
+			options?:
+				| {
+						range?: IndexRange | undefined;
+						reversed?: boolean | undefined;
+				  }
+				| undefined,
 		): Stream<T>;
 		/**
 		 * Returns a Stream consisting of the object keys from the given `obj` object.

@@ -154,6 +154,16 @@
         "@rimbu/stream": "workspace:*",
       },
     },
+    "packages/list2": {
+      "name": "@rimbu/list2",
+      "version": "3.0.0",
+      "dependencies": {
+        "@rimbu/base": "workspace:*",
+        "@rimbu/collection-types": "workspace:*",
+        "@rimbu/common": "workspace:*",
+        "@rimbu/stream": "workspace:*",
+      },
+    },
     "packages/multimap": {
       "name": "@rimbu/multimap",
       "version": "2.1.9",
@@ -413,6 +423,8 @@
     "@rimbu/hashed": ["@rimbu/hashed@workspace:packages/hashed"],
 
     "@rimbu/list": ["@rimbu/list@workspace:packages/list"],
+
+    "@rimbu/list2": ["@rimbu/list2@workspace:packages/list2"],
 
     "@rimbu/multimap": ["@rimbu/multimap@workspace:packages/multimap"],
 

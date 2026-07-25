@@ -98,7 +98,7 @@ export const streamFactoryModule = Module.create<StreamFactory>((mod) => ({
 		array: readonly T[],
 		options: {
 			range?: IndexRange | undefined;
-			reversed?: boolean;
+			reversed?: boolean | undefined;
 		} = {},
 	): any => {
 		if (array.length === 0) return mod.empty();
