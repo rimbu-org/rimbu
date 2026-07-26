@@ -5,7 +5,7 @@ export interface BitList extends List<boolean> {
 }
 
 export declare namespace BitList {
-	export interface NonEmpty extends List.NonEmpty<boolean> {
+	export interface NonEmpty extends BitList, List.NonEmpty<boolean> {
 		readonly context: BitList.Context<true>;
 	}
 

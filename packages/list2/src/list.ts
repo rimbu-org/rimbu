@@ -16,7 +16,8 @@ export interface List<T> extends IndexedCollection<T>, List.Capabilities<T> {
 
 export declare namespace List {
 	export interface NonEmpty<T>
-		extends IndexedCollection.NonEmpty<T>,
+		extends List<T>,
+			IndexedCollection.NonEmpty<T>,
 			List.Capabilities<T> {
 		readonly context: List.Context<T, true>;
 	}
