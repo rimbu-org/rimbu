@@ -84,6 +84,9 @@ export class OuterTree<T>
 	}
 
 	get(index: number): T {
+		if (index < 0) {
+			index = this.size + index;
+		}
 		return treeGet(this, index);
 	}
 
@@ -128,7 +131,7 @@ export class OuterTree<T>
 			});
 
 			if (newMiddle !== this.middle) {
-				const newLeft = this.left.takeChildren(-1).prependBlockChild(element);
+				const newLeft = this.left.dropChildren(-1).prependBlockChild(element);
 				return this.#copy(newLeft, undefined, newMiddle, newSize);
 			}
 		}

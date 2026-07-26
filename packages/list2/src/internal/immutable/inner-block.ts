@@ -7,8 +7,8 @@ import { Stream } from '@rimbu/stream';
 import {
 	computeSizeTable,
 	getInnerBlockCoordinates,
-	safeCopySizeTable,
 	type SizeTable,
+	safeCopySizeTable,
 } from '#list/size-table';
 
 export class InnerBlock<T, C extends Block<T>>

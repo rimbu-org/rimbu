@@ -168,7 +168,6 @@ describe('computeSizeTable', () => {
 
 		expect(result).toBe('regular');
 	});
-
 });
 
 describe('getInnerBlockCoordinates', () => {
