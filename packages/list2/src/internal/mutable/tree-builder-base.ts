@@ -16,10 +16,7 @@ export abstract class TreeBuilderBase<T, C> {
 	abstract dropBlockFirstChild(block: BlockBuilder<T, C>): C;
 	abstract dropBlockLastChild(block: BlockBuilder<T, C>): C;
 	abstract prepareMutate(): void;
-
-	get #ops() {
-		return this.context.childrenOps;
-	}
+	abstract createBlockBuilder(child: C): BlockBuilder<T, C>;
 
 	get(index: number): T {
 		const middleIndex = index - this.left.size;
@@ -63,7 +60,7 @@ export abstract class TreeBuilderBase<T, C> {
 			}
 
 			this.appendMiddle(this.right);
-			this.right = this.context.outerBlockBuilder<any>(this.#ops.of([child]));
+			this.right = this.createBlockBuilder(child);
 			return;
 		}
 
@@ -84,7 +81,7 @@ export abstract class TreeBuilderBase<T, C> {
 		}
 
 		this.appendMiddle(this.right);
-		this.right = this.context.outerBlockBuilder<any>(this.#ops.of([child]));
+		this.right = this.createBlockBuilder(child);
 	}
 
 	prepend(child: C): void {
@@ -106,7 +103,7 @@ export abstract class TreeBuilderBase<T, C> {
 			}
 
 			this.prependMiddle(this.left);
-			this.left = this.context.outerBlockBuilder<any>(this.#ops.of([child]));
+			this.left = this.createBlockBuilder(child);
 			return;
 		}
 
@@ -133,7 +130,7 @@ export abstract class TreeBuilderBase<T, C> {
 
 		// move full left block to middle and prepend new child to new left block
 		this.prependMiddle(this.left);
-		this.left = this.context.outerBlockBuilder<any>(this.#ops.of([child]));
+		this.left = this.createBlockBuilder(child);
 	}
 
 	appendMiddle(child: BlockBuilder<T, C>): void {

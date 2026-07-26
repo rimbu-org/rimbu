@@ -61,6 +61,7 @@ export interface ListContext<T, IsNonEmpty extends boolean = boolean>
 		children: C[],
 		size: number,
 		level: number,
+		sizeTable?: SizeTable | undefined,
 	): InnerBlockBuilder<T, C>;
 	innerBlockBuilderSource<T, C extends BlockBuilder<T>>(
 		source: InnerBlock<T, any>,

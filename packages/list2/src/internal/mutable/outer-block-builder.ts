@@ -77,15 +77,16 @@ export class OuterBlockBuilder<T>
 	}
 
 	at<O>(index: number, otherwise?: OptLazy<O>): T | O {
-		if (undefined !== this.#source) {
-			return this.#source.at(index, otherwise);
-		}
-
-		if (index >= this.size || -index > this.size) {
+		const size = this.size;
+		if (index >= size || -index > size) {
 			return OptLazy(otherwise) as O;
 		}
 
-		return this.#ops.at(this.#children, index);
+		if (index < 0) {
+			index = size + index;
+		}
+
+		return this.get(index);
 	}
 
 	get(index: number): T {
@@ -176,7 +177,7 @@ export class OuterBlockBuilder<T>
 		this.#prepareMutate();
 
 		if (undefined !== other.#source) {
-			this.#children = other.#source.prependChildren(this.#children);
+			this.#children = other.#source.concatChildren(this.#children);
 		} else {
 			this.#children = this.#ops.concat(other.#children, this.#children);
 		}

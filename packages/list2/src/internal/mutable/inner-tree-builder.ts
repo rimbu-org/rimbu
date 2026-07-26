@@ -98,28 +98,16 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 		return block.dropLastChild();
 	}
 
+	createBlockBuilder(child: C): InnerBlockBuilder<T, C> {
+		return this.context.innerBlockBuilder([child], child.size, this.level);
+	}
+
 	get(index: number): T {
 		if (undefined !== this.#source) {
 			return this.#source.get(index);
 		}
 
-		const middleIndex = index - this.left.size;
-
-		if (middleIndex < 0) {
-			return this.left.get(index);
-		}
-
-		const rightIndex = middleIndex - (this.middle?.size ?? 0);
-
-		if (rightIndex >= 0) {
-			return this.right.get(rightIndex);
-		}
-
-		if (undefined === this.middle) {
-			return this.right.get(0);
-		}
-
-		return this.middle.get(middleIndex);
+		return super.get(index);
 	}
 
 	forEach(f: (element: T) => void): void {
@@ -143,12 +131,12 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 
 	firstChild(): C {
 		this.prepareMutate();
-		return this.left.firstChild!();
+		return this.left.firstChild();
 	}
 
 	lastChild(): C {
 		this.prepareMutate();
-		return this.right.lastChild!();
+		return this.right.lastChild();
 	}
 
 	dropFirstChild(): C {
@@ -199,8 +187,8 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 		if (undefined !== this.#source) return this.#source.map(f);
 
 		return this.context.innerTree<T2, any>(
-			this.left.buildMap!(f) as any,
-			this.right.buildMap!(f) as any,
+			this.left.buildMap(f),
+			this.right.buildMap(f),
 			null,
 			this.#size,
 			this.level,
@@ -215,7 +203,7 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 
 			if (totalChildren <= this.context.maxBlockSize) {
 				this.left.appendItems(this.right);
-				return this.left as unknown as InnerBuilder<T, C>;
+				return this.left;
 			}
 		}
 

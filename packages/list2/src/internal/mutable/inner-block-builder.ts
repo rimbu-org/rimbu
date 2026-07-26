@@ -4,6 +4,13 @@ import type { BlockBuilder, InnerBuilder } from '#list/mutable/common';
 
 import { throwInvalidUsageError } from '@rimbu/base';
 
+import {
+	computeSizeTable,
+	getInnerBlockCoordinates,
+	safeCopySizeTable,
+	type SizeTable,
+} from '#list/size-table';
+
 export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 	implements InnerBuilder<T, C>, BlockBuilder<T, C>
 {
@@ -32,8 +39,24 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 	#_children?: C[] | undefined;
 	#size: number;
 
+	#_computedSizeTable: SizeTable | undefined;
+
 	get #children(): C[] {
 		return this.#_children as C[];
+	}
+
+	get #sizeTable(): SizeTable {
+		if (undefined === this.#_computedSizeTable) {
+			const sizeTable = computeSizeTable(
+				this.#children,
+				this.size,
+				this.context.blockSizeBits,
+				this.level,
+			);
+			this.#_computedSizeTable = sizeTable;
+		}
+
+		return this.#_computedSizeTable!;
 	}
 
 	get size(): number {
@@ -64,6 +87,10 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		if (undefined === this.#source) return;
 
 		this.#_children = this.#source.mapChildren((child) => child.toBuilder());
+		// If source has a computed size table, we make a safe copy that we can mutate.
+		this.#_computedSizeTable = safeCopySizeTable(
+			this.#source?.computedSizeTable,
+		);
 		this.#source = undefined;
 	}
 
@@ -72,20 +99,16 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 			return this.#source.get(index);
 		}
 
-		const children = this.#children;
-		const n = children.length;
-		let offset = 0;
+		const [childIndex, inChildIndex] = getInnerBlockCoordinates({
+			index,
+			size: this.size,
+			nrChildren: this.nrChildren,
+			sizeTable: this.#sizeTable,
+			blockSizeBits: this.context.blockSizeBits,
+			level: this.level,
+		});
 
-		for (let i = 0; i < n; i++) {
-			const child = children[i];
-			const childSize = child.size;
-			if (index < offset + childSize) {
-				return child.get(index - offset);
-			}
-			offset += childSize;
-		}
-
-		return children[n - 1].get(children[n - 1].size - 1);
+		return this.#children[childIndex].get(inChildIndex);
 	}
 
 	forEach(f: (element: T) => void): void {
@@ -161,6 +184,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 			this.#children.map((c) => c.build()),
 			this.#size,
 			this.level,
+			this.#_computedSizeTable,
 		);
 	}
 
@@ -171,6 +195,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 			this.#children.map((c) => c.buildMap(f)),
 			this.#size,
 			this.level,
+			this.#_computedSizeTable,
 		);
 	}
 
@@ -197,11 +222,28 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 	splitRight(index = this.nrChildren >>> 1): InnerBlockBuilder<T, C> {
 		this.#prepareMutate();
 		const rightChildren = this.#children.splice(index);
-		let rightSize = 0;
-		for (const child of rightChildren) {
-			rightSize += child.size;
+		const sizeTable = this.#sizeTable;
+		if (sizeTable === 'regular') {
+			const regularChildSize = 1 << (this.context.blockSizeBits * this.level);
+			const leftSize = index * regularChildSize;
+			const rightSize = this.size - leftSize;
+
+			this.#size = leftSize;
+
+			return this.context.innerBlockBuilder(
+				rightChildren,
+				rightSize,
+				this.level,
+				sizeTable,
+			);
 		}
-		this.#size -= rightSize;
+
+		const leftSize = index > 0 ? sizeTable[index - 1] : 0;
+		const rightSize = this.size - leftSize;
+
+		sizeTable.splice(index);
+
+		this.#size = leftSize;
 
 		return this.context.innerBlockBuilder(
 			rightChildren as C[],

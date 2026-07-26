@@ -84,10 +84,6 @@ export class OuterTreeBuilder<T>
 	}
 
 	at<O>(index: number, otherwise?: OptLazy<O> | undefined): O | T {
-		if (undefined !== this.#source) {
-			return this.#source.at(index, otherwise);
-		}
-
 		const size = this.size;
 
 		if (index >= size || -index > size) {
@@ -99,6 +95,14 @@ export class OuterTreeBuilder<T>
 		}
 
 		return this.get(index);
+	}
+
+	get(index: number): T {
+		if (undefined !== this.#source) {
+			return this.#source.get(index);
+		}
+
+		return super.get(index);
 	}
 
 	getChildSize(): 1 {
@@ -119,6 +123,10 @@ export class OuterTreeBuilder<T>
 
 	dropBlockLastChild(block: OuterBlockBuilder<T>): T {
 		return block.dropLastChild();
+	}
+
+	createBlockBuilder(child: T): OuterBlockBuilder<T> {
+		return this.context.outerBlockBuilder(this.context.childrenOps.of([child]));
 	}
 
 	forEach(f: (element: T) => void): void {

@@ -22,9 +22,14 @@ export interface InnerBuilder<T, C extends BlockBuilder<T> = BlockBuilder<T>>
 	extends BuilderCommon<T> {
 	prependChild(child: C): void;
 	appendChild(child: C): void;
-	modifyFirstChild(f: (child: C) => number | undefined): void;
-	modifyLastChild(f: (child: C) => number | undefined): void;
+	firstChild(): C;
+	lastChild(): C;
+	dropFirstChild(): C;
+	dropLastChild(): C;
+	modifyFirstChild(f: (child: C) => number | undefined): number | undefined;
+	modifyLastChild(f: (child: C) => number | undefined): number | undefined;
 	build(): Inner<T, any>;
+	buildMap<T2>(f: (value: T) => T2): Inner<T2, any>;
 	normalized(): InnerBuilder<T, C> | undefined;
 }
 
