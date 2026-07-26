@@ -6,6 +6,7 @@ import { Stream } from '@rimbu/stream';
 
 import {
 	computeSizeTable,
+	getInnerBlockCoordinates,
 	safeCopySizeTable,
 	type SizeTable,
 } from '#list/size-table';
@@ -93,11 +94,14 @@ export class InnerBlock<T, C extends Block<T>>
 	}
 
 	get(index: number): T {
-		const [childIndex, inChildIndex] = this.#getCoordinates(
+		const [childIndex, inChildIndex] = getInnerBlockCoordinates({
 			index,
-			false,
-			false,
-		);
+			size: this.size,
+			nrChildren: this.nrChildren,
+			sizeTable: this.#sizeTable,
+			blockSizeBits: this.context.blockSizeBits,
+			level: this.level,
+		});
 
 		return this.#children[childIndex].get(inChildIndex);
 	}
@@ -220,55 +224,5 @@ export class InnerBlock<T, C extends Block<T>>
 
 	toArray(): T[] {
 		return this.#children.flatMap((child) => child.toArray());
-	}
-
-	#getCoordinates(
-		index: number,
-		forTake: boolean,
-		noEmptyLast: boolean,
-	): [number, number] {
-		const offset = forTake ? 1 : 0;
-		const indexWithOffset = index - offset;
-
-		const nrChildren = this.nrChildren;
-		const size = this.size;
-		const children = this.#children;
-
-		if (indexWithOffset >= size) {
-			// return the end
-			if (noEmptyLast) {
-				return [nrChildren - 1, children.at(-1)!.size - 1];
-			}
-
-			return [nrChildren, 0];
-		}
-
-		// Fast path: regular block — all children have the same full subtree size.
-		if (this.#sizeTable === 'regular') {
-			const levelBits = this.context.blockSizeBits * this.level;
-			const blockSize = 1 << levelBits;
-			const childIndex = indexWithOffset >>> levelBits;
-			const inChildIndex = (indexWithOffset & (blockSize - 1)) + offset;
-			return [childIndex, inChildIndex];
-		}
-
-		// Irregular block — binary search on cumulative size table.
-		const sizeTable = this.#sizeTable;
-		let lo = 0;
-		let hi = nrChildren - 1;
-
-		while (lo < hi) {
-			const mid = (lo + hi) >>> 1;
-			if (sizeTable[mid] <= indexWithOffset) {
-				lo = mid + 1;
-			} else {
-				hi = mid;
-			}
-		}
-
-		const childIndex = lo;
-		const prevSize = childIndex > 0 ? sizeTable[childIndex - 1] : 0;
-		const inChildIndex = indexWithOffset - prevSize + offset;
-		return [childIndex, inChildIndex];
 	}
 }
