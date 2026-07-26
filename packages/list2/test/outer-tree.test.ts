@@ -198,9 +198,9 @@ describe('OuterTree.read', () => {
 			expect(t.get(4)).toBe(50);
 		});
 
-		it('supports negative indices', () => {
-			expect(t.get(-1)).toBe(50);
-			expect(t.get(-4)).toBe(20);
+		it('at supports negative indices', () => {
+			expect(t.at(-1)).toBe(50);
+			expect(t.at(-4)).toBe(20);
 		});
 	});
 

@@ -84,9 +84,6 @@ export class OuterTree<T>
 	}
 
 	get(index: number): T {
-		if (index < 0) {
-			index = this.size + index;
-		}
 		return treeGet(this, index);
 	}
 

@@ -184,10 +184,10 @@ describe('OuterBlock.read', () => {
 			expect(b.get(2)).toBe(30);
 		});
 
-		it('supports negative indices', () => {
-			expect(b.get(-1)).toBe(30);
-			expect(b.get(-2)).toBe(20);
-			expect(b.get(-3)).toBe(10);
+		it('at supports negative indices', () => {
+			expect(b.at(-1)).toBe(30);
+			expect(b.at(-2)).toBe(20);
+			expect(b.at(-3)).toBe(10);
 		});
 	});
 
