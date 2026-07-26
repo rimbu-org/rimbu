@@ -89,6 +89,9 @@ export class OuterBlockBuilder<T>
 	}
 
 	get(index: number): T {
+		if (undefined !== this.#source) {
+			return this.#source.get(index);
+		}
 		return this.#ops.at(this.#children, index);
 	}
 	prepend(element: T): void {

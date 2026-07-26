@@ -76,6 +76,10 @@ export class OuterTree<T>
 			return OptLazy(otherwise) as O;
 		}
 
+		if (index < 0) {
+			index = size + index;
+		}
+
 		return this.get(index);
 	}
 

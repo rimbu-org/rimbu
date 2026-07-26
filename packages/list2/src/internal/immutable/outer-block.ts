@@ -103,7 +103,15 @@ export class OuterBlock<T> extends ListNonEmptyBase<T> implements Block<T, T> {
 			return this;
 		}
 
-		return this.#copy(this.#ops.toSpliced(this.#children, 0, count));
+		if (count >= 0) {
+			return this.#copy(
+				this.#ops.toSpliced(this.#children, count, this.size - count),
+			);
+		}
+
+		return this.#copy(
+			this.#ops.toSpliced(this.#children, 0, this.size + count),
+		);
 	}
 
 	drop(count: number): List<T> {
@@ -114,7 +122,13 @@ export class OuterBlock<T> extends ListNonEmptyBase<T> implements Block<T, T> {
 			return this.context.empty();
 		}
 
-		return this.#copy(this.#ops.toSpliced(this.#children, 0, count));
+		if (count >= 0) {
+			return this.#copy(this.#ops.toSpliced(this.#children, 0, count));
+		}
+
+		return this.#copy(
+			this.#ops.toSpliced(this.#children, this.size + count, -count),
+		);
 	}
 
 	forEach(f: (element: T) => void): void {
@@ -209,11 +223,23 @@ export class OuterBlock<T> extends ListNonEmptyBase<T> implements Block<T, T> {
 	}
 
 	takeChildren(amount: number): OuterBlock<T> {
-		return this.#copy(this.#ops.toSpliced(this.#children, -amount, amount));
+		if (amount >= 0) {
+			return this.#copy(
+				this.#ops.toSpliced(this.#children, amount, this.size - amount),
+			);
+		}
+		return this.#copy(
+			this.#ops.toSpliced(this.#children, 0, this.size + amount),
+		);
 	}
 
 	dropChildren(amount: number): OuterBlock<T> {
-		return this.#copy(this.#ops.toSpliced(this.#children, 0, amount));
+		if (amount >= 0) {
+			return this.#copy(this.#ops.toSpliced(this.#children, 0, amount));
+		}
+		return this.#copy(
+			this.#ops.toSpliced(this.#children, this.size + amount, -amount),
+		);
 	}
 
 	toBuilder(): OuterBlockBuilder<T> {
