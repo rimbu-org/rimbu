@@ -83,6 +83,11 @@ export function createListContextModule<UT>(options: {
 		minBlockSize: 1 << (blockSizeBits - 1),
 		maxBlockSize: 1 << blockSizeBits,
 		childrenOps,
+		createContext: (options: { blockSizeBits?: number }) =>
+			createListContextModule<UT>({
+				blockSizeBits: options.blockSizeBits ?? blockSizeBits,
+				childrenOps,
+			}),
 		isList: <T>(source: unknown): source is List<T> =>
 			source instanceof ListEmptyBase ||
 			source instanceof OuterBlock ||

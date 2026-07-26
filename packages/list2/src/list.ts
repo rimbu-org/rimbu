@@ -39,6 +39,8 @@ export declare namespace List {
 
 		__types: IsNonEmpty extends true ? List.Types.NonEmpty<T> : List.Types<T>;
 
+		createContext(options: { blockSizeBits?: number }): List.Context<T>;
+
 		empty<T extends this['__types']['_UPPER_E']>(): (this['__types'] & {
 			_NEW_E: T;
 		})['_NEW_TYPES']['_NORMAL'];
@@ -61,7 +63,7 @@ export declare namespace List {
 
 	export type Factory = Pick<
 		List.Context<any>,
-		'empty' | 'of' | 'from' | 'builder'
+		'empty' | 'of' | 'from' | 'builder' | 'createContext'
 	>;
 
 	export interface Types<T> extends IndexedCollection.Types<T> {
