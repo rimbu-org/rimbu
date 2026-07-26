@@ -64,18 +64,18 @@ export class InnerBlock<T, C extends Block<T>>
 		return this.context.innerBlock(children, size, this.level, sizeTable);
 	}
 
-	// #copyAsType<T2, C2 extends Block<T2>>(
-	// 	children: C2[],
-	// 	size = this.size,
-	// 	sizeTable = this.#_computedSizeTable,
-	// ) {
-	// 	return this.context.innerBlock<T2, C2>(
-	// 		children,
-	// 		size,
-	// 		this.level,
-	// 		sizeTable,
-	// 	);
-	// }
+	#copyAsType<T2, C2 extends Block<T2>>(
+		children: C2[],
+		size = this.size,
+		sizeTable = this.#_computedSizeTable,
+	) {
+		return this.context.innerBlock<T2, C2>(
+			children,
+			size,
+			this.level,
+			sizeTable,
+		);
+	}
 
 	stream(options: { reversed?: boolean } = {}): Stream.NonEmpty<T> {
 		return Stream.fromArray(this.#children, options)
@@ -127,6 +127,14 @@ export class InnerBlock<T, C extends Block<T>>
 		for (const child of this.#children) {
 			child.forEach(f);
 		}
+	}
+
+	map<T2>(f: (element: T) => T2): InnerBlock<T2, any> {
+		return this.#copyAsType(
+			this.#children.map((child) => child.map(f)),
+			this.size,
+			this.#_computedSizeTable,
+		);
 	}
 
 	mapChildren<C2>(f: (child: C) => C2): C2[] {

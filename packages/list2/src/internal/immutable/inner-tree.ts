@@ -1,9 +1,9 @@
+import type { Stream } from '@rimbu/stream';
+
 import type { ListContext } from '#list/context';
 import type { Block, Inner } from '#list/immutable/common';
 import type { InnerBlock } from '#list/immutable/inner-block';
 import type { InnerTreeBuilder } from '#list/mutable/inner-tree-builder';
-
-import { Stream } from '@rimbu/stream';
 
 import { treeGet, treeStream } from '#list/immutable/tree';
 
@@ -37,15 +37,15 @@ export class InnerTree<T, C extends Block<T>> implements Inner<T, C> {
 	// 	return this.context.innerTree(left, right, middle, size, level);
 	// }
 
-	// #copyAsType<T2, C2 extends Block<T2>>(
-	// 	left: InnerBlock<T2, C2>,
-	// 	right: InnerBlock<T2, C2>,
-	// 	middle: Inner<T2, InnerBlock<T2, C2>> | null,
-	// 	size = this.size,
-	// 	level = this.level,
-	// ): InnerTree<T2, C2> {
-	// 	return this.context.innerTree(left, right, middle, size, level);
-	// }
+	#copyAsType<T2, C2 extends Block<T2>>(
+		left: InnerBlock<T2, C2>,
+		right: InnerBlock<T2, C2>,
+		middle: Inner<T2, InnerBlock<T2, C2>> | null,
+		size = this.size,
+		level = this.level,
+	): InnerTree<T2, C2> {
+		return this.context.innerTree(left, right, middle, size, level);
+	}
 
 	stream(options?: { reversed?: boolean }): Stream.NonEmpty<T> {
 		return treeStream(this, options);
@@ -59,6 +59,16 @@ export class InnerTree<T, C extends Block<T>> implements Inner<T, C> {
 		this.left.forEach(f);
 		this.middle?.forEach(f);
 		this.right.forEach(f);
+	}
+
+	map<T2>(f: (element: T) => T2): InnerTree<T2, any> {
+		return this.#copyAsType(
+			this.left.map(f),
+			this.right.map(f),
+			this.middle?.map(f) ?? null,
+			this.size,
+			this.level,
+		);
 	}
 
 	toBuilder(): InnerTreeBuilder<T, any> {

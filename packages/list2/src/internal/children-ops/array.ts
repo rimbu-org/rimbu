@@ -1,6 +1,11 @@
 import type { ChildrenOps, OuterChildren } from '#advanced/children-ops';
 
-import { type ArrayNonEmpty, type IndexRange, OptLazy } from '@rimbu/common';
+import {
+	type ArrayNonEmpty,
+	type IndexRange,
+	OptLazy,
+	TraverseState,
+} from '@rimbu/common';
 import { Stream } from '@rimbu/stream';
 
 export class ArrayOuterChildrenOps
@@ -86,6 +91,53 @@ export class ArrayOuterChildrenOps
 	filter<T>(children: T[], f: (value: T) => boolean): T[] {
 		const result = children.filter(f);
 		if (result.length === children.length) return children;
+		return result;
+	}
+	filterIndexed<T>(
+		children: T[],
+		f: (value: T, index: number, halt: () => void) => boolean,
+		options: {
+			reversed?: boolean | undefined;
+			negate?: boolean | undefined;
+			state?: TraverseState | undefined;
+		} = {},
+	): T[] {
+		const {
+			reversed = false,
+			negate = false,
+			state = TraverseState(),
+		} = options;
+
+		if (state.halted) return children;
+
+		const result: T[] = [];
+
+		const len = children.length;
+
+		if (reversed) {
+			for (let i = len - 1; i >= 0; i--) {
+				const value = children[i];
+				const include = f(value, state.nextIndex(), state.halt);
+				if (negate !== include) {
+					result.push(value);
+				}
+
+				if (state.halted) break;
+			}
+		} else {
+			for (let i = 0; i < len; i++) {
+				const value = children[i];
+				const include = f(value, state.nextIndex(), state.halt);
+				if (negate !== include) {
+					result.push(value);
+				}
+
+				if (state.halted) break;
+			}
+		}
+
+		if (result.length === children.length) return children;
+
 		return result;
 	}
 	map<T, T2>(children: T[], f: (value: T) => T2): T2[] {

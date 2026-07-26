@@ -6,7 +6,12 @@ import type { ListContext } from '#list/context';
 import type { Block } from '#list/immutable/common';
 import type { OuterBlockBuilder } from '#list/mutable/outer-block-builder';
 
-import { type ArrayNonEmpty, type IndexRange, OptLazy } from '@rimbu/common';
+import {
+	type ArrayNonEmpty,
+	type IndexRange,
+	OptLazy,
+	type TraverseState,
+} from '@rimbu/common';
 
 import { ListNonEmptyBase } from '#advanced/immutable/non-empty-base';
 
@@ -117,14 +122,28 @@ export class OuterBlock<T> extends ListNonEmptyBase<T> implements Block<T, T> {
 	}
 
 	filter(f: (element: T) => boolean): List<T> {
-		// this.#ops.filter(f);
-		return 0 as any;
+		const newChildren = this.#ops.filter(this.#children, f);
+		if (newChildren === this.#children) return this;
+
+		if (this.#ops.size(newChildren) === 0) return this.context.empty();
+
+		return this.#copy(newChildren);
 	}
 
 	filterIndexed(
 		f: (element: T, index: number, halt: () => void) => boolean,
+		options: {
+			reversed?: boolean | undefined;
+			negate?: boolean | undefined;
+			state?: TraverseState;
+		} = {},
 	): List<T> {
-		return 0 as any;
+		const newChildren = this.#ops.filterIndexed(this.#children, f, options);
+		if (newChildren === this.#children) return this;
+
+		if (this.#ops.size(newChildren) === 0) return this.context.empty();
+
+		return this.#copy(newChildren);
 	}
 
 	map<T2>(f: (element: T) => T2): OuterBlock<T2> {

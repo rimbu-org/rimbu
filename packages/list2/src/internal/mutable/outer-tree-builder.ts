@@ -158,8 +158,7 @@ export class OuterTreeBuilder<T>
 		if (this.#size <= 0) return undefined;
 
 		if (undefined === this.middle) {
-			const totalChildren =
-				this.left.nrChildren + this.right.nrChildren;
+			const totalChildren = this.left.nrChildren + this.right.nrChildren;
 			if (totalChildren <= this.context.maxBlockSize) {
 				this.left.appendItems(this.right as OuterBlockBuilder<T>);
 				return this.left;
