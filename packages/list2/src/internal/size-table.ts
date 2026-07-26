@@ -27,15 +27,10 @@ export function computeSizeTable(
 		return 'regular';
 	}
 
-	if (size >= maxChildSize * (nrChildren - 1)) {
-		let allButLastFull = true;
-		for (let i = 0; i < nrChildren - 1; i++) {
-			if (children[i].size !== maxChildSize) {
-				allButLastFull = false;
-				break;
-			}
-		}
-		if (allButLastFull) return 'regular';
+	const lastChildSize = children.at(-1)!.size;
+
+	if (size - lastChildSize === maxChildSize * (nrChildren - 1)) {
+		return 'regular';
 	}
 
 	let total = 0;
@@ -99,15 +94,18 @@ export function getInnerBlockCoordinates(options: {
 		return [nrChildren, 0];
 	}
 
+	const levelBits = blockSizeBits * level;
+
 	if (sizeTable === 'regular') {
-		const levelBits = blockSizeBits * level;
 		const blockSize = 1 << levelBits;
 		const childIndex = indexWithOffset >>> levelBits;
 		const inChildIndex = (indexWithOffset & (blockSize - 1)) + offset;
 		return [childIndex, inChildIndex];
 	}
 
-	let lo = 0;
+	// Each child has at most maxChildSize elements, so the target can't
+	// be in a child before floor(indexWithOffset / maxChildSize).
+	let lo = indexWithOffset >>> levelBits;
 	let hi = nrChildren - 1;
 
 	while (lo < hi) {
