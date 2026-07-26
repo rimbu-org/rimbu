@@ -8,18 +8,12 @@ function makeContext<T>(blockSizeBits: number): ListContext<T> {
 	return List.createContext({ blockSizeBits }) as ListContext<T>;
 }
 
-function makeBuilder<T>(
-	values: T[],
-	bits = 5,
-) {
+function makeBuilder<T>(values: T[], bits = 5) {
 	const ctx = makeContext<T>(bits);
 	return ctx.outerBlockBuilder(ctx.childrenOps.of(values));
 }
 
-function makeBuilderFromSource<T>(
-	values: T[],
-	bits = 5,
-) {
+function makeBuilderFromSource<T>(values: T[], bits = 5) {
 	const ctx = makeContext<T>(bits);
 	const block = ctx.outerBlock(ctx.childrenOps.of(values));
 	return ctx.outerBlockBuilderSource(block);
@@ -538,7 +532,9 @@ describe('OuterBlockBuilder.edge-cases', () => {
 
 		it('500 elements via appendItems', () => {
 			const b = makeBuilder<number>([]);
-			const other = makeBuilder<number>(Array.from({ length: 500 }, (_, i) => i));
+			const other = makeBuilder<number>(
+				Array.from({ length: 500 }, (_, i) => i),
+			);
 			b.appendItems(other);
 			expect(b.size).toBe(500);
 		});

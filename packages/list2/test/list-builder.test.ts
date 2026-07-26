@@ -463,10 +463,10 @@ describe('ListBuilder.edge-cases', () => {
 				b.append(i);
 			}
 			expect(b.size).toBe(500);
-		const list = b.build();
-		expect(list.at(0)).toBe(0);
-		expect(list.at(250)).toBe(250);
-		expect(list.at(499)).toBe(499);
+			const list = b.build();
+			expect(list.at(0)).toBe(0);
+			expect(list.at(250)).toBe(250);
+			expect(list.at(499)).toBe(499);
 		});
 	});
 
@@ -486,9 +486,7 @@ describe('ListBuilder.edge-cases', () => {
 
 		it('at lazy otherwise is called on empty builder', () => {
 			const b = builder<number>();
-			expect(
-				b.at(0, () => 42),
-			).toBe(42);
+			expect(b.at(0, () => 42)).toBe(42);
 		});
 
 		it('at with eager otherwise on empty', () => {

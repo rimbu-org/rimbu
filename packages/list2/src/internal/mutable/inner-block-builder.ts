@@ -7,8 +7,8 @@ import { throwInvalidUsageError } from '@rimbu/base';
 import {
 	computeSizeTable,
 	getInnerBlockCoordinates,
-	safeCopySizeTable,
 	type SizeTable,
+	safeCopySizeTable,
 } from '#list/size-table';
 
 export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
