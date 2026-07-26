@@ -65,18 +65,28 @@ export class ArrayOuterChildrenOps
 		children: T[],
 		start: number,
 		deleteCount: number,
-		items?: T[] | undefined,
+		items: T[] = [],
 	): T[] {
-		throw new Error('Method not implemented.');
+		return children.toSpliced(start, deleteCount, ...items);
 	}
 	toReversed<T>(children: T[]): T[] {
-		throw new Error('Method not implemented.');
+		return children.toReversed();
 	}
 	join(children: unknown[], separator: string, reversed?: boolean): string {
+		if (reversed) {
+			let result = '';
+			for (let i = children.length - 1; i >= 0; i--) {
+				if (i < children.length - 1) result += separator;
+				result += String(children[i]);
+			}
+			return result;
+		}
 		return children.join(separator);
 	}
 	filter<T>(children: T[], f: (value: T) => boolean): T[] {
-		return children.filter(f);
+		const result = children.filter(f);
+		if (result.length === children.length) return children;
+		return result;
 	}
 	map<T, T2>(children: T[], f: (value: T) => T2): T2[] {
 		return children.map(f);
@@ -105,14 +115,21 @@ export class ArrayOuterChildrenOps
 			children.forEach(f);
 		}
 	}
-	toArray<T>(children: T[]): ArrayNonEmpty<T>;
-	toArray<T>(
+	toArray<T>(children: T[]): ArrayNonEmpty<T> {
+		return children as ArrayNonEmpty<T>;
+	}
+
+	sliceArray<T>(
 		children: T[],
-		start?: number | undefined,
-		end?: number | undefined,
+		start: number,
+		end: number,
 		reversed?: boolean | undefined,
 	): T[] {
-		return children;
+		if (reversed) {
+			return children.slice(start, end).reverse();
+		}
+		if (start === 0 && end >= children.length) return children;
+		return children.slice(start, end);
 	}
 	mutateSet<T>(children: T[], index: number, value: T): T[] {
 		children[index] = value;

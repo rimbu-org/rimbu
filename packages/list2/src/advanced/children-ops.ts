@@ -36,16 +36,16 @@ export interface ChildrenOps<Tp extends ChildrenOps.Types = ChildrenOps.Types> {
 		f: (value: T) => void,
 		options?: { reversed?: boolean | undefined } | undefined,
 	): void;
-	/**
-	 * Full array of elements. The non-empty overload returns
-	 * `ArrayNonEmpty<T>`; the general overload accepts optional `start`,
-	 * `end`, and `reversed` for slicing.
-	 */
+	/** Full array of all elements. */
 	toArray<T>(children: (Tp & { _T: T })['_C']): ArrayNonEmpty<T>;
-	toArray<T>(
+	/**
+	 * Slice of elements from `start` (inclusive) to `end` (exclusive),
+	 * optionally reversed. Returns `T[]` (may be empty).
+	 */
+	sliceArray<T>(
 		children: (Tp & { _T: T })['_C'],
-		start?: number | undefined,
-		end?: number | undefined,
+		start: number,
+		end: number,
 		reversed?: boolean | undefined,
 	): T[];
 	/** Elements joined with `separator`. */
