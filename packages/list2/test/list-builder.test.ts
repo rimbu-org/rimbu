@@ -1,335 +1,499 @@
 import { describe, expect, it } from 'bun:test';
 
-import { List } from '@rimbu/list';
+import type { List } from '@rimbu/list';
 
-describe('List.builder().append', () => {
-	it('append to empty builder increases size', () => {
-		const builder = List.builder<number>();
+import { List as ListFactory } from '@rimbu/list';
 
-		builder.append(1);
+function ctx(bits = 2) {
+	return ListFactory.createContext({ blockSizeBits: bits });
+}
 
-		expect(builder.size).toBe(1);
+function builder<T>(bits = 5): List.Builder<T> {
+	return ListFactory.builder<T>();
+}
+
+function appendMany<T>(b: List.Builder<T>, values: Iterable<T>): void {
+	for (const v of values) {
+		b.append(v);
+	}
+}
+
+describe('ListBuilder.empty', () => {
+	it('size is 0', () => {
+		expect(builder().size).toBe(0);
 	});
 
-	it('append multiple elements increases size correctly', () => {
-		const builder = List.builder<number>();
-
-		builder.append(1);
-		builder.append(2);
-		builder.append(3);
-
-		expect(builder.size).toBe(3);
+	it('isEmpty is true', () => {
+		expect(builder().isEmpty).toBe(true);
 	});
 
-	it('forEach iterates in insertion order', () => {
-		const builder = List.builder<number>();
-
-		builder.append(10);
-		builder.append(20);
-		builder.append(30);
-
-		const result: number[] = [];
-		builder.forEach((v) => result.push(v));
-
-		expect(result).toEqual([10, 20, 30]);
-	});
-
-	it('at returns correct values', () => {
-		const builder = List.builder<string>();
-
-		builder.append('a');
-		builder.append('b');
-		builder.append('c');
-
-		expect(builder.at(0)).toBe('a');
-		expect(builder.at(1)).toBe('b');
-		expect(builder.at(2)).toBe('c');
-	});
-
-	it('at returns undefined for out-of-bounds index', () => {
-		const builder = List.builder<number>();
-
-		builder.append(1);
-
-		expect(builder.at(5)).toBeUndefined();
-	});
-
-	it('at with fallback returns fallback for out-of-bounds', () => {
-		const builder = List.builder<number>();
-
-		expect(builder.at(0, 'none')).toBe('none');
-	});
-
-	it('first and last return correct values', () => {
-		const builder = List.builder<number>();
-
-		builder.append(1);
-		builder.append(2);
-		builder.append(3);
-
-		expect(builder.first()).toBe(1);
-		expect(builder.last()).toBe(3);
-	});
-
-	it('isEmpty returns true for empty builder', () => {
-		const builder = List.builder<number>();
-
-		expect(builder.isEmpty).toBe(true);
-	});
-
-	it('isEmpty returns false after append', () => {
-		const builder = List.builder<number>();
-
-		builder.append(42);
-
-		expect(builder.isEmpty).toBe(false);
-	});
-
-	it('build returns list with correct elements', () => {
-		const builder = List.builder<number>();
-
-		builder.append(1);
-		builder.append(2);
-		builder.append(3);
-
-		const list = builder.build();
-
-		expect(list.size).toBe(3);
-		expect(list.toArray()).toEqual([1, 2, 3]);
-	});
-
-	it('build returns empty list for empty builder', () => {
-		const builder = List.builder<number>();
-
-		const list = builder.build();
-
+	it('build returns empty list', () => {
+		const b = builder<number>();
+		const list = b.build();
 		expect(list.isEmpty).toBe(true);
+		expect(list.size).toBe(0);
 		expect(list.toArray()).toEqual([]);
 	});
 
-	it('clear resets builder to empty', () => {
-		const builder = List.builder<number>();
-
-		builder.append(1);
-		builder.append(2);
-		builder.clear();
-
-		expect(builder.isEmpty).toBe(true);
-		expect(builder.size).toBe(0);
-
-		builder.append(3);
-		expect(builder.size).toBe(1);
-		expect(builder.at(0)).toBe(3);
+	it('at returns otherwise', () => {
+		const b = builder<number>();
+		expect(b.at(0)).toBeUndefined();
+		expect(b.at(0, 'fallback')).toBe('fallback');
 	});
 
-	it('append after clear works', () => {
-		const builder = List.builder<number>();
+	it('first returns undefined when empty', () => {
+		const b = builder<number>();
+		expect(b.first()).toBeUndefined();
+	});
 
-		builder.append(1);
-		builder.clear();
-		builder.append(99);
+	it('last returns undefined when empty', () => {
+		const b = builder<number>();
+		expect(b.last()).toBeUndefined();
+	});
 
-		expect(builder.size).toBe(1);
-		expect(builder.at(0)).toBe(99);
+	it('forEach does nothing', () => {
+		const b = builder<number>();
+		let count = 0;
+		b.forEach(() => count++);
+		expect(count).toBe(0);
 	});
 });
 
-describe('List.builder().append with small block size', () => {
-	function context(blockSizeBits = 2) {
-		return List.createContext({ blockSizeBits });
-	}
-
-	it('stays a single block within maxBlockSize', () => {
-		const ctx = context(2); // maxBlockSize = 4
-		const builder = ctx.builder<number>();
-
-		builder.append(1);
-		builder.append(2);
-		builder.append(3);
-		builder.append(4);
-
-		expect(builder.size).toBe(4);
-
-		const list = builder.build();
-		expect(list.toArray()).toEqual([1, 2, 3, 4]);
+describe('ListBuilder.append', () => {
+	it('single element', () => {
+		const b = builder<number>();
+		b.append(1);
+		expect(b.size).toBe(1);
+		expect(b.isEmpty).toBe(false);
+		expect(b.at(0)).toBe(1);
 	});
 
-	it('build returns correct elements after multiple appends within block', () => {
-		const ctx = context(2);
-		const builder = ctx.builder<string>();
+	it('multiple elements in order', () => {
+		const b = builder<number>();
+		b.append(1);
+		b.append(2);
+		b.append(3);
+		expect(b.size).toBe(3);
+		expect(b.at(0)).toBe(1);
+		expect(b.at(1)).toBe(2);
+		expect(b.at(2)).toBe(3);
+	});
 
-		const values = ['a', 'b', 'c'];
-		for (const v of values) {
-			builder.append(v);
-		}
-
-		const list = builder.build();
+	it('build preserves all elements', () => {
+		const b = builder<number>();
+		appendMany(b, [10, 20, 30]);
+		const list = b.build();
 		expect(list.size).toBe(3);
-		expect(list.toArray()).toEqual(values);
+		expect(list.toArray()).toEqual([10, 20, 30]);
 	});
 
-	it('at works with negative indices', () => {
-		const ctx = context(2);
-		const builder = ctx.builder<number>();
+	it('build returns structurally equal but new instance when not mutated', () => {
+		const b = builder<number>();
+		appendMany(b, [1, 2, 3]);
+		const a = b.build();
+		const c = b.build();
+		expect(a.toArray()).toEqual(c.toArray());
+		expect(a.size).toBe(c.size);
+	});
 
-		builder.append(10);
-		builder.append(20);
-		builder.append(30);
-		builder.append(40);
+	it('build returns new value after further mutation', () => {
+		const b = builder<number>();
+		b.append(1);
+		const a = b.build();
+		b.append(2);
+		const c = b.build();
+		expect(a.size).toBe(1);
+		expect(c.size).toBe(2);
+	});
 
-		expect(builder.at(-1)).toBe(40);
-		expect(builder.at(-2)).toBe(30);
-		expect(builder.at(-4)).toBe(10);
+	it('first and last are correct', () => {
+		const b = builder<number>();
+		appendMany(b, [10, 20, 30]);
+		expect(b.first()).toBe(10);
+		expect(b.last()).toBe(30);
+	});
+
+	it('negative index via at', () => {
+		const b = builder<number>();
+		appendMany(b, [10, 20, 30, 40]);
+		expect(b.at(-1)).toBe(40);
+		expect(b.at(-2)).toBe(30);
+		expect(b.at(-4)).toBe(10);
+	});
+
+	it('at out-of-bounds returns otherwise', () => {
+		const b = builder<number>();
+		b.append(1);
+		expect(b.at(5)).toBeUndefined();
+		expect(b.at(-5)).toBeUndefined();
+		expect(b.at(10, 'fallback')).toBe('fallback');
 	});
 });
 
-describe('List.builder().append compared to prepend', () => {
-	it('append adds to end, prepend adds to beginning', () => {
-		const builder = List.builder<number>();
-
-		builder.append(1);
-		builder.prepend(0);
-		builder.append(2);
-
-		expect(builder.size).toBe(3);
-
-		const list = builder.build();
-		expect(list.toArray()).toEqual([0, 1, 2]);
+describe('ListBuilder.prepend', () => {
+	it('single prepend', () => {
+		const b = builder<number>();
+		b.prepend(1);
+		expect(b.size).toBe(1);
+		expect(b.at(0)).toBe(1);
 	});
 
-	it('prepend then append preserves start', () => {
-		const builder = List.builder<string>();
+	it('prepend then append preserves order', () => {
+		const b = builder<number>();
+		b.prepend(1);
+		b.append(3);
+		b.prepend(0);
+		b.append(4);
+		expect(b.build().toArray()).toEqual([0, 1, 3, 4]);
+	});
 
-		builder.prepend('first');
-		builder.append('second');
-		builder.append('third');
-
-		const list = builder.build();
-		expect(list.first()).toBe('first');
-		expect(list.last()).toBe('third');
+	it('only prepends reverse the order', () => {
+		const b = builder<number>();
+		b.prepend(3);
+		b.prepend(2);
+		b.prepend(1);
+		expect(b.build().toArray()).toEqual([1, 2, 3]);
 	});
 });
 
-describe('List.builder().appendMany', () => {
-	it('appendAll adds all elements from array', () => {
-		const builder = List.builder<number>();
+describe('ListBuilder.appendAll', () => {
+	it('appends array elements', () => {
+		const b = builder<number>();
+		b.appendAll([1, 2, 3]);
+		expect(b.size).toBe(3);
+		expect(b.build().toArray()).toEqual([1, 2, 3]);
+	});
 
-		builder.append(1);
-		builder.appendAll([2, 3, 4]);
-
-		expect(builder.size).toBe(4);
-		expect(builder.build().toArray()).toEqual([1, 2, 3, 4]);
+	it('appends after existing elements', () => {
+		const b = builder<number>();
+		b.append(1);
+		b.appendAll([2, 3, 4]);
+		expect(b.build().toArray()).toEqual([1, 2, 3, 4]);
 	});
 
 	it('appendAll from empty array does nothing', () => {
-		const builder = List.builder<number>();
+		const b = builder<number>();
+		b.append(1);
+		b.appendAll([]);
+		expect(b.size).toBe(1);
+	});
 
-		builder.append(1);
-		builder.appendAll([]);
+	it('appendAll from another list', () => {
+		const b = builder<number>();
+		const source = ctx().of(10, 20, 30);
+		b.append(1);
+		b.appendAll(source);
+		b.append(99);
+		expect(b.build().toArray()).toEqual([1, 10, 20, 30, 99]);
+	});
 
-		expect(builder.size).toBe(1);
+	it('appendAll from a stream', () => {
+		const b = builder<number>();
+		b.appendAll([1, 2, 3].values());
+		expect(b.build().toArray()).toEqual([1, 2, 3]);
+	});
+
+	it('chained appendAll calls', () => {
+		const b = builder<number>();
+		b.appendAll([1, 2]);
+		b.appendAll([3, 4, 5]);
+		expect(b.build().toArray()).toEqual([1, 2, 3, 4, 5]);
 	});
 });
 
-describe('List.builder().append forEach iteration lock', () => {
-	it('throws when modifying during forEach', () => {
-		const builder = List.builder<number>();
+describe('ListBuilder.clear', () => {
+	it('resets size to 0', () => {
+		const b = builder<number>();
+		b.append(1);
+		b.append(2);
+		b.clear();
+		expect(b.size).toBe(0);
+		expect(b.isEmpty).toBe(true);
+	});
 
-		builder.append(1);
-		builder.append(2);
+	it('build after clear returns empty', () => {
+		const b = builder<number>();
+		b.append(1);
+		b.clear();
+		expect(b.build().size).toBe(0);
+	});
 
+	it('can append after clear', () => {
+		const b = builder<number>();
+		b.append(1);
+		b.clear();
+		b.append(99);
+		expect(b.build().toArray()).toEqual([99]);
+	});
+
+	it('clear on already-empty builder is safe', () => {
+		const b = builder<number>();
+		b.clear();
+		expect(b.size).toBe(0);
+		b.append(1);
+		expect(b.size).toBe(1);
+	});
+});
+
+describe('ListBuilder.forEach', () => {
+	it('iterates elements in order', () => {
+		const b = builder<number>();
+		appendMany(b, [10, 20, 30]);
+		const result: number[] = [];
+		b.forEach((v) => result.push(v));
+		expect(result).toEqual([10, 20, 30]);
+	});
+
+	it('works with mixed prepend and append', () => {
+		const b = builder<number>();
+		b.prepend(0);
+		b.append(2);
+		b.prepend(-1);
+		const result: number[] = [];
+		b.forEach((v) => result.push(v));
+		expect(result).toEqual([-1, 0, 2]);
+	});
+
+	it('forEach on empty builder is safe', () => {
+		const b = builder<number>();
+		let called = false;
+		b.forEach(() => {
+			called = true;
+		});
+		expect(called).toBe(false);
+	});
+
+	it('throws when mutating during iteration', () => {
+		const b = builder<number>();
+		b.append(1);
+		b.append(2);
 		expect(() => {
-			builder.forEach(() => {
-				builder.append(3);
+			b.forEach(() => {
+				b.append(3);
 			});
 		}).toThrow();
 	});
+
+	it('allows read-only access during iteration', () => {
+		const b = builder<number>();
+		b.append(1);
+		b.append(2);
+		let sum = 0;
+		b.forEach((v) => {
+			sum += v;
+			expect(b.at(0)).toBe(1); // read-only is ok
+		});
+		expect(sum).toBe(3);
+	});
+
+	it('can call forEach again after previous iteration ends', () => {
+		const b = builder<number>();
+		b.append(1);
+		b.forEach(() => {});
+		b.append(2);
+		b.forEach(() => {});
+		expect(b.size).toBe(2);
+	});
+
+	it('forEachIndexed passes correct indices', () => {
+		const b = builder<number>();
+		appendMany(b, [100, 200, 300]);
+		const indices: number[] = [];
+		const values: number[] = [];
+		(b as any).forEachIndexed((v: number, i: number) => {
+			indices.push(i);
+			values.push(v);
+		});
+		expect(indices).toEqual([0, 1, 2]);
+		expect(values).toEqual([100, 200, 300]);
+	});
 });
 
-describe('List.builder().append beyond single block', () => {
-	function context(blockSizeBits = 2) {
-		return List.createContext({ blockSizeBits });
-	}
+describe('ListBuilder.tree-overflow', () => {
+	const bits = 2; // maxBlockSize = 4
+
+	it('stays as single block within max', () => {
+		const b = ctx(bits).builder<number>();
+		appendMany(b, [1, 2, 3, 4]);
+		expect(b.size).toBe(4);
+		expect(b.build().toArray()).toEqual([1, 2, 3, 4]);
+	});
 
 	it('splits into tree when exceeding maxBlockSize', () => {
-		const ctx = context(2); // maxBlockSize = 4
-		const builder = ctx.builder<number>();
-
-		for (let i = 0; i < 10; i++) {
-			builder.append(i);
-		}
-
-		expect(builder.size).toBe(10);
-		expect(builder.isEmpty).toBe(false);
+		const b = ctx(bits).builder<number>();
+		appendMany(b, [1, 2, 3, 4, 5]);
+		expect(b.size).toBe(5);
+		expect(b.build().toArray()).toEqual([1, 2, 3, 4, 5]);
 	});
 
-	it('build preserves all elements after tree split', () => {
-		const ctx = context(2);
-		const builder = ctx.builder<number>();
-
+	it('at works across tree boundary', () => {
+		const b = ctx(bits).builder<number>();
 		for (let i = 0; i < 10; i++) {
-			builder.append(i);
+			b.append(i);
 		}
-
-		const list = builder.build();
-		expect(list.size).toBe(10);
-		expect(list.toArray()).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+		expect(b.at(0)).toBe(0);
+		expect(b.at(4)).toBe(4);
+		expect(b.at(9)).toBe(9);
 	});
 
-	it('at works after tree split', () => {
-		const ctx = context(2);
-		const builder = ctx.builder<number>();
-
+	it('negative at across tree boundary', () => {
+		const b = ctx(bits).builder<number>();
 		for (let i = 0; i < 10; i++) {
-			builder.append(i);
+			b.append(i);
 		}
-
-		expect(builder.at(0)).toBe(0);
-		expect(builder.at(5)).toBe(5);
-		expect(builder.at(9)).toBe(9);
-		expect(builder.at(-1)).toBe(9);
-		expect(builder.at(-3)).toBe(7);
+		expect(b.at(-1)).toBe(9);
+		expect(b.at(-3)).toBe(7);
+		expect(b.at(-10)).toBe(0);
 	});
 
-	it('forEach iterates all elements after tree split', () => {
-		const ctx = context(2);
-		const builder = ctx.builder<number>();
-
+	it('forEach after tree split visits all elements', () => {
+		const b = ctx(bits).builder<number>();
 		for (let i = 0; i < 10; i++) {
-			builder.append(i);
+			b.append(i);
 		}
-
 		const result: number[] = [];
-		builder.forEach((v) => result.push(v));
-
-		expect(result).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+		b.forEach((v) => result.push(v));
+		expect(result).toEqual(Array.from({ length: 10 }, (_, i) => i));
 	});
 
-	it('first and last correct after tree split', () => {
-		const ctx = context(2);
-		const builder = ctx.builder<number>();
-
+	it('first and last after tree split', () => {
+		const b = ctx(bits).builder<number>();
 		for (let i = 0; i < 20; i++) {
-			builder.append(i);
+			b.append(i);
 		}
-
-		expect(builder.first()).toBe(0);
-		expect(builder.last()).toBe(19);
+		expect(b.first()).toBe(0);
+		expect(b.last()).toBe(19);
 	});
 
-	it('can append after tree split', () => {
-		const ctx = context(2);
-		const builder = ctx.builder<number>();
-
-		for (let i = 0; i < 5; i++) {
-			builder.append(i);
+	it('prepend into tree', () => {
+		const b = ctx(bits).builder<number>();
+		for (let i = 5; i >= 1; i--) {
+			b.prepend(i);
 		}
+		expect(b.build().toArray()).toEqual([1, 2, 3, 4, 5]);
+	});
 
-		builder.append(99);
-		builder.append(100);
+	it('deep tree (100 elements mixed prepend/append) builds correctly', () => {
+		const b = ctx(bits).builder<number>();
+		for (let i = 0; i < 100; i++) {
+			if (i % 2 === 0) {
+				b.prepend(-i - 1);
+			} else {
+				b.append(i);
+			}
+		}
+		expect(b.size).toBe(100);
 
-		const list = builder.build();
-		expect(list.size).toBe(7);
-		expect(list.toArray()).toEqual([0, 1, 2, 3, 4, 99, 100]);
+		const list = b.build();
+		expect(list.size).toBe(100);
+
+		// prepend values run: -1,-3,-5,...,-99 (last prepend = -99 at index 0)
+		expect(list.at(0)).toBe(-99);
+		expect(list.at(1)).toBe(-97);
+	});
+
+	it('multiple builds return structurally equal results', () => {
+		const b = ctx(bits).builder<number>();
+		for (let i = 0; i < 10; i++) {
+			b.append(i);
+		}
+		const a = b.build();
+		const c = b.build();
+		expect(a.toArray()).toEqual(c.toArray());
+	});
+});
+
+describe('ListBuilder.edge-cases', () => {
+	describe('null / undefined elements', () => {
+		it('null elements', () => {
+			const b = ListFactory.builder<number | null>();
+			b.append(1);
+			b.append(null);
+			b.append(3);
+			expect(b.at(0)).toBe(1);
+			expect(b.at(1)).toBeNull();
+			expect(b.at(2)).toBe(3);
+			expect(b.build().toArray()).toEqual([1, null, 3]);
+		});
+
+		it('undefined elements', () => {
+			const b = ListFactory.builder<number | undefined>();
+			b.append(1);
+			b.append(undefined);
+			b.append(3);
+			expect(b.at(0)).toBe(1);
+			expect(b.at(1)).toBeUndefined();
+			expect(b.at(2)).toBe(3);
+		});
+
+		it('at fallback with null values', () => {
+			const b = ListFactory.builder<null>();
+			b.append(null);
+			expect(b.at(0)).toBeNull();
+			expect(b.at(1, 'fallback')).toBe('fallback');
+		});
+	});
+
+	describe('string elements', () => {
+		it('preserves string values', () => {
+			const b = ListFactory.builder<string>();
+			b.append('a');
+			b.append('b');
+			expect(b.first()).toBe('a');
+			expect(b.build().toArray()).toEqual(['a', 'b']);
+		});
+	});
+
+	describe('alternating prepend/append patterns', () => {
+		it('builds palindrome-like pattern', () => {
+			const b = builder<number>(2);
+			b.append(1);
+			b.prepend(0);
+			b.append(2);
+			b.prepend(-1);
+			b.append(3);
+			expect(b.build().toArray()).toEqual([-1, 0, 1, 2, 3]);
+		});
+	});
+
+	describe('large single-run append', () => {
+		it('500 elements with default block size', () => {
+			const b = builder<number>();
+			for (let i = 0; i < 500; i++) {
+				b.append(i);
+			}
+			expect(b.size).toBe(500);
+		const list = b.build();
+		expect(list.at(0)).toBe(0);
+		expect(list.at(250)).toBe(250);
+		expect(list.at(499)).toBe(499);
+		});
+	});
+
+	describe('OptLazy semantics', () => {
+		it('at lazy otherwise is not called when element exists', () => {
+			const b = builder<number>();
+			b.append(1);
+			let called = false;
+			expect(
+				b.at(0, () => {
+					called = true;
+					return 999;
+				}),
+			).toBe(1);
+			expect(called).toBe(false);
+		});
+
+		it('at lazy otherwise is called on empty builder', () => {
+			const b = builder<number>();
+			expect(
+				b.at(0, () => 42),
+			).toBe(42);
+		});
+
+		it('at with eager otherwise on empty', () => {
+			const b = builder<number>();
+			expect(b.at(0, 'fallback')).toBe('fallback');
+		});
 	});
 });
