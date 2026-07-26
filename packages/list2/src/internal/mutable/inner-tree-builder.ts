@@ -1,18 +1,25 @@
 import type { ListContext } from '#list/context';
-import type { Block, Inner } from '#list/immutable/common';
+import type { Inner } from '#list/immutable/common';
 import type { InnerTree } from '#list/immutable/inner-tree';
-import type { InnerBuilder } from '#list/mutable/common';
+import type { BlockBuilder, InnerBuilder } from '#list/mutable/common';
 
-export class InnerTreeBuilder<T, C extends Block<T>> {
+import { TreeBuilderBase } from '#list/mutable/tree';
+
+export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
+	extends TreeBuilderBase<T, C>
+	implements InnerBuilder<T, C>
+{
 	constructor(
 		readonly context: ListContext<T>,
 		readonly level: number,
-		source?: InnerTree<T, C>,
+		source?: InnerTree<T, any>,
 		public _left?: C,
 		public _right?: C,
 		public _middle?: InnerBuilder<T, C>,
 		public size: number = 0,
-	) {}
+	) {
+		super();
+	}
 
 	get left(): C {
 		throw new Error('Method not implemented.');
@@ -23,6 +30,10 @@ export class InnerTreeBuilder<T, C extends Block<T>> {
 	}
 
 	get middle(): InnerBuilder<T, C> | undefined {
+		throw new Error('Method not implemented.');
+	}
+
+	prepareMutate(): void {
 		throw new Error('Method not implemented.');
 	}
 
@@ -57,6 +68,17 @@ export class InnerTreeBuilder<T, C extends Block<T>> {
 	dropLastChild(): C {
 		throw new Error('Method not implemented.');
 	}
+	prependBlockChild(block: C, child: C): void {}
+
+	appendBlockChild(block: C, child: C): void {}
+
+	dropBlockFirstChild(block: C): C {
+		throw new Error('Method not implemented.');
+	}
+
+	dropBlockLastChild(block: C): C {
+		throw new Error('Method not implemented.');
+	}
 
 	modifyFirstChild(f: (child: C) => number | undefined): number | undefined {
 		throw new Error('Method not implemented.');
@@ -72,6 +94,10 @@ export class InnerTreeBuilder<T, C extends Block<T>> {
 
 	buildMap<T2>(f: (value: T) => T2): Inner<T2, any> {
 		throw new Error('Method not implemented.');
+	}
+
+	getChildSize(child: C): number {
+		return child.size;
 	}
 
 	normalized(): InnerBuilder<T, C> | undefined {

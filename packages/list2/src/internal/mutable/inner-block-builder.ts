@@ -1,17 +1,16 @@
 import type { ListContext } from '#list/context';
-import type { Block } from '#list/immutable/common';
 import type { InnerBlock } from '#list/immutable/inner-block';
 import type { BlockBuilder, InnerBuilder } from '#list/mutable/common';
 
 import { throwInvalidUsageError } from '@rimbu/base';
 
-export class InnerBlockBuilder<T, C extends Block<T>>
+export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 	implements InnerBuilder<T, C>, BlockBuilder<T, C>
 {
 	constructor(
 		readonly context: ListContext<T>,
 		readonly level: number,
-		source?: InnerBlock<T, C>,
+		source?: InnerBlock<T, any>,
 		children?: C[],
 		size: number = source?.size ?? 0,
 		sizeTable = source?.computedSizeTable,
@@ -31,7 +30,7 @@ export class InnerBlockBuilder<T, C extends Block<T>>
 		// this.#_computedSizeTable = sizeTable;
 	}
 
-	#source?: InnerBlock<T, C> | undefined;
+	#source?: InnerBlock<T, any> | undefined;
 	#_children?: C[] | undefined;
 	// #_computedSizeTable?: SizeTable | undefined;
 	#size: number;
@@ -118,7 +117,7 @@ export class InnerBlockBuilder<T, C extends Block<T>>
 		throw new Error('Method not implemented.');
 	}
 
-	build(): InnerBlock<T, C> {
+	build(): InnerBlock<T, any> {
 		throw new Error('Method not implemented.');
 	}
 

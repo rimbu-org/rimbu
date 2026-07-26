@@ -5,10 +5,14 @@ import type { OuterTree } from '#list/immutable/outer-tree';
 import type { InnerBuilder, OuterBuilder } from '#list/mutable/common';
 import type { OuterBlockBuilder } from '#list/mutable/outer-block-builder';
 
-import { throwInvalidStateError } from '@rimbu/base';
 import { OptLazy } from '@rimbu/common/opt-lazy';
 
-export class OuterTreeBuilder<T> implements OuterBuilder<T> {
+import { TreeBuilderBase } from '#list/mutable/tree';
+
+export class OuterTreeBuilder<T>
+	extends TreeBuilderBase<T, T>
+	implements OuterBuilder<T>
+{
 	constructor(
 		readonly context: ListContext<T>,
 		source?: OuterTree<T>,
@@ -17,6 +21,8 @@ export class OuterTreeBuilder<T> implements OuterBuilder<T> {
 		_middle?: InnerBuilder<T, OuterBlockBuilder<T>>,
 		size: number = source?.size ?? 0,
 	) {
+		super();
+
 		this.#source = source;
 		this.#_left = _left;
 		this.#_right = _right;
@@ -31,23 +37,27 @@ export class OuterTreeBuilder<T> implements OuterBuilder<T> {
 
 	#size: number;
 
+	get level(): number {
+		return 0;
+	}
+
 	get size(): number {
 		return this.#size;
 	}
 
-	get #left(): OuterBlockBuilder<T> {
+	get left(): OuterBlockBuilder<T> {
 		return this.#_left!;
 	}
 
-	get #right(): OuterBlockBuilder<T> {
+	get right(): OuterBlockBuilder<T> {
 		return this.#_right!;
 	}
 
-	get #middle(): InnerBuilder<T, OuterBlockBuilder<T>> | undefined {
+	get middle(): InnerBuilder<T, OuterBlockBuilder<T>> | undefined {
 		return this.#_middle;
 	}
 
-	#prepareMutate(): void {
+	prepareMutate(): void {
 		if (undefined === this.#source) return;
 
 		this.#_left = this.context.outerBlockBuilderSource(this.#source.left);
@@ -72,36 +82,23 @@ export class OuterTreeBuilder<T> implements OuterBuilder<T> {
 			index = size - index;
 		}
 
-		const middleIndex = index - this.#left.size;
+		return this.get(index);
+	}
 
-		if (middleIndex < 0) {
-			// index is in left part
-			return this.#left.at(index);
-		}
-
-		const rightIndex = middleIndex - (this.#middle?.length ?? 0);
-
-		if (rightIndex >= 0) {
-			// index is in right part
-			return this.#right.at(rightIndex);
-		}
-
-		if (undefined === this.#middle) {
-			throwInvalidStateError();
-		}
-
-		// index is in middle part
-		return this.#middle.get(middleIndex);
+	get(index: number): T {
+		return treeGet(this, index);
 	}
 
 	prepend(value: T): void {
-		this.#prepareMutate();
+		this.prepareMutate();
+
+		this.#size++;
 
 		throw new Error('Method not implemented.');
 	}
 
 	append(value: T): void {
-		this.#prepareMutate();
+		this.prepareMutate();
 
 		throw new Error('Method not implemented.');
 	}
@@ -116,6 +113,26 @@ export class OuterTreeBuilder<T> implements OuterBuilder<T> {
 
 	buildMap<T2>(f: (value: T) => T2): List<T2> {
 		throw new Error('Method not implemented.');
+	}
+
+	prependBlockChild(child: OuterBlockBuilder<T>): void {
+		throw new Error('Method not implemented.');
+	}
+
+	appendBlockChild(child: OuterBlockBuilder<T>): void {
+		throw new Error('Method not implemented.');
+	}
+
+	dropBlockFirstChild(block: C): C {
+		throw new Error('Method not implemented.');
+	}
+
+	dropBlockLastChild(block: C): C {
+		throw new Error('Method not implemented.');
+	}
+
+	getChildSize(): 1 {
+		return 1;
 	}
 
 	normalized(): OuterBuilder<T> | undefined {

@@ -123,7 +123,7 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 		return this.#children.map(f);
 	}
 
-	toBuilder(): InnerBlockBuilder<T, C> {
+	toBuilder(): InnerBlockBuilder<T, any> {
 		return this.context.innerBlockBuilderSource(this);
 	}
 

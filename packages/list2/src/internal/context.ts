@@ -3,7 +3,7 @@ import type { StreamSource } from '@rimbu/stream';
 
 import type { ChildrenOps, OuterChildren } from '#advanced/children-ops';
 import type { Block, Inner } from '#list/immutable/common';
-import type { InnerBuilder } from '#list/mutable/common';
+import type { BlockBuilder, InnerBuilder } from '#list/mutable/common';
 import type { SizeTable } from '#list/size-table';
 
 import { type ArrayNonEmpty, Module } from '@rimbu/common';
@@ -54,18 +54,18 @@ export interface ListContext<T, IsNonEmpty extends boolean = boolean>
 		middle: InnerBuilder<T, OuterBlockBuilder<T>> | undefined,
 		size: number,
 	): OuterTreeBuilder<T>;
-	innerBlockBuilderC<T, C extends Block<T>>(
+	innerBlockBuilderC<T, C extends BlockBuilder<T>>(
 		children: C[],
 		size: number,
 		level: number,
 		sizeTable?: SizeTable | undefined,
-	): InnerBuilder<T, C>;
-	innerBlockBuilderSource<T, C extends Block<T>>(
-		source: InnerBlock<T, C>,
-	): InnerBuilder<T, C>;
-	innerTreeBuilderSource<T, C extends Block<T>>(
-		source: InnerTree<T, C>,
-	): InnerBuilder<T, C>;
+	): InnerBlockBuilder<T, C>;
+	innerBlockBuilderSource<T, C extends BlockBuilder<T>>(
+		source: InnerBlock<T, any>,
+	): InnerBlockBuilder<T, C>;
+	innerTreeBuilderSource<T, C extends BlockBuilder<T>>(
+		source: InnerTree<T, any>,
+	): InnerTreeBuilder<T, C>;
 }
 
 export function createListContextModule<UT>(options: {
@@ -145,7 +145,7 @@ export function createListContextModule<UT>(options: {
 				middle,
 				size,
 			),
-		innerBlockBuilderC: <T, C extends Block<T>>(
+		innerBlockBuilderC: <T, C extends BlockBuilder<T>>(
 			children: C[],
 			size: number,
 			level: number,
@@ -159,15 +159,17 @@ export function createListContextModule<UT>(options: {
 				size,
 				sizeTable,
 			),
-		innerBlockBuilderSource: <T, C extends Block<T>>(
-			source: InnerBlock<T, C>,
+		innerBlockBuilderSource: <T, C extends BlockBuilder<T>>(
+			source: InnerBlock<T, any>,
 		) =>
 			new InnerBlockBuilder<T, C>(
 				mod as unknown as ListContext<T>,
 				source.level,
 				source,
 			),
-		innerTreeBuilderSource: <T, C extends Block<T>>(source: InnerTree<T, C>) =>
+		innerTreeBuilderSource: <T, C extends BlockBuilder<T>>(
+			source: InnerTree<T, any>,
+		) =>
 			new InnerTreeBuilder<T, C>(
 				mod as unknown as ListContext<T>,
 				source.level,

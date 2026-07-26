@@ -10,7 +10,9 @@ import {
 	OptLazy,
 	TraverseState,
 } from '@rimbu/common';
-import { ListNonEmptyBase } from '../../advanced/immutable/non-empty-base';
+
+import { ListNonEmptyBase } from '#advanced/immutable/non-empty-base';
+import { treeGet } from '#list/immutable/tree';
 
 export class OuterTree<T> extends ListNonEmptyBase<T> {
 	constructor(
@@ -65,11 +67,16 @@ export class OuterTree<T> extends ListNonEmptyBase<T> {
 	}
 
 	at<O>(index: number, otherwise?: OptLazy<O>): T | O {
-		if (-index > this.size || index >= this.size) {
+		const size = this.size;
+		if (-index > size || index >= size) {
 			return OptLazy(otherwise) as O;
 		}
 
-		return 0 as any;
+		return this.get(index);
+	}
+
+	get(index: number): T {
+		return treeGet(this, index);
 	}
 
 	first(): T {

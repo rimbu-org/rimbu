@@ -71,7 +71,8 @@ export class OuterBlock<T> extends ListNonEmptyBase<T> implements Block<T, T> {
 	}
 
 	at<O>(index: number, otherwise?: OptLazy<O>): T | O {
-		if (-index > this.size || index >= this.size) {
+		const size = this.size;
+		if (-index > size || index >= size) {
 			return OptLazy(otherwise) as O;
 		}
 		return this.#ops.at(this.#children, index);

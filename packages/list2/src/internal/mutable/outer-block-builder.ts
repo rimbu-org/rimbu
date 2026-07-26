@@ -3,11 +3,13 @@ import type { OptLazy } from '@rimbu/common';
 import type { OuterChildren } from '#advanced/children-ops';
 import type { ListContext } from '#list/context';
 import type { OuterBlock } from '#list/immutable/outer-block';
-import type { OuterBuilder } from '#list/mutable/common';
+import type { BlockBuilder, OuterBuilder } from '#list/mutable/common';
 
 import { throwInvalidUsageError } from '@rimbu/base';
 
-export class OuterBlockBuilder<T> implements OuterBuilder<T> {
+export class OuterBlockBuilder<T>
+	implements OuterBuilder<T>, BlockBuilder<T, T>
+{
 	constructor(
 		readonly context: ListContext<T>,
 		source?: OuterBlock<T>,
@@ -45,6 +47,26 @@ export class OuterBlockBuilder<T> implements OuterBuilder<T> {
 		return this.#source?.size ?? this.context.childrenOps.size(this.#children);
 	}
 
+	get nrChildren(): number {
+		return this.size;
+	}
+
+	get canAddChild(): boolean {
+		return this.nrChildren < this.context.maxBlockSize;
+	}
+
+	get canRemoveChild(): boolean {
+		return this.nrChildren > this.context.minBlockSize;
+	}
+
+	get childrenInMax(): boolean {
+		return this.nrChildren <= this.context.maxBlockSize;
+	}
+
+	get childrenInMin(): boolean {
+		return this.nrChildren >= this.context.minBlockSize;
+	}
+
 	#prepareMutate(): void {
 		if (undefined === this.#source) return;
 
@@ -64,6 +86,9 @@ export class OuterBlockBuilder<T> implements OuterBuilder<T> {
 		return this.#ops.at(this.#children, index, otherwise);
 	}
 
+	get(index: number): T {
+		return this.#ops.at(this.#children, index);
+	}
 	prepend(element: T): void {
 		this.#prepareMutate();
 		this.#children = this.#ops.mutatePrepend(this.#children, element);
@@ -112,7 +137,6 @@ export class OuterBlockBuilder<T> implements OuterBuilder<T> {
 
 		// need to split block and create tree
 		const newRight = this.splitRight();
-
 		return this.context.outerTreeBuilder(this, newRight, undefined, length);
 	}
 

@@ -13,7 +13,7 @@ export interface Block<T, C = unknown> extends ListCommon<T> {
 	prependBlockChild(child: C): this['_self'];
 	appendBlockChild(child: C): this['_self'];
 	forEach(f: (value: T) => void): void;
-	toBuilder(): BlockBuilder<T, C>;
+	toBuilder(): BlockBuilder<T, any>;
 }
 
 export type Inner<T, C extends Block<T>> = InnerBlock<T, C> | InnerTree<T, C>;

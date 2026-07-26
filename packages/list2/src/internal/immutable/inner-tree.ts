@@ -3,6 +3,8 @@ import type { Block, Inner } from '#list/immutable/common';
 import type { InnerBlock } from '#list/immutable/inner-block';
 import type { InnerTreeBuilder } from '#list/mutable/inner-tree-builder';
 
+import { treeGet } from '#list/immutable/tree';
+
 export class InnerTree<T, C extends Block<T>> {
 	constructor(
 		readonly context: ListContext<T, true>,
@@ -13,37 +15,41 @@ export class InnerTree<T, C extends Block<T>> {
 		readonly level: number,
 	) {}
 
-	copy(
-		left = this.left,
-		right = this.right,
-		middle = this.middle,
-		size = this.size,
-		level = this.level,
-	): InnerTree<T, C> {
-		if (
-			left === this.left &&
-			right === this.right &&
-			middle === this.middle &&
-			size === this.size &&
-			level === this.level
-		) {
-			return this;
-		}
+	// #copy(
+	// 	left = this.left,
+	// 	right = this.right,
+	// 	middle = this.middle,
+	// 	size = this.size,
+	// 	level = this.level,
+	// ): InnerTree<T, C> {
+	// 	if (
+	// 		left === this.left &&
+	// 		right === this.right &&
+	// 		middle === this.middle &&
+	// 		size === this.size &&
+	// 		level === this.level
+	// 	) {
+	// 		return this;
+	// 	}
 
-		return this.context.innerTree(left, right, middle, size, level);
+	// 	return this.context.innerTree(left, right, middle, size, level);
+	// }
+
+	// #copyAsType<T2, C2 extends Block<T2>>(
+	// 	left: InnerBlock<T2, C2>,
+	// 	right: InnerBlock<T2, C2>,
+	// 	middle: Inner<T2, InnerBlock<T2, C2>> | null,
+	// 	size = this.size,
+	// 	level = this.level,
+	// ): InnerTree<T2, C2> {
+	// 	return this.context.innerTree(left, right, middle, size, level);
+	// }
+
+	get(index: number): T {
+		return treeGet(this, index);
 	}
 
-	copyAsType<T2, C2 extends Block<T2>>(
-		left: InnerBlock<T2, C2>,
-		right: InnerBlock<T2, C2>,
-		middle: Inner<T2, InnerBlock<T2, C2>> | null,
-		size = this.size,
-		level = this.level,
-	): InnerTree<T2, C2> {
-		return this.context.innerTree(left, right, middle, size, level);
-	}
-
-	toBuilder(): InnerTreeBuilder<T, C> {
+	toBuilder(): InnerTreeBuilder<T, any> {
 		return this.context.innerTreeBuilderSource(this);
 	}
 }
