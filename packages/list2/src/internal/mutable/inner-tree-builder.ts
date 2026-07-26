@@ -3,7 +3,7 @@ import type { Inner } from '#list/immutable/common';
 import type { InnerTree } from '#list/immutable/inner-tree';
 import type { BlockBuilder, InnerBuilder } from '#list/mutable/common';
 
-import { TreeBuilderBase } from '#list/mutable/tree';
+import { TreeBuilderBase } from '#list/mutable/tree-builder-base';
 
 export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 	extends TreeBuilderBase<T, C>

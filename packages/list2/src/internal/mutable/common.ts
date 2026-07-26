@@ -18,7 +18,10 @@ export interface OuterBuilder<T> extends BuilderCommon<T> {
 
 export interface InnerBuilder<T, C extends BlockBuilder<T> = BlockBuilder<T>>
 	extends BuilderCommon<T> {
+	prependChild(child: C): void;
+	appendChild(child: C): void;
 	modifyLastChild(f: (child: C) => number | undefined): number | undefined;
+	normalized(): InnerBuilder<T, C> | undefined;
 }
 
 export interface BlockBuilder<T, C = unknown> extends BuilderCommon<T> {

@@ -1,7 +1,7 @@
 import type { ListContext } from '#list/context';
 import type { BlockBuilder, InnerBuilder } from '#list/mutable/common';
 
-import { treeGet } from '#list/immutable/tree';
+import { throwInvalidStateError } from '@rimbu/base';
 
 export abstract class TreeBuilderBase<T, C> {
 	abstract readonly context: ListContext<T, true>;
@@ -22,7 +22,26 @@ export abstract class TreeBuilderBase<T, C> {
 	}
 
 	get(index: number): T {
-		return treeGet(this, index);
+		const middleIndex = index - this.left.size;
+
+		if (middleIndex < 0) {
+			// index is in left part
+			return this.left.get(index);
+		}
+
+		const rightIndex = middleIndex - (this.middle?.size ?? 0);
+
+		if (rightIndex >= 0) {
+			// index is in right part
+			return this.right.get(rightIndex);
+		}
+
+		if (undefined === this.middle) {
+			throwInvalidStateError();
+		}
+
+		// index is in middle part
+		return this.middle.get(middleIndex);
 	}
 
 	append(child: C): void {
@@ -47,7 +66,7 @@ export abstract class TreeBuilderBase<T, C> {
 			}
 
 			this.appendMiddle(this.right);
-			this.right = this.context.outerBlockBuilder(this.#ops.of([child]));
+			this.right = this.context.outerBlockBuilder<any>(this.#ops.of([child]));
 			return;
 		}
 
@@ -74,6 +93,21 @@ export abstract class TreeBuilderBase<T, C> {
 
 		// move full right block to middle and append new child to new right block
 		this.appendMiddle(this.right);
-		this.right = this.context.outerBlockBuilder(this.#ops.of([child]));
+		this.right = this.context.outerBlockBuilder<any>(this.#ops.of([child]));
+	}
+
+	appendMiddle(child: BlockBuilder<T, C>): void {
+		this.prepareMutate();
+
+		if (undefined === this.middle) {
+			this.middle = this.context.innerBlockBuilder(
+				[child],
+				child.size,
+				this.level + 1,
+			);
+		} else {
+			this.middle.appendChild(child);
+			this.middle = this.middle.normalized();
+		}
 	}
 }

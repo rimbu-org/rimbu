@@ -23,6 +23,8 @@ export declare namespace List {
 
 	export interface Builder<T> extends IndexedCollection.Builder<T> {
 		readonly context: List.Context<T>;
+		append(element: T): void;
+		appendAll(elements: StreamSource<T>): void;
 	}
 
 	export interface Capabilities<T>
@@ -51,13 +53,21 @@ export declare namespace List {
 		from<T extends this['__types']['_UPPER_E']>(
 			...sources: ArrayNonEmpty<StreamSource<T>>
 		): (this['__types'] & { _NEW_E: T })['_NEW_TYPES']['_NORMAL'];
+
+		builder<T extends this['__types']['_UPPER_E']>(): (this['__types'] & {
+			_NEW_E: T;
+		})['_NEW_TYPES']['_BUILDER'];
 	}
 
-	export type Factory = Pick<List.Context<any>, 'empty' | 'of' | 'from'>;
+	export type Factory = Pick<
+		List.Context<any>,
+		'empty' | 'of' | 'from' | 'builder'
+	>;
 
 	export interface Types<T> extends IndexedCollection.Types<T> {
 		_NORMAL: List<T>;
 		_NON_EMPTY: List.NonEmpty<T>;
+		_BUILDER: List.Builder<T>;
 		_NEW_TYPES: List.Types<this['_NEW_E']>;
 	}
 
@@ -65,6 +75,7 @@ export declare namespace List {
 		export interface NonEmpty<T> extends IndexedCollection.Types.NonEmpty<T> {
 			_NORMAL: List<T>;
 			_NON_EMPTY: List.NonEmpty<T>;
+			_BUILDER: List.Builder<T>;
 			_NEW_TYPES: List.Types.NonEmpty<this['_NEW_E']>;
 		}
 	}

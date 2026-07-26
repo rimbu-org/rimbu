@@ -1,10 +1,12 @@
 import type { List } from '@rimbu/list';
+import type { StreamSource } from '@rimbu/stream';
 
 import type { ListContext } from '#list/context';
 import type { OuterBuilder } from '#list/mutable/common';
 
 import { CollectionBuilderBase } from '@rimbu/collection-types/advanced/capabilities/base';
 import { OptLazy } from '@rimbu/common';
+import { Stream } from '@rimbu/stream';
 
 export class ListBuilder<T>
 	extends CollectionBuilderBase<T>
@@ -80,6 +82,22 @@ export class ListBuilder<T>
 
 		this.#outerBuilder.append(element);
 		this.#outerBuilder = this.#outerBuilder.normalized();
+	};
+
+	appendAll = (elements: StreamSource<T>): void => {
+		this.checkLock();
+
+		// if (Array.isArray(values)) {
+		// 	this.appendArray(values);
+		// 	return;
+		// }
+
+		const token = Symbol();
+		const iterator = Stream.from(elements)[Symbol.iterator]();
+		let next: T | typeof token;
+		while ((next = iterator.fastNext(token)) !== token) {
+			this.append(next);
+		}
 	};
 
 	clear(): void {

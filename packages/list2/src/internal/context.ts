@@ -1,5 +1,4 @@
 import type { List } from '@rimbu/list';
-import type { StreamSource } from '@rimbu/stream';
 
 import type { ChildrenOps, OuterChildren } from '#advanced/children-ops';
 import type { Block, Inner } from '#list/immutable/common';
@@ -7,6 +6,8 @@ import type { BlockBuilder, InnerBuilder } from '#list/mutable/common';
 import type { SizeTable } from '#list/size-table';
 
 import { type ArrayNonEmpty, Module } from '@rimbu/common';
+import { Stream, type StreamSource } from '@rimbu/stream';
+import { ListBuilder } from './mutable/builder';
 import { InnerBlockBuilder } from './mutable/inner-block-builder';
 import { InnerTreeBuilder } from './mutable/inner-tree-builder';
 
@@ -26,6 +27,8 @@ export interface ListContext<T, IsNonEmpty extends boolean = boolean>
 	readonly minBlockSize: number;
 	readonly maxBlockSize: number;
 	readonly childrenOps: ChildrenOps;
+	isList<T>(source: unknown): source is List<T>;
+	isInContext<T>(source: unknown): source is List<T>;
 	outerBlock<T>(children: OuterChildren<T>): OuterBlock<T>;
 	outerTree<T>(
 		left: OuterBlock<T>,
@@ -54,7 +57,7 @@ export interface ListContext<T, IsNonEmpty extends boolean = boolean>
 		middle: InnerBuilder<T, OuterBlockBuilder<T>> | undefined,
 		size: number,
 	): OuterTreeBuilder<T>;
-	innerBlockBuilderC<T, C extends BlockBuilder<T>>(
+	innerBlockBuilder<T, C extends BlockBuilder<T>>(
 		children: C[],
 		size: number,
 		level: number,
@@ -80,6 +83,13 @@ export function createListContextModule<UT>(options: {
 		minBlockSize: 1 << (blockSizeBits - 1),
 		maxBlockSize: 1 << blockSizeBits,
 		childrenOps,
+		isList: <T>(source: unknown): source is List<T> =>
+			source instanceof ListEmptyBase ||
+			source instanceof OuterBlock ||
+			source instanceof OuterTree,
+		isInContext: <T>(source: unknown): source is List<T> => {
+			return mod.isList(source) && source.context === mod;
+		},
 		outerBlock: <T>(children: OuterChildren<T>) =>
 			new OuterBlock<T>(mod as unknown as ListContext<T>, children),
 		outerTree: <T>(
@@ -145,7 +155,7 @@ export function createListContextModule<UT>(options: {
 				middle,
 				size,
 			),
-		innerBlockBuilderC: <T, C extends BlockBuilder<T>>(
+		innerBlockBuilder: <T, C extends BlockBuilder<T>>(
 			children: C[],
 			size: number,
 			level: number,
@@ -185,8 +195,45 @@ export function createListContextModule<UT>(options: {
 
 			return mod.from<T>(elements);
 		},
-		from: <T>(...values: StreamSource<T>[]): List.NonEmpty<T> => {
-			return 0 as any;
+		from: <T>(...sources: StreamSource<T>[]): List.NonEmpty<T> => {
+			if (sources.length === 1) {
+				const source = sources[0];
+				if (mod.isInContext<T>(source)) {
+					return source as List.NonEmpty<T>;
+				}
+			}
+
+			let result: List.NonEmpty<T> | null = null;
+
+			let i = -1;
+			const length = sources.length;
+
+			while (++i < length) {
+				const source = sources[i];
+
+				if (!Stream.isEmptyStreamSourceInstance(source)) {
+					// if (mod.isContextList<T>(source)) {
+					// 	if (null === result) result = source;
+					// 	else result = result.concat(source);
+					// } else {
+					const builder = mod.builder<T>();
+
+					// if (Array.isArray(source)) builder.appendArray(source);
+					// else builder.appendAll(source);
+					builder.appendAll(source);
+
+					if (!builder.isEmpty) {
+						const build = builder.build();
+						if (null === result) result = build.assumeNonEmpty();
+						// else result = result.concat(build);
+					}
+					// }
+				}
+			}
+
+			if (null === result) return mod.empty<T>() as List.NonEmpty<T>;
+			return result as List.NonEmpty<T>;
 		},
+		builder: <T>() => new ListBuilder<T>(mod as unknown as ListContext<T>),
 	})).build();
 }

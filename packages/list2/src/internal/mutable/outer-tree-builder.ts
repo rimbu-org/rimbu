@@ -7,7 +7,7 @@ import type { OuterBlockBuilder } from '#list/mutable/outer-block-builder';
 
 import { OptLazy } from '@rimbu/common/opt-lazy';
 
-import { TreeBuilderBase } from '#list/mutable/tree';
+import { TreeBuilderBase } from '#list/mutable/tree-builder-base';
 
 export class OuterTreeBuilder<T>
 	extends TreeBuilderBase<T, T>
@@ -85,10 +85,6 @@ export class OuterTreeBuilder<T>
 		return this.get(index);
 	}
 
-	get(index: number): T {
-		return treeGet(this, index);
-	}
-
 	prepend(value: T): void {
 		this.prepareMutate();
 
@@ -123,11 +119,11 @@ export class OuterTreeBuilder<T>
 		throw new Error('Method not implemented.');
 	}
 
-	dropBlockFirstChild(block: C): C {
+	dropBlockFirstChild(block: OuterBlockBuilder<T>): T {
 		throw new Error('Method not implemented.');
 	}
 
-	dropBlockLastChild(block: C): C {
+	dropBlockLastChild(block: OuterBlockBuilder<T>): T {
 		throw new Error('Method not implemented.');
 	}
 
