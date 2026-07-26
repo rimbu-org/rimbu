@@ -256,6 +256,11 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		other.#prepareMutate();
 		this.#size += other.size;
 
+		if (this.nrChildren === 0) {
+			this.#_children = other.#children.slice();
+			return;
+		}
+
 		const firstChild = this.#children[0];
 		const lastIndex = other.nrChildren - 1;
 
@@ -286,6 +291,11 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		this.#prepareMutate();
 		other.#prepareMutate();
 		this.#size += other.size;
+
+		if (this.nrChildren === 0) {
+			this.#_children = other.#children.slice();
+			return;
+		}
 
 		// Snapshot other's children before iterating in case other === this.
 		const otherChildren =
