@@ -1,12 +1,10 @@
-import type { OptLazy } from '@rimbu/common';
-
 import type { OuterChildren } from '#advanced/children-ops';
 import type { ListContext } from '#list/context';
 import type { OuterBlock } from '#list/immutable/outer-block';
 import type { BlockBuilder, OuterBuilder } from '#list/mutable/common';
 
 import { throwInvalidUsageError } from '@rimbu/base';
-
+import { OptLazy } from '@rimbu/common';
 export class OuterBlockBuilder<T>
 	implements OuterBuilder<T>, BlockBuilder<T, T>
 {
@@ -83,7 +81,11 @@ export class OuterBlockBuilder<T>
 			return this.#source.at(index, otherwise);
 		}
 
-		return this.#ops.at(this.#children, index, otherwise);
+		if (index >= this.size || -index > this.size) {
+			return OptLazy(otherwise) as O;
+		}
+
+		return this.#ops.at(this.#children, index);
 	}
 
 	get(index: number): T {

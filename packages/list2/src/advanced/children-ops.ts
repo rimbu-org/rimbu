@@ -1,88 +1,46 @@
-import type { ArrayNonEmpty, IndexRange, OptLazy } from '@rimbu/common';
+import type { ArrayNonEmpty, IndexRange } from '@rimbu/common';
 import type { Stream } from '@rimbu/stream';
 
+/**
+ * Pluggable leaf-storage abstraction. Each tree node delegates its element
+ * access to a ChildrenOps instance, making the backing store swappable
+ * (plain arrays, typed arrays, bit arrays, string slices, etc.) without
+ * changing any tree structure logic.
+ *
+ * The {@link Tp} type parameter carries the concrete children type through
+ * the HKT pattern: each method resolves `(Tp & { _T: T })['_C']` to the
+ * implementation-specific children type for element type `T`.
+ *
+ * Methods are split into two families:
+ * - **Immutable** — return a new collection (or the same one when unchanged).
+ * - **Mutable** (`mutate*` prefix) — mutate in place and return the same
+ *   reference. Only used inside builders; callers must ensure exclusive
+ *   ownership.
+ */
 export interface ChildrenOps<Tp extends ChildrenOps.Types = ChildrenOps.Types> {
-	// Creates a children collection from an array of values
+	// -- construction -------------------------------------------------------
+	/** Create a children collection from an array of values. */
 	of<T>(values: T[]): (Tp & { _T: T })['_C'];
-	// Returns the number of elements in the children collection
+
+	// -- immutable reads ----------------------------------------------------
+	/** Number of elements in the children collection. */
 	size(children: Tp['_C']): number;
-	// Returns the element at the specified index in the children collection. No bounds checking is performed.
-	at<T, O = undefined>(
-		children: (Tp & { _T: T })['_C'],
-		index: number,
-		otherwise?: OptLazy<O>,
-	): T | O;
-	// Returns a new children collection with the given value set at the specified index. No bounds checking is performed.
-	// If the value is the same as the current value at that index, it returns the original children collection.
-	setAt<T>(
-		children: (Tp & { _T: T })['_C'],
-		index: number,
-		value: T,
-	): (Tp & { _T: T })['_C'];
-	// Returns a new children collection with the element at the specified index updated using the provided update function. No bounds checking is performed.
-	// If the updated value is the same as the current value at that index, it returns the original children collection.
-	updateAt<T>(
-		children: (Tp & { _T: T })['_C'],
-		index: number,
-		update: (current: T) => T,
-	): (Tp & { _T: T })['_C'];
-	// Returns a stream of elements from the children collection, optionally reversed.
-	stream<T>(
-		children: (Tp & { _T: T })['_C'],
-		options?: { reversed?: boolean | undefined } | undefined,
-	): Stream.NonEmpty<T>;
-	// Returns a stream of elements from the children collection within the specified range, optionally reversed.
-	streamRange<T>(
-		children: (Tp & { _T: T })['_C'],
-		range: IndexRange,
-		options?: { reversed?: boolean | undefined } | undefined,
-	): Stream<T>;
-	// Returns a new children collection with the specified value prepended to the beginning.
-	prepend<T>(
-		children: (Tp & { _T: T })['_C'],
-		value: T,
-	): (Tp & { _T: T })['_C'];
-	// Returns a new children collection with the specified value appended to the end.
-	append<T>(children: (Tp & { _T: T })['_C'], value: T): (Tp & { _T: T })['_C'];
-	// Returns a new children collection that is the concatenation of two children collections.
-	// If one of the children collections is empty, it returns the other collection.
-	concat<T>(
-		children1: (Tp & { _T: T })['_C'],
-		children2: (Tp & { _T: T })['_C'],
-	): (Tp & { _T: T })['_C'];
-	toSpliced<T>(
-		children: (Tp & { _T: T })['_C'],
-		start: number,
-		deleteCount: number,
-		items?: (Tp & { _T: T })['_C'] | undefined,
-	): (Tp & { _T: T })['_C'];
-	// Returns a new children collection that is the reverse of the original collection.
-	// If the collection has 0 or 1 elements, it returns the original collection.
-	toReversed<T>(children: (Tp & { _T: T })['_C']): (Tp & { _T: T })['_C'];
-	// Returns a string representation of the children collection, with elements joined by the specified separator.
-	join(children: Tp['_C'], separator: string, reversed?: boolean): string;
-	// Returns a new children collection with the elements filtered by the provided predicate function.
-	// If the length of the filtered collection is the same as the original, it returns the original collection.
-	filter<T>(
-		children: (Tp & { _T: T })['_C'],
-		f: (value: T) => boolean,
-	): (Tp & { _T: T })['_C'];
-	// Returns a new children collection with the elements transformed by the provided mapping function.
-	map<T, T2>(
-		children: (Tp & { _T: T })['_C'],
-		f: (value: T) => T2,
-	): (Tp & { _T: T2 })['_C'];
-	reverseMap<T, T2>(
-		children: (Tp & { _T: T })['_C'],
-		f: (value: T) => T2,
-	): (Tp & { _T: T2 })['_C'];
-	// Iterates over each element in the children collection, applying the provided function.
+	/** Element at `index`. No bounds checking — caller must validate. */
+	at<T>(children: (Tp & { _T: T })['_C'], index: number): T;
+	/**
+	 * Iterate each element. If `reversed` is true, iterate in reverse order.
+	 * Iteration order is unspecified for non-indexed backends.
+	 */
 	forEach<T>(
 		children: (Tp & { _T: T })['_C'],
 		f: (value: T) => void,
 		options?: { reversed?: boolean | undefined } | undefined,
 	): void;
-	// Returns an array containing the elements of the children collection. If start and end indices are provided, it returns a slice of the array.
+	/**
+	 * Full array of elements. The non-empty overload returns
+	 * `ArrayNonEmpty<T>`; the general overload accepts optional `start`,
+	 * `end`, and `reversed` for slicing.
+	 */
 	toArray<T>(children: (Tp & { _T: T })['_C']): ArrayNonEmpty<T>;
 	toArray<T>(
 		children: (Tp & { _T: T })['_C'],
@@ -90,46 +48,156 @@ export interface ChildrenOps<Tp extends ChildrenOps.Types = ChildrenOps.Types> {
 		end?: number | undefined,
 		reversed?: boolean | undefined,
 	): T[];
-	// Returns the same children collection with the element at the specified index set to the provided value. No bounds checking is performed.
+	/** Elements joined with `separator`. */
+	join(children: Tp['_C'], separator: string, reversed?: boolean): string;
+
+	// -- immutable streams --------------------------------------------------
+	/** Stream all elements, optionally reversed. */
+	stream<T>(
+		children: (Tp & { _T: T })['_C'],
+		options?: { reversed?: boolean | undefined } | undefined,
+	): Stream.NonEmpty<T>;
+	/** Stream elements within `range`, optionally reversed. */
+	streamRange<T>(
+		children: (Tp & { _T: T })['_C'],
+		range: IndexRange,
+		options?: { reversed?: boolean | undefined } | undefined,
+	): Stream<T>;
+
+	// -- immutable single-element updates -----------------------------------
+	/**
+	 * New children collection with `value` at `index`. Returns the original
+	 * collection if the value is unchanged (structural sharing).
+	 */
+	setAt<T>(
+		children: (Tp & { _T: T })['_C'],
+		index: number,
+		value: T,
+	): (Tp & { _T: T })['_C'];
+	/**
+	 * New children collection with the result of `update(current)` at
+	 * `index`. Returns the original if the updated value is unchanged.
+	 */
+	updateAt<T>(
+		children: (Tp & { _T: T })['_C'],
+		index: number,
+		update: (current: T) => T,
+	): (Tp & { _T: T })['_C'];
+
+	// -- immutable bulk transformations -------------------------------------
+	/** New collection with `value` prepended. */
+	prepend<T>(
+		children: (Tp & { _T: T })['_C'],
+		value: T,
+	): (Tp & { _T: T })['_C'];
+	/** New collection with `value` appended. */
+	append<T>(children: (Tp & { _T: T })['_C'], value: T): (Tp & { _T: T })['_C'];
+	/**
+	 * New collection concatenating `children1 + children2`. Returns the
+	 * non-empty operand if the other is empty (structural sharing).
+	 */
+	concat<T>(
+		children1: (Tp & { _T: T })['_C'],
+		children2: (Tp & { _T: T })['_C'],
+	): (Tp & { _T: T })['_C'];
+	/**
+	 * New collection with `deleteCount` elements removed starting at `start`,
+	 * optionally inserting `items` in their place.
+	 */
+	toSpliced<T>(
+		children: (Tp & { _T: T })['_C'],
+		start: number,
+		deleteCount: number,
+		items?: (Tp & { _T: T })['_C'] | undefined,
+	): (Tp & { _T: T })['_C'];
+	/**
+	 * New collection with element order reversed. Returns the original if
+	 * there are 0 or 1 elements.
+	 */
+	toReversed<T>(children: (Tp & { _T: T })['_C']): (Tp & { _T: T })['_C'];
+	/**
+	 * New collection with only elements satisfying `f`. Returns the original
+	 * if all elements pass.
+	 */
+	filter<T>(
+		children: (Tp & { _T: T })['_C'],
+		f: (value: T) => boolean,
+	): (Tp & { _T: T })['_C'];
+	/** New collection with each element transformed by `f`. */
+	map<T, T2>(
+		children: (Tp & { _T: T })['_C'],
+		f: (value: T) => T2,
+	): (Tp & { _T: T2 })['_C'];
+	/**
+	 * Like {@link map}, but applies `f` in reverse order. Useful for
+	 * building a reversed copy in a single pass.
+	 */
+	reverseMap<T, T2>(
+		children: (Tp & { _T: T })['_C'],
+		f: (value: T) => T2,
+	): (Tp & { _T: T2 })['_C'];
+
+	// -- mutable operations (builder-only, requires exclusive ownership) ----
+	/** Set `value` at `index` in place. Returns the same reference. */
 	mutateSet<T>(
 		children: (Tp & { _T: T })['_C'],
 		index: number,
 		value: T,
 	): (Tp & { _T: T })['_C'];
-	// Returns the same children collection with the specified value prepended to the beginning. No bounds checking is performed.
+	/** Prepend `value` in place. Returns the same reference. */
 	mutatePrepend<T>(
 		children: (Tp & { _T: T })['_C'],
 		value: T,
 	): (Tp & { _T: T })['_C'];
-	// Returns the same children collection with the specified value appended to the end. No bounds checking is performed.
+	/** Append `value` in place. Returns the same reference. */
 	mutateAppend<T>(
 		children: (Tp & { _T: T })['_C'],
 		value: T,
 	): (Tp & { _T: T })['_C'];
+	/**
+	 * Remove `deleteCount` elements starting at `start` in place, optionally
+	 * inserting `items`. Returns `[result, deleted]` — both are the original
+	 * reference (mutated) and a new array containing removed elements.
+	 */
 	mutateSplice<T>(
 		children: (Tp & { _T: T })['_C'],
 		start: number,
 		deleteCount?: number | undefined,
 		items?: (Tp & { _T: T })['_C'] | undefined,
 	): [result: (Tp & { _T: T })['_C'], deleted: (Tp & { _T: T })['_C']];
-	// Returns a tuple containing the same children collection with the first element removed and the removed element. No bounds checking is performed.
+	/**
+	 * Drop the first element in place. Returns `[result, dropped]` — the
+	 * mutated reference and the removed value.
+	 */
 	mutateDropFirst<T>(
 		children: (Tp & { _T: T })['_C'],
 	): [result: (Tp & { _T: T })['_C'], dropped: T];
-	// Returns a tuple containing the same children collection with the last element removed and the removed element. No bounds checking is performed.
+	/**
+	 * Drop the last element in place. Returns `[result, dropped]` — the
+	 * mutated reference and the removed value.
+	 */
 	mutateDropLast<T>(
 		children: (Tp & { _T: T })['_C'],
 	): [result: (Tp & { _T: T })['_C'], dropped: T];
-	// Makes the children collection immutable if possible.
+
+	// -- ownership helpers --------------------------------------------------
+	/** Make the children collection immutable (e.g. `Object.freeze`). */
 	guard<T>(children: (Tp & { _T: T })['_C']): (Tp & { _T: T })['_C'];
+	/** Return a mutable copy safe for builder operations. */
 	safeCopy<T>(children: (Tp & { _T: T })['_C']): (Tp & { _T: T })['_C'];
 }
 
+/**
+ * Phantom-type marker for children collections. Concrete backends intersect
+ * this with their actual storage type so the type-system can distinguish
+ * children from plain values while the runtime representation stays zero-cost.
+ */
 export interface OuterChildren<T> {
 	__outerChildrenTag?: T;
 }
 
 export declare namespace ChildrenOps {
+	/** HKT slots: `_T` = element type, `_C` = concrete children type. */
 	export interface Types {
 		_T: unknown;
 		_C: OuterChildren<this['_T']>;
