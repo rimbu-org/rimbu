@@ -199,7 +199,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		);
 	}
 
-	normalized(): InnerBlockBuilder<T, C> | undefined {
+	normalized(): InnerBuilder<T, C> | undefined {
 		if (this.nrChildren === 0) return undefined;
 
 		if (this.nrChildren <= this.context.maxBlockSize) {
@@ -208,15 +208,14 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 
 		const totalSize = this.#size;
 		const newRight = this.splitRight();
-		return this.context.innerTreeBuilderSource(
-			this.context.innerTree(
-				this.build() as any,
-				newRight.build() as any,
-				null,
-				totalSize,
-				this.level,
-			) as any,
-		) as any;
+
+		return this.context.innerTreeBuilder(
+			this.level,
+			this,
+			newRight,
+			undefined,
+			totalSize,
+		);
 	}
 
 	splitRight(index = this.nrChildren >>> 1): InnerBlockBuilder<T, C> {

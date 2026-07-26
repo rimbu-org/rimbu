@@ -66,6 +66,13 @@ export interface ListContext<T, IsNonEmpty extends boolean = boolean>
 	innerBlockBuilderSource<T, C extends BlockBuilder<T>>(
 		source: InnerBlock<T, any>,
 	): InnerBlockBuilder<T, C>;
+	innerTreeBuilder<T, C extends BlockBuilder<T>>(
+		level: number,
+		left: InnerBlockBuilder<T, C>,
+		right: InnerBlockBuilder<T, C>,
+		middle: InnerBuilder<T, InnerBlockBuilder<T, C>> | undefined,
+		size: number,
+	): InnerTreeBuilder<T, C>;
 	innerTreeBuilderSource<T, C extends BlockBuilder<T>>(
 		source: InnerTree<T, any>,
 	): InnerTreeBuilder<T, C>;
@@ -179,6 +186,22 @@ export function createListContextModule<UT>(options: {
 				mod as unknown as ListContext<T>,
 				source.level,
 				source,
+			),
+		innerTreeBuilder: <T, C extends BlockBuilder<T>>(
+			level: number,
+			left: InnerBlockBuilder<T, C>,
+			right: InnerBlockBuilder<T, C>,
+			middle: InnerBuilder<T, InnerBlockBuilder<T, C>> | undefined,
+			size: number,
+		) =>
+			new InnerTreeBuilder<T, C>(
+				mod as unknown as ListContext<T>,
+				level,
+				undefined,
+				left,
+				right,
+				middle,
+				size,
 			),
 		innerTreeBuilderSource: <T, C extends BlockBuilder<T>>(
 			source: InnerTree<T, any>,
