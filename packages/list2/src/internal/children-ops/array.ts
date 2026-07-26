@@ -92,8 +92,18 @@ export class ArrayOuterChildrenOps
 
 		return result;
 	}
-	forEach<T>(children: T[], f: (value: T) => void): void {
-		children.forEach(f);
+	forEach<T>(
+		children: T[],
+		f: (value: T) => void,
+		options?: { reversed?: boolean },
+	): void {
+		if (options?.reversed) {
+			for (let i = children.length - 1; i >= 0; i--) {
+				f(children[i]);
+			}
+		} else {
+			children.forEach(f);
+		}
 	}
 	toArray<T>(children: T[]): ArrayNonEmpty<T>;
 	toArray<T>(
@@ -119,10 +129,11 @@ export class ArrayOuterChildrenOps
 	mutateSplice<T>(
 		children: T[],
 		start: number,
-		deleteCount?: number | undefined,
+		deleteCount = children.length - start,
 		items?: T[] | undefined,
 	): [result: T[], deleted: T[]] {
-		throw new Error('Method not implemented.');
+		const deleted = children.splice(start, deleteCount, ...(items ?? []));
+		return [children, deleted];
 	}
 	mutateDropFirst<T>(children: T[]): [result: T[], dropped: T] {
 		const dropped = children.shift()!;

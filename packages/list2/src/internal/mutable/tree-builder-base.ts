@@ -47,16 +47,13 @@ export abstract class TreeBuilderBase<T, C> {
 	append(child: C): void {
 		this.prepareMutate();
 
-		// add child length to this length
 		this.size += this.getChildSize(child);
 
 		if (this.right.canAddChild) {
-			// can append to right
 			this.appendBlockChild(this.right, child);
 			return;
 		}
 
-		// right is already at maximum amount children
 		if (undefined === this.middle) {
 			if (this.left.canAddChild) {
 				const shiftChild = this.dropBlockFirstChild(this.right);
@@ -70,13 +67,9 @@ export abstract class TreeBuilderBase<T, C> {
 			return;
 		}
 
-		// middle exists
-
-		// try to shift child to last middle
 		const delta = this.middle.modifyLastChild(
 			(lastChild): number | undefined => {
 				if (lastChild.canAddChild) {
-					// last child has room for shift
 					const shiftChild = this.dropBlockFirstChild(this.right);
 					this.appendBlockChild(this.right, child);
 					this.appendBlockChild(lastChild, shiftChild);
@@ -87,13 +80,38 @@ export abstract class TreeBuilderBase<T, C> {
 		);
 
 		if (undefined !== delta) {
-			// shift succeeded, done
 			return;
 		}
 
-		// move full right block to middle and append new child to new right block
 		this.appendMiddle(this.right);
 		this.right = this.context.outerBlockBuilder<any>(this.#ops.of([child]));
+	}
+
+	prepend(child: C): void {
+		this.prepareMutate();
+
+		this.size += this.getChildSize(child);
+
+		if (this.left.canAddChild) {
+			this.prependBlockChild(this.left, child);
+			return;
+		}
+
+		if (undefined === this.middle) {
+			if (this.right.canAddChild) {
+				const shiftChild = this.dropBlockLastChild(this.left);
+				this.prependBlockChild(this.right, shiftChild);
+				this.prependBlockChild(this.left, child);
+				return;
+			}
+
+			this.prependMiddle(this.left);
+			this.left = this.context.outerBlockBuilder<any>(this.#ops.of([child]));
+			return;
+		}
+
+		this.prependMiddle(this.left);
+		this.left = this.context.outerBlockBuilder<any>(this.#ops.of([child]));
 	}
 
 	appendMiddle(child: BlockBuilder<T, C>): void {
@@ -107,6 +125,21 @@ export abstract class TreeBuilderBase<T, C> {
 			);
 		} else {
 			this.middle.appendChild(child);
+			this.middle = this.middle.normalized();
+		}
+	}
+
+	prependMiddle(child: BlockBuilder<T, C>): void {
+		this.prepareMutate();
+
+		if (undefined === this.middle) {
+			this.middle = this.context.innerBlockBuilder(
+				[child],
+				child.size,
+				this.level + 1,
+			);
+		} else {
+			this.middle.prependChild(child);
 			this.middle = this.middle.normalized();
 		}
 	}

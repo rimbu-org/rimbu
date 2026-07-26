@@ -99,6 +99,20 @@ export class OuterBlockBuilder<T>
 		this.#children = this.#ops.mutateAppend(this.#children, element);
 	}
 
+	dropFirstChild(): T {
+		this.#prepareMutate();
+		const [result, dropped] = this.#ops.mutateDropFirst(this.#children);
+		this.#children = result;
+		return dropped;
+	}
+
+	dropLastChild(): T {
+		this.#prepareMutate();
+		const [result, dropped] = this.#ops.mutateDropLast(this.#children);
+		this.#children = result;
+		return dropped;
+	}
+
 	forEach(f: (value: T) => void): void {
 		if (undefined !== this.#source) {
 			this.#source.forEach(f);
@@ -149,5 +163,11 @@ export class OuterBlockBuilder<T>
 		);
 		this.#children = newChildren;
 		return this.#copy(rightChildren);
+	}
+
+	appendItems(other: OuterBlockBuilder<T>): void {
+		this.#prepareMutate();
+		other.#prepareMutate();
+		this.#children = this.#ops.concat(this.#children, other.#children);
 	}
 }

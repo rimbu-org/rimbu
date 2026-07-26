@@ -3,9 +3,11 @@ import type { Block, Inner } from '#list/immutable/common';
 import type { InnerBlock } from '#list/immutable/inner-block';
 import type { InnerTreeBuilder } from '#list/mutable/inner-tree-builder';
 
-import { treeGet } from '#list/immutable/tree';
+import { Stream } from '@rimbu/stream';
 
-export class InnerTree<T, C extends Block<T>> {
+import { treeGet, treeStream } from '#list/immutable/tree';
+
+export class InnerTree<T, C extends Block<T>> implements Inner<T, C> {
 	constructor(
 		readonly context: ListContext<T, true>,
 		readonly left: InnerBlock<T, C>,
@@ -45,8 +47,18 @@ export class InnerTree<T, C extends Block<T>> {
 	// 	return this.context.innerTree(left, right, middle, size, level);
 	// }
 
+	stream(options?: { reversed?: boolean }): Stream.NonEmpty<T> {
+		return treeStream(this, options);
+	}
+
 	get(index: number): T {
 		return treeGet(this, index);
+	}
+
+	forEach(f: (element: T) => void): void {
+		this.left.forEach(f);
+		this.middle?.forEach(f);
+		this.right.forEach(f);
 	}
 
 	toBuilder(): InnerTreeBuilder<T, any> {

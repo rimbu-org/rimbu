@@ -1,10 +1,14 @@
 import type { ListContext } from '#list/context';
-import type { Block } from '#list/immutable/common';
+import type { Block, Inner } from '#list/immutable/common';
 import type { InnerBlockBuilder } from '#list/mutable/inner-block-builder';
+
+import { Stream } from '@rimbu/stream';
 
 import { computeSizeTable, type SizeTable } from '#list/size-table';
 
-export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
+export class InnerBlock<T, C extends Block<T>>
+	implements Inner<T, C>, Block<T, C>
+{
 	constructor(
 		readonly context: ListContext<T, true>,
 		children: C[],
@@ -47,7 +51,7 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 		return this.#children.length;
 	}
 
-	copy(
+	#copy(
 		children = this.#children,
 		size = this.size,
 		sizeTable?: SizeTable,
@@ -60,17 +64,23 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 		return this.context.innerBlock(children, size, this.level, sizeTable);
 	}
 
-	copyAsType<T2, C2 extends Block<T2>>(
-		children: C2[],
-		size = this.size,
-		sizeTable = this.#_computedSizeTable,
-	) {
-		return this.context.innerBlock<T2, C2>(
-			children,
-			size,
-			this.level,
-			sizeTable,
-		);
+	// #copyAsType<T2, C2 extends Block<T2>>(
+	// 	children: C2[],
+	// 	size = this.size,
+	// 	sizeTable = this.#_computedSizeTable,
+	// ) {
+	// 	return this.context.innerBlock<T2, C2>(
+	// 		children,
+	// 		size,
+	// 		this.level,
+	// 		sizeTable,
+	// 	);
+	// }
+
+	stream(options: { reversed?: boolean } = {}): Stream.NonEmpty<T> {
+		return Stream.fromArray(this.#children, options)
+			.assumeNonEmpty()
+			.flatMap((child) => child.stream(options));
 	}
 
 	get(index: number): T {
@@ -95,7 +105,7 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 			newSizeTable.unshift(child.size);
 		}
 
-		return this.copy(newChildren, newSize, newSizeTable);
+		return this.#copy(newChildren, newSize, newSizeTable);
 	}
 
 	appendBlockChild(child: C): InnerBlock<T, C> {
@@ -110,7 +120,7 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 			newSizeTable.push(newSize);
 		}
 
-		return this.copy(newChildren, newSize, newSizeTable);
+		return this.#copy(newChildren, newSize, newSizeTable);
 	}
 
 	forEach(f: (element: T) => void): void {

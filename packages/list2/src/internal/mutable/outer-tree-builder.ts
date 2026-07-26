@@ -45,16 +45,32 @@ export class OuterTreeBuilder<T>
 		return this.#size;
 	}
 
+	set size(value: number) {
+		this.#size = value;
+	}
+
 	get left(): OuterBlockBuilder<T> {
 		return this.#_left!;
+	}
+
+	set left(value: OuterBlockBuilder<T>) {
+		this.#_left = value;
 	}
 
 	get right(): OuterBlockBuilder<T> {
 		return this.#_right!;
 	}
 
+	set right(value: OuterBlockBuilder<T>) {
+		this.#_right = value;
+	}
+
 	get middle(): InnerBuilder<T, OuterBlockBuilder<T>> | undefined {
 		return this.#_middle;
+	}
+
+	set middle(value: InnerBuilder<T, OuterBlockBuilder<T>> | undefined) {
+		this.#_middle = value;
 	}
 
 	prepareMutate(): void {
@@ -79,59 +95,77 @@ export class OuterTreeBuilder<T>
 			return OptLazy(otherwise) as O;
 		}
 		if (index < 0) {
-			index = size - index;
+			index = size + index;
 		}
 
 		return this.get(index);
-	}
-
-	prepend(value: T): void {
-		this.prepareMutate();
-
-		this.#size++;
-
-		throw new Error('Method not implemented.');
-	}
-
-	append(value: T): void {
-		this.prepareMutate();
-
-		throw new Error('Method not implemented.');
-	}
-
-	forEach(f: (element: T) => void): void {
-		throw new Error('Method not implemented.');
-	}
-
-	build(): List<T> {
-		throw new Error('Method not implemented.');
-	}
-
-	buildMap<T2>(f: (value: T) => T2): List<T2> {
-		throw new Error('Method not implemented.');
-	}
-
-	prependBlockChild(child: OuterBlockBuilder<T>): void {
-		throw new Error('Method not implemented.');
-	}
-
-	appendBlockChild(child: OuterBlockBuilder<T>): void {
-		throw new Error('Method not implemented.');
-	}
-
-	dropBlockFirstChild(block: OuterBlockBuilder<T>): T {
-		throw new Error('Method not implemented.');
-	}
-
-	dropBlockLastChild(block: OuterBlockBuilder<T>): T {
-		throw new Error('Method not implemented.');
 	}
 
 	getChildSize(): 1 {
 		return 1;
 	}
 
+	prependBlockChild(block: OuterBlockBuilder<T>, child: T): void {
+		block.prepend(child);
+	}
+
+	appendBlockChild(block: OuterBlockBuilder<T>, child: T): void {
+		block.append(child);
+	}
+
+	dropBlockFirstChild(block: OuterBlockBuilder<T>): T {
+		return block.dropFirstChild();
+	}
+
+	dropBlockLastChild(block: OuterBlockBuilder<T>): T {
+		return block.dropLastChild();
+	}
+
+	forEach(f: (element: T) => void): void {
+		if (undefined !== this.#source) {
+			this.#source.forEach(f);
+			return;
+		}
+
+		this.left.forEach(f);
+		this.middle?.forEach?.(f);
+		this.right.forEach(f);
+	}
+
+	build(): List<T> {
+		if (undefined !== this.#source) return this.#source;
+
+		return this.context.outerTree(
+			this.left.build(),
+			this.right.build(),
+			(this.middle?.build() as any) ?? null,
+			this.#size,
+		);
+	}
+
+	buildMap<T2>(f: (value: T) => T2): List<T2> {
+		if (undefined !== this.#source) return this.#source.map(f) as any;
+
+		return this.context.outerTree(
+			this.left.buildMap(f),
+			this.right.buildMap(f),
+			null,
+			this.#size,
+		);
+	}
+
 	normalized(): OuterBuilder<T> | undefined {
-		throw new Error('Method not implemented.');
+		if (this.#size <= 0) return undefined;
+
+		if (undefined === this.middle) {
+			const totalChildren =
+				this.left.nrChildren + this.right.nrChildren;
+			if (totalChildren <= this.context.maxBlockSize) {
+				this.left.appendItems(this.right as OuterBlockBuilder<T>);
+				return this.left;
+			}
+		}
+
+		return this;
 	}
 }

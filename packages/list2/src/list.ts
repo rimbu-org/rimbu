@@ -23,6 +23,7 @@ export declare namespace List {
 
 	export interface Builder<T> extends IndexedCollection.Builder<T> {
 		readonly context: List.Context<T>;
+		prepend(element: T): void;
 		append(element: T): void;
 		appendAll(elements: StreamSource<T>): void;
 	}

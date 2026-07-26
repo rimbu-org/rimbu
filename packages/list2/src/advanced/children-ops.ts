@@ -77,7 +77,11 @@ export interface ChildrenOps<Tp extends ChildrenOps.Types = ChildrenOps.Types> {
 		f: (value: T) => T2,
 	): (Tp & { _T: T2 })['_C'];
 	// Iterates over each element in the children collection, applying the provided function.
-	forEach<T>(children: (Tp & { _T: T })['_C'], f: (value: T) => void): void;
+	forEach<T>(
+		children: (Tp & { _T: T })['_C'],
+		f: (value: T) => void,
+		options?: { reversed?: boolean | undefined } | undefined,
+	): void;
 	// Returns an array containing the elements of the children collection. If start and end indices are provided, it returns a slice of the array.
 	toArray<T>(children: (Tp & { _T: T })['_C']): ArrayNonEmpty<T>;
 	toArray<T>(

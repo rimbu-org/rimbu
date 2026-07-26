@@ -245,3 +245,91 @@ describe('List.builder().append forEach iteration lock', () => {
 		}).toThrow();
 	});
 });
+
+describe('List.builder().append beyond single block', () => {
+	function context(blockSizeBits = 2) {
+		return List.createContext({ blockSizeBits });
+	}
+
+	it('splits into tree when exceeding maxBlockSize', () => {
+		const ctx = context(2); // maxBlockSize = 4
+		const builder = ctx.builder<number>();
+
+		for (let i = 0; i < 10; i++) {
+			builder.append(i);
+		}
+
+		expect(builder.size).toBe(10);
+		expect(builder.isEmpty).toBe(false);
+	});
+
+	it('build preserves all elements after tree split', () => {
+		const ctx = context(2);
+		const builder = ctx.builder<number>();
+
+		for (let i = 0; i < 10; i++) {
+			builder.append(i);
+		}
+
+		const list = builder.build();
+		expect(list.size).toBe(10);
+		expect(list.toArray()).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+	});
+
+	it('at works after tree split', () => {
+		const ctx = context(2);
+		const builder = ctx.builder<number>();
+
+		for (let i = 0; i < 10; i++) {
+			builder.append(i);
+		}
+
+		expect(builder.at(0)).toBe(0);
+		expect(builder.at(5)).toBe(5);
+		expect(builder.at(9)).toBe(9);
+		expect(builder.at(-1)).toBe(9);
+		expect(builder.at(-3)).toBe(7);
+	});
+
+	it('forEach iterates all elements after tree split', () => {
+		const ctx = context(2);
+		const builder = ctx.builder<number>();
+
+		for (let i = 0; i < 10; i++) {
+			builder.append(i);
+		}
+
+		const result: number[] = [];
+		builder.forEach((v) => result.push(v));
+
+		expect(result).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+	});
+
+	it('first and last correct after tree split', () => {
+		const ctx = context(2);
+		const builder = ctx.builder<number>();
+
+		for (let i = 0; i < 20; i++) {
+			builder.append(i);
+		}
+
+		expect(builder.first()).toBe(0);
+		expect(builder.last()).toBe(19);
+	});
+
+	it('can append after tree split', () => {
+		const ctx = context(2);
+		const builder = ctx.builder<number>();
+
+		for (let i = 0; i < 5; i++) {
+			builder.append(i);
+		}
+
+		builder.append(99);
+		builder.append(100);
+
+		const list = builder.build();
+		expect(list.size).toBe(7);
+		expect(list.toArray()).toEqual([0, 1, 2, 3, 4, 99, 100]);
+	});
+});

@@ -1,20 +1,18 @@
 import type { Stream } from '@rimbu/stream';
 
 import type { ListContext } from '#list/context';
-import type { Inner } from '#list/immutable/common';
+import type { Inner, Tree } from '#list/immutable/common';
 import type { OuterBlock } from '#list/immutable/outer-block';
 
-import {
-	type ArrayNonEmpty,
-	type IndexRange,
-	OptLazy,
-	TraverseState,
-} from '@rimbu/common';
+import { type ArrayNonEmpty, type IndexRange, OptLazy } from '@rimbu/common';
 
 import { ListNonEmptyBase } from '#advanced/immutable/non-empty-base';
-import { treeGet } from '#list/immutable/tree';
+import { treeGet, treeStream } from '#list/immutable/tree';
 
-export class OuterTree<T> extends ListNonEmptyBase<T> {
+export class OuterTree<T>
+	extends ListNonEmptyBase<T>
+	implements Tree<T, OuterBlock<T>>
+{
 	constructor(
 		readonly context: ListContext<T, true>,
 		readonly left: OuterBlock<T>,
@@ -52,11 +50,8 @@ export class OuterTree<T> extends ListNonEmptyBase<T> {
 		return this.context.outerTree(left, right, middle, size);
 	}
 
-	stream(): Stream.NonEmpty<T> {
-		return this.left.stream().concat(
-			// this.middle?.stream(),
-			this.right.stream(),
-		);
+	stream(options?: { reversed?: boolean | undefined }): Stream.NonEmpty<T> {
+		return treeStream(this, options);
 	}
 
 	streamSlice(
@@ -109,24 +104,8 @@ export class OuterTree<T> extends ListNonEmptyBase<T> {
 
 	forEach(f: (element: T) => void): void {
 		this.left.forEach(f);
-		// this.middle?.forEach((block) => {
-		// 	block.forEach(f);
-		// });
+		this.middle?.forEach(f);
 		this.right.forEach(f);
-	}
-
-	forEachIndexed(
-		f: (element: T, index: number, halt: () => void) => void,
-		options: { state?: TraverseState } = {},
-	): void {
-		const { state = TraverseState() } = options;
-
-		if (state.halted) return;
-		this.left.forEachIndexed(f, { state });
-		if (state.halted) return;
-		// this.middle.
-		if (state.halted) return;
-		this.right.forEachIndexed(f, { state });
 	}
 
 	filter(f: (element: T) => boolean): OuterTree<T> {
@@ -144,9 +123,8 @@ export class OuterTree<T> extends ListNonEmptyBase<T> {
 	}
 
 	toArray(): ArrayNonEmpty<T> {
-		return this.left.toArray().concat(
-			// this.middle,
-			this.right.toArray(),
-		) as ArrayNonEmpty<T>;
+		const result: T[] = [];
+		this.forEach((v) => result.push(v));
+		return result as ArrayNonEmpty<T>;
 	}
 }

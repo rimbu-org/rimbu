@@ -44,23 +44,23 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 	}
 
 	get nrChildren(): number {
-		throw new Error('Method not implemented.');
+		return this.#source?.nrChildren ?? this.#children.length;
 	}
 
 	get canAddChild(): boolean {
-		throw new Error('Method not implemented.');
+		return this.nrChildren < this.context.maxBlockSize;
 	}
 
 	get canRemoveChild(): boolean {
-		throw new Error('Method not implemented.');
+		return this.nrChildren > this.context.minBlockSize;
 	}
 
 	get childrenInMax(): boolean {
-		throw new Error('Method not implemented.');
+		return this.nrChildren <= this.context.maxBlockSize;
 	}
 
 	get childrenInMin(): boolean {
-		throw new Error('Method not implemented.');
+		return this.nrChildren >= this.context.minBlockSize;
 	}
 
 	#prepareMutate(): void {
@@ -71,7 +71,24 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 	}
 
 	get(index: number): T {
-		throw new Error('Method not implemented.');
+		if (undefined !== this.#source) {
+			return this.#source.get(index);
+		}
+
+		const children = this.#children;
+		const n = children.length;
+		let offset = 0;
+
+		for (let i = 0; i < n; i++) {
+			const child = children[i];
+			const childSize = child.size;
+			if (index < offset + childSize) {
+				return child.get(index - offset);
+			}
+			offset += childSize;
+		}
+
+		return children[n - 1].get(children[n - 1].size - 1);
 	}
 
 	forEach(f: (element: T) => void): void {
@@ -86,51 +103,104 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 
 	prependChild(child: C): void {
 		this.#prepareMutate();
-		throw new Error('Method not implemented.');
+		this.#size += child.size;
+		this.#children.unshift(child);
 	}
 
 	appendChild(child: C): void {
-		throw new Error('Method not implemented.');
+		this.#prepareMutate();
+		this.#size += child.size;
+		this.#children.push(child);
 	}
 
 	firstChild(): C {
-		throw new Error('Method not implemented.');
+		this.#prepareMutate();
+		return this.#children[0];
 	}
 
 	lastChild(): C {
-		throw new Error('Method not implemented.');
+		this.#prepareMutate();
+		return this.#children.at(-1)!;
 	}
 
 	dropFirstChild(): C {
-		throw new Error('Method not implemented.');
+		this.#prepareMutate();
+		const child = this.#children.shift()!;
+		this.#size -= child.size;
+		return child;
 	}
 
 	dropLastChild(): C {
-		throw new Error('Method not implemented.');
+		this.#prepareMutate();
+		const child = this.#children.pop()!;
+		this.#size -= child.size;
+		return child;
 	}
 
 	modifyFirstChild(f: (child: C) => number | undefined): number | undefined {
-		throw new Error('Method not implemented.');
+		this.#prepareMutate();
+		const firstChild = this.#children[0];
+		const delta = f(firstChild);
+		if (undefined !== delta) {
+			this.#size += delta;
+		}
+		return delta;
 	}
 
 	modifyLastChild(f: (child: C) => number | undefined): number | undefined {
-		throw new Error('Method not implemented.');
+		this.#prepareMutate();
+		const lastChild = this.#children[this.#children.length - 1];
+		const delta = f(lastChild);
+		if (undefined !== delta) {
+			this.#size += delta;
+		}
+		return delta;
 	}
 
 	build(): InnerBlock<T, any> {
-		throw new Error('Method not implemented.');
-	}
+		if (this.#source) return this.#source;
 
-	buildMap<T2>(f: (value: T) => T2): InnerBlock<T2, any> {
-		throw new Error('Method not implemented.');
+		return this.context.innerBlock(
+			this.#children.map((c) => c.build()),
+			this.#size,
+			this.level,
+		);
 	}
 
 	normalized(): InnerBlockBuilder<T, C> | undefined {
-		throw new Error('Method not implemented.');
+		if (this.nrChildren === 0) return undefined;
+
+		if (this.nrChildren <= this.context.maxBlockSize) {
+			return this;
+		}
+
+		const totalSize = this.#size;
+		const newRight = this.splitRight();
+		return this.context.innerTreeBuilderSource(
+			this.context.innerTree(
+				this.build() as any,
+				newRight.build() as any,
+				null,
+				totalSize,
+				this.level,
+			) as any,
+		) as any;
 	}
 
-	splitRight(index?: number): InnerBlockBuilder<T, C> {
-		throw new Error('Method not implemented.');
+	splitRight(index = this.nrChildren >>> 1): InnerBlockBuilder<T, C> {
+		this.#prepareMutate();
+		const rightChildren = this.#children.splice(index);
+		let rightSize = 0;
+		for (const child of rightChildren) {
+			rightSize += child.size;
+		}
+		this.#size -= rightSize;
+
+		return this.context.innerBlockBuilder(
+			rightChildren as C[],
+			rightSize,
+			this.level,
+		);
 	}
 
 	prependItems(other: InnerBlockBuilder<T, C>): void {

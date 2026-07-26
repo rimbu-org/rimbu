@@ -1,19 +1,28 @@
-import type { InnerBlock } from '#list/immutable/inner-block';
-import type { InnerTree } from '#list/immutable/inner-tree';
-import type { BlockBuilder } from '#list/mutable/common';
+import type { Stream } from '@rimbu/stream';
+
+import type { BlockBuilder, InnerBuilder } from '#list/mutable/common';
 
 interface ListCommon<T> {
+	readonly size: number;
 	get(index: number): T;
+	stream(options?: { reversed?: boolean | undefined }): Stream.NonEmpty<T>;
+	forEach(f: (value: T) => void): void;
 }
 
 export interface Block<T, C = unknown> extends ListCommon<T> {
 	readonly _self: Block<T, C>;
 
-	readonly size: number;
 	prependBlockChild(child: C): this['_self'];
 	appendBlockChild(child: C): this['_self'];
-	forEach(f: (value: T) => void): void;
 	toBuilder(): BlockBuilder<T, any>;
 }
 
-export type Inner<T, C extends Block<T>> = InnerBlock<T, C> | InnerTree<T, C>;
+export interface Inner<T, C extends Block<T>> extends ListCommon<T> {
+	toBuilder(): InnerBuilder<T, any>;
+}
+
+export interface Tree<T, C extends Block<T> = Block<T>> extends ListCommon<T> {
+	readonly left: C;
+	readonly right: C;
+	readonly middle: Inner<T, C> | null;
+}

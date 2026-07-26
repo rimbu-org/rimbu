@@ -1,18 +1,8 @@
-type TreeOperation<TTree, TChild = TTree> = TTree & {
-	left: TChild;
-	middle: TTree | null;
-	right: TChild;
-};
+import type { Stream } from '@rimbu/stream';
 
-interface TreeGetNode<T> {
-	readonly size: number;
-	get(index: number): T;
-}
+import type { Tree } from '#list/immutable/common';
 
-export function treeGet<T>(
-	tree: TreeOperation<TreeGetNode<T>>,
-	index: number,
-): T {
+export function treeGet<T>(tree: Tree<T>, index: number): T {
 	const middleIndex = index - tree.left.size;
 
 	if (middleIndex < 0) {
@@ -28,4 +18,21 @@ export function treeGet<T>(
 	if (rightIndex < 0) return tree.middle.get(middleIndex);
 
 	return tree.right.get(rightIndex);
+}
+
+export function treeStream<T>(
+	tree: Tree<T>,
+	options: { reversed?: boolean | undefined } = {},
+): Stream.NonEmpty<T> {
+	const { reversed = false } = options;
+
+	if (reversed) {
+		return tree.right
+			.stream(options)
+			.concat(tree.middle?.stream(options), tree.left.stream(options));
+	}
+
+	return tree.left
+		.stream(options)
+		.concat(tree.middle?.stream(options), tree.right.stream(options));
 }
