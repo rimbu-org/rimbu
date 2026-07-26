@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'bun:test';
 
-import type { ListContext } from '#list/context';
 import type { InnerBlockBuilder } from '../src/internal/mutable/inner-block-builder';
 import type { OuterBlockBuilder } from '../src/internal/mutable/outer-block-builder';
+
+import type { ListContext } from '#list/context';
 
 import { List } from '@rimbu/list';
 
@@ -17,16 +18,16 @@ function ob(ctx: ListContext<number>, vals: number[]): OB {
 	return ctx.outerBlockBuilder(ctx.childrenOps.of(vals));
 }
 
-function ib(
-	ctx: ListContext<number>,
-	children: OB[],
-	level = 1,
-): IB {
+function ib(ctx: ListContext<number>, children: OB[], level = 1): IB {
 	const size = children.reduce((s, c) => s + c.size, 0);
 	return ctx.innerBlockBuilder(children, size, level);
 }
 
-function ibFromSource(ctx: ListContext<number>, vals: number[], groupSize = 2): IB {
+function ibFromSource(
+	ctx: ListContext<number>,
+	vals: number[],
+	groupSize = 2,
+): IB {
 	const groups: number[][] = [];
 	for (let i = 0; i < vals.length; i += groupSize) {
 		groups.push(vals.slice(i, i + groupSize));
@@ -37,7 +38,9 @@ function ibFromSource(ctx: ListContext<number>, vals: number[], groupSize = 2): 
 	return ctx.innerBlockBuilderSource<number, OB>(source as any);
 }
 
-function collectForEach(b: { forEach(f: (v: number) => void): void }): number[] {
+function collectForEach(b: {
+	forEach(f: (v: number) => void): void;
+}): number[] {
 	const result: number[] = [];
 	b.forEach((v) => result.push(v));
 	return result;
@@ -129,11 +132,7 @@ describe('InnerBlockBuilder.read', () => {
 		});
 
 		it('from middle child', () => {
-			const b = ib(ctx, [
-				ob(ctx, [10]),
-				ob(ctx, [20, 30, 40]),
-				ob(ctx, [50]),
-			]);
+			const b = ib(ctx, [ob(ctx, [10]), ob(ctx, [20, 30, 40]), ob(ctx, [50])]);
 			expect(b.get(1)).toBe(20);
 			expect(b.get(3)).toBe(40);
 			expect(b.get(4)).toBe(50);
@@ -146,7 +145,9 @@ describe('InnerBlockBuilder.read', () => {
 		});
 
 		it('across many children', () => {
-			const children = Array.from({ length: 12 }, (_, i) => ob(ctx, [i * 3, i * 3 + 1]));
+			const children = Array.from({ length: 12 }, (_, i) =>
+				ob(ctx, [i * 3, i * 3 + 1]),
+			);
 			const b = ib(ctx, children);
 			expect(b.get(0)).toBe(0);
 			expect(b.get(1)).toBe(1);
@@ -348,7 +349,12 @@ describe('InnerBlockBuilder.splitRight', () => {
 	});
 
 	it('elements are partitioned correctly', () => {
-		const b = ib(ctx, [ob(ctx, [10]), ob(ctx, [20, 30]), ob(ctx, [40]), ob(ctx, [50])]);
+		const b = ib(ctx, [
+			ob(ctx, [10]),
+			ob(ctx, [20, 30]),
+			ob(ctx, [40]),
+			ob(ctx, [50]),
+		]);
 		const right = b.splitRight();
 		expect(collectForEach(b)).toEqual([10, 20, 30]);
 		expect(collectForEach(right)).toEqual([40, 50]);
@@ -473,7 +479,9 @@ describe('InnerBlockBuilder.edge-cases', () => {
 
 	describe('large structure', () => {
 		it('many children', () => {
-			const children = Array.from({ length: 15 }, (_, i) => ob(ctx, [i * 2, i * 2 + 1]));
+			const children = Array.from({ length: 15 }, (_, i) =>
+				ob(ctx, [i * 2, i * 2 + 1]),
+			);
 			const b = ib(ctx, children);
 			expect(b.nrChildren).toBe(15);
 			expect(b.size).toBe(30);
