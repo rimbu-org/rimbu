@@ -196,6 +196,26 @@ export class OuterBlock<T> extends ListNonEmptyBase<T> implements Block<T, T> {
 		return this.#ops.safeCopy(this.#children);
 	}
 
+	dropFirstChild(): [OuterBlock<T>, T] {
+		const first = this.first();
+		const newChildren = this.#ops.toSpliced(this.#children, 0, 1);
+		return [this.#copy(newChildren), first];
+	}
+
+	dropLastChild(): [OuterBlock<T>, T] {
+		const last = this.last();
+		const newChildren = this.#ops.toSpliced(this.#children, -1, 1);
+		return [this.#copy(newChildren), last];
+	}
+
+	takeChildren(amount: number): OuterBlock<T> {
+		return this.#copy(this.#ops.toSpliced(this.#children, -amount, amount));
+	}
+
+	dropChildren(amount: number): OuterBlock<T> {
+		return this.#copy(this.#ops.toSpliced(this.#children, 0, amount));
+	}
+
 	toBuilder(): OuterBlockBuilder<T> {
 		return this.context.outerBlockBuilderSource(this);
 	}

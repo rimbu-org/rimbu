@@ -256,8 +256,10 @@ export class OuterTree<T>
 	}
 
 	toArray(): ArrayNonEmpty<T> {
-		const result: T[] = [];
-		this.forEach((v) => result.push(v));
-		return result as ArrayNonEmpty<T>;
+		return ([] as T[]).concat(
+			this.left.toArray(),
+			this.middle?.toArray() ?? [],
+			this.right.toArray(),
+		) as ArrayNonEmpty<T>;
 	}
 }

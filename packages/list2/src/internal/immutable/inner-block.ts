@@ -4,7 +4,11 @@ import type { InnerBlockBuilder } from '#list/mutable/inner-block-builder';
 
 import { Stream } from '@rimbu/stream';
 
-import { computeSizeTable, type SizeTable } from '#list/size-table';
+import {
+	computeSizeTable,
+	safeCopySizeTable,
+	type SizeTable,
+} from '#list/size-table';
 
 export class InnerBlock<T, C extends Block<T>>
 	implements Inner<T, C>, Block<T, C>
@@ -17,7 +21,7 @@ export class InnerBlock<T, C extends Block<T>>
 		sizeTable?: SizeTable | undefined,
 	) {
 		this.#children = Object.freeze(children) as C[];
-		this.#_computedSizeTable = sizeTable;
+		this.#_computedSizeTable = safeCopySizeTable(sizeTable);
 	}
 
 	declare _self: InnerBlock<T, C>;
@@ -39,16 +43,21 @@ export class InnerBlock<T, C extends Block<T>>
 		return this.#_computedSizeTable;
 	}
 
-	// Returns a copy of the computed size table if computed for builders.
+	// Returns a safe copy of the computed size table if computed for builders.
 	get computedSizeTable(): SizeTable | undefined {
-		if (Array.isArray(this.#_computedSizeTable)) {
-			return this.#_computedSizeTable.slice();
-		}
 		return this.#_computedSizeTable;
 	}
 
 	get nrChildren() {
 		return this.#children.length;
+	}
+
+	get canAddChild(): boolean {
+		return this.nrChildren < this.context.maxBlockSize;
+	}
+
+	get canRemoveChild(): boolean {
+		return this.nrChildren > this.context.minBlockSize;
 	}
 
 	#copy(
@@ -141,8 +150,76 @@ export class InnerBlock<T, C extends Block<T>>
 		return this.#children.map(f);
 	}
 
+	childAt(index: number): C {
+		return this.#children.at(index) as C;
+	}
+
+	withChild(index: number, child: C): InnerBlock<T, C> {
+		const oldChild = this.childAt(index);
+		const newChildren = this.#children.with(index, child);
+		return this.#copy(newChildren, this.size - oldChild.size + child.size);
+	}
+
+	prependChild(child: C): InnerBlock<T, C> {
+		return this.prependBlockChild(child);
+	}
+
+	appendChild(child: C): InnerBlock<T, C> {
+		return this.appendBlockChild(child);
+	}
+
+	dropFirstChild(): [InnerBlock<T, C> | null, C] {
+		const firstChild = this.#children[0];
+
+		if (this.nrChildren === 1) return [null, firstChild];
+
+		const newChildren = this.#children.slice(1);
+		const newSize = this.size - firstChild.size;
+		const newSelf = this.#copy(newChildren, newSize);
+		return [newSelf, firstChild];
+	}
+
+	dropLastChild(): [InnerBlock<T, C> | null, C] {
+		const lastChild = this.#children[this.#children.length - 1];
+
+		if (this.nrChildren === 1) return [null, lastChild];
+
+		const newChildren = this.#children.slice(0, -1);
+		const newSize = this.size - lastChild.size;
+		const newSelf = this.#copy(newChildren, newSize);
+		return [newSelf, lastChild];
+	}
+
+	modifyFirstChild(f: (child: C) => C): InnerBlock<T, C> {
+		const firstChild = this.#children[0];
+		const newFirstChild = f(firstChild);
+		if (newFirstChild === firstChild) {
+			return this;
+		}
+		const newChildren = [newFirstChild].concat(this.#children.slice(1));
+		const newSize = this.size - firstChild.size + newFirstChild.size;
+
+		return this.#copy(newChildren, newSize);
+	}
+
+	modifyLastChild(f: (child: C) => C): InnerBlock<T, C> {
+		const lastChild = this.#children.at(-1)!;
+		const newLastChild = f(lastChild);
+		if (newLastChild === lastChild) {
+			return this;
+		}
+		const newChildren = this.#children.slice(0, -1).concat(newLastChild);
+		const newLength = this.size - lastChild.size + newLastChild.size;
+
+		return this.#copy(newChildren, newLength);
+	}
+
 	toBuilder(): InnerBlockBuilder<T, any> {
 		return this.context.innerBlockBuilderSource(this);
+	}
+
+	toArray(): T[] {
+		return this.#children.flatMap((child) => child.toArray());
 	}
 
 	#getCoordinates(

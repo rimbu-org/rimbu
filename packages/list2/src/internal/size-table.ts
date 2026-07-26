@@ -29,3 +29,12 @@ export function computeSizeTable(
 
 	return sizeTable;
 }
+
+export function safeCopySizeTable(
+	sizeTable: SizeTable | undefined,
+): SizeTable | undefined {
+	if (Array.isArray(sizeTable)) {
+		return sizeTable.slice();
+	}
+	return sizeTable;
+}
