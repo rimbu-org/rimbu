@@ -1,7 +1,7 @@
 import type { OptLazy } from '@rimbu/common';
 import type { List } from '@rimbu/list';
 
-import type { Inner } from '#list/immutable/common';
+import type { Block, Inner } from '#list/immutable/common';
 
 export interface BuilderCommon<T> {
 	get size(): number;
@@ -22,7 +22,8 @@ export interface InnerBuilder<T, C extends BlockBuilder<T> = BlockBuilder<T>>
 	extends BuilderCommon<T> {
 	prependChild(child: C): void;
 	appendChild(child: C): void;
-	modifyLastChild(f: (child: C) => number | undefined): number | undefined;
+	modifyFirstChild(f: (child: C) => number | undefined): void;
+	modifyLastChild(f: (child: C) => number | undefined): void;
 	build(): Inner<T, any>;
 	normalized(): InnerBuilder<T, C> | undefined;
 }
@@ -33,5 +34,7 @@ export interface BlockBuilder<T, C = unknown> extends BuilderCommon<T> {
 	get canRemoveChild(): boolean;
 	get childrenInMax(): boolean;
 	get childrenInMin(): boolean;
-	build(): any;
+	prependItems(other: BlockBuilder<T, C>): void;
+	appendItems(other: BlockBuilder<T, C>): void;
+	build(): Block<T, any>;
 }

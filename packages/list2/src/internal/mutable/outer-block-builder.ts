@@ -92,8 +92,10 @@ export class OuterBlockBuilder<T>
 		if (undefined !== this.#source) {
 			return this.#source.get(index);
 		}
+
 		return this.#ops.at(this.#children, index);
 	}
+
 	prepend(element: T): void {
 		this.#prepareMutate();
 		this.#children = this.#ops.mutatePrepend(this.#children, element);
@@ -106,15 +108,15 @@ export class OuterBlockBuilder<T>
 
 	dropFirstChild(): T {
 		this.#prepareMutate();
-		const [result, dropped] = this.#ops.mutateDropFirst(this.#children);
-		this.#children = result;
+		const [newChildren, dropped] = this.#ops.mutateDropFirst(this.#children);
+		this.#children = newChildren;
 		return dropped;
 	}
 
 	dropLastChild(): T {
 		this.#prepareMutate();
-		const [result, dropped] = this.#ops.mutateDropLast(this.#children);
-		this.#children = result;
+		const [newChildren, dropped] = this.#ops.mutateDropLast(this.#children);
+		this.#children = newChildren;
 		return dropped;
 	}
 
@@ -170,9 +172,23 @@ export class OuterBlockBuilder<T>
 		return this.#copy(rightChildren);
 	}
 
+	prependItems(other: OuterBlockBuilder<T>): void {
+		this.#prepareMutate();
+
+		if (undefined !== other.#source) {
+			this.#children = other.#source.prependChildren(this.#children);
+		} else {
+			this.#children = this.#ops.concat(other.#children, this.#children);
+		}
+	}
+
 	appendItems(other: OuterBlockBuilder<T>): void {
 		this.#prepareMutate();
-		other.#prepareMutate();
-		this.#children = this.#ops.concat(this.#children, other.#children);
+
+		if (undefined !== other.#source) {
+			this.#children = other.#source.prependChildren(this.#children);
+		} else {
+			this.#children = this.#ops.concat(this.#children, other.#children);
+		}
 	}
 }

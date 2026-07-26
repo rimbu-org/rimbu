@@ -122,3 +122,51 @@ export function getInnerBlockCoordinates(options: {
 	const inChildIndex = indexWithOffset - prevSize + offset;
 	return [childIndex, inChildIndex];
 }
+
+// /**
+//  * Recompute a full cumulative size table from the current mutable children.
+//  * Returns null if the block is regular (all children fill exactly blockSize elements).
+//  */
+// export function recomputeSizes(
+// 	children: readonly { size: number }[],
+// 	level: number,
+// 	blockSizeBits: number,
+// ): SizeTable {
+// 	if (children.length <= 1) {
+// 		return 'regular';
+// 	}
+
+// 	const levelBits = blockSizeBits * level;
+// 	const blockSize = 1 << levelBits;
+// 	const len = children.length;
+
+// 	let total = 0;
+// 	let irregular = false;
+
+// 	const sizes = new Array<number>(len);
+
+// 	for (let i = 0; i < len; i++) {
+// 		total += children[i].size;
+// 		sizes[i] = total;
+// 		if (children[i].size !== blockSize) irregular = true;
+// 	}
+
+// 	return irregular ? sizes : null;
+// }
+
+/**
+ * Update the cumulative size table in-place starting from index `from`.
+ * Pass the existing sizes array (which must already be non-null).
+ */
+export function updateSizesFrom(
+	sizes: number[],
+	children: readonly { length: number }[],
+	from: number,
+): void {
+	const prev = from > 0 ? sizes[from - 1] : 0;
+	let total = prev;
+	for (let i = from; i < children.length; i++) {
+		total += children[i].length;
+		sizes[i] = total;
+	}
+}

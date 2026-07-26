@@ -8,7 +8,6 @@ import {
 	computeSizeTable,
 	getInnerBlockCoordinates,
 	type SizeTable,
-	safeCopySizeTable,
 } from '#list/size-table';
 
 export class InnerBlock<T, C extends Block<T>>
@@ -22,29 +21,37 @@ export class InnerBlock<T, C extends Block<T>>
 		sizeTable?: SizeTable | undefined,
 	) {
 		this.#children = Object.freeze(children) as C[];
-		this.#_computedSizeTable = safeCopySizeTable(sizeTable);
+		this.#computedSizeTable = sizeTable;
 	}
 
 	declare _self: InnerBlock<T, C>;
 
-	#children: C[];
+	readonly #children: C[];
 
+	// Stores a safe copy of the given size table if provided. Otherwise, stores the computed size table on demand.
 	#_computedSizeTable: SizeTable | undefined;
 
 	get #sizeTable(): SizeTable {
 		if (undefined === this.#_computedSizeTable) {
-			this.#_computedSizeTable = computeSizeTable(
+			const sizeTable = computeSizeTable(
 				this.#children,
 				this.size,
 				this.context.blockSizeBits,
 				this.level,
 			);
+			this.#computedSizeTable = sizeTable;
 		}
 
-		return this.#_computedSizeTable;
+		return this.#_computedSizeTable!;
 	}
 
-	// Returns a safe copy of the computed size table if computed for builders.
+	set #computedSizeTable(sizeTable: SizeTable | undefined) {
+		this.#_computedSizeTable = Object.freeze(sizeTable) as
+			| SizeTable
+			| undefined;
+	}
+
+	// Returns a the computed size table if already computed for builders.
 	get computedSizeTable(): SizeTable | undefined {
 		return this.#_computedSizeTable;
 	}

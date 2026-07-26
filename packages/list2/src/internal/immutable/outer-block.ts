@@ -242,6 +242,14 @@ export class OuterBlock<T> extends ListNonEmptyBase<T> implements Block<T, T> {
 		);
 	}
 
+	concatChildren(children: OuterChildren<T>): OuterChildren<T> {
+		return this.#ops.concat(this.#children, children);
+	}
+
+	prependChildren(children: OuterChildren<T>): OuterChildren<T> {
+		return this.#ops.concat(children, this.#children);
+	}
+
 	toBuilder(): OuterBlockBuilder<T> {
 		return this.context.outerBlockBuilderSource(this);
 	}

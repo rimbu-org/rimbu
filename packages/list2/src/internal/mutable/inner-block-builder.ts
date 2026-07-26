@@ -4,6 +4,8 @@ import type { BlockBuilder, InnerBuilder } from '#list/mutable/common';
 
 import { throwInvalidUsageError } from '@rimbu/base';
 
+import { computeSizeTable, type SizeTable } from '#list/size-table';
+
 export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 	implements InnerBuilder<T, C>, BlockBuilder<T, C>
 {
@@ -13,7 +15,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		source?: InnerBlock<T, any>,
 		children?: C[],
 		size: number = source?.size ?? 0,
-		sizeTable = source?.computedSizeTable,
+		computedSizeTable = source?.computedSizeTable,
 	) {
 		if (undefined === source && undefined === children) {
 			throwInvalidUsageError('Either source or children must be defined');
@@ -27,12 +29,12 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		this.#source = source;
 		this.#_children = children;
 		this.#size = size;
-		// this.#_computedSizeTable = sizeTable;
+		this.#_computedSizeTable = computedSizeTable;
 	}
 
 	#source?: InnerBlock<T, any> | undefined;
 	#_children?: C[] | undefined;
-	// #_computedSizeTable?: SizeTable | undefined;
+	#_computedSizeTable?: SizeTable | undefined;
 	#size: number;
 
 	get #children(): C[] {
@@ -61,6 +63,20 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 
 	get childrenInMin(): boolean {
 		return this.nrChildren >= this.context.minBlockSize;
+	}
+
+	get #sizeTable(): SizeTable {
+		if (undefined === this.#_computedSizeTable) {
+			const sizeTable = computeSizeTable(
+				this.#children,
+				this.size,
+				this.context.blockSizeBits,
+				this.level,
+			);
+			this.#_computedSizeTable = sizeTable;
+		}
+
+		return this.#_computedSizeTable!;
 	}
 
 	#prepareMutate(): void {
@@ -204,10 +220,62 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 	}
 
 	prependItems(other: InnerBlockBuilder<T, C>): void {
-		throw new Error('Method not implemented.');
+		this.#prepareMutate();
+		other.#prepareMutate();
+		this.#size += other.size;
+
+		const firstChild = this.#children[0];
+		const lastIndex = other.nrChildren - 1;
+
+		// Collect children from `other` that will be prepended as-is (all except
+		// possibly the last one which may merge into this.children[0]).
+		const toPrepend: C[] = [];
+		for (let i = 0; i < other.nrChildren; i++) {
+			const child = other.#children[i];
+			if (
+				i === lastIndex &&
+				firstChild.nrChildren + child.nrChildren <= this.context.maxBlockSize
+			) {
+				// merge boundary children instead of prepending
+				firstChild.prependItems(child);
+			} else {
+				toPrepend.push(child);
+			}
+		}
+
+		// Single splice to prepend all collected children in O(n) instead of
+		// repeated unshift calls which would be O(n²).
+		if (toPrepend.length > 0) {
+			this.#children.splice(0, 0, ...toPrepend);
+		}
+
+		this.#_computedSizeTable = undefined;
 	}
 
 	appendItems(other: InnerBlockBuilder<T, C>): void {
-		throw new Error('Method not implemented.');
+		this.#prepareMutate();
+		other.#prepareMutate();
+		this.#size += other.size;
+
+		// Snapshot other's children before iterating in case other === this.
+		const otherChildren =
+			other === this ? this.#children.slice() : other.#children;
+		const nrOtherChildren = otherChildren.length;
+
+		const lastChild = this.#children.at(-1)!;
+		for (let i = 0; i < nrOtherChildren; i++) {
+			const child = otherChildren[i];
+			if (
+				i === 0 &&
+				lastChild.nrChildren + child.nrChildren <= this.context.maxBlockSize
+			) {
+				// can merge with last child
+				lastChild.appendItems(child);
+			} else {
+				this.#children.push(child);
+			}
+		}
+
+		this.#_computedSizeTable = undefined;
 	}
 }

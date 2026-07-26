@@ -91,9 +91,11 @@ export class OuterTreeBuilder<T>
 		}
 
 		const size = this.size;
+
 		if (index >= size || -index > size) {
 			return OptLazy(otherwise) as O;
 		}
+
 		if (index < 0) {
 			index = size + index;
 		}
@@ -144,7 +146,7 @@ export class OuterTreeBuilder<T>
 	}
 
 	buildMap<T2>(f: (value: T) => T2): List<T2> {
-		if (undefined !== this.#source) return this.#source.map(f) as any;
+		if (undefined !== this.#source) return this.#source.map(f);
 
 		return this.context.outerTree(
 			this.left.buildMap(f),
@@ -159,8 +161,9 @@ export class OuterTreeBuilder<T>
 
 		if (undefined === this.middle) {
 			const totalChildren = this.left.nrChildren + this.right.nrChildren;
+
 			if (totalChildren <= this.context.maxBlockSize) {
-				this.left.appendItems(this.right as OuterBlockBuilder<T>);
+				this.left.appendItems(this.right);
 				return this.left;
 			}
 		}

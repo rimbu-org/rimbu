@@ -110,6 +110,28 @@ export abstract class TreeBuilderBase<T, C> {
 			return;
 		}
 
+		// middle exists
+
+		// try to shift child to first middle
+		const delta = this.middle.modifyFirstChild(
+			(firstChild): number | undefined => {
+				if (firstChild.canAddChild) {
+					// first child has room for shift
+					const shiftChild = this.dropBlockLastChild(this.left);
+					this.prependBlockChild(this.left, child);
+					this.prependBlockChild(firstChild, shiftChild);
+					return this.getChildSize(shiftChild);
+				}
+				return;
+			},
+		);
+
+		if (undefined !== delta) {
+			// shift succeeded, done
+			return;
+		}
+
+		// move full left block to middle and prepend new child to new left block
 		this.prependMiddle(this.left);
 		this.left = this.context.outerBlockBuilder<any>(this.#ops.of([child]));
 	}
