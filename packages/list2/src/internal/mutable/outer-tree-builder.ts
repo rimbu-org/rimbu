@@ -1,5 +1,3 @@
-import type { List } from '@rimbu/list';
-
 import type { ListContext } from '#list/context';
 import type { OuterTree } from '#list/immutable/outer-tree';
 import type { InnerBuilder, OuterBuilder } from '#list/mutable/common';
@@ -134,7 +132,7 @@ export class OuterTreeBuilder<T>
 		this.right.forEach(f);
 	}
 
-	build(): List<T> {
+	build(): OuterTree<T> {
 		if (undefined !== this.#source) return this.#source;
 
 		return this.context.outerTree(
@@ -145,7 +143,7 @@ export class OuterTreeBuilder<T>
 		);
 	}
 
-	buildMap<T2>(f: (value: T) => T2): List<T2> {
+	buildMap<T2>(f: (value: T) => T2): OuterTree<T2> {
 		if (undefined !== this.#source) return this.#source.map(f);
 
 		return this.context.outerTree(

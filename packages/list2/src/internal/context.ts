@@ -61,7 +61,6 @@ export interface ListContext<T, IsNonEmpty extends boolean = boolean>
 		children: C[],
 		size: number,
 		level: number,
-		sizeTable?: SizeTable | undefined,
 	): InnerBlockBuilder<T, C>;
 	innerBlockBuilderSource<T, C extends BlockBuilder<T>>(
 		source: InnerBlock<T, any>,
@@ -164,7 +163,6 @@ export function createListContextModule<UT>(options: {
 			children: C[],
 			size: number,
 			level: number,
-			sizeTable?: SizeTable | undefined,
 		) =>
 			new InnerBlockBuilder<T, C>(
 				mod as unknown as ListContext<T>,
@@ -172,7 +170,6 @@ export function createListContextModule<UT>(options: {
 				undefined,
 				children,
 				size,
-				sizeTable,
 			),
 		innerBlockBuilderSource: <T, C extends BlockBuilder<T>>(
 			source: InnerBlock<T, any>,

@@ -37,4 +37,5 @@ export interface BlockBuilder<T, C = unknown> extends BuilderCommon<T> {
 	prependItems(other: BlockBuilder<T, C>): void;
 	appendItems(other: BlockBuilder<T, C>): void;
 	build(): Block<T, any>;
+	buildMap<T2>(f: (value: T) => T2): Block<T2, any>;
 }

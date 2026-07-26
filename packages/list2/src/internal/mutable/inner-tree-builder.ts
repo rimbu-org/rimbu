@@ -2,6 +2,7 @@ import type { ListContext } from '#list/context';
 import type { Inner } from '#list/immutable/common';
 import type { InnerTree } from '#list/immutable/inner-tree';
 import type { BlockBuilder, InnerBuilder } from '#list/mutable/common';
+import type { InnerBlockBuilder } from '#list/mutable/inner-block-builder';
 
 import { TreeBuilderBase } from '#list/mutable/tree-builder-base';
 
@@ -13,94 +14,211 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 		readonly context: ListContext<T>,
 		readonly level: number,
 		source?: InnerTree<T, any>,
-		public _left?: C,
-		public _right?: C,
-		public _middle?: InnerBuilder<T, C>,
-		public size: number = 0,
+		_left?: InnerBlockBuilder<T, C>,
+		_right?: InnerBlockBuilder<T, C>,
+		_middle?: InnerBuilder<T, InnerBlockBuilder<T, C>>,
+		size: number = source?.size ?? 0,
 	) {
 		super();
+
+		this.#source = source;
+		this.#_left = _left;
+		this.#_right = _right;
+		this.#_middle = _middle;
+		this.#size = size;
 	}
 
-	get left(): C {
-		throw new Error('Method not implemented.');
+	#source: InnerTree<T, any> | undefined;
+	#_left: InnerBlockBuilder<T, C> | undefined;
+	#_right: InnerBlockBuilder<T, C> | undefined;
+	#_middle: InnerBuilder<T, InnerBlockBuilder<T, C>> | undefined;
+	#size: number;
+
+	get left(): InnerBlockBuilder<T, C> {
+		return this.#_left!;
 	}
 
-	get right(): C {
-		throw new Error('Method not implemented.');
+	set left(value: InnerBlockBuilder<T, C>) {
+		this.#_left = value;
 	}
 
-	get middle(): InnerBuilder<T, C> | undefined {
-		throw new Error('Method not implemented.');
+	get right(): InnerBlockBuilder<T, C> {
+		return this.#_right!;
+	}
+
+	set right(value: InnerBlockBuilder<T, C>) {
+		this.#_right = value;
+	}
+
+	get middle(): InnerBuilder<T, InnerBlockBuilder<T, C>> | undefined {
+		return this.#_middle;
+	}
+
+	set middle(value: InnerBuilder<T, InnerBlockBuilder<T, C>> | undefined) {
+		this.#_middle = value;
+	}
+
+	get size(): number {
+		return this.#size;
+	}
+
+	set size(value: number) {
+		this.#size = value;
 	}
 
 	prepareMutate(): void {
-		throw new Error('Method not implemented.');
-	}
+		if (undefined === this.#source) return;
 
-	get(index: number): T {
-		throw new Error('Method not implemented.');
-	}
-
-	forEach(f: (value: T) => void): void {
-		throw new Error('Method not implemented.');
-	}
-
-	prependChild(child: C): void {
-		throw new Error('Method not implemented.');
-	}
-
-	appendChild(child: C): void {
-		throw new Error('Method not implemented.');
-	}
-
-	firstChild(): C {
-		throw new Error('Method not implemented.');
-	}
-
-	lastChild(): C {
-		throw new Error('Method not implemented.');
-	}
-
-	dropFirstChild(): C {
-		throw new Error('Method not implemented.');
-	}
-
-	dropLastChild(): C {
-		throw new Error('Method not implemented.');
-	}
-	prependBlockChild(block: C, child: C): void {}
-
-	appendBlockChild(block: C, child: C): void {}
-
-	dropBlockFirstChild(block: C): C {
-		throw new Error('Method not implemented.');
-	}
-
-	dropBlockLastChild(block: C): C {
-		throw new Error('Method not implemented.');
-	}
-
-	modifyFirstChild(f: (child: C) => number | undefined): number | undefined {
-		throw new Error('Method not implemented.');
-	}
-
-	modifyLastChild(f: (child: C) => number | undefined): number | undefined {
-		throw new Error('Method not implemented.');
-	}
-
-	build(): Inner<T, any> {
-		throw new Error('Method not implemented.');
-	}
-
-	buildMap<T2>(f: (value: T) => T2): Inner<T2, any> {
-		throw new Error('Method not implemented.');
+		this.#_left = this.#source.left.toBuilder();
+		this.#_right = this.#source.right.toBuilder();
+		this.#_middle =
+			null === this.#source.middle
+				? undefined
+				: this.#source.middle.toBuilder();
+		this.#source = undefined;
 	}
 
 	getChildSize(child: C): number {
 		return child.size;
 	}
 
+	prependBlockChild(block: InnerBlockBuilder<T, C>, child: C): void {
+		block.prependChild(child);
+	}
+
+	appendBlockChild(block: InnerBlockBuilder<T, C>, child: C): void {
+		block.appendChild(child);
+	}
+
+	dropBlockFirstChild(block: InnerBlockBuilder<T, C>): C {
+		return block.dropFirstChild();
+	}
+
+	dropBlockLastChild(block: InnerBlockBuilder<T, C>): C {
+		return block.dropLastChild();
+	}
+
+	get(index: number): T {
+		if (undefined !== this.#source) {
+			return this.#source.get(index);
+		}
+
+		const middleIndex = index - this.left.size;
+
+		if (middleIndex < 0) {
+			return this.left.get(index);
+		}
+
+		const rightIndex = middleIndex - (this.middle?.size ?? 0);
+
+		if (rightIndex >= 0) {
+			return this.right.get(rightIndex);
+		}
+
+		if (undefined === this.middle) {
+			return this.right.get(0);
+		}
+
+		return this.middle.get(middleIndex);
+	}
+
+	forEach(f: (element: T) => void): void {
+		if (undefined !== this.#source) {
+			this.#source.forEach(f);
+			return;
+		}
+
+		this.left.forEach(f);
+		this.middle?.forEach?.(f);
+		this.right.forEach(f);
+	}
+
+	prependChild(child: C): void {
+		this.prepend(child);
+	}
+
+	appendChild(child: C): void {
+		this.append(child);
+	}
+
+	firstChild(): C {
+		this.prepareMutate();
+		return this.left.firstChild!();
+	}
+
+	lastChild(): C {
+		this.prepareMutate();
+		return this.right.lastChild!();
+	}
+
+	dropFirstChild(): C {
+		this.prepareMutate();
+		const child = this.left.dropFirstChild();
+		this.#size -= child.size;
+		return child;
+	}
+
+	dropLastChild(): C {
+		this.prepareMutate();
+		const child = this.right.dropLastChild();
+		this.#size -= child.size;
+		return child;
+	}
+
+	modifyFirstChild(f: (child: C) => number | undefined): number | undefined {
+		this.prepareMutate();
+		const delta = this.left.modifyFirstChild(f);
+		if (undefined !== delta) {
+			this.#size += delta;
+		}
+		return delta;
+	}
+
+	modifyLastChild(f: (child: C) => number | undefined): number | undefined {
+		this.prepareMutate();
+		const delta = this.right.modifyLastChild(f);
+		if (undefined !== delta) {
+			this.#size += delta;
+		}
+		return delta;
+	}
+
+	build(): Inner<T, any> {
+		if (undefined !== this.#source) return this.#source;
+
+		return this.context.innerTree<T, any>(
+			this.left.build() as any,
+			this.right.build() as any,
+			(this.middle?.build() as any) ?? null,
+			this.#size,
+			this.level,
+		);
+	}
+
+	buildMap<T2>(f: (value: T) => T2): Inner<T2, any> {
+		if (undefined !== this.#source) return this.#source.map(f);
+
+		return this.context.innerTree<T2, any>(
+			this.left.buildMap!(f) as any,
+			this.right.buildMap!(f) as any,
+			null,
+			this.#size,
+			this.level,
+		);
+	}
+
 	normalized(): InnerBuilder<T, C> | undefined {
-		throw new Error('Method not implemented.');
+		if (this.#size <= 0) return undefined;
+
+		if (undefined === this.middle) {
+			const totalChildren = this.left.nrChildren + this.right.nrChildren;
+
+			if (totalChildren <= this.context.maxBlockSize) {
+				this.left.appendItems(this.right);
+				return this.left as unknown as InnerBuilder<T, C>;
+			}
+		}
+
+		return this;
 	}
 }

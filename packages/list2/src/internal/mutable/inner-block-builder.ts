@@ -4,8 +4,6 @@ import type { BlockBuilder, InnerBuilder } from '#list/mutable/common';
 
 import { throwInvalidUsageError } from '@rimbu/base';
 
-import { computeSizeTable, type SizeTable } from '#list/size-table';
-
 export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 	implements InnerBuilder<T, C>, BlockBuilder<T, C>
 {
@@ -15,7 +13,6 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		source?: InnerBlock<T, any>,
 		children?: C[],
 		size: number = source?.size ?? 0,
-		computedSizeTable = source?.computedSizeTable,
 	) {
 		if (undefined === source && undefined === children) {
 			throwInvalidUsageError('Either source or children must be defined');
@@ -29,12 +26,10 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		this.#source = source;
 		this.#_children = children;
 		this.#size = size;
-		this.#_computedSizeTable = computedSizeTable;
 	}
 
 	#source?: InnerBlock<T, any> | undefined;
 	#_children?: C[] | undefined;
-	#_computedSizeTable?: SizeTable | undefined;
 	#size: number;
 
 	get #children(): C[] {
@@ -63,20 +58,6 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 
 	get childrenInMin(): boolean {
 		return this.nrChildren >= this.context.minBlockSize;
-	}
-
-	get #sizeTable(): SizeTable {
-		if (undefined === this.#_computedSizeTable) {
-			const sizeTable = computeSizeTable(
-				this.#children,
-				this.size,
-				this.context.blockSizeBits,
-				this.level,
-			);
-			this.#_computedSizeTable = sizeTable;
-		}
-
-		return this.#_computedSizeTable!;
 	}
 
 	#prepareMutate(): void {
@@ -183,6 +164,16 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		);
 	}
 
+	buildMap<T2>(f: (value: T) => T2): InnerBlock<T2, any> {
+		if (this.#source) return this.#source.map(f);
+
+		return this.context.innerBlock(
+			this.#children.map((c) => c.buildMap(f)),
+			this.#size,
+			this.level,
+		);
+	}
+
 	normalized(): InnerBlockBuilder<T, C> | undefined {
 		if (this.nrChildren === 0) return undefined;
 
@@ -248,8 +239,6 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		if (toPrepend.length > 0) {
 			this.#children.splice(0, 0, ...toPrepend);
 		}
-
-		this.#_computedSizeTable = undefined;
 	}
 
 	appendItems(other: InnerBlockBuilder<T, C>): void {
@@ -275,7 +264,5 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 				this.#children.push(child);
 			}
 		}
-
-		this.#_computedSizeTable = undefined;
 	}
 }
