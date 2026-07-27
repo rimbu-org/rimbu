@@ -37,7 +37,10 @@ export interface ChildrenOps<Tp extends ChildrenOps.Types = ChildrenOps.Types> {
 		options?: { reversed?: boolean | undefined } | undefined,
 	): void;
 	/** Full array of all elements. */
-	toArray<T>(children: (Tp & { _T: T })['_C']): ArrayNonEmpty<T>;
+	toArray<T>(
+		children: (Tp & { _T: T })['_C'],
+		reversed?: boolean,
+	): ArrayNonEmpty<T>;
 	/**
 	 * Slice of elements from `start` (inclusive) to `end` (exclusive),
 	 * optionally reversed. Returns `T[]` (may be empty).

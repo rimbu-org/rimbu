@@ -167,7 +167,11 @@ export class ArrayOuterChildrenOps
 			children.forEach(f);
 		}
 	}
-	toArray<T>(children: T[]): ArrayNonEmpty<T> {
+	toArray<T>(children: T[], reversed = false): ArrayNonEmpty<T> {
+		if (reversed) {
+			return children.toReversed() as ArrayNonEmpty<T>;
+		}
+
 		return children as ArrayNonEmpty<T>;
 	}
 

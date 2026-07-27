@@ -38,13 +38,6 @@ export class OuterBlockRightLeft<T> extends OuterBlock<T> {
 		return this.context.outerBlockRightLeft(children);
 	}
 
-	#copyAsType<T2>(children: OuterChildren<T2>): OuterBlock<T2> {
-		if ((children as any) === this.#children) {
-			return this as unknown as OuterBlock<T2>;
-		}
-		return this.context.outerBlockRightLeft(children);
-	}
-
 	stream(options: { reversed?: boolean | undefined } = {}): Stream.NonEmpty<T> {
 		const { reversed = false } = options;
 		return this.#ops.stream(this.#children, { reversed: !reversed });
@@ -70,9 +63,10 @@ export class OuterBlockRightLeft<T> extends OuterBlock<T> {
 	}
 
 	filter(f: (element: T) => boolean): List<T> {
+		// TODO: does order matter here?
 		const newChildren = this.#ops.filter(this.#children, f);
-		if (newChildren === this.#children) return this;
 
+		if (newChildren === this.#children) return this;
 		if (this.#ops.size(newChildren) === 0) return this.context.empty();
 
 		return this.#copy(newChildren);
@@ -86,9 +80,11 @@ export class OuterBlockRightLeft<T> extends OuterBlock<T> {
 			state?: TraverseState;
 		} = {},
 	): List<T> {
+		const { reversed = false } = options;
+
 		const newChildren = this.#ops.filterIndexed(this.#children, f, {
 			...options,
-			reversed: !options.reversed,
+			reversed: !reversed,
 		});
 
 		if (newChildren === this.#children) return this;
@@ -99,7 +95,9 @@ export class OuterBlockRightLeft<T> extends OuterBlock<T> {
 	}
 
 	map<T2>(f: (element: T) => T2): OuterBlock<T2> {
-		return this.#copyAsType(this.#ops.map(this.#children, f));
+		return this.context.outerBlockLeftRight(
+			this.#ops.reverseMap(this.#children, f),
+		);
 	}
 
 	prependBlockChild(child: T): OuterBlock<T> {
@@ -110,14 +108,13 @@ export class OuterBlockRightLeft<T> extends OuterBlock<T> {
 		return this.#copy(this.#ops.prepend(this.#children, child));
 	}
 
-	toArray(): ArrayNonEmpty<T> {
-		// TODO reverse
-		return this.#ops.toArray(this.#children);
+	toArray(options: { reversed?: boolean } = {}): ArrayNonEmpty<T> {
+		const { reversed = false } = options;
+		return this.#ops.toArray(this.#children, !reversed);
 	}
 
 	copyChildren(): OuterChildren<T> {
-		// TODO reverse
-		return this.#ops.safeCopy(this.#children);
+		return this.#ops.toReversed(this.#children);
 	}
 
 	takeChildren(amount: number): OuterBlock<T> {
@@ -141,13 +138,11 @@ export class OuterBlockRightLeft<T> extends OuterBlock<T> {
 	}
 
 	concatChildren(children: OuterChildren<T>): OuterChildren<T> {
-		// TODO reverse
-		return this.#ops.concat(this.#children, children);
+		return this.#ops.concat(this.#ops.toReversed(this.#children), children);
 	}
 
 	prependChildren(children: OuterChildren<T>): OuterChildren<T> {
-		// TODO reverse
-		return this.#ops.concat(children, this.#children);
+		return this.#ops.concat(children, this.#ops.toReversed(this.#children));
 	}
 
 	createOuterBlock(element: T): OuterBlock<T> {

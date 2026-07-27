@@ -44,7 +44,9 @@ export abstract class OuterBlock<T>
 			state?: TraverseState;
 		},
 	): List<T>;
-	abstract toArray(): ArrayNonEmpty<T>;
+	abstract toArray(options?: {
+		reversed?: boolean | undefined;
+	}): ArrayNonEmpty<T>;
 	abstract map<T2>(f: (element: T) => T2): OuterBlock<T2>;
 	abstract appendBlockChild(child: T): OuterBlock<T>;
 	abstract prependBlockChild(child: T): OuterBlock<T>;

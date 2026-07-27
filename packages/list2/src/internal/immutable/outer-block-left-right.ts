@@ -97,8 +97,9 @@ export class OuterBlockLeftRight<T> extends OuterBlock<T> {
 		return this.#copy(this.#ops.append(this.#children, child));
 	}
 
-	toArray(): ArrayNonEmpty<T> {
-		return this.#ops.toArray(this.#children);
+	toArray(options: { reversed?: boolean } = {}): ArrayNonEmpty<T> {
+		const { reversed = false } = options;
+		return this.#ops.toArray(this.#children, reversed);
 	}
 
 	copyChildren(): OuterChildren<T> {
