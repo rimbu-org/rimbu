@@ -65,10 +65,6 @@ export class OuterBlockRightLeft<T> extends OuterBlock<T> {
 		});
 	}
 
-	get(index: number): T {
-		return this.#ops.at(this.#children, this.size - index - 1);
-	}
-
 	forEach(f: (element: T) => void): void {
 		this.#ops.forEach(this.#children, f, { reversed: true });
 	}
@@ -110,24 +106,28 @@ export class OuterBlockRightLeft<T> extends OuterBlock<T> {
 		);
 	}
 
-	prependBlockChild(child: T): OuterBlock<T> {
-		return this.#copy(this.#ops.append(this.#children, child));
-	}
-
-	appendBlockChild(child: T): OuterBlock<T> {
-		return this.#copy(this.#ops.prepend(this.#children, child));
-	}
-
 	toArray(options: { reversed?: boolean } = {}): ArrayNonEmpty<T> {
 		const { reversed = false } = options;
 		return this.#ops.toArray(this.#children, !reversed);
 	}
 
-	copyChildren(): OuterChildren<T> {
+	_get(index: number): T {
+		return this.#ops.at(this.#children, this.size - index - 1);
+	}
+
+	_prependBlockChild(child: T): OuterBlock<T> {
+		return this.#copy(this.#ops.append(this.#children, child));
+	}
+
+	_appendBlockChild(child: T): OuterBlock<T> {
+		return this.#copy(this.#ops.prepend(this.#children, child));
+	}
+
+	_copyChildren(): OuterChildren<T> {
 		return this.#ops.toReversed(this.#children);
 	}
 
-	takeChildren(amount: number): OuterBlock<T> {
+	_takeChildren(amount: number): OuterBlock<T> {
 		if (amount >= 0) {
 			return this.#copy(
 				this.#ops.toSpliced(this.#children, 0, this.size - amount),
@@ -138,7 +138,7 @@ export class OuterBlockRightLeft<T> extends OuterBlock<T> {
 		);
 	}
 
-	dropChildren(amount: number): OuterBlock<T> {
+	_dropChildren(amount: number): OuterBlock<T> {
 		if (amount >= 0) {
 			return this.#copy(
 				this.#ops.toSpliced(this.#children, this.size - amount, amount),
@@ -147,15 +147,15 @@ export class OuterBlockRightLeft<T> extends OuterBlock<T> {
 		return this.#copy(this.#ops.toSpliced(this.#children, 0, -amount));
 	}
 
-	concatChildren(children: OuterChildren<T>): OuterChildren<T> {
+	_concatChildren(children: OuterChildren<T>): OuterChildren<T> {
 		return this.#ops.concat(this.#ops.toReversed(this.#children), children);
 	}
 
-	prependChildren(children: OuterChildren<T>): OuterChildren<T> {
+	_prependChildren(children: OuterChildren<T>): OuterChildren<T> {
 		return this.#ops.concat(children, this.#ops.toReversed(this.#children));
 	}
 
-	createOuterBlock(element: T): OuterBlock<T> {
+	_createOuterBlock(element: T): OuterBlock<T> {
 		return this.context.outerBlockLeftRight(this.#ops.of([element]));
 	}
 }

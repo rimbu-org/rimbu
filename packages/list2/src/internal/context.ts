@@ -23,9 +23,7 @@ import { OuterTreeBuilder } from '#list/mutable/outer-tree-builder';
 
 export interface ListContext<T, IsNonEmpty extends boolean = boolean>
 	extends List.Context<T, IsNonEmpty> {
-	readonly __types: List.Context<T, IsNonEmpty>['__types'] & {
-		_outerChildren: OuterChildren<T>;
-	};
+	readonly __types: List.Context<T, IsNonEmpty>['__types'];
 	readonly minBlockSize: number;
 	readonly maxBlockSize: number;
 	readonly childrenOps: ChildrenOps;

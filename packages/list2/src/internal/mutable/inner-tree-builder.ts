@@ -104,7 +104,7 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 
 	get(index: number): T {
 		if (undefined !== this.#source) {
-			return this.#source.get(index);
+			return this.#source._get(index);
 		}
 
 		return super.get(index);

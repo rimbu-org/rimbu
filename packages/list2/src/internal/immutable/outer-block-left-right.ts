@@ -18,7 +18,7 @@ export class OuterBlockLeftRight<T> extends OuterBlock<T> {
 		this.#children = this.#ops.guard(children);
 	}
 
-	readonly #children: OuterChildren<T>;
+	#children: OuterChildren<T>;
 
 	get #ops(): ChildrenOps {
 		return this.context.childrenOps;
@@ -45,10 +45,6 @@ export class OuterBlockLeftRight<T> extends OuterBlock<T> {
 
 	streamSlice(range: IndexRange, options: { reversed?: boolean }): Stream<T> {
 		return this.#ops.streamRange(this.#children, range, options);
-	}
-
-	get(index: number): T {
-		return this.#ops.at(this.#children, index);
 	}
 
 	forEach(f: (element: T) => void): void {
@@ -84,24 +80,28 @@ export class OuterBlockLeftRight<T> extends OuterBlock<T> {
 		return this.#copyAsType(this.#ops.map(this.#children, f));
 	}
 
-	prependBlockChild(child: T): OuterBlock<T> {
-		return this.#copy(this.#ops.prepend(this.#children, child));
-	}
-
-	appendBlockChild(child: T): OuterBlock<T> {
-		return this.#copy(this.#ops.append(this.#children, child));
-	}
-
 	toArray(options: { reversed?: boolean } = {}): ArrayNonEmpty<T> {
 		const { reversed = false } = options;
 		return this.#ops.toArray(this.#children, reversed);
 	}
 
-	copyChildren(): OuterChildren<T> {
+	_get(index: number): T {
+		return this.#ops.at(this.#children, index);
+	}
+
+	_prependBlockChild(child: T): OuterBlock<T> {
+		return this.#copy(this.#ops.prepend(this.#children, child));
+	}
+
+	_appendBlockChild(child: T): OuterBlock<T> {
+		return this.#copy(this.#ops.append(this.#children, child));
+	}
+
+	_copyChildren(): OuterChildren<T> {
 		return this.#ops.safeCopy(this.#children);
 	}
 
-	takeChildren(amount: number): OuterBlock<T> {
+	_takeChildren(amount: number): OuterBlock<T> {
 		if (amount >= 0) {
 			return this.#copy(
 				this.#ops.toSpliced(this.#children, amount, this.size - amount),
@@ -112,7 +112,7 @@ export class OuterBlockLeftRight<T> extends OuterBlock<T> {
 		);
 	}
 
-	dropChildren(amount: number): OuterBlock<T> {
+	_dropChildren(amount: number): OuterBlock<T> {
 		if (amount >= 0) {
 			return this.#copy(this.#ops.toSpliced(this.#children, 0, amount));
 		}
@@ -121,15 +121,102 @@ export class OuterBlockLeftRight<T> extends OuterBlock<T> {
 		);
 	}
 
-	concatChildren(children: OuterChildren<T>): OuterChildren<T> {
+	_concatChildren(children: OuterChildren<T>): OuterChildren<T> {
 		return this.#ops.concat(this.#children, children);
 	}
 
-	prependChildren(children: OuterChildren<T>): OuterChildren<T> {
+	_prependChildren(children: OuterChildren<T>): OuterChildren<T> {
 		return this.#ops.concat(children, this.#children);
 	}
 
-	createOuterBlock(element: T): OuterBlock<T> {
+	_createOuterBlock(element: T): OuterBlock<T> {
 		return this.context.outerBlockLeftRight(this.#ops.of([element]));
 	}
+
+	// concat(...sources: ArrayNonEmpty<StreamSource<T>>): List.NonEmpty<T> {
+	// 	const asList = this.context.from(...sources);
+
+	// 	if (!asList.nonEmpty()) {
+	// 		return this;
+	// 	}
+
+	// 	// return asList as Outer<T>;
+
+	// 	if (this.context.isOuterBlock<T>(asList)) {
+	// 		if (asList === this && this.size > this.context.minBlockSize) {
+	// 			return this.context.outerTree<T>(
+	// 				this,
+	// 				this,
+	// 				null,
+	// 				this.size + asList.size,
+	// 			);
+	// 		}
+
+	// 		return this.concatBlock(asList);
+	// 	}
+
+	// 	if (this.context.isOuterTree<T>(asList)) {
+	// 		return this.concatTree(asList);
+	// 	}
+
+	// 	throwInvalidStateError();
+	// }
+
+	// concatBlock(other: OuterBlock<T>): List.NonEmpty<T> {
+	// 	return this.#copy(other.prependChildren(this.#children))._mutateNormalize();
+	// }
+
+	// concatTree(other: OuterTree<T>): OuterTree<T> {
+	// 	const newSize = this.size + other.size;
+
+	// 	if (this.size + other.left.size <= this.context.maxBlockSize) {
+	// 		// this block children fit in tree left, just merge
+	// 		const newLeft = this.concatChildren(other.left);
+
+	// 		return other.copy(newLeft, undefined, undefined, newSize);
+	// 	}
+
+	// 	if (this.size + other.size <= 2 * this.context.maxBlockSize) {
+	// 		// can fit in other left and right without middle, rebalance
+	// 		const newLeft = this.concatChildren(other.left).concatChildren(
+	// 			other.right,
+	// 		);
+	// 		const newRight = newLeft._mutateSplitRight();
+
+	// 		return other.copy(newLeft, newRight, null, newSize);
+	// 	}
+
+	// 	if (other.left.childrenInMin) {
+	// 		const newMiddle = other.prependMiddle(other.left);
+
+	// 		return other.copy(this, undefined, newMiddle, newSize);
+	// 	}
+
+	// 	const newLeft = this.concatChildren(other.left);
+	// 	const newSecond = newLeft._mutateSplitRight(
+	// 		newLeft.size - this.context.maxBlockSize,
+	// 	);
+	// 	const newMiddle = other.prependMiddle(newSecond);
+
+	// 	return other.copy(newLeft, undefined, newMiddle, newSize);
+	// }
+
+	// _mutateNormalize(): List.NonEmpty<T> {
+	// 	if (this.childrenInMax) return this;
+
+	// 	const length = this.size;
+	// 	const newRight = this._mutateSplitRight();
+
+	// 	return this.context.outerTree(this, newRight, null, length);
+	// }
+
+	// _mutateSplitRight(childIndex = this.size >>> 1): OuterBlock<T> {
+	// 	const [newChildren, rightChildren] = this.#ops.mutateSplice(
+	// 		this.#children,
+	// 		childIndex,
+	// 	);
+	// 	this.#children = newChildren;
+
+	// 	return this.#copy(rightChildren);
+	// }
 }

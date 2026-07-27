@@ -1,5 +1,7 @@
 import type { Stream } from '@rimbu/stream';
 
+import type { InnerBlock } from '#list/immutable/inner-block';
+import type { InnerTree } from '#list/immutable/inner-tree';
 import type { BlockBuilder, InnerBuilder } from '#list/mutable/common';
 
 /**
@@ -10,7 +12,7 @@ interface ListCommon<T> {
 	readonly size: number;
 
 	/** Returns the element at `index`. Caller must ensure 0 ≤ index < size. */
-	get(index: number): T;
+	_get(index: number): T;
 	stream(options?: { reversed?: boolean | undefined }): Stream.NonEmpty<T>;
 	forEach(f: (value: T) => void): void;
 	toArray(): T[];
@@ -27,32 +29,17 @@ export interface Block<T, C = unknown> extends ListCommon<T> {
 	readonly _self: Block<T, C>;
 
 	/** Number of direct children. */
-	readonly nrChildren: number;
+	readonly _nrChildren: number;
 	/** True when one more child can be added without normalizing. */
-	readonly canAddChild: boolean;
+	readonly _canAddChild: boolean;
 	/** True when one child can be removed without violating minimum fill. */
-	readonly canRemoveChild: boolean;
+	readonly _canRemoveChild: boolean;
 
 	map<T2>(f: (element: T) => T2): Block<T2, any>;
-
-	prependBlockChild(child: C): this['_self'];
-	appendBlockChild(child: C): this['_self'];
 	toBuilder(): BlockBuilder<T, any>;
-}
 
-/**
- * A block whose children are themselves Blocks. Provides child-level
- * operations used during tree rebalancing.
- */
-export interface Inner<T, C extends Block<T>> extends ListCommon<T> {
-	map<T2>(f: (element: T) => T2): Inner<T2, any>;
-	prependChild(child: C): Inner<T, C>;
-	appendChild(child: C): Inner<T, C>;
-	/** Replace the first child via `f`. Returns `undefined` if the block becomes empty. */
-	modifyFirstChild(f: (block: C) => C): Inner<T, C> | undefined;
-	/** Replace the last child via `f`. Returns `undefined` if the block becomes empty. */
-	modifyLastChild(f: (block: C) => C): Inner<T, C> | undefined;
-	toBuilder(): InnerBuilder<T, any>;
+	_prependBlockChild(child: C): this['_self'];
+	_appendBlockChild(child: C): this['_self'];
 }
 
 /**
@@ -63,4 +50,24 @@ export interface Tree<T, C extends Block<T> = Block<T>> extends ListCommon<T> {
 	readonly left: C;
 	readonly right: C;
 	readonly middle: Inner<T, C> | null;
+}
+
+/**
+ * A block whose children are themselves Blocks. Provides child-level
+ * operations used during tree rebalancing.
+ */
+export interface Inner<T, C extends Block<T>> extends ListCommon<T> {
+	map<T2>(f: (element: T) => T2): Inner<T2, any>;
+	prependChild(child: C): Inner<T, C>;
+	appendChild(child: C): Inner<T, C>;
+	dropLastChild(): [Inner<T, C> | null, C];
+	dropFirstChild(): [Inner<T, C> | null, C];
+	/** Replace the first child via `f`. Returns `undefined` if the block becomes empty. */
+	modifyFirstChild(f: (block: C) => C): Inner<T, C> | undefined;
+	/** Replace the last child via `f`. Returns `undefined` if the block becomes empty. */
+	modifyLastChild(f: (block: C) => C): Inner<T, C> | undefined;
+	concat(other: Inner<T, C>): Inner<T, C>;
+	prependBlock(leftBlock: InnerBlock<T, C>): Inner<T, C>;
+	prependTree(leftTree: InnerTree<T, C>): Inner<T, C>;
+	toBuilder(): InnerBuilder<T, any>;
 }

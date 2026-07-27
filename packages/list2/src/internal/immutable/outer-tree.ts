@@ -80,10 +80,10 @@ export class OuterTree<T>
 			index = size + index;
 		}
 
-		return this.get(index);
+		return this._get(index);
 	}
 
-	get(index: number): T {
+	_get(index: number): T {
 		return treeGet(this, index);
 	}
 
@@ -98,9 +98,9 @@ export class OuterTree<T>
 	prepend(element: T): OuterTree<T> {
 		const newSize = this.size + 1;
 
-		if (this.left.canAddChild) {
+		if (this.left._canAddChild) {
 			return this.#copy(
-				this.left.prependBlockChild(element),
+				this.left._prependBlockChild(element),
 				this.right,
 				this.middle,
 				newSize,
@@ -108,11 +108,11 @@ export class OuterTree<T>
 		}
 
 		// left block full, see if right block can take one from left and add the new value to left
-		if (null === this.middle && this.right.canAddChild) {
-			const [newLeft, shiftToRightChild] = this.left.dropLastChild();
-			const newRight = this.right.prependBlockChild(shiftToRightChild);
+		if (null === this.middle && this.right._canAddChild) {
+			const [newLeft, shiftToRightChild] = this.left._dropLastChild();
+			const newRight = this.right._prependBlockChild(shiftToRightChild);
 			return this.#copy(
-				newLeft.prependBlockChild(element),
+				newLeft._prependBlockChild(element),
 				newRight,
 				undefined,
 				newSize,
@@ -122,13 +122,13 @@ export class OuterTree<T>
 		// left block full, see if first middle block can take one from left and add the new value to left
 		if (this.middle) {
 			const newMiddle = this.middle.modifyFirstChild((block) => {
-				if (!block.canAddChild) return block;
+				if (!block._canAddChild) return block;
 
-				return block.prependBlockChild(this.left.last());
+				return block._prependBlockChild(this.left.last());
 			});
 
 			if (newMiddle !== this.middle) {
-				const newLeft = this.left.dropChildren(-1).prependBlockChild(element);
+				const newLeft = this.left._dropChildren(-1)._prependBlockChild(element);
 				return this.#copy(newLeft, undefined, newMiddle, newSize);
 			}
 		}
@@ -149,22 +149,22 @@ export class OuterTree<T>
 	append(element: T): OuterTree<T> {
 		const newLength = this.size + 1;
 
-		if (this.right.canAddChild) {
+		if (this.right._canAddChild) {
 			return this.#copy(
 				this.left,
-				this.right.appendBlockChild(element),
+				this.right._appendBlockChild(element),
 				this.middle,
 				newLength,
 			);
 		}
 
 		// right block full, see if left block can take one from right and add the new value to right
-		if (null === this.middle && this.left.canAddChild) {
-			const [newRight, shiftToLeftChild] = this.right.dropFirstChild();
-			const newLeft = this.left.appendBlockChild(shiftToLeftChild);
+		if (null === this.middle && this.left._canAddChild) {
+			const [newRight, shiftToLeftChild] = this.right._dropFirstChild();
+			const newLeft = this.left._appendBlockChild(shiftToLeftChild);
 			return this.#copy(
 				newLeft,
-				newRight.appendBlockChild(element),
+				newRight._appendBlockChild(element),
 				undefined,
 				newLength,
 			);
@@ -173,13 +173,13 @@ export class OuterTree<T>
 		// right block full, see if first middle block can take one from right and add the new value to right
 		if (this.middle) {
 			const newMiddle = this.middle.modifyLastChild((lastMiddleBlock) => {
-				if (!lastMiddleBlock.canAddChild) return lastMiddleBlock;
+				if (!lastMiddleBlock._canAddChild) return lastMiddleBlock;
 
-				return lastMiddleBlock.appendBlockChild(this.right.first());
+				return lastMiddleBlock._appendBlockChild(this.right.first());
 			});
 
 			if (newMiddle !== this.middle) {
-				const newRight = this.right.dropChildren(1).appendBlockChild(element);
+				const newRight = this.right._dropChildren(1)._appendBlockChild(element);
 				return this.#copy(undefined, newRight, newMiddle, newLength);
 			}
 		}
@@ -265,5 +265,193 @@ export class OuterTree<T>
 			this.middle?.toArray() ?? [],
 			this.right.toArray(),
 		) as ArrayNonEmpty<T>;
+	}
+
+	_prependBlock(leftBlock: OuterBlock<T>): OuterTree<T> {
+		const newSize = this.size + leftBlock.size;
+
+		// Case 1: Left block can be merged with current left block
+		if (this.left.size + leftBlock.size <= this.context.maxBlockSize) {
+			const newLeftChildren = leftBlock._concatChildren(
+				this.left._copyChildren(),
+			);
+			const newLeftBlock = this.context.outerBlockLeftRight(newLeftChildren);
+			return this.#copy(newLeftBlock, undefined, undefined, newSize);
+		}
+
+		// Case 2: Tree Left block can be merged with current middle block
+		if (this.left._childrenInMin) {
+			const newMiddle = this._prependMiddle(this.left);
+
+			return this.#copy(leftBlock, undefined, newMiddle, newSize);
+		}
+
+		// Case 3: Left block can be merged with current left block and split into two blocks for middle
+		const jointChildren = leftBlock._concatChildren(this.left._copyChildren());
+		const [newLeftChildren, toMiddleChildren] = this.#ops.mutateSplice(
+			jointChildren,
+			-this.context.maxBlockSize,
+		);
+
+		const newLeft = this.context.outerBlockLeftRight(newLeftChildren);
+		const toMiddle = this.context.outerBlockLeftRight(toMiddleChildren);
+
+		const newMiddle = this._prependMiddle(toMiddle);
+
+		return this.#copy(newLeft, undefined, newMiddle, newSize);
+	}
+
+	_prependTree(leftTree: OuterTree<T>): OuterTree<T> {
+		const newSize = this.size + leftTree.size;
+		const jointLength = leftTree.right.size + this.left.size;
+
+		// Case 1: Joint is too small (underflow) — must merge with neighbors
+		if (jointLength < this.context.minBlockSize) {
+			if (null === this.middle) {
+				//this  left + right > maxBlockSize, otherwise would be single block
+				const jointChildren = leftTree.right._concatChildren(
+					this.left._concatChildren(this.right._copyChildren()),
+				);
+				const [toLeftMiddleChildren, newRightChildren] = this.#ops.mutateSplice(
+					jointChildren,
+					this.context.maxBlockSize,
+				);
+				const toLeftMiddle =
+					this.context.outerBlockLeftRight(toLeftMiddleChildren);
+				const newRight = this.context.outerBlockLeftRight(newRightChildren);
+				const newLeftMiddle = leftTree._prependMiddle(toLeftMiddle);
+
+				return this.context.outerTree(
+					leftTree.left,
+					newRight,
+					newLeftMiddle,
+					newSize,
+				);
+			}
+
+			// this.middle exists, so we can merge joint with middle
+			// middle block >= min size, joint length < min size,
+			const [newThisMiddle, toJoint] = this.middle.dropFirstChild();
+			const jointChildren = leftTree.right._concatChildren(
+				this.left._concatChildren(toJoint._copyChildren()),
+			);
+			const jointNrChildren = this.#ops.size(jointChildren);
+
+			// Case 1a: Joint fits in a single block — merge and push to middle
+			if (jointNrChildren <= this.context.maxBlockSize) {
+				const joint = this.context.outerBlockLeftRight(jointChildren);
+
+				const m =
+					null === newThisMiddle
+						? leftTree._appendMiddle(joint)
+						: leftTree._appendMiddle(joint).concat(newThisMiddle);
+
+				return this.context.outerTree(leftTree.left, this.right, m, newSize);
+			}
+
+			// Case 1b: Joint overflows — merge and split into two blocks for middle
+			const [jointLeftChildren, jointRightChildren] = this.#ops.mutateSplice(
+				jointChildren,
+				jointNrChildren >> 1,
+			);
+
+			const jointLeft = this.context.outerBlockLeftRight(jointLeftChildren);
+			const jointRight = this.context.outerBlockLeftRight(jointRightChildren);
+
+			const newMiddle =
+				null === newThisMiddle
+					? leftTree._appendMiddle(jointLeft).appendChild(jointRight)
+					: null === leftTree.middle
+						? newThisMiddle.appendChild(jointLeft).appendChild(jointRight)
+						: leftTree
+								._appendMiddle(jointLeft)
+								.appendChild(jointRight)
+								.concat(newThisMiddle);
+
+			return this.context.outerTree(
+				leftTree.left,
+				this.right,
+				newMiddle,
+				newSize,
+			);
+		}
+
+		// Case 2: Joint fits in a single block — merge and push to middle
+		if (jointLength <= this.context.maxBlockSize) {
+			const jointChildren = leftTree.right._concatChildren(
+				this.left._copyChildren(),
+			);
+			const joint = this.context.outerBlockLeftRight(jointChildren);
+			const newThisMiddle = this._appendMiddle(joint);
+			const newMiddle =
+				null === leftTree.middle
+					? newThisMiddle
+					: leftTree.middle.concat(newThisMiddle);
+
+			return this.context.outerTree(
+				leftTree.right,
+				this.right,
+				newMiddle,
+				newSize,
+			);
+		}
+
+		// Case 3: Both sides already satisfy minBlockSize — push both to middle
+		if (leftTree.right._childrenInMin && this.left._childrenInMin) {
+			const newLeftMiddle = leftTree
+				._appendMiddle(leftTree.right)
+				.appendChild(this.left);
+
+			const newMiddle =
+				null === this.middle
+					? newLeftMiddle
+					: newLeftMiddle.concat(this.middle);
+
+			return this.context.outerTree(
+				leftTree.left,
+				this.right,
+				newMiddle,
+				newSize,
+			);
+		}
+
+		// Case 4: Joint overflows — merge and split into two blocks for middle
+		const jointChildren = leftTree.right._concatChildren(
+			this.left._copyChildren(),
+		);
+		const [jointLeftChildren, jointRightChildren] = this.#ops.mutateSplice(
+			jointChildren,
+			jointLength >> 1,
+		);
+
+		const jointLeft = this.context.outerBlockLeftRight(jointLeftChildren);
+		const jointRight = this.context.outerBlockLeftRight(jointRightChildren);
+
+		const newThisMiddle = this._appendMiddle(jointLeft).appendChild(jointRight);
+		const newMiddle =
+			null === leftTree.middle
+				? newThisMiddle
+				: leftTree.middle.concat(newThisMiddle);
+
+		return this.context.outerTree(
+			leftTree.left,
+			this.right,
+			newMiddle,
+			newSize,
+		);
+	}
+
+	_prependMiddle(block: OuterBlock<T>): Inner<T, OuterBlock<T>> {
+		return (
+			this.middle?.prependChild(block) ??
+			this.context.innerBlock<T, OuterBlock<T>>([block], block.size, 1)
+		);
+	}
+
+	_appendMiddle(block: OuterBlock<T>): Inner<T, OuterBlock<T>> {
+		return (
+			this.middle?.appendChild(block) ??
+			this.context.innerBlock<T, OuterBlock<T>>([block], block.size, 1)
+		);
 	}
 }

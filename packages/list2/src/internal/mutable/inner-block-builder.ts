@@ -64,7 +64,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 	}
 
 	get nrChildren(): number {
-		return this.#source?.nrChildren ?? this.#children.length;
+		return this.#source?._nrChildren ?? this.#children.length;
 	}
 
 	get canAddChild(): boolean {
@@ -96,7 +96,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 
 	get(index: number): T {
 		if (undefined !== this.#source) {
-			return this.#source.get(index);
+			return this.#source._get(index);
 		}
 
 		const [childIndex, inChildIndex] = getInnerBlockCoordinates({

@@ -6,18 +6,18 @@ export function treeGet<T>(tree: Tree<T>, index: number): T {
 	const middleIndex = index - tree.left.size;
 
 	if (middleIndex < 0) {
-		return tree.left.get(index);
+		return tree.left._get(index);
 	}
 
 	if (null === tree.middle) {
-		return tree.right.get(middleIndex);
+		return tree.right._get(middleIndex);
 	}
 
 	const rightIndex = middleIndex - tree.middle.size;
 
-	if (rightIndex < 0) return tree.middle.get(middleIndex);
+	if (rightIndex < 0) return tree.middle._get(middleIndex);
 
-	return tree.right.get(rightIndex);
+	return tree.right._get(rightIndex);
 }
 
 export function treeStream<T>(

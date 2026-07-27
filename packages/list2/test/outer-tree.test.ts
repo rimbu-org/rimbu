@@ -193,9 +193,9 @@ describe('OuterTree.read', () => {
 		const t = simpleTree([10, 20], [30, 40, 50]);
 
 		it('returns element at positive index', () => {
-			expect(t.get(0)).toBe(10);
-			expect(t.get(3)).toBe(40);
-			expect(t.get(4)).toBe(50);
+			expect(t._get(0)).toBe(10);
+			expect(t._get(3)).toBe(40);
+			expect(t._get(4)).toBe(50);
 		});
 
 		it('at supports negative indices', () => {

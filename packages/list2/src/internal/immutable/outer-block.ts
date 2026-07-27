@@ -1,9 +1,10 @@
 import type { List } from '@rimbu/list';
-import type { Stream } from '@rimbu/stream';
+import type { Stream, StreamSource } from '@rimbu/stream';
 
-import type { OuterChildren } from '#advanced/children-ops';
+import type { ChildrenOps, OuterChildren } from '#advanced/children-ops';
 import type { ListContext } from '#list/context';
 import type { Block } from '#list/immutable/common';
+import type { OuterTree } from '#list/immutable/outer-tree';
 import type { OuterBlockBuilder } from '#list/mutable/outer-block-builder';
 
 import { checkIsInteger } from '@rimbu/base';
@@ -27,7 +28,6 @@ export abstract class OuterBlock<T>
 	}
 
 	abstract get size(): number;
-	abstract get(index: number): T;
 	abstract stream(options?: {
 		reversed?: boolean | undefined;
 	}): Stream.NonEmpty<T>;
@@ -49,32 +49,38 @@ export abstract class OuterBlock<T>
 		reversed?: boolean | undefined;
 	}): ArrayNonEmpty<T>;
 	abstract map<T2>(f: (element: T) => T2): OuterBlock<T2>;
-	abstract appendBlockChild(child: T): OuterBlock<T>;
-	abstract prependBlockChild(child: T): OuterBlock<T>;
-	abstract createOuterBlock(element: T): OuterBlock<T>;
-	abstract copyChildren(): OuterChildren<T>;
-	abstract takeChildren(amount: number): OuterBlock<T>;
-	abstract dropChildren(amount: number): OuterBlock<T>;
-	abstract concatChildren(children: OuterChildren<T>): OuterChildren<T>;
-	abstract prependChildren(children: OuterChildren<T>): OuterChildren<T>;
 
-	get nrChildren(): number {
+	abstract _get(index: number): T;
+	abstract _appendBlockChild(child: T): OuterBlock<T>;
+	abstract _prependBlockChild(child: T): OuterBlock<T>;
+	abstract _createOuterBlock(element: T): OuterBlock<T>;
+	abstract _copyChildren(): OuterChildren<T>;
+	abstract _takeChildren(amount: number): OuterBlock<T>;
+	abstract _dropChildren(amount: number): OuterBlock<T>;
+	abstract _concatChildren(children: OuterChildren<T>): OuterChildren<T>;
+	abstract _prependChildren(children: OuterChildren<T>): OuterChildren<T>;
+
+	get #ops(): ChildrenOps {
+		return this.context.childrenOps;
+	}
+
+	get _nrChildren(): number {
 		return this.size;
 	}
 
-	get childrenInMax(): boolean {
+	get _childrenInMax(): boolean {
 		return this.size <= this.context.maxBlockSize;
 	}
 
-	get childrenInMin(): boolean {
+	get _childrenInMin(): boolean {
 		return this.size >= this.context.minBlockSize;
 	}
 
-	get canAddChild(): boolean {
+	get _canAddChild(): boolean {
 		return this.size < this.context.maxBlockSize;
 	}
 
-	get canRemoveChild(): boolean {
+	get _canRemoveChild(): boolean {
 		return this.size > this.context.minBlockSize;
 	}
 
@@ -87,11 +93,11 @@ export abstract class OuterBlock<T>
 		}
 		if (index < 0) index = size + index;
 
-		return this.get(index);
+		return this._get(index);
 	}
 
 	first(): T {
-		return this.get(0);
+		return this._get(0);
 	}
 
 	last(): T {
@@ -108,7 +114,7 @@ export abstract class OuterBlock<T>
 			return this;
 		}
 
-		return this.takeChildren(count);
+		return this._takeChildren(count);
 	}
 
 	drop(count: number): List<T> {
@@ -121,16 +127,16 @@ export abstract class OuterBlock<T>
 			return this.context.empty();
 		}
 
-		return this.dropChildren(count);
+		return this._dropChildren(count);
 	}
 
 	prepend(element: T): List.NonEmpty<T> {
-		if (this.canAddChild) {
-			return this.prependBlockChild(element);
+		if (this._canAddChild) {
+			return this._prependBlockChild(element);
 		}
 
 		return this.context.outerTree<T>(
-			this.createOuterBlock(element),
+			this._createOuterBlock(element),
 			this,
 			null,
 			this.size + 1,
@@ -138,35 +144,106 @@ export abstract class OuterBlock<T>
 	}
 
 	append(element: T): List.NonEmpty<T> {
-		if (this.canAddChild) {
-			return this.appendBlockChild(element);
+		if (this._canAddChild) {
+			return this._appendBlockChild(element);
 		}
 
 		return this.context.outerTree(
 			this,
-			this.createOuterBlock(element),
+			this._createOuterBlock(element),
 			null,
 			this.size + 1,
 		);
+	}
+
+	concat(...sources: ArrayNonEmpty<StreamSource<T>>): List.NonEmpty<T> {
+		const asList = this.context.from(...sources);
+
+		if (!asList.nonEmpty()) {
+			return this;
+		}
+
+		if (asList === this && this.size > this.context.minBlockSize) {
+			return this.context.outerTree(this, this, null, this.size * 2);
+		}
+
+		return (asList as ListNonEmptyBase<T>)._prependBlock(this);
 	}
 
 	placeAt(): List.NonEmpty<T> {
 		return 0 as any;
 	}
 
-	dropFirstChild(): [OuterBlock<T>, T] {
+	toBuilder(): OuterBlockBuilder<T> {
+		return this.context.outerBlockBuilderSource(this);
+	}
+
+	_dropFirstChild(): [OuterBlock<T>, T] {
 		const first = this.first();
-		const newSelf = this.dropChildren(1);
+		const newSelf = this._dropChildren(1);
 		return [newSelf, first];
 	}
 
-	dropLastChild(): [OuterBlock<T>, T] {
+	_dropLastChild(): [OuterBlock<T>, T] {
 		const last = this.last();
-		const newSelf = this.dropChildren(-1);
+		const newSelf = this._dropChildren(-1);
 		return [newSelf, last];
 	}
 
-	toBuilder(): OuterBlockBuilder<T> {
-		return this.context.outerBlockBuilderSource(this);
+	_prependBlock(leftBlock: OuterBlock<T>): List.NonEmpty<T> {
+		const newSize = leftBlock.size + this.size;
+
+		if (newSize <= this.context.maxBlockSize) {
+			const newChildren = leftBlock._prependChildren(this._copyChildren());
+			return this.context.outerBlockLeftRight(newChildren);
+		}
+
+		return this.context.outerTree(leftBlock, this, null, newSize);
+	}
+
+	_prependTree(leftTree: OuterTree<T>): List.NonEmpty<T> {
+		const newSize = leftTree.size + this.size;
+
+		const jointSize = leftTree.right.size + this.size;
+		// Case 1: Joint is small enough to merge into a single block
+		if (jointSize <= this.context.maxBlockSize) {
+			const newLeftRightChildren = leftTree.right.concat(this) as OuterBlock<T>;
+			return this.context.outerTree(
+				leftTree.left,
+				newLeftRightChildren,
+				leftTree.middle,
+				newSize,
+			);
+		}
+
+		// Case 2: Joint is too large to merge into a single block, but can be merged into the middle of the tree
+		if (leftTree.right._childrenInMin) {
+			const newLeftMiddle =
+				leftTree.middle?.appendChild(leftTree.right) ??
+				this.context.innerBlock([leftTree.right], leftTree.right.size, 1);
+
+			return this.context.outerTree(
+				leftTree.left,
+				this,
+				newLeftMiddle,
+				newSize,
+			);
+		}
+
+		// Case 3: Need to join and split the joint into a new block, and add it to the middle of the tree
+		const jointChildren = leftTree.right._concatChildren(this._copyChildren());
+		const [toMiddleChildren, newRightChildren] = this.#ops.mutateSplice(
+			jointChildren,
+			this.context.maxBlockSize,
+		);
+
+		const toMiddle = this.context.outerBlockLeftRight(toMiddleChildren);
+		const newRight = this.context.outerBlockLeftRight(newRightChildren);
+
+		const newMiddle =
+			leftTree.middle?.appendChild(toMiddle) ??
+			this.context.innerBlock([toMiddle], toMiddle.size, 1);
+
+		return this.context.outerTree(leftTree.left, newRight, newMiddle, newSize);
 	}
 }

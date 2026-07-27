@@ -1,6 +1,7 @@
 import type { List } from '@rimbu/list';
 
 import type { ListContext } from '#list/context';
+import type { OuterBlock } from '#list/immutable/outer-block';
 
 import { IndexedCollectionNonEmptyBase } from '@rimbu/collection-types/advanced/capabilities/base';
 import { IndexRange } from '@rimbu/common';
@@ -21,6 +22,8 @@ export abstract class ListNonEmptyBase<T>
 	abstract prepend(element: T): List.NonEmpty<T>;
 	abstract append(element: T): List.NonEmpty<T>;
 	abstract placeAt(index: number, element: T): List.NonEmpty<T>;
+
+	abstract _prependBlock(block: OuterBlock<T>): List.NonEmpty<T>;
 
 	slice(range: IndexRange): List<T> {
 		const result = IndexRange.getIndicesFor(range, this.size);

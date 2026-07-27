@@ -64,7 +64,7 @@ describe('InnerBlock.properties', () => {
 
 	it('nrChildren equals child count', () => {
 		const b = inner(ctx, [ob(ctx, [1]), ob(ctx, [2]), ob(ctx, [3])]);
-		expect(b.nrChildren).toBe(3);
+		expect(b._nrChildren).toBe(3);
 	});
 
 	it('level is preserved', () => {
@@ -76,18 +76,18 @@ describe('InnerBlock.properties', () => {
 		it('true when nrChildren < maxBlockSize', () => {
 			const b = inner(ctx, [ob(ctx, [0]), ob(ctx, [1])]);
 			// max=8, 2 < 8 → true
-			expect(b.canAddChild).toBe(true);
+			expect(b._canAddChild).toBe(true);
 		});
 
 		it('false when nrChildren === maxBlockSize', () => {
 			const full = Array.from({ length: 8 }, (_, i) => ob(ctx, [i]));
 			const b = inner(ctx, full);
-			expect(b.canAddChild).toBe(false);
+			expect(b._canAddChild).toBe(false);
 		});
 
 		it('true for single-child block', () => {
 			const b = inner(ctx, [ob(ctx, [1])]);
-			expect(b.canAddChild).toBe(true);
+			expect(b._canAddChild).toBe(true);
 		});
 	});
 
@@ -95,24 +95,24 @@ describe('InnerBlock.properties', () => {
 		it('true when nrChildren > minBlockSize', () => {
 			const children = Array.from({ length: 5 }, (_, i) => ob(ctx, [i]));
 			const b = inner(ctx, children);
-			expect(b.canRemoveChild).toBe(true);
+			expect(b._canRemoveChild).toBe(true);
 		});
 
 		it('false when nrChildren === minBlockSize', () => {
 			const children = Array.from({ length: 4 }, (_, i) => ob(ctx, [i]));
 			const b = inner(ctx, children);
-			expect(b.canRemoveChild).toBe(false);
+			expect(b._canRemoveChild).toBe(false);
 		});
 
 		it('false for single-child block', () => {
 			const b = inner(ctx, [ob(ctx, [1])]);
-			expect(b.canRemoveChild).toBe(false);
+			expect(b._canRemoveChild).toBe(false);
 		});
 	});
 
 	it('computedSizeTable lazy computed after get', () => {
 		const b = inner(ctx, [ob(ctx, [1, 2])]);
-		b.get(0);
+		b._get(0);
 		expect(b.computedSizeTable).toBeDefined();
 	});
 });
@@ -123,9 +123,9 @@ describe('InnerBlock.read', () => {
 	describe('get', () => {
 		it('reads from first child', () => {
 			const b = inner(ctx, [ob(ctx, [10, 20, 30]), ob(ctx, [40, 50])]);
-			expect(b.get(0)).toBe(10);
-			expect(b.get(1)).toBe(20);
-			expect(b.get(2)).toBe(30);
+			expect(b._get(0)).toBe(10);
+			expect(b._get(1)).toBe(20);
+			expect(b._get(2)).toBe(30);
 		});
 
 		it('reads from middle child', () => {
@@ -134,16 +134,16 @@ describe('InnerBlock.read', () => {
 				ob(ctx, [30, 40, 50]),
 				ob(ctx, [60, 70]),
 			]);
-			expect(b.get(2)).toBe(30);
-			expect(b.get(3)).toBe(40);
-			expect(b.get(4)).toBe(50);
-			expect(b.get(5)).toBe(60);
+			expect(b._get(2)).toBe(30);
+			expect(b._get(3)).toBe(40);
+			expect(b._get(4)).toBe(50);
+			expect(b._get(5)).toBe(60);
 		});
 
 		it('reads from last child', () => {
 			const b = inner(ctx, [ob(ctx, [10]), ob(ctx, [20, 30, 40])]);
-			expect(b.get(1)).toBe(20);
-			expect(b.get(3)).toBe(40);
+			expect(b._get(1)).toBe(20);
+			expect(b._get(3)).toBe(40);
 		});
 
 		it('across many children', () => {
@@ -151,12 +151,12 @@ describe('InnerBlock.read', () => {
 				ob(ctx, [i * 10, i * 10 + 1]),
 			);
 			const b = innerWithTable(ctx, children);
-			expect(b.get(0)).toBe(0);
-			expect(b.get(1)).toBe(1);
-			expect(b.get(2)).toBe(10);
-			expect(b.get(3)).toBe(11);
-			expect(b.get(22)).toBe(110);
-			expect(b.get(23)).toBe(111);
+			expect(b._get(0)).toBe(0);
+			expect(b._get(1)).toBe(1);
+			expect(b._get(2)).toBe(10);
+			expect(b._get(3)).toBe(11);
+			expect(b._get(22)).toBe(110);
+			expect(b._get(23)).toBe(111);
 		});
 
 		it('large child blocks with many elements within maxChildSize', () => {
@@ -175,12 +175,12 @@ describe('InnerBlock.read', () => {
 					Array.from({ length: 16 }, (_, i) => i + 32),
 				),
 			]);
-			expect(b.get(0)).toBe(0);
-			expect(b.get(15)).toBe(15);
-			expect(b.get(16)).toBe(16);
-			expect(b.get(31)).toBe(31);
-			expect(b.get(32)).toBe(32);
-			expect(b.get(47)).toBe(47);
+			expect(b._get(0)).toBe(0);
+			expect(b._get(15)).toBe(15);
+			expect(b._get(16)).toBe(16);
+			expect(b._get(31)).toBe(31);
+			expect(b._get(32)).toBe(32);
+			expect(b._get(47)).toBe(47);
 		});
 	});
 
@@ -256,22 +256,22 @@ describe('InnerBlock.mutation', () => {
 	describe('prependBlockChild', () => {
 		it('adds child block at start', () => {
 			const b = inner(ctx, [ob(ctx, [2, 3]), ob(ctx, [4])]);
-			const r = b.prependBlockChild(ob(ctx, [0, 1]));
-			expect(r.nrChildren).toBe(3);
+			const r = b._prependBlockChild(ob(ctx, [0, 1]));
+			expect(r._nrChildren).toBe(3);
 			expect(r.size).toBe(5);
 			expect(r.toArray()).toEqual([0, 1, 2, 3, 4]);
 		});
 
 		it('does not mutate original', () => {
 			const b = inner(ctx, [ob(ctx, [1])]);
-			b.prependBlockChild(ob(ctx, [0]));
+			b._prependBlockChild(ob(ctx, [0]));
 			expect(b.toArray()).toEqual([1]);
-			expect(b.nrChildren).toBe(1);
+			expect(b._nrChildren).toBe(1);
 		});
 
 		it('works on single-child block', () => {
 			const b = inner(ctx, [ob(ctx, [2])]);
-			const r = b.prependBlockChild(ob(ctx, [1]));
+			const r = b._prependBlockChild(ob(ctx, [1]));
 			expect(r.toArray()).toEqual([1, 2]);
 		});
 	});
@@ -279,21 +279,21 @@ describe('InnerBlock.mutation', () => {
 	describe('appendBlockChild', () => {
 		it('adds child block at end', () => {
 			const b = inner(ctx, [ob(ctx, [1]), ob(ctx, [2, 3])]);
-			const r = b.appendBlockChild(ob(ctx, [4, 5]));
-			expect(r.nrChildren).toBe(3);
+			const r = b._appendBlockChild(ob(ctx, [4, 5]));
+			expect(r._nrChildren).toBe(3);
 			expect(r.size).toBe(5);
 			expect(r.toArray()).toEqual([1, 2, 3, 4, 5]);
 		});
 
 		it('does not mutate original', () => {
 			const b = inner(ctx, [ob(ctx, [1])]);
-			b.appendBlockChild(ob(ctx, [2]));
+			b._appendBlockChild(ob(ctx, [2]));
 			expect(b.toArray()).toEqual([1]);
 		});
 
 		it('works on single-child block', () => {
 			const b = inner(ctx, [ob(ctx, [1])]);
-			const r = b.appendBlockChild(ob(ctx, [2]));
+			const r = b._appendBlockChild(ob(ctx, [2]));
 			expect(r.toArray()).toEqual([1, 2]);
 		});
 	});
@@ -301,7 +301,7 @@ describe('InnerBlock.mutation', () => {
 	describe('prependChild', () => {
 		it('delegates to prependBlockChild', () => {
 			const b = inner(ctx, [ob(ctx, [2])]);
-			const r = b.prependChild(ob(ctx, [1]));
+			const r = b._prependChild(ob(ctx, [1]));
 			expect(r.toArray()).toEqual([1, 2]);
 		});
 	});
@@ -309,7 +309,7 @@ describe('InnerBlock.mutation', () => {
 	describe('appendChild', () => {
 		it('delegates to appendBlockChild', () => {
 			const b = inner(ctx, [ob(ctx, [1])]);
-			const r = b.appendChild(ob(ctx, [2]));
+			const r = b._appendChild(ob(ctx, [2]));
 			expect(r.toArray()).toEqual([1, 2]);
 		});
 	});
@@ -319,7 +319,7 @@ describe('InnerBlock.mutation', () => {
 			const b = inner(ctx, [ob(ctx, [1, 2]), ob(ctx, [3]), ob(ctx, [4, 5])]);
 			const r = b.withChild(1, ob(ctx, [30, 31]));
 
-			expect(r.nrChildren).toBe(3);
+			expect(r._nrChildren).toBe(3);
 			expect(r.size).toBe(6);
 			expect(r.toArray()).toEqual([1, 2, 30, 31, 4, 5]);
 		});
@@ -340,7 +340,7 @@ describe('InnerBlock.mutation', () => {
 	describe('modifyFirstChild', () => {
 		it('modifies first child block', () => {
 			const b = inner(ctx, [ob(ctx, [1]), ob(ctx, [2, 3])]);
-			const r = b.modifyFirstChild((c) => c.appendBlockChild(10));
+			const r = b.modifyFirstChild((c) => c._appendBlockChild(10));
 			expect(r!.toArray()).toEqual([1, 10, 2, 3]);
 		});
 
@@ -360,7 +360,7 @@ describe('InnerBlock.mutation', () => {
 	describe('modifyLastChild', () => {
 		it('modifies last child block', () => {
 			const b = inner(ctx, [ob(ctx, [1, 2]), ob(ctx, [3])]);
-			const r = b.modifyLastChild((c) => c.appendBlockChild(4));
+			const r = b.modifyLastChild((c) => c._appendBlockChild(4));
 			expect(r!.toArray()).toEqual([1, 2, 3, 4]);
 		});
 
@@ -401,7 +401,7 @@ describe('InnerBlock.child-manipulation', () => {
 			const b = inner(ctx, [ob(ctx, [1]), ob(ctx, [2])]);
 			b.dropFirstChild();
 			expect(b.toArray()).toEqual([1, 2]);
-			expect(b.nrChildren).toBe(2);
+			expect(b._nrChildren).toBe(2);
 		});
 	});
 
@@ -442,7 +442,7 @@ describe('InnerBlock.map', () => {
 	it('preserves inner block structure', () => {
 		const b = inner(ctx, [ob(ctx, [1, 2]), ob(ctx, [3])]);
 		const r = b.map((x: number) => x);
-		expect(r.nrChildren).toBe(2);
+		expect(r._nrChildren).toBe(2);
 		expect(r.size).toBe(3);
 	});
 
@@ -470,12 +470,12 @@ describe('InnerBlock.immutability', () => {
 
 	it('prependBlockChild returns new instance', () => {
 		const b = inner(ctx, [ob(ctx, [2])]);
-		expect(b.prependBlockChild(ob(ctx, [1]))).not.toBe(b as any);
+		expect(b._prependBlockChild(ob(ctx, [1]))).not.toBe(b as any);
 	});
 
 	it('appendBlockChild returns new instance', () => {
 		const b = inner(ctx, [ob(ctx, [1])]);
-		expect(b.appendBlockChild(ob(ctx, [2]))).not.toBe(b as any);
+		expect(b._appendBlockChild(ob(ctx, [2]))).not.toBe(b as any);
 	});
 
 	it('map returns new instance', () => {
@@ -498,20 +498,20 @@ describe('InnerBlock.edge-cases', () => {
 				ob(ctx, [i * 10, i * 10 + 1]),
 			);
 			const b = innerWithTable(ctx, children);
-			expect(b.get(0)).toBe(0);
-			expect(b.get(1)).toBe(1);
-			expect(b.get(2)).toBe(10);
-			expect(b.get(3)).toBe(11);
-			expect(b.get(7)).toBe(31);
+			expect(b._get(0)).toBe(0);
+			expect(b._get(1)).toBe(1);
+			expect(b._get(2)).toBe(10);
+			expect(b._get(3)).toBe(11);
+			expect(b._get(7)).toBe(31);
 		});
 
 		it('irregular shape lazily computes cumulative table', () => {
 			const children = [ob(ctx, [1]), ob(ctx, [2, 3, 4, 5]), ob(ctx, [6])];
 			const b = inner(ctx, children);
 
-			expect(b.get(0)).toBe(1);
-			expect(b.get(3)).toBe(4);
-			expect(b.get(5)).toBe(6);
+			expect(b._get(0)).toBe(1);
+			expect(b._get(3)).toBe(4);
+			expect(b._get(5)).toBe(6);
 
 			expect(b.computedSizeTable).not.toBe('regular');
 			expect(b.computedSizeTable).toBeDefined();
@@ -523,17 +523,17 @@ describe('InnerBlock.edge-cases', () => {
 			const b = inner(ctx, [ob(ctx, [1]), ob(ctx, [2])], 3);
 			expect(b.level).toBe(3);
 			// get still works through size table
-			expect(b.get(0)).toBe(1);
-			expect(b.get(1)).toBe(2);
+			expect(b._get(0)).toBe(1);
+			expect(b._get(1)).toBe(2);
 		});
 	});
 
 	describe('single child', () => {
 		it('get works on single child', () => {
 			const b = inner(ctx, [ob(ctx, [10, 20, 30])]);
-			expect(b.get(0)).toBe(10);
-			expect(b.get(2)).toBe(30);
-			expect(b.nrChildren).toBe(1);
+			expect(b._get(0)).toBe(10);
+			expect(b._get(2)).toBe(30);
+			expect(b._nrChildren).toBe(1);
 		});
 
 		it('dropFirstChild returns null', () => {
@@ -555,25 +555,25 @@ describe('InnerBlock.edge-cases', () => {
 		it('max size check on blockSizeBits=2', () => {
 			const children = Array.from({ length: 4 }, (_, i) => ob(ctx, [i]));
 			const b = inner(ctx, children);
-			expect(b.nrChildren).toBe(4);
-			expect(b.canAddChild).toBe(false); // 4 >= maxBlockSize=4
+			expect(b._nrChildren).toBe(4);
+			expect(b._canAddChild).toBe(false); // 4 >= maxBlockSize=4
 		});
 
 		it('just below max', () => {
 			const children = Array.from({ length: 3 }, (_, i) => ob(ctx, [i]));
 			const b = inner(ctx, children);
-			expect(b.canAddChild).toBe(true);
+			expect(b._canAddChild).toBe(true);
 		});
 
 		it('min size check', () => {
 			const b = inner(ctx, [ob(ctx, [1]), ob(ctx, [2])]);
-			expect(b.canRemoveChild).toBe(false); // 2 NOT > min=2
+			expect(b._canRemoveChild).toBe(false); // 2 NOT > min=2
 		});
 
 		it('just above min', () => {
 			const children = Array.from({ length: 3 }, (_, i) => ob(ctx, [i]));
 			const b = inner(ctx, children);
-			expect(b.canRemoveChild).toBe(true);
+			expect(b._canRemoveChild).toBe(true);
 		});
 	});
 
@@ -581,10 +581,10 @@ describe('InnerBlock.edge-cases', () => {
 		it('prepend then append', () => {
 			const b = inner(ctx, [ob(ctx, [2])]);
 			const r = b
-				.prependBlockChild(ob(ctx, [1]))
-				.appendBlockChild(ob(ctx, [3]));
+				._prependBlockChild(ob(ctx, [1]))
+				._appendBlockChild(ob(ctx, [3]));
 			expect(r.toArray()).toEqual([1, 2, 3]);
-			expect(r.nrChildren).toBe(3);
+			expect(r._nrChildren).toBe(3);
 		});
 
 		it('modify then drop', () => {
@@ -602,14 +602,14 @@ describe('InnerBlock.edge-cases', () => {
 				ob(ctx, [i * 3, i * 3 + 1, i * 3 + 2]),
 			);
 			const b = innerWithTable(ctx, children);
-			expect(b.nrChildren).toBe(20);
+			expect(b._nrChildren).toBe(20);
 			expect(b.size).toBe(60);
 
-			expect(b.get(0)).toBe(0);
-			expect(b.get(2)).toBe(2);
-			expect(b.get(3)).toBe(3);
-			expect(b.get(57)).toBe(57);
-			expect(b.get(59)).toBe(59);
+			expect(b._get(0)).toBe(0);
+			expect(b._get(2)).toBe(2);
+			expect(b._get(3)).toBe(3);
+			expect(b._get(57)).toBe(57);
+			expect(b._get(59)).toBe(59);
 		});
 
 		it('large forEach visits all elements', () => {
@@ -627,10 +627,10 @@ describe('InnerBlock.edge-cases', () => {
 		it('null elements in child blocks', () => {
 			const ictx = makeContext<number | null>(2);
 			const b = inner(ictx, [ob(ictx, [1, null]), ob(ictx, [null, 3])]);
-			expect(b.get(0)).toBe(1);
-			expect(b.get(1)).toBeNull();
-			expect(b.get(2)).toBeNull();
-			expect(b.get(3)).toBe(3);
+			expect(b._get(0)).toBe(1);
+			expect(b._get(1)).toBeNull();
+			expect(b._get(2)).toBeNull();
+			expect(b._get(3)).toBe(3);
 		});
 
 		it('undefined elements in child blocks', () => {
@@ -639,10 +639,10 @@ describe('InnerBlock.edge-cases', () => {
 				ob(ictx, [1, undefined]),
 				ob(ictx, [undefined, 3]),
 			]);
-			expect(b.get(0)).toBe(1);
-			expect(b.get(1)).toBeUndefined();
-			expect(b.get(2)).toBeUndefined();
-			expect(b.get(3)).toBe(3);
+			expect(b._get(0)).toBe(1);
+			expect(b._get(1)).toBeUndefined();
+			expect(b._get(2)).toBeUndefined();
+			expect(b._get(3)).toBe(3);
 		});
 	});
 });

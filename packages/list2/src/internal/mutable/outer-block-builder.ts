@@ -68,7 +68,7 @@ export class OuterBlockBuilder<T>
 	#prepareMutate(): void {
 		if (undefined === this.#source) return;
 
-		this.#_children = this.#source.copyChildren();
+		this.#_children = this.#source._copyChildren();
 		this.#source = undefined;
 	}
 
@@ -91,7 +91,7 @@ export class OuterBlockBuilder<T>
 
 	get(index: number): T {
 		if (undefined !== this.#source) {
-			return this.#source.get(index);
+			return this.#source._get(index);
 		}
 
 		return this.#ops.at(this.#children, index);
@@ -177,7 +177,7 @@ export class OuterBlockBuilder<T>
 		this.#prepareMutate();
 
 		if (undefined !== other.#source) {
-			this.#children = other.#source.concatChildren(this.#children);
+			this.#children = other.#source._concatChildren(this.#children);
 		} else {
 			this.#children = this.#ops.concat(other.#children, this.#children);
 		}
@@ -187,7 +187,7 @@ export class OuterBlockBuilder<T>
 		this.#prepareMutate();
 
 		if (undefined !== other.#source) {
-			this.#children = other.#source.prependChildren(this.#children);
+			this.#children = other.#source._prependChildren(this.#children);
 		} else {
 			this.#children = this.#ops.concat(this.#children, other.#children);
 		}

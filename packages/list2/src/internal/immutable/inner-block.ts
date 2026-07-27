@@ -1,5 +1,6 @@
 import type { ListContext } from '#list/context';
 import type { Block, Inner } from '#list/immutable/common';
+import type { InnerTree } from '#list/immutable/inner-tree';
 import type { InnerBlockBuilder } from '#list/mutable/inner-block-builder';
 
 import { Stream } from '@rimbu/stream';
@@ -56,16 +57,16 @@ export class InnerBlock<T, C extends Block<T>>
 		return this.#_computedSizeTable;
 	}
 
-	get nrChildren() {
+	get _nrChildren() {
 		return this.#children.length;
 	}
 
-	get canAddChild(): boolean {
-		return this.nrChildren < this.context.maxBlockSize;
+	get _canAddChild(): boolean {
+		return this._nrChildren < this.context.maxBlockSize;
 	}
 
-	get canRemoveChild(): boolean {
-		return this.nrChildren > this.context.minBlockSize;
+	get _canRemoveChild(): boolean {
+		return this._nrChildren > this.context.minBlockSize;
 	}
 
 	#copy(
@@ -100,20 +101,20 @@ export class InnerBlock<T, C extends Block<T>>
 			.flatMap((child) => child.stream(options));
 	}
 
-	get(index: number): T {
+	_get(index: number): T {
 		const [childIndex, inChildIndex] = getInnerBlockCoordinates({
 			index,
 			size: this.size,
-			nrChildren: this.nrChildren,
+			nrChildren: this._nrChildren,
 			sizeTable: this.#sizeTable,
 			blockSizeBits: this.context.blockSizeBits,
 			level: this.level,
 		});
 
-		return this.#children[childIndex].get(inChildIndex);
+		return this.#children[childIndex]._get(inChildIndex);
 	}
 
-	prependBlockChild(child: C): InnerBlock<T, C> {
+	_prependBlockChild(child: C): InnerBlock<T, C> {
 		const newSize = this.size + child.size;
 
 		const newChildren = this.#children.slice();
@@ -128,7 +129,7 @@ export class InnerBlock<T, C extends Block<T>>
 		return this.#copy(newChildren, newSize, newSizeTable);
 	}
 
-	appendBlockChild(child: C): InnerBlock<T, C> {
+	_appendBlockChild(child: C): InnerBlock<T, C> {
 		const newSize = this.size + child.size;
 
 		const newChildren = this.#children.slice();
@@ -172,17 +173,17 @@ export class InnerBlock<T, C extends Block<T>>
 	}
 
 	prependChild(child: C): InnerBlock<T, C> {
-		return this.prependBlockChild(child);
+		return this._prependBlockChild(child);
 	}
 
 	appendChild(child: C): InnerBlock<T, C> {
-		return this.appendBlockChild(child);
+		return this._appendBlockChild(child);
 	}
 
 	dropFirstChild(): [InnerBlock<T, C> | null, C] {
 		const firstChild = this.#children[0];
 
-		if (this.nrChildren === 1) return [null, firstChild];
+		if (this._nrChildren === 1) return [null, firstChild];
 
 		const newChildren = this.#children.slice(1);
 		const newSize = this.size - firstChild.size;
@@ -193,7 +194,7 @@ export class InnerBlock<T, C extends Block<T>>
 	dropLastChild(): [InnerBlock<T, C> | null, C] {
 		const lastChild = this.#children[this.#children.length - 1];
 
-		if (this.nrChildren === 1) return [null, lastChild];
+		if (this._nrChildren === 1) return [null, lastChild];
 
 		const newChildren = this.#children.slice(0, -1);
 		const newSize = this.size - lastChild.size;
@@ -223,6 +224,18 @@ export class InnerBlock<T, C extends Block<T>>
 		const newLength = this.size - lastChild.size + newLastChild.size;
 
 		return this.#copy(newChildren, newLength);
+	}
+
+	concat(other: Inner<T, C>): Inner<T, C> {
+		return other.prependBlock(this);
+	}
+
+	prependBlock(leftBlock: InnerBlock<T, C>): Inner<T, C> {
+		return 0 as any;
+	}
+
+	prependTree(leftTree: InnerTree<T, C>): Inner<T, C> {
+		return 0 as any;
 	}
 
 	toBuilder(): InnerBlockBuilder<T, any> {
