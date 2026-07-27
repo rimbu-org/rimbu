@@ -301,7 +301,7 @@ describe('InnerBlock.mutation', () => {
 	describe('prependChild', () => {
 		it('delegates to prependBlockChild', () => {
 			const b = inner(ctx, [ob(ctx, [2])]);
-			const r = b._prependChild(ob(ctx, [1]));
+			const r = b.prependChild(ob(ctx, [1]));
 			expect(r.toArray()).toEqual([1, 2]);
 		});
 	});
@@ -309,7 +309,7 @@ describe('InnerBlock.mutation', () => {
 	describe('appendChild', () => {
 		it('delegates to appendBlockChild', () => {
 			const b = inner(ctx, [ob(ctx, [1])]);
-			const r = b._appendChild(ob(ctx, [2]));
+			const r = b.appendChild(ob(ctx, [2]));
 			expect(r.toArray()).toEqual([1, 2]);
 		});
 	});

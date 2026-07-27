@@ -202,7 +202,7 @@ describe('InnerTree.prependChild', () => {
 
 	it('adds to left when left has room', () => {
 		const t = simpleInnerTree([ob(ctx, [1])], [ob(ctx, [3, 4])], bits);
-		const r = t._prependChild(ob(ctx, [0]));
+		const r = t.prependChild(ob(ctx, [0]));
 		expect(r.toArray()).toEqual([0, 1, 3, 4]);
 		expect(r.size).toBe(4);
 	});
@@ -213,7 +213,7 @@ describe('InnerTree.prependChild', () => {
 			[ob(ctx, [5])],
 			bits,
 		);
-		const r = t._prependChild(ob(ctx, [0]));
+		const r = t.prependChild(ob(ctx, [0]));
 		expect(r.toArray()).toEqual([0, 1, 2, 3, 4, 5]);
 	});
 
@@ -224,7 +224,7 @@ describe('InnerTree.prependChild', () => {
 			[ob(ctx, [6]), ob(ctx, [7]), ob(ctx, [8]), ob(ctx, [9])],
 			bits,
 		);
-		const r = t._prependChild(ob(ctx, [0]));
+		const r = t.prependChild(ob(ctx, [0]));
 		expect(r.toArray()).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 		expect(r.size).toBe(10);
 	});
@@ -233,7 +233,7 @@ describe('InnerTree.prependChild', () => {
 		const leftBlocks = Array.from({ length: 4 }, () => ob(ctx, [1]));
 		const rightBlocks = Array.from({ length: 4 }, () => ob(ctx, [2]));
 		const t = simpleInnerTree(leftBlocks, rightBlocks, bits);
-		const r = t._prependChild(ob(ctx, [0]));
+		const r = t.prependChild(ob(ctx, [0]));
 		expect(r.middle).not.toBeNull();
 		expect(r.toArray()).toEqual([
 			0,
@@ -244,13 +244,13 @@ describe('InnerTree.prependChild', () => {
 
 	it('does not mutate original', () => {
 		const t = simpleInnerTree([ob(ctx, [1])], [ob(ctx, [2])], bits);
-		t._prependChild(ob(ctx, [0]));
+		t.prependChild(ob(ctx, [0]));
 		expect(t.toArray()).toEqual([1, 2]);
 	});
 
 	it('returns an InnerTree', () => {
 		const t = simpleInnerTree([ob(ctx, [1])], [ob(ctx, [2])], bits);
-		const r = t._prependChild(ob(ctx, [0]));
+		const r = t.prependChild(ob(ctx, [0]));
 		expect(r).toHaveProperty('left');
 		expect(r).toHaveProperty('right');
 		expect(r).toHaveProperty('middle');
@@ -263,7 +263,7 @@ describe('InnerTree.appendChild', () => {
 
 	it('adds to right when right has room', () => {
 		const t = simpleInnerTree([ob(ctx, [1, 2])], [ob(ctx, [3])], bits);
-		const r = t._appendChild(ob(ctx, [4]));
+		const r = t.appendChild(ob(ctx, [4]));
 		expect(r.toArray()).toEqual([1, 2, 3, 4]);
 		expect(r.size).toBe(4);
 	});
@@ -274,7 +274,7 @@ describe('InnerTree.appendChild', () => {
 			[ob(ctx, [2]), ob(ctx, [3]), ob(ctx, [4]), ob(ctx, [5])],
 			bits,
 		);
-		const r = t._appendChild(ob(ctx, [6]));
+		const r = t.appendChild(ob(ctx, [6]));
 		expect(r.toArray()).toEqual([1, 2, 3, 4, 5, 6]);
 	});
 
@@ -285,7 +285,7 @@ describe('InnerTree.appendChild', () => {
 			[ob(ctx, [6]), ob(ctx, [7]), ob(ctx, [8]), ob(ctx, [9])],
 			bits,
 		);
-		const r = t._appendChild(ob(ctx, [10]));
+		const r = t.appendChild(ob(ctx, [10]));
 		expect(r.toArray()).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
 		expect(r.size).toBe(10);
 	});
@@ -294,7 +294,7 @@ describe('InnerTree.appendChild', () => {
 		const leftBlocks = Array.from({ length: 4 }, () => ob(ctx, [1]));
 		const rightBlocks = Array.from({ length: 4 }, () => ob(ctx, [2]));
 		const t = simpleInnerTree(leftBlocks, rightBlocks, bits);
-		const r = t._appendChild(ob(ctx, [3]));
+		const r = t.appendChild(ob(ctx, [3]));
 		expect(r.middle).not.toBeNull();
 		expect(r.toArray()).toEqual([
 			...leftBlocks.flatMap((b) => b.toArray()),
@@ -305,13 +305,13 @@ describe('InnerTree.appendChild', () => {
 
 	it('does not mutate original', () => {
 		const t = simpleInnerTree([ob(ctx, [1])], [ob(ctx, [2])], bits);
-		t._appendChild(ob(ctx, [3]));
+		t.appendChild(ob(ctx, [3]));
 		expect(t.toArray()).toEqual([1, 2]);
 	});
 
 	it('returns an InnerTree', () => {
 		const t = simpleInnerTree([ob(ctx, [1])], [ob(ctx, [2])], bits);
-		const r = t._appendChild(ob(ctx, [3]));
+		const r = t.appendChild(ob(ctx, [3]));
 		expect(r).toHaveProperty('left');
 		expect(r).toHaveProperty('right');
 		expect(r).toHaveProperty('middle');
@@ -396,12 +396,12 @@ describe('InnerTree.immutability', () => {
 
 	it('prependChild returns new instance', () => {
 		const t = simpleInnerTree([ob(ctx, [1])], [ob(ctx, [2])]);
-		expect(t._prependChild(ob(ctx, [0]))).not.toBe(t as any);
+		expect(t.prependChild(ob(ctx, [0]))).not.toBe(t as any);
 	});
 
 	it('appendChild returns new instance', () => {
 		const t = simpleInnerTree([ob(ctx, [1])], [ob(ctx, [2])]);
-		expect(t._appendChild(ob(ctx, [3]))).not.toBe(t as any);
+		expect(t.appendChild(ob(ctx, [3]))).not.toBe(t as any);
 	});
 
 	it('map returns new instance', () => {
@@ -434,7 +434,7 @@ describe('InnerTree.edge-cases', () => {
 			bits,
 		);
 		for (let i = 2; i >= 0; i--) {
-			t = t._prependChild(ob(ctx, [i]));
+			t = t.prependChild(ob(ctx, [i]));
 		}
 		expect(t.toArray()).toEqual([0, 1, 2, 3, 4]);
 		expect(t.size).toBe(5);
@@ -447,7 +447,7 @@ describe('InnerTree.edge-cases', () => {
 			bits,
 		);
 		for (let i = 2; i < 5; i++) {
-			t = t._appendChild(ob(ctx, [i]));
+			t = t.appendChild(ob(ctx, [i]));
 		}
 		expect(t.toArray()).toEqual([0, 1, 2, 3, 4]);
 		expect(t.size).toBe(5);
@@ -456,9 +456,9 @@ describe('InnerTree.edge-cases', () => {
 	it('chained prepend and append', () => {
 		const t = simpleInnerTree([ob(ctx, [2])], [ob(ctx, [3])], bits);
 		const r = t
-			._prependChild(ob(ctx, [1]))
-			._appendChild(ob(ctx, [4]))
-			._prependChild(ob(ctx, [0]));
+			.prependChild(ob(ctx, [1]))
+			.appendChild(ob(ctx, [4]))
+			.prependChild(ob(ctx, [0]));
 		expect(r.toArray()).toEqual([0, 1, 2, 3, 4]);
 	});
 
