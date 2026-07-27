@@ -124,7 +124,7 @@ export class OuterBlockRightLeft<T> extends OuterBlock<T> {
 			);
 		}
 		return this.#copy(
-			this.#ops.toSpliced(this.#children, amount, this.size + amount),
+			this.#ops.toSpliced(this.#children, -amount, this.size - amount),
 		);
 	}
 

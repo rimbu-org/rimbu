@@ -162,7 +162,7 @@ function runOuterBlockTests(
 					expect(b.at(4)).toBe(50);
 				});
 
-				it.only('fractional positive index floors', () => {
+				it('fractional positive index floors', () => {
 					expect(b.at(0.7)).toBe(10);
 				});
 
@@ -641,7 +641,7 @@ function runOuterBlockTests(
 					expect(r.size).toBe(3);
 				});
 
-				it('creates an OuterTree when block is full', () => {
+				it.only('creates an OuterTree when block is full', () => {
 					const ctx = makeContext(2);
 					const b = factory(ctx, [2, 3, 4, 5]);
 					const r = b.prepend(1);
