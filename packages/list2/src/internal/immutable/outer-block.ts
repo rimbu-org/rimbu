@@ -6,6 +6,7 @@ import type { ListContext } from '#list/context';
 import type { Block } from '#list/immutable/common';
 import type { OuterBlockBuilder } from '#list/mutable/outer-block-builder';
 
+import { checkIsInteger } from '@rimbu/base';
 import {
 	type ArrayNonEmpty,
 	type IndexRange,
@@ -78,10 +79,14 @@ export abstract class OuterBlock<T>
 	}
 
 	at<O>(index: number, otherwise?: OptLazy<O>): T | O {
+		checkIsInteger(index);
+
 		const size = this.size;
 		if (-index > size || index >= size) {
 			return OptLazy(otherwise) as O;
 		}
+		if (index < 0) index = size + index;
+
 		return this.get(index);
 	}
 
@@ -94,6 +99,8 @@ export abstract class OuterBlock<T>
 	}
 
 	take(count: number): List<T> {
+		checkIsInteger(count);
+
 		if (count <= 0) {
 			if (count === 0) return this.context.empty();
 			if (-count >= this.size) return this;
@@ -105,6 +112,8 @@ export abstract class OuterBlock<T>
 	}
 
 	drop(count: number): List<T> {
+		checkIsInteger(count);
+
 		if (count <= 0) {
 			if (count === 0) return this;
 			if (-count >= this.size) return this.context.empty();

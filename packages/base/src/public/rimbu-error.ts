@@ -66,3 +66,14 @@ export function throwInvalidStateError(): never {
 export function throwInvalidUsageError(msg: string): never {
 	throw new InvalidUsageError(msg);
 }
+
+/**
+ * Throws an `InvalidUsageError` if the provided value is not a safe integer.
+ * @param value - the value to check
+ * @throws InvalidUsageError
+ */
+export function checkIsInteger(value: number): void {
+	if (!Number.isSafeInteger(value)) {
+		throw new InvalidUsageError(`value ${value} is not a (safe) integer`);
+	}
+}
