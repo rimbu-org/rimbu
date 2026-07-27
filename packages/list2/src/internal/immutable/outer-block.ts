@@ -1,11 +1,17 @@
 import type { List } from '@rimbu/list';
+import type { Stream } from '@rimbu/stream';
 
 import type { OuterChildren } from '#advanced/children-ops';
 import type { ListContext } from '#list/context';
 import type { Block } from '#list/immutable/common';
 import type { OuterBlockBuilder } from '#list/mutable/outer-block-builder';
 
-import { OptLazy } from '@rimbu/common';
+import {
+	type ArrayNonEmpty,
+	type IndexRange,
+	OptLazy,
+	type TraverseState,
+} from '@rimbu/common';
 
 import { ListNonEmptyBase } from '#advanced/immutable/non-empty-base';
 
@@ -21,6 +27,25 @@ export abstract class OuterBlock<T>
 
 	abstract get size(): number;
 	abstract get(index: number): T;
+	abstract stream(options?: {
+		reversed?: boolean | undefined;
+	}): Stream.NonEmpty<T>;
+	abstract streamSlice(
+		range: IndexRange,
+		options?: { reversed?: boolean | undefined },
+	): Stream<T>;
+	abstract forEach(f: (element: T) => void): void;
+	abstract filter(f: (element: T) => boolean): List<T>;
+	abstract filterIndexed(
+		f: (element: T, index: number, halt: () => void) => boolean,
+		options?: {
+			reversed?: boolean | undefined;
+			negate?: boolean | undefined;
+			state?: TraverseState;
+		},
+	): List<T>;
+	abstract toArray(): ArrayNonEmpty<T>;
+	abstract map<T2>(f: (element: T) => T2): OuterBlock<T2>;
 	abstract appendBlockChild(child: T): OuterBlock<T>;
 	abstract prependBlockChild(child: T): OuterBlock<T>;
 	abstract createOuterBlock(element: T): OuterBlock<T>;
@@ -29,7 +54,6 @@ export abstract class OuterBlock<T>
 	abstract dropChildren(amount: number): OuterBlock<T>;
 	abstract concatChildren(children: OuterChildren<T>): OuterChildren<T>;
 	abstract prependChildren(children: OuterChildren<T>): OuterChildren<T>;
-	abstract map<T2>(f: (element: T) => T2): OuterBlock<T2>; // toArray(): ArrayNonEmpty<T>
 
 	get nrChildren(): number {
 		return this.size;

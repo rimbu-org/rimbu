@@ -99,7 +99,7 @@ export class OuterBlockRightLeft<T> extends OuterBlock<T> {
 	}
 
 	map<T2>(f: (element: T) => T2): OuterBlock<T2> {
-		return this.#copyAsType(this.#ops.reverseMap(this.#children, f));
+		return this.#copyAsType(this.#ops.map(this.#children, f));
 	}
 
 	prependBlockChild(child: T): OuterBlock<T> {
