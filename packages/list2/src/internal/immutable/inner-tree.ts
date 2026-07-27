@@ -1,3 +1,4 @@
+import type { List } from '@rimbu/list';
 import type { Stream } from '@rimbu/stream';
 
 import type { ListContext } from '#list/context';
@@ -58,6 +59,12 @@ export class InnerTree<T, C extends Block<T>> implements Inner<T, C> {
 		this.left.forEach(f);
 		this.middle?.forEach(f);
 		this.right.forEach(f);
+	}
+
+	filter(f: (element: T) => boolean): List<T> {
+		return this.left
+			.filter(f)
+			.concat(this.middle?.filter(f), this.right.filter(f));
 	}
 
 	map<T2>(f: (element: T) => T2): InnerTree<T2, any> {

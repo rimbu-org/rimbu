@@ -1,3 +1,5 @@
+import type { List } from '@rimbu/list';
+
 import type { ListContext } from '#list/context';
 import type { Block, Inner } from '#list/immutable/common';
 import type { InnerTree } from '#list/immutable/inner-tree';
@@ -160,6 +162,17 @@ export class InnerBlock<T, C extends Block<T>>
 
 	mapChildren<C2>(f: (child: C) => C2): C2[] {
 		return this.#children.map(f);
+	}
+
+	filter(f: (element: T) => boolean): List<T> {
+		let result: List<T> = this.context.empty<T>();
+
+		for (const child of this.#children) {
+			const filteredChild = child.filter(f);
+			result = result.concat(filteredChild);
+		}
+
+		return result;
 	}
 
 	childAt(index: number): C {

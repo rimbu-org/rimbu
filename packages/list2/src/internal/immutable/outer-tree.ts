@@ -1,16 +1,19 @@
-import { ListNonEmptyBase } from '#advanced/immutable/non-empty-base';
+import type { List } from '@rimbu/list';
+import type { Stream, StreamSource } from '@rimbu/stream';
+
 import type { ListContext } from '#list/context';
 import type { Inner, Tree } from '#list/immutable/common';
 import type { OuterBlock } from '#list/immutable/outer-block';
-import { treeGet, treeStream } from '#list/immutable/tree';
+
 import {
 	type ArrayNonEmpty,
 	type IndexRange,
 	OptLazy,
 	type TraverseState,
 } from '@rimbu/common';
-import type { List } from '@rimbu/list';
-import type { Stream, StreamSource } from '@rimbu/stream';
+
+import { ListNonEmptyBase } from '#advanced/immutable/non-empty-base';
+import { treeGet, treeStream } from '#list/immutable/tree';
 
 export class OuterTree<T>
 	extends ListNonEmptyBase<T>
@@ -217,11 +220,13 @@ export class OuterTree<T>
 		this.right.forEach(f);
 	}
 
-	filter(f: (element: T) => boolean): OuterTree<T> {
-		return 0 as any;
-		// const result = this.left
-		// 	.filter(f)
-		// 	.concat(this.middle?.filter(f), this.right.filter(f));
+	filter(f: (element: T) => boolean): List<T> {
+		const result = this.left
+			.filter(f)
+			.concat(this.middle?.filter(f), this.right.filter(f));
+
+		if (result.size === this.size) return this;
+		return result;
 	}
 
 	filterIndexed(

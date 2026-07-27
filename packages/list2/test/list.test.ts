@@ -1,8 +1,7 @@
 import { describe, expect, it } from 'bun:test';
 
-import { Stream } from '@rimbu/stream';
-
 import { List } from '@rimbu/list';
+import { Stream } from '@rimbu/stream';
 
 describe('List creators', () => {
 	it('empty', () => {
@@ -97,9 +96,7 @@ describe('List concat', () => {
 			const b = ctx.of(5, 6, 7, 8);
 			const c = ctx.of(9, 10, 11, 12);
 			const result = a.concat(b, c);
-			expect(result.toArray()).toEqual([
-				1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
-			]);
+			expect(result.toArray()).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
 			expect(result.size).toBe(12);
 		});
 
@@ -163,12 +160,8 @@ describe('List concat', () => {
 
 		it('concat large number of elements', () => {
 			const ctx5 = List.createContext({ blockSizeBits: 5 });
-			const a = ctx5.of(
-				...Array.from({ length: 50 }, (_, i) => i),
-			) as any;
-			const b = ctx5.of(
-				...Array.from({ length: 50 }, (_, i) => i + 50),
-			) as any;
+			const a = ctx5.of(...Array.from({ length: 50 }, (_, i) => i)) as any;
+			const b = ctx5.of(...Array.from({ length: 50 }, (_, i) => i + 50)) as any;
 			const result = a.concat(b);
 			expect(result.size).toBe(100);
 			expect(result.toArray()).toEqual(

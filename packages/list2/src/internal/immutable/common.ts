@@ -1,3 +1,4 @@
+import type { List } from '@rimbu/list';
 import type { Stream } from '@rimbu/stream';
 
 import type { InnerBlock } from '#list/immutable/inner-block';
@@ -15,6 +16,7 @@ interface ListCommon<T> {
 	_get(index: number): T;
 	stream(options?: { reversed?: boolean | undefined }): Stream.NonEmpty<T>;
 	forEach(f: (value: T) => void): void;
+	filter(f: (element: T) => boolean): List<T>;
 	toArray(): T[];
 }
 
