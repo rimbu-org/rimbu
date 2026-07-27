@@ -641,7 +641,7 @@ function runOuterBlockTests(
 					expect(r.size).toBe(3);
 				});
 
-				it.only('creates an OuterTree when block is full', () => {
+				it('creates an OuterTree when block is full', () => {
 					const ctx = makeContext(2);
 					const b = factory(ctx, [2, 3, 4, 5]);
 					const r = b.prepend(1);
@@ -1076,7 +1076,8 @@ function runOuterBlockTests(
 // );
 
 runOuterBlockTests(
-	(ctx, values) => ctx.outerBlockRightLeft(ctx.childrenOps.of(values)),
+	(ctx, values) =>
+		ctx.outerBlockRightLeft(ctx.childrenOps.of(values.toReversed())),
 	<T>(values: T[], blockSizeBits = 5) => {
 		const ctx = makeContext<T>(blockSizeBits);
 		return ctx.outerBlockRightLeft(ctx.childrenOps.of(values.toReversed()));
