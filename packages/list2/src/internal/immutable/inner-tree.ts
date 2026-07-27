@@ -160,7 +160,7 @@ export class InnerTree<T, C extends Block<T>> implements Inner<T, C> {
 			const newLeft = this.left._appendBlockChild(shiftToLeftChild);
 			return this.#copy(
 				newLeft,
-				newRight!._appendBlockChild(child),
+				newRight?._appendBlockChild(child),
 				undefined,
 				newLength,
 			);
