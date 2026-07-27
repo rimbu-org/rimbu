@@ -32,7 +32,9 @@ function ibFromSource(
 	for (let i = 0; i < vals.length; i += groupSize) {
 		groups.push(vals.slice(i, i + groupSize));
 	}
-	const children = groups.map((g) => ctx.outerBlock(ctx.childrenOps.of(g)));
+	const children = groups.map((g) =>
+		ctx.outerBlockLeftRight(ctx.childrenOps.of(g)),
+	);
 	const size = children.reduce((s, c) => s + c.size, 0);
 	const source = ctx.innerBlock(children as any, size, 1);
 	return ctx.innerBlockBuilderSource<number, OB>(source as any);
@@ -453,7 +455,7 @@ describe('InnerBlockBuilder.edge-cases', () => {
 
 	describe('source unaffected after mutation', () => {
 		it('source block not mutated', () => {
-			const sourceBlock = ctx.outerBlock(ctx.childrenOps.of([10, 20]));
+			const sourceBlock = ctx.outerBlockLeftRight(ctx.childrenOps.of([10, 20]));
 			const immutableIB = ctx.innerBlock([sourceBlock], 2, 1);
 			const b = ctx.innerBlockBuilderSource(immutableIB);
 			b.appendChild(ob(ctx, [30]));

@@ -7,7 +7,7 @@ import { List } from '@rimbu/list';
 
 function makeBlock<T>(values: readonly T[], blockSizeBits = 5) {
 	const ctx = makeContext<T>(blockSizeBits);
-	return ctx.outerBlock(ctx.childrenOps.of([...values]));
+	return ctx.outerBlockLeftRight(ctx.childrenOps.of([...values]));
 }
 
 function makeContext<T>(blockSizeBits: number): ListContext<T> {
@@ -35,19 +35,19 @@ describe('OuterBlock.properties', () => {
 	describe('childrenInMax', () => {
 		it('true when size <= maxBlockSize', () => {
 			const ctx = makeContext(2);
-			const b = ctx.outerBlock(ctx.childrenOps.of([1, 2, 3, 4]));
+			const b = ctx.outerBlockLeftRight(ctx.childrenOps.of([1, 2, 3, 4]));
 			expect(b.childrenInMax).toBe(true);
 		});
 
 		it('false when size > maxBlockSize', () => {
 			const ctx = makeContext(2);
-			const b = ctx.outerBlock(ctx.childrenOps.of([1, 2, 3, 4, 5]));
+			const b = ctx.outerBlockLeftRight(ctx.childrenOps.of([1, 2, 3, 4, 5]));
 			expect(b.childrenInMax).toBe(false);
 		});
 
 		it('true for partial blocks', () => {
 			const ctx = makeContext(2);
-			const b = ctx.outerBlock(ctx.childrenOps.of([1, 2]));
+			const b = ctx.outerBlockLeftRight(ctx.childrenOps.of([1, 2]));
 			expect(b.childrenInMax).toBe(true);
 		});
 	});
@@ -55,25 +55,25 @@ describe('OuterBlock.properties', () => {
 	describe('childrenInMin', () => {
 		it('true when size >= minBlockSize', () => {
 			const ctx = makeContext(3); // max=8, min=4
-			const b = ctx.outerBlock(ctx.childrenOps.of([1, 2, 3, 4]));
+			const b = ctx.outerBlockLeftRight(ctx.childrenOps.of([1, 2, 3, 4]));
 			expect(b.childrenInMin).toBe(true);
 		});
 
 		it('false when size < minBlockSize', () => {
 			const ctx = makeContext(3);
-			const b = ctx.outerBlock(ctx.childrenOps.of([1, 2, 3]));
+			const b = ctx.outerBlockLeftRight(ctx.childrenOps.of([1, 2, 3]));
 			expect(b.childrenInMin).toBe(false);
 		});
 
 		it('min is 2 for blockSizeBits=2', () => {
 			const ctx = makeContext(2); // min=2
-			const b = ctx.outerBlock(ctx.childrenOps.of([1, 2]));
+			const b = ctx.outerBlockLeftRight(ctx.childrenOps.of([1, 2]));
 			expect(b.childrenInMin).toBe(true);
 		});
 
 		it('single element below min', () => {
 			const ctx = makeContext(2);
-			const b = ctx.outerBlock(ctx.childrenOps.of([1]));
+			const b = ctx.outerBlockLeftRight(ctx.childrenOps.of([1]));
 			expect(b.childrenInMin).toBe(false);
 		});
 	});
@@ -81,13 +81,13 @@ describe('OuterBlock.properties', () => {
 	describe('canAddChild', () => {
 		it('true when size < maxBlockSize', () => {
 			const ctx = makeContext(2);
-			const b = ctx.outerBlock(ctx.childrenOps.of([1, 2, 3]));
+			const b = ctx.outerBlockLeftRight(ctx.childrenOps.of([1, 2, 3]));
 			expect(b.canAddChild).toBe(true);
 		});
 
 		it('false when size === maxBlockSize', () => {
 			const ctx = makeContext(2);
-			const b = ctx.outerBlock(ctx.childrenOps.of([1, 2, 3, 4]));
+			const b = ctx.outerBlockLeftRight(ctx.childrenOps.of([1, 2, 3, 4]));
 			expect(b.canAddChild).toBe(false);
 		});
 
@@ -100,13 +100,13 @@ describe('OuterBlock.properties', () => {
 	describe('canRemoveChild', () => {
 		it('true when size > minBlockSize', () => {
 			const ctx = makeContext(2);
-			const b = ctx.outerBlock(ctx.childrenOps.of([1, 2, 3]));
+			const b = ctx.outerBlockLeftRight(ctx.childrenOps.of([1, 2, 3]));
 			expect(b.canRemoveChild).toBe(true);
 		});
 
 		it('false when size === minBlockSize', () => {
 			const ctx = makeContext(2);
-			const b = ctx.outerBlock(ctx.childrenOps.of([1]));
+			const b = ctx.outerBlockLeftRight(ctx.childrenOps.of([1]));
 			expect(b.canRemoveChild).toBe(false);
 		});
 
@@ -579,7 +579,7 @@ describe('OuterBlock.mutation', () => {
 
 		it('can overflow maxBlockSize with no error', () => {
 			const ctx = makeContext(2);
-			const b = ctx.outerBlock(ctx.childrenOps.of([1, 2, 3, 4]));
+			const b = ctx.outerBlockLeftRight(ctx.childrenOps.of([1, 2, 3, 4]));
 			const r = b.prependBlockChild(0);
 			expect(r.size).toBe(5);
 			expect(r.nrChildren).toBe(5);
@@ -609,7 +609,7 @@ describe('OuterBlock.mutation', () => {
 
 		it('can overflow maxBlockSize', () => {
 			const ctx = makeContext(2);
-			const b = ctx.outerBlock(ctx.childrenOps.of([1, 2, 3, 4]));
+			const b = ctx.outerBlockLeftRight(ctx.childrenOps.of([1, 2, 3, 4]));
 			const r = b.appendBlockChild(5);
 			expect(r.size).toBe(5);
 			expect(r.nrChildren).toBe(5);
@@ -633,7 +633,7 @@ describe('OuterBlock.mutation', () => {
 
 		it('creates an OuterTree when block is full', () => {
 			const ctx = makeContext(2);
-			const b = ctx.outerBlock(ctx.childrenOps.of([2, 3, 4, 5]));
+			const b = ctx.outerBlockLeftRight(ctx.childrenOps.of([2, 3, 4, 5]));
 			const r = b.prepend(1);
 			expect(r).toHaveProperty('left');
 			expect(r).toHaveProperty('right');
@@ -659,7 +659,7 @@ describe('OuterBlock.mutation', () => {
 
 		it('creates an OuterTree when block is full', () => {
 			const ctx = makeContext(2);
-			const b = ctx.outerBlock(ctx.childrenOps.of([1, 2, 3, 4]));
+			const b = ctx.outerBlockLeftRight(ctx.childrenOps.of([1, 2, 3, 4]));
 			const r = b.append(5);
 			expect(r).toHaveProperty('left');
 			expect(r).toHaveProperty('right');
@@ -694,7 +694,7 @@ describe('OuterBlock.child-manipulation', () => {
 
 		it('drops single remaining element for blockSizeBits=2', () => {
 			const ctx = makeContext(2);
-			const b = ctx.outerBlock(ctx.childrenOps.of([42, 99]));
+			const b = ctx.outerBlockLeftRight(ctx.childrenOps.of([42, 99]));
 			const [nb, dropped] = b.dropFirstChild();
 			expect(dropped).toBe(42);
 			expect(nb.size).toBe(1);
@@ -719,7 +719,7 @@ describe('OuterBlock.child-manipulation', () => {
 
 		it('drops single remaining element', () => {
 			const ctx = makeContext(2);
-			const b = ctx.outerBlock(ctx.childrenOps.of([42, 99]));
+			const b = ctx.outerBlockLeftRight(ctx.childrenOps.of([42, 99]));
 			const [nb, dropped] = b.dropLastChild();
 			expect(dropped).toBe(99);
 			expect(nb.size).toBe(1);

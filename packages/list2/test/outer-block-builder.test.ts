@@ -15,7 +15,7 @@ function makeBuilder<T>(values: T[], bits = 5) {
 
 function makeBuilderFromSource<T>(values: T[], bits = 5) {
 	const ctx = makeContext<T>(bits);
-	const block = ctx.outerBlock(ctx.childrenOps.of(values));
+	const block = ctx.outerBlockLeftRight(ctx.childrenOps.of(values));
 	return ctx.outerBlockBuilderSource(block);
 }
 
@@ -470,7 +470,7 @@ describe('OuterBlockBuilder.edge-cases', () => {
 	describe('source discarded on mutation', () => {
 		it('source unaffected after mutation', () => {
 			const ctx = makeContext<number>(2);
-			const sourceBlock = ctx.outerBlock(ctx.childrenOps.of([10, 20]));
+			const sourceBlock = ctx.outerBlockLeftRight(ctx.childrenOps.of([10, 20]));
 			const b = ctx.outerBlockBuilderSource(sourceBlock);
 			b.append(30);
 			expect(sourceBlock.toArray()).toEqual([10, 20]);

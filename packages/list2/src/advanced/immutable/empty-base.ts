@@ -17,14 +17,14 @@ export class ListEmptyBase<T>
 	}
 
 	prepend(element: T): List.NonEmpty<T> {
-		return this.context.outerBlock(this.#ops.of([element]));
+		return this.context.outerBlockLeftRight(this.#ops.of([element]));
 	}
 
 	append(element: T): List.NonEmpty<T> {
-		return this.context.outerBlock(this.#ops.of([element]));
+		return this.context.outerBlockLeftRight(this.#ops.of([element]));
 	}
 
 	placeAt(_: number, element: T): List.NonEmpty<T> {
-		return this.context.outerBlock(this.#ops.of([element]));
+		return this.context.outerBlockLeftRight(this.#ops.of([element]));
 	}
 }

@@ -139,7 +139,7 @@ export class OuterTree<T>
 			this.context.innerBlock([this.left], this.left.size, 1);
 
 		return this.#copy(
-			this.context.outerBlock(this.#ops.of([element])),
+			this.context.outerBlockLeftRight(this.#ops.of([element])),
 			this.right,
 			newMiddle,
 			newSize,
@@ -195,7 +195,7 @@ export class OuterTree<T>
 
 		return this.#copy(
 			undefined,
-			this.context.outerBlock(this.#ops.of([element])),
+			this.context.outerBlockLeftRight(this.#ops.of([element])),
 			newMiddle,
 			newLength,
 		);

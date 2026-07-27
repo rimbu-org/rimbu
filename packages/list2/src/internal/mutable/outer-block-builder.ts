@@ -133,14 +133,14 @@ export class OuterBlockBuilder<T>
 	build(): OuterBlock<T> {
 		return (
 			this.#source ??
-			this.context.outerBlock(this.#ops.safeCopy(this.#children))
+			this.context.outerBlockLeftRight(this.#ops.safeCopy(this.#children))
 		);
 	}
 
 	buildMap<T2>(f: (value: T) => T2): OuterBlock<T2> {
 		return (
 			this.#source?.map(f) ??
-			this.context.outerBlock(this.#ops.map(this.#children, f))
+			this.context.outerBlockLeftRight(this.#ops.map(this.#children, f))
 		);
 	}
 

@@ -16,7 +16,7 @@ function makeContext<T>(blockSizeBits: number): ListContext<T> {
 }
 
 function ob<T>(ctx: ListContext<T>, vals: T[]): OuterBlock<T> {
-	return ctx.outerBlock(ctx.childrenOps.of(vals));
+	return ctx.outerBlockLeftRight(ctx.childrenOps.of(vals));
 }
 
 function inner<T>(

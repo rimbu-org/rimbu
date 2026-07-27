@@ -7,6 +7,8 @@ import type { SizeTable } from '#list/size-table';
 
 import { type ArrayNonEmpty, Module } from '@rimbu/common';
 import { Stream, type StreamSource } from '@rimbu/stream';
+import { OuterBlockLeftRight } from './immutable/outer-block-left-right';
+import { OuterBlockRightLeft } from './immutable/outer-block-right-left';
 import { ListBuilder } from './mutable/builder';
 import { InnerBlockBuilder } from './mutable/inner-block-builder';
 import { InnerTreeBuilder } from './mutable/inner-tree-builder';
@@ -29,7 +31,8 @@ export interface ListContext<T, IsNonEmpty extends boolean = boolean>
 	readonly childrenOps: ChildrenOps;
 	isList<T>(source: unknown): source is List<T>;
 	isInContext<T>(source: unknown): source is List<T>;
-	outerBlock<T>(children: OuterChildren<T>): OuterBlock<T>;
+	outerBlockLeftRight<T>(children: OuterChildren<T>): OuterBlock<T>;
+	outerBlockRightLeft<T>(children: OuterChildren<T>): OuterBlock<T>;
 	outerTree<T>(
 		left: OuterBlock<T>,
 		right: OuterBlock<T>,
@@ -102,8 +105,10 @@ export function createListContextModule<UT>(options: {
 		isInContext: <T>(source: unknown): source is List<T> => {
 			return mod.isList(source) && source.context === mod;
 		},
-		outerBlock: <T>(children: OuterChildren<T>) =>
-			new OuterBlock<T>(mod as unknown as ListContext<T>, children),
+		outerBlockLeftRight: <T>(children: OuterChildren<T>) =>
+			new OuterBlockLeftRight<T>(mod as unknown as ListContext<T>, children),
+		outerBlockRightLeft: <T>(children: OuterChildren<T>) =>
+			new OuterBlockRightLeft<T>(mod as unknown as ListContext<T>, children),
 		outerTree: <T>(
 			left: OuterBlock<T>,
 			right: OuterBlock<T>,
@@ -216,7 +221,7 @@ export function createListContextModule<UT>(options: {
 		),
 		of: <T>(...elements: ArrayNonEmpty<T>): List.NonEmpty<T> => {
 			if (elements.length <= mod.maxBlockSize) {
-				return mod.outerBlock(childrenOps.of(elements));
+				return mod.outerBlockLeftRight(childrenOps.of(elements));
 			}
 
 			return mod.from<T>(elements);

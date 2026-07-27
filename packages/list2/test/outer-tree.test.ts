@@ -18,8 +18,8 @@ function simpleTree(
 ): OuterTree<number> {
 	const ctx = makeContext<number>(bits);
 	return ctx.outerTree<number>(
-		ctx.outerBlock(ctx.childrenOps.of(leftVals)),
-		ctx.outerBlock(ctx.childrenOps.of(rightVals)),
+		ctx.outerBlockLeftRight(ctx.childrenOps.of(leftVals)),
+		ctx.outerBlockLeftRight(ctx.childrenOps.of(rightVals)),
 		null,
 		leftVals.length + rightVals.length,
 	);
@@ -32,13 +32,13 @@ function treeWithMiddle(
 	bits = 2,
 ): OuterTree<number> {
 	const ctx = makeContext<number>(bits);
-	const left = ctx.outerBlock(ctx.childrenOps.of(leftVals));
-	const right = ctx.outerBlock(ctx.childrenOps.of(rightVals));
+	const left = ctx.outerBlockLeftRight(ctx.childrenOps.of(leftVals));
+	const right = ctx.outerBlockLeftRight(ctx.childrenOps.of(rightVals));
 
 	const size = left.size + right.size;
 
 	const blocks = middleVals.map((vals) =>
-		ctx.outerBlock(ctx.childrenOps.of(vals)),
+		ctx.outerBlockLeftRight(ctx.childrenOps.of(vals)),
 	);
 	const totalMiddleSize = middleVals.reduce((s, v) => s + v.length, 0);
 
@@ -313,8 +313,8 @@ describe('OuterTree.prepend', () => {
 		// left full with 4, right has 1 with room
 		const ctx = makeContext<number>(bits);
 		const t = ctx.outerTree(
-			ctx.outerBlock(ctx.childrenOps.of([1, 2, 3, 4])),
-			ctx.outerBlock(ctx.childrenOps.of([5])),
+			ctx.outerBlockLeftRight(ctx.childrenOps.of([1, 2, 3, 4])),
+			ctx.outerBlockLeftRight(ctx.childrenOps.of([5])),
 			null,
 			5,
 		);
@@ -335,8 +335,8 @@ describe('OuterTree.prepend', () => {
 		// left=[1,2,3,4], right=[5,6,7,8], no middle
 		const ctx = makeContext<number>(bits);
 		const t = ctx.outerTree(
-			ctx.outerBlock(ctx.childrenOps.of([1, 2, 3, 4])),
-			ctx.outerBlock(ctx.childrenOps.of([5, 6, 7, 8])),
+			ctx.outerBlockLeftRight(ctx.childrenOps.of([1, 2, 3, 4])),
+			ctx.outerBlockLeftRight(ctx.childrenOps.of([5, 6, 7, 8])),
 			null,
 			8,
 		);
@@ -385,8 +385,8 @@ describe('OuterTree.append', () => {
 	it('shifts from right to left when right full and left has room', () => {
 		const ctx = makeContext<number>(bits);
 		const t = ctx.outerTree(
-			ctx.outerBlock(ctx.childrenOps.of([1])),
-			ctx.outerBlock(ctx.childrenOps.of([2, 3, 4, 5])),
+			ctx.outerBlockLeftRight(ctx.childrenOps.of([1])),
+			ctx.outerBlockLeftRight(ctx.childrenOps.of([2, 3, 4, 5])),
 			null,
 			5,
 		);
@@ -405,8 +405,8 @@ describe('OuterTree.append', () => {
 	it('promotes right to middle when all are full', () => {
 		const ctx = makeContext<number>(bits);
 		const t = ctx.outerTree(
-			ctx.outerBlock(ctx.childrenOps.of([1, 2, 3, 4])),
-			ctx.outerBlock(ctx.childrenOps.of([5, 6, 7, 8])),
+			ctx.outerBlockLeftRight(ctx.childrenOps.of([1, 2, 3, 4])),
+			ctx.outerBlockLeftRight(ctx.childrenOps.of([5, 6, 7, 8])),
 			null,
 			8,
 		);
@@ -532,8 +532,8 @@ describe('OuterTree.edge-cases', () => {
 		it('tree with 1-element left and 1-element right', () => {
 			const ctx = makeContext<number>(bits);
 			const t = ctx.outerTree(
-				ctx.outerBlock(ctx.childrenOps.of([10])),
-				ctx.outerBlock(ctx.childrenOps.of([20])),
+				ctx.outerBlockLeftRight(ctx.childrenOps.of([10])),
+				ctx.outerBlockLeftRight(ctx.childrenOps.of([20])),
 				null,
 				2,
 			);
@@ -593,8 +593,8 @@ describe('OuterTree.edge-cases', () => {
 		it('handles null elements in tree', () => {
 			const ctx = makeContext<number | null>(bits);
 			const t = ctx.outerTree(
-				ctx.outerBlock(ctx.childrenOps.of([1 as number | null, null])),
-				ctx.outerBlock(ctx.childrenOps.of([null as number | null, 3])),
+				ctx.outerBlockLeftRight(ctx.childrenOps.of([1 as number | null, null])),
+				ctx.outerBlockLeftRight(ctx.childrenOps.of([null as number | null, 3])),
 				null,
 				4,
 			);
@@ -607,10 +607,10 @@ describe('OuterTree.edge-cases', () => {
 		it('handles undefined elements in tree', () => {
 			const ctx = makeContext<number | undefined>(bits);
 			const t = ctx.outerTree(
-				ctx.outerBlock(
+				ctx.outerBlockLeftRight(
 					ctx.childrenOps.of([1 as number | undefined, undefined]),
 				),
-				ctx.outerBlock(
+				ctx.outerBlockLeftRight(
 					ctx.childrenOps.of([undefined as number | undefined, 3]),
 				),
 				null,
@@ -625,8 +625,8 @@ describe('OuterTree.edge-cases', () => {
 		it('otherwise fallback with undefined elements', () => {
 			const ctx = makeContext<undefined>(bits);
 			const t = ctx.outerTree(
-				ctx.outerBlock(ctx.childrenOps.of([undefined, undefined])),
-				ctx.outerBlock(ctx.childrenOps.of([undefined])),
+				ctx.outerBlockLeftRight(ctx.childrenOps.of([undefined, undefined])),
+				ctx.outerBlockLeftRight(ctx.childrenOps.of([undefined])),
 				null,
 				3,
 			);
@@ -640,8 +640,10 @@ describe('OuterTree.edge-cases', () => {
 			const values = Array.from({ length: 20 }, (_, i) => i);
 			const cv = [...values];
 			const mid = 8;
-			const left = ctx.outerBlock(ctx.childrenOps.of(cv.slice(0, mid)));
-			const right = ctx.outerBlock(ctx.childrenOps.of(cv.slice(mid)));
+			const left = ctx.outerBlockLeftRight(
+				ctx.childrenOps.of(cv.slice(0, mid)),
+			);
+			const right = ctx.outerBlockLeftRight(ctx.childrenOps.of(cv.slice(mid)));
 			const t = ctx.outerTree(left, right, null, values.length);
 
 			for (let i = 0; i < 20; i++) {
@@ -651,8 +653,10 @@ describe('OuterTree.edge-cases', () => {
 
 		it('negative at on sequential tree returns correct values', () => {
 			const ctx = makeContext<number>(bits);
-			const left = ctx.outerBlock(ctx.childrenOps.of([0, 1, 2, 3]));
-			const right = ctx.outerBlock(ctx.childrenOps.of([4, 5, 6, 7, 8, 9, 10]));
+			const left = ctx.outerBlockLeftRight(ctx.childrenOps.of([0, 1, 2, 3]));
+			const right = ctx.outerBlockLeftRight(
+				ctx.childrenOps.of([4, 5, 6, 7, 8, 9, 10]),
+			);
 			const t = ctx.outerTree(left, right, null, 11);
 
 			expect(t.at(-1)).toBe(10);

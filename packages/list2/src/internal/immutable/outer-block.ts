@@ -1,39 +1,38 @@
 import type { List } from '@rimbu/list';
-import type { Stream } from '@rimbu/stream';
 
-import type { ChildrenOps, OuterChildren } from '#advanced/children-ops';
+import type { OuterChildren } from '#advanced/children-ops';
 import type { ListContext } from '#list/context';
 import type { Block } from '#list/immutable/common';
 import type { OuterBlockBuilder } from '#list/mutable/outer-block-builder';
 
-import {
-	type ArrayNonEmpty,
-	type IndexRange,
-	OptLazy,
-	type TraverseState,
-} from '@rimbu/common';
+import { OptLazy } from '@rimbu/common';
 
 import { ListNonEmptyBase } from '#advanced/immutable/non-empty-base';
 
-export class OuterBlock<T> extends ListNonEmptyBase<T> implements Block<T, T> {
+export abstract class OuterBlock<T>
+	extends ListNonEmptyBase<T>
+	implements Block<T, T>
+{
 	declare _self: OuterBlock<T>;
 
-	constructor(
-		readonly context: ListContext<T, true>,
-		children: OuterChildren<T>,
-	) {
+	constructor(readonly context: ListContext<T, true>) {
 		super(context);
-		this.#children = this.#ops.guard(children);
 	}
 
-	readonly #children: OuterChildren<T>;
+	abstract get size(): number;
+	abstract get(index: number): T;
+	abstract appendBlockChild(child: T): OuterBlock<T>;
+	abstract prependBlockChild(child: T): OuterBlock<T>;
+	abstract createOuterBlock(element: T): OuterBlock<T>;
+	abstract copyChildren(): OuterChildren<T>;
+	abstract takeChildren(amount: number): OuterBlock<T>;
+	abstract dropChildren(amount: number): OuterBlock<T>;
+	abstract concatChildren(children: OuterChildren<T>): OuterChildren<T>;
+	abstract prependChildren(children: OuterChildren<T>): OuterChildren<T>;
+	abstract map<T2>(f: (element: T) => T2): OuterBlock<T2>; // toArray(): ArrayNonEmpty<T>
 
-	get #ops(): ChildrenOps {
-		return this.context.childrenOps;
-	}
-
-	get nrChildren() {
-		return this.#ops.size(this.#children);
+	get nrChildren(): number {
+		return this.size;
 	}
 
 	get childrenInMax(): boolean {
@@ -52,47 +51,20 @@ export class OuterBlock<T> extends ListNonEmptyBase<T> implements Block<T, T> {
 		return this.size > this.context.minBlockSize;
 	}
 
-	get size() {
-		return this.#ops.size(this.#children);
-	}
-
-	#copy(children: any): OuterBlock<T> {
-		if (children === this.#children) return this;
-		return this.context.outerBlock(children);
-	}
-
-	#copyAsType<T2>(children: OuterChildren<T2>): OuterBlock<T2> {
-		if ((children as any) === this.#children)
-			return this as unknown as OuterBlock<T2>;
-		return this.context.outerBlock(children);
-	}
-
-	stream(options?: { reversed?: boolean | undefined }): Stream.NonEmpty<T> {
-		return this.#ops.stream(this.#children, options);
-	}
-
-	streamSlice(range: IndexRange, options: { reversed?: boolean }): Stream<T> {
-		return this.#ops.streamRange(this.#children, range, options);
-	}
-
 	at<O>(index: number, otherwise?: OptLazy<O>): T | O {
 		const size = this.size;
 		if (-index > size || index >= size) {
 			return OptLazy(otherwise) as O;
 		}
-		return this.#ops.at(this.#children, index);
-	}
-
-	get(index: number): T {
-		return this.#ops.at(this.#children, index);
+		return this.get(index);
 	}
 
 	first(): T {
-		return this.#ops.at(this.#children, 0);
+		return this.get(0);
 	}
 
 	last(): T {
-		return this.#ops.at(this.#children, -1);
+		return this.at(-1);
 	}
 
 	take(count: number): List<T> {
@@ -103,15 +75,7 @@ export class OuterBlock<T> extends ListNonEmptyBase<T> implements Block<T, T> {
 			return this;
 		}
 
-		if (count >= 0) {
-			return this.#copy(
-				this.#ops.toSpliced(this.#children, count, this.size - count),
-			);
-		}
-
-		return this.#copy(
-			this.#ops.toSpliced(this.#children, 0, this.size + count),
-		);
+		return this.takeChildren(count);
 	}
 
 	drop(count: number): List<T> {
@@ -122,46 +86,7 @@ export class OuterBlock<T> extends ListNonEmptyBase<T> implements Block<T, T> {
 			return this.context.empty();
 		}
 
-		if (count >= 0) {
-			return this.#copy(this.#ops.toSpliced(this.#children, 0, count));
-		}
-
-		return this.#copy(
-			this.#ops.toSpliced(this.#children, this.size + count, -count),
-		);
-	}
-
-	forEach(f: (element: T) => void): void {
-		this.#ops.forEach(this.#children, f);
-	}
-
-	filter(f: (element: T) => boolean): List<T> {
-		const newChildren = this.#ops.filter(this.#children, f);
-		if (newChildren === this.#children) return this;
-
-		if (this.#ops.size(newChildren) === 0) return this.context.empty();
-
-		return this.#copy(newChildren);
-	}
-
-	filterIndexed(
-		f: (element: T, index: number, halt: () => void) => boolean,
-		options: {
-			reversed?: boolean | undefined;
-			negate?: boolean | undefined;
-			state?: TraverseState;
-		} = {},
-	): List<T> {
-		const newChildren = this.#ops.filterIndexed(this.#children, f, options);
-		if (newChildren === this.#children) return this;
-
-		if (this.#ops.size(newChildren) === 0) return this.context.empty();
-
-		return this.#copy(newChildren);
-	}
-
-	map<T2>(f: (element: T) => T2): OuterBlock<T2> {
-		return this.#copyAsType(this.#ops.map(this.#children, f));
+		return this.dropChildren(count);
 	}
 
 	prepend(element: T): List.NonEmpty<T> {
@@ -170,15 +95,11 @@ export class OuterBlock<T> extends ListNonEmptyBase<T> implements Block<T, T> {
 		}
 
 		return this.context.outerTree<T>(
-			this.context.outerBlock(this.#ops.of([element])),
+			this.createOuterBlock(element),
 			this,
 			null,
 			this.size + 1,
 		);
-	}
-
-	prependBlockChild(child: T): OuterBlock<T> {
-		return this.#copy(this.#ops.prepend(this.#children, child));
 	}
 
 	append(element: T): List.NonEmpty<T> {
@@ -188,66 +109,26 @@ export class OuterBlock<T> extends ListNonEmptyBase<T> implements Block<T, T> {
 
 		return this.context.outerTree(
 			this,
-			this.context.outerBlock(this.#ops.of([element])),
+			this.createOuterBlock(element),
 			null,
 			this.size + 1,
 		);
-	}
-
-	appendBlockChild(child: T): OuterBlock<T> {
-		return this.#copy(this.#ops.append(this.#children, child));
 	}
 
 	placeAt(): List.NonEmpty<T> {
 		return 0 as any;
 	}
 
-	toArray(): ArrayNonEmpty<T> {
-		return this.#ops.toArray(this.#children);
-	}
-
-	copyChildren(): OuterChildren<T> {
-		return this.#ops.safeCopy(this.#children);
-	}
-
 	dropFirstChild(): [OuterBlock<T>, T] {
 		const first = this.first();
-		const newChildren = this.#ops.toSpliced(this.#children, 0, 1);
-		return [this.#copy(newChildren), first];
+		const newSelf = this.dropChildren(1);
+		return [newSelf, first];
 	}
 
 	dropLastChild(): [OuterBlock<T>, T] {
 		const last = this.last();
-		const newChildren = this.#ops.toSpliced(this.#children, -1, 1);
-		return [this.#copy(newChildren), last];
-	}
-
-	takeChildren(amount: number): OuterBlock<T> {
-		if (amount >= 0) {
-			return this.#copy(
-				this.#ops.toSpliced(this.#children, amount, this.size - amount),
-			);
-		}
-		return this.#copy(
-			this.#ops.toSpliced(this.#children, 0, this.size + amount),
-		);
-	}
-
-	dropChildren(amount: number): OuterBlock<T> {
-		if (amount >= 0) {
-			return this.#copy(this.#ops.toSpliced(this.#children, 0, amount));
-		}
-		return this.#copy(
-			this.#ops.toSpliced(this.#children, this.size + amount, -amount),
-		);
-	}
-
-	concatChildren(children: OuterChildren<T>): OuterChildren<T> {
-		return this.#ops.concat(this.#children, children);
-	}
-
-	prependChildren(children: OuterChildren<T>): OuterChildren<T> {
-		return this.#ops.concat(children, this.#children);
+		const newSelf = this.dropChildren(-1);
+		return [newSelf, last];
 	}
 
 	toBuilder(): OuterBlockBuilder<T> {
