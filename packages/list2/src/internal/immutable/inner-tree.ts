@@ -1,3 +1,4 @@
+import type { TraverseState } from '@rimbu/common';
 import type { List } from '@rimbu/list';
 import type { Stream } from '@rimbu/stream';
 
@@ -7,6 +8,7 @@ import type { InnerBlock } from '#list/immutable/inner-block';
 import type { InnerTreeBuilder } from '#list/mutable/inner-tree-builder';
 
 import { treeGet, treeStream } from '#list/immutable/tree';
+
 export class InnerTree<T, C extends Block<T>> implements Inner<T, C> {
 	constructor(
 		readonly context: ListContext<T, true>,
@@ -65,6 +67,37 @@ export class InnerTree<T, C extends Block<T>> implements Inner<T, C> {
 		return this.left
 			.filter(f)
 			.concat(this.middle?.filter(f), this.right.filter(f));
+	}
+
+	filterIndexed(
+		f: (element: T, index: number, halt: () => void) => boolean,
+		options: {
+			reversed?: boolean | undefined;
+			negate?: boolean | undefined;
+			state: TraverseState;
+		},
+	): List<T> {
+		const { reversed = false, state } = options;
+
+		if (state.halted) return this.context.empty<T>();
+
+		const first = reversed ? this.right : this.left;
+
+		let result = first.filterIndexed(f, options);
+
+		if (state.halted) return result;
+
+		if (null !== this.middle) {
+			result = result.concat(this.middle.filterIndexed(f, options));
+
+			if (state.halted) return result;
+		}
+
+		const last = reversed ? this.left : this.right;
+
+		result = result.concat(last.filterIndexed(f, options));
+
+		return result;
 	}
 
 	map<T2>(f: (element: T) => T2): InnerTree<T2, any> {

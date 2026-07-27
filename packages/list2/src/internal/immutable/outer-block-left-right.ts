@@ -69,6 +69,7 @@ export class OuterBlockLeftRight<T> extends OuterBlock<T> {
 		},
 	): List<T> {
 		const newChildren = this.#ops.filterIndexed(this.#children, f, options);
+
 		if (newChildren === this.#children) return this;
 
 		if (this.#ops.size(newChildren) === 0) return this.context.empty();

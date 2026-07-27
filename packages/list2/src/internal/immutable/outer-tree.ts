@@ -9,7 +9,7 @@ import {
 	type ArrayNonEmpty,
 	type IndexRange,
 	OptLazy,
-	type TraverseState,
+	TraverseState,
 } from '@rimbu/common';
 
 import { ListNonEmptyBase } from '#advanced/immutable/non-empty-base';
@@ -236,21 +236,28 @@ export class OuterTree<T>
 			negate?: boolean | undefined;
 			state?: TraverseState;
 		} = {},
-	): OuterTree<T> {
-		// const { reversed = false } = options;
+	): List<T> {
+		const { reversed = false, state = TraverseState() } = options;
 
-		// if (reversed) {
-		//     return this.right.filterIndexed(f, options).concat(
-		//         this.middle?.filterIndexed(f, options),
-		//         this.left.filterIndexed(f, options)
-		//     );
-		// }
+		if (state.halted) return this.context.empty();
 
-		// return this.left.filterIndexed(f, options).concat(
-		//     this.middle?.filterIndexed(f, options),
-		//     this.right.filterIndexed(f, options)
-		// );
-		return 0 as any;
+		const newOptions = { ...options, state };
+
+		const first = reversed ? this.right : this.left;
+
+		let result = first.filterIndexed(f, newOptions);
+
+		if (state.halted) return result;
+
+		if (null !== this.middle) {
+			result = result.concat(this.middle.filterIndexed(f, newOptions));
+
+			if (state.halted) return result;
+		}
+
+		const last = reversed ? this.left : this.right;
+
+		return result.concat(last.filterIndexed(f, newOptions));
 	}
 
 	map<T2>(f: (element: T) => T2): OuterTree<T2> {
