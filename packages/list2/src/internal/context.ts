@@ -254,7 +254,7 @@ export function createListContextModule<UT>(options: {
 					if (!builder.isEmpty) {
 						const build = builder.build();
 						if (null === result) result = build.assumeNonEmpty();
-						// else result = result.concat(build);
+						else result = result.concat(build);
 					}
 					// }
 				}

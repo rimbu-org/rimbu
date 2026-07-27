@@ -194,7 +194,7 @@ export abstract class OuterBlock<T>
 		const newSize = leftBlock.size + this.size;
 
 		if (newSize <= this.context.maxBlockSize) {
-			const newChildren = leftBlock._prependChildren(this._copyChildren());
+			const newChildren = leftBlock._concatChildren(this._copyChildren());
 			return this.context.outerBlockLeftRight(newChildren);
 		}
 
