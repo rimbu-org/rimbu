@@ -162,12 +162,12 @@ function runOuterBlockTests(
 					expect(b.at(4)).toBe(50);
 				});
 
-				it('fractional positive index floors', () => {
-					expect(b.at(0.7)).toBe(10);
+				it('fractional positive index throws', () => {
+					expect(() => b.at(0.7)).toThrow();
 				});
 
-				it('fractional negative index rounds toward zero', () => {
-					expect(b.at(-0.3)).toBe(10);
+				it('fractional negative index throws', () => {
+					expect(() => b.at(-0.3)).toThrow();
 				});
 
 				it('otherwise function is not called when index is valid', () => {

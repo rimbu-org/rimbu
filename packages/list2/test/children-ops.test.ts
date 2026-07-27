@@ -131,13 +131,32 @@ describe('ArrayOuterChildrenOps', () => {
 		const c = ops.of([1, 2, 3, 4, 5]);
 		const result = ops.filter(c, (v) => v % 2 === 0);
 
-		expect(ops.toArray(result)).toEqual([2, 4]);
+		expect(ops.toArray(result!)).toEqual([2, 4]);
 	});
 
-	it('filter returns original array when all elements match', () => {
+	it('filter returns undefined when all elements match', () => {
 		const c = ops.of([1, 2, 3]);
 		const result = ops.filter(c, () => true);
-		expect(result).toBe(c);
+		expect(result).toBeUndefined();
+	});
+
+	it('reverseFilter removes non-matching elements in reverse order', () => {
+		const c = ops.of([1, 2, 3, 4, 5]);
+		const result = ops.reverseFilter(c, (v) => v % 2 === 0);
+
+		expect(ops.toArray(result!)).toEqual([4, 2]);
+	});
+
+	it('reverseFilter returns undefined when all elements match', () => {
+		const c = ops.of([1, 2, 3]);
+		const result = ops.reverseFilter(c, () => true);
+		expect(result).toBeUndefined();
+	});
+
+	it('reverseFilter removes all returns empty', () => {
+		const c = ops.of([1, 2, 3]);
+		const result = ops.reverseFilter(c, () => false);
+		expect(result!).toEqual([]);
 	});
 
 	it('map transforms elements', () => {
