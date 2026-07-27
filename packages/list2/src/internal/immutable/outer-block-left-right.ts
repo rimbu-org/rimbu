@@ -1,14 +1,9 @@
+import type { ArrayNonEmpty, IndexRange, TraverseState } from '@rimbu/common';
 import type { List } from '@rimbu/list';
 import type { Stream } from '@rimbu/stream';
 
 import type { ChildrenOps, OuterChildren } from '#advanced/children-ops';
 import type { ListContext } from '#list/context';
-
-import {
-	type ArrayNonEmpty,
-	type IndexRange,
-	type TraverseState,
-} from '@rimbu/common';
 
 import { OuterBlock } from '#list/immutable/outer-block';
 
@@ -62,8 +57,8 @@ export class OuterBlockLeftRight<T> extends OuterBlock<T> {
 
 	filter(f: (element: T) => boolean): List<T> {
 		const newChildren = this.#ops.filter(this.#children, f);
-		if (newChildren === this.#children) return this;
 
+		if (undefined === newChildren) return this;
 		if (this.#ops.size(newChildren) === 0) return this.context.empty();
 
 		return this.#copy(newChildren);

@@ -43,7 +43,7 @@ export abstract class ListNonEmptyBase<T>
 	): List.NonEmpty<T2> {
 		const { indexOffset = 0 } = options;
 
-		let index = 0;
-		return this.map((e) => f(e, index++ + indexOffset));
+		let index = indexOffset;
+		return this.map((e) => f(e, index++));
 	}
 }

@@ -125,7 +125,11 @@ export interface ChildrenOps<Tp extends ChildrenOps.Types = ChildrenOps.Types> {
 	filter<T>(
 		children: (Tp & { _T: T })['_C'],
 		f: (value: T) => boolean,
-	): (Tp & { _T: T })['_C'];
+	): (Tp & { _T: T })['_C'] | undefined;
+	reverseFilter<T>(
+		children: (Tp & { _T: T })['_C'],
+		f: (value: T) => boolean,
+	): (Tp & { _T: T })['_C'] | undefined;
 	filterIndexed<T>(
 		children: (Tp & { _T: T })['_C'],
 		f: (value: T, index: number, halt: () => void) => boolean,

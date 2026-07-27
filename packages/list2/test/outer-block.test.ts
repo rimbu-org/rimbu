@@ -1066,14 +1066,14 @@ function runOuterBlockTests(
 	});
 }
 
-// runOuterBlockTests(
-// 	(ctx, values) => ctx.outerBlockLeftRight(ctx.childrenOps.of(values)),
-// 	<T>(values: T[], blockSizeBits = 5) => {
-// 		const ctx = makeContext<T>(blockSizeBits);
-// 		return ctx.outerBlockLeftRight(ctx.childrenOps.of(values));
-// 	},
-// 	'OuterBlockLeftRight',
-// );
+runOuterBlockTests(
+	(ctx, values) => ctx.outerBlockLeftRight(ctx.childrenOps.of(values)),
+	<T>(values: T[], blockSizeBits = 5) => {
+		const ctx = makeContext<T>(blockSizeBits);
+		return ctx.outerBlockLeftRight(ctx.childrenOps.of(values));
+	},
+	'OuterBlockLeftRight',
+);
 
 runOuterBlockTests(
 	(ctx, values) =>

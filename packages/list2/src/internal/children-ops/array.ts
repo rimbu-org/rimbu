@@ -88,9 +88,23 @@ export class ArrayOuterChildrenOps
 		}
 		return children.join(separator);
 	}
-	filter<T>(children: T[], f: (value: T) => boolean): T[] {
+	filter<T>(children: T[], f: (value: T) => boolean): T[] | undefined {
 		const result = children.filter(f);
-		if (result.length === children.length) return children;
+		if (result.length === children.length) return undefined;
+		return result;
+	}
+	reverseFilter<T>(children: T[], f: (value: T) => boolean): T[] | undefined {
+		const result: T[] = [];
+
+		for (let i = children.length - 1; i >= 0; i--) {
+			const value = children[i];
+			if (f(value)) {
+				result.push(value);
+			}
+		}
+
+		if (result.length === children.length) return undefined;
+
 		return result;
 	}
 	filterIndexed<T>(
@@ -146,10 +160,11 @@ export class ArrayOuterChildrenOps
 	reverseMap<T, T2>(children: T[], f: (value: T) => T2): T2[] {
 		const len = children.length;
 		const result: T2[] = new Array(len);
-		let resultIndex = len - 1;
+
+		let elementIndex = len - 1;
 
 		for (let i = 0; i < len; i++) {
-			result[resultIndex--] = f(children[i]);
+			result[i] = f(children[elementIndex--]);
 		}
 
 		return result;
