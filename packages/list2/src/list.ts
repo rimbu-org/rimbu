@@ -32,8 +32,18 @@ export declare namespace List {
 	export interface Capabilities<T>
 		extends Collection.WithFilter<T>,
 			IndexedCollection.WithOrderEditable<T>,
-			IndexedCollection.WithMap<T> {
+			IndexedCollection.WithMap<T>,
+			List.WithConcat<T> {
 		readonly context: List.Context<T>;
+	}
+
+	export interface WithConcat<E> extends IndexedCollection<E> {
+		concat(
+			...sources: ArrayNonEmpty<StreamSource.NonEmpty<E>>
+		): this['context']['__types']['_NON_EMPTY'];
+		concat(
+			...sources: ArrayNonEmpty<StreamSource<E>>
+		): this['context']['__types']['_SELF'];
 	}
 
 	export interface Context<T, IsNonEmpty extends boolean = boolean> {
@@ -67,6 +77,13 @@ export declare namespace List {
 		List.Context<any>,
 		'empty' | 'of' | 'from' | 'builder' | 'createContext'
 	>;
+
+	interface Concat<T, LN, LNE, IsNonEmpty extends boolean = boolean> {
+		concat(...sources: ArrayNonEmpty<StreamSource.NonEmpty<T>>): LNE;
+		concat(
+			...sources: ArrayNonEmpty<StreamSource<T>>
+		): IsNonEmpty extends true ? LNE : LN;
+	}
 
 	export interface Types<T> extends IndexedCollection.Types<T> {
 		_NORMAL: List<T>;

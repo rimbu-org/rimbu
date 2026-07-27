@@ -1,10 +1,12 @@
 import type { List } from '@rimbu/list';
+import type { StreamSource } from '@rimbu/stream';
 
 import type { ListContext } from '#list/context';
 import type { OuterBlock } from '#list/immutable/outer-block';
+import type { OuterTree } from '#list/immutable/outer-tree';
 
 import { IndexedCollectionNonEmptyBase } from '@rimbu/collection-types/advanced/capabilities/base';
-import { IndexRange } from '@rimbu/common';
+import { type ArrayNonEmpty, IndexRange } from '@rimbu/common';
 
 export abstract class ListNonEmptyBase<T>
 	extends IndexedCollectionNonEmptyBase<T>
@@ -21,9 +23,11 @@ export abstract class ListNonEmptyBase<T>
 	abstract map<T2>(f: (element: T) => T2): List.NonEmpty<T2>;
 	abstract prepend(element: T): List.NonEmpty<T>;
 	abstract append(element: T): List.NonEmpty<T>;
+	abstract concat(...sources: ArrayNonEmpty<StreamSource<T>>): List.NonEmpty<T>;
 	abstract placeAt(index: number, element: T): List.NonEmpty<T>;
 
-	abstract _prependBlock(block: OuterBlock<T>): List.NonEmpty<T>;
+	abstract _prependBlock(leftBlock: OuterBlock<T>): List.NonEmpty<T>;
+	abstract _prependTree(leftTree: OuterTree<T>): List.NonEmpty<T>;
 
 	slice(range: IndexRange): List<T> {
 		const result = IndexRange.getIndicesFor(range, this.size);

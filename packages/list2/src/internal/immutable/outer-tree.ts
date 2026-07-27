@@ -1,18 +1,16 @@
-import type { Stream } from '@rimbu/stream';
-
+import { ListNonEmptyBase } from '#advanced/immutable/non-empty-base';
 import type { ListContext } from '#list/context';
 import type { Inner, Tree } from '#list/immutable/common';
 import type { OuterBlock } from '#list/immutable/outer-block';
-
+import { treeGet, treeStream } from '#list/immutable/tree';
 import {
 	type ArrayNonEmpty,
 	type IndexRange,
 	OptLazy,
 	type TraverseState,
 } from '@rimbu/common';
-
-import { ListNonEmptyBase } from '#advanced/immutable/non-empty-base';
-import { treeGet, treeStream } from '#list/immutable/tree';
+import type { List } from '@rimbu/list';
+import type { Stream, StreamSource } from '@rimbu/stream';
 
 export class OuterTree<T>
 	extends ListNonEmptyBase<T>
@@ -257,6 +255,16 @@ export class OuterTree<T>
 			this.middle?.map(f) ?? null,
 			this.size,
 		);
+	}
+
+	concat(...sources: ArrayNonEmpty<StreamSource<T>>): List.NonEmpty<T> {
+		const asList = this.context.from(...sources);
+
+		if (!asList.nonEmpty()) {
+			return this;
+		}
+
+		return (asList as ListNonEmptyBase<T>)._prependTree(this);
 	}
 
 	toArray(): ArrayNonEmpty<T> {
