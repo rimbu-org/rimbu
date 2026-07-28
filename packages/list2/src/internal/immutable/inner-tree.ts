@@ -82,7 +82,6 @@ export class InnerTree<T, C extends Block<T>> implements Inner<T, C> {
 		if (state.halted) return this.context.empty<T>();
 
 		const first = reversed ? this.right : this.left;
-
 		let result = first.filterIndexed(f, options);
 
 		if (state.halted) return result;
@@ -94,7 +93,6 @@ export class InnerTree<T, C extends Block<T>> implements Inner<T, C> {
 		}
 
 		const last = reversed ? this.left : this.right;
-
 		result = result.concat(last.filterIndexed(f, options));
 
 		return result;

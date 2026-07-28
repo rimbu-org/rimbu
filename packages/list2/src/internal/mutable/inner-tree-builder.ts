@@ -175,9 +175,9 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 		if (undefined !== this.#source) return this.#source;
 
 		return this.context.innerTree<T, any>(
-			this.left.build() as any,
-			this.right.build() as any,
-			(this.middle?.build() as any) ?? null,
+			this.left.build(),
+			this.right.build(),
+			this.middle?.build() ?? null,
 			this.#size,
 			this.level,
 		);
@@ -186,7 +186,7 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 	buildMap<T2>(f: (value: T) => T2): Inner<T2, any> {
 		if (undefined !== this.#source) return this.#source.map(f);
 
-		return this.context.innerTree<T2, any>(
+		return this.context.innerTree(
 			this.left.buildMap(f),
 			this.right.buildMap(f),
 			null,

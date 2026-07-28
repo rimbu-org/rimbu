@@ -257,7 +257,11 @@ export class OuterTree<T>
 
 		const last = reversed ? this.left : this.right;
 
-		return result.concat(last.filterIndexed(f, newOptions));
+		result = result.concat(last.filterIndexed(f, newOptions));
+
+		if (result.size === this.size) return this;
+
+		return result;
 	}
 
 	map<T2>(f: (element: T) => T2): OuterTree<T2> {

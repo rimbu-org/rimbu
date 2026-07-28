@@ -8,8 +8,6 @@ import type { ListContext } from '#list/context';
 import { OuterBlock } from '#list/immutable/outer-block';
 
 export class OuterBlockLeftRight<T> extends OuterBlock<T> {
-	declare _self: OuterBlock<T>;
-
 	constructor(
 		readonly context: ListContext<T, true>,
 		children: OuterChildren<T>,

@@ -9,12 +9,10 @@ import type { BlockBuilder, InnerBuilder } from '#list/mutable/common';
 /**
  * Shared read-only shape for all list nodes (blocks, inner nodes, trees).
  */
-interface ListCommon<T> {
+interface ListNode<T> {
 	/** Total number of elements reachable from this node. */
 	readonly size: number;
 
-	/** Returns the element at `index`. Caller must ensure 0 ≤ index < size. */
-	_get(index: number): T;
 	stream(options?: { reversed?: boolean | undefined }): Stream.NonEmpty<T>;
 	forEach(f: (value: T) => void): void;
 	filter(f: (element: T) => boolean): List<T>;
@@ -27,6 +25,9 @@ interface ListCommon<T> {
 		},
 	): List<T>;
 	toArray(): T[];
+
+	/** Returns the element at `index`. Caller must ensure 0 ≤ index < size. */
+	_get(index: number): T;
 }
 
 /**
@@ -35,10 +36,7 @@ interface ListCommon<T> {
  * For leaf blocks (OuterBlock) `C` = the element type `T`. For inner blocks
  * (InnerBlock) `C` = another Block whose elements resolve to `T`.
  */
-export interface Block<T, C = unknown> extends ListCommon<T> {
-	/** Self-type anchor for narrowing in subclasses. */
-	readonly _self: Block<T, C>;
-
+export interface Block<T, C = unknown> extends ListNode<T> {
 	/** Number of direct children. */
 	readonly _nrChildren: number;
 	/** True when one more child can be added without normalizing. */
@@ -48,16 +46,13 @@ export interface Block<T, C = unknown> extends ListCommon<T> {
 
 	map<T2>(f: (element: T) => T2): Block<T2, any>;
 	toBuilder(): BlockBuilder<T, any>;
-
-	_prependBlockChild(child: C): this['_self'];
-	_appendBlockChild(child: C): this['_self'];
 }
 
 /**
  * A 2-3 finger tree: a left leaf block, a right leaf block, and an optional
  * middle Inner node holding the blocks between them.
  */
-export interface Tree<T, C extends Block<T> = Block<T>> extends ListCommon<T> {
+export interface Tree<T, C extends Block<T> = Block<T>> extends ListNode<T> {
 	readonly left: C;
 	readonly right: C;
 	readonly middle: Inner<T, C> | null;
@@ -67,7 +62,7 @@ export interface Tree<T, C extends Block<T> = Block<T>> extends ListCommon<T> {
  * A block whose children are themselves Blocks. Provides child-level
  * operations used during tree rebalancing.
  */
-export interface Inner<T, C extends Block<T>> extends ListCommon<T> {
+export interface Inner<T, C extends Block<T>> extends ListNode<T> {
 	map<T2>(f: (element: T) => T2): Inner<T2, any>;
 	prependChild(child: C): Inner<T, C>;
 	appendChild(child: C): Inner<T, C>;

@@ -28,8 +28,6 @@ export class InnerBlock<T, C extends Block<T>>
 		this.#computedSizeTable = sizeTable;
 	}
 
-	declare _self: InnerBlock<T, C>;
-
 	readonly #children: C[];
 
 	// Stores a safe copy of the given size table if provided. Otherwise, stores the computed size table on demand.
@@ -196,14 +194,14 @@ export class InnerBlock<T, C extends Block<T>>
 				const filteredChild = child.filterIndexed(f, options);
 				result = result.concat(filteredChild);
 
-				if (state?.halted) return result;
+				if (state?.halted) break;
 			}
 		} else {
 			for (const child of this.#children) {
 				const filteredChild = child.filterIndexed(f, options);
 				result = result.concat(filteredChild);
 
-				if (state?.halted) return result;
+				if (state?.halted) break;
 			}
 		}
 
