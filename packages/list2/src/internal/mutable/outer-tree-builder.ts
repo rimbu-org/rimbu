@@ -95,12 +95,12 @@ export class OuterTreeBuilder<T>
 			index = size + index;
 		}
 
-		Int.checkIsNatural(index);
+		Int.checkAtLeastZero(index);
 
 		return this.get(index);
 	}
 
-	get(index: Int.Natural): T {
+	get(index: Int.AtLeastZero): T {
 		if (undefined !== this.#source) {
 			return this.#source._get(index);
 		}

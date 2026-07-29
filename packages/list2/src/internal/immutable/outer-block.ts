@@ -50,7 +50,7 @@ export abstract class OuterBlock<T>
 	}): ArrayNonEmpty<T>;
 	abstract map<T2>(f: (element: T) => T2): OuterBlock<T2>;
 
-	abstract _get(index: Int.Natural): T;
+	abstract _get(index: Int.AtLeastZero): T;
 	abstract _appendBlockChild(child: T): OuterBlock<T>;
 	abstract _prependBlockChild(child: T): OuterBlock<T>;
 	abstract _createOuterBlock(element: T): OuterBlock<T>;
@@ -93,13 +93,13 @@ export abstract class OuterBlock<T>
 			index = size + index;
 		}
 
-		Int.checkIsNatural(index);
+		Int.checkAtLeastZero(index);
 
 		return this._get(index);
 	}
 
 	first(): T {
-		return this._get(0 as Int.Natural);
+		return this._get(0 as Int.AtLeastZero);
 	}
 
 	last(): T {

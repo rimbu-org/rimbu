@@ -86,7 +86,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		this.#source = undefined;
 	}
 
-	get(index: Int.Natural): T {
+	get(index: Int.AtLeastZero): T {
 		if (undefined !== this.#source) {
 			return this.#source._get(index);
 		}

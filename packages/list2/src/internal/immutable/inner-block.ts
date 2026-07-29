@@ -94,7 +94,7 @@ export class InnerBlock<T, C extends Block<T>>
 			.flatMap((child) => child.stream(options));
 	}
 
-	_get(index: Int.Natural): T {
+	_get(index: Int.AtLeastZero): T {
 		const [childIndex, inChildIndex] = this.sizeTable.getCoordinates(index);
 
 		return this.#children[childIndex]._get(inChildIndex);
@@ -257,16 +257,20 @@ export class InnerBlock<T, C extends Block<T>>
 		return this.#copy(newChildren, newLength);
 	}
 
+	concatChildren(...other: InnerBlock<T, C>[]): C[] {
+		return this.#children.concat(...other.map((o) => o.#children));
+	}
+
 	concat(other: Inner<T, C>): Inner<T, C> {
 		return other.prependBlock(this);
 	}
 
 	takeInternal(
-		amount: Int.Natural,
+		amount: Int.AtLeastZero,
 	): [
 		newInner: InnerBlock<T, C> | null,
 		lastChild: C,
-		lastChildCount: Int.Natural,
+		lastChildCount: Int.AtLeastZero,
 	] {
 		const [childIndex, inChildIndex] = this.sizeTable.getCoordinates(amount, {
 			forTake: true,
@@ -283,11 +287,11 @@ export class InnerBlock<T, C extends Block<T>>
 	}
 
 	dropInternal(
-		amount: Int.Natural,
+		amount: Int.AtLeastZero,
 	): [
 		newInner: InnerBlock<T, C> | null,
 		lastChild: C,
-		lastChildCount: Int.Natural,
+		lastChildCount: Int.AtLeastZero,
 	] {
 		const [childIndex, inChildIndex] = this.sizeTable.getCoordinates(amount, {
 			forTake: true,

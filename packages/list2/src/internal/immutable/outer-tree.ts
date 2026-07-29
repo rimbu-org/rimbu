@@ -82,12 +82,12 @@ export class OuterTree<T>
 			index = size + index;
 		}
 
-		Int.checkIsNatural(index);
+		Int.checkAtLeastZero(index);
 
 		return this._get(index);
 	}
 
-	_get(index: Int.Natural): T {
+	_get(index: Int.AtLeastZero): T {
 		return treeGet(this, index);
 	}
 
@@ -210,7 +210,7 @@ export class OuterTree<T>
 	}
 
 	placeAt(index: number, element: T): OuterBlock<T> {
-		Int.checkIsNatural(index);
+		Int.checkAtLeastZero(index);
 
 		return 0 as any;
 
@@ -231,11 +231,11 @@ export class OuterTree<T>
 			count = this.size + count;
 		}
 
-		Int.checkIsNatural(count);
+		Int.checkAtLeastZero(count);
 
 		const middleCount = count - this.left.size;
 
-		if (!Int.isPos(middleCount)) return this.left.take(count);
+		if (!Int.isAtLeastOne(middleCount)) return this.left.take(count);
 
 		if (null === this.middle) {
 			return this.#copy(
@@ -249,7 +249,7 @@ export class OuterTree<T>
 
 		const rightCount = middleCount - this.middle.size;
 
-		if (Int.isPos(rightCount)) {
+		if (Int.isAtLeastOne(rightCount)) {
 			const newRight = this.right._takeChildren(rightCount);
 			return this.#copy(undefined, newRight, undefined, count);
 			//._normalize();
@@ -271,13 +271,13 @@ export class OuterTree<T>
 			count = this.size + count;
 		}
 
-		Int.checkIsNatural(count);
+		Int.checkAtLeastZero(count);
 
 		const newSize = this.size - count;
 
 		const middleCount = count - this.left.size;
 
-		if (!Int.isNatural(middleCount)) {
+		if (!Int.isAtLeastZero(middleCount)) {
 			const newLeft = this.left._dropChildren(count);
 			return this.#copy(newLeft, undefined, undefined, newSize);
 			//._normalize();

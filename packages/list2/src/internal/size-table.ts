@@ -140,7 +140,7 @@ export class SizeTable {
 	getCoordinates(
 		index: number,
 		options: { forTake?: boolean; noEmptyLast?: boolean } = {},
-	): [childIndex: Int.Natural, positionWithinChild: Int.Natural] {
+	): [childIndex: Int.AtLeastZero, positionWithinChild: Int.AtLeastZero] {
 		const { forTake = false, noEmptyLast = false } = options;
 
 		const forTakeOffset = forTake ? 1 : 0;
@@ -154,11 +154,11 @@ export class SizeTable {
 				const lastChildSize = this.sizeChildAt(-1);
 
 				return [
-					(nrChildren - 1) as Int.Natural,
-					(lastChildSize - 1) as Int.Natural,
+					(nrChildren - 1) as Int.AtLeastZero,
+					(lastChildSize - 1) as Int.AtLeastZero,
 				];
 			}
-			return [nrChildren as Int.Natural, 0 as Int.Natural];
+			return [nrChildren as Int.AtLeastZero, 0 as Int.AtLeastZero];
 		}
 
 		if (this.isRegular) {
@@ -166,7 +166,7 @@ export class SizeTable {
 			const inChildIndex =
 				(indexWithForTake & (this.maxChildSize - 1)) + forTakeOffset;
 
-			return [childIndex as Int.Natural, inChildIndex as Int.Natural];
+			return [childIndex as Int.AtLeastZero, inChildIndex as Int.AtLeastZero];
 		}
 
 		let lowChildIndex = Math.floor(indexWithForTake / this.maxChildSize);
@@ -188,7 +188,7 @@ export class SizeTable {
 		const prevCumulative =
 			childIndex === 0 ? this.offset : this.cumulativeTable[childIndex - 1];
 		const inChildIndex = searchIndex - prevCumulative + forTakeOffset;
-		return [childIndex as Int.Natural, inChildIndex as Int.Natural];
+		return [childIndex as Int.AtLeastZero, inChildIndex as Int.AtLeastZero];
 	}
 
 	static fromSizes(

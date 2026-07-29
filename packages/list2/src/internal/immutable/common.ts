@@ -28,7 +28,7 @@ interface ListNode<T> {
 	toArray(): T[];
 
 	/** Returns the element at `index`. Caller must ensure 0 ≤ index < size. */
-	_get(index: Int.Natural): T;
+	_get(index: Int.AtLeastZero): T;
 }
 
 /**
@@ -79,10 +79,18 @@ export interface Inner<T, C extends Block<T>> extends ListNode<T> {
 	prependBlock(leftBlock: InnerBlock<T, C>): Inner<T, C>;
 	prependTree(leftTree: InnerTree<T, C>): Inner<T, C>;
 	takeInternal(
-		amount: Int.Natural,
-	): [newInner: Inner<T, C> | null, lastChild: C, lastChildCount: Int.Natural];
+		amount: Int.AtLeastZero,
+	): [
+		newInner: Inner<T, C> | null,
+		lastChild: C,
+		lastChildCount: Int.AtLeastZero,
+	];
 	dropInternal(
-		amount: Int.Natural,
-	): [newInner: Inner<T, C> | null, lastChild: C, lastChildCount: Int.Natural];
+		amount: Int.AtLeastZero,
+	): [
+		newInner: Inner<T, C> | null,
+		lastChild: C,
+		lastChildCount: Int.AtLeastZero,
+	];
 	toBuilder(): InnerBuilder<T, any>;
 }
