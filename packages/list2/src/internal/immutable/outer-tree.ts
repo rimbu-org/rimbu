@@ -209,8 +209,18 @@ export class OuterTree<T>
 		);
 	}
 
-	placeAt(index: number, element: T): OuterTree<T> {
+	placeAt(index: number, element: T): OuterBlock<T> {
+		Int.checkIsNatural(index);
+
 		return 0 as any;
+
+		// if (index >= this.size) {
+		// 	return this.append(element);
+		// }
+		// if (-index > this.size) {
+		// 	return this.prepend(element);
+		// }
+		// return this.set
 	}
 
 	take(count: number): List<T> {
@@ -223,9 +233,9 @@ export class OuterTree<T>
 
 		Int.checkIsNatural(count);
 
-		const middleCount = (count - this.left.size) as Int;
+		const middleCount = count - this.left.size;
 
-		if (middleCount <= 0) return this.left.take(count);
+		if (!Int.isPos(middleCount)) return this.left.take(count);
 
 		if (null === this.middle) {
 			return this.#copy(
@@ -237,17 +247,16 @@ export class OuterTree<T>
 			//._normalize();
 		}
 
-		const rightCount = (middleCount - this.middle.size) as Int;
+		const rightCount = middleCount - this.middle.size;
 
-		if (rightCount > 0) {
+		if (Int.isPos(rightCount)) {
 			const newRight = this.right._takeChildren(rightCount);
 			return this.#copy(undefined, newRight, undefined, count);
 			//._normalize();
 		}
 
-		const [newMiddle, upRight, inUpRight] = this.middle.takeInternal(
-			middleCount as Int.Natural,
-		);
+		const [newMiddle, upRight, inUpRight] =
+			this.middle.takeInternal(middleCount);
 
 		const newRight = upRight._takeChildren(inUpRight);
 
@@ -256,9 +265,39 @@ export class OuterTree<T>
 	}
 
 	drop(count: number): List<T> {
-		Int.check(count);
+		if (count === 0) return this;
+		if (count >= this.size || -count > this.size) return this.context.empty();
+		if (count < 0) {
+			count = this.size + count;
+		}
 
-		return 0 as any;
+		Int.checkIsNatural(count);
+
+		const newSize = this.size - count;
+
+		const middleCount = count - this.left.size;
+
+		if (!Int.isNatural(middleCount)) {
+			const newLeft = this.left._dropChildren(count);
+			return this.#copy(newLeft, undefined, undefined, newSize);
+			//._normalize();
+		}
+
+		if (null === this.middle) {
+			return this.right.drop(middleCount);
+		}
+
+		const rightcount = middleCount - this.middle.size;
+
+		if (rightcount >= 0) {
+			return this.right.drop(rightcount);
+		}
+
+		const [newMiddle, upLeft, inUpLeft] = this.middle.dropInternal(middleCount);
+		const newLeft = upLeft._dropChildren(inUpLeft);
+
+		return this.#copy(newLeft, undefined, newMiddle, newSize);
+		//._normalize();
 	}
 
 	forEach(f: (element: T) => void): void {

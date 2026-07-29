@@ -1,14 +1,12 @@
-import type { Int } from '@rimbu/base';
-import type { TraverseState } from '@rimbu/common';
-import type { List } from '@rimbu/list';
-import type { Stream } from '@rimbu/stream';
-
 import type { ListContext } from '#list/context';
 import type { Block, Inner } from '#list/immutable/common';
 import type { InnerBlock } from '#list/immutable/inner-block';
-import type { InnerTreeBuilder } from '#list/mutable/inner-tree-builder';
-
 import { treeGet, treeStream } from '#list/immutable/tree';
+import type { InnerTreeBuilder } from '#list/mutable/inner-tree-builder';
+import { Int } from '@rimbu/base';
+import type { TraverseState } from '@rimbu/common';
+import type { List } from '@rimbu/list';
+import type { Stream } from '@rimbu/stream';
 
 export class InnerTree<T, C extends Block<T>> implements Inner<T, C> {
 	constructor(
@@ -332,13 +330,115 @@ export class InnerTree<T, C extends Block<T>> implements Inner<T, C> {
 	takeInternal(
 		amount: Int.Natural,
 	): [newInner: Inner<T, C> | null, lastChild: C, lastChildCount: Int.Natural] {
-		return 0 as any;
+		const middleAmount = amount - this.left.size;
+
+		if (!Int.isPos(middleAmount)) {
+			// only left remains
+			return this.left.takeInternal(amount);
+		}
+
+		if (null === this.middle) {
+			// update with take from right, no middle
+			const [newRight, up, upAmount] = this.right.takeInternal(middleAmount);
+
+			if (null === newRight) {
+				// no right remains
+				return [this.left, up, upAmount];
+			}
+
+			// combine left with remaining right
+			return [this.left.concat(newRight), up, upAmount];
+		}
+
+		const rightAmount = middleAmount - this.middle.size;
+
+		if (Int.isPos(rightAmount)) {
+			const [newRight, up, upAmount] = this.right.takeInternal(rightAmount);
+
+			if (null === newRight) {
+				// no right remains, move last middle up
+				const [newMiddle, toRight] = this.middle.dropLastChild();
+				const newLength =
+					this.left.size + toRight.size + (newMiddle?.size ?? 0);
+				const newSelf = this.#copy(undefined, toRight, newMiddle, newLength);
+				//._normalize();
+
+				return [newSelf, up, upAmount];
+			}
+
+			// some right remains, update and normalize
+			const newSize = this.left.size + newRight.size + this.middle.size;
+			const newSelf = this.#copy(undefined, newRight, undefined, newSize);
+			// ._normalize();
+
+			return [newSelf, up, upAmount];
+		}
+
+		// take from middle
+		const [newMiddle, upRight] = this.middle.takeInternal(middleAmount);
+		const newSize = this.left.size + upRight.size + (newMiddle?.size ?? 0);
+		const newSelf = this.#copy(undefined, upRight, newMiddle, newSize);
+		// ._normalize();
+		return newSelf.takeInternal(amount);
 	}
 
 	dropInternal(
 		amount: Int.Natural,
 	): [newInner: Inner<T, C> | null, lastChild: C, lastChildCount: Int.Natural] {
-		return 0 as any;
+		const middleAmount = amount - this.left.size;
+
+		if (null === this.middle) {
+			if (!Int.isNatural(middleAmount)) {
+				// drop only from left no middle
+				const [newLeft, upLeft, upLeftAmount] = this.left.dropInternal(amount);
+
+				const newSelf =
+					null === newLeft ? this.right : newLeft.concat(this.right);
+
+				return [newSelf, upLeft, upLeftAmount];
+			} else {
+				// drop only from right
+				return this.right.dropInternal(middleAmount);
+			}
+		}
+
+		if (!Int.isNatural(middleAmount)) {
+			// drop only from left with middle
+			const [newLeft, upLeft, upLeftAmount] = this.left.dropInternal(amount);
+
+			if (null === newLeft) {
+				// all of left gone
+				const [newMiddle, toLeft] = this.middle.dropFirstChild();
+				const newSize = toLeft.size + this.right.size + (newMiddle?.size ?? 0);
+				const newSelf = this.#copy(toLeft, undefined, newMiddle, newSize);
+				//._normalize();
+
+				return [newSelf, upLeft, upLeftAmount];
+			}
+
+			// left remaining
+			const newSize = newLeft.size + this.right.size + this.middle.size;
+			const newSelf = this.#copy(newLeft, undefined, undefined, newSize);
+
+			return [newSelf, upLeft, upLeftAmount];
+		}
+
+		const rightAmount = middleAmount - this.middle.size;
+
+		if (Int.isNatural(rightAmount)) {
+			// drop only from right
+			return this.right.dropInternal(rightAmount);
+		}
+
+		// drop from middle
+		const [newMiddle, upLeft, inUpLeft] =
+			this.middle.dropInternal(middleAmount);
+
+		const newSize = upLeft.size + this.right.size + (newMiddle?.size ?? 0);
+		const newSelf = this.#copy(upLeft, undefined, newMiddle, newSize);
+		//._normalize();
+
+		return newSelf.dropInternal(inUpLeft);
 	}
 
 	concat(other: Inner<T, C>): Inner<T, C> {

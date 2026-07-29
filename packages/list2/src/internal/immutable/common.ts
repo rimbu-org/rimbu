@@ -44,6 +44,8 @@ export interface Block<T> extends ListNode<T> {
 	readonly _canAddChild: boolean;
 	/** True when one child can be removed without violating minimum fill. */
 	readonly _canRemoveChild: boolean;
+	readonly _childrenInMin: boolean;
+	readonly _childrenInMax: boolean;
 
 	map<T2>(f: (element: T) => T2): Block<T2>;
 	toBuilder(): BlockBuilder<T>;

@@ -54,6 +54,14 @@ export class InnerBlock<T, C extends Block<T>>
 		return this._nrChildren > this.context.minBlockSize;
 	}
 
+	get _childrenInMin(): boolean {
+		return this._nrChildren <= this.context.minBlockSize;
+	}
+
+	get _childrenInMax(): boolean {
+		return this._nrChildren >= this.context.maxBlockSize;
+	}
+
 	#copy(
 		children = this.#children,
 		size = this.size,
@@ -255,7 +263,11 @@ export class InnerBlock<T, C extends Block<T>>
 
 	takeInternal(
 		amount: Int.Natural,
-	): [newInner: Inner<T, C> | null, lastChild: C, lastChildCount: Int.Natural] {
+	): [
+		newInner: InnerBlock<T, C> | null,
+		lastChild: C,
+		lastChildCount: Int.Natural,
+	] {
 		const [childIndex, inChildIndex] = this.sizeTable.getCoordinates(amount, {
 			forTake: true,
 		});
@@ -272,7 +284,11 @@ export class InnerBlock<T, C extends Block<T>>
 
 	dropInternal(
 		amount: Int.Natural,
-	): [newInner: Inner<T, C> | null, lastChild: C, lastChildCount: Int.Natural] {
+	): [
+		newInner: InnerBlock<T, C> | null,
+		lastChild: C,
+		lastChildCount: Int.Natural,
+	] {
 		const [childIndex, inChildIndex] = this.sizeTable.getCoordinates(amount, {
 			forTake: true,
 			noEmptyLast: false,
@@ -323,11 +339,91 @@ export class InnerBlock<T, C extends Block<T>>
 	}
 
 	prependBlock(leftBlock: InnerBlock<T, C>): Inner<T, C> {
-		return 0 as any;
+		const newSize = leftBlock.size + this.size;
+
+		const totalNrChildren = leftBlock._nrChildren + this._nrChildren;
+
+		if (totalNrChildren <= this.context.maxBlockSize) {
+			const newChildren = leftBlock.#children.concat(this.#children);
+
+			return this.context.innerBlock(newChildren, newSize, this.level);
+		}
+
+		return this.context.innerTree(leftBlock, this, null, newSize, this.level);
 	}
 
 	prependTree(leftTree: InnerTree<T, C>): Inner<T, C> {
-		return 0 as any;
+		const newSize = leftTree.size + this.size;
+
+		const jointNrChildren = leftTree.right._nrChildren + this._nrChildren;
+		// Case 1: Joint is small enough to merge into a single block
+		if (jointNrChildren <= this.context.maxBlockSize) {
+			const newLeftRightChildren = leftTree.right.concat(this) as InnerBlock<
+				T,
+				C
+			>;
+			return this.context.innerTree(
+				leftTree.left,
+				newLeftRightChildren,
+				leftTree.middle,
+				newSize,
+				this.level,
+			);
+		}
+
+		// Case 2: Joint is too large to merge into a single block, but can be merged into the middle of the tree
+		if (leftTree.right._childrenInMin) {
+			const newLeftMiddle =
+				leftTree.middle?.appendChild(leftTree.right) ??
+				this.context.innerBlock(
+					[leftTree.right],
+					leftTree.right.size,
+					this.level + 1,
+				);
+
+			return this.context.innerTree(
+				leftTree.left,
+				this,
+				newLeftMiddle,
+				newSize,
+				this.level + 1,
+			);
+		}
+
+		// Case 3: Need to join and split the joint into a new block, and add it to the middle of the tree
+		const toMiddleChildren = leftTree.right.#children.concat(this.#children);
+		const newRightChildren = toMiddleChildren.splice(this.context.maxBlockSize);
+
+		const maxChildSize = 1 << (this.level * this.context.blockSizeBits);
+		const newRightSizeTable = SizeTable.fromChildren(
+			newRightChildren,
+			maxChildSize,
+		);
+		const newRightSize = newRightSizeTable.totalSize;
+
+		const toMiddle = this.context.innerBlock<T, C>(
+			toMiddleChildren,
+			newSize - newRightSize,
+			this.level,
+		);
+		const newRight = this.context.innerBlock<T, C>(
+			newRightChildren,
+			newRightSize,
+			this.level,
+			newRightSizeTable,
+		);
+
+		const newMiddle =
+			leftTree.middle?.appendChild(toMiddle) ??
+			this.context.innerBlock([toMiddle], toMiddle.size, this.level + 1);
+
+		return this.context.innerTree(
+			leftTree.left,
+			newRight,
+			newMiddle,
+			newSize,
+			this.level,
+		);
 	}
 
 	toBuilder(): InnerBlockBuilder<T, any> {
