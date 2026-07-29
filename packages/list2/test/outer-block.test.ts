@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'bun:test';
 
+import type { Int } from '@rimbu/base';
+
 import type { ListContext } from '#list/context';
 import type { OuterBlock } from '#list/immutable/outer-block';
 
@@ -185,9 +187,9 @@ function runOuterBlockTests(
 				const b = makeBlock([10, 20, 30]);
 
 				it('returns element at positive index', () => {
-					expect(b._get(0)).toBe(10);
-					expect(b._get(1)).toBe(20);
-					expect(b._get(2)).toBe(30);
+					expect(b._get(0 as Int.Natural)).toBe(10);
+					expect(b._get(1 as Int.Natural)).toBe(20);
+					expect(b._get(2 as Int.Natural)).toBe(30);
 				});
 
 				it('at supports negative indices', () => {
@@ -741,52 +743,52 @@ function runOuterBlockTests(
 				const b = makeBlock([10, 20, 30, 40, 50]);
 
 				it('positive amount takes from front', () => {
-					const r = b._takeChildren(2);
+					const r = b._takeChildren(2 as Int);
 					expect(r.toArray()).toEqual([10, 20]);
 				});
 
 				it('zero takes nothing (empty block)', () => {
-					const r = b._takeChildren(0);
+					const r = b._takeChildren(0 as Int);
 					expect(r.size).toBe(0);
 				});
 
 				it('amount equals size takes everything', () => {
-					const r = b._takeChildren(5);
+					const r = b._takeChildren(5 as Int);
 					expect(r.toArray()).toEqual([10, 20, 30, 40, 50]);
 				});
 
 				it('negative amount takes from end', () => {
-					const r = b._takeChildren(-2);
+					const r = b._takeChildren(-2 as Int);
 					expect(r.toArray()).toEqual([40, 50]);
 				});
 
 				it('negative amount = -size takes everything', () => {
-					const r = b._takeChildren(-5);
+					const r = b._takeChildren(-5 as Int);
 					expect(r.toArray()).toEqual([10, 20, 30, 40, 50]);
 				});
 
 				it('does not mutate original', () => {
-					b._takeChildren(2);
+					b._takeChildren(2 as Int);
 					expect(b.toArray()).toEqual([10, 20, 30, 40, 50]);
 				});
 
 				it('amount 1 returns single element', () => {
-					const r = b._takeChildren(1);
+					const r = b._takeChildren(1 as Int);
 					expect(r.toArray()).toEqual([10]);
 				});
 
 				it('amount -1 returns last element only', () => {
-					const r = b._takeChildren(-1);
+					const r = b._takeChildren(-1 as Int);
 					expect(r.toArray()).toEqual([50]);
 				});
 
 				it('amount = size-1 takes n-1 from front', () => {
-					const r = b._takeChildren(4);
+					const r = b._takeChildren(4 as Int);
 					expect(r.toArray()).toEqual([10, 20, 30, 40]);
 				});
 
 				it('amount = -(size-1) takes n-1 from end', () => {
-					const r = b._takeChildren(-4);
+					const r = b._takeChildren(-4 as Int);
 					expect(r.toArray()).toEqual([20, 30, 40, 50]);
 				});
 			});
@@ -795,52 +797,52 @@ function runOuterBlockTests(
 				const b = makeBlock([10, 20, 30, 40, 50]);
 
 				it('positive amount drops from front', () => {
-					const r = b._dropChildren(2);
+					const r = b._dropChildren(2 as Int);
 					expect(r.toArray()).toEqual([30, 40, 50]);
 				});
 
 				it('zero drops nothing', () => {
-					const r = b._dropChildren(0);
+					const r = b._dropChildren(0 as Int);
 					expect(r.toArray()).toEqual([10, 20, 30, 40, 50]);
 				});
 
 				it('amount equals size drops everything', () => {
-					const r = b._dropChildren(5);
+					const r = b._dropChildren(5 as Int);
 					expect(r.size).toBe(0);
 				});
 
 				it('negative amount drops from end', () => {
-					const r = b._dropChildren(-2);
+					const r = b._dropChildren(-2 as Int);
 					expect(r.toArray()).toEqual([10, 20, 30]);
 				});
 
 				it('negative amount = -size drops everything', () => {
-					const r = b._dropChildren(-5);
+					const r = b._dropChildren(-5 as Int);
 					expect(r.size).toBe(0);
 				});
 
 				it('does not mutate original', () => {
-					b._dropChildren(2);
+					b._dropChildren(2 as Int);
 					expect(b.toArray()).toEqual([10, 20, 30, 40, 50]);
 				});
 
 				it('drop 1 removes first', () => {
-					const r = b._dropChildren(1);
+					const r = b._dropChildren(1 as Int);
 					expect(r.toArray()).toEqual([20, 30, 40, 50]);
 				});
 
 				it('drop -1 removes last', () => {
-					const r = b._dropChildren(-1);
+					const r = b._dropChildren(-1 as Int);
 					expect(r.toArray()).toEqual([10, 20, 30, 40]);
 				});
 
 				it('drop size-1 leaves last element', () => {
-					const r = b._dropChildren(4);
+					const r = b._dropChildren(4 as Int);
 					expect(r.toArray()).toEqual([50]);
 				});
 
 				it('drop -(size-1) leaves first element', () => {
-					const r = b._dropChildren(-4);
+					const r = b._dropChildren(-4 as Int);
 					expect(r.toArray()).toEqual([10]);
 				});
 			});
@@ -871,9 +873,9 @@ function runOuterBlockTests(
 					const b = makeBlock([10, 20, 30]);
 					const builder = b.toBuilder();
 					expect(builder.size).toBe(3);
-					expect(builder.get(0)).toBe(10);
-					expect(builder.get(1)).toBe(20);
-					expect(builder.get(2)).toBe(30);
+					expect(builder.get(0 as Int.Natural)).toBe(10);
+					expect(builder.get(1 as Int.Natural)).toBe(20);
+					expect(builder.get(2 as Int.Natural)).toBe(30);
 				});
 
 				it('builder can append and build', () => {

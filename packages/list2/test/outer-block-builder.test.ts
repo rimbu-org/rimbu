@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'bun:test';
 
+import type { Int } from '@rimbu/base';
+
 import type { ListContext } from '#list/context';
 
 import { List } from '@rimbu/list';
@@ -114,8 +116,8 @@ describe('OuterBlockBuilder.from-source', () => {
 
 	it('get on source', () => {
 		const b = makeBuilderFromSource([10, 20, 30]);
-		expect(b.get(0)).toBe(10);
-		expect(b.get(2)).toBe(30);
+		expect(b.get(0 as Int.Natural)).toBe(10);
+		expect(b.get(2 as Int.Natural)).toBe(30);
 	});
 
 	it('forEach from source', () => {
@@ -181,9 +183,9 @@ describe('OuterBlockBuilder.read', () => {
 	describe('get', () => {
 		it('returns element at index', () => {
 			const b = makeBuilder([10, 20, 30]);
-			expect(b.get(0)).toBe(10);
-			expect(b.get(1)).toBe(20);
-			expect(b.get(2)).toBe(30);
+			expect(b.get(0 as Int.Natural)).toBe(10);
+			expect(b.get(1 as Int.Natural)).toBe(20);
+			expect(b.get(2 as Int.Natural)).toBe(30);
 		});
 	});
 

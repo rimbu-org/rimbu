@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'bun:test';
 
+import type { ArrayNonEmpty } from '@rimbu/common';
+
 import { List } from '@rimbu/list';
 import { Stream } from '@rimbu/stream';
 
@@ -160,21 +162,30 @@ describe('List concat', () => {
 
 		it('concat large number of elements', () => {
 			const ctx5 = List.createContext({ blockSizeBits: 5 });
-			const a = ctx5.of(...Array.from({ length: 50 }, (_, i) => i)) as any;
-			const b = ctx5.of(...Array.from({ length: 50 }, (_, i) => i + 50)) as any;
+			const a = ctx5.of(
+				...(Array.from({ length: 50 }, (_, i) => i) as ArrayNonEmpty<number>),
+			);
+			const b = ctx5.of(
+				...(Array.from(
+					{ length: 50 },
+					(_, i) => i + 50,
+				) as ArrayNonEmpty<number>),
+			);
 			const result = a.concat(b);
 			expect(result.size).toBe(100);
 			expect(result.toArray()).toEqual(
-				Array.from({ length: 100 }, (_, i) => i),
+				Array.from({ length: 100 }, (_, i) => i) as ArrayNonEmpty<number>,
 			);
 		});
 
 		it('concat many sources', () => {
 			const sources = Array.from({ length: 20 }, (_, i) => ctx.of(i));
 			// @ts-expect-error - nonEmpty assertion
-			const result = (sources[0] as any).concat(...sources.slice(1));
+			const result = sources[0].concat(...sources.slice(1));
 			expect(result.size).toBe(20);
-			expect(result.toArray()).toEqual(Array.from({ length: 20 }, (_, i) => i));
+			expect(result.toArray()).toEqual(
+				Array.from({ length: 20 }, (_, i) => i) as ArrayNonEmpty<number>,
+			);
 		});
 
 		it('concat after prepend/append still works', () => {

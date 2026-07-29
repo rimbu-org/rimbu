@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'bun:test';
 
+import type { Int } from '@rimbu/base';
+
 import type { ListContext } from '#list/context';
 import type { OuterBlock } from '#list/immutable/outer-block';
 import type { OuterTree } from '#list/immutable/outer-tree';
@@ -192,9 +194,9 @@ describe('OuterTree.read', () => {
 		const t = simpleTree([10, 20], [30, 40, 50]);
 
 		it('returns element at positive index', () => {
-			expect(t._get(0)).toBe(10);
-			expect(t._get(3)).toBe(40);
-			expect(t._get(4)).toBe(50);
+			expect(t._get(0 as Int.Natural)).toBe(10);
+			expect(t._get(3 as Int.Natural)).toBe(40);
+			expect(t._get(4 as Int.Natural)).toBe(50);
 		});
 
 		it('at supports negative indices', () => {

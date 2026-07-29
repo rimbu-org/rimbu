@@ -4,7 +4,7 @@ import type { ListContext } from '#list/context';
 import type { Inner } from '#list/immutable/common';
 import type { InnerBlock } from '#list/immutable/inner-block';
 import type { InnerTree } from '#list/immutable/inner-tree';
-
+import type { Int } from '@rimbu/base';
 import { List } from '@rimbu/list';
 
 type OB = import('#list/immutable/outer-block').OuterBlock<number>;
@@ -117,8 +117,8 @@ describe('InnerTree.read', () => {
 				[ob(ctx, [10, 20]), ob(ctx, [30])],
 				[ob(ctx, [40]), ob(ctx, [50])],
 			);
-			expect(t._get(0)).toBe(10);
-			expect(t._get(2)).toBe(30);
+			expect(t._get(0 as Int.Natural)).toBe(10);
+			expect(t._get(2 as Int.Natural)).toBe(30);
 		});
 
 		it('reads from right inner block', () => {
@@ -126,15 +126,15 @@ describe('InnerTree.read', () => {
 				[ob(ctx, [10])],
 				[ob(ctx, [20, 30]), ob(ctx, [40])],
 			);
-			expect(t._get(1)).toBe(20);
-			expect(t._get(3)).toBe(40);
+			expect(t._get(1 as Int.Natural)).toBe(20);
+			expect(t._get(3 as Int.Natural)).toBe(40);
 		});
 
 		it('crosses left-right boundary', () => {
 			const t = simpleInnerTree([ob(ctx, [1, 2, 3])], [ob(ctx, [4, 5])]);
-			expect(t._get(0)).toBe(1);
-			expect(t._get(2)).toBe(3);
-			expect(t._get(3)).toBe(4);
+			expect(t._get(0 as Int.Natural)).toBe(1);
+			expect(t._get(2 as Int.Natural)).toBe(3);
+			expect(t._get(3 as Int.Natural)).toBe(4);
 		});
 
 		it('reads through middle', () => {
@@ -143,10 +143,10 @@ describe('InnerTree.read', () => {
 				[[ob(ctx, [2, 3, 4, 5])]],
 				[ob(ctx, [6])],
 			);
-			expect(t._get(0)).toBe(1);
-			expect(t._get(1)).toBe(2);
-			expect(t._get(4)).toBe(5);
-			expect(t._get(5)).toBe(6);
+			expect(t._get(0 as Int.Natural)).toBe(1);
+			expect(t._get(1 as Int.Natural)).toBe(2);
+			expect(t._get(4 as Int.Natural)).toBe(5);
+			expect(t._get(5 as Int.Natural)).toBe(6);
 		});
 	});
 
@@ -421,8 +421,8 @@ describe('InnerTree.edge-cases', () => {
 			3,
 		);
 		expect(t.level).toBe(4);
-		expect(t._get(0)).toBe(1);
-		expect(t._get(3)).toBe(4);
+		expect(t._get(0 as Int.Natural)).toBe(1);
+		expect(t._get(3 as Int.Natural)).toBe(4);
 		expect(t.toArray()).toEqual([1, 2, 3, 4]);
 	});
 
@@ -467,9 +467,9 @@ describe('InnerTree.edge-cases', () => {
 			[ob(nctx, [1, null as any])],
 			[ob(nctx, [null as any, 3])],
 		);
-		expect(t._get(0)).toBe(1);
-		expect(t._get(1)).toBeNull();
-		expect(t._get(2)).toBeNull();
-		expect(t._get(3)).toBe(3);
+		expect(t._get(0 as Int.Natural)).toBe(1);
+		expect(t._get(1 as Int.Natural)).toBeNull();
+		expect(t._get(2 as Int.Natural)).toBeNull();
+		expect(t._get(3 as Int.Natural)).toBe(3);
 	});
 });
