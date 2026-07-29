@@ -14,8 +14,6 @@ import { Stream } from '@rimbu/stream';
 import { OuterBlock } from '#list/immutable/outer-block';
 
 export class OuterBlockRightLeft<T> extends OuterBlock<T> {
-	declare _self: OuterBlock<T>;
-
 	constructor(
 		readonly context: ListContext<T, true>,
 		children: OuterChildren<T>,

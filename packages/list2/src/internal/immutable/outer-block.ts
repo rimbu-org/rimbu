@@ -21,8 +21,6 @@ export abstract class OuterBlock<T>
 	extends ListNonEmptyBase<T>
 	implements Block<T>
 {
-	declare _self: OuterBlock<T>;
-
 	constructor(readonly context: ListContext<T, true>) {
 		super(context);
 	}
