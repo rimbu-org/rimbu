@@ -8,6 +8,7 @@
 
 export * from '@rimbu/base/arr';
 export * from '@rimbu/base/entry';
+export * from '@rimbu/base/int';
 export * from '@rimbu/base/plain-object';
 export * from '@rimbu/base/rimbu-error';
 export * from '@rimbu/base/token';

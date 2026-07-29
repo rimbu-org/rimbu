@@ -1,178 +1,275 @@
-import type { Int } from '@rimbu/base';
+import { type Int, throwInvalidStateError } from '@rimbu/base';
 
-export type SizeTable = number[] | 'regular';
-
-/**
- * Compute a cumulative size table for an array of child blocks.
- * sizes[k] = sum of children[0..k].size (inclusive).
- * Returns 'regular' if the block can use the O(1) bitwise coordinate lookup.
- *
- * A block qualifies as regular when:
- * - It has 0 or 1 children (trivially regular), OR
- * - Every child except possibly the last has the exact maxChildSize.
- *   The last child may be smaller without breaking the bitwise formula.
- */
-export function computeSizeTable(
-	children: { get size(): number }[],
-	size: number,
-	blockSizeBits: number,
-	level: number,
-): SizeTable {
-	const nrChildren = children.length;
-	const maxChildSize = 1 << (blockSizeBits * level);
-
-	if (nrChildren <= 1) {
-		return 'regular';
+export class SizeTable {
+	private constructor(
+		readonly cumulativeTable: number[],
+		readonly offset: number,
+		readonly maxChildSize: number,
+		readonly knownIsRegular?: boolean | undefined,
+	) {
+		this.#_knownIsRegular = knownIsRegular;
 	}
 
-	if (size === maxChildSize * nrChildren) {
-		return 'regular';
+	#copy(
+		cumulativeTable: number[],
+		offset: number,
+		knownIsRegular?: boolean,
+	): SizeTable {
+		return new SizeTable(
+			cumulativeTable,
+			offset,
+			this.maxChildSize,
+			knownIsRegular,
+		);
 	}
 
-	const lastChildSize = children.at(-1)!.size;
+	#_knownIsRegular: boolean | undefined;
 
-	if (size - lastChildSize === maxChildSize * (nrChildren - 1)) {
-		return 'regular';
+	get nrChildren(): number {
+		return this.cumulativeTable.length;
 	}
 
-	let total = 0;
+	get isRegular(): boolean {
+		if (undefined === this.#_knownIsRegular) {
+			const lastChildSize = this.sizeChildAt(-1);
+			const soizeWithoutLast = this.totalSize - lastChildSize;
 
-	const sizeTable = new Array<number>(nrChildren);
-
-	for (let i = 0; i < nrChildren; i++) {
-		total += children[i].size;
-		sizeTable[i] = total;
-	}
-
-	return sizeTable;
-}
-
-export function buildSizeTable(
-	children: { get size(): number }[],
-	blockSizeBits: number,
-	level: number,
-): [table: SizeTable, totalSize: number] {
-	const nrChildren = children.length;
-
-	if (nrChildren <= 1) {
-		return ['regular', nrChildren === 0 ? 0 : children[0].size];
-	}
-
-	let total = 0;
-	let isRegular = true;
-	const sizeTable = new Array<number>(nrChildren);
-	const maxChildSize = 1 << (blockSizeBits * level);
-
-	for (let i = 0; i < nrChildren; i++) {
-		const size = children[i].size;
-		if (size !== maxChildSize) {
-			isRegular = false;
+			this.#_knownIsRegular =
+				soizeWithoutLast / this.maxChildSize === this.nrChildren - 1;
 		}
-		total += size;
-		sizeTable[i] = total;
+
+		return this.#_knownIsRegular;
 	}
 
-	if (isRegular) {
-		return ['regular', total];
-	}
+	get totalSize(): number {
+		const lastCumulative = this.cumulativeTable.at(-1);
 
-	return [sizeTable, total];
-}
-
-export function safeCopySizeTable(
-	sizeTable: SizeTable | undefined,
-): SizeTable | undefined {
-	if (Array.isArray(sizeTable)) {
-		return sizeTable.slice();
-	}
-	return sizeTable;
-}
-
-/**
- * Resolve a global element index into a [childIndex, positionWithinChild] pair
- * using a cumulative size table. Handles three paths:
- * - overflow (index past end): returns sentinel position
- * - regular (all children are full): O(1) bitwise division
- * - irregular: O(log n) binary search on the cumulative size table
- */
-export function getInnerBlockCoordinates(options: {
-	index: number;
-	size: number;
-	nrChildren: number;
-	sizeTable: SizeTable;
-	blockSizeBits: number;
-	level: number;
-	forTake?: boolean | undefined;
-	noEmptyLast?: boolean | undefined;
-	lastChildSize?: number | undefined;
-}): [Int.Natural, Int.Natural] {
-	const {
-		index,
-		size,
-		nrChildren,
-		sizeTable,
-		blockSizeBits,
-		level,
-		forTake = false,
-		noEmptyLast = false,
-		lastChildSize = 0,
-	} = options;
-
-	const offset = forTake ? 1 : 0;
-	const indexWithOffset = index - offset;
-
-	if (indexWithOffset >= size) {
-		if (noEmptyLast) {
-			return [
-				(nrChildren - 1) as Int.Natural,
-				(lastChildSize - 1) as Int.Natural,
-			];
+		if (undefined === lastCumulative) {
+			return 0;
 		}
-		return [nrChildren as Int.Natural, 0 as Int.Natural];
+
+		return lastCumulative - this.offset;
 	}
 
-	const levelBits = blockSizeBits * level;
+	sizeChildAt(childIndex: number): number {
+		if (childIndex < 0) {
+			childIndex = this.nrChildren + childIndex;
+		}
 
-	if (sizeTable === 'regular') {
-		const blockSize = 1 << levelBits;
-		const childIndex = indexWithOffset >>> levelBits;
-		const inChildIndex = (indexWithOffset & (blockSize - 1)) + offset;
+		if (this.#_knownIsRegular === true && childIndex !== this.nrChildren - 1) {
+			return this.maxChildSize;
+		}
+
+		const childCumulative = this.cumulativeTable.at(childIndex)!;
+		const previousCumulative =
+			childIndex === 0 ? this.offset : this.cumulativeTable.at(childIndex - 1)!;
+
+		return childCumulative - previousCumulative;
+	}
+
+	prependChildSize(childSize: number): SizeTable {
+		const newOffset = this.offset - childSize;
+
+		const knownIsRegular =
+			this.#_knownIsRegular === true
+				? childSize === this.maxChildSize
+				: this.#_knownIsRegular;
+
+		return this.#copy(
+			[this.offset, ...this.cumulativeTable],
+			newOffset,
+			knownIsRegular,
+		);
+	}
+
+	appendChildSize(childSize: number): SizeTable {
+		const lastValue = this.cumulativeTable.at(-1)!;
+		const lastChildSize = this.sizeChildAt(-1);
+
+		const knownIsRegular =
+			this.#_knownIsRegular === true
+				? lastChildSize === this.maxChildSize
+				: this.#_knownIsRegular;
+
+		return this.#copy(
+			[...this.cumulativeTable, lastValue + childSize],
+			this.offset,
+			knownIsRegular,
+		);
+	}
+
+	takeChildren(childAmount: number): SizeTable {
+		if (childAmount <= 0) {
+			throwInvalidStateError();
+		}
+
+		if (childAmount >= this.nrChildren) {
+			return this;
+		}
+
+		const newCumulativeTable = this.cumulativeTable.slice(0, childAmount);
+
+		return this.#copy(newCumulativeTable, this.offset, this.#_knownIsRegular);
+	}
+
+	dropChildren(childAmount: number): SizeTable {
+		if (childAmount <= 0) {
+			return this;
+		}
+
+		if (childAmount >= this.nrChildren) {
+			throwInvalidStateError();
+		}
+
+		const newCumulativeTable = this.cumulativeTable.slice(childAmount);
+		const newOffset = this.cumulativeTable[childAmount - 1];
+
+		let knownIsRegular = this.#_knownIsRegular;
+		if (knownIsRegular === true) {
+			const lastChildSize = this.sizeChildAt(-1);
+			knownIsRegular = lastChildSize === this.maxChildSize;
+		}
+
+		return this.#copy(newCumulativeTable, newOffset, knownIsRegular);
+	}
+
+	getCoordinates(
+		index: number,
+		options: { forTake?: boolean; noEmptyLast?: boolean } = {},
+	): [childIndex: Int.Natural, positionWithinChild: Int.Natural] {
+		const { forTake = false, noEmptyLast = false } = options;
+
+		const forTakeOffset = forTake ? 1 : 0;
+
+		const indexWithForTake = index - forTakeOffset;
+
+		if (indexWithForTake >= this.totalSize) {
+			const nrChildren = this.nrChildren;
+
+			if (noEmptyLast) {
+				const lastChildSize = this.sizeChildAt(-1);
+
+				return [
+					(nrChildren - 1) as Int.Natural,
+					(lastChildSize - 1) as Int.Natural,
+				];
+			}
+			return [nrChildren as Int.Natural, 0 as Int.Natural];
+		}
+
+		if (this.isRegular) {
+			const childIndex = Math.floor(indexWithForTake / this.maxChildSize);
+			const inChildIndex =
+				(indexWithForTake & (this.maxChildSize - 1)) + forTakeOffset;
+
+			return [childIndex as Int.Natural, inChildIndex as Int.Natural];
+		}
+
+		let lowChildIndex = Math.floor(indexWithForTake / this.maxChildSize);
+		let highChildIndex = this.nrChildren - 1;
+
+		const searchIndex = indexWithForTake + this.offset;
+
+		while (lowChildIndex < highChildIndex) {
+			const middleChildIndex = (lowChildIndex + highChildIndex) >>> 1;
+
+			if (this.cumulativeTable[middleChildIndex] <= searchIndex) {
+				lowChildIndex = middleChildIndex + 1;
+			} else {
+				highChildIndex = middleChildIndex;
+			}
+		}
+
+		const childIndex = lowChildIndex;
+		const prevCumulative =
+			childIndex === 0 ? this.offset : this.cumulativeTable[childIndex - 1];
+		const inChildIndex = searchIndex - prevCumulative;
 		return [childIndex as Int.Natural, inChildIndex as Int.Natural];
 	}
 
-	// Each child has at most maxChildSize elements, so the target can't
-	// be in a child before floor(indexWithOffset / maxChildSize).
-	let lo = indexWithOffset >>> levelBits;
-	let hi = nrChildren - 1;
+	static fromSizes(
+		sizes: readonly number[],
+		maxChildSize: number,
+		totalSize?: number,
+	): SizeTable {
+		const lastChildSize = sizes.at(-1) ?? 0;
+		const nrChildren = sizes.length;
+		const table = new Array<number>(nrChildren);
 
-	while (lo < hi) {
-		const mid = (lo + hi) >>> 1;
-		if (sizeTable[mid] <= indexWithOffset) {
-			lo = mid + 1;
-		} else {
-			hi = mid;
+		if (
+			undefined !== totalSize &&
+			totalSize - lastChildSize === maxChildSize * (nrChildren - 1)
+		) {
+			let cumulative = 0;
+
+			for (let i = 0; i < nrChildren - 1; i++) {
+				cumulative += maxChildSize;
+				table[i] = cumulative;
+			}
+
+			table[nrChildren - 1] = cumulative + lastChildSize;
+
+			return new SizeTable(table, 0, maxChildSize, true);
 		}
+
+		let previousCumulative = 0;
+		let isRegular = true;
+
+		for (let i = 0; i < nrChildren; i++) {
+			const childSize = sizes[i];
+
+			if (isRegular && i !== nrChildren - 1) {
+				isRegular = childSize === maxChildSize;
+			}
+
+			const nextCumulative = previousCumulative + childSize;
+			table[i] = nextCumulative;
+			previousCumulative = nextCumulative;
+		}
+
+		return new SizeTable(table, 0, maxChildSize, isRegular);
 	}
 
-	const childIndex = lo;
-	const prevSize = childIndex > 0 ? sizeTable[childIndex - 1] : 0;
-	const inChildIndex = indexWithOffset - prevSize + offset;
-	return [childIndex as Int.Natural, inChildIndex as Int.Natural];
-}
+	static fromChildren(
+		children: readonly { readonly size: number }[],
+		maxChildSize: number,
+		totalSize?: number,
+	) {
+		const lastChildSize = children.at(-1)?.size ?? 0;
+		const nrChildren = children.length;
+		const table = new Array<number>(nrChildren);
 
-/**
- * Update the cumulative size table in-place starting from index `from`.
- * Pass the existing sizes array (which must already be non-null).
- */
-export function updateSizesFrom(
-	sizes: number[],
-	children: readonly { length: number }[],
-	from: number,
-): void {
-	const prev = from > 0 ? sizes[from - 1] : 0;
-	let total = prev;
-	for (let i = from; i < children.length; i++) {
-		total += children[i].length;
-		sizes[i] = total;
+		if (
+			undefined !== totalSize &&
+			totalSize - lastChildSize === maxChildSize * (nrChildren - 1)
+		) {
+			let cumulative = 0;
+
+			for (let i = 0; i < nrChildren - 1; i++) {
+				cumulative += maxChildSize;
+				table[i] = cumulative;
+			}
+
+			table[nrChildren - 1] = cumulative + lastChildSize;
+
+			return new SizeTable(table, 0, maxChildSize, true);
+		}
+
+		let previousCumulative = 0;
+		let isRegular = true;
+
+		for (let i = 0; i < nrChildren; i++) {
+			const childSize = children[i].size;
+
+			if (isRegular && i !== nrChildren - 1) {
+				isRegular = childSize === maxChildSize;
+			}
+
+			const nextCumulative = previousCumulative + childSize;
+			table[i] = nextCumulative;
+			previousCumulative = nextCumulative;
+		}
+
+		return new SizeTable(table, 0, maxChildSize, isRegular);
 	}
 }

@@ -4,12 +4,7 @@ import type { BlockBuilder, InnerBuilder } from '#list/mutable/common';
 
 import { type Int, throwInvalidUsageError } from '@rimbu/base';
 
-import {
-	computeSizeTable,
-	getInnerBlockCoordinates,
-	type SizeTable,
-	safeCopySizeTable,
-} from '#list/size-table';
+import { SizeTable } from '#list/size-table';
 
 export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 	implements InnerBuilder<T, C>, BlockBuilder<T>
@@ -38,25 +33,26 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 	#source?: InnerBlock<T, any> | undefined;
 	#_children?: C[] | undefined;
 	#size: number;
+	#_sizeTable: SizeTable | undefined;
 
-	#_computedSizeTable: SizeTable | undefined;
+	get #sizeTable(): SizeTable {
+		if (undefined === this.#_sizeTable) {
+			if (undefined !== this.#source) {
+				this.#_sizeTable = this.#source.sizeTable;
+			} else {
+				this.#_sizeTable = SizeTable.fromChildren(
+					this.#children,
+					this.context.maxBlockSize,
+					this.size,
+				);
+			}
+		}
+
+		return this.#_sizeTable;
+	}
 
 	get #children(): C[] {
 		return this.#_children as C[];
-	}
-
-	get #sizeTable(): SizeTable {
-		if (undefined === this.#_computedSizeTable) {
-			const sizeTable = computeSizeTable(
-				this.#children,
-				this.size,
-				this.context.blockSizeBits,
-				this.level,
-			);
-			this.#_computedSizeTable = sizeTable;
-		}
-
-		return this.#_computedSizeTable!;
 	}
 
 	get size(): number {
@@ -87,10 +83,6 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		if (undefined === this.#source) return;
 
 		this.#_children = this.#source.mapChildren((child) => child.toBuilder());
-		// If source has a computed size table, we make a safe copy that we can mutate.
-		this.#_computedSizeTable = safeCopySizeTable(
-			this.#source?.computedSizeTable,
-		);
 		this.#source = undefined;
 	}
 
@@ -99,14 +91,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 			return this.#source._get(index);
 		}
 
-		const [childIndex, inChildIndex] = getInnerBlockCoordinates({
-			index,
-			size: this.size,
-			nrChildren: this.nrChildren,
-			sizeTable: this.#sizeTable,
-			blockSizeBits: this.context.blockSizeBits,
-			level: this.level,
-		});
+		const [childIndex, inChildIndex] = this.#sizeTable.getCoordinates(index);
 
 		return this.#children[childIndex].get(inChildIndex);
 	}
@@ -125,12 +110,14 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		this.#prepareMutate();
 		this.#size += child.size;
 		this.#children.unshift(child);
+		this.#_sizeTable = this.#_sizeTable?.prependChildSize(child.size);
 	}
 
 	appendChild(child: C): void {
 		this.#prepareMutate();
 		this.#size += child.size;
 		this.#children.push(child);
+		this.#_sizeTable = this.#_sizeTable?.appendChildSize(child.size);
 	}
 
 	firstChild(): C {
@@ -147,6 +134,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		this.#prepareMutate();
 		const child = this.#children.shift()!;
 		this.#size -= child.size;
+		this.#_sizeTable = this.#_sizeTable?.dropChildren(1);
 		return child;
 	}
 
@@ -154,6 +142,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		this.#prepareMutate();
 		const child = this.#children.pop()!;
 		this.#size -= child.size;
+		this.#_sizeTable = this.#_sizeTable?.dropChildren(-1);
 		return child;
 	}
 
@@ -164,6 +153,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		if (undefined !== delta) {
 			this.#size += delta;
 		}
+		this.#_sizeTable = undefined;
 		return delta;
 	}
 
@@ -174,6 +164,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		if (undefined !== delta) {
 			this.#size += delta;
 		}
+		this.#_sizeTable = undefined;
 		return delta;
 	}
 
@@ -184,7 +175,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 			this.#children.map((c) => c.build()),
 			this.#size,
 			this.level,
-			this.#_computedSizeTable,
+			this.#_sizeTable,
 		);
 	}
 
@@ -195,7 +186,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 			this.#children.map((c) => c.buildMap(f)),
 			this.#size,
 			this.level,
-			this.#_computedSizeTable,
+			this.#_sizeTable,
 		);
 	}
 
@@ -220,35 +211,18 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 
 	splitRight(index = this.nrChildren >>> 1): InnerBlockBuilder<T, C> {
 		this.#prepareMutate();
+
 		const rightChildren = this.#children.splice(index);
-		const sizeTable = this.#sizeTable;
-		if (sizeTable === 'regular') {
-			const regularChildSize = 1 << (this.context.blockSizeBits * this.level);
-			const leftSize = index * regularChildSize;
-			const rightSize = this.size - leftSize;
 
-			this.#size = leftSize;
+		this.#_sizeTable =
+			this.#_sizeTable?.dropChildren(index) ??
+			SizeTable.fromChildren(this.#children, this.context.maxBlockSize);
 
-			return this.context.innerBlockBuilder(
-				rightChildren,
-				rightSize,
-				this.level,
-				sizeTable,
-			);
-		}
+		const newThisSize = this.#sizeTable.totalSize;
+		const rightSize = this.size - newThisSize;
+		this.#size = newThisSize;
 
-		const leftSize = index > 0 ? sizeTable[index - 1] : 0;
-		const rightSize = this.size - leftSize;
-
-		sizeTable.splice(index);
-
-		this.#size = leftSize;
-
-		return this.context.innerBlockBuilder(
-			rightChildren as C[],
-			rightSize,
-			this.level,
-		);
+		return this.context.innerBlockBuilder(rightChildren, rightSize, this.level);
 	}
 
 	prependItems(other: InnerBlockBuilder<T, C>): void {

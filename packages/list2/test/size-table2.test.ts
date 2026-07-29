@@ -1,6 +1,6 @@
 import { describe, it } from 'bun:test';
 
-import { SizeTable } from '#list/size-table2';
+import { SizeTable } from '#list/size-table';
 
 describe('SizeTable2', () => {
 	it('should create a size table from children', () => {
