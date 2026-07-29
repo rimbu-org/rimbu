@@ -5,6 +5,8 @@ import type { OuterBlock } from '#list/immutable/outer-block';
 
 import { List } from '@rimbu/list';
 
+import { SizeTable } from '#list/size-table';
+
 type InnerBlock<
 	T,
 	C extends OuterBlock<T> = OuterBlock<T>,
@@ -34,10 +36,9 @@ function innerWithTable<T>(
 	level = 1,
 ): InnerBlock<T> {
 	const size = children.reduce((s, c) => s + c.size, 0);
-	const sizeTable = children.reduce<number[]>((acc, c, i) => {
-		acc.push((acc[i - 1] ?? 0) + c.size);
-		return acc;
-	}, []);
+	const maxChildSize = 1 << (level * ctx.blockSizeBits);
+	const childSizes = children.map((c) => c.size);
+	const sizeTable = SizeTable.fromSizes(childSizes, maxChildSize, size);
 
 	return ctx.innerBlock(children, size, level, sizeTable);
 }
@@ -112,7 +113,7 @@ describe('InnerBlock.properties', () => {
 	it('computedSizeTable lazy computed after get', () => {
 		const b = inner(ctx, [ob(ctx, [1, 2])]);
 		b._get(0);
-		expect(b.computedSizeTable).toBeDefined();
+		expect(b.sizeTable).toBeDefined();
 	});
 });
 
@@ -512,8 +513,8 @@ describe('InnerBlock.edge-cases', () => {
 			expect(b._get(3)).toBe(4);
 			expect(b._get(5)).toBe(6);
 
-			expect(b.computedSizeTable).not.toBe('regular');
-			expect(b.computedSizeTable).toBeDefined();
+		expect(b.sizeTable).toBeDefined();
+		expect(b.sizeTable.isRegular).toBe(false);
 		});
 	});
 
