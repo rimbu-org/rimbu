@@ -352,6 +352,61 @@ describe('SizeTable.takeChildren', () => {
 	});
 });
 
+describe('SizeTable chain operations', () => {
+	it('chain of append and prepend produces correct cumulative table', () => {
+		const table = SizeTable.fromSizes([3, 5, 2], 8)
+			.appendChildSize(4)
+			.prependChildSize(5)
+			.prependChildSize(8);
+
+		expect(table.totalSize).toBe(27);
+		expect(table.nrChildren).toBe(6);
+		expect(table.cumulativeTable).toEqual([-5, 0, 3, 8, 10, 14]);
+		expect(table.offset).toBe(-13);
+	});
+
+	it('prepending twice accumulates offset correctly', () => {
+		const t1 = SizeTable.fromSizes([3, 5], 8);
+		expect(t1.offset).toBe(0);
+
+		const t2 = t1.prependChildSize(5);
+		expect(t2.offset).toBe(-5);
+
+		const t3 = t2.prependChildSize(8);
+		expect(t3.offset).toBe(-13);
+	});
+
+	it('coordinates on chained table with negative offset', () => {
+		const table = SizeTable.fromSizes([3, 5, 2], 8)
+			.appendChildSize(4)
+			.prependChildSize(5)
+			.prependChildSize(8);
+
+		expect(table.getCoordinates(0) as [number, number]).toEqual([0, 0]);
+		expect(table.getCoordinates(7) as [number, number]).toEqual([0, 7]);
+		expect(table.getCoordinates(8) as [number, number]).toEqual([1, 0]);
+		expect(table.getCoordinates(12) as [number, number]).toEqual([1, 4]);
+		expect(table.getCoordinates(13) as [number, number]).toEqual([2, 0]);
+		expect(table.getCoordinates(26) as [number, number]).toEqual([5, 3]);
+	});
+
+	it('forTake with prepended table gives correct inChildIndex', () => {
+		const table = SizeTable.fromSizes([3, 5, 2], 8).prependChildSize(5);
+
+		expect(table.getCoordinates(5, { forTake: true }) as [number, number]).toEqual([0, 5]);
+	});
+
+	it('forTake with multiple prepends gives correct inChildIndex', () => {
+		const table = SizeTable.fromSizes([3, 5, 2], 8)
+			.appendChildSize(4)
+			.prependChildSize(5)
+			.prependChildSize(8);
+
+		expect(table.getCoordinates(8, { forTake: true }) as [number, number]).toEqual([0, 8]);
+		expect(table.getCoordinates(13, { forTake: true }) as [number, number]).toEqual([1, 5]);
+	});
+});
+
 describe('SizeTable.dropChildren', () => {
 	it('drops first n children from irregular table', () => {
 		const table = SizeTable.fromSizes([20, 40, 20], 32);
@@ -387,6 +442,24 @@ describe('SizeTable.dropChildren', () => {
 		expect(result.isRegular).toBe(true);
 		expect(result.nrChildren).toBe(1);
 		expect(result.totalSize).toBe(16);
+	});
+
+	it('dropping to single child from irregular table is regular', () => {
+		const table = SizeTable.fromSizes([16, 32, 32], 32, 80);
+		const result = table.dropChildren(2);
+
+		expect(result.isRegular).toBe(true);
+		expect(result.nrChildren).toBe(1);
+		expect(result.totalSize).toBe(32);
+	});
+
+	it('dropping all but last from full regular table stays regular', () => {
+		const table = SizeTable.fromSizes([32, 32, 32, 32], 32);
+		const result = table.dropChildren(3);
+
+		expect(result.isRegular).toBe(true);
+		expect(result.nrChildren).toBe(1);
+		expect(result.totalSize).toBe(32);
 	});
 });
 
