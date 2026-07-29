@@ -1,14 +1,13 @@
 import { describe, expect, it } from 'bun:test';
 
-import type { InnerBlock } from '../src/internal/immutable/inner-block';
-import type { InnerTree } from '../src/internal/immutable/inner-tree';
-
 import type { ListContext } from '#list/context';
 import type { Inner } from '#list/immutable/common';
+import type { InnerBlock } from '#list/immutable/inner-block';
+import type { InnerTree } from '#list/immutable/inner-tree';
 
 import { List } from '@rimbu/list';
 
-type OB = import('../src/internal/immutable/outer-block').OuterBlock<number>;
+type OB = import('#list/immutable/outer-block').OuterBlock<number>;
 
 function makeContext<T>(blockSizeBits: number): ListContext<T> {
 	return List.createContext({ blockSizeBits }) as ListContext<T>;

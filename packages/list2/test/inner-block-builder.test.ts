@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'bun:test';
 
 import type { Int } from '@rimbu/base';
-import type { InnerBlockBuilder } from '../src/internal/mutable/inner-block-builder';
-import type { OuterBlockBuilder } from '../src/internal/mutable/outer-block-builder';
 
 import type { ListContext } from '#list/context';
+import type { InnerBlockBuilder } from '#list/mutable/inner-block-builder';
+import type { OuterBlockBuilder } from '#list/mutable/outer-block-builder';
 
 import { List } from '@rimbu/list';
 

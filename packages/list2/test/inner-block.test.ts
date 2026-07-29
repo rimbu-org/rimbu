@@ -1,8 +1,7 @@
 import { describe, expect, it } from 'bun:test';
 
-import type { OuterBlock } from '../src/internal/immutable/outer-block';
-
 import type { ListContext } from '#list/context';
+import type { OuterBlock } from '#list/immutable/outer-block';
 
 import { List } from '@rimbu/list';
 

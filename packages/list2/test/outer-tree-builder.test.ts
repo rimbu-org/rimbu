@@ -1,8 +1,7 @@
 import { describe, expect, it } from 'bun:test';
 
-import type { OuterBlockBuilder } from '../src/internal/mutable/outer-block-builder';
-
 import type { ListContext } from '#list/context';
+import type { OuterBlockBuilder } from '#list/mutable/outer-block-builder';
 
 import { List } from '@rimbu/list';
 
