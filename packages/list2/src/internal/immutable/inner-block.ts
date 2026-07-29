@@ -31,9 +31,10 @@ export class InnerBlock<T, C extends Block<T>>
 
 	get sizeTable(): SizeTable {
 		if (undefined === this.#_sizeTable) {
+			const maxChildSize = 1 << (this.level * this.context.blockSizeBits);
 			this.#_sizeTable = SizeTable.fromChildren(
 				this.#children,
-				this.context.maxBlockSize,
+				maxChildSize,
 				this.size,
 			);
 		}
@@ -299,7 +300,10 @@ export class InnerBlock<T, C extends Block<T>>
 		const newSizeTable =
 			this.#_sizeTable?.dropChildren(childAmount) ??
 			// need to compute anyway to get new total size
-			SizeTable.fromChildren(newChildren, this.context.maxBlockSize);
+			SizeTable.fromChildren(
+				newChildren,
+				1 << (this.level * this.context.blockSizeBits),
+			);
 
 		return this.#copy(newChildren, newSizeTable.totalSize, newSizeTable);
 	}

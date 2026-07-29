@@ -7,7 +7,11 @@ export class SizeTable {
 		readonly maxChildSize: number,
 		readonly knownIsRegular?: boolean | undefined,
 	) {
-		this.#_knownIsRegular = knownIsRegular;
+		if (cumulativeTable.length <= 1) {
+			this.#_knownIsRegular = true;
+		} else {
+			this.#_knownIsRegular = knownIsRegular;
+		}
 	}
 
 	#copy(
@@ -183,7 +187,7 @@ export class SizeTable {
 		const childIndex = lowChildIndex;
 		const prevCumulative =
 			childIndex === 0 ? this.offset : this.cumulativeTable[childIndex - 1];
-		const inChildIndex = searchIndex - prevCumulative;
+		const inChildIndex = searchIndex - prevCumulative + forTakeOffset;
 		return [childIndex as Int.Natural, inChildIndex as Int.Natural];
 	}
 
