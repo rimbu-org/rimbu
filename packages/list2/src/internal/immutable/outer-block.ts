@@ -7,7 +7,7 @@ import type { Block } from '#list/immutable/common';
 import type { OuterTree } from '#list/immutable/outer-tree';
 import type { OuterBlockBuilder } from '#list/mutable/outer-block-builder';
 
-import { checkIsInteger } from '@rimbu/base';
+import { Int } from '@rimbu/base';
 import {
 	type ArrayNonEmpty,
 	type IndexRange,
@@ -19,7 +19,7 @@ import { ListNonEmptyBase } from '#advanced/immutable/non-empty-base';
 
 export abstract class OuterBlock<T>
 	extends ListNonEmptyBase<T>
-	implements Block<T, T>
+	implements Block<T>
 {
 	declare _self: OuterBlock<T>;
 
@@ -50,13 +50,13 @@ export abstract class OuterBlock<T>
 	}): ArrayNonEmpty<T>;
 	abstract map<T2>(f: (element: T) => T2): OuterBlock<T2>;
 
-	abstract _get(index: number): T;
+	abstract _get(index: Int.Natural): T;
 	abstract _appendBlockChild(child: T): OuterBlock<T>;
 	abstract _prependBlockChild(child: T): OuterBlock<T>;
 	abstract _createOuterBlock(element: T): OuterBlock<T>;
 	abstract _copyChildren(): OuterChildren<T>;
-	abstract _takeChildren(amount: number): OuterBlock<T>;
-	abstract _dropChildren(amount: number): OuterBlock<T>;
+	abstract _takeChildren(amount: Int): OuterBlock<T>;
+	abstract _dropChildren(amount: Int): OuterBlock<T>;
 	abstract _concatChildren(children: OuterChildren<T>): OuterChildren<T>;
 	abstract _prependChildren(children: OuterChildren<T>): OuterChildren<T>;
 
@@ -85,19 +85,21 @@ export abstract class OuterBlock<T>
 	}
 
 	at<O>(index: number, otherwise?: OptLazy<O>): T | O {
-		checkIsInteger(index);
-
 		const size = this.size;
 		if (-index > size || index >= size) {
 			return OptLazy(otherwise) as O;
 		}
-		if (index < 0) index = size + index;
+		if (index < 0) {
+			index = size + index;
+		}
+
+		Int.checkIsNatural(index);
 
 		return this._get(index);
 	}
 
 	first(): T {
-		return this._get(0);
+		return this._get(0 as Int.Natural);
 	}
 
 	last(): T {
@@ -105,7 +107,7 @@ export abstract class OuterBlock<T>
 	}
 
 	take(count: number): List<T> {
-		checkIsInteger(count);
+		Int.check(count);
 
 		if (count <= 0) {
 			if (count === 0) return this.context.empty();
@@ -118,7 +120,7 @@ export abstract class OuterBlock<T>
 	}
 
 	drop(count: number): List<T> {
-		checkIsInteger(count);
+		Int.check(count);
 
 		if (count <= 0) {
 			if (count === 0) return this;
@@ -180,13 +182,13 @@ export abstract class OuterBlock<T>
 
 	_dropFirstChild(): [OuterBlock<T>, T] {
 		const first = this.first();
-		const newSelf = this._dropChildren(1);
+		const newSelf = this._dropChildren(1 as Int);
 		return [newSelf, first];
 	}
 
 	_dropLastChild(): [OuterBlock<T>, T] {
 		const last = this.last();
-		const newSelf = this._dropChildren(-1);
+		const newSelf = this._dropChildren(-1 as Int);
 		return [newSelf, last];
 	}
 

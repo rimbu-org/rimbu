@@ -1,3 +1,4 @@
+import type { Int } from '@rimbu/base';
 import type { TraverseState } from '@rimbu/common';
 import type { List } from '@rimbu/list';
 import type { Stream } from '@rimbu/stream';
@@ -53,7 +54,7 @@ export class InnerTree<T, C extends Block<T>> implements Inner<T, C> {
 		return treeStream(this, options);
 	}
 
-	_get(index: number): T {
+	_get(index: Int.Natural): T {
 		return treeGet(this, index);
 	}
 
@@ -326,6 +327,18 @@ export class InnerTree<T, C extends Block<T>> implements Inner<T, C> {
 		//.#normalize();
 
 		return [newSelf, lastChild];
+	}
+
+	takeInternal(
+		amount: Int.Natural,
+	): [newInner: Inner<T, C> | null, lastChild: C, lastChildCount: Int.Natural] {
+		return 0 as any;
+	}
+
+	dropInternal(
+		amount: Int.Natural,
+	): [newInner: Inner<T, C> | null, lastChild: C, lastChildCount: Int.Natural] {
+		return 0 as any;
 	}
 
 	concat(other: Inner<T, C>): Inner<T, C> {

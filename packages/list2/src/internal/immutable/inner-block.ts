@@ -6,16 +6,18 @@ import type { Block, Inner } from '#list/immutable/common';
 import type { InnerTree } from '#list/immutable/inner-tree';
 import type { InnerBlockBuilder } from '#list/mutable/inner-block-builder';
 
+import { type Int, throwInvalidStateError } from '@rimbu/base';
 import { Stream } from '@rimbu/stream';
 
 import {
+	buildSizeTable,
 	computeSizeTable,
 	getInnerBlockCoordinates,
 	type SizeTable,
 } from '#list/size-table';
 
 export class InnerBlock<T, C extends Block<T>>
-	implements Inner<T, C>, Block<T, C>
+	implements Inner<T, C>, Block<T>
 {
 	constructor(
 		readonly context: ListContext<T, true>,
@@ -102,7 +104,7 @@ export class InnerBlock<T, C extends Block<T>>
 			.flatMap((child) => child.stream(options));
 	}
 
-	_get(index: number): T {
+	_get(index: Int.Natural): T {
 		const [childIndex, inChildIndex] = getInnerBlockCoordinates({
 			index,
 			size: this.size,
@@ -274,6 +276,99 @@ export class InnerBlock<T, C extends Block<T>>
 
 	concat(other: Inner<T, C>): Inner<T, C> {
 		return other.prependBlock(this);
+	}
+
+	takeInternal(
+		amount: Int.Natural,
+	): [newInner: Inner<T, C> | null, lastChild: C, lastChildCount: Int.Natural] {
+		return 0 as any;
+	}
+
+	dropInternal(
+		amount: Int.Natural,
+	): [newInner: Inner<T, C> | null, lastChild: C, lastChildCount: Int.Natural] {
+		const [childIndex, inChildIndex] = getInnerBlockCoordinates({
+			index: amount,
+			size: this.size,
+			nrChildren: this._nrChildren,
+			sizeTable: this.#sizeTable,
+			blockSizeBits: this.context.blockSizeBits,
+			level: this.level,
+			forTake: true,
+			noEmptyLast: false,
+		});
+
+		if (childIndex >= this._nrChildren) {
+			throwInvalidStateError();
+		}
+
+		const lastChild = this.#children[childIndex];
+		const newSelf = this.takeChildren(childIndex);
+
+		return [newSelf, lastChild, inChildIndex];
+	}
+
+	takeChildren(childAmount: number): InnerBlock<T, C> | null {
+		if (childAmount <= 0) return null;
+		if (childAmount >= this._nrChildren) return this;
+
+		const newChildren = this.#children.toSpliced(
+			childAmount,
+			this.context.maxBlockSize,
+		);
+
+		const sizeTable = this.#_computedSizeTable;
+
+		if (sizeTable === 'regular') {
+			// If old size table was regular, new size table is also regular.
+			const maxChildSize = 1 << (this.context.blockSizeBits * this.level);
+			const newSize = newChildren.length * maxChildSize;
+			return this.#copy(newChildren, newSize, sizeTable);
+		}
+		if (undefined === sizeTable) {
+			const [newSizeTable, newSize] = buildSizeTable(
+				newChildren,
+				this.context.blockSizeBits,
+				this.level,
+			);
+
+			return this.#copy(newChildren, newSize, newSizeTable);
+		}
+
+		const newSizeTable = sizeTable.slice(0, childAmount);
+		const newSize = newSizeTable.at(-1);
+
+		return this.#copy(newChildren, newSize, newSizeTable);
+	}
+
+	dropChildren(childAmount: number): InnerBlock<T, C> | null {
+		if (childAmount <= 0) return null;
+		if (childAmount >= this._nrChildren) return this;
+
+		const newChildren = this.#children.slice(childAmount);
+
+		const sizeTable = this.#_computedSizeTable;
+
+		if (sizeTable === 'regular') {
+			// If old size table was regular, new size table is also regular.
+			const maxChildSize = 1 << (this.context.blockSizeBits * this.level);
+			const newSize = newChildren.length * maxChildSize;
+			return this.#copy(newChildren, newSize, sizeTable);
+		}
+		if (undefined === sizeTable) {
+			const [newSizeTable, newSize] = buildSizeTable(
+				newChildren,
+				this.context.blockSizeBits,
+				this.level,
+			);
+
+			return this.#copy(newChildren, newSize, newSizeTable);
+		}
+
+		const newSizeTable = sizeTable.slice(0, childAmount);
+		const newSize = newSizeTable.at(-1);
+
+		return this.#copy(newChildren, newSize, newSizeTable);
 	}
 
 	prependBlock(leftBlock: InnerBlock<T, C>): Inner<T, C> {

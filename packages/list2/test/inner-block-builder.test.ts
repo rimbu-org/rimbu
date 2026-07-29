@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 
+import type { Int } from '@rimbu/base';
 import type { InnerBlockBuilder } from '../src/internal/mutable/inner-block-builder';
 import type { OuterBlockBuilder } from '../src/internal/mutable/outer-block-builder';
 
@@ -200,7 +201,7 @@ describe('InnerBlockBuilder.firstChild / lastChild', () => {
 
 	it('firstChild returns first child', () => {
 		const b = ib(ctx, [ob(ctx, [10, 20]), ob(ctx, [30])]);
-		expect(b.firstChild().get(0)).toBe(10);
+		expect(b.firstChild().get(0 as Int.Natural)).toBe(10);
 	});
 
 	it('lastChild returns last child', () => {

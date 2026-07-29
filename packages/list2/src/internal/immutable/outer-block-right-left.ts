@@ -1,3 +1,4 @@
+import type { Int } from '@rimbu/base';
 import type { List } from '@rimbu/list';
 
 import type { ChildrenOps, OuterChildren } from '#advanced/children-ops';
@@ -127,7 +128,7 @@ export class OuterBlockRightLeft<T> extends OuterBlock<T> {
 		return this.#ops.toReversed(this.#children);
 	}
 
-	_takeChildren(amount: number): OuterBlock<T> {
+	_takeChildren(amount: Int): OuterBlock<T> {
 		if (amount >= 0) {
 			return this.#copy(
 				this.#ops.toSpliced(this.#children, 0, this.size - amount),
@@ -138,7 +139,7 @@ export class OuterBlockRightLeft<T> extends OuterBlock<T> {
 		);
 	}
 
-	_dropChildren(amount: number): OuterBlock<T> {
+	_dropChildren(amount: Int): OuterBlock<T> {
 		if (amount >= 0) {
 			return this.#copy(
 				this.#ops.toSpliced(this.#children, this.size - amount, amount),

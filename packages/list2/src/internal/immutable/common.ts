@@ -1,3 +1,4 @@
+import type { Int } from '@rimbu/base';
 import type { TraverseState } from '@rimbu/common';
 import type { List } from '@rimbu/list';
 import type { Stream } from '@rimbu/stream';
@@ -27,7 +28,7 @@ interface ListNode<T> {
 	toArray(): T[];
 
 	/** Returns the element at `index`. Caller must ensure 0 ≤ index < size. */
-	_get(index: number): T;
+	_get(index: Int.Natural): T;
 }
 
 /**
@@ -36,7 +37,7 @@ interface ListNode<T> {
  * For leaf blocks (OuterBlock) `C` = the element type `T`. For inner blocks
  * (InnerBlock) `C` = another Block whose elements resolve to `T`.
  */
-export interface Block<T, C = unknown> extends ListNode<T> {
+export interface Block<T> extends ListNode<T> {
 	/** Number of direct children. */
 	readonly _nrChildren: number;
 	/** True when one more child can be added without normalizing. */
@@ -44,8 +45,8 @@ export interface Block<T, C = unknown> extends ListNode<T> {
 	/** True when one child can be removed without violating minimum fill. */
 	readonly _canRemoveChild: boolean;
 
-	map<T2>(f: (element: T) => T2): Block<T2, any>;
-	toBuilder(): BlockBuilder<T, any>;
+	map<T2>(f: (element: T) => T2): Block<T2>;
+	toBuilder(): BlockBuilder<T>;
 }
 
 /**
@@ -75,5 +76,11 @@ export interface Inner<T, C extends Block<T>> extends ListNode<T> {
 	concat(other: Inner<T, C>): Inner<T, C>;
 	prependBlock(leftBlock: InnerBlock<T, C>): Inner<T, C>;
 	prependTree(leftTree: InnerTree<T, C>): Inner<T, C>;
+	takeInternal(
+		amount: Int.Natural,
+	): [newInner: Inner<T, C> | null, lastChild: C, lastChildCount: Int.Natural];
+	dropInternal(
+		amount: Int.Natural,
+	): [newInner: Inner<T, C> | null, lastChild: C, lastChildCount: Int.Natural];
 	toBuilder(): InnerBuilder<T, any>;
 }

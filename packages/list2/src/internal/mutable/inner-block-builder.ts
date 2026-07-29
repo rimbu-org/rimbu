@@ -2,7 +2,7 @@ import type { ListContext } from '#list/context';
 import type { InnerBlock } from '#list/immutable/inner-block';
 import type { BlockBuilder, InnerBuilder } from '#list/mutable/common';
 
-import { throwInvalidUsageError } from '@rimbu/base';
+import { type Int, throwInvalidUsageError } from '@rimbu/base';
 
 import {
 	computeSizeTable,
@@ -12,7 +12,7 @@ import {
 } from '#list/size-table';
 
 export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
-	implements InnerBuilder<T, C>, BlockBuilder<T, C>
+	implements InnerBuilder<T, C>, BlockBuilder<T>
 {
 	constructor(
 		readonly context: ListContext<T>,
@@ -94,7 +94,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		this.#source = undefined;
 	}
 
-	get(index: number): T {
+	get(index: Int.Natural): T {
 		if (undefined !== this.#source) {
 			return this.#source._get(index);
 		}

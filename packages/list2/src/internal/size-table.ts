@@ -1,3 +1,5 @@
+import type { Int } from '@rimbu/base';
+
 export type SizeTable = number[] | 'regular';
 
 /**
@@ -45,6 +47,38 @@ export function computeSizeTable(
 	return sizeTable;
 }
 
+export function buildSizeTable(
+	children: { get size(): number }[],
+	blockSizeBits: number,
+	level: number,
+): [table: SizeTable, totalSize: number] {
+	const nrChildren = children.length;
+
+	if (nrChildren <= 1) {
+		return ['regular', nrChildren === 0 ? 0 : children[0].size];
+	}
+
+	let total = 0;
+	let isRegular = true;
+	const sizeTable = new Array<number>(nrChildren);
+	const maxChildSize = 1 << (blockSizeBits * level);
+
+	for (let i = 0; i < nrChildren; i++) {
+		const size = children[i].size;
+		if (size !== maxChildSize) {
+			isRegular = false;
+		}
+		total += size;
+		sizeTable[i] = total;
+	}
+
+	if (isRegular) {
+		return ['regular', total];
+	}
+
+	return [sizeTable, total];
+}
+
 export function safeCopySizeTable(
 	sizeTable: SizeTable | undefined,
 ): SizeTable | undefined {
@@ -71,7 +105,7 @@ export function getInnerBlockCoordinates(options: {
 	forTake?: boolean | undefined;
 	noEmptyLast?: boolean | undefined;
 	lastChildSize?: number | undefined;
-}): [number, number] {
+}): [Int.Natural, Int.Natural] {
 	const {
 		index,
 		size,
@@ -89,9 +123,12 @@ export function getInnerBlockCoordinates(options: {
 
 	if (indexWithOffset >= size) {
 		if (noEmptyLast) {
-			return [nrChildren - 1, lastChildSize - 1];
+			return [
+				(nrChildren - 1) as Int.Natural,
+				(lastChildSize - 1) as Int.Natural,
+			];
 		}
-		return [nrChildren, 0];
+		return [nrChildren as Int.Natural, 0 as Int.Natural];
 	}
 
 	const levelBits = blockSizeBits * level;
@@ -100,7 +137,7 @@ export function getInnerBlockCoordinates(options: {
 		const blockSize = 1 << levelBits;
 		const childIndex = indexWithOffset >>> levelBits;
 		const inChildIndex = (indexWithOffset & (blockSize - 1)) + offset;
-		return [childIndex, inChildIndex];
+		return [childIndex as Int.Natural, inChildIndex as Int.Natural];
 	}
 
 	// Each child has at most maxChildSize elements, so the target can't
@@ -120,39 +157,8 @@ export function getInnerBlockCoordinates(options: {
 	const childIndex = lo;
 	const prevSize = childIndex > 0 ? sizeTable[childIndex - 1] : 0;
 	const inChildIndex = indexWithOffset - prevSize + offset;
-	return [childIndex, inChildIndex];
+	return [childIndex as Int.Natural, inChildIndex as Int.Natural];
 }
-
-// /**
-//  * Recompute a full cumulative size table from the current mutable children.
-//  * Returns null if the block is regular (all children fill exactly blockSize elements).
-//  */
-// export function recomputeSizes(
-// 	children: readonly { size: number }[],
-// 	level: number,
-// 	blockSizeBits: number,
-// ): SizeTable {
-// 	if (children.length <= 1) {
-// 		return 'regular';
-// 	}
-
-// 	const levelBits = blockSizeBits * level;
-// 	const blockSize = 1 << levelBits;
-// 	const len = children.length;
-
-// 	let total = 0;
-// 	let irregular = false;
-
-// 	const sizes = new Array<number>(len);
-
-// 	for (let i = 0; i < len; i++) {
-// 		total += children[i].size;
-// 		sizes[i] = total;
-// 		if (children[i].size !== blockSize) irregular = true;
-// 	}
-
-// 	return irregular ? sizes : null;
-// }
 
 /**
  * Update the cumulative size table in-place starting from index `from`.

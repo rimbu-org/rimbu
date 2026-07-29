@@ -1,3 +1,5 @@
+import type { Int } from '@rimbu/base';
+
 import type { ListContext } from '#list/context';
 import type { Inner } from '#list/immutable/common';
 import type { InnerTree } from '#list/immutable/inner-tree';
@@ -102,7 +104,7 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 		return this.context.innerBlockBuilder([child], child.size, this.level);
 	}
 
-	get(index: number): T {
+	get(index: Int.Natural): T {
 		if (undefined !== this.#source) {
 			return this.#source._get(index);
 		}

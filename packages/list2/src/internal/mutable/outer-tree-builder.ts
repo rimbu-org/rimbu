@@ -3,6 +3,7 @@ import type { OuterTree } from '#list/immutable/outer-tree';
 import type { InnerBuilder, OuterBuilder } from '#list/mutable/common';
 import type { OuterBlockBuilder } from '#list/mutable/outer-block-builder';
 
+import { Int } from '@rimbu/base';
 import { OptLazy } from '@rimbu/common/opt-lazy';
 
 import { TreeBuilderBase } from '#list/mutable/tree-builder-base';
@@ -94,10 +95,12 @@ export class OuterTreeBuilder<T>
 			index = size + index;
 		}
 
+		Int.checkIsNatural(index);
+
 		return this.get(index);
 	}
 
-	get(index: number): T {
+	get(index: Int.Natural): T {
 		if (undefined !== this.#source) {
 			return this.#source._get(index);
 		}

@@ -5,6 +5,7 @@ import type { ListContext } from '#list/context';
 import type { Inner, Tree } from '#list/immutable/common';
 import type { OuterBlock } from '#list/immutable/outer-block';
 
+import { Int } from '@rimbu/base';
 import {
 	type ArrayNonEmpty,
 	type IndexRange,
@@ -81,10 +82,12 @@ export class OuterTree<T>
 			index = size + index;
 		}
 
+		Int.checkIsNatural(index);
+
 		return this._get(index);
 	}
 
-	_get(index: number): T {
+	_get(index: Int.Natural): T {
 		return treeGet(this, index);
 	}
 
@@ -129,7 +132,9 @@ export class OuterTree<T>
 			});
 
 			if (newMiddle !== this.middle) {
-				const newLeft = this.left._dropChildren(-1)._prependBlockChild(element);
+				const newLeft = this.left
+					._dropChildren(-1 as Int)
+					._prependBlockChild(element);
 				return this.#copy(newLeft, undefined, newMiddle, newSize);
 			}
 		}
@@ -180,7 +185,9 @@ export class OuterTree<T>
 			});
 
 			if (newMiddle !== this.middle) {
-				const newRight = this.right._dropChildren(1)._appendBlockChild(element);
+				const newRight = this.right
+					._dropChildren(1 as Int)
+					._appendBlockChild(element);
 				return this.#copy(undefined, newRight, newMiddle, newLength);
 			}
 		}
@@ -206,11 +213,51 @@ export class OuterTree<T>
 		return 0 as any;
 	}
 
-	take(count: number): OuterTree<T> {
-		return 0 as any;
+	take(count: number): List<T> {
+		if (count === 0) return this.context.empty();
+		if (count >= this.size || -count > this.size) return this;
+
+		if (count < 0) {
+			count = this.size + count;
+		}
+
+		Int.checkIsNatural(count);
+
+		const middleCount = (count - this.left.size) as Int;
+
+		if (middleCount <= 0) return this.left.take(count);
+
+		if (null === this.middle) {
+			return this.#copy(
+				undefined,
+				this.right._takeChildren(middleCount),
+				undefined,
+				count,
+			);
+			//._normalize();
+		}
+
+		const rightCount = (middleCount - this.middle.size) as Int;
+
+		if (rightCount > 0) {
+			const newRight = this.right._takeChildren(rightCount);
+			return this.#copy(undefined, newRight, undefined, count);
+			//._normalize();
+		}
+
+		const [newMiddle, upRight, inUpRight] = this.middle.takeInternal(
+			middleCount as Int.Natural,
+		);
+
+		const newRight = upRight._takeChildren(inUpRight);
+
+		return this.#copy(undefined, newRight, newMiddle, count);
+		//._normalize();
 	}
 
-	drop(count: number): OuterTree<T> {
+	drop(count: number): List<T> {
+		Int.check(count);
+
 		return 0 as any;
 	}
 

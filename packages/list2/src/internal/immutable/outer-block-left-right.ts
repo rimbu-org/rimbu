@@ -1,3 +1,4 @@
+import type { Int } from '@rimbu/base';
 import type { ArrayNonEmpty, IndexRange, TraverseState } from '@rimbu/common';
 import type { List } from '@rimbu/list';
 import type { Stream } from '@rimbu/stream';
@@ -100,7 +101,7 @@ export class OuterBlockLeftRight<T> extends OuterBlock<T> {
 		return this.#ops.safeCopy(this.#children);
 	}
 
-	_takeChildren(amount: number): OuterBlock<T> {
+	_takeChildren(amount: Int): OuterBlock<T> {
 		if (amount >= 0) {
 			return this.#copy(
 				this.#ops.toSpliced(this.#children, amount, this.size - amount),
@@ -111,7 +112,7 @@ export class OuterBlockLeftRight<T> extends OuterBlock<T> {
 		);
 	}
 
-	_dropChildren(amount: number): OuterBlock<T> {
+	_dropChildren(amount: Int): OuterBlock<T> {
 		if (amount >= 0) {
 			return this.#copy(this.#ops.toSpliced(this.#children, 0, amount));
 		}

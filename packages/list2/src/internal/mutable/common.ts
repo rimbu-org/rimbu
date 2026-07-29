@@ -33,14 +33,14 @@ export interface InnerBuilder<T, C extends BlockBuilder<T> = BlockBuilder<T>>
 	normalized(): InnerBuilder<T, C> | undefined;
 }
 
-export interface BlockBuilder<T, C = unknown> extends BuilderCommon<T> {
+export interface BlockBuilder<T> extends BuilderCommon<T> {
 	get nrChildren(): number;
 	get canAddChild(): boolean;
 	get canRemoveChild(): boolean;
 	get childrenInMax(): boolean;
 	get childrenInMin(): boolean;
-	prependItems(other: BlockBuilder<T, C>): void;
-	appendItems(other: BlockBuilder<T, C>): void;
-	build(): Block<T, any>;
-	buildMap<T2>(f: (value: T) => T2): Block<T2, any>;
+	prependItems(other: BlockBuilder<T>): void;
+	appendItems(other: BlockBuilder<T>): void;
+	build(): Block<T>;
+	buildMap<T2>(f: (value: T) => T2): Block<T2>;
 }

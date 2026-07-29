@@ -3,11 +3,10 @@ import type { ListContext } from '#list/context';
 import type { OuterBlock } from '#list/immutable/outer-block';
 import type { BlockBuilder, OuterBuilder } from '#list/mutable/common';
 
-import { throwInvalidUsageError } from '@rimbu/base';
+import { Int, throwInvalidUsageError } from '@rimbu/base';
 import { OptLazy } from '@rimbu/common';
-export class OuterBlockBuilder<T>
-	implements OuterBuilder<T>, BlockBuilder<T, T>
-{
+
+export class OuterBlockBuilder<T> implements OuterBuilder<T>, BlockBuilder<T> {
 	constructor(
 		readonly context: ListContext<T>,
 		source?: OuterBlock<T>,
@@ -86,10 +85,12 @@ export class OuterBlockBuilder<T>
 			index = size + index;
 		}
 
+		Int.checkIsNatural(index);
+
 		return this.get(index);
 	}
 
-	get(index: number): T {
+	get(index: Int.Natural): T {
 		if (undefined !== this.#source) {
 			return this.#source._get(index);
 		}

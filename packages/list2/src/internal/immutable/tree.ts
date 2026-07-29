@@ -1,8 +1,9 @@
+import type { Int } from '@rimbu/base';
 import type { Stream } from '@rimbu/stream';
 
 import type { Tree } from '#list/immutable/common';
 
-export function treeGet<T>(tree: Tree<T>, index: number): T {
+export function treeGet<T>(tree: Tree<T>, index: Int.Natural): T {
 	const middleIndex = index - tree.left.size;
 
 	if (middleIndex < 0) {
@@ -10,14 +11,14 @@ export function treeGet<T>(tree: Tree<T>, index: number): T {
 	}
 
 	if (null === tree.middle) {
-		return tree.right._get(middleIndex);
+		return tree.right._get(middleIndex as Int.Natural);
 	}
 
 	const rightIndex = middleIndex - tree.middle.size;
 
-	if (rightIndex < 0) return tree.middle._get(middleIndex);
+	if (rightIndex < 0) return tree.middle._get(middleIndex as Int.Natural);
 
-	return tree.right._get(rightIndex);
+	return tree.right._get(rightIndex as Int.Natural);
 }
 
 export function treeStream<T>(

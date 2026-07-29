@@ -7,16 +7,16 @@ export abstract class TreeBuilderBase<T, C> {
 	abstract readonly context: ListContext<T, true>;
 	abstract readonly level: number;
 	abstract size: number;
-	abstract left: BlockBuilder<T, C>;
-	abstract right: BlockBuilder<T, C>;
-	abstract middle: InnerBuilder<T, BlockBuilder<T, C>> | undefined;
+	abstract left: BlockBuilder<T>;
+	abstract right: BlockBuilder<T>;
+	abstract middle: InnerBuilder<T, BlockBuilder<T>> | undefined;
 	abstract getChildSize(child: C): number;
-	abstract prependBlockChild(block: BlockBuilder<T, C>, child: C): void;
-	abstract appendBlockChild(block: BlockBuilder<T, C>, child: C): void;
-	abstract dropBlockFirstChild(block: BlockBuilder<T, C>): C;
-	abstract dropBlockLastChild(block: BlockBuilder<T, C>): C;
+	abstract prependBlockChild(block: BlockBuilder<T>, child: C): void;
+	abstract appendBlockChild(block: BlockBuilder<T>, child: C): void;
+	abstract dropBlockFirstChild(block: BlockBuilder<T>): C;
+	abstract dropBlockLastChild(block: BlockBuilder<T>): C;
 	abstract prepareMutate(): void;
-	abstract createBlockBuilder(child: C): BlockBuilder<T, C>;
+	abstract createBlockBuilder(child: C): BlockBuilder<T>;
 
 	get(index: number): T {
 		const middleIndex = index - this.left.size;
@@ -133,7 +133,7 @@ export abstract class TreeBuilderBase<T, C> {
 		this.left = this.createBlockBuilder(child);
 	}
 
-	appendMiddle(child: BlockBuilder<T, C>): void {
+	appendMiddle(child: BlockBuilder<T>): void {
 		this.prepareMutate();
 
 		if (undefined === this.middle) {
@@ -148,7 +148,7 @@ export abstract class TreeBuilderBase<T, C> {
 		}
 	}
 
-	prependMiddle(child: BlockBuilder<T, C>): void {
+	prependMiddle(child: BlockBuilder<T>): void {
 		this.prepareMutate();
 
 		if (undefined === this.middle) {
