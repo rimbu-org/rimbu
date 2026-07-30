@@ -4,6 +4,7 @@ import type { StreamSource } from '@rimbu/stream';
 import type { ListContext } from '#list/context';
 import type { OuterBuilder } from '#list/mutable/common';
 
+import { Int } from '@rimbu/base';
 import { CollectionBuilderBase } from '@rimbu/collection-types/advanced/capabilities/base';
 import { OptLazy } from '@rimbu/common';
 import { Stream } from '@rimbu/stream';
@@ -35,25 +36,30 @@ export class ListBuilder<T>
 	}
 
 	at<O>(index: number, otherwise?: OptLazy<O>): T | O {
-		if (undefined === this.#outerBuilder) {
+		const size = this.size;
+		if (undefined === this.#outerBuilder || -index > size || index >= size) {
 			return OptLazy(otherwise) as O;
 		}
 
-		return this.#outerBuilder.at(index, otherwise);
+		if (index < 0) index = size + index;
+
+		Int.checkAtLeastZero(index);
+
+		return this.#outerBuilder.get(index);
 	}
 
 	first<O>(otherwise?: OptLazy<O>): T | O {
 		if (undefined === this.#outerBuilder) {
 			return OptLazy(otherwise) as O;
 		}
-		return this.#outerBuilder.at(0, otherwise);
+		return this.#outerBuilder.get(0 as Int.AtLeastZero);
 	}
 
 	last<O>(otherwise?: OptLazy<O>): T | O {
 		if (undefined === this.#outerBuilder) {
 			return OptLazy(otherwise) as O;
 		}
-		return this.#outerBuilder.at(-1, otherwise);
+		return this.#outerBuilder.get((this.size - 1) as Int.AtLeastZero);
 	}
 
 	prepend = (element: T): void => {
@@ -100,10 +106,10 @@ export class ListBuilder<T>
 		}
 	};
 
-	clear(): void {
+	clear = (): void => {
 		this.checkLock();
 		this.#outerBuilder = undefined;
-	}
+	};
 
 	forEach = (f: (value: T) => void): void => {
 		if (undefined === this.#outerBuilder) return;

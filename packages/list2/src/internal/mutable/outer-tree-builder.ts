@@ -4,7 +4,6 @@ import type { InnerBuilder, OuterBuilder } from '#list/mutable/common';
 import type { OuterBlockBuilder } from '#list/mutable/outer-block-builder';
 
 import { Int } from '@rimbu/base';
-import { OptLazy } from '@rimbu/common/opt-lazy';
 
 import { TreeBuilderBase } from '#list/mutable/tree-builder-base';
 
@@ -82,22 +81,6 @@ export class OuterTreeBuilder<T>
 				? undefined
 				: this.#source.middle.toBuilder();
 		this.#source = undefined;
-	}
-
-	at<O>(index: number, otherwise?: OptLazy<O> | undefined): O | T {
-		const size = this.size;
-
-		if (index >= size || -index > size) {
-			return OptLazy(otherwise) as O;
-		}
-
-		if (index < 0) {
-			index = size + index;
-		}
-
-		Int.checkAtLeastZero(index);
-
-		return this.get(index);
 	}
 
 	get(index: Int.AtLeastZero): T {

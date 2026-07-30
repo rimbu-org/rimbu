@@ -3,7 +3,7 @@ import type { List } from '@rimbu/list';
 import type { Stream } from '@rimbu/stream';
 
 import type { ListContext } from '#list/context';
-import type { Block, Inner } from '#list/immutable/common';
+import type { Block, Inner, Self } from '#list/immutable/common';
 import type { InnerBlock } from '#list/immutable/inner-block';
 import type { InnerTreeBuilder } from '#list/mutable/inner-tree-builder';
 
@@ -12,7 +12,9 @@ import { Int, throwInvalidStateError } from '@rimbu/base';
 import { treeGet, treeStream } from '#list/immutable/tree';
 import { SizeTable } from '#list/size-table';
 
-export class InnerTree<T, C extends Block<T>> implements Inner<T, C> {
+export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
+	declare _self: InnerTree<T, C>;
+
 	constructor(
 		readonly context: ListContext<T, true>,
 		readonly left: InnerBlock<T, C>,
@@ -42,7 +44,7 @@ export class InnerTree<T, C extends Block<T>> implements Inner<T, C> {
 		return this.context.innerTree(left, right, middle, size, level);
 	}
 
-	#copyAsType<T2, C2 extends Block<T2>>(
+	#copyAsType<T2, C2 extends Block<T2> & { _self: C2 }>(
 		left: InnerBlock<T2, C2>,
 		right: InnerBlock<T2, C2>,
 		middle: Inner<T2, InnerBlock<T2, C2>> | null,
@@ -704,6 +706,16 @@ export class InnerTree<T, C extends Block<T>> implements Inner<T, C> {
 			this.right,
 			newMiddle,
 			newSize,
+			this.level,
+		);
+	}
+
+	reversed(): InnerTree<T, C> {
+		return this.#copy(
+			this.right.reversed(),
+			this.left.reversed(),
+			this.middle?.reversed() ?? null,
+			this.size,
 			this.level,
 		);
 	}

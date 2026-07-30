@@ -7,10 +7,13 @@ import type { InnerBlock } from '#list/immutable/inner-block';
 import type { InnerTree } from '#list/immutable/inner-tree';
 import type { BlockBuilder, InnerBuilder } from '#list/mutable/common';
 
+export type Self<T, S extends T = T> = T & { _self: S };
 /**
  * Shared read-only shape for all list nodes (blocks, inner nodes, trees).
  */
 interface ListNode<T> {
+	_self: ListNode<T>;
+
 	/** Total number of elements reachable from this node. */
 	readonly size: number;
 
@@ -25,6 +28,7 @@ interface ListNode<T> {
 			state?: TraverseState;
 		},
 	): List<T>;
+	reversed(): this['_self'];
 	toArray(): T[];
 
 	/** Returns the element at `index`. Caller must ensure 0 ≤ index < size. */
@@ -38,6 +42,8 @@ interface ListNode<T> {
  * (InnerBlock) `C` = another Block whose elements resolve to `T`.
  */
 export interface Block<T> extends ListNode<T> {
+	_self: Block<T>;
+
 	/** Number of direct children. */
 	readonly _nrChildren: number;
 	/** True when one more child can be added without normalizing. */
@@ -55,7 +61,8 @@ export interface Block<T> extends ListNode<T> {
  * A 2-3 finger tree: a left leaf block, a right leaf block, and an optional
  * middle Inner node holding the blocks between them.
  */
-export interface Tree<T, C extends Block<T> = Block<T>> extends ListNode<T> {
+export interface Tree<T, C extends Self<Block<T>, C> = Self<Block<T>>>
+	extends ListNode<T> {
 	readonly left: C;
 	readonly right: C;
 	readonly middle: Inner<T, C> | null;
@@ -65,7 +72,9 @@ export interface Tree<T, C extends Block<T> = Block<T>> extends ListNode<T> {
  * A block whose children are themselves Blocks. Provides child-level
  * operations used during tree rebalancing.
  */
-export interface Inner<T, C extends Block<T>> extends ListNode<T> {
+export interface Inner<T, C extends Self<Block<T>, C>> extends ListNode<T> {
+	_self: Inner<T, C>;
+
 	map<T2>(f: (element: T) => T2): Inner<T2, any>;
 	prependChild(child: C): Inner<T, C>;
 	appendChild(child: C): Inner<T, C>;

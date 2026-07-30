@@ -33,7 +33,8 @@ export declare namespace List {
 		extends Collection.WithFilter<T>,
 			IndexedCollection.WithOrderEditable<T>,
 			IndexedCollection.WithMap<T>,
-			List.WithConcat<T> {
+			List.WithConcat<T>,
+			List.WithReversed<T> {
 		readonly context: List.Context<T>;
 	}
 
@@ -44,6 +45,10 @@ export declare namespace List {
 		concat(
 			...sources: ArrayNonEmpty<StreamSource<E>>
 		): this['context']['__types']['_SELF'];
+	}
+
+	export interface WithReversed<E> extends IndexedCollection<E> {
+		reversed(): this['context']['__types']['_SELF'];
 	}
 
 	export interface Context<T, IsNonEmpty extends boolean = boolean> {

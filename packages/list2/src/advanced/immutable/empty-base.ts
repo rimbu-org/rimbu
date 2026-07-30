@@ -35,4 +35,8 @@ export class ListEmptyBase<T>
 	placeAt(_: number, element: T): List.NonEmpty<T> {
 		return this.context.outerBlockLeftRight(this.#ops.of([element]));
 	}
+
+	reversed(): List<T> {
+		return this;
+	}
 }

@@ -1,16 +1,15 @@
-import type { OptLazy } from '@rimbu/common';
+import type { Int } from '@rimbu/base';
 import type { List } from '@rimbu/list';
 
 import type { Block, Inner } from '#list/immutable/common';
 
 export interface BuilderCommon<T> {
 	get size(): number;
-	get(index: number): T;
+	get(index: Int.AtLeastZero): T;
 	forEach(f: (value: T) => void): void;
 }
 
 export interface OuterBuilder<T> extends BuilderCommon<T> {
-	at<O>(index: number, otherwise?: OptLazy<O>): T | O;
 	prepend(value: T): void;
 	append(value: T): void;
 	build(): List<T>;

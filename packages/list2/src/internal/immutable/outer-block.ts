@@ -21,6 +21,8 @@ export abstract class OuterBlock<T>
 	extends ListNonEmptyBase<T>
 	implements Block<T>
 {
+	declare _self: this;
+
 	constructor(readonly context: ListContext<T, true>) {
 		super(context);
 	}
@@ -43,6 +45,7 @@ export abstract class OuterBlock<T>
 			state?: TraverseState;
 		},
 	): List<T>;
+	abstract reversed(): OuterBlock<T>;
 	abstract toArray(options?: {
 		reversed?: boolean | undefined;
 	}): ArrayNonEmpty<T>;

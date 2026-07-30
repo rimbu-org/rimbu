@@ -1,7 +1,7 @@
 import type { List } from '@rimbu/list';
 
 import type { ChildrenOps, OuterChildren } from '#advanced/children-ops';
-import type { Block, Inner } from '#list/immutable/common';
+import type { Block, Inner, Self } from '#list/immutable/common';
 import type { BlockBuilder, InnerBuilder } from '#list/mutable/common';
 import type { SizeTable } from '#list/size-table';
 
@@ -37,13 +37,13 @@ export interface ListContext<T, IsNonEmpty extends boolean = boolean>
 		middle: Inner<T, OuterBlock<T>> | null,
 		size: number,
 	): OuterTree<T>;
-	innerBlock<T, C extends Block<T>>(
+	innerBlock<T, C extends Self<Block<T>, C>>(
 		children: C[],
 		size: number,
 		level: number,
 		sizeTable?: SizeTable | undefined,
 	): InnerBlock<T, C>;
-	innerTree<T, C extends Block<T>>(
+	innerTree<T, C extends Self<Block<T>, C>>(
 		left: InnerBlock<T, C>,
 		right: InnerBlock<T, C>,
 		middle: Inner<T, InnerBlock<T, C>> | null,
@@ -120,7 +120,7 @@ export function createListContextModule<UT>(options: {
 				middle,
 				size,
 			),
-		innerBlock: <T, C extends Block<T>>(
+		innerBlock: <T, C extends Self<Block<T>, C>>(
 			children: C[],
 			size: number,
 			level: number,
@@ -133,7 +133,7 @@ export function createListContextModule<UT>(options: {
 				level,
 				sizeTable,
 			),
-		innerTree: <T, C extends Block<T>>(
+		innerTree: <T, C extends Self<Block<T>, C>>(
 			left: InnerBlock<T, C>,
 			right: InnerBlock<T, C>,
 			middle: Inner<T, InnerBlock<T, C>> | null,

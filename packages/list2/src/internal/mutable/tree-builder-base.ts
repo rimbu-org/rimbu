@@ -1,7 +1,7 @@
 import type { ListContext } from '#list/context';
 import type { BlockBuilder, InnerBuilder } from '#list/mutable/common';
 
-import { throwInvalidStateError } from '@rimbu/base';
+import { Int, throwInvalidStateError } from '@rimbu/base';
 
 export abstract class TreeBuilderBase<T, C> {
 	abstract readonly context: ListContext<T, true>;
@@ -18,17 +18,17 @@ export abstract class TreeBuilderBase<T, C> {
 	abstract prepareMutate(): void;
 	abstract createBlockBuilder(child: C): BlockBuilder<T>;
 
-	get(index: number): T {
+	get(index: Int.AtLeastZero): T {
 		const middleIndex = index - this.left.size;
 
-		if (middleIndex < 0) {
+		if (!Int.isAtLeastZero(middleIndex)) {
 			// index is in left part
 			return this.left.get(index);
 		}
 
 		const rightIndex = middleIndex - (this.middle?.size ?? 0);
 
-		if (rightIndex >= 0) {
+		if (Int.isAtLeastZero(rightIndex)) {
 			// index is in right part
 			return this.right.get(rightIndex);
 		}

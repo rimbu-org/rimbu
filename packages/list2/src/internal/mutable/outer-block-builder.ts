@@ -4,7 +4,6 @@ import type { OuterBlock } from '#list/immutable/outer-block';
 import type { BlockBuilder, OuterBuilder } from '#list/mutable/common';
 
 import { Int, throwInvalidUsageError } from '@rimbu/base';
-import { OptLazy } from '@rimbu/common';
 
 export class OuterBlockBuilder<T> implements OuterBuilder<T>, BlockBuilder<T> {
 	constructor(
@@ -73,21 +72,6 @@ export class OuterBlockBuilder<T> implements OuterBuilder<T>, BlockBuilder<T> {
 
 	#copy(children: OuterChildren<T>): OuterBlockBuilder<T> {
 		return this.context.outerBlockBuilder(children);
-	}
-
-	at<O>(index: number, otherwise?: OptLazy<O>): T | O {
-		const size = this.size;
-		if (index >= size || -index > size) {
-			return OptLazy(otherwise) as O;
-		}
-
-		if (index < 0) {
-			index = size + index;
-		}
-
-		Int.checkAtLeastZero(index);
-
-		return this.get(index);
 	}
 
 	get(index: Int.AtLeastZero): T {

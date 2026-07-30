@@ -2,7 +2,7 @@ import type { TraverseState } from '@rimbu/common';
 import type { List } from '@rimbu/list';
 
 import type { ListContext } from '#list/context';
-import type { Block, Inner } from '#list/immutable/common';
+import type { Block, Inner, Self } from '#list/immutable/common';
 import type { InnerTree } from '#list/immutable/inner-tree';
 import type { InnerBlockBuilder } from '#list/mutable/inner-block-builder';
 
@@ -11,9 +11,11 @@ import { Stream } from '@rimbu/stream';
 
 import { SizeTable } from '#list/size-table';
 
-export class InnerBlock<T, C extends Block<T>>
+export class InnerBlock<T, C extends Self<Block<T>, C>>
 	implements Inner<T, C>, Block<T>
 {
+	declare _self: InnerBlock<T, C>;
+
 	constructor(
 		readonly context: ListContext<T, true>,
 		children: C[],
@@ -75,7 +77,7 @@ export class InnerBlock<T, C extends Block<T>>
 		return this.context.innerBlock(children, size, this.level, sizeTable);
 	}
 
-	#copyAsType<T2, C2 extends Block<T2>>(
+	#copyAsType<T2, C2 extends Self<Block<T2>, C2>>(
 		children: C2[],
 		size = this.size,
 		sizeTable?: SizeTable,
@@ -427,6 +429,13 @@ export class InnerBlock<T, C extends Block<T>>
 			newMiddle,
 			newSize,
 			this.level,
+		);
+	}
+
+	reversed(): InnerBlock<T, C> {
+		return this.#copy(
+			this.#children.map((child) => child.reversed()),
+			this.size,
 		);
 	}
 

@@ -105,6 +105,10 @@ export class OuterBlockRightLeft<T> extends OuterBlock<T> {
 		);
 	}
 
+	reversed(): OuterBlock<T> {
+		return this.context.outerBlockLeftRight(this.#children);
+	}
+
 	toArray(options: { reversed?: boolean } = {}): ArrayNonEmpty<T> {
 		const { reversed = false } = options;
 		return this.#ops.toArray(this.#children, !reversed);

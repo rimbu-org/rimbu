@@ -20,6 +20,8 @@ export class OuterTree<T>
 	extends ListNonEmptyBase<T>
 	implements Tree<T, OuterBlock<T>>
 {
+	declare _self: OuterTree<T>;
+
 	constructor(
 		readonly context: ListContext<T, true>,
 		readonly left: OuterBlock<T>,
@@ -367,6 +369,15 @@ export class OuterTree<T>
 		}
 
 		return (asList as ListNonEmptyBase<T>)._prependTree(this);
+	}
+
+	reversed(): OuterTree<T> {
+		return this.#copy(
+			this.right.reversed(),
+			this.left.reversed(),
+			this.middle?.reversed() ?? null,
+			this.size,
+		);
 	}
 
 	toArray(): ArrayNonEmpty<T> {

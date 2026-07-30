@@ -25,6 +25,7 @@ export abstract class ListNonEmptyBase<T>
 	abstract append(element: T): List.NonEmpty<T>;
 	abstract concat(...sources: ArrayNonEmpty<StreamSource<T>>): List.NonEmpty<T>;
 	abstract placeAt(index: number, element: T): List.NonEmpty<T>;
+	abstract reversed(): List.NonEmpty<T>;
 
 	abstract _prependBlock(leftBlock: OuterBlock<T>): List.NonEmpty<T>;
 	abstract _prependTree(leftTree: OuterTree<T>): List.NonEmpty<T>;
