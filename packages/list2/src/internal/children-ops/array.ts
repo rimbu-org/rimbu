@@ -202,9 +202,15 @@ export class ArrayOuterChildrenOps
 		if (start === 0 && end >= children.length) return children;
 		return children.slice(start, end);
 	}
-	mutateSet<T>(children: T[], index: number, value: T): T[] {
-		children[index] = value;
-		return children;
+	mutateUpdate<T>(
+		children: T[],
+		index: number,
+		f: (value: T) => T,
+	): [result: T[], oldValue: T, newValue: T] {
+		const oldValue = children[index];
+		const newValue = f(oldValue);
+		children[index] = newValue;
+		return [children, oldValue, newValue];
 	}
 	mutatePrepend<T>(children: T[], value: T): T[] {
 		children.unshift(value);

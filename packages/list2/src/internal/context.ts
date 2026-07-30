@@ -241,22 +241,24 @@ export function createListContextModule<UT>(options: {
 				const source = sources[i];
 
 				if (!Stream.isEmptyStreamSourceInstance(source)) {
-					// if (mod.isContextList<T>(source)) {
-					// 	if (null === result) result = source;
-					// 	else result = result.concat(source);
-					// } else {
-					const builder = mod.builder<T>();
+					if (mod.isInContext<T>(source)) {
+						if (source.nonEmpty()) {
+							if (null === result) result = source;
+							else result = result.concat(source);
+						}
+					} else {
+						const builder = mod.builder<T>();
 
-					// if (Array.isArray(source)) builder.appendArray(source);
-					// else builder.appendAll(source);
-					builder.appendAll(source);
+						// if (Array.isArray(source)) builder.appendArray(source);
+						// else builder.appendAll(source);
+						builder.appendAll(source);
 
-					if (!builder.isEmpty) {
-						const build = builder.build();
-						if (null === result) result = build.assumeNonEmpty();
-						else result = result.concat(build);
+						if (!builder.isEmpty) {
+							const build = builder.build();
+							if (null === result) result = build.assumeNonEmpty();
+							else result = result.concat(build);
+						}
 					}
-					// }
 				}
 			}
 

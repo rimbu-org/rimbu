@@ -185,7 +185,7 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 		);
 	}
 
-	buildMap<T2>(f: (value: T) => T2): Inner<T2, any> {
+	buildMap<T2>(f: (element: T) => T2): Inner<T2, any> {
 		if (undefined !== this.#source) return this.#source.map(f);
 
 		return this.context.innerTree(

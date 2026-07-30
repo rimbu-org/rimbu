@@ -2,7 +2,7 @@ import type {
 	Collection,
 	IndexedCollection,
 } from '@rimbu/collection-types/capabilities';
-import type { ArrayNonEmpty } from '@rimbu/common';
+import type { ArrayNonEmpty, OptLazy } from '@rimbu/common';
 import type { StreamSource } from '@rimbu/stream';
 
 import type { ChildrenOps } from '#advanced/children-ops';
@@ -24,7 +24,15 @@ export declare namespace List {
 
 	export interface Builder<T> extends IndexedCollection.Builder<T> {
 		readonly context: List.Context<T>;
+		setAt(index: number, value: T): T | undefined;
+		setAt<O>(index: number, value: T, otherwise: OptLazy<O>): T | O;
+		updateAt(
+			index: number,
+			f: (element: T) => T,
+		): [oldValue: T, newValue: T] | undefined;
+		swapAt(index1: number, index2: number): void;
 		prepend(element: T): void;
+		prependAll(elements: StreamSource<T>): void;
 		append(element: T): void;
 		appendAll(elements: StreamSource<T>): void;
 	}

@@ -35,7 +35,7 @@ export class ListBuilder<T>
 		return 0 === this.size;
 	}
 
-	at<O>(index: number, otherwise?: OptLazy<O>): T | O {
+	at = <O>(index: number, otherwise?: OptLazy<O>): T | O => {
 		const size = this.size;
 		if (undefined === this.#outerBuilder || -index > size || index >= size) {
 			return OptLazy(otherwise) as O;
@@ -46,21 +46,74 @@ export class ListBuilder<T>
 		Int.checkAtLeastZero(index);
 
 		return this.#outerBuilder.get(index);
-	}
+	};
 
-	first<O>(otherwise?: OptLazy<O>): T | O {
+	first = <O>(otherwise?: OptLazy<O>): T | O => {
 		if (undefined === this.#outerBuilder) {
 			return OptLazy(otherwise) as O;
 		}
 		return this.#outerBuilder.get(0 as Int.AtLeastZero);
-	}
+	};
 
-	last<O>(otherwise?: OptLazy<O>): T | O {
+	last = <O>(otherwise?: OptLazy<O>): T | O => {
 		if (undefined === this.#outerBuilder) {
 			return OptLazy(otherwise) as O;
 		}
 		return this.#outerBuilder.get((this.size - 1) as Int.AtLeastZero);
-	}
+	};
+
+	setAt = <O>(index: number, value: T, otherwise?: OptLazy<O>): T | O => {
+		const result = this.updateAt(index, () => value);
+		if (undefined === result) {
+			return OptLazy(otherwise) as O;
+		}
+		return result[0];
+	};
+
+	updateAt = (
+		index: number,
+		f: (element: T) => T,
+	): [oldValue: T, newValue: T] | undefined => {
+		if (
+			undefined === this.#outerBuilder ||
+			-index > this.size ||
+			index >= this.size
+		) {
+			return undefined;
+		}
+
+		if (index < 0) index = this.size + index;
+
+		Int.checkAtLeastZero(index);
+
+		return this.#outerBuilder.update(index, f);
+	};
+
+	swapAt = (
+		index1: number,
+		index2: number,
+	): [newValueAtIndex1: T, newValueAtIndex2: T] | undefined => {
+		if (
+			undefined === this.#outerBuilder ||
+			-index1 > this.size ||
+			index1 >= this.size ||
+			-index2 > this.size ||
+			index2 >= this.size
+		) {
+			return undefined;
+		}
+
+		if (index1 < 0) index1 = this.size + index1;
+		if (index2 < 0) index2 = this.size + index2;
+
+		Int.checkAtLeastZero(index1);
+		Int.checkAtLeastZero(index2);
+
+		return this.#outerBuilder.update(index2, (value2) => {
+			const [value1] = this.#outerBuilder!.update(index1, () => value2);
+			return value1;
+		});
+	};
 
 	prepend = (element: T): void => {
 		this.checkLock();
@@ -90,6 +143,17 @@ export class ListBuilder<T>
 		this.#outerBuilder = this.#outerBuilder.normalized();
 	};
 
+	prependAll = (elements: StreamSource<T>): void => {
+		this.checkLock();
+
+		const token = Symbol();
+		const iterator = Stream.from(elements)[Symbol.iterator]();
+		let next: T | typeof token;
+		while ((next = iterator.fastNext(token)) !== token) {
+			this.prepend(next);
+		}
+	};
+
 	appendAll = (elements: StreamSource<T>): void => {
 		this.checkLock();
 
@@ -106,7 +170,7 @@ export class ListBuilder<T>
 		}
 	};
 
-	insert = (index: number, value: T): void => {
+	insertAt = (index: number, value: T): void => {
 		this.checkLock();
 
 		if (undefined === this.#outerBuilder || index >= this.size) {
@@ -126,7 +190,7 @@ export class ListBuilder<T>
 		this.#outerBuilder = this.#outerBuilder.normalized();
 	};
 
-	remove = <O>(index: number, otherwise: OptLazy<O>): T | O => {
+	removeAt = <O>(index: number, otherwise: OptLazy<O>): T | O => {
 		this.checkLock();
 
 		if (

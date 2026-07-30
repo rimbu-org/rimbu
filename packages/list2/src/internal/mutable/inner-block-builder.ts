@@ -94,6 +94,13 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		return this.#children[childIndex].get(inChildIndex);
 	}
 
+	update(index: number, f: (element: T) => T): [oldValue: T, newValue: T] {
+		this.#prepareMutate();
+		const [childIndex, inChildIndex] = this.#sizeTable.getCoordinates(index);
+
+		return this.#children[childIndex].update(inChildIndex, f);
+	}
+
 	forEach(f: (element: T) => void): void {
 		if (undefined !== this.#source) {
 			this.#source.forEach(f);
@@ -183,7 +190,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		);
 	}
 
-	buildMap<T2>(f: (value: T) => T2): InnerBlock<T2, any> {
+	buildMap<T2>(f: (element: T) => T2): InnerBlock<T2, any> {
 		if (this.#source) return this.#source.map(f);
 
 		return this.context.innerBlock(

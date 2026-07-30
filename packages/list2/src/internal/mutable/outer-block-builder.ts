@@ -84,6 +84,18 @@ export class OuterBlockBuilder<T>
 		return this.#ops.at(this.#children, index);
 	}
 
+	update(index: number, f: (element: T) => T): [oldValue: T, newValue: T] {
+		this.#prepareMutate();
+		const [newChildren, oldValue, newValue] = this.#ops.mutateUpdate(
+			this.#children,
+			index,
+			f,
+		);
+		this.#children = newChildren;
+
+		return [oldValue, newValue];
+	}
+
 	prepend(element: T): void {
 		this.#prepareMutate();
 		this.#children = this.#ops.mutatePrepend(this.#children, element);
@@ -141,7 +153,7 @@ export class OuterBlockBuilder<T>
 		return dropped;
 	}
 
-	forEach(f: (value: T) => void): void {
+	forEach(f: (element: T) => void): void {
 		if (undefined !== this.#source) {
 			this.#source.forEach(f);
 			return;
@@ -157,7 +169,7 @@ export class OuterBlockBuilder<T>
 		);
 	}
 
-	buildMap<T2>(f: (value: T) => T2): OuterBlock<T2> {
+	buildMap<T2>(f: (element: T) => T2): OuterBlock<T2> {
 		return (
 			this.#source?.map(f) ??
 			this.context.outerBlockLeftRight(this.#ops.map(this.#children, f))

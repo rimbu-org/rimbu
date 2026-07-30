@@ -155,11 +155,11 @@ export interface ChildrenOps<Tp extends ChildrenOps.Types = ChildrenOps.Types> {
 
 	// -- mutable operations (builder-only, requires exclusive ownership) ----
 	/** Set `value` at `index` in place. Returns the same reference. */
-	mutateSet<T>(
+	mutateUpdate<T>(
 		children: (Tp & { _T: T })['_C'],
 		index: number,
-		value: T,
-	): (Tp & { _T: T })['_C'];
+		f: (value: T) => T,
+	): [result: (Tp & { _T: T })['_C'], oldValue: T, newValue: T];
 	/** Prepend `value` in place. Returns the same reference. */
 	mutatePrepend<T>(
 		children: (Tp & { _T: T })['_C'],

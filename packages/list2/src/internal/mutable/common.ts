@@ -6,6 +6,10 @@ import type { Block, Inner } from '#list/immutable/common';
 export interface BuilderCommon<T, C> {
 	get size(): number;
 	get(index: Int.AtLeastZero): T;
+	update(
+		index: Int.AtLeastZero,
+		f: (element: T) => T,
+	): [oldValue: T, newValue: T];
 	forEach(f: (element: T) => void): void;
 	insert(index: Int.AtLeastZero, element: T): void;
 	remove(index: Int.AtLeastZero): T;
@@ -25,7 +29,7 @@ export interface BlockBuilder<T, C = unknown> extends BuilderCommon<T, C> {
 	dropLastChild(): C;
 	splitRight(index?: number): BlockBuilder<T, C>;
 	build(): Block<T>;
-	buildMap<T2>(f: (value: T) => T2): Block<T2>;
+	buildMap<T2>(f: (element: T) => T2): Block<T2>;
 }
 
 export interface OuterBuilder<T> extends BuilderCommon<T, T> {
@@ -45,6 +49,6 @@ export interface InnerBuilder<T, C extends BlockBuilder<T>>
 	dropFirstChild(): C;
 	dropLastChild(): C;
 	build(): Inner<T, any>;
-	buildMap<T2>(f: (value: T) => T2): Inner<T2, any>;
+	buildMap<T2>(f: (element: T) => T2): Inner<T2, any>;
 	normalized(): InnerBuilder<T, C> | undefined;
 }

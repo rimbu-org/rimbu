@@ -145,7 +145,7 @@ export class OuterTreeBuilder<T>
 		);
 	}
 
-	buildMap<T2>(f: (value: T) => T2): OuterTree<T2> {
+	buildMap<T2>(f: (element: T) => T2): OuterTree<T2> {
 		if (undefined !== this.#source) return this.#source.map(f);
 
 		return this.context.outerTree(
