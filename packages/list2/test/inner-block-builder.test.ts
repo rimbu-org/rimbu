@@ -105,8 +105,8 @@ describe('InnerBlockBuilder.from-source', () => {
 	it('get reads from source', () => {
 		const ctx = makeContext<number>(3);
 		const b = ibFromSource(ctx, [10, 20, 30, 40], 2);
-		expect(b.get(0 as Int.Natural)).toBe(10);
-		expect(b.get(3 as Int.Natural)).toBe(40);
+		expect(b.get(0 as Int.AtLeastZero)).toBe(10);
+		expect(b.get(3 as Int.AtLeastZero)).toBe(40);
 	});
 
 	it('forEach reads from source', () => {
@@ -119,7 +119,7 @@ describe('InnerBlockBuilder.from-source', () => {
 		const ctx = makeContext<number>(3);
 		const b = ibFromSource(ctx, [10, 20, 30, 40], 2);
 		b.prependChild(ob(ctx, [0]));
-		expect(b.get(0 as Int.Natural)).toBe(0);
+		expect(b.get(0 as Int.AtLeastZero)).toBe(0);
 	});
 });
 
@@ -129,22 +129,22 @@ describe('InnerBlockBuilder.read', () => {
 	describe('get', () => {
 		it('from first child', () => {
 			const b = ib(ctx, [ob(ctx, [10, 20, 30]), ob(ctx, [40, 50])]);
-			expect(b.get(0 as Int.Natural)).toBe(10);
-			expect(b.get(1 as Int.Natural)).toBe(20);
-			expect(b.get(2 as Int.Natural)).toBe(30);
+			expect(b.get(0 as Int.AtLeastZero)).toBe(10);
+			expect(b.get(1 as Int.AtLeastZero)).toBe(20);
+			expect(b.get(2 as Int.AtLeastZero)).toBe(30);
 		});
 
 		it('from middle child', () => {
 			const b = ib(ctx, [ob(ctx, [10]), ob(ctx, [20, 30, 40]), ob(ctx, [50])]);
-			expect(b.get(1 as Int.Natural)).toBe(20);
-			expect(b.get(3 as Int.Natural)).toBe(40);
-			expect(b.get(4 as Int.Natural)).toBe(50);
+			expect(b.get(1 as Int.AtLeastZero)).toBe(20);
+			expect(b.get(3 as Int.AtLeastZero)).toBe(40);
+			expect(b.get(4 as Int.AtLeastZero)).toBe(50);
 		});
 
 		it('from last child', () => {
 			const b = ib(ctx, [ob(ctx, [10, 20]), ob(ctx, [30, 40])]);
-			expect(b.get(2 as Int.Natural)).toBe(30);
-			expect(b.get(3 as Int.Natural)).toBe(40);
+			expect(b.get(2 as Int.AtLeastZero)).toBe(30);
+			expect(b.get(3 as Int.AtLeastZero)).toBe(40);
 		});
 
 		it('across many children', () => {
@@ -152,11 +152,11 @@ describe('InnerBlockBuilder.read', () => {
 				ob(ctx, [i * 3, i * 3 + 1]),
 			);
 			const b = ib(ctx, children);
-			expect(b.get(0 as Int.Natural)).toBe(0);
-			expect(b.get(1 as Int.Natural)).toBe(1);
-			expect(b.get(2 as Int.Natural)).toBe(3);
-			expect(b.get(22 as Int.Natural)).toBe(33);
-			expect(b.get(23 as Int.Natural)).toBe(34);
+			expect(b.get(0 as Int.AtLeastZero)).toBe(0);
+			expect(b.get(1 as Int.AtLeastZero)).toBe(1);
+			expect(b.get(2 as Int.AtLeastZero)).toBe(3);
+			expect(b.get(22 as Int.AtLeastZero)).toBe(33);
+			expect(b.get(23 as Int.AtLeastZero)).toBe(34);
 		});
 	});
 
@@ -201,12 +201,12 @@ describe('InnerBlockBuilder.firstChild / lastChild', () => {
 
 	it('firstChild returns first child', () => {
 		const b = ib(ctx, [ob(ctx, [10, 20]), ob(ctx, [30])]);
-		expect(b.firstChild().get(0 as Int.Natural)).toBe(10);
+		expect(b.firstChild().get(0 as Int.AtLeastZero)).toBe(10);
 	});
 
 	it('lastChild returns last child', () => {
 		const b = ib(ctx, [ob(ctx, [10]), ob(ctx, [20, 30])]);
-		expect(b.lastChild().get(1 as Int.Natural)).toBe(30);
+		expect(b.lastChild().get(1 as Int.AtLeastZero)).toBe(30);
 	});
 });
 
@@ -216,7 +216,7 @@ describe('InnerBlockBuilder.dropFirstChild / dropLastChild', () => {
 	it('dropFirstChild removes and returns first', () => {
 		const b = ib(ctx, [ob(ctx, [10, 20]), ob(ctx, [30]), ob(ctx, [40])]);
 		const child = b.dropFirstChild();
-		expect(child.get(0 as Int.Natural)).toBe(10);
+		expect(child.get(0 as Int.AtLeastZero)).toBe(10);
 		expect(b.size).toBe(2);
 		expect(b.nrChildren).toBe(2);
 		expect(collectForEach(b)).toEqual([30, 40]);
@@ -225,7 +225,7 @@ describe('InnerBlockBuilder.dropFirstChild / dropLastChild', () => {
 	it('dropLastChild removes and returns last', () => {
 		const b = ib(ctx, [ob(ctx, [10]), ob(ctx, [20]), ob(ctx, [30, 40])]);
 		const child = b.dropLastChild();
-		expect(child.get(1 as Int.Natural)).toBe(40);
+		expect(child.get(1 as Int.AtLeastZero)).toBe(40);
 		expect(b.size).toBe(2);
 		expect(collectForEach(b)).toEqual([10, 20]);
 	});

@@ -114,7 +114,7 @@ describe('InnerBlock.properties', () => {
 
 	it('computedSizeTable lazy computed after get', () => {
 		const b = inner(ctx, [ob(ctx, [1, 2])]);
-		b._get(0 as Int.Natural);
+		b._get(0 as Int.AtLeastZero);
 		expect(b.sizeTable).toBeDefined();
 	});
 });
@@ -125,9 +125,9 @@ describe('InnerBlock.read', () => {
 	describe('get', () => {
 		it('reads from first child', () => {
 			const b = inner(ctx, [ob(ctx, [10, 20, 30]), ob(ctx, [40, 50])]);
-			expect(b._get(0 as Int.Natural)).toBe(10);
-			expect(b._get(1 as Int.Natural)).toBe(20);
-			expect(b._get(2 as Int.Natural)).toBe(30);
+			expect(b._get(0 as Int.AtLeastZero)).toBe(10);
+			expect(b._get(1 as Int.AtLeastZero)).toBe(20);
+			expect(b._get(2 as Int.AtLeastZero)).toBe(30);
 		});
 
 		it('reads from middle child', () => {
@@ -136,16 +136,16 @@ describe('InnerBlock.read', () => {
 				ob(ctx, [30, 40, 50]),
 				ob(ctx, [60, 70]),
 			]);
-			expect(b._get(2 as Int.Natural)).toBe(30);
-			expect(b._get(3 as Int.Natural)).toBe(40);
-			expect(b._get(4 as Int.Natural)).toBe(50);
-			expect(b._get(5 as Int.Natural)).toBe(60);
+			expect(b._get(2 as Int.AtLeastZero)).toBe(30);
+			expect(b._get(3 as Int.AtLeastZero)).toBe(40);
+			expect(b._get(4 as Int.AtLeastZero)).toBe(50);
+			expect(b._get(5 as Int.AtLeastZero)).toBe(60);
 		});
 
 		it('reads from last child', () => {
 			const b = inner(ctx, [ob(ctx, [10]), ob(ctx, [20, 30, 40])]);
-			expect(b._get(1 as Int.Natural)).toBe(20);
-			expect(b._get(3 as Int.Natural)).toBe(40);
+			expect(b._get(1 as Int.AtLeastZero)).toBe(20);
+			expect(b._get(3 as Int.AtLeastZero)).toBe(40);
 		});
 
 		it('across many children', () => {
@@ -153,12 +153,12 @@ describe('InnerBlock.read', () => {
 				ob(ctx, [i * 10, i * 10 + 1]),
 			);
 			const b = innerWithTable(ctx, children);
-			expect(b._get(0 as Int.Natural)).toBe(0);
-			expect(b._get(1 as Int.Natural)).toBe(1);
-			expect(b._get(2 as Int.Natural)).toBe(10);
-			expect(b._get(3 as Int.Natural)).toBe(11);
-			expect(b._get(22 as Int.Natural)).toBe(110);
-			expect(b._get(23 as Int.Natural)).toBe(111);
+			expect(b._get(0 as Int.AtLeastZero)).toBe(0);
+			expect(b._get(1 as Int.AtLeastZero)).toBe(1);
+			expect(b._get(2 as Int.AtLeastZero)).toBe(10);
+			expect(b._get(3 as Int.AtLeastZero)).toBe(11);
+			expect(b._get(22 as Int.AtLeastZero)).toBe(110);
+			expect(b._get(23 as Int.AtLeastZero)).toBe(111);
 		});
 
 		it('large child blocks with many elements within maxChildSize', () => {
@@ -177,12 +177,12 @@ describe('InnerBlock.read', () => {
 					Array.from({ length: 16 }, (_, i) => i + 32),
 				),
 			]);
-			expect(b._get(0 as Int.Natural)).toBe(0);
-			expect(b._get(15 as Int.Natural)).toBe(15);
-			expect(b._get(16 as Int.Natural)).toBe(16);
-			expect(b._get(31 as Int.Natural)).toBe(31);
-			expect(b._get(32 as Int.Natural)).toBe(32);
-			expect(b._get(47 as Int.Natural)).toBe(47);
+			expect(b._get(0 as Int.AtLeastZero)).toBe(0);
+			expect(b._get(15 as Int.AtLeastZero)).toBe(15);
+			expect(b._get(16 as Int.AtLeastZero)).toBe(16);
+			expect(b._get(31 as Int.AtLeastZero)).toBe(31);
+			expect(b._get(32 as Int.AtLeastZero)).toBe(32);
+			expect(b._get(47 as Int.AtLeastZero)).toBe(47);
 		});
 	});
 
@@ -500,20 +500,20 @@ describe('InnerBlock.edge-cases', () => {
 				ob(ctx, [i * 10, i * 10 + 1]),
 			);
 			const b = innerWithTable(ctx, children);
-			expect(b._get(0 as Int.Natural)).toBe(0);
-			expect(b._get(1 as Int.Natural)).toBe(1);
-			expect(b._get(2 as Int.Natural)).toBe(10);
-			expect(b._get(3 as Int.Natural)).toBe(11);
-			expect(b._get(7 as Int.Natural)).toBe(31);
+			expect(b._get(0 as Int.AtLeastZero)).toBe(0);
+			expect(b._get(1 as Int.AtLeastZero)).toBe(1);
+			expect(b._get(2 as Int.AtLeastZero)).toBe(10);
+			expect(b._get(3 as Int.AtLeastZero)).toBe(11);
+			expect(b._get(7 as Int.AtLeastZero)).toBe(31);
 		});
 
 		it('irregular shape lazily computes cumulative table', () => {
 			const children = [ob(ctx, [1]), ob(ctx, [2, 3, 4, 5]), ob(ctx, [6])];
 			const b = inner(ctx, children);
 
-			expect(b._get(0 as Int.Natural)).toBe(1);
-			expect(b._get(3 as Int.Natural)).toBe(4);
-			expect(b._get(5 as Int.Natural)).toBe(6);
+			expect(b._get(0 as Int.AtLeastZero)).toBe(1);
+			expect(b._get(3 as Int.AtLeastZero)).toBe(4);
+			expect(b._get(5 as Int.AtLeastZero)).toBe(6);
 
 			expect(b.sizeTable).toBeDefined();
 			expect(b.sizeTable.isRegular).toBe(false);
@@ -525,16 +525,16 @@ describe('InnerBlock.edge-cases', () => {
 			const b = inner(ctx, [ob(ctx, [1]), ob(ctx, [2])], 3);
 			expect(b.level).toBe(3);
 			// get still works through size table
-			expect(b._get(0 as Int.Natural)).toBe(1);
-			expect(b._get(1 as Int.Natural)).toBe(2);
+			expect(b._get(0 as Int.AtLeastZero)).toBe(1);
+			expect(b._get(1 as Int.AtLeastZero)).toBe(2);
 		});
 	});
 
 	describe('single child', () => {
 		it('get works on single child', () => {
 			const b = inner(ctx, [ob(ctx, [10, 20, 30])]);
-			expect(b._get(0 as Int.Natural)).toBe(10);
-			expect(b._get(2 as Int.Natural)).toBe(30);
+			expect(b._get(0 as Int.AtLeastZero)).toBe(10);
+			expect(b._get(2 as Int.AtLeastZero)).toBe(30);
 			expect(b._nrChildren).toBe(1);
 		});
 
@@ -607,11 +607,11 @@ describe('InnerBlock.edge-cases', () => {
 			expect(b._nrChildren).toBe(20);
 			expect(b.size).toBe(60);
 
-			expect(b._get(0 as Int.Natural)).toBe(0);
-			expect(b._get(2 as Int.Natural)).toBe(2);
-			expect(b._get(3 as Int.Natural)).toBe(3);
-			expect(b._get(57 as Int.Natural)).toBe(57);
-			expect(b._get(59 as Int.Natural)).toBe(59);
+			expect(b._get(0 as Int.AtLeastZero)).toBe(0);
+			expect(b._get(2 as Int.AtLeastZero)).toBe(2);
+			expect(b._get(3 as Int.AtLeastZero)).toBe(3);
+			expect(b._get(57 as Int.AtLeastZero)).toBe(57);
+			expect(b._get(59 as Int.AtLeastZero)).toBe(59);
 		});
 
 		it('large forEach visits all elements', () => {
@@ -629,10 +629,10 @@ describe('InnerBlock.edge-cases', () => {
 		it('null elements in child blocks', () => {
 			const ictx = makeContext<number | null>(2);
 			const b = inner(ictx, [ob(ictx, [1, null]), ob(ictx, [null, 3])]);
-			expect(b._get(0 as Int.Natural)).toBe(1);
-			expect(b._get(1 as Int.Natural)).toBeNull();
-			expect(b._get(2 as Int.Natural)).toBeNull();
-			expect(b._get(3 as Int.Natural)).toBe(3);
+			expect(b._get(0 as Int.AtLeastZero)).toBe(1);
+			expect(b._get(1 as Int.AtLeastZero)).toBeNull();
+			expect(b._get(2 as Int.AtLeastZero)).toBeNull();
+			expect(b._get(3 as Int.AtLeastZero)).toBe(3);
 		});
 
 		it('undefined elements in child blocks', () => {
@@ -641,10 +641,10 @@ describe('InnerBlock.edge-cases', () => {
 				ob(ictx, [1, undefined]),
 				ob(ictx, [undefined, 3]),
 			]);
-			expect(b._get(0 as Int.Natural)).toBe(1);
-			expect(b._get(1 as Int.Natural)).toBeUndefined();
-			expect(b._get(2 as Int.Natural)).toBeUndefined();
-			expect(b._get(3 as Int.Natural)).toBe(3);
+			expect(b._get(0 as Int.AtLeastZero)).toBe(1);
+			expect(b._get(1 as Int.AtLeastZero)).toBeUndefined();
+			expect(b._get(2 as Int.AtLeastZero)).toBeUndefined();
+			expect(b._get(3 as Int.AtLeastZero)).toBe(3);
 		});
 	});
 });

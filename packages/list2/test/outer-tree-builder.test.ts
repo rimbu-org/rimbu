@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 
+import type { Int } from '@rimbu/base';
 import type { ListContext } from '#list/context';
 import type { OuterBlockBuilder } from '#list/mutable/outer-block-builder';
 
@@ -57,42 +58,27 @@ describe('OuterTreeBuilder.properties', () => {
 });
 
 describe('OuterTreeBuilder.read', () => {
-	describe('at', () => {
-		const ctx = makeContext<number>(2);
-		const t = treeBuilder(ctx, [10, 20, 30], [40, 50]);
-
+	describe('get', () => {
 		it('from left block', () => {
-			expect(t.at(0)).toBe(10);
-			expect(t.at(2)).toBe(30);
+			const ctx = makeContext<number>(2);
+			const t = treeBuilder(ctx, [10, 20, 30], [40, 50]);
+			expect(t.get(0 as Int.AtLeastZero)).toBe(10);
+			expect(t.get(2 as Int.AtLeastZero)).toBe(30);
 		});
 
 		it('from right block', () => {
-			expect(t.at(3)).toBe(40);
-			expect(t.at(4)).toBe(50);
+			const ctx = makeContext<number>(2);
+			const t = treeBuilder(ctx, [10, 20, 30], [40, 50]);
+			expect(t.get(3 as Int.AtLeastZero)).toBe(40);
+			expect(t.get(4 as Int.AtLeastZero)).toBe(50);
 		});
 
-		it('negative index crosses boundary', () => {
-			expect(t.at(-1)).toBe(50);
-			expect(t.at(-2)).toBe(40);
-			expect(t.at(-3)).toBe(30);
-		});
-
-		it('out of bounds returns otherwise', () => {
-			expect(t.at(5)).toBeUndefined();
-			expect(t.at(-6)).toBeUndefined();
-			expect(t.at(5, 'fallback')).toBe('fallback');
-			expect(t.at(-6, () => 'lazy')).toBe('lazy');
-		});
-
-		it('otherwise not called for valid index', () => {
-			let called = false;
-			expect(
-				t.at(0, () => {
-					called = true;
-					return 999;
-				}),
-			).toBe(10);
-			expect(called).toBe(false);
+		it('last elements via positive index', () => {
+			const ctx = makeContext<number>(2);
+			const t = treeBuilder(ctx, [10, 20, 30], [40, 50]);
+			expect(t.get(4 as Int.AtLeastZero)).toBe(50);
+			expect(t.get(3 as Int.AtLeastZero)).toBe(40);
+			expect(t.get(2 as Int.AtLeastZero)).toBe(30);
 		});
 	});
 
@@ -100,10 +86,10 @@ describe('OuterTreeBuilder.read', () => {
 		it('returns element at index', () => {
 			const ctx = makeContext<number>(2);
 			const t = treeBuilder(ctx, [10, 20], [30, 40]);
-			expect(t.get(0)).toBe(10);
-			expect(t.get(1)).toBe(20);
-			expect(t.get(2)).toBe(30);
-			expect(t.get(3)).toBe(40);
+			expect(t.get(0 as Int.AtLeastZero)).toBe(10);
+			expect(t.get(1 as Int.AtLeastZero)).toBe(20);
+			expect(t.get(2 as Int.AtLeastZero)).toBe(30);
+			expect(t.get(3 as Int.AtLeastZero)).toBe(40);
 		});
 	});
 
@@ -336,8 +322,8 @@ describe('OuterTreeBuilder.edge-cases', () => {
 			}
 			const list = b.build();
 			expect(list.toArray()).toEqual(Array.from({ length: 20 }, (_, i) => i));
-			expect(list.at(0)).toBe(0);
-			expect(list.at(19)).toBe(19);
+		expect(list.at(0)).toBe(0);
+		expect(list.at(19)).toBe(19);
 		});
 
 		it('List.builder prepend order is correct', () => {
@@ -357,14 +343,14 @@ describe('OuterTreeBuilder.edge-cases', () => {
 			const ctx = makeContext<number | null>(bits);
 			const t = treeBuilder(ctx, [1], [null, 3]);
 			t.append(null);
-			expect(t.at(1)).toBeNull();
+			expect(t.get(1 as Int.AtLeastZero)).toBeNull();
 			expect(t.build().toArray()).toEqual([1, null, 3, null]);
 		});
 
 		it('undefined elements', () => {
 			const ctx = makeContext<number | undefined>(bits);
 			const t = treeBuilder(ctx, [1], [undefined, 3]);
-			expect(t.at(1)).toBeUndefined();
+			expect(t.get(1 as Int.AtLeastZero)).toBeUndefined();
 			expect(t.build().toArray()).toEqual([1, undefined, 3]);
 		});
 	});
@@ -376,11 +362,11 @@ describe('OuterTreeBuilder.edge-cases', () => {
 			t.prepend(2);
 			t.append(8);
 			t.prepend(0);
-			expect(t.get(0)).toBe(0);
-			expect(t.get(1)).toBe(2);
-			expect(t.get(2)).toBe(4);
-			expect(t.get(3)).toBe(6);
-			expect(t.get(4)).toBe(8);
+			expect(t.get(0 as Int.AtLeastZero)).toBe(0);
+			expect(t.get(1 as Int.AtLeastZero)).toBe(2);
+			expect(t.get(2 as Int.AtLeastZero)).toBe(4);
+			expect(t.get(3 as Int.AtLeastZero)).toBe(6);
+			expect(t.get(4 as Int.AtLeastZero)).toBe(8);
 		});
 	});
 });

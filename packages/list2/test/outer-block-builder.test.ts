@@ -102,22 +102,22 @@ describe('OuterBlockBuilder.from-source', () => {
 		expect(b.size).toBe(3);
 	});
 
-	it('at reads from source without triggering copy', () => {
+	it('get reads from source without triggering copy', () => {
 		const b = makeBuilderFromSource([10, 20, 30]);
-		expect(b.at(0)).toBe(10);
-		expect(b.at(2)).toBe(30);
+		expect(b.get(0 as Int.AtLeastZero)).toBe(10);
+		expect(b.get(2 as Int.AtLeastZero)).toBe(30);
 	});
 
-	it('negative at on source', () => {
+	it('get last elements from source', () => {
 		const b = makeBuilderFromSource([10, 20, 30, 40]);
-		expect(b.at(-1)).toBe(40);
-		expect(b.at(-2)).toBe(30);
+		expect(b.get(3 as Int.AtLeastZero)).toBe(40);
+		expect(b.get(2 as Int.AtLeastZero)).toBe(30);
 	});
 
 	it('get on source', () => {
 		const b = makeBuilderFromSource([10, 20, 30]);
-		expect(b.get(0 as Int.Natural)).toBe(10);
-		expect(b.get(2 as Int.Natural)).toBe(30);
+		expect(b.get(0 as Int.AtLeastZero)).toBe(10);
+		expect(b.get(2 as Int.AtLeastZero)).toBe(30);
 	});
 
 	it('forEach from source', () => {
@@ -147,45 +147,18 @@ describe('OuterBlockBuilder.from-source', () => {
 });
 
 describe('OuterBlockBuilder.read', () => {
-	describe('at', () => {
-		const b = makeBuilder([10, 20, 30, 40, 50]);
-
-		it('positive index', () => {
-			expect(b.at(0)).toBe(10);
-			expect(b.at(2)).toBe(30);
-			expect(b.at(4)).toBe(50);
-		});
-
-		it('negative index', () => {
-			expect(b.at(-1)).toBe(50);
-			expect(b.at(-2)).toBe(40);
-		});
-
-		it('out of bounds returns otherwise', () => {
-			expect(b.at(5)).toBeUndefined();
-			expect(b.at(-6)).toBeUndefined();
-			expect(b.at(10, 'fallback')).toBe('fallback');
-			expect(b.at(-10, () => 'lazy')).toBe('lazy');
-		});
-
-		it('otherwise function not called for valid index', () => {
-			let called = false;
-			expect(
-				b.at(0, () => {
-					called = true;
-					return 999;
-				}),
-			).toBe(10);
-			expect(called).toBe(false);
-		});
-	});
-
 	describe('get', () => {
 		it('returns element at index', () => {
-			const b = makeBuilder([10, 20, 30]);
-			expect(b.get(0 as Int.Natural)).toBe(10);
-			expect(b.get(1 as Int.Natural)).toBe(20);
-			expect(b.get(2 as Int.Natural)).toBe(30);
+			const b = makeBuilder([10, 20, 30, 40, 50]);
+			expect(b.get(0 as Int.AtLeastZero)).toBe(10);
+			expect(b.get(2 as Int.AtLeastZero)).toBe(30);
+			expect(b.get(4 as Int.AtLeastZero)).toBe(50);
+		});
+
+		it('last elements via positive index', () => {
+			const b = makeBuilder([10, 20, 30, 40, 50]);
+			expect(b.get(4 as Int.AtLeastZero)).toBe(50);
+			expect(b.get(3 as Int.AtLeastZero)).toBe(40);
 		});
 	});
 
@@ -215,7 +188,7 @@ describe('OuterBlockBuilder.mutation', () => {
 			const b = makeBuilder<number>([]);
 			b.prepend(1);
 			expect(b.size).toBe(1);
-			expect(b.at(0)).toBe(1);
+			expect(b.get(0 as Int.AtLeastZero)).toBe(1);
 		});
 
 		it('multiple prepends', () => {
@@ -238,7 +211,7 @@ describe('OuterBlockBuilder.mutation', () => {
 			const b = makeBuilder<number>([]);
 			b.append(1);
 			expect(b.size).toBe(1);
-			expect(b.at(0)).toBe(1);
+			expect(b.get(0 as Int.AtLeastZero)).toBe(1);
 		});
 
 		it('multiple appends', () => {
@@ -481,7 +454,7 @@ describe('OuterBlockBuilder.edge-cases', () => {
 		it('at reads mutated value after prepend on source', () => {
 			const b = makeBuilderFromSource([2, 3]);
 			b.prepend(1);
-			expect(b.at(0)).toBe(1);
+			expect(b.get(0 as Int.AtLeastZero)).toBe(1);
 		});
 
 		it('dropFirstChild discards source and works', () => {
@@ -506,16 +479,16 @@ describe('OuterBlockBuilder.edge-cases', () => {
 	describe('null / undefined elements', () => {
 		it('null elements', () => {
 			const b = makeBuilder<number | null>([1, null, 3]);
-			expect(b.at(0)).toBe(1);
-			expect(b.at(1)).toBeNull();
-			expect(b.at(2)).toBe(3);
+			expect(b.get(0 as Int.AtLeastZero)).toBe(1);
+			expect(b.get(1 as Int.AtLeastZero)).toBeNull();
+			expect(b.get(2 as Int.AtLeastZero)).toBe(3);
 		});
 
 		it('undefined elements', () => {
 			const b = makeBuilder<number | undefined>([1, undefined, 3]);
-			expect(b.at(0)).toBe(1);
-			expect(b.at(1)).toBeUndefined();
-			expect(b.at(2)).toBe(3);
+			expect(b.get(0 as Int.AtLeastZero)).toBe(1);
+			expect(b.get(1 as Int.AtLeastZero)).toBeUndefined();
+			expect(b.get(2 as Int.AtLeastZero)).toBe(3);
 		});
 	});
 

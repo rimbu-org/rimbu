@@ -83,8 +83,8 @@ describe('InnerTreeBuilder.read', () => {
 				[ob(ctx, [10, 20]), ob(ctx, [30])],
 				[ob(ctx, [40]), ob(ctx, [50])],
 			);
-			expect(t.get(0 as Int.Natural)).toBe(10);
-			expect(t.get(2 as Int.Natural)).toBe(30);
+			expect(t.get(0 as Int.AtLeastZero)).toBe(10);
+			expect(t.get(2 as Int.AtLeastZero)).toBe(30);
 		});
 
 		it('from right block', () => {
@@ -93,15 +93,15 @@ describe('InnerTreeBuilder.read', () => {
 				[ob(ctx, [10])],
 				[ob(ctx, [20, 30]), ob(ctx, [40])],
 			);
-			expect(t.get(1 as Int.Natural)).toBe(20);
-			expect(t.get(3 as Int.Natural)).toBe(40);
+			expect(t.get(1 as Int.AtLeastZero)).toBe(20);
+			expect(t.get(3 as Int.AtLeastZero)).toBe(40);
 		});
 
 		it('across left-right boundary', () => {
 			const t = innerTree(ctx, [ob(ctx, [1, 2, 3])], [ob(ctx, [4, 5])]);
-			expect(t.get(0 as Int.Natural)).toBe(1);
-			expect(t.get(2 as Int.Natural)).toBe(3);
-			expect(t.get(3 as Int.Natural)).toBe(4);
+			expect(t.get(0 as Int.AtLeastZero)).toBe(1);
+			expect(t.get(2 as Int.AtLeastZero)).toBe(3);
+			expect(t.get(3 as Int.AtLeastZero)).toBe(4);
 		});
 	});
 
@@ -203,7 +203,7 @@ describe('InnerTreeBuilder.firstChild / lastChild', () => {
 			[ob(ctx, [40])],
 		);
 		const child = t.firstChild();
-		expect(child.get(0 as Int.Natural)).toBe(10);
+		expect(child.get(0 as Int.AtLeastZero)).toBe(10);
 	});
 
 	it('lastChild from right block', () => {
@@ -213,7 +213,7 @@ describe('InnerTreeBuilder.firstChild / lastChild', () => {
 			[ob(ctx, [20]), ob(ctx, [30, 40])],
 		);
 		const child = t.lastChild();
-		expect(child.get(1 as Int.Natural)).toBe(40);
+		expect(child.get(1 as Int.AtLeastZero)).toBe(40);
 	});
 });
 
@@ -227,7 +227,7 @@ describe('InnerTreeBuilder.dropFirstChild / dropLastChild', () => {
 			[ob(ctx, [40])],
 		);
 		const child = t.dropFirstChild();
-		expect(child.get(0 as Int.Natural)).toBe(10);
+		expect(child.get(0 as Int.AtLeastZero)).toBe(10);
 		expect(t.size).toBe(2);
 		expect(collectForEach(t)).toEqual([30, 40]);
 	});
@@ -239,7 +239,7 @@ describe('InnerTreeBuilder.dropFirstChild / dropLastChild', () => {
 			[ob(ctx, [20]), ob(ctx, [30, 40])],
 		);
 		const child = t.dropLastChild();
-		expect(child.get(1 as Int.Natural)).toBe(40);
+		expect(child.get(1 as Int.AtLeastZero)).toBe(40);
 		expect(t.size).toBe(2);
 		expect(collectForEach(t)).toEqual([10, 20]);
 	});

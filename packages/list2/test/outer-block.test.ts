@@ -187,9 +187,9 @@ function runOuterBlockTests(
 				const b = makeBlock([10, 20, 30]);
 
 				it('returns element at positive index', () => {
-					expect(b._get(0 as Int.Natural)).toBe(10);
-					expect(b._get(1 as Int.Natural)).toBe(20);
-					expect(b._get(2 as Int.Natural)).toBe(30);
+					expect(b._get(0 as Int.AtLeastZero)).toBe(10);
+					expect(b._get(1 as Int.AtLeastZero)).toBe(20);
+					expect(b._get(2 as Int.AtLeastZero)).toBe(30);
 				});
 
 				it('at supports negative indices', () => {
@@ -873,9 +873,9 @@ function runOuterBlockTests(
 					const b = makeBlock([10, 20, 30]);
 					const builder = b.toBuilder();
 					expect(builder.size).toBe(3);
-					expect(builder.get(0 as Int.Natural)).toBe(10);
-					expect(builder.get(1 as Int.Natural)).toBe(20);
-					expect(builder.get(2 as Int.Natural)).toBe(30);
+					expect(builder.get(0 as Int.AtLeastZero)).toBe(10);
+					expect(builder.get(1 as Int.AtLeastZero)).toBe(20);
+					expect(builder.get(2 as Int.AtLeastZero)).toBe(30);
 				});
 
 				it('builder can append and build', () => {
