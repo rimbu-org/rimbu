@@ -393,7 +393,9 @@ describe('SizeTable chain operations', () => {
 	it('forTake with prepended table gives correct inChildIndex', () => {
 		const table = SizeTable.fromSizes([3, 5, 2], 8).prependChildSize(5);
 
-		expect(table.getCoordinates(5, { forTake: true }) as [number, number]).toEqual([0, 5]);
+		expect(
+			table.getCoordinates(5, { forTake: true }) as [number, number],
+		).toEqual([0, 5]);
 	});
 
 	it('forTake with multiple prepends gives correct inChildIndex', () => {
@@ -402,8 +404,12 @@ describe('SizeTable chain operations', () => {
 			.prependChildSize(5)
 			.prependChildSize(8);
 
-		expect(table.getCoordinates(8, { forTake: true }) as [number, number]).toEqual([0, 8]);
-		expect(table.getCoordinates(13, { forTake: true }) as [number, number]).toEqual([1, 5]);
+		expect(
+			table.getCoordinates(8, { forTake: true }) as [number, number],
+		).toEqual([0, 8]);
+		expect(
+			table.getCoordinates(13, { forTake: true }) as [number, number],
+		).toEqual([1, 5]);
 	});
 });
 

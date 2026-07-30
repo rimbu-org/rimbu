@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'bun:test';
 
+import type { Int } from '@rimbu/base';
+
 import type { ListContext } from '#list/context';
 import type { InnerBlockBuilder } from '#list/mutable/inner-block-builder';
 import type { OuterBlockBuilder } from '#list/mutable/outer-block-builder';
-import type { Int } from '@rimbu/base';
+
 import { List } from '@rimbu/list';
 
 type OB = OuterBlockBuilder<number>;

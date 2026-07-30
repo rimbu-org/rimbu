@@ -8,6 +8,7 @@ import type { InnerTree } from '#list/immutable/inner-tree';
 import type { BlockBuilder, InnerBuilder } from '#list/mutable/common';
 
 export type Self<T, S extends T = T> = T & { _self: S };
+
 /**
  * Shared read-only shape for all list nodes (blocks, inner nodes, trees).
  */
@@ -18,7 +19,7 @@ interface ListNode<T> {
 	readonly size: number;
 
 	stream(options?: { reversed?: boolean | undefined }): Stream.NonEmpty<T>;
-	forEach(f: (value: T) => void): void;
+	forEach(f: (element: T) => void): void;
 	filter(f: (element: T) => boolean): List<T>;
 	filterIndexed(
 		f: (element: T, index: number, halt: () => void) => boolean,
@@ -54,7 +55,7 @@ export interface Block<T> extends ListNode<T> {
 	readonly _childrenInMax: boolean;
 
 	map<T2>(f: (element: T) => T2): Block<T2>;
-	toBuilder(): BlockBuilder<T>;
+	toBuilder(): BlockBuilder<T, T>;
 }
 
 /**

@@ -106,6 +106,47 @@ export class ListBuilder<T>
 		}
 	};
 
+	insert = (index: number, value: T): void => {
+		this.checkLock();
+
+		if (undefined === this.#outerBuilder || index >= this.size) {
+			this.append(value);
+			return;
+		}
+		if (index === 0 || index <= -this.size) {
+			this.prepend(value);
+			return;
+		}
+
+		if (index < 0) index = this.size + index;
+
+		Int.checkAtLeastOne(index);
+
+		this.#outerBuilder.insert(index, value);
+		this.#outerBuilder = this.#outerBuilder.normalized();
+	};
+
+	// remove = <O>(index: number, otherwise: OptLazy<O>): T | O => {
+	// 	this.checkLock();
+
+	// 	if (
+	// 		undefined === this.outerBuilder ||
+	// 		index >= this.length ||
+	// 		-index > this.length
+	// 	) {
+	// 		return OptLazy(otherwise) as O;
+	// 	}
+
+	// 	if (index < 0) {
+	// 		return this.remove(this.length + index);
+	// 	}
+
+	// 	const result = this.outerBuilder.remove(index);
+	// 	this.outerBuilder = this.outerBuilder.normalized();
+
+	// 	return result;
+	// };
+
 	clear = (): void => {
 		this.checkLock();
 		this.#outerBuilder = undefined;
@@ -123,11 +164,11 @@ export class ListBuilder<T>
 		}
 	};
 
-	build(): List<T> {
+	build = (): List<T> => {
 		if (undefined === this.#outerBuilder) {
 			return this.context.empty();
 		}
 
 		return this.#outerBuilder.build();
-	}
+	};
 }

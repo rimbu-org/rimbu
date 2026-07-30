@@ -7,16 +7,16 @@ export abstract class TreeBuilderBase<T, C> {
 	abstract readonly context: ListContext<T, true>;
 	abstract readonly level: number;
 	abstract size: number;
-	abstract left: BlockBuilder<T>;
-	abstract right: BlockBuilder<T>;
-	abstract middle: InnerBuilder<T, BlockBuilder<T>> | undefined;
+	abstract left: BlockBuilder<T, C>;
+	abstract right: BlockBuilder<T, C>;
+	abstract middle: InnerBuilder<T, BlockBuilder<T, C>> | undefined;
 	abstract getChildSize(child: C): number;
-	abstract prependBlockChild(block: BlockBuilder<T>, child: C): void;
-	abstract appendBlockChild(block: BlockBuilder<T>, child: C): void;
-	abstract dropBlockFirstChild(block: BlockBuilder<T>): C;
-	abstract dropBlockLastChild(block: BlockBuilder<T>): C;
+	abstract prependBlockChild(block: BlockBuilder<T, C>, child: C): void;
+	abstract appendBlockChild(block: BlockBuilder<T, C>, child: C): void;
+	abstract dropBlockFirstChild(block: BlockBuilder<T, C>): C;
+	abstract dropBlockLastChild(block: BlockBuilder<T, C>): C;
 	abstract prepareMutate(): void;
-	abstract createBlockBuilder(child: C): BlockBuilder<T>;
+	abstract createBlockBuilder(child: C): BlockBuilder<T, C>;
 
 	get(index: Int.AtLeastZero): T {
 		const middleIndex = index - this.left.size;
@@ -133,7 +133,103 @@ export abstract class TreeBuilderBase<T, C> {
 		this.left = this.createBlockBuilder(child);
 	}
 
-	appendMiddle(child: BlockBuilder<T>): void {
+	insert(index: Int.AtLeastZero, element: T): void {
+		this.prepareMutate();
+		this.size++;
+
+		const middleIndex = index - this.left.size;
+
+		if (middleIndex <= 0) {
+			// insert left
+			this.left.insert(index, element);
+
+			if (this.left.childrenInMax) {
+				// no need to rebalance
+				return;
+			}
+
+			if (undefined !== this.middle) {
+				// try shift child from left to middle
+				const delta = this.middle.modifyFirstChild(
+					(firstChild): number | undefined => {
+						if (firstChild.canAddChild) {
+							const shiftChild = this.left.dropLastChild();
+							firstChild.prependChild(shiftChild);
+							return this.getChildSize(shiftChild);
+						}
+						return;
+					},
+				);
+
+				if (undefined !== delta) {
+					// shift succeeded
+					return;
+				}
+			} else if (this.right.canAddChild) {
+				// try to shift child from left to right
+				const shiftChild = this.left.dropLastChild();
+				this.right.prependChild(shiftChild);
+				return;
+			}
+
+			// split left and prepend block to middle
+			const toMiddle = this.left.splitRight();
+			this.prependMiddle(toMiddle);
+			return;
+		}
+
+		const rightIndex = middleIndex - (this.middle?.size ?? 0);
+
+		if (Int.isAtLeastZero(rightIndex)) {
+			// insert in right block
+			this.right.insert(rightIndex, element);
+
+			if (this.right.childrenInMax) {
+				// no need to rebalance
+				return;
+			}
+
+			if (undefined !== this.middle) {
+				// try to shift child from right to middle last
+				const delta = this.middle.modifyLastChild(
+					(lastChild): number | undefined => {
+						if (!lastChild.canAddChild) return;
+
+						const shiftChild = this.right.dropFirstChild();
+						lastChild.appendChild(shiftChild);
+						return this.getChildSize(shiftChild);
+					},
+				);
+
+				if (undefined !== delta) {
+					// shift succeeded
+					return;
+				}
+			} else if (this.left.canAddChild) {
+				// shift child from right to left
+				const shiftChild = this.right.dropFirstChild();
+				this.left.appendChild(shiftChild);
+				return;
+			}
+
+			// split right and append block to middle
+			const newRight = this.right.splitRight();
+			this.appendMiddle(this.right);
+			this.right = newRight;
+			return;
+		}
+
+		if (undefined === this.middle) {
+			throwInvalidStateError();
+		}
+
+		Int.checkAtLeastOne(middleIndex);
+		// insert into middle
+		this.middle.insert(middleIndex, element);
+		this.middle = this.middle.normalized();
+	}
+
+	appendMiddle(child: BlockBuilder<T, C>): void {
 		this.prepareMutate();
 
 		if (undefined === this.middle) {
@@ -148,7 +244,7 @@ export abstract class TreeBuilderBase<T, C> {
 		}
 	}
 
-	prependMiddle(child: BlockBuilder<T>): void {
+	prependMiddle(child: BlockBuilder<T, C>): void {
 		this.prepareMutate();
 
 		if (undefined === this.middle) {

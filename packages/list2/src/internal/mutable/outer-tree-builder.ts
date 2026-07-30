@@ -1,9 +1,9 @@
+import type { Int } from '@rimbu/base';
+
 import type { ListContext } from '#list/context';
 import type { OuterTree } from '#list/immutable/outer-tree';
 import type { InnerBuilder, OuterBuilder } from '#list/mutable/common';
 import type { OuterBlockBuilder } from '#list/mutable/outer-block-builder';
-
-import { Int } from '@rimbu/base';
 
 import { TreeBuilderBase } from '#list/mutable/tree-builder-base';
 
@@ -124,6 +124,14 @@ export class OuterTreeBuilder<T>
 		this.left.forEach(f);
 		this.middle?.forEach?.(f);
 		this.right.forEach(f);
+	}
+
+	prependChild(child: T): void {
+		this.prepend(child);
+	}
+
+	appendChild(child: T): void {
+		this.append(child);
 	}
 
 	build(): OuterTree<T> {

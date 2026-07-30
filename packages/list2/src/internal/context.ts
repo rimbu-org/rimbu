@@ -58,7 +58,7 @@ export interface ListContext<T, IsNonEmpty extends boolean = boolean>
 		middle: InnerBuilder<T, OuterBlockBuilder<T>> | undefined,
 		size: number,
 	): OuterTreeBuilder<T>;
-	innerBlockBuilder<T, C extends BlockBuilder<T>>(
+	innerBlockBuilder<T, C extends BlockBuilder<T, any>>(
 		children: C[],
 		size: number,
 		level: number,

@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'bun:test';
 
+import type { Int } from '@rimbu/base';
+
 import type { ListContext } from '#list/context';
 import type { Inner } from '#list/immutable/common';
 import type { InnerBlock } from '#list/immutable/inner-block';
 import type { InnerTree } from '#list/immutable/inner-tree';
-import type { Int } from '@rimbu/base';
+
 import { List } from '@rimbu/list';
 
 type OB = import('#list/immutable/outer-block').OuterBlock<number>;

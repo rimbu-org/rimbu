@@ -3,43 +3,45 @@ import type { List } from '@rimbu/list';
 
 import type { Block, Inner } from '#list/immutable/common';
 
-export interface BuilderCommon<T> {
+export interface BuilderCommon<T, C> {
 	get size(): number;
 	get(index: Int.AtLeastZero): T;
-	forEach(f: (value: T) => void): void;
-}
-
-export interface OuterBuilder<T> extends BuilderCommon<T> {
-	prepend(value: T): void;
-	append(value: T): void;
-	build(): List<T>;
-	buildMap<T2>(f: (value: T) => T2): List<T2>;
-	normalized(): OuterBuilder<T> | undefined;
-}
-
-export interface InnerBuilder<T, C extends BlockBuilder<T> = BlockBuilder<T>>
-	extends BuilderCommon<T> {
+	forEach(f: (element: T) => void): void;
+	insert(index: Int.AtLeastZero, element: T): void;
 	prependChild(child: C): void;
 	appendChild(child: C): void;
-	firstChild(): C;
-	lastChild(): C;
-	dropFirstChild(): C;
-	dropLastChild(): C;
-	modifyFirstChild(f: (child: C) => number | undefined): number | undefined;
-	modifyLastChild(f: (child: C) => number | undefined): number | undefined;
-	build(): Inner<T, any>;
-	buildMap<T2>(f: (value: T) => T2): Inner<T2, any>;
-	normalized(): InnerBuilder<T, C> | undefined;
 }
 
-export interface BlockBuilder<T> extends BuilderCommon<T> {
+export interface BlockBuilder<T, C = unknown> extends BuilderCommon<T, C> {
 	get nrChildren(): number;
 	get canAddChild(): boolean;
 	get canRemoveChild(): boolean;
 	get childrenInMax(): boolean;
 	get childrenInMin(): boolean;
-	prependItems(other: BlockBuilder<T>): void;
-	appendItems(other: BlockBuilder<T>): void;
+	prependItems(other: BlockBuilder<T, C>): void;
+	appendItems(other: BlockBuilder<T, C>): void;
+	dropFirstChild(): C;
+	dropLastChild(): C;
+	splitRight(): BlockBuilder<T, C>;
 	build(): Block<T>;
 	buildMap<T2>(f: (value: T) => T2): Block<T2>;
+}
+
+export interface OuterBuilder<T> extends BuilderCommon<T, T> {
+	prepend(element: T): void;
+	append(element: T): void;
+	build(): List<T>;
+	buildMap<T2>(f: (element: T) => T2): List<T2>;
+	normalized(): OuterBuilder<T> | undefined;
+}
+
+export interface InnerBuilder<T, C extends BlockBuilder<T>>
+	extends BuilderCommon<T, C> {
+	firstChild(): C;
+	lastChild(): C;
+	modifyFirstChild(f: (child: C) => number | undefined): number | undefined;
+	modifyLastChild(f: (child: C) => number | undefined): number | undefined;
+	build(): Inner<T, any>;
+	buildMap<T2>(f: (value: T) => T2): Inner<T2, any>;
+	normalized(): InnerBuilder<T, C> | undefined;
 }

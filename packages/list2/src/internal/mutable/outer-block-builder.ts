@@ -3,9 +3,11 @@ import type { ListContext } from '#list/context';
 import type { OuterBlock } from '#list/immutable/outer-block';
 import type { BlockBuilder, OuterBuilder } from '#list/mutable/common';
 
-import { Int, throwInvalidUsageError } from '@rimbu/base';
+import { type Int, throwInvalidUsageError } from '@rimbu/base';
 
-export class OuterBlockBuilder<T> implements OuterBuilder<T>, BlockBuilder<T> {
+export class OuterBlockBuilder<T>
+	implements OuterBuilder<T>, BlockBuilder<T, T>
+{
 	constructor(
 		readonly context: ListContext<T>,
 		source?: OuterBlock<T>,
@@ -90,6 +92,26 @@ export class OuterBlockBuilder<T> implements OuterBuilder<T>, BlockBuilder<T> {
 	append(element: T): void {
 		this.#prepareMutate();
 		this.#children = this.#ops.mutateAppend(this.#children, element);
+	}
+
+	insert(index: Int.AtLeastOne, element: T): void {
+		this.#prepareMutate();
+
+		const [newChildren] = this.#ops.mutateSplice(
+			this.#children,
+			index,
+			0,
+			this.#ops.of([element]),
+		);
+		this.#children = newChildren;
+	}
+
+	prependChild(child: T): void {
+		this.prepend(child);
+	}
+
+	appendChild(child: T): void {
+		this.append(child);
 	}
 
 	dropFirstChild(): T {

@@ -7,7 +7,7 @@ import { type Int, throwInvalidUsageError } from '@rimbu/base';
 import { SizeTable } from '#list/size-table';
 
 export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
-	implements InnerBuilder<T, C>, BlockBuilder<T>
+	implements InnerBuilder<T, C>, BlockBuilder<T, C>
 {
 	constructor(
 		readonly context: ListContext<T>,
@@ -105,6 +105,8 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 			child.forEach(f);
 		}
 	}
+
+	insert(index: Int.AtLeastZero, element: T): void {}
 
 	prependChild(child: C): void {
 		this.#prepareMutate();
