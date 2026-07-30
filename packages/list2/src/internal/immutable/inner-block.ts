@@ -44,6 +44,10 @@ export class InnerBlock<T, C extends Self<Block<T>, C>>
 		return this.#_sizeTable;
 	}
 
+	get cachedSizeTable(): SizeTable | undefined {
+		return this.#_sizeTable;
+	}
+
 	get _nrChildren() {
 		return this.#children.length;
 	}

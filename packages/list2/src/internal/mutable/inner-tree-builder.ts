@@ -204,7 +204,7 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 			const totalChildren = this.left.nrChildren + this.right.nrChildren;
 
 			if (totalChildren <= this.context.maxBlockSize) {
-				this.left.appendItems(this.right);
+				this.left.appendFrom(this.right);
 				return this.left;
 			}
 		}

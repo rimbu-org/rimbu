@@ -384,20 +384,20 @@ describe('InnerBlockBuilder.prependItems', () => {
 	it('prepends children from other builder', () => {
 		const b = ib(ctx, [ob(ctx, [3, 4])]);
 		const other = ib(ctx, [ob(ctx, [1, 2])]);
-		b.prependItems(other);
+		b.prependFrom(other);
 		expect(collectForEach(b)).toEqual([1, 2, 3, 4]);
 		expect(b.size).toBe(4);
 	});
 
 	it('prependItems to empty', () => {
 		const b = ib(ctx, []);
-		b.prependItems(ib(ctx, [ob(ctx, [1]), ob(ctx, [2])]));
+		b.prependFrom(ib(ctx, [ob(ctx, [1]), ob(ctx, [2])]));
 		expect(collectForEach(b)).toEqual([1, 2]);
 	});
 
 	it('prependItems from empty', () => {
 		const b = ib(ctx, [ob(ctx, [1, 2])]);
-		b.prependItems(ib(ctx, []));
+		b.prependFrom(ib(ctx, []));
 		expect(collectForEach(b)).toEqual([1, 2]);
 	});
 
@@ -406,7 +406,7 @@ describe('InnerBlockBuilder.prependItems', () => {
 		const b = ib(ctx2, [ob(ctx2, [3])]); // one child with 1 elem
 		const other = ib(ctx2, [ob(ctx2, [1, 2])]);
 
-		b.prependItems(other);
+		b.prependFrom(other);
 
 		expect(b.nrChildren).toBe(1); // merged into one
 		expect(collectForEach(b)).toEqual([1, 2, 3]);
@@ -416,7 +416,7 @@ describe('InnerBlockBuilder.prependItems', () => {
 		const ctx2 = makeContext<number>(2); // max=4
 		const b = ib(ctx2, [ob(ctx2, [1, 2, 3])]); // 3 elements (nrChildren=3)
 		const other = ib(ctx2, [ob(ctx2, [10, 20, 30])]); // 3 elements
-		b.prependItems(other);
+		b.prependFrom(other);
 
 		expect(b.nrChildren).toBeGreaterThan(1); // NOT merged
 		expect(collectForEach(b)).toEqual([10, 20, 30, 1, 2, 3]);
@@ -429,13 +429,13 @@ describe('InnerBlockBuilder.appendItems', () => {
 	it('appends children from other builder', () => {
 		const b = ib(ctx, [ob(ctx, [1, 2])]);
 		const other = ib(ctx, [ob(ctx, [3, 4])]);
-		b.appendItems(other);
+		b.appendFrom(other);
 		expect(collectForEach(b)).toEqual([1, 2, 3, 4]);
 	});
 
 	it('appendItems to empty', () => {
 		const b = ib(ctx, []);
-		b.appendItems(ib(ctx, [ob(ctx, [1]), ob(ctx, [2])]));
+		b.appendFrom(ib(ctx, [ob(ctx, [1]), ob(ctx, [2])]));
 		expect(collectForEach(b)).toEqual([1, 2]);
 	});
 
@@ -444,7 +444,7 @@ describe('InnerBlockBuilder.appendItems', () => {
 		const b = ib(ctx2, [ob(ctx2, [1, 2])]);
 		const other = ib(ctx2, [ob(ctx2, [3])]);
 
-		b.appendItems(other);
+		b.appendFrom(other);
 
 		expect(b.nrChildren).toBe(1); // merged
 		expect(collectForEach(b)).toEqual([1, 2, 3]);

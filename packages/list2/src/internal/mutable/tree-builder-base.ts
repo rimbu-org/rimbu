@@ -229,6 +229,106 @@ export abstract class TreeBuilderBase<T, C> {
 		this.middle = this.middle.normalized();
 	}
 
+	remove(index: Int.AtLeastZero): T {
+		this.prepareMutate();
+
+		this.size--;
+
+		const middleIndex = index - this.left.size;
+
+		if (!Int.isAtLeastZero(middleIndex)) {
+			// index is in left
+			const oldValue = this.left.remove(index);
+
+			if (!this.left.childrenInMin) {
+				if (undefined !== this.middle) {
+					const firstBlock = this.middle.firstChild();
+					if (firstBlock.canRemoveChild) {
+						// balance: move enough elements to equalize left and donor
+						const total = this.left.nrChildren + firstBlock.nrChildren;
+						const toMove = (total >>> 1) - this.left.nrChildren;
+						this.middle.modifyFirstChild((fb) => {
+							const preMoveSize = fb.size;
+
+							const moved = fb.splitRight(-toMove);
+							this.left.appendFrom(moved);
+
+							const fbSizeDelta = preMoveSize - fb.size;
+							return -fbSizeDelta;
+						});
+					} else {
+						// merge entire first block into left
+						const dropped = this.middle.dropFirstChild();
+						this.left.appendFrom(dropped);
+					}
+
+					this.middle = this.middle.normalized();
+				} else if (this.right.canRemoveChild) {
+					// no middle — balance left and right
+					const total = this.left.nrChildren + this.right.nrChildren;
+					const toMove = (total >>> 1) - this.left.nrChildren;
+					// const moved = this.right.dropFirstChildren(toMove);
+					const moved = this.right.splitRight(-toMove);
+					this.left.appendFrom(moved);
+				}
+			}
+
+			// this._normalizeMiddle();
+			return oldValue;
+		}
+
+		const rightIndex = middleIndex - (this.middle?.size ?? 0);
+
+		if (Int.isAtLeastZero(rightIndex)) {
+			// index is in right
+			const oldValue = this.right.remove(rightIndex);
+
+			if (!this.right.childrenInMin) {
+				if (undefined !== this.middle) {
+					const lastBlock = this.middle.lastChild();
+					if (lastBlock.canRemoveChild) {
+						// balance: move enough elements to equalize right and donor
+						const total = this.right.nrChildren + lastBlock.nrChildren;
+						const toMove = (total >>> 1) - this.right.nrChildren;
+						this.middle.modifyLastChild((lb) => {
+							// const moved = lb.dropLastChildren(toMove);
+							const preMoveSize = lb.size;
+							const moved = lb.splitRight(toMove);
+							this.right.appendFrom(moved);
+							const lbSizeDelta = preMoveSize - lb.size;
+							return -lbSizeDelta;
+						});
+					} else {
+						// merge entire last block into right
+						const dropped = this.middle.dropLastChild();
+						this.right.prependFrom(dropped);
+					}
+					this.middle = this.middle.normalized();
+				} else if (this.left.canRemoveChild) {
+					// no middle — balance left and right
+					const total = this.left.nrChildren + this.right.nrChildren;
+					const toMove = (total >>> 1) - this.right.nrChildren;
+					const moved = this.left.splitRight(toMove);
+					this.right.prependFrom(moved);
+				}
+			}
+
+			// this._normalizeMiddle();
+			return oldValue;
+		}
+
+		if (undefined === this.middle) {
+			throwInvalidStateError();
+		}
+
+		// index is in middle
+		const oldValue = this.middle.remove(middleIndex);
+		this.middle = this.middle.normalized();
+
+		// this._normalizeMiddle();
+		return oldValue;
+	}
+
 	appendMiddle(child: BlockBuilder<T, C>): void {
 		this.prepareMutate();
 

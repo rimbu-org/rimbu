@@ -8,6 +8,7 @@ export interface BuilderCommon<T, C> {
 	get(index: Int.AtLeastZero): T;
 	forEach(f: (element: T) => void): void;
 	insert(index: Int.AtLeastZero, element: T): void;
+	remove(index: Int.AtLeastZero): T;
 	prependChild(child: C): void;
 	appendChild(child: C): void;
 }
@@ -18,11 +19,11 @@ export interface BlockBuilder<T, C = unknown> extends BuilderCommon<T, C> {
 	get canRemoveChild(): boolean;
 	get childrenInMax(): boolean;
 	get childrenInMin(): boolean;
-	prependItems(other: BlockBuilder<T, C>): void;
-	appendItems(other: BlockBuilder<T, C>): void;
+	prependFrom(other: BlockBuilder<T, C>): void;
+	appendFrom(other: BlockBuilder<T, C>): void;
 	dropFirstChild(): C;
 	dropLastChild(): C;
-	splitRight(): BlockBuilder<T, C>;
+	splitRight(index?: number): BlockBuilder<T, C>;
 	build(): Block<T>;
 	buildMap<T2>(f: (value: T) => T2): Block<T2>;
 }
@@ -41,6 +42,8 @@ export interface InnerBuilder<T, C extends BlockBuilder<T>>
 	lastChild(): C;
 	modifyFirstChild(f: (child: C) => number | undefined): number | undefined;
 	modifyLastChild(f: (child: C) => number | undefined): number | undefined;
+	dropFirstChild(): C;
+	dropLastChild(): C;
 	build(): Inner<T, any>;
 	buildMap<T2>(f: (value: T) => T2): Inner<T2, any>;
 	normalized(): InnerBuilder<T, C> | undefined;

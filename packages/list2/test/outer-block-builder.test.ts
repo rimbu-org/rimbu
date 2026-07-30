@@ -414,27 +414,27 @@ describe('OuterBlockBuilder.prependItems', () => {
 	it('prepends items from other builder', () => {
 		const b = makeBuilder([3, 4]);
 		const other = makeBuilder([1, 2]);
-		b.prependItems(other);
+		b.prependFrom(other);
 		expect(collectForEach(b)).toEqual([1, 2, 3, 4]);
 		expect(b.size).toBe(4);
 	});
 
 	it('prependItems to empty', () => {
 		const b = makeBuilder<number>([]);
-		b.prependItems(makeBuilder([1, 2]));
+		b.prependFrom(makeBuilder([1, 2]));
 		expect(collectForEach(b)).toEqual([1, 2]);
 	});
 
 	it('prependItems from empty', () => {
 		const b = makeBuilder([1, 2]);
-		b.prependItems(makeBuilder<number>([]));
+		b.prependFrom(makeBuilder<number>([]));
 		expect(collectForEach(b)).toEqual([1, 2]);
 	});
 
 	it('prependItems from source', () => {
 		const b = makeBuilder([3, 4]);
 		const source = makeBuilderFromSource([1, 2]);
-		b.prependItems(source);
+		b.prependFrom(source);
 		expect(collectForEach(b)).toEqual([1, 2, 3, 4]);
 	});
 });
@@ -443,27 +443,27 @@ describe('OuterBlockBuilder.appendItems', () => {
 	it('appends items from other builder', () => {
 		const b = makeBuilder([1, 2]);
 		const other = makeBuilder([3, 4]);
-		b.appendItems(other);
+		b.appendFrom(other);
 		expect(collectForEach(b)).toEqual([1, 2, 3, 4]);
 		expect(b.size).toBe(4);
 	});
 
 	it('appendItems to empty', () => {
 		const b = makeBuilder<number>([]);
-		b.appendItems(makeBuilder([1, 2]));
+		b.appendFrom(makeBuilder([1, 2]));
 		expect(collectForEach(b)).toEqual([1, 2]);
 	});
 
 	it('appendItems from empty', () => {
 		const b = makeBuilder([1, 2]);
-		b.appendItems(makeBuilder<number>([]));
+		b.appendFrom(makeBuilder<number>([]));
 		expect(collectForEach(b)).toEqual([1, 2]);
 	});
 
 	it('appendItems from source', () => {
 		const b = makeBuilder([1, 2]);
 		const source = makeBuilderFromSource([3, 4]);
-		b.appendItems(source);
+		b.appendFrom(source);
 		expect(collectForEach(b)).toEqual([1, 2, 3, 4]);
 	});
 });
@@ -537,7 +537,7 @@ describe('OuterBlockBuilder.edge-cases', () => {
 			const other = makeBuilder<number>(
 				Array.from({ length: 500 }, (_, i) => i),
 			);
-			b.appendItems(other);
+			b.appendFrom(other);
 			expect(b.size).toBe(500);
 		});
 	});

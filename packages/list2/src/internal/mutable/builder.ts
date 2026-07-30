@@ -126,26 +126,26 @@ export class ListBuilder<T>
 		this.#outerBuilder = this.#outerBuilder.normalized();
 	};
 
-	// remove = <O>(index: number, otherwise: OptLazy<O>): T | O => {
-	// 	this.checkLock();
+	remove = <O>(index: number, otherwise: OptLazy<O>): T | O => {
+		this.checkLock();
 
-	// 	if (
-	// 		undefined === this.outerBuilder ||
-	// 		index >= this.length ||
-	// 		-index > this.length
-	// 	) {
-	// 		return OptLazy(otherwise) as O;
-	// 	}
+		if (
+			undefined === this.#outerBuilder ||
+			index >= this.size ||
+			-index > this.size
+		) {
+			return OptLazy(otherwise) as O;
+		}
 
-	// 	if (index < 0) {
-	// 		return this.remove(this.length + index);
-	// 	}
+		if (index < 0) index = this.size + index;
 
-	// 	const result = this.outerBuilder.remove(index);
-	// 	this.outerBuilder = this.outerBuilder.normalized();
+		Int.checkAtLeastZero(index);
 
-	// 	return result;
-	// };
+		const result = this.#outerBuilder.remove(index);
+		this.#outerBuilder = this.#outerBuilder.normalized();
+
+		return result;
+	};
 
 	clear = (): void => {
 		this.checkLock();

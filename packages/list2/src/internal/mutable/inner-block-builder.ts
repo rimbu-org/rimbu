@@ -28,6 +28,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		this.#source = source;
 		this.#_children = children;
 		this.#size = size;
+		this.#_sizeTable = source?.cachedSizeTable;
 	}
 
 	#source?: InnerBlock<T, any> | undefined;
@@ -37,15 +38,12 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 
 	get #sizeTable(): SizeTable {
 		if (undefined === this.#_sizeTable) {
-			if (undefined !== this.#source) {
-				this.#_sizeTable = this.#source.sizeTable;
-			} else {
-				this.#_sizeTable = SizeTable.fromChildren(
-					this.#children,
-					this.context.maxBlockSize,
-					this.size,
-				);
-			}
+			const maxChildSize = 1 << (this.level * this.context.blockSizeBits);
+			this.#_sizeTable = SizeTable.fromChildren(
+				this.#children,
+				maxChildSize,
+				this.size,
+			);
 		}
 
 		return this.#_sizeTable;
@@ -107,6 +105,10 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 	}
 
 	insert(index: Int.AtLeastZero, element: T): void {}
+
+	remove(index: Int.AtLeastZero): T {
+		return 0 as any;
+	}
 
 	prependChild(child: C): void {
 		this.#prepareMutate();
@@ -227,7 +229,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		return this.context.innerBlockBuilder(rightChildren, rightSize, this.level);
 	}
 
-	prependItems(other: InnerBlockBuilder<T, C>): void {
+	prependFrom(other: InnerBlockBuilder<T, C>): void {
 		this.#prepareMutate();
 		other.#prepareMutate();
 		this.#size += other.size;
@@ -250,7 +252,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 				firstChild.nrChildren + child.nrChildren <= this.context.maxBlockSize
 			) {
 				// merge boundary children instead of prepending
-				firstChild.prependItems(child);
+				firstChild.prependFrom(child);
 			} else {
 				toPrepend.push(child);
 			}
@@ -263,7 +265,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		}
 	}
 
-	appendItems(other: InnerBlockBuilder<T, C>): void {
+	appendFrom(other: InnerBlockBuilder<T, C>): void {
 		this.#prepareMutate();
 		other.#prepareMutate();
 		this.#size += other.size;
@@ -286,7 +288,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 				lastChild.nrChildren + child.nrChildren <= this.context.maxBlockSize
 			) {
 				// can merge with last child
-				lastChild.appendItems(child);
+				lastChild.appendFrom(child);
 			} else {
 				this.#children.push(child);
 			}

@@ -106,6 +106,19 @@ export class OuterBlockBuilder<T>
 		this.#children = newChildren;
 	}
 
+	remove(index: Int.AtLeastZero): T {
+		this.#prepareMutate();
+
+		const [newChildren, removed] = this.#ops.mutateSplice(
+			this.#children,
+			index,
+			1,
+		);
+		this.#children = newChildren;
+
+		return this.#ops.at(removed, 0);
+	}
+
 	prependChild(child: T): void {
 		this.prepend(child);
 	}
@@ -180,7 +193,7 @@ export class OuterBlockBuilder<T>
 		return this.#copy(rightChildren);
 	}
 
-	prependItems(other: OuterBlockBuilder<T>): void {
+	prependFrom(other: OuterBlockBuilder<T>): void {
 		this.#prepareMutate();
 
 		if (undefined !== other.#source) {
@@ -190,7 +203,7 @@ export class OuterBlockBuilder<T>
 		}
 	}
 
-	appendItems(other: OuterBlockBuilder<T>): void {
+	appendFrom(other: OuterBlockBuilder<T>): void {
 		this.#prepareMutate();
 
 		if (undefined !== other.#source) {
@@ -198,5 +211,23 @@ export class OuterBlockBuilder<T>
 		} else {
 			this.#children = this.#ops.concat(this.#children, other.#children);
 		}
+	}
+
+	moveTo(other: OuterBlockBuilder<T>, count: number): void {
+		this.#prepareMutate();
+		other.#prepareMutate();
+
+		const [newChildren, moved] = this.#ops.mutateSplice(this.#children, count);
+		this.#children = newChildren;
+		other.#children = this.#ops.concat(other.#children, moved);
+	}
+
+	moveFrom(other: OuterBlockBuilder<T>, count: number): void {
+		this.#prepareMutate();
+		other.#prepareMutate();
+
+		const [newChildren, moved] = this.#ops.mutateSplice(other.#children, count);
+		other.#children = newChildren;
+		this.#children = this.#ops.concat(this.#children, moved);
 	}
 }
