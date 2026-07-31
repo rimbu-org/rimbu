@@ -404,6 +404,116 @@ describe('InnerTree.modifyLastChild', () => {
 	});
 });
 
+describe('InnerTree.filter', () => {
+	const ctx = makeContext<number>(3);
+
+	it('keeps matching elements across left and right', () => {
+		const t = simpleInnerTree([ob(ctx, [1, 2]), ob(ctx, [3])], [ob(ctx, [4, 5])]);
+		const r = t.filter((x) => x % 2 === 0);
+		expect(r.toArray()).toEqual([2, 4]);
+	});
+
+	it('filtering all elements returns non-empty', () => {
+		const t = simpleInnerTree([ob(ctx, [1, 2])], [ob(ctx, [3])]);
+		const r = t.filter(() => true);
+		expect(r.toArray()).toEqual([1, 2, 3]);
+	});
+
+	it('filters with middle block', () => {
+		const t = innerTreeWithMiddle(
+			[ob(ctx, [1, 2])],
+			[[ob(ctx, [3, 4])]],
+			[ob(ctx, [5, 6])],
+		);
+		const r = t.filter((x) => x > 3);
+		expect(r.toArray()).toEqual([4, 5, 6]);
+	});
+
+	it('filtering everything returns empty', () => {
+		const t = simpleInnerTree([ob(ctx, [1, 2])], [ob(ctx, [3])]);
+		const r = t.filter(() => false);
+		expect(r.size).toBe(0);
+	});
+});
+
+describe('InnerTree.dropFirstChild', () => {
+	const ctx = makeContext<number>(2); // max=4, min=2
+
+	it('reduces left and returns first child', () => {
+		const t = simpleInnerTree(
+			[ob(ctx, [1]), ob(ctx, [2, 3])],
+			[ob(ctx, [4])],
+			2,
+		);
+		const [newTree, firstChild] = t.dropFirstChild();
+		expect(firstChild.toArray()).toEqual([1]);
+		expect(collectForEach(newTree!)).toEqual([2, 3, 4]);
+		expect(newTree!.size).toBe(3);
+	});
+
+	it('when left depleted and no middle, returns right block', () => {
+		const t = simpleInnerTree(
+			[ob(ctx, [1])],
+			[ob(ctx, [2, 3])],
+			2,
+		);
+		const [newTree, firstChild] = t.dropFirstChild();
+		expect(firstChild.toArray()).toEqual([1]);
+		expect(collectForEach(newTree!)).toEqual([2, 3]);
+	});
+
+	it('when left depleted and middle exists, shifts from middle', () => {
+		const t = innerTreeWithMiddle(
+			[ob(ctx, [1])],
+			[[ob(ctx, [2, 3])]],
+			[ob(ctx, [4])],
+			2,
+		);
+		const [newTree, firstChild] = t.dropFirstChild();
+		expect(firstChild.toArray()).toEqual([1]);
+		expect(collectForEach(newTree!)).toEqual([2, 3, 4]);
+	});
+});
+
+describe('InnerTree.dropLastChild', () => {
+	const ctx = makeContext<number>(2); // max=4, min=2
+
+	it('reduces right and returns last child', () => {
+		const t = simpleInnerTree(
+			[ob(ctx, [1])],
+			[ob(ctx, [2]), ob(ctx, [3, 4])],
+			2,
+		);
+		const [newTree, lastChild] = t.dropLastChild();
+		expect(lastChild.toArray()).toEqual([3, 4]);
+		expect(collectForEach(newTree!)).toEqual([1, 2]);
+		expect(newTree!.size).toBe(2);
+	});
+
+	it('when right depleted and no middle, returns left block', () => {
+		const t = simpleInnerTree(
+			[ob(ctx, [1, 2])],
+			[ob(ctx, [3])],
+			2,
+		);
+		const [newTree, lastChild] = t.dropLastChild();
+		expect(lastChild.toArray()).toEqual([3]);
+		expect(collectForEach(newTree!)).toEqual([1, 2]);
+	});
+
+	it('when right depleted and middle exists, shifts from middle', () => {
+		const t = innerTreeWithMiddle(
+			[ob(ctx, [1])],
+			[[ob(ctx, [2, 3])]],
+			[ob(ctx, [4])],
+			2,
+		);
+		const [newTree, lastChild] = t.dropLastChild();
+		expect(lastChild.toArray()).toEqual([4]);
+		expect(collectForEach(newTree!)).toEqual([1, 2, 3]);
+	});
+});
+
 describe('InnerTree.map', () => {
 	const ctx = makeContext<number>(3);
 
