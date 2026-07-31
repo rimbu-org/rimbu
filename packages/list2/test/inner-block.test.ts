@@ -463,6 +463,196 @@ describe('InnerBlock.child-manipulation', () => {
 	});
 });
 
+describe('InnerBlock._update', () => {
+	const ctx = makeContext<number>(3);
+
+	it('updates element in first child', () => {
+		const b = inner(ctx, [ob(ctx, [1, 2]), ob(ctx, [3, 4])]);
+		const [r, hasResult, [prev, curr], hasChanged] = b._update(
+			0 as Int.AtLeastZero,
+			(x) => x + 10,
+		);
+		expect(hasResult).toBe(true);
+		expect(hasChanged).toBe(true);
+		expect(prev).toBe(1);
+		expect(curr).toBe(11);
+		expect(r.toArray()).toEqual([11, 2, 3, 4]);
+	});
+
+	it('updates element across child boundary', () => {
+		const b = inner(ctx, [ob(ctx, [1, 2]), ob(ctx, [3, 4])]);
+		const [r, , [prev, curr]] = b._update(
+			2 as Int.AtLeastZero,
+			(x) => x + 100,
+		);
+		expect(prev).toBe(3);
+		expect(curr).toBe(103);
+		expect(r.toArray()).toEqual([1, 2, 103, 4]);
+	});
+
+	it('returns same reference when function returns same value', () => {
+		const b = inner(ctx, [ob(ctx, [1, 2]), ob(ctx, [3])]);
+		const [r, , , hasChanged] = b._update(
+			0 as Int.AtLeastZero,
+			(x) => x,
+		);
+		expect(r).toBe(b);
+		expect(hasChanged).toBe(false);
+	});
+
+	it('does not mutate original', () => {
+		const b = inner(ctx, [ob(ctx, [1, 2])]);
+		b._update(0 as Int.AtLeastZero, (x) => x + 10);
+		expect(b.toArray()).toEqual([1, 2]);
+	});
+});
+
+describe('InnerBlock.filter', () => {
+	const ctx = makeContext<number>(4);
+
+	it('keeps matching elements', () => {
+		const b = inner(ctx, [ob(ctx, [1, 2]), ob(ctx, [3, 4, 5])]);
+		const r = b.filter((x) => x % 2 === 0);
+		expect(r.toArray()).toEqual([2, 4]);
+	});
+
+	it('keeping all elements preserves elements', () => {
+		const b = inner(ctx, [ob(ctx, [1, 2]), ob(ctx, [3])]);
+		const r = b.filter(() => true);
+		expect(r.toArray()).toEqual([1, 2, 3]);
+	});
+
+	it('filtering everything returns empty', () => {
+		const b = inner(ctx, [ob(ctx, [1, 2])]);
+		const r = b.filter(() => false);
+		expect(r.size).toBe(0);
+	});
+});
+
+describe('InnerBlock.takeChildren', () => {
+	const ctx = makeContext<number>(2); // max=4
+
+	it('takes first n children', () => {
+		const children = [ob(ctx, [1]), ob(ctx, [2]), ob(ctx, [3]), ob(ctx, [4])];
+		const b = inner(ctx, children);
+		const r = b.takeChildren(2);
+		expect(r!._nrChildren).toBe(2);
+		expect(r!.toArray()).toEqual([1, 2]);
+	});
+
+	it('returns null for zero or negative', () => {
+		const b = inner(ctx, [ob(ctx, [1]), ob(ctx, [2])]);
+		expect(b.takeChildren(0)).toBeNull();
+	});
+
+	it('returns this when taking all or more', () => {
+		const b = inner(ctx, [ob(ctx, [1]), ob(ctx, [2])]);
+		expect(b.takeChildren(2)).toBe(b);
+		expect(b.takeChildren(5)).toBe(b);
+	});
+
+	it('does not mutate original', () => {
+		const children = [ob(ctx, [1]), ob(ctx, [2]), ob(ctx, [3])];
+		const b = inner(ctx, children);
+		b.takeChildren(1);
+		expect(b.toArray()).toEqual([1, 2, 3]);
+	});
+});
+
+describe('InnerBlock.dropChildren', () => {
+	const ctx = makeContext<number>(2);
+
+	it('drops first n children', () => {
+		const children = [ob(ctx, [1]), ob(ctx, [2]), ob(ctx, [3]), ob(ctx, [4])];
+		const b = inner(ctx, children);
+		const r = b.dropChildren(2);
+		expect(r!._nrChildren).toBe(2);
+		expect(r!.toArray()).toEqual([3, 4]);
+	});
+
+	it('returns null for zero or negative', () => {
+		const b = inner(ctx, [ob(ctx, [1]), ob(ctx, [2])]);
+		expect(b.dropChildren(0)).toBeNull();
+	});
+
+	it('returns this when dropping all or more', () => {
+		const b = inner(ctx, [ob(ctx, [1]), ob(ctx, [2])]);
+		expect(b.dropChildren(2)).toBe(b);
+		expect(b.dropChildren(5)).toBe(b);
+	});
+});
+
+describe('InnerBlock.prependBlock', () => {
+	const ctx = makeContext<number>(2); // maxBlockSize=4
+
+	it('merges into single block when combined fits', () => {
+		const left = inner(ctx, [ob(ctx, [1]), ob(ctx, [2])]);
+		const right = inner(ctx, [ob(ctx, [3])]);
+		const r = right.prependBlock(left);
+		expect(r.toArray()).toEqual([1, 2, 3]);
+		expect(r.size).toBe(3);
+	});
+
+	it('creates InnerTree when combined exceeds maxBlockSize', () => {
+		const left = inner(ctx, [
+			ob(ctx, [1]),
+			ob(ctx, [2]),
+			ob(ctx, [3]),
+			ob(ctx, [4]),
+		]);
+		const right = inner(ctx, [ob(ctx, [5])]);
+		const r = right.prependBlock(left);
+		expect(r.toArray()).toEqual([1, 2, 3, 4, 5]);
+		expect(r).toHaveProperty('left');
+		expect(r).toHaveProperty('right');
+		expect(r).toHaveProperty('middle');
+	});
+});
+
+describe('InnerBlock.prependTree', () => {
+	const ctx = makeContext<number>(2); // max=4, min=2
+	const level = 1;
+
+	it('Case 1: joint fits in block — merge right of tree into this', () => {
+		const treeLeft = inner(ctx, [ob(ctx, [1])], level);
+		const treeRight = inner(ctx, [ob(ctx, [3])], level);
+		const tree = ctx.innerTree(treeLeft, treeRight, null, 2, level + 1);
+		const block = inner(ctx, [ob(ctx, [4])], level);
+		// block.prependTree(tree): joint = tree.right + block = [3] + [4] = 2 ≤ 4
+		const r = block.prependTree(tree);
+		expect(r.toArray()).toEqual([1, 3, 4]);
+		expect(r.size).toBe(3);
+	});
+
+	it('Case 2: joint too large for block, push right to middle', () => {
+		const treeLeft = inner(ctx, [ob(ctx, [1])], level);
+		const treeRight = inner(ctx, [ob(ctx, [3, 4])], level); // 2 ≥ min=2 → hasEnoughChildren
+		const tree = ctx.innerTree(treeLeft, treeRight, null, 3, level + 1);
+		const block = inner(ctx, [ob(ctx, [5, 6]), ob(ctx, [7])], level); // 2 children
+		// block.prependTree(tree): joint = [3,4] + [5,6,7] = 5 > max=4
+		// tree.right._hasEnoughChildren (2 ≥ 2) → push to middle
+		const r = block.prependTree(tree);
+		expect(r.toArray()).toEqual([1, 3, 4, 5, 6, 7]);
+		expect(r.size).toBe(6);
+	});
+
+	it('Case 3: split joint', () => {
+		const treeLeft = inner(ctx, [ob(ctx, [1])], level);
+		const treeRight = inner(ctx, [ob(ctx, [3])], level); // 1 < min=2
+		const tree = ctx.innerTree(treeLeft, treeRight, null, 2, level + 1);
+		const block = inner(ctx, [
+			ob(ctx, [4]),
+			ob(ctx, [5]),
+			ob(ctx, [6]),
+			ob(ctx, [7]),
+		], level);
+		// block.prependTree(tree): joint > max, tree.right < min → split
+		const r = block.prependTree(tree);
+		expect(r.toArray()).toEqual([1, 3, 4, 5, 6, 7]);
+		expect(r.size).toBe(6);
+	});
+});
+
 describe('InnerBlock.map', () => {
 	const ctx = makeContext<number>(4);
 
