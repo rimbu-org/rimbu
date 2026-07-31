@@ -570,9 +570,9 @@ describe('InnerBlock.dropChildren', () => {
 		expect(r!.toArray()).toEqual([3, 4]);
 	});
 
-	it('returns null for zero or negative', () => {
+	it('returns this for zero (nothing dropped)', () => {
 		const b = inner(ctx, [ob(ctx, [1]), ob(ctx, [2])]);
-		expect(b.dropChildren(0)).toBeNull();
+		expect(b.dropChildren(0)).toBe(b);
 	});
 
 	it('returns this when dropping all or more', () => {
@@ -650,6 +650,60 @@ describe('InnerBlock.prependTree', () => {
 		const r = block.prependTree(tree);
 		expect(r.toArray()).toEqual([1, 3, 4, 5, 6, 7]);
 		expect(r.size).toBe(6);
+	});
+});
+
+describe('InnerBlock.takeInternal', () => {
+	const ctx = makeContext<number>(3); // max=8
+
+	it('returns first children and boundary child with offset', () => {
+		const b = inner(ctx, [ob(ctx, [1, 2]), ob(ctx, [3, 4, 5]), ob(ctx, [6, 7])]);
+		const [newInner, lastChild, lastChildCount] = b.takeInternal(
+			3 as Int.AtLeastZero,
+		);
+		expect(newInner!._nrChildren).toBe(1);
+		expect(newInner!.toArray()).toEqual([1, 2]);
+		expect(lastChild.toArray()).toEqual([3, 4, 5]);
+		expect(lastChildCount).toBe(1);
+	});
+
+	it('returns null inner and full last child when amount aligns at child boundary', () => {
+		const b = inner(ctx, [ob(ctx, [1, 2]), ob(ctx, [3, 4])]);
+		const [newInner, lastChild, lastChildCount] = b.takeInternal(
+			2 as Int.AtLeastZero,
+		);
+		// first child has exactly 2 elements, forTake returns all from first
+		expect(newInner).toBeNull();
+		expect(lastChild.toArray()).toEqual([1, 2]);
+		expect(lastChildCount).toBe(2);
+	});
+});
+
+describe('InnerBlock.dropInternal', () => {
+	const ctx = makeContext<number>(3); // max=8
+
+	it('returns remaining children after dropping first n elements (currently uses takeChildren — bug)', () => {
+		const b = inner(ctx, [ob(ctx, [1, 2]), ob(ctx, [3, 4, 5]), ob(ctx, [6, 7])]);
+		// drop 3: skip first child (2 elems) and 1 from second → need childIndex=1
+		const [newInner, lastChild, lastChildCount] = b.dropInternal(
+			3 as Int.AtLeastZero,
+		);
+		// with fix: newInner = dropChildren(1) = [ob([3,4,5]), ob([6,7])] → [3,4,5,6,7]
+		// with bug: newInner = takeChildren(1) = [ob([1,2])] → [1,2]
+		expect(newInner!.toArray()).toEqual([3, 4, 5, 6, 7]);
+		expect(lastChild.toArray()).toEqual([3, 4, 5]);
+		expect(lastChildCount).toBe(1);
+	});
+
+	it('drop at exact child boundary returns remaining children', () => {
+		const b = inner(ctx, [ob(ctx, [1, 2]), ob(ctx, [3, 4])]);
+		const [newInner, lastChild, lastChildCount] = b.dropInternal(
+			2 as Int.AtLeastZero,
+		);
+		// dropChildren(0) now returns `this` — all children preserved
+		expect(newInner!.toArray()).toEqual([1, 2, 3, 4]);
+		expect(lastChild.toArray()).toEqual([1, 2]);
+		expect(lastChildCount).toBe(2);
 	});
 });
 
