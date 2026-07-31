@@ -466,4 +466,64 @@ export class InnerBlock<T, C extends Self<Block<T>, C>>
 	toArray(): T[] {
 		return this.#children.flatMap((child) => child.toArray());
 	}
+
+	_verifyStructure(
+		messages: string[] = [],
+		enforceMinChildren = false,
+	): string[] {
+		if (enforceMinChildren && !this._childrenInMin) {
+			messages.push(
+				`InnerBlock of level ${this.level} has fewer children than allowed: ${this._nrChildren} < ${this.context.minBlockSize}`,
+			);
+		}
+		if (!this._childrenInMax) {
+			messages.push(
+				`InnerBlock of level ${this.level} has more children than allowed: ${this._nrChildren} > ${this.context.maxBlockSize}`,
+			);
+		}
+
+		let length = 0;
+		for (const child of this.#children) {
+			length += child.size;
+			child._verifyStructure(messages, true);
+		}
+		if (length !== this.size) {
+			messages.push(
+				`InnerBlock of level ${this.level} has size ${this.size} but sum of child lengths is ${length}.`,
+			);
+		}
+
+		const sizeTable = SizeTable.fromChildren(
+			this.#children,
+			1 << (this.level * this.context.blockSizeBits),
+			this.size,
+		);
+
+		// Verify size table consistency.
+		if (undefined !== this.#_sizeTable) {
+			if (sizeTable.nrChildren !== this.#_sizeTable.nrChildren) {
+				messages.push(
+					`InnerBlock of level ${this.level} has inconsistent size table length: expected ${sizeTable.nrChildren} but found ${this.#_sizeTable.nrChildren}.`,
+				);
+			}
+
+			for (let i = 0; i < sizeTable.nrChildren; i++) {
+				if (sizeTable.sizeChildAt(i) !== this.#_sizeTable.sizeChildAt(i)) {
+					messages.push(
+						`InnerBlock of level ${this.level} has inconsistent size table entry ${i}: expected ${sizeTable.sizeChildAt(
+							i,
+						)} but found ${this.#_sizeTable.sizeChildAt(i)}.`,
+					);
+				}
+			}
+		} else {
+			if (sizeTable.totalSize !== this.size) {
+				messages.push(
+					`InnerBlock of level ${this.level} has inconsistent size table total size: expected ${sizeTable.totalSize} but found ${this.size}.`,
+				);
+			}
+		}
+
+		return messages;
+	}
 }

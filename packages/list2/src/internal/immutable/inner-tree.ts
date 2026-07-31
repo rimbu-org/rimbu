@@ -739,6 +739,41 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 		return this.context.innerTreeBuilderSource(this);
 	}
 
+	_verifyStructure(messages: string[] = []): string[] {
+		if (this.left.level !== this.level) {
+			messages.push(
+				`InnerTree has left block with wrong level: ${this.left.level} != ${this.level}`,
+			);
+		}
+		if (this.right.level !== this.level) {
+			messages.push(
+				`InnerTree has right block with wrong level: ${this.right.level} != ${this.level}`,
+			);
+		}
+		if (this.middle && this.middle.level !== this.level + 1) {
+			messages.push(
+				`InnerTree has middle with wrong level: ${this.middle.level} != ${this.level + 1}`,
+			);
+		}
+		if (null === this.middle) {
+			if (
+				this.left._nrChildren + this.right._nrChildren <=
+				this.context.maxBlockSize
+			) {
+				messages.push(
+					`InnerTree can merge left and right, they have too few children: ${this.left._nrChildren} + ${this.right._nrChildren} <= ${this.context.maxBlockSize}`,
+				);
+			}
+		} else {
+		}
+
+		this.left._verifyStructure(messages, false);
+		this.middle?._verifyStructure(messages, false);
+		this.right._verifyStructure(messages, false);
+
+		return messages;
+	}
+
 	// #normalize(): Inner<T, C> {
 	// 	if (null === this.middle) {
 	// 		if (

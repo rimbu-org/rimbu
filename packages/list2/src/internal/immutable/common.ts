@@ -38,6 +38,7 @@ interface ListNode<T> {
 		index: Int.AtLeastZero,
 		f: (element: T) => T,
 	): OpWithResult<this['_self'], [previous: T, current: T], true>;
+	_verifyStructure(errors?: string[], enforceChildren?: boolean): string[];
 }
 
 /**
@@ -81,6 +82,8 @@ export interface Tree<T, C extends Self<Block<T>, C> = Self<Block<T>>>
  */
 export interface Inner<T, C extends Self<Block<T>, C>> extends ListNode<T> {
 	_self: Inner<T, C>;
+
+	readonly level: number;
 
 	map<T2>(f: (element: T) => T2): Inner<T2, any>;
 	prependChild(child: C): Inner<T, C>;

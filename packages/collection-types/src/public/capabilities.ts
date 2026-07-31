@@ -143,8 +143,6 @@ export declare namespace IndexedCollection {
 		readonly context: {
 			__types: IndexedCollection.Types.NonEmpty<E>;
 		};
-
-		drop(amount: number): this['context']['__types']['_NORMAL'];
 	}
 
 	export interface Builder<E> extends Collection.Builder<E> {

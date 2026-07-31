@@ -620,4 +620,24 @@ export class OuterTree<T>
 			this.context.innerBlock<T, OuterBlock<T>>([block], block.size, 1)
 		);
 	}
+
+	_verifyStructure(messages: string[] = []): string[] {
+		if (this.size <= this.context.maxBlockSize) {
+			messages.push(
+				`OuterTree size ${this.size} is less than or equal to maxBlockSize ${this.context.maxBlockSize}, should be an OuterBlock`,
+			);
+		}
+
+		if (null !== this.middle && this.size <= this.context.maxBlockSize * 2) {
+			messages.push(
+				`OuterTree size ${this.size} is less than or equal to 2 * maxBlockSize ${this.context.maxBlockSize * 2} but has a middle.`,
+			);
+		}
+
+		this.left._verifyStructure(messages);
+		this.middle?._verifyStructure(messages);
+		this.right._verifyStructure(messages);
+
+		return messages;
+	}
 }

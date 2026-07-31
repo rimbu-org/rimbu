@@ -284,4 +284,22 @@ export abstract class OuterBlock<T>
 
 		return this.context.outerTree(leftTree.left, newRight, newMiddle, newSize);
 	}
+
+	_verifyStructure(
+		errors: string[] = [],
+		enforceMinChildren = false,
+	): string[] {
+		if (enforceMinChildren && !this._childrenInMin) {
+			errors.push(
+				`OuterBlock has fewer children than allowed: ${this._nrChildren} < ${this.context.minBlockSize}`,
+			);
+		}
+		if (!this._childrenInMax) {
+			errors.push(
+				`OuterBlock has more children than allowed: ${this._nrChildren} > ${this.context.maxBlockSize}`,
+			);
+		}
+
+		return errors;
+	}
 }
