@@ -755,14 +755,14 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 				`InnerTree has middle with wrong level: ${this.middle.level} != ${this.level + 1}`,
 			);
 		}
-		if (this.left._nrChildren < this.context.minBlockSize) {
+		if (this.left._nrChildren < 1) {
 			messages.push(
-				`InnerTree left block has too few children: ${this.left._nrChildren} < ${this.context.minBlockSize}`,
+				`InnerTree left block has too few children: ${this.left._nrChildren} < 1`,
 			);
 		}
-		if (this.right._nrChildren < this.context.minBlockSize) {
+		if (this.right._nrChildren < 1) {
 			messages.push(
-				`InnerTree right block has too few children: ${this.right._nrChildren} < ${this.context.minBlockSize}`,
+				`InnerTree right block has too few children: ${this.right._nrChildren} < 1`,
 			);
 		}
 		if (null === this.middle) {

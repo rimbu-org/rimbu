@@ -225,12 +225,36 @@ export class InnerBlock<T, C extends Self<Block<T>, C>>
 		return this.#copy(newChildren, this.size - oldChild.size + child.size);
 	}
 
-	prependChild(child: C): InnerBlock<T, C> {
-		return this._prependBlockChild(child);
+	prependChild(child: C): Inner<T, C> {
+		if (this._canAddChild) {
+			return this._prependBlockChild(child);
+		}
+
+		const newSize = this.size + child.size;
+
+		return this.context.innerTree(
+			this.context.innerBlock([child], child.size, this.level),
+			this,
+			null,
+			newSize,
+			this.level,
+		);
 	}
 
-	appendChild(child: C): InnerBlock<T, C> {
-		return this._appendBlockChild(child);
+	appendChild(child: C): Inner<T, C> {
+		if (this._canAddChild) {
+			return this._appendBlockChild(child);
+		}
+
+		const newSize = this.size + child.size;
+
+		return this.context.innerTree(
+			this,
+			this.context.innerBlock([child], child.size, this.level),
+			null,
+			newSize,
+			this.level,
+		);
 	}
 
 	dropFirstChild(): [InnerBlock<T, C> | null, C] {

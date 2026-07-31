@@ -103,7 +103,8 @@ An inner block of level $\ell \geq 1$ holds an ordered array of child nodes. The
 
 **Invariants:**
 - Contains between $\text{minBlockSize}$ and $\text{maxBlockSize}$ children inclusive.
-  - Exception: an inner block that appears as the sole middle child of an outer spine or inner spine may contain as few as 1 child (it acts as a root at its level).
+  - Exception: an inner block that appears as the left or right child of an inner spine, or as the sole middle child of an outer spine or inner spine, may contain as few as 1 child (boundary blocks and root-level middle blocks are exempt from the usual minimum fill requirement).
+  - When an inner block is a child of another inner block, it must satisfy $\text{minBlockSize}$ — its children are neither spine boundaries nor roots, so the full minimum applies.
 - All children have the same type (all outer blocks, or all inner blocks of level $\ell - 1$).
 - All children at the same level contain elements; the number of elements in a child of a level 1 inner block is between $\text{minBlockSize}$ and $\text{maxBlockSize}$.
 
@@ -118,7 +119,7 @@ An inner spine of level $\ell \geq 1$ is the inner equivalent of the outer spine
 - **right**: an inner block of level $\ell$
 
 **Invariants:**
-- $|left| \geq \text{minBlockSize}$ and $|right| \geq \text{minBlockSize}$ (where $|\cdot|$ counts direct children, not elements).
+- $|left| \geq 1$ and $|right| \geq 1$ (where $|\cdot|$ counts direct children, not elements). Left and right blocks of an inner spine are boundary blocks and are exempt from the $\text{minBlockSize}$ requirement — they may contain as few as 1 child, mirroring the outer spine's relaxed lower bound for its boundary blocks.
 - The total number of direct children (across left, middle's children, and right) exceeds $\text{maxBlockSize}$ (otherwise a single inner block suffices).
 - If middle is $\emptyset$, the total number of direct children is at most $2 \cdot \text{maxBlockSize}$.
 - If middle is non-$\emptyset$, it has level $\ell + 1$.

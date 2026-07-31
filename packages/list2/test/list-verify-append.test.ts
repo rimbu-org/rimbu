@@ -37,4 +37,25 @@ for (const blockSizeBits of blockSizeBitsValues) {
 			);
 		});
 	});
+
+	describe(`prepend verification (blockSizeBits=${blockSizeBits}, maxBlockSize=${maxBlockSize})`, () => {
+		it('successive prepends maintain valid structure', () => {
+			const ctx = List.createContext({ blockSizeBits });
+			let list: List<number> = ctx.empty<number>();
+
+			const totalElements = maxBlockSize * maxBlockSize * 4;
+
+			for (let i = 1; i <= totalElements; i++) {
+				list = list.prepend(i);
+
+				const errors = verifyStructure(list);
+				expect(errors).toEqual([]);
+			}
+
+			expect(list.size).toBe(totalElements);
+			expect(list.toArray()).toEqual(
+				Array.from({ length: totalElements }, (_, i) => totalElements - i),
+			);
+		});
+	});
 }
