@@ -990,8 +990,12 @@ function runOuterBlockTests(
 			});
 
 			it('returns unchanged reference when function returns same value', () => {
-				const [r, hasChanged] = b.updateAtAndReturn(2, (x) => x);
+				const [r, hasResult, [prev, curr], hasChanged] =
+					b.updateAtAndReturn(2, (x) => x);
 				expect(r).toBe(b);
+				expect(hasResult).toBe(true);
+				expect(prev).toBe(30);
+				expect(curr).toBe(30);
 				expect(hasChanged).toBe(false);
 			});
 

@@ -488,7 +488,7 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 		const newSize = leftBlock.size + this.size;
 
 		if (
-			leftBlock._nrChildren + this.right._nrChildren <=
+			leftBlock._nrChildren + this.left._nrChildren <=
 			this.context.maxBlockSize
 		) {
 			// prepend to left
@@ -499,7 +499,7 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 
 		if (this.left._hasEnoughChildren) {
 			// move current left to middle
-			const newMiddle = this.prependMiddleBlock(this.right);
+			const newMiddle = this.prependMiddleBlock(this.left);
 
 			return this.copy(leftBlock, undefined, newMiddle, newSize);
 			//._normalize();
@@ -531,7 +531,7 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 		const jointNrChildren = leftTree.right._nrChildren + this.left._nrChildren;
 
 		// Case 1: Joint is too small (underflow) — must merge with neighbors
-		if (jointNrChildren <= this.context.minBlockSize) {
+		if (jointNrChildren < this.context.minBlockSize) {
 			if (null === this.middle) {
 				//this  left + right > maxBlockSize, otherwise would be single block
 				const toLeftMiddleChildren = leftTree.right.concatChildren(
