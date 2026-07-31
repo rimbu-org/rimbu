@@ -12,32 +12,22 @@ import { createListContextModule } from '#list/context';
 
 export type OpWithResult<
 	Col,
-	Res extends unknown[],
+	Res,
 	HasKnownResult extends boolean = boolean,
 	CollectionChanged extends boolean = boolean,
 > = [
 	collection: Col,
-	result: [hasKnownResult: HasKnownResult, ...Res],
-	collectioChanged: CollectionChanged,
+	hasKnownResult: HasKnownResult,
+	result: Res,
+	collectionChanged: CollectionChanged,
 ];
-
-export type OpWithKnownResult<
-	Col,
-	Res extends unknown[],
-	ResKnown extends Res,
-	CollectionChanged extends boolean = boolean,
-> =
-	| OpWithResult<Col, ResKnown, true, CollectionChanged>
-	| OpWithResult<Col, Res, false, CollectionChanged>;
 
 export type OpWithChangeResult<
 	Col,
-	Res extends unknown[],
+	Res,
 	ResKnown extends Res = Res,
 	ColChanged = Col,
-> =
-	| OpWithKnownResult<Col, Res, ResKnown, false>
-	| OpWithKnownResult<ColChanged, Res, ResKnown, true>;
+> = OpWithResult<Col, Res, false> | OpWithResult<ColChanged, ResKnown, true>;
 
 export interface List<T> extends IndexedCollection<T>, List.Capabilities<T> {
 	readonly context: List.Context<T>;
@@ -55,7 +45,7 @@ export declare namespace List {
 		updateAt(
 			index: number,
 			f: (element: T) => T,
-		): [oldValue: T, newValue: T] | undefined;
+		): [previous: T, current: T] | undefined;
 		swapAt(index1: number, index2: number): void;
 		prepend(element: T): void;
 		prependAll(elements: StreamSource<T>): void;
@@ -74,21 +64,28 @@ export declare namespace List {
 	}
 
 	export interface WithSetAt<E> extends IndexedCollection<E> {
-		setAt(
+		setAt(index: number, element: E): this['context']['__types']['_SELF'];
+		setAtAndReturn(
 			index: number,
-			value: E,
-		): OpWithKnownResult<
+			element: E,
+		): OpWithChangeResult<
 			this['context']['__types']['_SELF'],
-			[oldValue: E | undefined],
-			[oldValue: E]
+			E | undefined,
+			E,
+			this['context']['__types']['_NON_EMPTY']
 		>;
 		updateAt(
 			index: number,
 			f: (element: E) => E,
-		): OpWithKnownResult<
+		): this['context']['__types']['_SELF'];
+		updateAtAndReturn(
+			index: number,
+			f: (element: E) => E,
+		): OpWithChangeResult<
 			this['context']['__types']['_SELF'],
-			[oldValue: E | undefined, newValue: E | undefined],
-			[oldValue: E, newValue: E]
+			[previous: E | undefined, current: E | undefined],
+			[previous: E, current: E],
+			this['context']['__types']['_NON_EMPTY']
 		>;
 	}
 

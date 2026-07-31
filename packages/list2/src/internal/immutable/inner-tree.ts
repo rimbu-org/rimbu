@@ -65,7 +65,7 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 	_update(
 		index: Int.AtLeastZero,
 		f: (element: T) => T,
-	): OpWithResult<InnerTree<T, C>, [oldValue: T, newValue: T], true> {
+	): OpWithResult<InnerTree<T, C>, [previous: T, current: T], true> {
 		return treeUpdate(this as InnerTree<T, C>, index, f);
 	}
 

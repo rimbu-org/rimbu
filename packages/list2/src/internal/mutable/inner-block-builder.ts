@@ -94,7 +94,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		return this.#children[childIndex].get(inChildIndex);
 	}
 
-	update(index: number, f: (element: T) => T): [oldValue: T, newValue: T] {
+	update(index: number, f: (element: T) => T): [previous: T, current: T] {
 		this.#prepareMutate();
 		const [childIndex, inChildIndex] = this.#sizeTable.getCoordinates(index);
 

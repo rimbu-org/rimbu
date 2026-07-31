@@ -86,7 +86,7 @@ export interface ChildrenOps<Tp extends ChildrenOps.Types = ChildrenOps.Types> {
 		children: (Tp & { _T: T })['_C'],
 		index: number,
 		update: (current: T) => T,
-	): OpWithResult<(Tp & { _T: T })['_C'], [oldValue: T, newValue: T], true>;
+	): OpWithResult<(Tp & { _T: T })['_C'], [previous: T, current: T], true>;
 
 	// -- immutable bulk transformations -------------------------------------
 	/** New collection with `value` prepended. */
@@ -160,7 +160,7 @@ export interface ChildrenOps<Tp extends ChildrenOps.Types = ChildrenOps.Types> {
 		children: (Tp & { _T: T })['_C'],
 		index: number,
 		f: (value: T) => T,
-	): [result: (Tp & { _T: T })['_C'], oldValue: T, newValue: T];
+	): [result: (Tp & { _T: T })['_C'], previous: T, current: T];
 	/** Prepend `value` in place. Returns the same reference. */
 	mutatePrepend<T>(
 		children: (Tp & { _T: T })['_C'],

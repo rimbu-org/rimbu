@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'bun:test';
 
 import type { Int } from '@rimbu/base';
+
 import type { ListContext } from '#list/context';
 import type { OuterBlockBuilder } from '#list/mutable/outer-block-builder';
 
@@ -322,8 +323,8 @@ describe('OuterTreeBuilder.edge-cases', () => {
 			}
 			const list = b.build();
 			expect(list.toArray()).toEqual(Array.from({ length: 20 }, (_, i) => i));
-		expect(list.at(0)).toBe(0);
-		expect(list.at(19)).toBe(19);
+			expect(list.at(0)).toBe(0);
+			expect(list.at(19)).toBe(19);
 		});
 
 		it('List.builder prepend order is correct', () => {

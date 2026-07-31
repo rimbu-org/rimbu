@@ -1,3 +1,5 @@
+import type { OpWithResult } from '@rimbu/list';
+
 import type { ChildrenOps, OuterChildren } from '#advanced/children-ops';
 
 import {
@@ -6,7 +8,6 @@ import {
 	OptLazy,
 	TraverseState,
 } from '@rimbu/common';
-import type { OpWithResult } from '@rimbu/list';
 import { Stream } from '@rimbu/stream';
 
 export class ArrayOuterChildrenOps
@@ -35,15 +36,15 @@ export class ArrayOuterChildrenOps
 		children: T[],
 		index: number,
 		update: (current: T) => T,
-	): OpWithResult<T[], [oldValue: T, newValue: T], true> {
-		const current = children.at(index)!;
-		const newValue = update(current);
+	): OpWithResult<T[], [previous: T, current: T], true> {
+		const previous = children.at(index)!;
+		const current = update(previous);
 
-		if (Object.is(current, newValue)) {
-			return [children, [true, current, newValue], false];
+		if (Object.is(previous, current)) {
+			return [children, true, [previous, current], false];
 		}
 
-		return [children.with(index, newValue), [true, current, newValue], true];
+		return [children.with(index, current), true, [previous, current], true];
 	}
 	stream<T>(
 		children: T[],
@@ -213,11 +214,11 @@ export class ArrayOuterChildrenOps
 		children: T[],
 		index: number,
 		f: (value: T) => T,
-	): [result: T[], oldValue: T, newValue: T] {
-		const oldValue = children[index];
-		const newValue = f(oldValue);
-		children[index] = newValue;
-		return [children, oldValue, newValue];
+	): [result: T[], previous: T, current: T] {
+		const previous = children[index];
+		const current = f(previous);
+		children[index] = current;
+		return [children, previous, current];
 	}
 	mutatePrepend<T>(children: T[], value: T): T[] {
 		children.unshift(value);

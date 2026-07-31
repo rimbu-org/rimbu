@@ -9,7 +9,7 @@ export interface BuilderCommon<T, C> {
 	update(
 		index: Int.AtLeastZero,
 		f: (element: T) => T,
-	): [oldValue: T, newValue: T];
+	): [previous: T, current: T];
 	forEach(f: (element: T) => void): void;
 	insert(index: Int.AtLeastZero, element: T): void;
 	remove(index: Int.AtLeastZero): T;

@@ -44,30 +44,50 @@ export function treeUpdate<T, TR extends Tree<T> & { _self: TR }>(
 	tree: TR,
 	index: Int.AtLeastZero,
 	f: (element: T) => T,
-): OpWithResult<TR, [oldValue: T, newValue: T], true> {
+): OpWithResult<TR, [previous: T, current: T], true> {
 	const middleIndex = index - tree.left.size;
 
 	if (!Int.isAtLeastZero(middleIndex)) {
-		const [newLeft, result, hasChanged] = tree.left._update(index, f);
-		const newTree = tree.copy(newLeft);
-		return [newTree, result, hasChanged];
+		const [newLeft, hasResult, result, hasChanged] = tree.left._update(
+			index,
+			f,
+		);
+
+		const newTree = hasResult ? tree.copy(newLeft) : tree;
+
+		return [newTree, hasResult, result, hasChanged];
 	}
 
 	if (null === tree.middle) {
-		const [newRight, result, hasChanged] = tree.right._update(middleIndex, f);
-		const newTree = tree.copy(undefined, newRight);
-		return [newTree, result, hasChanged];
+		const [newRight, hasResult, result, hasChanged] = tree.right._update(
+			middleIndex,
+			f,
+		);
+
+		const newTree = hasResult ? tree.copy(undefined, newRight) : tree;
+		return [newTree, hasResult, result, hasChanged];
 	}
 
 	const rightIndex = middleIndex - tree.middle.size;
 
 	if (!Int.isAtLeastZero(rightIndex)) {
-		const [newMiddle, result, hasChanged] = tree.middle._update(middleIndex, f);
-		const newTree = tree.copy(undefined, undefined, newMiddle);
-		return [newTree, result, hasChanged];
+		const [newMiddle, hasResult, result, hasChanged] = tree.middle._update(
+			middleIndex,
+			f,
+		);
+
+		const newTree = hasResult
+			? tree.copy(undefined, undefined, newMiddle)
+			: tree;
+
+		return [newTree, hasResult, result, hasChanged];
 	}
 
-	const [newRight, result, hasChanged] = tree.right._update(rightIndex, f);
-	const newTree = tree.copy(undefined, newRight);
-	return [newTree, result, hasChanged];
+	const [newRight, hasResult, result, hasChanged] = tree.right._update(
+		rightIndex,
+		f,
+	);
+
+	const newTree = hasResult ? tree.copy(undefined, newRight) : tree;
+	return [newTree, hasResult, result, hasChanged];
 }

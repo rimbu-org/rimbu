@@ -84,16 +84,16 @@ export class OuterBlockBuilder<T>
 		return this.#ops.at(this.#children, index);
 	}
 
-	update(index: number, f: (element: T) => T): [oldValue: T, newValue: T] {
+	update(index: number, f: (element: T) => T): [previous: T, current: T] {
 		this.#prepareMutate();
-		const [newChildren, oldValue, newValue] = this.#ops.mutateUpdate(
+		const [newChildren, previous, current] = this.#ops.mutateUpdate(
 			this.#children,
 			index,
 			f,
 		);
 		this.#children = newChildren;
 
-		return [oldValue, newValue];
+		return [previous, current];
 	}
 
 	prepend(element: T): void {

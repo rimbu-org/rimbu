@@ -44,7 +44,7 @@ export abstract class TreeBuilderBase<T, C> {
 	update(
 		index: Int.AtLeastZero,
 		f: (element: T) => T,
-	): [oldValue: T, newValue: T] {
+	): [previous: T, current: T] {
 		this.prepareMutate();
 
 		const middleIndex = index - this.left.size;
@@ -266,7 +266,7 @@ export abstract class TreeBuilderBase<T, C> {
 
 		if (!Int.isAtLeastZero(middleIndex)) {
 			// index is in left
-			const oldValue = this.left.remove(index);
+			const previous = this.left.remove(index);
 
 			if (!this.left.childrenInMin) {
 				if (undefined !== this.middle) {
@@ -302,14 +302,14 @@ export abstract class TreeBuilderBase<T, C> {
 			}
 
 			// this._normalizeMiddle();
-			return oldValue;
+			return previous;
 		}
 
 		const rightIndex = middleIndex - (this.middle?.size ?? 0);
 
 		if (Int.isAtLeastZero(rightIndex)) {
 			// index is in right
-			const oldValue = this.right.remove(rightIndex);
+			const previous = this.right.remove(rightIndex);
 
 			if (!this.right.childrenInMin) {
 				if (undefined !== this.middle) {
@@ -342,7 +342,7 @@ export abstract class TreeBuilderBase<T, C> {
 			}
 
 			// this._normalizeMiddle();
-			return oldValue;
+			return previous;
 		}
 
 		if (undefined === this.middle) {

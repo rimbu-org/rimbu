@@ -1,4 +1,4 @@
-import type { List, OpWithKnownResult, OpWithResult } from '@rimbu/list';
+import type { List, OpWithChangeResult, OpWithResult } from '@rimbu/list';
 import type { Stream, StreamSource } from '@rimbu/stream';
 
 import type { ListContext } from '#list/context';
@@ -101,37 +101,34 @@ export class OuterTree<T>
 		return this.right.last();
 	}
 
-	setAt(
+	setAtAndReturn(
 		index: number,
 		element: T,
-	): OpWithKnownResult<
-		List.NonEmpty<T>,
-		[oldValue: T | undefined],
-		[oldValue: T]
-	> {
-		const [newThis, [hasResult, oldValue], hasChanged] = this.updateAt(
+	): OpWithChangeResult<OuterTree<T>, T | undefined, T> {
+		const [newThis, hasResult, [previous], hasChanged] = this.updateAtAndReturn(
 			index,
 			() => element,
 		);
 
-		if (hasResult) {
-			return [newThis, [hasResult, oldValue], hasChanged];
-		}
-
-		return [newThis, [hasResult, oldValue], hasChanged];
+		return [newThis, hasResult, previous as T, hasChanged];
 	}
 
-	updateAt(
+	updateAt(index: number, f: (element: T) => T): OuterTree<T> {
+		const [newThis] = this.updateAtAndReturn(index, f);
+		return newThis;
+	}
+
+	updateAtAndReturn(
 		index: number,
 		f: (element: T) => T,
-	): OpWithKnownResult<
+	): OpWithChangeResult<
 		OuterTree<T>,
-		[oldValue: T | undefined, newValue: T | undefined],
-		[oldValue: T, newValue: T]
+		[previous: T | undefined, current: T | undefined],
+		[previous: T, current: T]
 	> {
 		const size = this.size;
 		if (-index > size || index >= size) {
-			return [this, [false, undefined, undefined], false];
+			return [this, false, [undefined, undefined], false];
 		}
 		if (index < 0) {
 			index = size + index;
@@ -145,7 +142,7 @@ export class OuterTree<T>
 	_update(
 		index: Int.AtLeastZero,
 		f: (element: T) => T,
-	): OpWithResult<OuterTree<T>, [oldValue: T, newValue: T], true> {
+	): OpWithResult<OuterTree<T>, [previous: T, current: T], true> {
 		return treeUpdate(this as OuterTree<T>, index, f);
 	}
 

@@ -73,7 +73,7 @@ export class ListBuilder<T>
 	updateAt = (
 		index: number,
 		f: (element: T) => T,
-	): [oldValue: T, newValue: T] | undefined => {
+	): [previous: T, current: T] | undefined => {
 		if (
 			undefined === this.#outerBuilder ||
 			-index > this.size ||

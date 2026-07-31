@@ -18,16 +18,24 @@ export class ListEmptyBase<T>
 		return this.context.childrenOps;
 	}
 
-	setAt(): OpWithResult<List<T>, [oldValue: T | undefined], false> {
-		return [this, [false, undefined], false];
+	setAt(): List<T> {
+		return this;
 	}
 
-	updateAt(): OpWithResult<
+	setAtAndReturn(): OpWithResult<List<T>, undefined, false> {
+		return [this, false, undefined, false];
+	}
+
+	updateAt(): List<T> {
+		return this;
+	}
+
+	updateAtAndReturn(): OpWithResult<
 		List<T>,
-		[oldValue: T | undefined, newValue: T | undefined],
+		[previous: undefined, current: undefined],
 		false
 	> {
-		return [this, [false, undefined, undefined], false];
+		return [this, false, [undefined, undefined], false];
 	}
 
 	prepend(element: T): List.NonEmpty<T> {

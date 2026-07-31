@@ -37,7 +37,7 @@ interface ListNode<T> {
 	_update(
 		index: Int.AtLeastZero,
 		f: (element: T) => T,
-	): OpWithResult<this['_self'], [oldValue: T, newValue: T], true>;
+	): OpWithResult<this['_self'], [previous: T, current: T], true>;
 }
 
 /**

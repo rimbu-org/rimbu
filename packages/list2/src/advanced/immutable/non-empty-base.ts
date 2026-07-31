@@ -1,4 +1,4 @@
-import type { List, OpWithKnownResult } from '@rimbu/list';
+import type { List, OpWithChangeResult } from '@rimbu/list';
 import type { StreamSource } from '@rimbu/stream';
 
 import type { ListContext } from '#list/context';
@@ -12,25 +12,23 @@ export abstract class ListNonEmptyBase<T>
 	extends IndexedCollectionNonEmptyBase<T>
 	implements List.NonEmpty<T>
 {
+	declare _self: ListNonEmptyBase<T>;
+
 	constructor(readonly context: ListContext<T, true>) {
 		super();
 	}
 
-	abstract setAt(
+	abstract setAtAndReturn(
 		index: number,
 		element: T,
-	): OpWithKnownResult<
-		List.NonEmpty<T>,
-		[oldValue: T | undefined],
-		[oldValue: T]
-	>;
-	abstract updateAt(
+	): OpWithChangeResult<this['_self'], T | undefined, T>;
+	abstract updateAtAndReturn(
 		index: number,
 		f: (element: T) => T,
-	): OpWithKnownResult<
-		List.NonEmpty<T>,
-		[oldValue: T | undefined, newValue: T | undefined],
-		[oldValue: T, newValue: T]
+	): OpWithChangeResult<
+		this['_self'],
+		[previous: T | undefined, current: T | undefined],
+		[previous: T, current: T]
 	>;
 	abstract filter(f: (element: T) => boolean): List<T>;
 	abstract filterIndexed(
@@ -45,6 +43,16 @@ export abstract class ListNonEmptyBase<T>
 
 	abstract _prependBlock(leftBlock: OuterBlock<T>): List.NonEmpty<T>;
 	abstract _prependTree(leftTree: OuterTree<T>): List.NonEmpty<T>;
+
+	setAt(index: number, element: T): this['_self'] {
+		const [newThis] = this.setAtAndReturn(index, element);
+		return newThis;
+	}
+
+	updateAt(index: number, f: (element: T) => T): this['_self'] {
+		const [newThis] = this.updateAtAndReturn(index, f);
+		return newThis;
+	}
 
 	slice(range: IndexRange): List<T> {
 		const result = IndexRange.getIndicesFor(range, this.size);
