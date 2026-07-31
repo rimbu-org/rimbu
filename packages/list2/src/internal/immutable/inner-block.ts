@@ -477,10 +477,14 @@ export class InnerBlock<T, C extends Self<Block<T>, C>>
 	}
 
 	reversed(): InnerBlock<T, C> {
-		return this.#copy(
-			this.#children.map((child) => child.reversed()),
-			this.size,
-		);
+		const newChildren = new Array(this._nrChildren);
+		let newChildrenIndex = newChildren.length - 1;
+
+		for (const child of this.#children) {
+			newChildren[newChildrenIndex--] = child.reversed();
+		}
+
+		return this.#copy(newChildren, this.size);
 	}
 
 	toBuilder(): InnerBlockBuilder<T, any> {

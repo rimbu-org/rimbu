@@ -306,6 +306,22 @@ describe('InnerBlock.mutation', () => {
 			const r = b.prependChild(ob(ctx, [1]));
 			expect(r.toArray()).toEqual([1, 2]);
 		});
+
+		it('promotes to InnerTree when block is at capacity', () => {
+			const ctx2 = makeContext<number>(2);
+			const children = Array.from({ length: 4 }, (_, i) => ob(ctx2, [i + 1]));
+			const b = inner(ctx2, children, 1);
+			expect(b._nrChildren).toBe(4);
+			expect(b._canAddChild).toBe(false);
+
+			const r = b.prependChild(ob(ctx2, [0]));
+
+			expect(r).toHaveProperty('left');
+			expect(r).toHaveProperty('right');
+			expect(r).toHaveProperty('middle');
+			expect(r.toArray()).toEqual([0, 1, 2, 3, 4]);
+			expect(r.size).toBe(5);
+		});
 	});
 
 	describe('appendChild', () => {
@@ -313,6 +329,22 @@ describe('InnerBlock.mutation', () => {
 			const b = inner(ctx, [ob(ctx, [1])]);
 			const r = b.appendChild(ob(ctx, [2]));
 			expect(r.toArray()).toEqual([1, 2]);
+		});
+
+		it('promotes to InnerTree when block is at capacity', () => {
+			const ctx2 = makeContext<number>(2);
+			const children = Array.from({ length: 4 }, (_, i) => ob(ctx2, [i + 1]));
+			const b = inner(ctx2, children, 1);
+			expect(b._nrChildren).toBe(4);
+			expect(b._canAddChild).toBe(false);
+
+			const r = b.appendChild(ob(ctx2, [5]));
+
+			expect(r).toHaveProperty('left');
+			expect(r).toHaveProperty('right');
+			expect(r).toHaveProperty('middle');
+			expect(r.toArray()).toEqual([1, 2, 3, 4, 5]);
+			expect(r.size).toBe(5);
 		});
 	});
 
@@ -458,6 +490,49 @@ describe('InnerBlock.map', () => {
 		const b = inner(ctx, [ob(ctx, [1, 2])]);
 		const r = b.map((x: number) => String(x));
 		expect(r.toArray()).toEqual(['1', '2']);
+	});
+});
+
+describe('InnerBlock.reversed', () => {
+	const ctx = makeContext<number>(3);
+
+	it('reverses children order', () => {
+		const b = inner(ctx, [ob(ctx, [1]), ob(ctx, [2, 3]), ob(ctx, [4])]);
+		const r = b.reversed();
+		expect(r.toArray()).toEqual([4, 3, 2, 1]);
+	});
+
+	it('preserves size', () => {
+		const b = inner(ctx, [ob(ctx, [1, 2]), ob(ctx, [3, 4])]);
+		const r = b.reversed();
+		expect(r.size).toBe(4);
+	});
+
+	it('double reverse returns original order', () => {
+		const b = inner(ctx, [ob(ctx, [1]), ob(ctx, [2, 3]), ob(ctx, [4])]);
+		const r = b.reversed().reversed();
+		expect(r.toArray()).toEqual([1, 2, 3, 4]);
+	});
+
+	it('forEach iterates in reversed order', () => {
+		const b = inner(ctx, [ob(ctx, [1]), ob(ctx, [2, 3]), ob(ctx, [4])]);
+		const r = b.reversed();
+		const result: number[] = [];
+		r.forEach((v) => result.push(v));
+		expect(result).toEqual([4, 3, 2, 1]);
+	});
+
+	it('does not mutate original', () => {
+		const b = inner(ctx, [ob(ctx, [1]), ob(ctx, [2, 3])]);
+		b.reversed();
+		expect(b.toArray()).toEqual([1, 2, 3]);
+	});
+
+	it('single child reversed internally', () => {
+		const b = inner(ctx, [ob(ctx, [1, 2, 3])]);
+		const r = b.reversed();
+		expect(r.toArray()).toEqual([3, 2, 1]);
+		expect(r.size).toBe(3);
 	});
 });
 

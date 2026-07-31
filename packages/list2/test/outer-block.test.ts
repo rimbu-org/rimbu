@@ -528,6 +528,58 @@ function runOuterBlockTests(
 				});
 			});
 
+			describe('reversed', () => {
+				const b = makeBlock([10, 20, 30, 40, 50]);
+
+				it('returns reversed element order via toArray', () => {
+					const r = b.reversed();
+					expect(r.toArray()).toEqual([50, 40, 30, 20, 10]);
+				});
+
+				it('preserves size', () => {
+					const r = b.reversed();
+					expect(r.size).toBe(5);
+				});
+
+				it('element access works correctly', () => {
+					const r = b.reversed();
+					expect(r.at(0)).toBe(50);
+					expect(r.at(2)).toBe(30);
+					expect(r.at(4)).toBe(10);
+				});
+
+				it('negative index element access works correctly', () => {
+					const r = b.reversed();
+					expect(r.at(-1)).toBe(10);
+					expect(r.at(-3)).toBe(30);
+					expect(r.at(-5)).toBe(50);
+				});
+
+				it('forEach iterates in reversed order', () => {
+					const r = b.reversed();
+					const result: number[] = [];
+					r.forEach((v) => result.push(v));
+					expect(result).toEqual([50, 40, 30, 20, 10]);
+				});
+
+				it('double reverse returns original order', () => {
+					const r = b.reversed().reversed();
+					expect(r.toArray()).toEqual([10, 20, 30, 40, 50]);
+				});
+
+				it('does not mutate original', () => {
+					b.reversed();
+					expect(b.toArray()).toEqual([10, 20, 30, 40, 50]);
+				});
+
+				it('single-element block', () => {
+					const s = makeBlock([5]);
+					const r = s.reversed();
+					expect(r.toArray()).toEqual([5]);
+					expect(r.size).toBe(1);
+				});
+			});
+
 			describe('slice (inherited)', () => {
 				const b = makeBlock([10, 20, 30, 40, 50]);
 

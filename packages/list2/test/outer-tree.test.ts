@@ -371,6 +371,27 @@ describe('OuterTree.prepend', () => {
 		expect(t.toArray()).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
 		expect(t.size).toBe(10);
 	});
+
+	it('promotes middle to InnerTree when middle is full and left overflows', () => {
+		// middle has 4 children (at capacity), all blocks full
+		const t = treeWithMiddle(
+			[1, 2, 3, 4],
+			[
+				[5, 6, 7, 8],
+				[9, 10, 11, 12],
+				[13, 14, 15, 16],
+				[17, 18, 19, 20],
+			],
+			[21, 22, 23, 24],
+			bits,
+		);
+		const r = t.prepend(0);
+		expect(r.toArray()).toEqual([
+			0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
+			19, 20, 21, 22, 23, 24,
+		]);
+		expect(r.size).toBe(25);
+	});
 });
 
 describe('OuterTree.append', () => {
@@ -439,6 +460,94 @@ describe('OuterTree.append', () => {
 		}
 		expect(t.toArray()).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
 		expect(t.size).toBe(10);
+	});
+
+	it('promotes middle to InnerTree when middle is full and right overflows', () => {
+		const t = treeWithMiddle(
+			[1, 2, 3, 4],
+			[
+				[5, 6, 7, 8],
+				[9, 10, 11, 12],
+				[13, 14, 15, 16],
+				[17, 18, 19, 20],
+			],
+			[21, 22, 23, 24],
+			bits,
+		);
+		const r = t.append(25);
+		expect(r.toArray()).toEqual([
+			1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
+			19, 20, 21, 22, 23, 24, 25,
+		]);
+		expect(r.size).toBe(25);
+	});
+});
+
+describe('OuterTree.reversed', () => {
+	const bits = 2; // max=4, min=2
+
+	it('preserves size', () => {
+		const t = simpleTree([1, 2], [3, 4]);
+		const r = t.reversed();
+		expect(r.size).toBe(4);
+	});
+
+	it('does not mutate original', () => {
+		const t = simpleTree([1, 2], [3, 4]);
+		t.reversed();
+		expect(t.toArray()).toEqual([1, 2, 3, 4]);
+	});
+
+	it('returns a Tree', () => {
+		const t = simpleTree([1, 2], [3, 4]);
+		const r = t.reversed();
+		expect(r).toHaveProperty('left');
+		expect(r).toHaveProperty('right');
+		expect(r).toHaveProperty('middle');
+	});
+
+	it('reversed tree with no middle swaps left and right via forEach', () => {
+		const t = simpleTree([1, 2], [3, 4]);
+		const r = t.reversed();
+		const result: number[] = [];
+		r.forEach((v) => result.push(v));
+		expect(result).toEqual([4, 3, 2, 1]);
+	});
+
+	it('reversed tree with middle via forEach', () => {
+		const t = treeWithMiddle(
+			[1, 2],
+			[[3, 4]],
+			[5, 6],
+			bits,
+		);
+		const r = t.reversed();
+		const result: number[] = [];
+		r.forEach((v) => result.push(v));
+		expect(result).toEqual([6, 5, 4, 3, 2, 1]);
+	});
+
+	it('element access works correctly on reversed tree', () => {
+		const t = simpleTree([1, 2], [3, 4]);
+		const r = t.reversed();
+		expect(r.at(0)).toBe(4);
+		expect(r.at(1)).toBe(3);
+		expect(r.at(2)).toBe(2);
+		expect(r.at(3)).toBe(1);
+	});
+
+	it('double reverse of tree with middle', () => {
+		const t = treeWithMiddle(
+			[1, 2],
+			[[3, 4]],
+			[5, 6],
+			bits,
+		);
+		const r = t.reversed().reversed();
+		const result: number[] = [];
+		r.forEach((v) => result.push(v));
+		expect(result).toEqual([1, 2, 3, 4, 5, 6]);
+		expect(r.size).toBe(6);
 	});
 });
 
