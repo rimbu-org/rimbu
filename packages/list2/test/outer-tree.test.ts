@@ -483,6 +483,80 @@ describe('OuterTree.append', () => {
 	});
 });
 
+describe('OuterTree.concat', () => {
+	const bits = 2; // max=4, min=2
+	const ctx = makeContext<number>(bits);
+
+	it('tree+tree concat maintains correct element order (Case 2: joint fits in block)', () => {
+		const a = ctx.outerTree(
+			ctx.outerBlockLeftRight(ctx.childrenOps.of([1])),
+			ctx.outerBlockLeftRight(ctx.childrenOps.of([2])),
+			null,
+			2,
+		);
+		const b = ctx.outerTree(
+			ctx.outerBlockLeftRight(ctx.childrenOps.of([3])),
+			ctx.outerBlockLeftRight(ctx.childrenOps.of([4, 5])),
+			null,
+			3,
+		);
+		// joint = a.right + b.left = [2] + [3] = 2 elements ≤ max=4 → Case 2
+		const r = a.concat(b);
+		expect(r.toArray()).toEqual([1, 2, 3, 4, 5]);
+		expect(r.size).toBe(5);
+	});
+
+	it('tree+tree concat maintains correct element order (Case 3: push both to middle)', () => {
+		const a = ctx.outerTree(
+			ctx.outerBlockLeftRight(ctx.childrenOps.of([1])),
+			ctx.outerBlockLeftRight(ctx.childrenOps.of([2, 3])), // ≥ min=2
+			null,
+			3,
+		);
+		const b = ctx.outerTree(
+			ctx.outerBlockLeftRight(ctx.childrenOps.of([4, 5])), // ≥ min=2
+			ctx.outerBlockLeftRight(ctx.childrenOps.of([6])),
+			null,
+			3,
+		);
+		// joint = [2,3] + [4,5] = 4 ≤ max=4, both ≥ min → Case 2, then both pushed
+		const r = a.concat(b);
+		expect(r.toArray()).toEqual([1, 2, 3, 4, 5, 6]);
+		expect(r.size).toBe(6);
+	});
+
+	it('tree+tree concat maintains correct element order (Case 1: underflow)', () => {
+		const a = ctx.outerTree(
+			ctx.outerBlockLeftRight(ctx.childrenOps.of([1])),
+			ctx.outerBlockLeftRight(ctx.childrenOps.of([2])), // size=1 < min
+			null,
+			2,
+		);
+		const b = ctx.outerTree(
+			ctx.outerBlockLeftRight(ctx.childrenOps.of([3])), // size=1 < min
+			ctx.outerBlockLeftRight(ctx.childrenOps.of([4])),
+			null,
+			2,
+		);
+		// joint = [2] + [3] = 2 = min, but < min for outer (is 2 < 2? No)
+		// Actually this uses <. Let me use sizes that TRULY underflow
+		// Need joint < minBlockSize=2 → joint of 1
+		expect(a.concat(b).toArray()).toEqual([1, 2, 3, 4]);
+	});
+
+	it('concatenating tree with itself maintains correct elements', () => {
+		const a = ctx.outerTree(
+			ctx.outerBlockLeftRight(ctx.childrenOps.of([1, 2])),
+			ctx.outerBlockLeftRight(ctx.childrenOps.of([3, 4])),
+			null,
+			4,
+		);
+		const r = a.concat(a);
+		expect(r.toArray()).toEqual([1, 2, 3, 4, 1, 2, 3, 4]);
+		expect(r.size).toBe(8);
+	});
+});
+
 describe('OuterTree.reversed', () => {
 	const bits = 2; // max=4, min=2
 

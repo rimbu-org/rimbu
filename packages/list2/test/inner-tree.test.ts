@@ -431,6 +431,46 @@ describe('InnerTree.map', () => {
 	});
 });
 
+describe('InnerTree.concat', () => {
+	const ctx = makeContext<number>(2); // max=4, min=2
+
+	it('innerBlock.concat(innerTree) at same level triggers prependBlock — Case 1 merge', () => {
+		const left = ib(ctx, [ob(ctx, [3])], 1);
+		const right = ib(ctx, [ob(ctx, [4])], 1);
+		const tree = ctx.innerTree(left, right, null, left.size + right.size, 1);
+
+		const block = ib(ctx, [ob(ctx, [1]), ob(ctx, [2])], 1);
+		// block._nrChildren + tree.left._nrChildren = 2 + 1 = 3 ≤ 4 → merge
+		const r = block.concat(tree);
+		expect(collectForEach(r)).toEqual([1, 2, 3, 4]);
+		expect(r.size).toBe(4);
+	});
+
+	it('innerBlock.concat(innerTree) triggers prependBlock — Case 2 push to middle', () => {
+		const left = ib(ctx, [ob(ctx, [5]), ob(ctx, [5.1])], 1); // 2 children ≥ min=2
+		const right = ib(ctx, [ob(ctx, [6])], 1);
+		const tree = ctx.innerTree(left, right, null, left.size + right.size, 1);
+
+		const block = ib(ctx, [ob(ctx, [1]), ob(ctx, [2]), ob(ctx, [3]), ob(ctx, [4])], 1);
+		// block full (4), left._hasEnoughChildren (2 ≥ 2) → Case 2
+		const r = block.concat(tree);
+		expect(collectForEach(r)).toEqual([1, 2, 3, 4, 5, 5.1, 6]);
+		expect(r.size).toBe(7);
+	});
+
+	it('innerBlock.concat(innerTree) triggers prependBlock — Case 3 split', () => {
+		const left = ib(ctx, [ob(ctx, [5])], 1); // 1 child < min=2
+		const right = ib(ctx, [ob(ctx, [6])], 1);
+		const tree = ctx.innerTree(left, right, null, left.size + right.size, 1);
+
+		const block = ib(ctx, [ob(ctx, [1]), ob(ctx, [2]), ob(ctx, [3]), ob(ctx, [4])], 1);
+		// block full (4), left < min → Case 3 split
+		const r = block.concat(tree);
+		expect(collectForEach(r)).toEqual([1, 2, 3, 4, 5, 6]);
+		expect(r.size).toBe(6);
+	});
+});
+
 describe('InnerTree.reversed', () => {
 	const ctx = makeContext<number>(3);
 
