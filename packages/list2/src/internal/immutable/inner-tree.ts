@@ -1,5 +1,5 @@
 import type { TraverseState } from '@rimbu/common';
-import type { List } from '@rimbu/list';
+import type { List, OpWithResult } from '@rimbu/list';
 import type { Stream } from '@rimbu/stream';
 
 import type { ListContext } from '#list/context';
@@ -9,7 +9,7 @@ import type { InnerTreeBuilder } from '#list/mutable/inner-tree-builder';
 
 import { Int, throwInvalidStateError } from '@rimbu/base';
 
-import { treeGet, treeStream } from '#list/immutable/tree';
+import { treeGet, treeStream, treeUpdate } from '#list/immutable/tree';
 import { SizeTable } from '#list/size-table';
 
 export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
@@ -24,7 +24,7 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 		readonly level: number,
 	) {}
 
-	#copy(
+	copy(
 		left = this.left,
 		right = this.right,
 		middle = this.middle,
@@ -60,6 +60,13 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 
 	_get(index: Int.AtLeastZero): T {
 		return treeGet(this, index);
+	}
+
+	_update(
+		index: Int.AtLeastZero,
+		f: (element: T) => T,
+	): OpWithResult<InnerTree<T, C>, [oldValue: T, newValue: T], true> {
+		return treeUpdate(this as InnerTree<T, C>, index, f);
 	}
 
 	forEach(f: (element: T) => void): void {
@@ -117,7 +124,7 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 		const newSize = this.size + child.size;
 
 		if (this.left._canAddChild) {
-			return this.#copy(
+			return this.copy(
 				this.left._prependBlockChild(child),
 				undefined,
 				undefined,
@@ -129,7 +136,7 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 		if (null === this.middle && this.right._canAddChild) {
 			const [newLeft, shiftToRightChild] = this.left.dropLastChild();
 			const newRight = this.right._prependBlockChild(shiftToRightChild);
-			return this.#copy(
+			return this.copy(
 				newLeft!._prependBlockChild(child),
 				newRight,
 				undefined,
@@ -151,7 +158,7 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 			});
 
 			if (newMiddle !== this.middle) {
-				return this.#copy(
+				return this.copy(
 					newLeft?._prependBlockChild(child) ??
 						this.context.innerBlock([child], child.size, this.level),
 					undefined,
@@ -170,7 +177,7 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 				this.level + 1,
 			);
 
-		return this.#copy(
+		return this.copy(
 			this.context.innerBlock([child], child.size, this.left.level),
 			undefined,
 			newMiddle,
@@ -182,7 +189,7 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 		const newLength = this.size + child.size;
 
 		if (this.right._canAddChild) {
-			return this.#copy(
+			return this.copy(
 				undefined,
 				this.right._appendBlockChild(child),
 				undefined,
@@ -194,7 +201,7 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 		if (null === this.middle && this.left._canAddChild) {
 			const [newRight, shiftToLeftChild] = this.right.dropFirstChild();
 			const newLeft = this.left._appendBlockChild(shiftToLeftChild);
-			return this.#copy(
+			return this.copy(
 				newLeft,
 				newRight?._appendBlockChild(child),
 				undefined,
@@ -216,7 +223,7 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 			});
 
 			if (newMiddle !== this.middle) {
-				return this.#copy(
+				return this.copy(
 					undefined,
 					newRight?._appendBlockChild(child) ??
 						this.context.innerBlock([child], child.size, this.level),
@@ -235,7 +242,7 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 				this.level + 1,
 			);
 
-		return this.#copy(
+		return this.copy(
 			undefined,
 			this.context.innerBlock([child], child.size, this.right.level),
 			newMiddle,
@@ -252,7 +259,7 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 		const delta = newFirstChild.size - firstChild.size;
 		const newLeft = this.left.withChild(0, newFirstChild);
 
-		return this.#copy(newLeft, undefined, undefined, this.size + delta);
+		return this.copy(newLeft, undefined, undefined, this.size + delta);
 	}
 
 	modifyLastChild(f: (child: C) => C): InnerTree<T, C> | undefined {
@@ -264,7 +271,7 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 		const delta = newLastChild.size - lastChild.size;
 		const newRight = this.right.withChild(-1, newLastChild);
 
-		return this.#copy(undefined, newRight, undefined, this.size + delta);
+		return this.copy(undefined, newRight, undefined, this.size + delta);
 	}
 
 	dropFirstChild(): [Inner<T, C> | null, C] {
@@ -276,7 +283,7 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 			}
 
 			const [newMiddle, toLeft] = this.middle.dropFirstChild();
-			const newSelf = this.#copy(
+			const newSelf = this.copy(
 				toLeft,
 				undefined,
 				newMiddle,
@@ -287,7 +294,7 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 			return [newSelf, firstChild];
 		}
 
-		const newSelf = this.#copy(
+		const newSelf = this.copy(
 			newLeft,
 			undefined,
 			undefined,
@@ -310,7 +317,7 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 
 			// move last middle to right
 			const [newMiddle, toRight] = this.middle.dropLastChild();
-			const newSelf = this.#copy(
+			const newSelf = this.copy(
 				undefined,
 				toRight,
 				newMiddle,
@@ -322,7 +329,7 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 		}
 
 		// set the new right to right
-		const newSelf = this.#copy(
+		const newSelf = this.copy(
 			undefined,
 			newRight,
 			undefined,
@@ -370,7 +377,7 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 				const [newMiddle, toRight] = this.middle.dropLastChild();
 				const newLength =
 					this.left.size + toRight.size + (newMiddle?.size ?? 0);
-				const newSelf = this.#copy(undefined, toRight, newMiddle, newLength);
+				const newSelf = this.copy(undefined, toRight, newMiddle, newLength);
 				//._normalize();
 
 				return [newSelf, up, upAmount];
@@ -378,7 +385,7 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 
 			// some right remains, update and normalize
 			const newSize = this.left.size + newRight.size + this.middle.size;
-			const newSelf = this.#copy(undefined, newRight, undefined, newSize);
+			const newSelf = this.copy(undefined, newRight, undefined, newSize);
 			// ._normalize();
 
 			return [newSelf, up, upAmount];
@@ -387,7 +394,7 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 		// take from middle
 		const [newMiddle, upRight] = this.middle.takeInternal(middleAmount);
 		const newSize = this.left.size + upRight.size + (newMiddle?.size ?? 0);
-		const newSelf = this.#copy(undefined, upRight, newMiddle, newSize);
+		const newSelf = this.copy(undefined, upRight, newMiddle, newSize);
 		// ._normalize();
 		return newSelf.takeInternal(amount);
 	}
@@ -424,7 +431,7 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 				// all of left gone
 				const [newMiddle, toLeft] = this.middle.dropFirstChild();
 				const newSize = toLeft.size + this.right.size + (newMiddle?.size ?? 0);
-				const newSelf = this.#copy(toLeft, undefined, newMiddle, newSize);
+				const newSelf = this.copy(toLeft, undefined, newMiddle, newSize);
 				//._normalize();
 
 				return [newSelf, upLeft, upLeftAmount];
@@ -432,7 +439,7 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 
 			// left remaining
 			const newSize = newLeft.size + this.right.size + this.middle.size;
-			const newSelf = this.#copy(newLeft, undefined, undefined, newSize);
+			const newSelf = this.copy(newLeft, undefined, undefined, newSize);
 
 			return [newSelf, upLeft, upLeftAmount];
 		}
@@ -449,7 +456,7 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 			this.middle.dropInternal(middleAmount);
 
 		const newSize = upLeft.size + this.right.size + (newMiddle?.size ?? 0);
-		const newSelf = this.#copy(upLeft, undefined, newMiddle, newSize);
+		const newSelf = this.copy(upLeft, undefined, newMiddle, newSize);
 		//._normalize();
 
 		return newSelf.dropInternal(inUpLeft);
@@ -487,14 +494,14 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 			// prepend to left
 			const newLeft = leftBlock.concat(this.left) as InnerBlock<T, C>;
 
-			return this.#copy(newLeft, undefined, undefined, newSize);
+			return this.copy(newLeft, undefined, undefined, newSize);
 		}
 
 		if (this.left._childrenInMin) {
 			// move current left to middle
 			const newMiddle = this.prependMiddleBlock(this.right);
 
-			return this.#copy(leftBlock, undefined, newMiddle, newSize);
+			return this.copy(leftBlock, undefined, newMiddle, newSize);
 			//._normalize();
 		}
 
@@ -515,7 +522,7 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 		);
 		const newMiddle = this.prependMiddleBlock(toMiddle);
 
-		return this.#copy(newLeft, undefined, newMiddle, newSize);
+		return this.copy(newLeft, undefined, newMiddle, newSize);
 		//._normalize();
 	}
 
@@ -558,7 +565,7 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 
 				const newLeftMiddle = leftTree.prependMiddleBlock(toLeftMiddle);
 
-				return this.#copy(leftTree.left, newRight, newLeftMiddle, newSize);
+				return this.copy(leftTree.left, newRight, newLeftMiddle, newSize);
 			}
 
 			// this.middle exists, so we can merge joint with middle
@@ -711,7 +718,7 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 	}
 
 	reversed(): InnerTree<T, C> {
-		return this.#copy(
+		return this.copy(
 			this.right.reversed(),
 			this.left.reversed(),
 			this.middle?.reversed() ?? null,

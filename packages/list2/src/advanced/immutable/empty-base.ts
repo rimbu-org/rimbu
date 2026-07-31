@@ -1,5 +1,5 @@
 import type { ArrayNonEmpty } from '@rimbu/common';
-import type { List } from '@rimbu/list';
+import type { List, OpWithResult } from '@rimbu/list';
 import type { StreamSource } from '@rimbu/stream';
 
 import type { ListContext } from '#list/context';
@@ -16,6 +16,18 @@ export class ListEmptyBase<T>
 
 	get #ops() {
 		return this.context.childrenOps;
+	}
+
+	setAt(): OpWithResult<List<T>, [oldValue: T | undefined], false> {
+		return [this, [false, undefined], false];
+	}
+
+	updateAt(): OpWithResult<
+		List<T>,
+		[oldValue: T | undefined, newValue: T | undefined],
+		false
+	> {
+		return [this, [false, undefined, undefined], false];
 	}
 
 	prepend(element: T): List.NonEmpty<T> {

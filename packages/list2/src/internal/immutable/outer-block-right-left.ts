@@ -1,5 +1,5 @@
 import type { Int } from '@rimbu/base';
-import type { List } from '@rimbu/list';
+import type { List, OpWithResult } from '@rimbu/list';
 
 import type { ChildrenOps, OuterChildren } from '#advanced/children-ops';
 import type { ListContext } from '#list/context';
@@ -62,6 +62,19 @@ export class OuterBlockRightLeft<T> extends OuterBlock<T> {
 		return this.#ops.streamRange(this.#children, reverseRange, {
 			reversed: !reversed,
 		});
+	}
+
+	_update(
+		index: Int.AtLeastZero,
+		f: (element: T) => T,
+	): OpWithResult<OuterBlock<T>, [oldValue: T, newValue: T], true> {
+		const [newChildren, result, hasChanged] = this.#ops.updateAt(
+			this.#children,
+			-index,
+			f,
+		);
+
+		return [this.#copy(newChildren), result, hasChanged];
 	}
 
 	forEach(f: (element: T) => void): void {

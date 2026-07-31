@@ -1,5 +1,5 @@
 import type { TraverseState } from '@rimbu/common';
-import type { List } from '@rimbu/list';
+import type { List, OpWithResult } from '@rimbu/list';
 
 import type { ListContext } from '#list/context';
 import type { Block, Inner, Self } from '#list/immutable/common';
@@ -104,6 +104,25 @@ export class InnerBlock<T, C extends Self<Block<T>, C>>
 		const [childIndex, inChildIndex] = this.sizeTable.getCoordinates(index);
 
 		return this.#children[childIndex]._get(inChildIndex);
+	}
+
+	_update(
+		index: Int.AtLeastZero,
+		f: (element: T) => T,
+	): OpWithResult<InnerBlock<T, C>, [oldValue: T, newValue: T], true> {
+		const [childIndex, inChildIndex] = this.sizeTable.getCoordinates(index);
+		const [newChild, result, hasChanged] = this.#children[childIndex]._update(
+			inChildIndex,
+			f,
+		);
+
+		if (!hasChanged) {
+			return [this, result, false];
+		}
+
+		const newChildren = this.#children.with(childIndex, newChild);
+
+		return [this.#copy(newChildren), result, true];
 	}
 
 	_prependBlockChild(child: C): InnerBlock<T, C> {

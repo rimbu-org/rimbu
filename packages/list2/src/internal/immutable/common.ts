@@ -1,6 +1,6 @@
 import type { Int } from '@rimbu/base';
 import type { TraverseState } from '@rimbu/common';
-import type { List } from '@rimbu/list';
+import type { List, OpWithResult } from '@rimbu/list';
 import type { Stream } from '@rimbu/stream';
 
 import type { InnerBlock } from '#list/immutable/inner-block';
@@ -34,6 +34,10 @@ interface ListNode<T> {
 
 	/** Returns the element at `index`. Caller must ensure 0 ≤ index < size. */
 	_get(index: Int.AtLeastZero): T;
+	_update(
+		index: Int.AtLeastZero,
+		f: (element: T) => T,
+	): OpWithResult<this['_self'], [oldValue: T, newValue: T], true>;
 }
 
 /**
@@ -67,6 +71,8 @@ export interface Tree<T, C extends Self<Block<T>, C> = Self<Block<T>>>
 	readonly left: C;
 	readonly right: C;
 	readonly middle: Inner<T, C> | null;
+
+	copy(left?: C, right?: C, middle?: Inner<T, C> | null): this['_self'];
 }
 
 /**

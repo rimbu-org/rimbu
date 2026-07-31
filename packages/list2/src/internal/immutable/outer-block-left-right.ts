@@ -1,6 +1,6 @@
 import type { Int } from '@rimbu/base';
 import type { ArrayNonEmpty, IndexRange, TraverseState } from '@rimbu/common';
-import type { List } from '@rimbu/list';
+import type { List, OpWithResult } from '@rimbu/list';
 import type { Stream } from '@rimbu/stream';
 
 import type { ChildrenOps, OuterChildren } from '#advanced/children-ops';
@@ -44,6 +44,19 @@ export class OuterBlockLeftRight<T> extends OuterBlock<T> {
 
 	streamSlice(range: IndexRange, options: { reversed?: boolean }): Stream<T> {
 		return this.#ops.streamRange(this.#children, range, options);
+	}
+
+	_update(
+		index: Int.AtLeastZero,
+		f: (element: T) => T,
+	): OpWithResult<OuterBlock<T>, [oldValue: T, newValue: T], true> {
+		const [newChildren, result, hasChanged] = this.#ops.updateAt(
+			this.#children,
+			index,
+			f,
+		);
+
+		return [this.#copy(newChildren), result, hasChanged];
 	}
 
 	forEach(f: (element: T) => void): void {

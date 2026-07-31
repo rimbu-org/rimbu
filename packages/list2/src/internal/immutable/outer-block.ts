@@ -1,4 +1,4 @@
-import type { List } from '@rimbu/list';
+import type { List, OpWithKnownResult, OpWithResult } from '@rimbu/list';
 import type { Stream, StreamSource } from '@rimbu/stream';
 
 import type { ChildrenOps, OuterChildren } from '#advanced/children-ops';
@@ -35,6 +35,10 @@ export abstract class OuterBlock<T>
 		range: IndexRange,
 		options?: { reversed?: boolean | undefined },
 	): Stream<T>;
+	abstract _update(
+		index: Int.AtLeastZero,
+		f: (element: T) => T,
+	): OpWithResult<OuterBlock<T>, [oldValue: T, newValue: T], true>;
 	abstract forEach(f: (element: T) => void): void;
 	abstract filter(f: (element: T) => boolean): List<T>;
 	abstract filterIndexed(
@@ -105,6 +109,47 @@ export abstract class OuterBlock<T>
 
 	last(): T {
 		return this.at(-1);
+	}
+
+	setAt(
+		index: number,
+		element: T,
+	): OpWithKnownResult<
+		OuterBlock<T>,
+		[oldValue: T | undefined],
+		[oldValue: T]
+	> {
+		const [newThis, [hasKnownResult, oldValue], hasChanged] = this.updateAt(
+			index,
+			() => element,
+		);
+
+		if (hasKnownResult) {
+			return [newThis, [hasKnownResult, oldValue], hasChanged];
+		}
+
+		return [newThis, [hasKnownResult, oldValue], hasChanged];
+	}
+
+	updateAt(
+		index: number,
+		f: (element: T) => T,
+	): OpWithKnownResult<
+		OuterBlock<T>,
+		[oldValue: T | undefined, newValue: T | undefined],
+		[oldValue: T, newValue: T]
+	> {
+		const size = this.size;
+		if (-index > size || index >= size) {
+			return [this, [false, undefined, undefined], false];
+		}
+		if (index < 0) {
+			index = size + index;
+		}
+
+		Int.checkAtLeastZero(index);
+
+		return this._update(index, f);
 	}
 
 	take(count: number): List<T> {

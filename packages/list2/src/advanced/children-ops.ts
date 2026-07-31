@@ -1,4 +1,5 @@
 import type { ArrayNonEmpty, IndexRange, TraverseState } from '@rimbu/common';
+import type { OpWithResult } from '@rimbu/list';
 import type { Stream } from '@rimbu/stream';
 
 /**
@@ -85,7 +86,7 @@ export interface ChildrenOps<Tp extends ChildrenOps.Types = ChildrenOps.Types> {
 		children: (Tp & { _T: T })['_C'],
 		index: number,
 		update: (current: T) => T,
-	): (Tp & { _T: T })['_C'];
+	): OpWithResult<(Tp & { _T: T })['_C'], [oldValue: T, newValue: T], true>;
 
 	// -- immutable bulk transformations -------------------------------------
 	/** New collection with `value` prepended. */

@@ -1,4 +1,4 @@
-import type { List } from '@rimbu/list';
+import type { List, OpWithKnownResult } from '@rimbu/list';
 import type { StreamSource } from '@rimbu/stream';
 
 import type { ListContext } from '#list/context';
@@ -16,6 +16,22 @@ export abstract class ListNonEmptyBase<T>
 		super();
 	}
 
+	abstract setAt(
+		index: number,
+		element: T,
+	): OpWithKnownResult<
+		List.NonEmpty<T>,
+		[oldValue: T | undefined],
+		[oldValue: T]
+	>;
+	abstract updateAt(
+		index: number,
+		f: (element: T) => T,
+	): OpWithKnownResult<
+		List.NonEmpty<T>,
+		[oldValue: T | undefined, newValue: T | undefined],
+		[oldValue: T, newValue: T]
+	>;
 	abstract filter(f: (element: T) => boolean): List<T>;
 	abstract filterIndexed(
 		f: (element: T, index: number, halt: () => void) => boolean,

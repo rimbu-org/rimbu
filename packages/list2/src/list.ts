@@ -10,15 +10,41 @@ import type { ChildrenOps } from '#advanced/children-ops';
 import { ArrayOuterChildrenOps } from '#list/children-ops/array';
 import { createListContextModule } from '#list/context';
 
+export type OpWithResult<
+	Col,
+	Res extends unknown[],
+	HasKnownResult extends boolean = boolean,
+	CollectionChanged extends boolean = boolean,
+> = [
+	collection: Col,
+	result: [hasKnownResult: HasKnownResult, ...Res],
+	collectioChanged: CollectionChanged,
+];
+
+export type OpWithKnownResult<
+	Col,
+	Res extends unknown[],
+	ResKnown extends Res,
+	CollectionChanged extends boolean = boolean,
+> =
+	| OpWithResult<Col, ResKnown, true, CollectionChanged>
+	| OpWithResult<Col, Res, false, CollectionChanged>;
+
+export type OpWithChangeResult<
+	Col,
+	Res extends unknown[],
+	ResKnown extends Res = Res,
+	ColChanged = Col,
+> =
+	| OpWithKnownResult<Col, Res, ResKnown, false>
+	| OpWithKnownResult<ColChanged, Res, ResKnown, true>;
+
 export interface List<T> extends IndexedCollection<T>, List.Capabilities<T> {
 	readonly context: List.Context<T>;
 }
 
 export declare namespace List {
-	export interface NonEmpty<T>
-		extends List<T>,
-			IndexedCollection.NonEmpty<T>,
-			List.Capabilities<T> {
+	export interface NonEmpty<T> extends List<T>, IndexedCollection.NonEmpty<T> {
 		readonly context: List.Context<T, true>;
 	}
 
@@ -41,9 +67,29 @@ export declare namespace List {
 		extends Collection.WithFilter<T>,
 			IndexedCollection.WithOrderEditable<T>,
 			IndexedCollection.WithMap<T>,
+			List.WithSetAt<T>,
 			List.WithConcat<T>,
 			List.WithReversed<T> {
 		readonly context: List.Context<T>;
+	}
+
+	export interface WithSetAt<E> extends IndexedCollection<E> {
+		setAt(
+			index: number,
+			value: E,
+		): OpWithKnownResult<
+			this['context']['__types']['_SELF'],
+			[oldValue: E | undefined],
+			[oldValue: E]
+		>;
+		updateAt(
+			index: number,
+			f: (element: E) => E,
+		): OpWithKnownResult<
+			this['context']['__types']['_SELF'],
+			[oldValue: E | undefined, newValue: E | undefined],
+			[oldValue: E, newValue: E]
+		>;
 	}
 
 	export interface WithConcat<E> extends IndexedCollection<E> {

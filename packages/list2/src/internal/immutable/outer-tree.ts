@@ -1,4 +1,4 @@
-import type { List } from '@rimbu/list';
+import type { List, OpWithKnownResult, OpWithResult } from '@rimbu/list';
 import type { Stream, StreamSource } from '@rimbu/stream';
 
 import type { ListContext } from '#list/context';
@@ -14,7 +14,7 @@ import {
 } from '@rimbu/common';
 
 import { ListNonEmptyBase } from '#advanced/immutable/non-empty-base';
-import { treeGet, treeStream } from '#list/immutable/tree';
+import { treeGet, treeStream, treeUpdate } from '#list/immutable/tree';
 
 export class OuterTree<T>
 	extends ListNonEmptyBase<T>
@@ -32,7 +32,7 @@ export class OuterTree<T>
 		super(context);
 	}
 
-	#copy(
+	copy(
 		left = this.left,
 		right = this.right,
 		middle = this.middle,
@@ -101,11 +101,59 @@ export class OuterTree<T>
 		return this.right.last();
 	}
 
+	setAt(
+		index: number,
+		element: T,
+	): OpWithKnownResult<
+		List.NonEmpty<T>,
+		[oldValue: T | undefined],
+		[oldValue: T]
+	> {
+		const [newThis, [hasResult, oldValue], hasChanged] = this.updateAt(
+			index,
+			() => element,
+		);
+
+		if (hasResult) {
+			return [newThis, [hasResult, oldValue], hasChanged];
+		}
+
+		return [newThis, [hasResult, oldValue], hasChanged];
+	}
+
+	updateAt(
+		index: number,
+		f: (element: T) => T,
+	): OpWithKnownResult<
+		OuterTree<T>,
+		[oldValue: T | undefined, newValue: T | undefined],
+		[oldValue: T, newValue: T]
+	> {
+		const size = this.size;
+		if (-index > size || index >= size) {
+			return [this, [false, undefined, undefined], false];
+		}
+		if (index < 0) {
+			index = size + index;
+		}
+
+		Int.checkAtLeastZero(index);
+
+		return this._update(index, f);
+	}
+
+	_update(
+		index: Int.AtLeastZero,
+		f: (element: T) => T,
+	): OpWithResult<OuterTree<T>, [oldValue: T, newValue: T], true> {
+		return treeUpdate(this as OuterTree<T>, index, f);
+	}
+
 	prepend(element: T): OuterTree<T> {
 		const newSize = this.size + 1;
 
 		if (this.left._canAddChild) {
-			return this.#copy(
+			return this.copy(
 				this.left._prependBlockChild(element),
 				this.right,
 				this.middle,
@@ -117,7 +165,7 @@ export class OuterTree<T>
 		if (null === this.middle && this.right._canAddChild) {
 			const [newLeft, shiftToRightChild] = this.left._dropLastChild();
 			const newRight = this.right._prependBlockChild(shiftToRightChild);
-			return this.#copy(
+			return this.copy(
 				newLeft._prependBlockChild(element),
 				newRight,
 				undefined,
@@ -137,7 +185,7 @@ export class OuterTree<T>
 				const newLeft = this.left
 					._dropChildren(-1 as Int)
 					._prependBlockChild(element);
-				return this.#copy(newLeft, undefined, newMiddle, newSize);
+				return this.copy(newLeft, undefined, newMiddle, newSize);
 			}
 		}
 
@@ -146,7 +194,7 @@ export class OuterTree<T>
 			this.middle?.prependChild(this.left) ??
 			this.context.innerBlock([this.left], this.left.size, 1);
 
-		return this.#copy(
+		return this.copy(
 			this.context.outerBlockLeftRight(this.#ops.of([element])),
 			this.right,
 			newMiddle,
@@ -158,7 +206,7 @@ export class OuterTree<T>
 		const newLength = this.size + 1;
 
 		if (this.right._canAddChild) {
-			return this.#copy(
+			return this.copy(
 				this.left,
 				this.right._appendBlockChild(element),
 				this.middle,
@@ -170,7 +218,7 @@ export class OuterTree<T>
 		if (null === this.middle && this.left._canAddChild) {
 			const [newRight, shiftToLeftChild] = this.right._dropFirstChild();
 			const newLeft = this.left._appendBlockChild(shiftToLeftChild);
-			return this.#copy(
+			return this.copy(
 				newLeft,
 				newRight._appendBlockChild(element),
 				undefined,
@@ -190,7 +238,7 @@ export class OuterTree<T>
 				const newRight = this.right
 					._dropChildren(1 as Int)
 					._appendBlockChild(element);
-				return this.#copy(undefined, newRight, newMiddle, newLength);
+				return this.copy(undefined, newRight, newMiddle, newLength);
 			}
 		}
 
@@ -203,7 +251,7 @@ export class OuterTree<T>
 				1,
 			);
 
-		return this.#copy(
+		return this.copy(
 			undefined,
 			this.context.outerBlockLeftRight(this.#ops.of([element])),
 			newMiddle,
@@ -240,7 +288,7 @@ export class OuterTree<T>
 		if (!Int.isAtLeastOne(middleCount)) return this.left.take(count);
 
 		if (null === this.middle) {
-			return this.#copy(
+			return this.copy(
 				undefined,
 				this.right._takeChildren(middleCount),
 				undefined,
@@ -253,7 +301,7 @@ export class OuterTree<T>
 
 		if (Int.isAtLeastOne(rightCount)) {
 			const newRight = this.right._takeChildren(rightCount);
-			return this.#copy(undefined, newRight, undefined, count);
+			return this.copy(undefined, newRight, undefined, count);
 			//._normalize();
 		}
 
@@ -262,7 +310,7 @@ export class OuterTree<T>
 
 		const newRight = upRight._takeChildren(inUpRight);
 
-		return this.#copy(undefined, newRight, newMiddle, count);
+		return this.copy(undefined, newRight, newMiddle, count);
 		//._normalize();
 	}
 
@@ -281,7 +329,7 @@ export class OuterTree<T>
 
 		if (!Int.isAtLeastZero(middleCount)) {
 			const newLeft = this.left._dropChildren(count);
-			return this.#copy(newLeft, undefined, undefined, newSize);
+			return this.copy(newLeft, undefined, undefined, newSize);
 			//._normalize();
 		}
 
@@ -298,7 +346,7 @@ export class OuterTree<T>
 		const [newMiddle, upLeft, inUpLeft] = this.middle.dropInternal(middleCount);
 		const newLeft = upLeft._dropChildren(inUpLeft);
 
-		return this.#copy(newLeft, undefined, newMiddle, newSize);
+		return this.copy(newLeft, undefined, newMiddle, newSize);
 		//._normalize();
 	}
 
@@ -372,7 +420,7 @@ export class OuterTree<T>
 	}
 
 	reversed(): OuterTree<T> {
-		return this.#copy(
+		return this.copy(
 			this.right.reversed(),
 			this.left.reversed(),
 			this.middle?.reversed() ?? null,
@@ -397,14 +445,14 @@ export class OuterTree<T>
 				this.left._copyChildren(),
 			);
 			const newLeftBlock = this.context.outerBlockLeftRight(newLeftChildren);
-			return this.#copy(newLeftBlock, undefined, undefined, newSize);
+			return this.copy(newLeftBlock, undefined, undefined, newSize);
 		}
 
 		// Case 2: Tree Left block can be merged with current middle block
 		if (this.left._childrenInMin) {
 			const newMiddle = this._prependMiddle(this.left);
 
-			return this.#copy(leftBlock, undefined, newMiddle, newSize);
+			return this.copy(leftBlock, undefined, newMiddle, newSize);
 		}
 
 		// Case 3: Left block can be merged with current left block and split into two blocks for middle
@@ -419,7 +467,7 @@ export class OuterTree<T>
 
 		const newMiddle = this._prependMiddle(toMiddle);
 
-		return this.#copy(newLeft, undefined, newMiddle, newSize);
+		return this.copy(newLeft, undefined, newMiddle, newSize);
 	}
 
 	_prependTree(leftTree: OuterTree<T>): OuterTree<T> {

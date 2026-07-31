@@ -6,6 +6,7 @@ import {
 	OptLazy,
 	TraverseState,
 } from '@rimbu/common';
+import type { OpWithResult } from '@rimbu/list';
 import { Stream } from '@rimbu/stream';
 
 export class ArrayOuterChildrenOps
@@ -30,13 +31,19 @@ export class ArrayOuterChildrenOps
 		}
 		return children.with(index, value);
 	}
-	updateAt<T>(children: T[], index: number, update: (current: T) => T): T[] {
-		const current = children.at(index);
-		const newValue = update(current as T);
+	updateAt<T>(
+		children: T[],
+		index: number,
+		update: (current: T) => T,
+	): OpWithResult<T[], [oldValue: T, newValue: T], true> {
+		const current = children.at(index)!;
+		const newValue = update(current);
+
 		if (Object.is(current, newValue)) {
-			return children;
+			return [children, [true, current, newValue], false];
 		}
-		return children.with(index, newValue);
+
+		return [children.with(index, newValue), [true, current, newValue], true];
 	}
 	stream<T>(
 		children: T[],
