@@ -628,10 +628,17 @@ export class OuterTree<T>
 			);
 		}
 
-		if (null !== this.middle && this.size <= this.context.maxBlockSize * 2) {
-			messages.push(
-				`OuterTree size ${this.size} is less than or equal to 2 * maxBlockSize ${this.context.maxBlockSize * 2} but has a middle.`,
-			);
+		if (this.middle) {
+			if (this.middle.level !== 1) {
+				messages.push(
+					`OuterTree has middle with wrong level: ${this.middle.level} != 1`,
+				);
+			}
+			if (this.size <= this.context.maxBlockSize * 2) {
+				messages.push(
+					`OuterTree size ${this.size} is less than or equal to 2 * maxBlockSize ${this.context.maxBlockSize * 2} but has a middle.`,
+				);
+			}
 		}
 
 		this.left._verifyStructure(messages);

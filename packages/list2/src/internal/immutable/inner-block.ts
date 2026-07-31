@@ -61,11 +61,11 @@ export class InnerBlock<T, C extends Self<Block<T>, C>>
 	}
 
 	get _childrenInMin(): boolean {
-		return this._nrChildren <= this.context.minBlockSize;
+		return this._nrChildren >= this.context.minBlockSize;
 	}
 
 	get _childrenInMax(): boolean {
-		return this._nrChildren >= this.context.maxBlockSize;
+		return this._nrChildren <= this.context.maxBlockSize;
 	}
 
 	#copy(

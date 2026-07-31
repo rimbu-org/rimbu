@@ -70,8 +70,8 @@ An outer block is a leaf node that directly stores elements of type $T$. It is t
 
 **Invariants:**
 - Contains between 1 and $\text{maxBlockSize}$ elements inclusive.
-  - The lower bound is 1 (not `minBlockSize`) because an outer block may appear as the sole non-empty node (i.e. the entire list), in which case it acts as the root and is exempt from the usual minimum.
-  - When an outer block appears as the left or right child of an outer spine, it must contain at least 1 element.
+- When an outer block appears as the left or right child of an outer spine, the lower bound is 1 — it may contain as few as 1 element. This is also true when the outer block is the sole non-empty node (i.e. the entire list).
+- When an outer block is a child of a level 1 inner block, the lower bound is $\text{minBlockSize}$: it must contain at least $\text{minBlockSize}$ elements. An inner block's children are never boundary blocks of a spine, so they are not exempt from the usual minimum fill requirement.
 
 ---
 
@@ -105,7 +105,7 @@ An inner block of level $\ell \geq 1$ holds an ordered array of child nodes. The
 - Contains between $\text{minBlockSize}$ and $\text{maxBlockSize}$ children inclusive.
   - Exception: an inner block that appears as the sole middle child of an outer spine or inner spine may contain as few as 1 child (it acts as a root at its level).
 - All children have the same type (all outer blocks, or all inner blocks of level $\ell - 1$).
-- All children at the same level contain elements; the number of elements in a child of a level 1 inner block is between 1 and $\text{maxBlockSize}$.
+- All children at the same level contain elements; the number of elements in a child of a level 1 inner block is between $\text{minBlockSize}$ and $\text{maxBlockSize}$.
 
 ---
 
