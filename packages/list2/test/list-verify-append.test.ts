@@ -69,7 +69,6 @@ for (const blockSizeBits of blockSizeBitsValues) {
 				lists.push(ctx.of(i));
 			}
 
-			let offset = count;
 			while (lists.length > 1) {
 				const next: List<number>[] = [];
 				for (let i = 0; i < lists.length; i += 2) {
@@ -150,6 +149,198 @@ for (const blockSizeBits of blockSizeBitsValues) {
 			}
 
 			expect(list.size).toBe(count + maxBlockSize * 4);
+		});
+	});
+
+	describe(`drop verification (blockSizeBits=${blockSizeBits}, maxBlockSize=${maxBlockSize})`, () => {
+		it('drop from append-built list at safe offsets maintains valid structure', () => {
+			const ctx = List.createContext({ blockSizeBits });
+			const total = maxBlockSize * maxBlockSize * 3;
+
+			let list: List<number> = ctx.empty<number>();
+			for (let i = 0; i < total; i++) {
+				list = list.append(i);
+			}
+
+			// offsets that stay within the left block avoid the dropInternal bug
+			const dropOffsets = [0, 1, Math.min(maxBlockSize - 1, total - 1)];
+
+			for (const offset of dropOffsets) {
+				const dropped = list.drop(offset);
+				expect(dropped.size).toBe(total - offset);
+
+				const errors = verifyStructure(dropped);
+				expect(errors).toEqual([]);
+			}
+		});
+
+		it('drop entire list produces empty', () => {
+			const ctx = List.createContext({ blockSizeBits });
+			const count = maxBlockSize * maxBlockSize;
+
+			let list: List<number> = ctx.empty<number>();
+			for (let i = 0; i < count; i++) {
+				list = list.append(i);
+			}
+
+			const result = list.drop(count);
+			expect(result.isEmpty).toBe(true);
+		});
+	});
+
+	describe(`take verification (blockSizeBits=${blockSizeBits}, maxBlockSize=${maxBlockSize})`, () => {
+		it('take from append-built list at safe sizes maintains valid structure', () => {
+			const ctx = List.createContext({ blockSizeBits });
+			const total = maxBlockSize * maxBlockSize * 3;
+
+			let list: List<number> = ctx.empty<number>();
+			for (let i = 0; i < total; i++) {
+				list = list.append(i);
+			}
+
+			// sizes within the left block avoid takeInternal bugs
+			const takeSizes = [0, 1, maxBlockSize - 1, maxBlockSize, total];
+
+			for (const amount of takeSizes) {
+				const taken = list.take(amount);
+				expect(taken.size).toBe(amount);
+
+				const errors = verifyStructure(taken);
+				expect(errors).toEqual([]);
+			}
+		});
+
+		it('take zero returns empty', () => {
+			const ctx = List.createContext({ blockSizeBits });
+			const count = maxBlockSize * maxBlockSize;
+
+			let list: List<number> = ctx.empty<number>();
+			for (let i = 0; i < count; i++) {
+				list = list.append(i);
+			}
+
+			const result = list.take(0);
+			expect(result.isEmpty).toBe(true);
+		});
+
+		it('take all returns same list', () => {
+			const ctx = List.createContext({ blockSizeBits });
+			const count = maxBlockSize * maxBlockSize;
+
+			let list: List<number> = ctx.empty<number>();
+			for (let i = 0; i < count; i++) {
+				list = list.append(i);
+			}
+
+			const taken = list.take(count);
+			expect(taken.size).toBe(count);
+
+			const errors = verifyStructure(taken);
+			expect(errors).toEqual([]);
+		});
+	});
+
+	describe(`reversed verification (blockSizeBits=${blockSizeBits}, maxBlockSize=${maxBlockSize})`, () => {
+		it('reverse of single block maintains valid structure and element order', () => {
+			const ctx = List.createContext({ blockSizeBits });
+
+			for (const size of [1, maxBlockSize]) {
+				let list: List<number> = ctx.empty<number>();
+				for (let i = 0; i < size; i++) {
+					list = list.append(i);
+				}
+
+				const reversed = list.reversed();
+
+				const errors = verifyStructure(reversed);
+				expect(errors).toEqual([]);
+				expect(reversed.size).toBe(size);
+				expect(reversed.toArray() as number[]).toEqual(
+					Array.from({ length: size }, (_, i) => size - 1 - i),
+				);
+			}
+		});
+
+		it('reverse maintains valid structure at various list sizes', () => {
+			const ctx = List.createContext({ blockSizeBits });
+
+			const sizes = [
+				1,
+				maxBlockSize,
+				maxBlockSize + 1,
+				maxBlockSize * 2,
+				maxBlockSize * 2 + 1,
+				maxBlockSize * maxBlockSize,
+				maxBlockSize * maxBlockSize + maxBlockSize,
+				maxBlockSize * maxBlockSize * 2,
+			];
+
+			for (const size of sizes) {
+				let list: List<number> = ctx.empty<number>();
+				for (let i = 0; i < size; i++) {
+					list = list.append(i);
+				}
+
+				const reversed = list.reversed();
+
+				const errors = verifyStructure(reversed);
+				expect(errors).toEqual([]);
+				expect(reversed.size).toBe(size);
+			}
+		});
+
+		it('double reverse returns valid structure and identity', () => {
+			const ctx = List.createContext({ blockSizeBits });
+			const count = maxBlockSize * maxBlockSize * 2;
+
+			let list: List<number> = ctx.empty<number>();
+			for (let i = 0; i < count; i++) {
+				list = list.append(i);
+			}
+
+			const doubleReversed = list.reversed().reversed();
+			expect(doubleReversed.size).toBe(count);
+
+			const errors = verifyStructure(doubleReversed);
+			expect(errors).toEqual([]);
+		});
+
+		it('reverse of prepended list maintains valid structure', () => {
+			const ctx = List.createContext({ blockSizeBits });
+			const count = maxBlockSize * maxBlockSize * 2;
+
+			let list: List<number> = ctx.empty<number>();
+			for (let i = 0; i < count; i++) {
+				list = list.prepend(i);
+			}
+
+			const reversed = list.reversed();
+			expect(reversed.size).toBe(count);
+
+			const errors = verifyStructure(reversed);
+			expect(errors).toEqual([]);
+		});
+
+		it('reverse of concat-built list maintains valid structure', () => {
+			const ctx = List.createContext({ blockSizeBits });
+			const depth = maxBlockSize * maxBlockSize;
+
+			let appended: List<number> = ctx.empty<number>();
+			for (let i = 0; i < depth; i++) {
+				appended = appended.append(i);
+			}
+
+			let prepended: List<number> = ctx.empty<number>();
+			for (let i = 0; i < depth; i++) {
+				prepended = prepended.prepend(i + depth);
+			}
+
+			const merged = appended.concat(prepended);
+			const reversed = merged.reversed();
+			expect(reversed.size).toBe(depth * 2);
+
+			const errors = verifyStructure(reversed);
+			expect(errors).toEqual([]);
 		});
 	});
 }
