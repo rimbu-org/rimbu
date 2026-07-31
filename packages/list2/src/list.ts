@@ -10,24 +10,21 @@ import type { ChildrenOps } from '#advanced/children-ops';
 import { ArrayOuterChildrenOps } from '#list/children-ops/array';
 import { createListContextModule } from '#list/context';
 
-export type OpWithResult<
-	Col,
-	Res,
-	HasKnownResult extends boolean = boolean,
-	CollectionChanged extends boolean = boolean,
-> = [
+export type OpWithResult<Col, Result, HasResult extends boolean = boolean> = [
 	collection: Col,
-	hasKnownResult: HasKnownResult,
-	result: Res,
-	collectionChanged: CollectionChanged,
+	hasResult: HasResult,
+	result: Result,
+	collectionChanged: boolean,
 ];
 
 export type OpWithChangeResult<
-	Col,
-	Res,
-	ResKnown extends Res = Res,
-	ColChanged = Col,
-> = OpWithResult<Col, Res, false> | OpWithResult<ColChanged, ResKnown, true>;
+	ColWithoutHasResult,
+	ResultWithoutHasResult,
+	ResultWithHasResult extends ResultWithoutHasResult = ResultWithoutHasResult,
+	ColWithHasResult = ColWithoutHasResult,
+> =
+	| OpWithResult<ColWithoutHasResult, ResultWithoutHasResult, false>
+	| OpWithResult<ColWithHasResult, ResultWithHasResult, true>;
 
 export interface List<T> extends IndexedCollection<T>, List.Capabilities<T> {
 	readonly context: List.Context<T>;
@@ -40,8 +37,8 @@ export declare namespace List {
 
 	export interface Builder<T> extends IndexedCollection.Builder<T> {
 		readonly context: List.Context<T>;
-		setAt(index: number, value: T): T | undefined;
-		setAt<O>(index: number, value: T, otherwise: OptLazy<O>): T | O;
+		setAt(index: number, element: T): T | undefined;
+		setAt<O>(index: number, element: T, otherwise: OptLazy<O>): T | O;
 		updateAt(
 			index: number,
 			f: (element: T) => T,
@@ -57,13 +54,13 @@ export declare namespace List {
 		extends Collection.WithFilter<T>,
 			IndexedCollection.WithOrderEditable<T>,
 			IndexedCollection.WithMap<T>,
-			List.WithSetAt<T>,
+			List.WithUpdateAt<T>,
 			List.WithConcat<T>,
 			List.WithReversed<T> {
 		readonly context: List.Context<T>;
 	}
 
-	export interface WithSetAt<E> extends IndexedCollection<E> {
+	export interface WithUpdateAt<E> extends IndexedCollection<E> {
 		setAt(index: number, element: E): this['context']['__types']['_SELF'];
 		setAtAndReturn(
 			index: number,
