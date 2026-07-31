@@ -651,7 +651,7 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 					: leftTree.middle.concat(newThisMiddle);
 
 			return this.context.innerTree(
-				leftTree.right,
+				leftTree.left,
 				this.right,
 				newMiddle,
 				newSize,

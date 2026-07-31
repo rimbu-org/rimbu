@@ -555,7 +555,7 @@ export class OuterTree<T>
 					: leftTree.middle.concat(newThisMiddle);
 
 			return this.context.outerTree(
-				leftTree.right,
+				leftTree.left,
 				this.right,
 				newMiddle,
 				newSize,
