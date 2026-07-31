@@ -446,7 +446,7 @@ export class OuterTree<T>
 		}
 
 		// Case 2: Tree Left block can be merged with current middle block
-		if (this.left._childrenInMin) {
+		if (this.left._hasEnoughChildren) {
 			const newMiddle = this._prependMiddle(this.left);
 
 			return this.copy(leftBlock, undefined, newMiddle, newSize);
@@ -563,7 +563,7 @@ export class OuterTree<T>
 		}
 
 		// Case 3: Both sides already satisfy minBlockSize — push both to middle
-		if (leftTree.right._childrenInMin && this.left._childrenInMin) {
+		if (leftTree.right._hasEnoughChildren && this.left._hasEnoughChildren) {
 			const newLeftMiddle = leftTree
 				._appendMiddle(leftTree.right)
 				.appendChild(this.left);

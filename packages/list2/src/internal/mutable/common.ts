@@ -21,8 +21,8 @@ export interface BlockBuilder<T, C = unknown> extends BuilderCommon<T, C> {
 	get nrChildren(): number;
 	get canAddChild(): boolean;
 	get canRemoveChild(): boolean;
-	get childrenInMax(): boolean;
-	get childrenInMin(): boolean;
+	get hasEnoughChildren(): boolean;
+	get notTooManyChildren(): boolean;
 	prependFrom(other: BlockBuilder<T, C>): void;
 	appendFrom(other: BlockBuilder<T, C>): void;
 	dropFirstChild(): C;

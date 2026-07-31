@@ -44,19 +44,19 @@ function runOuterBlockTests(
 				it('true when size <= maxBlockSize', () => {
 					const ctx = makeContext(2);
 					const b = factory(ctx, [1, 2, 3, 4]);
-					expect(b._childrenInMax).toBe(true);
+					expect(b._notTooManyChildren).toBe(true);
 				});
 
 				it('false when size > maxBlockSize', () => {
 					const ctx = makeContext(2);
 					const b = factory(ctx, [1, 2, 3, 4, 5]);
-					expect(b._childrenInMax).toBe(false);
+					expect(b._notTooManyChildren).toBe(false);
 				});
 
 				it('true for partial blocks', () => {
 					const ctx = makeContext(2);
 					const b = factory(ctx, [1, 2]);
-					expect(b._childrenInMax).toBe(true);
+					expect(b._notTooManyChildren).toBe(true);
 				});
 			});
 
@@ -64,25 +64,25 @@ function runOuterBlockTests(
 				it('true when size >= minBlockSize', () => {
 					const ctx = makeContext(3); // max=8, min=4
 					const b = factory(ctx, [1, 2, 3, 4]);
-					expect(b._childrenInMin).toBe(true);
+					expect(b._hasEnoughChildren).toBe(true);
 				});
 
 				it('false when size < minBlockSize', () => {
 					const ctx = makeContext(3);
 					const b = factory(ctx, [1, 2, 3]);
-					expect(b._childrenInMin).toBe(false);
+					expect(b._hasEnoughChildren).toBe(false);
 				});
 
 				it('min is 2 for blockSizeBits=2', () => {
 					const ctx = makeContext(2); // min=2
 					const b = factory(ctx, [1, 2]);
-					expect(b._childrenInMin).toBe(true);
+					expect(b._hasEnoughChildren).toBe(true);
 				});
 
 				it('single element below min', () => {
 					const ctx = makeContext(2);
 					const b = factory(ctx, [1]);
-					expect(b._childrenInMin).toBe(false);
+					expect(b._hasEnoughChildren).toBe(false);
 				});
 			});
 
@@ -595,7 +595,7 @@ function runOuterBlockTests(
 					const r = b._prependBlockChild(0);
 					expect(r.size).toBe(5);
 					expect(r._nrChildren).toBe(5);
-					expect(r._childrenInMax).toBe(false);
+					expect(r._notTooManyChildren).toBe(false);
 				});
 
 				it('single element becomes two', () => {
@@ -625,7 +625,7 @@ function runOuterBlockTests(
 					const r = b._appendBlockChild(5);
 					expect(r.size).toBe(5);
 					expect(r._nrChildren).toBe(5);
-					expect(r._childrenInMax).toBe(false);
+					expect(r._notTooManyChildren).toBe(false);
 				});
 
 				it('single element becomes two', () => {

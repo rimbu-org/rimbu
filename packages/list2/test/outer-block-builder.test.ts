@@ -76,22 +76,22 @@ describe('OuterBlockBuilder.properties', () => {
 	describe('childrenInMax / childrenInMin', () => {
 		it('childrenInMax true at max', () => {
 			const b = makeBuilder([1, 2, 3, 4], 2);
-			expect(b.childrenInMax).toBe(true);
+			expect(b.notTooManyChildren).toBe(true);
 		});
 
 		it('childrenInMax false above max', () => {
 			const b = makeBuilder([1, 2, 3, 4, 5], 2);
-			expect(b.childrenInMax).toBe(false);
+			expect(b.notTooManyChildren).toBe(false);
 		});
 
 		it('childrenInMin true at min', () => {
 			const b = makeBuilder([1, 2], 2);
-			expect(b.childrenInMin).toBe(true);
+			expect(b.hasEnoughChildren).toBe(true);
 		});
 
 		it('childrenInMin false below min', () => {
 			const b = makeBuilder([1], 2);
-			expect(b.childrenInMin).toBe(false);
+			expect(b.hasEnoughChildren).toBe(false);
 		});
 	});
 });
@@ -142,7 +142,7 @@ describe('OuterBlockBuilder.from-source', () => {
 		const b = makeBuilderFromSource([1, 2], 2); // min=2, max=4
 		expect(b.canAddChild).toBe(true);
 		expect(b.canRemoveChild).toBe(false);
-		expect(b.childrenInMax).toBe(true);
+		expect(b.notTooManyChildren).toBe(true);
 	});
 });
 

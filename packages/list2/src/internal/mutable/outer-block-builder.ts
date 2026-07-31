@@ -57,11 +57,11 @@ export class OuterBlockBuilder<T>
 		return this.nrChildren > this.context.minBlockSize;
 	}
 
-	get childrenInMax(): boolean {
+	get notTooManyChildren(): boolean {
 		return this.nrChildren <= this.context.maxBlockSize;
 	}
 
-	get childrenInMin(): boolean {
+	get hasEnoughChildren(): boolean {
 		return this.nrChildren >= this.context.minBlockSize;
 	}
 

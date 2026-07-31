@@ -497,7 +497,7 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 			return this.copy(newLeft, undefined, undefined, newSize);
 		}
 
-		if (this.left._childrenInMin) {
+		if (this.left._hasEnoughChildren) {
 			// move current left to middle
 			const newMiddle = this.prependMiddleBlock(this.right);
 
@@ -660,7 +660,7 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 		}
 
 		// Case 3: Both sides already satisfy minBlockSize — push both to middle
-		if (leftTree.right._childrenInMin && this.left._childrenInMin) {
+		if (leftTree.right._hasEnoughChildren && this.left._hasEnoughChildren) {
 			const newLeftMiddle = leftTree
 				.appendMiddleBlock(leftTree.right)
 				.appendChild(this.left);

@@ -69,11 +69,11 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		return this.nrChildren > this.context.minBlockSize;
 	}
 
-	get childrenInMax(): boolean {
+	get notTooManyChildren(): boolean {
 		return this.nrChildren <= this.context.maxBlockSize;
 	}
 
-	get childrenInMin(): boolean {
+	get hasEnoughChildren(): boolean {
 		return this.nrChildren >= this.context.minBlockSize;
 	}
 

@@ -171,7 +171,7 @@ export abstract class TreeBuilderBase<T, C> {
 			// insert left
 			this.left.insert(index, element);
 
-			if (this.left.childrenInMax) {
+			if (this.left.notTooManyChildren) {
 				// no need to rebalance
 				return;
 			}
@@ -212,7 +212,7 @@ export abstract class TreeBuilderBase<T, C> {
 			// insert in right block
 			this.right.insert(rightIndex, element);
 
-			if (this.right.childrenInMax) {
+			if (this.right.notTooManyChildren) {
 				// no need to rebalance
 				return;
 			}
@@ -268,7 +268,7 @@ export abstract class TreeBuilderBase<T, C> {
 			// index is in left
 			const previous = this.left.remove(index);
 
-			if (!this.left.childrenInMin) {
+			if (!this.left.hasEnoughChildren) {
 				if (undefined !== this.middle) {
 					const firstBlock = this.middle.firstChild();
 					if (firstBlock.canRemoveChild) {
@@ -311,7 +311,7 @@ export abstract class TreeBuilderBase<T, C> {
 			// index is in right
 			const previous = this.right.remove(rightIndex);
 
-			if (!this.right.childrenInMin) {
+			if (!this.right.hasEnoughChildren) {
 				if (undefined !== this.middle) {
 					const lastBlock = this.middle.lastChild();
 					if (lastBlock.canRemoveChild) {

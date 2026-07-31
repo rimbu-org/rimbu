@@ -60,11 +60,11 @@ export class InnerBlock<T, C extends Self<Block<T>, C>>
 		return this._nrChildren > this.context.minBlockSize;
 	}
 
-	get _childrenInMin(): boolean {
+	get _hasEnoughChildren(): boolean {
 		return this._nrChildren >= this.context.minBlockSize;
 	}
 
-	get _childrenInMax(): boolean {
+	get _notTooManyChildren(): boolean {
 		return this._nrChildren <= this.context.maxBlockSize;
 	}
 
@@ -422,7 +422,7 @@ export class InnerBlock<T, C extends Self<Block<T>, C>>
 		}
 
 		// Case 2: Joint is too large to merge into a single block, but can be merged into the middle of the tree
-		if (leftTree.right._childrenInMin) {
+		if (leftTree.right._hasEnoughChildren) {
 			const newLeftMiddle =
 				leftTree.middle?.appendChild(leftTree.right) ??
 				this.context.innerBlock(
@@ -495,12 +495,12 @@ export class InnerBlock<T, C extends Self<Block<T>, C>>
 		messages: string[] = [],
 		enforceMinChildren = false,
 	): string[] {
-		if (enforceMinChildren && !this._childrenInMin) {
+		if (enforceMinChildren && !this._hasEnoughChildren) {
 			messages.push(
 				`InnerBlock of level ${this.level} has fewer children than allowed: ${this._nrChildren} < ${this.context.minBlockSize}`,
 			);
 		}
-		if (!this._childrenInMax) {
+		if (!this._notTooManyChildren) {
 			messages.push(
 				`InnerBlock of level ${this.level} has more children than allowed: ${this._nrChildren} > ${this.context.maxBlockSize}`,
 			);

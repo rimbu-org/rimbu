@@ -73,11 +73,11 @@ export abstract class OuterBlock<T>
 		return this.size;
 	}
 
-	get _childrenInMax(): boolean {
+	get _notTooManyChildren(): boolean {
 		return this.size <= this.context.maxBlockSize;
 	}
 
-	get _childrenInMin(): boolean {
+	get _hasEnoughChildren(): boolean {
 		return this.size >= this.context.minBlockSize;
 	}
 
@@ -255,7 +255,7 @@ export abstract class OuterBlock<T>
 		}
 
 		// Case 2: Joint is too large to merge into a single block, but can be merged into the middle of the tree
-		if (leftTree.right._childrenInMin) {
+		if (leftTree.right._hasEnoughChildren) {
 			const newLeftMiddle =
 				leftTree.middle?.appendChild(leftTree.right) ??
 				this.context.innerBlock([leftTree.right], leftTree.right.size, 1);
@@ -289,12 +289,12 @@ export abstract class OuterBlock<T>
 		errors: string[] = [],
 		enforceMinChildren = false,
 	): string[] {
-		if (enforceMinChildren && !this._childrenInMin) {
+		if (enforceMinChildren && !this._hasEnoughChildren) {
 			errors.push(
 				`OuterBlock has fewer children than allowed: ${this._nrChildren} < ${this.context.minBlockSize}`,
 			);
 		}
-		if (!this._childrenInMax) {
+		if (!this._notTooManyChildren) {
 			errors.push(
 				`OuterBlock has more children than allowed: ${this._nrChildren} > ${this.context.maxBlockSize}`,
 			);
