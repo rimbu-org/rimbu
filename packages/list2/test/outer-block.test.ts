@@ -947,6 +947,227 @@ function runOuterBlockTests(
 			});
 		});
 
+		describe('OuterBlock.updateAtAndReturn', () => {
+			const b = makeBlock([10, 20, 30, 40, 50]);
+
+			it('updates element at positive index', () => {
+				const [r, hasChanged, [prev, curr], hasResult] =
+					b.updateAtAndReturn(2, (x) => x + 1);
+				expect(hasChanged).toBe(true);
+				expect(hasResult).toBe(true);
+				expect(prev).toBe(30);
+				expect(curr).toBe(31);
+				expect(r.toArray()).toEqual([10, 20, 31, 40, 50]);
+			});
+
+			it('updates element at negative index', () => {
+				const [r, , [prev, curr]] = b.updateAtAndReturn(-2, (x) => x * 10);
+				expect(prev).toBe(40);
+				expect(curr).toBe(400);
+				expect(r.toArray()).toEqual([10, 20, 30, 400, 50]);
+			});
+
+			it('returns unchanged block and undefined when out of bounds', () => {
+				const [r, hasChanged, [prev, curr]] = b.updateAtAndReturn(
+					100,
+					(x) => x + 1,
+				);
+				expect(r).toBe(b);
+				expect(hasChanged).toBe(false);
+				expect(prev).toBeUndefined();
+				expect(curr).toBeUndefined();
+			});
+
+			it('returns unchanged block and undefined for negative out of bounds', () => {
+				const [r, hasChanged, [prev, curr]] = b.updateAtAndReturn(
+					-100,
+					(x) => x + 1,
+				);
+				expect(r).toBe(b);
+				expect(hasChanged).toBe(false);
+				expect(prev).toBeUndefined();
+				expect(curr).toBeUndefined();
+			});
+
+			it('returns unchanged reference when function returns same value', () => {
+				const [r, hasChanged] = b.updateAtAndReturn(2, (x) => x);
+				expect(r).toBe(b);
+				expect(hasChanged).toBe(false);
+			});
+
+			it('does not mutate original', () => {
+				b.updateAtAndReturn(0, (x) => x + 100);
+				expect(b.toArray()).toEqual([10, 20, 30, 40, 50]);
+			});
+		});
+
+		describe('OuterBlock.setAtAndReturn', () => {
+			const b = makeBlock([10, 20, 30]);
+
+			it('replaces element and returns previous', () => {
+				const [r, hasResult, prev, hasChanged] = b.setAtAndReturn(1, 99);
+				expect(hasResult).toBe(true);
+				expect(hasChanged).toBe(true);
+				expect(prev).toBe(20);
+				expect(r.toArray()).toEqual([10, 99, 30]);
+			});
+
+			it('returns unchanged block for out of bounds index', () => {
+				const [r, hasResult, prev, hasChanged] = b.setAtAndReturn(100, 999);
+				expect(r).toBe(b);
+				expect(hasResult).toBe(false);
+				expect(hasChanged).toBe(false);
+			});
+
+			it('does not mutate original', () => {
+				b.setAtAndReturn(0, 999);
+				expect(b.toArray()).toEqual([10, 20, 30]);
+			});
+		});
+
+		describe('OuterBlock.concat', () => {
+			const bits = 2; // maxBlockSize=4
+
+			it('concatenating empty source returns self', () => {
+				const b = makeBlock([1, 2, 3]);
+				const ctx2 = makeContext<number>(bits);
+				const empty = ctx2.empty<number>();
+				const r = b.concat(empty);
+				expect(r).toBe(b);
+			});
+
+			it('concatenating two blocks that fit merges into single block', () => {
+				const ctx2 = makeContext<number>(bits);
+				const a = factory(ctx2, [1, 2]);
+				const b = factory(ctx2, [3]);
+				const r = a.concat(b);
+				expect(r.toArray()).toEqual([1, 2, 3]);
+				expect(r.size).toBe(3);
+			});
+
+			it('concatenating two blocks that overflow creates tree', () => {
+				const ctx2 = makeContext<number>(bits);
+				const a = factory(ctx2, [1, 2, 3]);
+				const b = factory(ctx2, [4, 5, 6]);
+				const r = a.concat(b);
+				expect(r.toArray()).toEqual([1, 2, 3, 4, 5, 6]);
+				expect(r).toHaveProperty('left');
+				expect(r).toHaveProperty('right');
+				expect(r).toHaveProperty('middle');
+			});
+
+			it('self-concat creates tree when size exceeds minBlockSize', () => {
+				const ctx2 = makeContext<number>(bits);
+				const a = factory(ctx2, [1, 2, 3]); // size=3 > minBlockSize=2
+				const r = a.concat(a);
+				expect(r.toArray()).toEqual([1, 2, 3, 1, 2, 3]);
+				expect(r).toHaveProperty('middle');
+			});
+
+			it('does not mutate original', () => {
+				const b = makeBlock([1, 2]);
+				b.concat(makeBlock([3]));
+				expect(b.toArray()).toEqual([1, 2]);
+			});
+		});
+
+		describe('OuterBlock._prependBlock', () => {
+			const bits = 2; // maxBlockSize=4
+			const ctx2 = makeContext<number>(bits);
+
+			it('merges into single block when combined size fits', () => {
+				const b = factory(ctx2, [3, 4]);
+				const left = factory(ctx2, [1, 2]);
+				const r = b._prependBlock(left);
+				expect(r.toArray()).toEqual([1, 2, 3, 4]);
+				expect(r.size).toBe(4);
+			});
+
+			it('creates outerTree when combined size exceeds maxBlockSize', () => {
+				const b = factory(ctx2, [3, 4]);
+				const left = factory(ctx2, [1, 2, 5]);
+				// 3 + 3 = 6 > maxBlockSize=4
+				const r = b._prependBlock(left);
+				expect(r.toArray()).toEqual([1, 2, 5, 3, 4]);
+				expect(r).toHaveProperty('left');
+				expect(r).toHaveProperty('right');
+				expect(r).toHaveProperty('middle');
+			});
+
+			it('does not mutate original', () => {
+				const b = factory(ctx2, [3, 4]);
+				const left = factory(ctx2, [1, 2]);
+				b._prependBlock(left);
+				expect(b.toArray()).toEqual([3, 4]);
+				expect(left.toArray()).toEqual([1, 2]);
+			});
+		});
+
+		describe('OuterBlock._prependTree', () => {
+			const bits = 2; // maxBlockSize=4, minBlockSize=2
+			const ctx2 = makeContext<number>(bits);
+
+			it('merges joint into single block when it fits maxBlockSize', () => {
+				const right = factory(ctx2, [5, 6]);
+				// leftTree: left=[1], right=[3,4], middle=null
+				const leftTree = ctx2.outerTree(
+					factory(ctx2, [1]),
+					factory(ctx2, [3, 4]),
+					null,
+					3,
+				);
+				// joint: [3,4] + [5,6] = 4 elements ≤ maxBlockSize=4
+				const r = right._prependTree(leftTree);
+				expect(r.toArray()).toEqual([1, 3, 4, 5, 6]);
+				expect(r.size).toBe(5);
+			});
+
+			it('pushes joint to middle when right of leftTree satisfies minBlockSize', () => {
+				const right = factory(ctx2, [9]);
+				// leftTree: left=[1,2], right=[3,4,5,6], middle=null
+				const leftTree = ctx2.outerTree(
+					factory(ctx2, [1, 2]),
+					factory(ctx2, [3, 4, 5, 6]),
+					null,
+					6,
+				);
+				// right of leftTree has 4 >= minBlockSize=2 → push to middle
+				const r = right._prependTree(leftTree);
+				expect(r.toArray()).toEqual([1, 2, 3, 4, 5, 6, 9]);
+				expect(r.size).toBe(7);
+			});
+
+			it('splits joint when neither merge nor push-to-middle applies', () => {
+				const right = factory(ctx2, [4, 5, 6, 7]);
+				// leftTree: left=[1], right=[3], middle=null
+				// right.size = 1 < minBlockSize=2 → Case 2 won't fire
+				const leftTree = ctx2.outerTree(
+					factory(ctx2, [1]),
+					factory(ctx2, [3]),
+					null,
+					2,
+				);
+				// joint: [3] + [4,5,6,7] = 5 > maxBlockSize=4 → Case 1 won't fire
+				// leftTree.right = 1 < minBlockSize=2 → Case 2 won't fire → Case 3 splits
+				const r = right._prependTree(leftTree);
+				expect(r.size).toBe(6);
+				expect(r.toArray()).toEqual([1, 3, 4, 5, 6, 7]);
+			});
+
+			it('does not mutate original', () => {
+				const right = factory(ctx2, [3, 4]);
+				const leftTree = ctx2.outerTree(
+					factory(ctx2, [1, 2]),
+					factory(ctx2, [5]),
+					null,
+					3,
+				);
+				const origRightArr = right.toArray();
+				right._prependTree(leftTree);
+				expect(right.toArray()).toEqual(origRightArr);
+			});
+		});
+
 		describe('OuterBlock.immutability', () => {
 			it('toArray returns a frozen array snapshot', () => {
 				const b = makeBlock([1, 2, 3]);

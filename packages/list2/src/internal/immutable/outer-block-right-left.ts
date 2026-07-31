@@ -70,7 +70,7 @@ export class OuterBlockRightLeft<T> extends OuterBlock<T> {
 	): OpWithResult<OuterBlock<T>, [previous: T, current: T], true> {
 		const [newChildren, hasResult, result, hasChanged] = this.#ops.updateAt(
 			this.#children,
-			-index,
+			this.size - index - 1,
 			f,
 		);
 
