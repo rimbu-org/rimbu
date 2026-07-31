@@ -43,7 +43,7 @@ describe('ArrayOuterChildrenOps', () => {
 
 	it('updateAt applies function to element', () => {
 		const c = ops.of([1, 2, 3]);
-		const result = ops.updateAt(c, 1, (v) => v * 10);
+		const [result] = ops.updateAt(c, 1, (v) => v * 10);
 
 		expect(ops.at(result, 1)).toBe(20);
 		expect(ops.at(c, 1)).toBe(2);
@@ -51,8 +51,9 @@ describe('ArrayOuterChildrenOps', () => {
 
 	it('updateAt returns same array when value is unchanged', () => {
 		const c = ops.of([1, 2, 3]);
-		const result = ops.updateAt(c, 1, (v) => v);
+		const [result, , , hasChanged] = ops.updateAt(c, 1, (v) => v);
 		expect(result).toBe(c);
+		expect(hasChanged).toBe(false);
 	});
 
 	it('prepend adds to beginning', () => {
@@ -225,11 +226,13 @@ describe('ArrayOuterChildrenOps', () => {
 });
 
 describe('ArrayOuterChildrenOps mutating', () => {
-	it('mutateSet updates in place', () => {
+	it('mutateUpdate updates in place', () => {
 		const c = ops.of([1, 2, 3]);
-		const result = ops.mutateSet(c, 1, 99);
+		const [result, prev, curr] = ops.mutateUpdate(c, 1, () => 99);
 
 		expect(result).toBe(c);
+		expect(prev).toBe(2);
+		expect(curr).toBe(99);
 		expect(c[1]).toBe(99);
 	});
 
