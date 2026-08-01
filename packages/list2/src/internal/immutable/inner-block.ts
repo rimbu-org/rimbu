@@ -344,7 +344,7 @@ export class InnerBlock<T, C extends Self<Block<T>, C>>
 		}
 
 		const lastChild = this.#children[childIndex];
-		const newSelf = this.dropChildren(childIndex);
+		const newSelf = this.dropChildren(childIndex + 1);
 
 		return [newSelf, lastChild, inChildIndex];
 	}
