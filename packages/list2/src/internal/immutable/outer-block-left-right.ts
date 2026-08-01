@@ -118,24 +118,14 @@ export class OuterBlockLeftRight<T> extends OuterBlock<T> {
 		return this.#ops.safeCopy(this.#children);
 	}
 
-	_takeChildren(amount: Int): OuterBlock<T> {
-		if (amount >= 0) {
-			return this.#copy(
-				this.#ops.toSpliced(this.#children, amount, this.size - amount),
-			);
-		}
+	_takeChildren(amount: Int.AtLeastOne): OuterBlock<T> {
 		return this.#copy(
-			this.#ops.toSpliced(this.#children, 0, this.size + amount),
+			this.#ops.toSpliced(this.#children, amount, this.size - amount),
 		);
 	}
 
-	_dropChildren(amount: Int): OuterBlock<T> {
-		if (amount >= 0) {
-			return this.#copy(this.#ops.toSpliced(this.#children, 0, amount));
-		}
-		return this.#copy(
-			this.#ops.toSpliced(this.#children, this.size + amount, -amount),
-		);
+	_dropChildren(amount: Int.AtLeastOne): OuterBlock<T> {
+		return this.#copy(this.#ops.toSpliced(this.#children, 0, amount));
 	}
 
 	_concatChildren(children: OuterChildren<T>): OuterChildren<T> {

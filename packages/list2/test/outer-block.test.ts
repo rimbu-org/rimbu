@@ -795,53 +795,28 @@ function runOuterBlockTests(
 				const b = makeBlock([10, 20, 30, 40, 50]);
 
 				it('positive amount takes from front', () => {
-					const r = b._takeChildren(2 as Int);
+					const r = b._takeChildren(2 as Int.AtLeastOne);
 					expect(r.toArray()).toEqual([10, 20]);
 				});
 
-				it('zero takes nothing (empty block)', () => {
-					const r = b._takeChildren(0 as Int);
-					expect(r.size).toBe(0);
-				});
-
 				it('amount equals size takes everything', () => {
-					const r = b._takeChildren(5 as Int);
-					expect(r.toArray()).toEqual([10, 20, 30, 40, 50]);
-				});
-
-				it('negative amount takes from end', () => {
-					const r = b._takeChildren(-2 as Int);
-					expect(r.toArray()).toEqual([40, 50]);
-				});
-
-				it('negative amount = -size takes everything', () => {
-					const r = b._takeChildren(-5 as Int);
+					const r = b._takeChildren(5 as Int.AtLeastOne);
 					expect(r.toArray()).toEqual([10, 20, 30, 40, 50]);
 				});
 
 				it('does not mutate original', () => {
-					b._takeChildren(2 as Int);
+					b._takeChildren(2 as Int.AtLeastOne);
 					expect(b.toArray()).toEqual([10, 20, 30, 40, 50]);
 				});
 
 				it('amount 1 returns single element', () => {
-					const r = b._takeChildren(1 as Int);
+					const r = b._takeChildren(1 as Int.AtLeastOne);
 					expect(r.toArray()).toEqual([10]);
 				});
 
-				it('amount -1 returns last element only', () => {
-					const r = b._takeChildren(-1 as Int);
-					expect(r.toArray()).toEqual([50]);
-				});
-
 				it('amount = size-1 takes n-1 from front', () => {
-					const r = b._takeChildren(4 as Int);
+					const r = b._takeChildren(4 as Int.AtLeastOne);
 					expect(r.toArray()).toEqual([10, 20, 30, 40]);
-				});
-
-				it('amount = -(size-1) takes n-1 from end', () => {
-					const r = b._takeChildren(-4 as Int);
-					expect(r.toArray()).toEqual([20, 30, 40, 50]);
 				});
 			});
 
@@ -849,53 +824,28 @@ function runOuterBlockTests(
 				const b = makeBlock([10, 20, 30, 40, 50]);
 
 				it('positive amount drops from front', () => {
-					const r = b._dropChildren(2 as Int);
+					const r = b._dropChildren(2 as Int.AtLeastOne);
 					expect(r.toArray()).toEqual([30, 40, 50]);
 				});
 
-				it('zero drops nothing', () => {
-					const r = b._dropChildren(0 as Int);
-					expect(r.toArray()).toEqual([10, 20, 30, 40, 50]);
-				});
-
 				it('amount equals size drops everything', () => {
-					const r = b._dropChildren(5 as Int);
-					expect(r.size).toBe(0);
-				});
-
-				it('negative amount drops from end', () => {
-					const r = b._dropChildren(-2 as Int);
-					expect(r.toArray()).toEqual([10, 20, 30]);
-				});
-
-				it('negative amount = -size drops everything', () => {
-					const r = b._dropChildren(-5 as Int);
+					const r = b._dropChildren(5 as Int.AtLeastOne);
 					expect(r.size).toBe(0);
 				});
 
 				it('does not mutate original', () => {
-					b._dropChildren(2 as Int);
+					b._dropChildren(2 as Int.AtLeastOne);
 					expect(b.toArray()).toEqual([10, 20, 30, 40, 50]);
 				});
 
 				it('drop 1 removes first', () => {
-					const r = b._dropChildren(1 as Int);
+					const r = b._dropChildren(1 as Int.AtLeastOne);
 					expect(r.toArray()).toEqual([20, 30, 40, 50]);
 				});
 
-				it('drop -1 removes last', () => {
-					const r = b._dropChildren(-1 as Int);
-					expect(r.toArray()).toEqual([10, 20, 30, 40]);
-				});
-
 				it('drop size-1 leaves last element', () => {
-					const r = b._dropChildren(4 as Int);
+					const r = b._dropChildren(4 as Int.AtLeastOne);
 					expect(r.toArray()).toEqual([50]);
-				});
-
-				it('drop -(size-1) leaves first element', () => {
-					const r = b._dropChildren(-4 as Int);
-					expect(r.toArray()).toEqual([10]);
 				});
 			});
 
@@ -962,8 +912,7 @@ function runOuterBlockTests(
 			});
 
 			it('updates element at negative index', () => {
-				const { collection, result } =
-					b.updateAtAndReturn(-2, (x) => x * 10);
+				const { collection, result } = b.updateAtAndReturn(-2, (x) => x * 10);
 				const [prev, curr] = result;
 				expect(prev).toBe(40);
 				expect(curr).toBe(400);
@@ -1015,8 +964,12 @@ function runOuterBlockTests(
 			const b = makeBlock([10, 20, 30]);
 
 			it('replaces element and returns previous', () => {
-				const { collection, hasResult, result: previous, hasChanged } =
-					b.setAtAndReturn(1, 99);
+				const {
+					collection,
+					hasResult,
+					result: previous,
+					hasChanged,
+				} = b.setAtAndReturn(1, 99);
 				expect(hasResult).toBe(true);
 				expect(hasChanged).toBe(true);
 				expect(previous).toBe(20);
@@ -1024,8 +977,12 @@ function runOuterBlockTests(
 			});
 
 			it('returns unchanged block for out of bounds index', () => {
-				const { collection, hasResult, result: previous, hasChanged } =
-					b.setAtAndReturn(100, 999);
+				const {
+					collection,
+					hasResult,
+					result: previous,
+					hasChanged,
+				} = b.setAtAndReturn(100, 999);
 				expect(collection).toBe(b);
 				expect(hasResult).toBe(false);
 				expect(previous).toBeUndefined();

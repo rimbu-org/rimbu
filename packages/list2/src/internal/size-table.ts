@@ -139,40 +139,21 @@ export class SizeTable {
 
 	getCoordinates(
 		index: number,
-		options: { forTake?: boolean; noEmptyLast?: boolean } = {},
 	): [childIndex: Int.AtLeastZero, positionWithinChild: Int.AtLeastZero] {
-		const { forTake = false, noEmptyLast = false } = options;
-
-		const forTakeOffset = forTake ? 1 : 0;
-
-		const indexWithForTake = index - forTakeOffset;
-
-		if (indexWithForTake >= this.totalSize) {
-			const nrChildren = this.nrChildren;
-
-			if (noEmptyLast) {
-				const lastChildSize = this.sizeChildAt(-1);
-
-				return [
-					(nrChildren - 1) as Int.AtLeastZero,
-					(lastChildSize - 1) as Int.AtLeastZero,
-				];
-			}
-			return [nrChildren as Int.AtLeastZero, 0 as Int.AtLeastZero];
+		if (index >= this.totalSize) {
+			return [this.nrChildren as Int.AtLeastZero, 0 as Int.AtLeastZero];
 		}
 
 		if (this.isRegular) {
-			const childIndex = Math.floor(indexWithForTake / this.maxChildSize);
-			const inChildIndex =
-				(indexWithForTake & (this.maxChildSize - 1)) + forTakeOffset;
+			const childIndex = Math.floor(index / this.maxChildSize);
+			const inChildIndex = index & (this.maxChildSize - 1);
 
 			return [childIndex as Int.AtLeastZero, inChildIndex as Int.AtLeastZero];
 		}
 
-		let lowChildIndex = Math.floor(indexWithForTake / this.maxChildSize);
+		const searchIndex = index + this.offset;
+		let lowChildIndex = Math.floor(index / this.maxChildSize);
 		let highChildIndex = this.nrChildren - 1;
-
-		const searchIndex = indexWithForTake + this.offset;
 
 		while (lowChildIndex < highChildIndex) {
 			const middleChildIndex = (lowChildIndex + highChildIndex) >>> 1;
@@ -187,8 +168,21 @@ export class SizeTable {
 		const childIndex = lowChildIndex;
 		const prevCumulative =
 			childIndex === 0 ? this.offset : this.cumulativeTable[childIndex - 1];
-		const inChildIndex = searchIndex - prevCumulative + forTakeOffset;
+		const inChildIndex = searchIndex - prevCumulative;
+
 		return [childIndex as Int.AtLeastZero, inChildIndex as Int.AtLeastZero];
+	}
+
+	getCoordinatesForTake(
+		index: number,
+	): [childIndex: Int.AtLeastZero, positionWithinChild: Int.AtLeastZero] {
+		if (index === 0) {
+			return [0 as Int.AtLeastZero, 0 as Int.AtLeastZero];
+		}
+
+		const [childIndex, inChildIndex] = this.getCoordinates(index - 1);
+
+		return [childIndex, (inChildIndex + 1) as Int.AtLeastZero];
 	}
 
 	static fromSizes(

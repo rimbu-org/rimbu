@@ -267,7 +267,7 @@ export class InnerBlock<T, C extends Self<Block<T>, C>>
 	}
 
 	dropLastChild(): [InnerBlock<T, C> | null, C] {
-		const lastChild = this.#children[this.#children.length - 1];
+		const lastChild = this.#children.at(-1)!;
 
 		if (this._nrChildren === 1) return [null, lastChild];
 
@@ -316,9 +316,8 @@ export class InnerBlock<T, C extends Self<Block<T>, C>>
 		lastChild: C,
 		lastChildCount: Int.AtLeastZero,
 	] {
-		const [childIndex, inChildIndex] = this.sizeTable.getCoordinates(amount, {
-			forTake: true,
-		});
+		const [childIndex, inChildIndex] =
+			this.sizeTable.getCoordinatesForTake(amount);
 
 		if (childIndex >= this._nrChildren) {
 			throwInvalidStateError();
@@ -337,10 +336,8 @@ export class InnerBlock<T, C extends Self<Block<T>, C>>
 		lastChild: C,
 		lastChildCount: Int.AtLeastZero,
 	] {
-		const [childIndex, inChildIndex] = this.sizeTable.getCoordinates(amount, {
-			forTake: true,
-			noEmptyLast: false,
-		});
+		const [childIndex, inChildIndex] =
+			this.sizeTable.getCoordinatesForTake(amount);
 
 		if (childIndex >= this._nrChildren) {
 			throwInvalidStateError();

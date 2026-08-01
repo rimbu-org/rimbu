@@ -183,7 +183,7 @@ export class OuterTree<T>
 
 			if (newMiddle !== this.middle) {
 				const newLeft = this.left
-					._dropChildren(-1 as Int)
+					._takeChildren((this.left.size - 1) as Int.AtLeastOne)
 					._prependBlockChild(element);
 				return this.copy(newLeft, undefined, newMiddle, newSize);
 			}
@@ -236,7 +236,7 @@ export class OuterTree<T>
 
 			if (newMiddle !== this.middle) {
 				const newRight = this.right
-					._dropChildren(1 as Int)
+					._dropChildren(1 as Int.AtLeastOne)
 					._appendBlockChild(element);
 				return this.copy(undefined, newRight, newMiddle, newLength);
 			}
@@ -285,7 +285,9 @@ export class OuterTree<T>
 
 		const middleCount = count - this.left.size;
 
-		if (!Int.isAtLeastOne(middleCount)) return this.left.take(count);
+		if (!Int.isAtLeastOne(middleCount)) {
+			return this.left.take(count);
+		}
 
 		if (null === this.middle) {
 			return this.copy(
@@ -308,7 +310,7 @@ export class OuterTree<T>
 		const [newMiddle, upRight, inUpRight] =
 			this.middle.takeInternal(middleCount);
 
-		const newRight = upRight._takeChildren(inUpRight);
+		const newRight = upRight._takeChildren(inUpRight as Int.AtLeastOne);
 
 		return this.copy(undefined, newRight, newMiddle, count);
 		//._normalize();
@@ -321,7 +323,7 @@ export class OuterTree<T>
 			count = this.size + count;
 		}
 
-		Int.checkAtLeastZero(count);
+		Int.checkAtLeastOne(count);
 
 		const newSize = this.size - count;
 
@@ -344,7 +346,9 @@ export class OuterTree<T>
 		}
 
 		const [newMiddle, upLeft, inUpLeft] = this.middle.dropInternal(middleCount);
-		const newLeft = upLeft._dropChildren(inUpLeft);
+		const newLeft = Int.isAtLeastOne(inUpLeft)
+			? upLeft._dropChildren(inUpLeft)
+			: upLeft;
 
 		return this.copy(newLeft, undefined, newMiddle, newSize);
 		//._normalize();

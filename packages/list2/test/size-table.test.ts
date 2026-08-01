@@ -393,9 +393,7 @@ describe('SizeTable chain operations', () => {
 	it('forTake with prepended table gives correct inChildIndex', () => {
 		const table = SizeTable.fromSizes([3, 5, 2], 8).prependChildSize(5);
 
-		expect(
-			table.getCoordinates(5, { forTake: true }) as [number, number],
-		).toEqual([0, 5]);
+		expect(table.getCoordinatesForTake(5) as [number, number]).toEqual([0, 5]);
 	});
 
 	it('forTake with multiple prepends gives correct inChildIndex', () => {
@@ -404,12 +402,8 @@ describe('SizeTable chain operations', () => {
 			.prependChildSize(5)
 			.prependChildSize(8);
 
-		expect(
-			table.getCoordinates(8, { forTake: true }) as [number, number],
-		).toEqual([0, 8]);
-		expect(
-			table.getCoordinates(13, { forTake: true }) as [number, number],
-		).toEqual([1, 5]);
+		expect(table.getCoordinatesForTake(8) as [number, number]).toEqual([0, 8]);
+		expect(table.getCoordinatesForTake(13) as [number, number]).toEqual([1, 5]);
 	});
 });
 
@@ -584,28 +578,21 @@ describe('SizeTable.getCoordinates', () => {
 		expect(ii).toBe(0);
 	});
 
-	it('overflow with noEmptyLast returns last position', () => {
-		const [ci, ii] = table([20, 40, 20], 32).getCoordinates(100, {
-			noEmptyLast: true,
-		}) as [number, number];
-
-		expect(ci).toBe(2);
-		expect(ii).toBe(19);
-	});
-
 	it('forTake adds offset to inChildIndex', () => {
-		const [ci, ii] = table([32, 32, 32], 32, 96).getCoordinates(5, {
-			forTake: true,
-		}) as [number, number];
+		const [ci, ii] = table([32, 32, 32], 32, 96).getCoordinatesForTake(5) as [
+			number,
+			number,
+		];
 
 		expect(ci).toBe(0);
 		expect(ii).toBe(5);
 	});
 
 	it('forTake with boundary index returns past-end of current child', () => {
-		const [ci, ii] = table([32, 32, 32], 32, 96).getCoordinates(32, {
-			forTake: true,
-		}) as [number, number];
+		const [ci, ii] = table([32, 32, 32], 32, 96).getCoordinatesForTake(32) as [
+			number,
+			number,
+		];
 
 		expect(ci).toBe(0);
 		expect(ii).toBe(32);

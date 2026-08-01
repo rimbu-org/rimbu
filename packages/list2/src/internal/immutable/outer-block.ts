@@ -60,8 +60,8 @@ export abstract class OuterBlock<T>
 	abstract _prependBlockChild(child: T): OuterBlock<T>;
 	abstract _createOuterBlock(element: T): OuterBlock<T>;
 	abstract _copyChildren(): OuterChildren<T>;
-	abstract _takeChildren(amount: Int): OuterBlock<T>;
-	abstract _dropChildren(amount: Int): OuterBlock<T>;
+	abstract _takeChildren(amount: Int.AtLeastOne): OuterBlock<T>;
+	abstract _dropChildren(amount: Int.AtLeastOne): OuterBlock<T>;
 	abstract _concatChildren(children: OuterChildren<T>): OuterChildren<T>;
 	abstract _prependChildren(children: OuterChildren<T>): OuterChildren<T>;
 
@@ -149,29 +149,29 @@ export abstract class OuterBlock<T>
 	}
 
 	take(count: number): List<T> {
-		Int.check(count);
-
-		if (count <= 0) {
-			if (count === 0) return this.context.empty();
-			if (-count >= this.size) return this;
-		} else if (count >= this.size) {
+		if (count === 0) return this.context.empty();
+		if (count >= this.size || -count >= this.size) {
+			Int.check(count);
 			return this;
 		}
+		if (Int.isAtLeastOne(count)) {
+			return this._takeChildren(count);
+		}
 
-		return this._takeChildren(count);
+		return this._dropChildren((this.size + count) as Int.AtLeastOne);
 	}
 
 	drop(count: number): List<T> {
-		Int.check(count);
-
-		if (count <= 0) {
-			if (count === 0) return this;
-			if (-count >= this.size) return this.context.empty();
-		} else if (count >= this.size) {
+		if (count === 0) return this;
+		if (count >= this.size || -count >= this.size) {
+			Int.check(count);
 			return this.context.empty();
 		}
+		if (Int.isAtLeastOne(count)) {
+			return this._dropChildren(count);
+		}
 
-		return this._dropChildren(count);
+		return this._takeChildren((this.size + count) as Int.AtLeastOne);
 	}
 
 	prepend(element: T): List.NonEmpty<T> {
@@ -224,13 +224,13 @@ export abstract class OuterBlock<T>
 
 	_dropFirstChild(): [OuterBlock<T>, T] {
 		const first = this.first();
-		const newSelf = this._dropChildren(1 as Int);
+		const newSelf = this._dropChildren(1 as Int.AtLeastOne);
 		return [newSelf, first];
 	}
 
 	_dropLastChild(): [OuterBlock<T>, T] {
 		const last = this.last();
-		const newSelf = this._dropChildren(-1 as Int);
+		const newSelf = this._takeChildren((this.size - 1) as Int.AtLeastOne);
 		return [newSelf, last];
 	}
 
