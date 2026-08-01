@@ -111,15 +111,13 @@ export class InnerBlock<T, C extends Self<Block<T>, C>>
 		f: (element: T) => T,
 	): OpWithResult<InnerBlock<T, C>, [previous: T, current: T], true> {
 		const [childIndex, inChildIndex] = this.sizeTable.getCoordinates(index);
-		const [newChildren, hasResult, result, hasChanged] = this.#children[
-			childIndex
-		]._update(inChildIndex, f);
+		const outcome = this.#children[childIndex]._update(inChildIndex, f);
 
-		const newBlock = hasChanged
-			? this.#copy(this.#children.with(childIndex, newChildren))
+		const collection = outcome.hasChanged
+			? this.#copy(this.#children.with(childIndex, outcome.collection))
 			: this;
 
-		return [newBlock, hasResult, result, hasChanged];
+		return { ...outcome, collection };
 	}
 
 	_prependBlockChild(child: C): InnerBlock<T, C> {

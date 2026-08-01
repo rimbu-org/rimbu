@@ -488,55 +488,56 @@ describe('OuterTree.updateAtAndReturn', () => {
 
 	it('updates element in left block', () => {
 		const t = simpleTree([1, 2], [5, 6]);
-		const [r, hasResult, [prev, curr], hasChanged] = t.updateAtAndReturn(
-			0,
-			(x) => x + 10,
-		);
+		const { collection, hasResult, result, hasChanged } =
+			t.updateAtAndReturn(0, (x) => x + 10);
 		expect(hasResult).toBe(true);
 		expect(hasChanged).toBe(true);
+		const [prev, curr] = result;
 		expect(prev).toBe(1);
 		expect(curr).toBe(11);
-		expect(r.toArray()).toEqual([11, 2, 5, 6]);
+		expect(collection.toArray()).toEqual([11, 2, 5, 6]);
 	});
 
 	it('updates element in right block', () => {
 		const t = simpleTree([10, 20], [30, 40]);
-		const [r, hasResult, [prev, curr], hasChanged] = t.updateAtAndReturn(
-			3,
-			(x) => x + 1,
-		);
+		const { collection, hasResult, result, hasChanged } =
+			t.updateAtAndReturn(3, (x) => x + 1);
 		expect(hasResult).toBe(true);
 		expect(hasChanged).toBe(true);
+		const [prev, curr] = result;
 		expect(prev).toBe(40);
 		expect(curr).toBe(41);
-		expect(r.toArray()).toEqual([10, 20, 30, 41]);
+		expect(collection.toArray()).toEqual([10, 20, 30, 41]);
 	});
 
 	it('updates element at negative index', () => {
 		const t = simpleTree([10, 20], [30, 40]);
-		const [r, , [prev, curr]] = t.updateAtAndReturn(-2, (x) => x * 10);
+		const { collection, result } =
+			t.updateAtAndReturn(-2, (x) => x * 10);
+		const [prev, curr] = result;
 		expect(prev).toBe(30);
 		expect(curr).toBe(300);
-		expect(r.toArray()).toEqual([10, 20, 300, 40]);
+		expect(collection.toArray()).toEqual([10, 20, 300, 40]);
 	});
 
 	it('updates element in middle block', () => {
 		const t = treeWithMiddle([1, 2], [[3, 4]], [5, 6], bits);
-		const [r, , [prev, curr]] = t.updateAtAndReturn(3, (x) => x + 100);
+		const { collection, result } =
+			t.updateAtAndReturn(3, (x) => x + 100);
+		const [prev, curr] = result;
 		expect(prev).toBe(4);
 		expect(curr).toBe(104);
-		expect(r.toArray()).toEqual([1, 2, 3, 104, 5, 6]);
+		expect(collection.toArray()).toEqual([1, 2, 3, 104, 5, 6]);
 	});
 
 	it('returns unchanged and no result for out-of-bounds index', () => {
 		const t = simpleTree([10, 20], [30, 40]);
-		const [r, hasResult, [prev, curr], hasChanged] = t.updateAtAndReturn(
-			100,
-			(x) => x + 1,
-		);
-		expect(r).toBe(t);
+		const { collection, hasResult, result, hasChanged } =
+			t.updateAtAndReturn(100, (x) => x + 1);
+		expect(collection).toBe(t);
 		expect(hasResult).toBe(false);
 		expect(hasChanged).toBe(false);
+		const [prev, curr] = result;
 		expect(prev).toBeUndefined();
 		expect(curr).toBeUndefined();
 	});
@@ -553,18 +554,21 @@ describe('OuterTree.setAtAndReturn', () => {
 
 	it('replaces element and returns previous value', () => {
 		const t = simpleTree([10, 20], [30, 40]);
-		const [r, hasResult, prev, hasChanged] = t.setAtAndReturn(1, 99);
+		const { collection, hasResult, result: previous, hasChanged } =
+			t.setAtAndReturn(1, 99);
 		expect(hasResult).toBe(true);
 		expect(hasChanged).toBe(true);
-		expect(prev).toBe(20);
-		expect(r.toArray()).toEqual([10, 99, 30, 40]);
+		expect(previous).toBe(20);
+		expect(collection.toArray()).toEqual([10, 99, 30, 40]);
 	});
 
 	it('returns unchanged for out-of-bounds', () => {
 		const t = simpleTree([10, 20], [30, 40]);
-		const [r, hasResult, prev, hasChanged] = t.setAtAndReturn(100, 999);
-		expect(r).toBe(t);
+		const { collection, hasResult, result: previous, hasChanged } =
+			t.setAtAndReturn(100, 999);
+		expect(collection).toBe(t);
 		expect(hasResult).toBe(false);
+		expect(previous).toBeUndefined();
 		expect(hasChanged).toBe(false);
 	});
 });

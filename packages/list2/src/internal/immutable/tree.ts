@@ -48,46 +48,40 @@ export function treeUpdate<T, TR extends Tree<T> & { _self: TR }>(
 	const middleIndex = index - tree.left.size;
 
 	if (!Int.isAtLeastZero(middleIndex)) {
-		const [newLeft, hasResult, result, hasChanged] = tree.left._update(
-			index,
-			f,
-		);
+		const outcome = tree.left._update(index, f);
 
-		const newTree = hasResult ? tree.copy(newLeft) : tree;
+		const collection = outcome.hasChanged
+			? tree.copy(outcome.collection)
+			: tree;
 
-		return [newTree, hasResult, result, hasChanged];
+		return { ...outcome, collection };
 	}
 
 	if (null === tree.middle) {
-		const [newRight, hasResult, result, hasChanged] = tree.right._update(
-			middleIndex,
-			f,
-		);
+		const outcome = tree.right._update(middleIndex, f);
 
-		const newTree = hasResult ? tree.copy(undefined, newRight) : tree;
-		return [newTree, hasResult, result, hasChanged];
+		const collection = outcome.hasChanged
+			? tree.copy(undefined, outcome.collection)
+			: tree;
+		return { ...outcome, collection };
 	}
 
 	const rightIndex = middleIndex - tree.middle.size;
 
 	if (!Int.isAtLeastZero(rightIndex)) {
-		const [newMiddle, hasResult, result, hasChanged] = tree.middle._update(
-			middleIndex,
-			f,
-		);
+		const outcome = tree.middle._update(middleIndex, f);
 
-		const newTree = hasResult
-			? tree.copy(undefined, undefined, newMiddle)
+		const collection = outcome.hasChanged
+			? tree.copy(undefined, undefined, outcome.collection)
 			: tree;
 
-		return [newTree, hasResult, result, hasChanged];
+		return { ...outcome, collection };
 	}
 
-	const [newRight, hasResult, result, hasChanged] = tree.right._update(
-		rightIndex,
-		f,
-	);
+	const outcome = tree.right._update(rightIndex, f);
 
-	const newTree = hasResult ? tree.copy(undefined, newRight) : tree;
-	return [newTree, hasResult, result, hasChanged];
+	const collection = outcome.hasChanged
+		? tree.copy(undefined, outcome.collection)
+		: tree;
+	return { ...outcome, collection };
 }

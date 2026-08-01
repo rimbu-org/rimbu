@@ -105,17 +105,15 @@ export class OuterTree<T>
 		index: number,
 		element: T,
 	): OpWithChangeResult<OuterTree<T>, undefined, T> {
-		const [newThis, hasResult, [previous], hasChanged] = this.updateAtAndReturn(
-			index,
-			() => element,
-		);
+		const outcome = this.updateAtAndReturn(index, () => element);
 
-		return [newThis, hasResult, previous as any, hasChanged];
+		const [previous] = outcome.result;
+
+		return { ...outcome, result: previous as any };
 	}
 
 	updateAt(index: number, f: (element: T) => T): OuterTree<T> {
-		const [newThis] = this.updateAtAndReturn(index, f);
-		return newThis;
+		return this.updateAtAndReturn(index, f).collection;
 	}
 
 	updateAtAndReturn(
@@ -128,7 +126,12 @@ export class OuterTree<T>
 	> {
 		const size = this.size;
 		if (-index > size || index >= size) {
-			return [this, false, [undefined, undefined], false];
+			return {
+				collection: this,
+				hasResult: false,
+				result: [undefined, undefined],
+				hasChanged: false,
+			};
 		}
 		if (index < 0) {
 			index = size + index;

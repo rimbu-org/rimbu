@@ -10,12 +10,12 @@ import type { ChildrenOps } from '#advanced/children-ops';
 import { ArrayOuterChildrenOps } from '#list/children-ops/array';
 import { createListContextModule } from '#list/context';
 
-export type OpWithResult<Col, Result, HasResult extends boolean = boolean> = [
-	collection: Col,
-	hasResult: HasResult,
-	result: Result,
-	collectionChanged: boolean,
-];
+export type OpWithResult<Col, Result, HasResult extends boolean = boolean> = {
+	collection: Col;
+	hasResult: HasResult;
+	result: Result;
+	hasChanged: boolean;
+};
 
 export type OpWithChangeResult<
 	ColWithoutResult,

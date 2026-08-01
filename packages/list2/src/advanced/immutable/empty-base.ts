@@ -23,7 +23,12 @@ export class ListEmptyBase<T>
 	}
 
 	setAtAndReturn(): OpWithResult<List<T>, undefined, false> {
-		return [this, false, undefined, false];
+		return {
+			collection: this,
+			hasResult: false,
+			result: undefined,
+			hasChanged: false,
+		};
 	}
 
 	updateAt(): List<T> {
@@ -35,7 +40,12 @@ export class ListEmptyBase<T>
 		[previous: undefined, current: undefined],
 		false
 	> {
-		return [this, false, [undefined, undefined], false];
+		return {
+			collection: this,
+			hasResult: false,
+			result: [undefined, undefined],
+			hasChanged: false,
+		};
 	}
 
 	prepend(element: T): List.NonEmpty<T> {

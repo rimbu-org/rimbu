@@ -468,35 +468,37 @@ describe('InnerBlock._update', () => {
 
 	it('updates element in first child', () => {
 		const b = inner(ctx, [ob(ctx, [1, 2]), ob(ctx, [3, 4])]);
-		const [r, hasResult, [prev, curr], hasChanged] = b._update(
+		const { collection, hasResult, result, hasChanged } = b._update(
 			0 as Int.AtLeastZero,
 			(x) => x + 10,
 		);
 		expect(hasResult).toBe(true);
 		expect(hasChanged).toBe(true);
+		const [prev, curr] = result;
 		expect(prev).toBe(1);
 		expect(curr).toBe(11);
-		expect(r.toArray()).toEqual([11, 2, 3, 4]);
+		expect(collection.toArray()).toEqual([11, 2, 3, 4]);
 	});
 
 	it('updates element across child boundary', () => {
 		const b = inner(ctx, [ob(ctx, [1, 2]), ob(ctx, [3, 4])]);
-		const [r, , [prev, curr]] = b._update(
+		const { collection, result } = b._update(
 			2 as Int.AtLeastZero,
 			(x) => x + 100,
 		);
+		const [prev, curr] = result;
 		expect(prev).toBe(3);
 		expect(curr).toBe(103);
-		expect(r.toArray()).toEqual([1, 2, 103, 4]);
+		expect(collection.toArray()).toEqual([1, 2, 103, 4]);
 	});
 
 	it('returns same reference when function returns same value', () => {
 		const b = inner(ctx, [ob(ctx, [1, 2]), ob(ctx, [3])]);
-		const [r, , , hasChanged] = b._update(
+		const { collection, hasChanged } = b._update(
 			0 as Int.AtLeastZero,
 			(x) => x,
 		);
-		expect(r).toBe(b);
+		expect(collection).toBe(b);
 		expect(hasChanged).toBe(false);
 	});
 

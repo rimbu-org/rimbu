@@ -43,7 +43,7 @@ describe('ArrayOuterChildrenOps', () => {
 
 	it('updateAt applies function to element', () => {
 		const c = ops.of([1, 2, 3]);
-		const [result] = ops.updateAt(c, 1, (v) => v * 10);
+		const { collection: result } = ops.updateAt(c, 1, (v) => v * 10);
 
 		expect(ops.at(result, 1)).toBe(20);
 		expect(ops.at(c, 1)).toBe(2);
@@ -51,7 +51,7 @@ describe('ArrayOuterChildrenOps', () => {
 
 	it('updateAt returns same array when value is unchanged', () => {
 		const c = ops.of([1, 2, 3]);
-		const [result, , , hasChanged] = ops.updateAt(c, 1, (v) => v);
+		const { collection: result, hasChanged } = ops.updateAt(c, 1, (v) => v);
 		expect(result).toBe(c);
 		expect(hasChanged).toBe(false);
 	});

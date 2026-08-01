@@ -951,49 +951,55 @@ function runOuterBlockTests(
 			const b = makeBlock([10, 20, 30, 40, 50]);
 
 			it('updates element at positive index', () => {
-				const [r, hasChanged, [prev, curr], hasResult] =
+				const { collection, hasResult, result, hasChanged } =
 					b.updateAtAndReturn(2, (x) => x + 1);
 				expect(hasChanged).toBe(true);
 				expect(hasResult).toBe(true);
+				const [prev, curr] = result;
 				expect(prev).toBe(30);
 				expect(curr).toBe(31);
-				expect(r.toArray()).toEqual([10, 20, 31, 40, 50]);
+				expect(collection.toArray()).toEqual([10, 20, 31, 40, 50]);
 			});
 
 			it('updates element at negative index', () => {
-				const [r, , [prev, curr]] = b.updateAtAndReturn(-2, (x) => x * 10);
+				const { collection, result } =
+					b.updateAtAndReturn(-2, (x) => x * 10);
+				const [prev, curr] = result;
 				expect(prev).toBe(40);
 				expect(curr).toBe(400);
-				expect(r.toArray()).toEqual([10, 20, 30, 400, 50]);
+				expect(collection.toArray()).toEqual([10, 20, 30, 400, 50]);
 			});
 
 			it('returns unchanged block and undefined when out of bounds', () => {
-				const [r, hasChanged, [prev, curr]] = b.updateAtAndReturn(
+				const { collection, hasChanged, result } = b.updateAtAndReturn(
 					100,
 					(x) => x + 1,
 				);
-				expect(r).toBe(b);
+				expect(collection).toBe(b);
 				expect(hasChanged).toBe(false);
+				const [prev, curr] = result;
 				expect(prev).toBeUndefined();
 				expect(curr).toBeUndefined();
 			});
 
 			it('returns unchanged block and undefined for negative out of bounds', () => {
-				const [r, hasChanged, [prev, curr]] = b.updateAtAndReturn(
+				const { collection, hasChanged, result } = b.updateAtAndReturn(
 					-100,
 					(x) => x + 1,
 				);
-				expect(r).toBe(b);
+				expect(collection).toBe(b);
 				expect(hasChanged).toBe(false);
+				const [prev, curr] = result;
 				expect(prev).toBeUndefined();
 				expect(curr).toBeUndefined();
 			});
 
 			it('returns unchanged reference when function returns same value', () => {
-				const [r, hasResult, [prev, curr], hasChanged] =
+				const { collection, hasResult, result, hasChanged } =
 					b.updateAtAndReturn(2, (x) => x);
-				expect(r).toBe(b);
+				expect(collection).toBe(b);
 				expect(hasResult).toBe(true);
+				const [prev, curr] = result;
 				expect(prev).toBe(30);
 				expect(curr).toBe(30);
 				expect(hasChanged).toBe(false);
@@ -1009,17 +1015,20 @@ function runOuterBlockTests(
 			const b = makeBlock([10, 20, 30]);
 
 			it('replaces element and returns previous', () => {
-				const [r, hasResult, prev, hasChanged] = b.setAtAndReturn(1, 99);
+				const { collection, hasResult, result: previous, hasChanged } =
+					b.setAtAndReturn(1, 99);
 				expect(hasResult).toBe(true);
 				expect(hasChanged).toBe(true);
-				expect(prev).toBe(20);
-				expect(r.toArray()).toEqual([10, 99, 30]);
+				expect(previous).toBe(20);
+				expect(collection.toArray()).toEqual([10, 99, 30]);
 			});
 
 			it('returns unchanged block for out of bounds index', () => {
-				const [r, hasResult, prev, hasChanged] = b.setAtAndReturn(100, 999);
-				expect(r).toBe(b);
+				const { collection, hasResult, result: previous, hasChanged } =
+					b.setAtAndReturn(100, 999);
+				expect(collection).toBe(b);
 				expect(hasResult).toBe(false);
+				expect(previous).toBeUndefined();
 				expect(hasChanged).toBe(false);
 			});
 

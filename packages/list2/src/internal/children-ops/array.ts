@@ -40,11 +40,14 @@ export class ArrayOuterChildrenOps
 		const previous = children.at(index)!;
 		const current = update(previous);
 
-		if (Object.is(previous, current)) {
-			return [children, true, [previous, current], false];
-		}
+		const hasChanged = !Object.is(previous, current);
 
-		return [children.with(index, current), true, [previous, current], true];
+		return {
+			collection: hasChanged ? children.with(index, current) : children,
+			hasResult: true,
+			result: [previous, current],
+			hasChanged,
+		};
 	}
 	stream<T>(
 		children: T[],

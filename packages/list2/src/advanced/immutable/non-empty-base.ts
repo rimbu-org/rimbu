@@ -45,13 +45,11 @@ export abstract class ListNonEmptyBase<T>
 	abstract _prependTree(leftTree: OuterTree<T>): List.NonEmpty<T>;
 
 	setAt(index: number, element: T): this['_self'] {
-		const [newThis] = this.setAtAndReturn(index, element);
-		return newThis;
+		return this.setAtAndReturn(index, element).collection;
 	}
 
 	updateAt(index: number, f: (element: T) => T): this['_self'] {
-		const [newThis] = this.updateAtAndReturn(index, f);
-		return newThis;
+		return this.updateAtAndReturn(index, f).collection;
 	}
 
 	slice(range: IndexRange): List<T> {

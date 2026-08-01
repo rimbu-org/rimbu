@@ -68,15 +68,17 @@ export class OuterBlockRightLeft<T> extends OuterBlock<T> {
 		index: Int.AtLeastZero,
 		f: (element: T) => T,
 	): OpWithResult<OuterBlock<T>, [previous: T, current: T], true> {
-		const [newChildren, hasResult, result, hasChanged] = this.#ops.updateAt(
+		const outcome = this.#ops.updateAt(
 			this.#children,
 			this.size - index - 1,
 			f,
 		);
 
-		const newBlock = hasChanged ? this.#copy(newChildren) : this;
+		const collection = outcome.hasChanged
+			? this.#copy(outcome.collection)
+			: this;
 
-		return [newBlock, hasResult, result, hasChanged];
+		return { ...outcome, collection };
 	}
 
 	forEach(f: (element: T) => void): void {
