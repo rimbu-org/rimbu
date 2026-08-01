@@ -65,10 +65,12 @@ export class OuterTree<T>
 		middle = this.middle,
 		size = this.size,
 	): List.NonEmpty<T> {
-		if (null === middle) {
-			if (size <= 2 * this.context.maxBlockSize) {
+		if (size <= 2 * this.context.maxBlockSize) {
+			if (null === middle) {
 				return left.concat(right);
 			}
+
+			return this.context.from(this.left, middle, this.right);
 		}
 
 		return this.copy(left, right, middle, size);

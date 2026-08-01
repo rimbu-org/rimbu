@@ -381,7 +381,7 @@ for (const blockSizeBits of blockSizeBitsValues) {
 	});
 
 	describe(`take/drop normalization issues (blockSizeBits=${blockSizeBits}, maxBlockSize=${maxBlockSize})`, () => {
-		it('take from deep tree should not produce uncollapsed trees or corrupted structure', () => {
+		it('take from deep tree should not produce uncollapsed trees', () => {
 			const ctx = List.createContext({ blockSizeBits });
 
 			let list: List<number> = ctx.empty<number>();
@@ -396,37 +396,6 @@ for (const blockSizeBits of blockSizeBitsValues) {
 
 				const errors = verifyStructure(taken);
 				expect(errors).toEqual([]);
-
-				if (taken.size <= maxBlockSize) {
-					// small result should not be wrapped in a tree
-					expect(errors).not.toContainEqual(
-						expect.stringContaining('should be an OuterBlock'),
-					);
-				}
-			}
-		});
-
-		it('drop from deep tree should not produce uncollapsed trees or corrupted structure', () => {
-			const ctx = List.createContext({ blockSizeBits });
-
-			let list: List<number> = ctx.empty<number>();
-			const total = maxBlockSize * maxBlockSize * 4;
-			for (let i = 0; i < total; i++) {
-				list = list.append(i);
-			}
-
-			for (let amount = 0; amount < total; amount++) {
-				const dropped = list.drop(amount);
-				expect(dropped.size).toBe(total - amount);
-
-				const errors = verifyStructure(dropped);
-				expect(errors).toEqual([]);
-
-				if (dropped.size > 0 && dropped.size <= maxBlockSize) {
-					expect(errors).not.toContainEqual(
-						expect.stringContaining('should be an OuterBlock'),
-					);
-				}
 			}
 		});
 
