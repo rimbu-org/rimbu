@@ -114,11 +114,13 @@ export abstract class OuterBlock<T>
 	setAtAndReturn(
 		index: number,
 		element: T,
-	): OpWithChangeResult<OuterBlock<T>, T | undefined, T> {
-		const [newThis, hasKnownResult, [previous], hasChanged] =
-			this.updateAtAndReturn(index, () => element);
+	): OpWithChangeResult<OuterBlock<T>, undefined, T> {
+		const [newThis, hasResult, [previous], hasChanged] = this.updateAtAndReturn(
+			index,
+			() => element,
+		);
 
-		return [newThis, hasKnownResult, previous as T, hasChanged];
+		return [newThis, hasResult, previous as any, hasChanged];
 	}
 
 	updateAtAndReturn(
@@ -126,7 +128,7 @@ export abstract class OuterBlock<T>
 		f: (element: T) => T,
 	): OpWithChangeResult<
 		OuterBlock<T>,
-		[previous: T | undefined, current: T | undefined],
+		[previous: undefined, current: undefined],
 		[previous: T, current: T]
 	> {
 		const size = this.size;

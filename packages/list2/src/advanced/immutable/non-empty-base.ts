@@ -21,13 +21,13 @@ export abstract class ListNonEmptyBase<T>
 	abstract setAtAndReturn(
 		index: number,
 		element: T,
-	): OpWithChangeResult<this['_self'], T | undefined, T>;
+	): OpWithChangeResult<this['_self'], undefined, T>;
 	abstract updateAtAndReturn(
 		index: number,
 		f: (element: T) => T,
 	): OpWithChangeResult<
 		this['_self'],
-		[previous: T | undefined, current: T | undefined],
+		[previous: undefined, current: undefined],
 		[previous: T, current: T]
 	>;
 	abstract filter(f: (element: T) => boolean): List<T>;

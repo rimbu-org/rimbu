@@ -104,13 +104,13 @@ export class OuterTree<T>
 	setAtAndReturn(
 		index: number,
 		element: T,
-	): OpWithChangeResult<OuterTree<T>, T | undefined, T> {
+	): OpWithChangeResult<OuterTree<T>, undefined, T> {
 		const [newThis, hasResult, [previous], hasChanged] = this.updateAtAndReturn(
 			index,
 			() => element,
 		);
 
-		return [newThis, hasResult, previous as T, hasChanged];
+		return [newThis, hasResult, previous as any, hasChanged];
 	}
 
 	updateAt(index: number, f: (element: T) => T): OuterTree<T> {
@@ -123,7 +123,7 @@ export class OuterTree<T>
 		f: (element: T) => T,
 	): OpWithChangeResult<
 		OuterTree<T>,
-		[previous: T | undefined, current: T | undefined],
+		[previous: undefined, current: undefined],
 		[previous: T, current: T]
 	> {
 		const size = this.size;

@@ -18,13 +18,13 @@ export type OpWithResult<Col, Result, HasResult extends boolean = boolean> = [
 ];
 
 export type OpWithChangeResult<
-	ColWithoutHasResult,
+	ColWithoutResult,
 	ResultWithoutHasResult,
-	ResultWithHasResult extends ResultWithoutHasResult = ResultWithoutHasResult,
-	ColWithHasResult = ColWithoutHasResult,
+	ResultWithHasResult = ResultWithoutHasResult,
+	ColWithResult = ColWithoutResult,
 > =
-	| OpWithResult<ColWithoutHasResult, ResultWithoutHasResult, false>
-	| OpWithResult<ColWithHasResult, ResultWithHasResult, true>;
+	| OpWithResult<ColWithoutResult, ResultWithoutHasResult, false>
+	| OpWithResult<ColWithResult, ResultWithHasResult, true>;
 
 export interface List<T> extends IndexedCollection<T>, List.Capabilities<T> {
 	readonly context: List.Context<T>;
@@ -67,7 +67,7 @@ export declare namespace List {
 			element: E,
 		): OpWithChangeResult<
 			this['context']['__types']['_SELF'],
-			E | undefined,
+			undefined,
 			E,
 			this['context']['__types']['_NON_EMPTY']
 		>;
@@ -80,7 +80,7 @@ export declare namespace List {
 			f: (element: E) => E,
 		): OpWithChangeResult<
 			this['context']['__types']['_SELF'],
-			[previous: E | undefined, current: E | undefined],
+			[previous: undefined, current: undefined],
 			[previous: E, current: E],
 			this['context']['__types']['_NON_EMPTY']
 		>;
