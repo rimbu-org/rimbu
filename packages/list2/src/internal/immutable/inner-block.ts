@@ -359,7 +359,7 @@ export class InnerBlock<T, C extends Self<Block<T>, C>>
 		);
 
 		const newSizeTable =
-			this.#_sizeTable?.dropChildren(childAmount) ??
+			this.#_sizeTable?.takeChildren(childAmount) ??
 			// need to compute anyway to get new total size
 			SizeTable.fromChildren(
 				newChildren,

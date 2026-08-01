@@ -469,7 +469,7 @@ describe('InnerBlockBuilder.edge-cases', () => {
 			const children = Array.from({ length: 4 }, (_, i) => ob(ctx, [i]));
 			const b = ib(ctx, children);
 			expect(b.canAddChild).toBe(false);
-			expect(b.hasEnoughChildren).toBe(true);
+			expect(b.notTooManyChildren).toBe(true);
 		});
 
 		it('exactly at min children', () => {

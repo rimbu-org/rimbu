@@ -59,6 +59,21 @@ export class OuterTree<T>
 		return this.context.outerTree(left, right, middle, size);
 	}
 
+	#createNormalized(
+		left = this.left,
+		right = this.right,
+		middle = this.middle,
+		size = this.size,
+	): List.NonEmpty<T> {
+		if (null === middle) {
+			if (size <= this.context.maxBlockSize) {
+				return left.concat(right);
+			}
+		}
+
+		return this.copy(left, right, middle, size);
+	}
+
 	get #ops() {
 		return this.context.childrenOps;
 	}
@@ -290,7 +305,7 @@ export class OuterTree<T>
 		}
 
 		if (null === this.middle) {
-			return this.copy(
+			return this.#createNormalized(
 				undefined,
 				this.right._takeChildren(middleCount),
 				undefined,
@@ -303,7 +318,7 @@ export class OuterTree<T>
 
 		if (Int.isAtLeastOne(rightCount)) {
 			const newRight = this.right._takeChildren(rightCount);
-			return this.copy(undefined, newRight, undefined, count);
+			return this.#createNormalized(undefined, newRight, undefined, count);
 			//._normalize();
 		}
 
@@ -312,7 +327,7 @@ export class OuterTree<T>
 
 		const newRight = upRight._takeChildren(inUpRight as Int.AtLeastOne);
 
-		return this.copy(undefined, newRight, newMiddle, count);
+		return this.#createNormalized(undefined, newRight, newMiddle, count);
 		//._normalize();
 	}
 
@@ -331,7 +346,7 @@ export class OuterTree<T>
 
 		if (!Int.isAtLeastZero(middleCount)) {
 			const newLeft = this.left._dropChildren(count);
-			return this.copy(newLeft, undefined, undefined, newSize);
+			return this.#createNormalized(newLeft, undefined, undefined, newSize);
 			//._normalize();
 		}
 
@@ -350,7 +365,7 @@ export class OuterTree<T>
 			? upLeft._dropChildren(inUpLeft)
 			: upLeft;
 
-		return this.copy(newLeft, undefined, newMiddle, newSize);
+		return this.#createNormalized(newLeft, undefined, newMiddle, newSize);
 		//._normalize();
 	}
 

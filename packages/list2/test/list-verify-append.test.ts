@@ -153,21 +153,22 @@ for (const blockSizeBits of blockSizeBitsValues) {
 	});
 
 	describe(`drop verification (blockSizeBits=${blockSizeBits}, maxBlockSize=${maxBlockSize})`, () => {
-		it('drop from append-built list at safe offsets maintains valid structure', () => {
+		it('drop from append-built list at various offsets maintains valid structure', () => {
 			const ctx = List.createContext({ blockSizeBits });
-			const total = maxBlockSize * maxBlockSize * 3;
+			const total = maxBlockSize * maxBlockSize * 2;
 
 			let list: List<number> = ctx.empty<number>();
 			for (let i = 0; i < total; i++) {
 				list = list.append(i);
 			}
 
-			// offsets that stay within the left block avoid the dropInternal bug
-			const dropOffsets = [0, 1, Math.min(maxBlockSize - 1, total - 1)];
+			const dropOffsets = [0, 1, total - 1, total, -1, -(total - 1)];
 
 			for (const offset of dropOffsets) {
 				const dropped = list.drop(offset);
-				expect(dropped.size).toBe(total - offset);
+				expect(dropped.size).toBe(
+					Math.max(0, total - (offset >= 0 ? offset : total + offset)),
+				);
 
 				const errors = verifyStructure(dropped);
 				expect(errors).toEqual([]);
@@ -189,17 +190,16 @@ for (const blockSizeBits of blockSizeBitsValues) {
 	});
 
 	describe(`take verification (blockSizeBits=${blockSizeBits}, maxBlockSize=${maxBlockSize})`, () => {
-		it('take from append-built list at safe sizes maintains valid structure', () => {
+		it('take from append-built list at various sizes maintains valid structure', () => {
 			const ctx = List.createContext({ blockSizeBits });
-			const total = maxBlockSize * maxBlockSize * 3;
+			const total = maxBlockSize * maxBlockSize * 2;
 
 			let list: List<number> = ctx.empty<number>();
 			for (let i = 0; i < total; i++) {
 				list = list.append(i);
 			}
 
-			// sizes within the left block avoid takeInternal bugs
-			const takeSizes = [0, 1, maxBlockSize - 1, maxBlockSize, total];
+			const takeSizes = [0, 1, maxBlockSize, total];
 
 			for (const amount of takeSizes) {
 				const taken = list.take(amount);
@@ -341,6 +341,74 @@ for (const blockSizeBits of blockSizeBitsValues) {
 
 			const errors = verifyStructure(reversed);
 			expect(errors).toEqual([]);
+		});
+	});
+
+	describe(`take/drop normalization issues (blockSizeBits=${blockSizeBits}, maxBlockSize=${maxBlockSize})`, () => {
+		it('take should not produce tree that can be collapsed to a block', () => {
+			const ctx = List.createContext({ blockSizeBits });
+
+			let list: List<number> = ctx.empty<number>();
+			const total = maxBlockSize * maxBlockSize * 4;
+			for (let i = 0; i < total; i++) {
+				list = list.append(i);
+			}
+
+			for (
+				let amount = 1;
+				amount <= Math.min(total, maxBlockSize * maxBlockSize);
+				amount += Math.max(1, maxBlockSize >>> 2)
+			) {
+				const taken = list.take(amount);
+				expect(taken.size).toBe(amount);
+
+				const errors = verifyStructure(taken);
+				expect(errors).toEqual([]);
+			}
+		});
+
+		it('drop should not produce tree that can be collapsed to a block', () => {
+			const ctx = List.createContext({ blockSizeBits });
+
+			let list: List<number> = ctx.empty<number>();
+			const total = maxBlockSize * maxBlockSize * 4;
+			for (let i = 0; i < total; i++) {
+				list = list.append(i);
+			}
+
+			for (
+				let amount = 1;
+				amount <= Math.min(total, maxBlockSize * maxBlockSize);
+				amount += Math.max(1, maxBlockSize >>> 2)
+			) {
+				const dropped = list.drop(amount);
+				expect(dropped.size).toBe(total - amount);
+
+				const errors = verifyStructure(dropped);
+				expect(errors).toEqual([]);
+			}
+		});
+
+		it('drop across middle boundaries should not produce duplicate elements', () => {
+			if (blockSizeBits < 4) {
+				const ctx = List.createContext({ blockSizeBits });
+
+				let list: List<number> = ctx.empty<number>();
+				const total = maxBlockSize * maxBlockSize * 2;
+				for (let i = 0; i < total; i++) {
+					list = list.append(i);
+				}
+
+				const dropAmount = maxBlockSize + 1;
+				if (dropAmount < total) {
+					const dropped = list.drop(dropAmount);
+					const errors = verifyStructure(dropped);
+					const arr = dropped.toArray();
+
+					expect(new Set(arr).size).toBe(arr.length);
+					expect(errors).toEqual([]);
+				}
+			}
 		});
 	});
 }
