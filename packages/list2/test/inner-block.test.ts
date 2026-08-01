@@ -577,10 +577,10 @@ describe('InnerBlock.dropChildren', () => {
 		expect(b.dropChildren(0)).toBe(b);
 	});
 
-	it('returns this when dropping all or more', () => {
+	it('returns null when dropping all children', () => {
 		const b = inner(ctx, [ob(ctx, [1]), ob(ctx, [2])]);
-		expect(b.dropChildren(2)).toBe(b);
-		expect(b.dropChildren(5)).toBe(b);
+		expect(b.dropChildren(2)).toBeNull();
+		expect(b.dropChildren(5)).toBeNull();
 	});
 });
 
@@ -684,28 +684,24 @@ describe('InnerBlock.takeInternal', () => {
 describe('InnerBlock.dropInternal', () => {
 	const ctx = makeContext<number>(3); // max=8
 
-	it('returns remaining children after dropping first n elements (currently uses takeChildren — bug)', () => {
+	it('returns remaining children after dropping first n elements', () => {
 		const b = inner(ctx, [ob(ctx, [1, 2]), ob(ctx, [3, 4, 5]), ob(ctx, [6, 7])]);
-		// drop 3: skip first child (2 elems) and 1 from second → need childIndex=1
-		const [newInner, lastChild, lastChildCount] = b.dropInternal(
+		const [newInner, firstChild, inFirstChildCount] = b.dropInternal(
 			3 as Int.AtLeastZero,
 		);
-		// with fix: newInner = dropChildren(1) = [ob([3,4,5]), ob([6,7])] → [3,4,5,6,7]
-		// with bug: newInner = takeChildren(1) = [ob([1,2])] → [1,2]
-		expect(newInner!.toArray()).toEqual([3, 4, 5, 6, 7]);
-		expect(lastChild.toArray()).toEqual([3, 4, 5]);
-		expect(lastChildCount).toBe(1);
+		expect(newInner!.toArray()).toEqual([6, 7]);
+		expect(firstChild.toArray()).toEqual([3, 4, 5]);
+		expect(inFirstChildCount).toBe(1);
 	});
 
 	it('drop at exact child boundary returns remaining children', () => {
 		const b = inner(ctx, [ob(ctx, [1, 2]), ob(ctx, [3, 4])]);
-		const [newInner, lastChild, lastChildCount] = b.dropInternal(
+		const [newInner, firstChild, inFirstChildCount] = b.dropInternal(
 			2 as Int.AtLeastZero,
 		);
-		// dropChildren(0) now returns `this` — all children preserved
-		expect(newInner!.toArray()).toEqual([1, 2, 3, 4]);
-		expect(lastChild.toArray()).toEqual([1, 2]);
-		expect(lastChildCount).toBe(2);
+		expect(newInner).toBeNull();
+		expect(firstChild.toArray()).toEqual([3, 4]);
+		expect(inFirstChildCount).toBe(0);
 	});
 });
 

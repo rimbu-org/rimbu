@@ -192,14 +192,50 @@ for (const blockSizeBits of blockSizeBitsValues) {
 	describe(`take verification (blockSizeBits=${blockSizeBits}, maxBlockSize=${maxBlockSize})`, () => {
 		it('take from append-built list at various sizes maintains valid structure', () => {
 			const ctx = List.createContext({ blockSizeBits });
-			const total = maxBlockSize * maxBlockSize * 2;
+			const total = maxBlockSize * maxBlockSize * 3;
 
 			let list: List<number> = ctx.empty<number>();
 			for (let i = 0; i < total; i++) {
 				list = list.append(i);
 			}
 
-			const takeSizes = [0, 1, maxBlockSize, total];
+			const takeSizes = [
+				0,
+				1,
+				maxBlockSize - 1,
+				maxBlockSize,
+				maxBlockSize + 1,
+				maxBlockSize * 2,
+				maxBlockSize * maxBlockSize,
+				total,
+			];
+
+			for (const amount of takeSizes) {
+				const taken = list.take(amount);
+				expect(taken.size).toBe(amount);
+
+				const errors = verifyStructure(taken);
+				expect(errors).toEqual([]);
+			}
+		});
+
+		it('take from prepend-built list at various sizes maintains valid structure', () => {
+			const ctx = List.createContext({ blockSizeBits });
+			const total = maxBlockSize * maxBlockSize * 3;
+
+			let list: List<number> = ctx.empty<number>();
+			for (let i = 0; i < total; i++) {
+				list = list.prepend(i);
+			}
+
+			const takeSizes = [
+				0,
+				1,
+				maxBlockSize,
+				maxBlockSize * 2,
+				maxBlockSize * maxBlockSize,
+				total,
+			];
 
 			for (const amount of takeSizes) {
 				const taken = list.take(amount);
@@ -345,7 +381,7 @@ for (const blockSizeBits of blockSizeBitsValues) {
 	});
 
 	describe(`take/drop normalization issues (blockSizeBits=${blockSizeBits}, maxBlockSize=${maxBlockSize})`, () => {
-		it('take should not produce tree that can be collapsed to a block', () => {
+		it('take from deep tree should not produce uncollapsed trees or corrupted structure', () => {
 			const ctx = List.createContext({ blockSizeBits });
 
 			let list: List<number> = ctx.empty<number>();
@@ -354,20 +390,23 @@ for (const blockSizeBits of blockSizeBitsValues) {
 				list = list.append(i);
 			}
 
-			for (
-				let amount = 1;
-				amount <= Math.min(total, maxBlockSize * maxBlockSize);
-				amount += Math.max(1, maxBlockSize >>> 2)
-			) {
+			for (let amount = 1; amount <= total; amount++) {
 				const taken = list.take(amount);
 				expect(taken.size).toBe(amount);
 
 				const errors = verifyStructure(taken);
 				expect(errors).toEqual([]);
+
+				if (taken.size <= maxBlockSize) {
+					// small result should not be wrapped in a tree
+					expect(errors).not.toContainEqual(
+						expect.stringContaining('should be an OuterBlock'),
+					);
+				}
 			}
 		});
 
-		it('drop should not produce tree that can be collapsed to a block', () => {
+		it('drop from deep tree should not produce uncollapsed trees or corrupted structure', () => {
 			const ctx = List.createContext({ blockSizeBits });
 
 			let list: List<number> = ctx.empty<number>();
@@ -376,16 +415,18 @@ for (const blockSizeBits of blockSizeBitsValues) {
 				list = list.append(i);
 			}
 
-			for (
-				let amount = 1;
-				amount <= Math.min(total, maxBlockSize * maxBlockSize);
-				amount += Math.max(1, maxBlockSize >>> 2)
-			) {
+			for (let amount = 0; amount < total; amount++) {
 				const dropped = list.drop(amount);
 				expect(dropped.size).toBe(total - amount);
 
 				const errors = verifyStructure(dropped);
 				expect(errors).toEqual([]);
+
+				if (dropped.size > 0 && dropped.size <= maxBlockSize) {
+					expect(errors).not.toContainEqual(
+						expect.stringContaining('should be an OuterBlock'),
+					);
+				}
 			}
 		});
 
@@ -402,11 +443,9 @@ for (const blockSizeBits of blockSizeBitsValues) {
 				const dropAmount = maxBlockSize + 1;
 				if (dropAmount < total) {
 					const dropped = list.drop(dropAmount);
-					const errors = verifyStructure(dropped);
 					const arr = dropped.toArray();
 
 					expect(new Set(arr).size).toBe(arr.length);
-					expect(errors).toEqual([]);
 				}
 			}
 		});

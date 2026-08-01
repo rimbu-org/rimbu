@@ -98,18 +98,18 @@ export interface Inner<T, C extends Self<Block<T>, C>> extends ListNode<T> {
 	prependBlock(leftBlock: InnerBlock<T, C>): Inner<T, C>;
 	prependTree(leftTree: InnerTree<T, C>): Inner<T, C>;
 	takeInternal(
-		amount: Int.AtLeastZero,
+		amount: Int.AtLeastOne,
 	): [
 		newInner: Inner<T, C> | null,
 		lastChild: C,
-		lastChildCount: Int.AtLeastZero,
+		indexInlastChild: Int.AtLeastZero,
 	];
 	dropInternal(
 		amount: Int.AtLeastZero,
 	): [
 		newInner: Inner<T, C> | null,
-		lastChild: C,
-		lastChildCount: Int.AtLeastZero,
+		firstChild: C,
+		indexInFirstChild: Int.AtLeastZero,
 	];
 	toBuilder(): InnerBuilder<T, any>;
 }

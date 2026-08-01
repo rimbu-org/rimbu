@@ -310,11 +310,11 @@ export class InnerBlock<T, C extends Self<Block<T>, C>>
 	}
 
 	takeInternal(
-		amount: Int.AtLeastZero,
+		amount: Int.AtLeastOne,
 	): [
 		newInner: InnerBlock<T, C> | null,
 		lastChild: C,
-		lastChildCount: Int.AtLeastZero,
+		indexInLastChild: Int.AtLeastZero,
 	] {
 		const [childIndex, inChildIndex] =
 			this.sizeTable.getCoordinatesForTake(amount);
@@ -333,20 +333,20 @@ export class InnerBlock<T, C extends Self<Block<T>, C>>
 		amount: Int.AtLeastZero,
 	): [
 		newInner: InnerBlock<T, C> | null,
-		lastChild: C,
-		lastChildCount: Int.AtLeastZero,
+		firstChild: C,
+		indexInFirstChild: Int.AtLeastZero,
 	] {
-		const [childIndex, inChildIndex] =
-			this.sizeTable.getCoordinatesForTake(amount);
+		const [childIndex, indexInFirstChild] =
+			this.sizeTable.getCoordinates(amount);
 
 		if (childIndex >= this._nrChildren) {
 			throwInvalidStateError();
 		}
 
-		const lastChild = this.#children[childIndex];
+		const firstChild = this.#children[childIndex];
 		const newSelf = this.dropChildren(childIndex + 1);
 
-		return [newSelf, lastChild, inChildIndex];
+		return [newSelf, firstChild, indexInFirstChild];
 	}
 
 	takeChildren(childAmount: number): InnerBlock<T, C> | null {
@@ -371,7 +371,7 @@ export class InnerBlock<T, C extends Self<Block<T>, C>>
 
 	dropChildren(childAmount: number): InnerBlock<T, C> | null {
 		if (childAmount <= 0) return this;
-		if (childAmount >= this._nrChildren) return this;
+		if (childAmount >= this._nrChildren) return null;
 
 		const newChildren = this.#children.slice(childAmount);
 

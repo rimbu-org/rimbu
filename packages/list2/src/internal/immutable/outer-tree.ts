@@ -66,7 +66,7 @@ export class OuterTree<T>
 		size = this.size,
 	): List.NonEmpty<T> {
 		if (null === middle) {
-			if (size <= this.context.maxBlockSize) {
+			if (size <= 2 * this.context.maxBlockSize) {
 				return left.concat(right);
 			}
 		}
@@ -296,7 +296,7 @@ export class OuterTree<T>
 			count = this.size + count;
 		}
 
-		Int.checkAtLeastZero(count);
+		Int.checkAtLeastOne(count);
 
 		const middleCount = count - this.left.size;
 
@@ -334,6 +334,7 @@ export class OuterTree<T>
 	drop(count: number): List<T> {
 		if (count === 0) return this;
 		if (count >= this.size || -count > this.size) return this.context.empty();
+
 		if (count < 0) {
 			count = this.size + count;
 		}
@@ -341,23 +342,21 @@ export class OuterTree<T>
 		Int.checkAtLeastOne(count);
 
 		const newSize = this.size - count;
-
 		const middleCount = count - this.left.size;
 
 		if (!Int.isAtLeastZero(middleCount)) {
 			const newLeft = this.left._dropChildren(count);
 			return this.#createNormalized(newLeft, undefined, undefined, newSize);
-			//._normalize();
 		}
 
 		if (null === this.middle) {
 			return this.right.drop(middleCount);
 		}
 
-		const rightcount = middleCount - this.middle.size;
+		const rightCount = middleCount - this.middle.size;
 
-		if (rightcount >= 0) {
-			return this.right.drop(rightcount);
+		if (rightCount >= 0) {
+			return this.right.drop(rightCount);
 		}
 
 		const [newMiddle, upLeft, inUpLeft] = this.middle.dropInternal(middleCount);
