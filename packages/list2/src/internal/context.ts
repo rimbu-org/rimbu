@@ -2,7 +2,11 @@ import type { List } from '@rimbu/list';
 
 import type { ChildrenOps, OuterChildren } from '#advanced/children-ops';
 import type { Block, Inner, Self } from '#list/immutable/common';
-import type { BlockBuilder, InnerBuilder } from '#list/mutable/common';
+import type {
+	BlockBuilder,
+	InnerBuilder,
+	OuterBuilder,
+} from '#list/mutable/common';
 import type { SizeTable } from '#list/size-table';
 
 import { type ArrayNonEmpty, Module } from '@rimbu/common';
@@ -58,6 +62,7 @@ export interface ListContext<T, IsNonEmpty extends boolean = boolean>
 		middle: InnerBuilder<T, OuterBlockBuilder<T>> | undefined,
 		size: number,
 	): OuterTreeBuilder<T>;
+	outerTreeBuilderSource<T>(source: OuterTree<T>): OuterTreeBuilder<T>;
 	innerBlockBuilder<T, C extends BlockBuilder<T, any>>(
 		children: C[],
 		size: number,
@@ -77,6 +82,7 @@ export interface ListContext<T, IsNonEmpty extends boolean = boolean>
 	innerTreeBuilderSource<T, C extends BlockBuilder<T>>(
 		source: InnerTree<T, any>,
 	): InnerTreeBuilder<T, C>;
+	builderFrom(outerBuilder: OuterBuilder<T>): List.Builder<T>;
 }
 
 export function createListContextModule<UT>(options: {
@@ -170,6 +176,8 @@ export function createListContextModule<UT>(options: {
 				middle,
 				size,
 			),
+		outerTreeBuilderSource: <T>(source: OuterTree<T>) =>
+			new OuterTreeBuilder<T>(mod as unknown as ListContext<T>, source),
 		innerBlockBuilder: <T, C extends BlockBuilder<T>>(
 			children: C[],
 			size: number,
@@ -214,6 +222,8 @@ export function createListContextModule<UT>(options: {
 				source.level,
 				source,
 			),
+		builderFrom: <T>(outerBuilder: OuterBuilder<T>) =>
+			new ListBuilder<T>(mod as unknown as ListContext<T>, outerBuilder),
 		empty: Module.lazy(
 			<T>() => new ListEmptyBase<T>(mod as unknown as ListContext<T>),
 		),

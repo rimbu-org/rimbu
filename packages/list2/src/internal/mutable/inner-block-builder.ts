@@ -80,7 +80,9 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 	#prepareMutate(): void {
 		if (undefined === this.#source) return;
 
-		this.#_children = this.#source.mapChildren((child) => child.toBuilder());
+		this.#_children = this.#source.mapChildren((child) =>
+			child.toNodeBuilder(),
+		);
 		this.#source = undefined;
 	}
 

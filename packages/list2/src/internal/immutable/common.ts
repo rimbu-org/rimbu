@@ -61,7 +61,7 @@ export interface Block<T> extends ListNode<T> {
 	readonly _notTooManyChildren: boolean;
 
 	map<T2>(f: (element: T) => T2): Block<T2>;
-	toBuilder(): BlockBuilder<T, T>;
+	toNodeBuilder(): BlockBuilder<T, T>;
 }
 
 /**
@@ -112,5 +112,5 @@ export interface Inner<T, C extends Self<Block<T>, C>> extends ListNode<T> {
 		firstChild: C,
 		indexInFirstChild: Int.AtLeastZero,
 	];
-	toBuilder(): InnerBuilder<T, any>;
+	toNodeBuilder(): InnerBuilder<T, any>;
 }

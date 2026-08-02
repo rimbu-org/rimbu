@@ -5,6 +5,7 @@ import type { Stream, StreamSource } from '@rimbu/stream';
 import type { ListContext } from '#list/context';
 import type { Inner, Tree } from '#list/immutable/common';
 import type { OuterBlock } from '#list/immutable/outer-block';
+import type { OuterTreeBuilder } from '#list/mutable/outer-tree-builder';
 
 import { Int } from '@rimbu/base';
 import {
@@ -447,6 +448,10 @@ export class OuterTree<T>
 			this.middle?.reversed() ?? null,
 			this.size,
 		);
+	}
+
+	toNodeBuilder(): OuterTreeBuilder<T> {
+		return this.context.outerTreeBuilderSource(this);
 	}
 
 	toArray(): ArrayNonEmpty<T> {

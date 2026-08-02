@@ -784,7 +784,7 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 		);
 	}
 
-	toBuilder(): InnerTreeBuilder<T, any> {
+	toNodeBuilder(): InnerTreeBuilder<T, any> {
 		return this.context.innerTreeBuilderSource(this);
 	}
 

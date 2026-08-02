@@ -215,11 +215,7 @@ export abstract class OuterBlock<T>
 		return (asList as ListNonEmptyBase<T>)._prependBlock(this);
 	}
 
-	placeAt(): List.NonEmpty<T> {
-		return 0 as any;
-	}
-
-	toBuilder(): OuterBlockBuilder<T> {
+	toNodeBuilder(): OuterBlockBuilder<T> {
 		return this.context.outerBlockBuilderSource(this);
 	}
 

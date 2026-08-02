@@ -86,6 +86,8 @@ export declare namespace List {
 		export interface Capabilities<T>
 			extends Collection.Capability.WithFilter<T>,
 				Collection.Capability.WithMap<T>,
+				Collection.Capability.WithMutate<T>,
+				Collection.Capability.WithRecompose<T>,
 				IndexedCollection.Capability.WithFilterIndexed<T>,
 				IndexedCollection.Capability.WithMapIndexed<T>,
 				IndexedCollection.Capability.WithPrependAppend<T>,

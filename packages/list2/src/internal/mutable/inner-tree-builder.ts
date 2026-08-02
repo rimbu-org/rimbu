@@ -71,12 +71,12 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 	prepareMutate(): void {
 		if (undefined === this.#source) return;
 
-		this.#_left = this.#source.left.toBuilder();
-		this.#_right = this.#source.right.toBuilder();
+		this.#_left = this.#source.left.toNodeBuilder();
+		this.#_right = this.#source.right.toNodeBuilder();
 		this.#_middle =
 			null === this.#source.middle
 				? undefined
-				: this.#source.middle.toBuilder();
+				: this.#source.middle.toNodeBuilder();
 		this.#source = undefined;
 	}
 

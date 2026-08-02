@@ -79,7 +79,7 @@ export class OuterTreeBuilder<T>
 		this.#_middle =
 			null === this.#source.middle
 				? undefined
-				: this.#source.middle.toBuilder();
+				: this.#source.middle.toNodeBuilder();
 		this.#source = undefined;
 	}
 

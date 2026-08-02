@@ -873,7 +873,7 @@ function runOuterBlockTests(
 			describe('toBuilder', () => {
 				it('creates a builder with the same elements', () => {
 					const b = makeBlock([10, 20, 30]);
-					const builder = b.toBuilder();
+					const builder = b.toNodeBuilder();
 					expect(builder.size).toBe(3);
 					expect(builder.get(0 as Int.AtLeastZero)).toBe(10);
 					expect(builder.get(1 as Int.AtLeastZero)).toBe(20);
@@ -882,7 +882,7 @@ function runOuterBlockTests(
 
 				it('builder can append and build', () => {
 					const b = makeBlock([1, 2]);
-					const builder = b.toBuilder();
+					const builder = b.toNodeBuilder();
 					builder.append(3);
 					const built = builder.build();
 					expect(built.toArray()).toEqual([1, 2, 3]);
@@ -890,7 +890,7 @@ function runOuterBlockTests(
 
 				it('builder is independent of source', () => {
 					const b = makeBlock([1, 2]);
-					const builder = b.toBuilder();
+					const builder = b.toNodeBuilder();
 					builder.append(3);
 					expect(b.toArray()).toEqual([1, 2]);
 				});

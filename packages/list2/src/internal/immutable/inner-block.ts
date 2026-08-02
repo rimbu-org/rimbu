@@ -483,7 +483,7 @@ export class InnerBlock<T, C extends Self<Block<T>, C>>
 		return this.#copy(newChildren, this.size);
 	}
 
-	toBuilder(): InnerBlockBuilder<T, any> {
+	toNodeBuilder(): InnerBlockBuilder<T, any> {
 		return this.context.innerBlockBuilderSource(this);
 	}
 

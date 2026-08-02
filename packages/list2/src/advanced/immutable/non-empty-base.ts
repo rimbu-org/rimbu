@@ -1,12 +1,13 @@
 import type { Op } from '@rimbu/collection-types/types';
 import type { List } from '@rimbu/list';
-import type { StreamSource } from '@rimbu/stream';
+import type { Stream, StreamSource } from '@rimbu/stream';
 
 import type { ListContext } from '#list/context';
 import type { OuterBlock } from '#list/immutable/outer-block';
 import type { OuterTree } from '#list/immutable/outer-tree';
+import type { OuterBuilder } from '#list/mutable/common';
 
-import { throwInvalidStateError } from '@rimbu/base';
+import { Int, throwInvalidStateError } from '@rimbu/base';
 import { IndexedCollectionNonEmptyBase } from '@rimbu/collection-types/advanced/capabilities/base';
 import { type ArrayNonEmpty, IndexRange } from '@rimbu/common';
 
@@ -40,8 +41,9 @@ export abstract class ListNonEmptyBase<T>
 	abstract prepend(element: T): List.NonEmpty<T>;
 	abstract append(element: T): List.NonEmpty<T>;
 	abstract concat(...sources: ArrayNonEmpty<StreamSource<T>>): List.NonEmpty<T>;
-	abstract placeAt(index: number, element: T): List.NonEmpty<T>;
 	abstract reversed(): List.NonEmpty<T>;
+
+	abstract toNodeBuilder(): OuterBuilder<T>;
 
 	abstract _prependBlock(leftBlock: OuterBlock<T>): List.NonEmpty<T>;
 	abstract _prependTree(leftTree: OuterTree<T>): List.NonEmpty<T>;
@@ -135,22 +137,14 @@ export abstract class ListNonEmptyBase<T>
 	): List.NonEmpty<T>;
 	spliceAt(
 		index: number,
-		options?: { removeAmount?: number; insert?: StreamSource<T> },
+		options:
+			| {
+					removeAmount?: number | undefined;
+					insert?: StreamSource<T> | undefined;
+			  }
+			| undefined,
 	): List<T> {
-		if (undefined === options) {
-			return this.take(index);
-		}
-
-		if (index >= this.size) {
-			return this.concat(options.insert);
-		}
-		if (index === 0 || -index >= this.size) {
-			return this.context.from(options.insert, this);
-		}
-
-		// const
-
-		return 0 as any;
+		return this.spliceAtAndReturn(index, options as any).collection;
 	}
 
 	spliceAtAndReturn(
@@ -166,10 +160,12 @@ export abstract class ListNonEmptyBase<T>
 	>;
 	spliceAtAndReturn(
 		index: number,
-		options: {
-			removeAmount?: number | undefined;
-			insert?: StreamSource<T> | undefined;
-		} = {},
+		options:
+			| {
+					removeAmount?: number | undefined;
+					insert?: StreamSource<T> | undefined;
+			  }
+			| undefined = {},
 	): Op.DynamicResult<
 		List.NonEmpty<T>,
 		[removed: List<T>, inserted: List<T>],
@@ -178,6 +174,9 @@ export abstract class ListNonEmptyBase<T>
 	> {
 		// if (undefined === options) {
 		const { removeAmount = 0, insert } = options;
+
+		Int.checkAtLeastZero(removeAmount);
+
 		const insertList = this.context.from(insert);
 
 		if (index >= this.size) {
@@ -215,6 +214,42 @@ export abstract class ListNonEmptyBase<T>
 		throwInvalidStateError();
 	}
 
+	insertAt(index: number, values: StreamSource.NonEmpty<T>): List.NonEmpty<T>;
+	insertAt(index: number, values: StreamSource<T>): List<T> {
+		return this.spliceAt(index, { insert: values as StreamSource.NonEmpty<T> });
+	}
+
+	removeAt(index: number, amount = 1): List<T> {
+		return this.spliceAt(index, { removeAmount: amount } as any);
+	}
+
+	removeAtAndReturn(
+		index: number,
+		amount = 1,
+	): Op.DynamicResult<List.NonEmpty<T>, List<T>, List.NonEmpty<T>, List<T>> {
+		const outcome = this.spliceAtAndReturn(index, {
+			removeAmount: amount,
+		} as any);
+
+		const [removed] = outcome.result;
+
+		if (removed.nonEmpty()) {
+			return {
+				collection: outcome.collection,
+				hasResult: true,
+				result: removed,
+				hasChanged: true,
+			};
+		}
+
+		return {
+			collection: this,
+			hasResult: false,
+			result: removed,
+			hasChanged: false,
+		};
+	}
+
 	mapIndexed<T2>(
 		f: (element: T, index: number) => T2,
 		options: { indexOffset?: number } = {},
@@ -223,5 +258,22 @@ export abstract class ListNonEmptyBase<T>
 
 		let index = indexOffset;
 		return this.map((e) => f(e, index++));
+	}
+
+	recompose<T2>(
+		f: (stream: Stream.NonEmpty<T>) => StreamSource.NonEmpty<T2>,
+	): List.NonEmpty<T2>;
+	recompose<T2>(f: (stream: Stream.NonEmpty<T>) => StreamSource<T2>): List<T2> {
+		return this.context.from(f(this.stream()));
+	}
+
+	mutate(f: (builder: List.Builder<T>) => void): List<T> {
+		const builder = this.toBuilder();
+		f(builder);
+		return builder.build();
+	}
+
+	toBuilder(): List.Builder<T> {
+		return this.context.builderFrom(this.toNodeBuilder());
 	}
 }
