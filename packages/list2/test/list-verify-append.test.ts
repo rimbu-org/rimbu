@@ -223,6 +223,42 @@ for (const blockSizeBits of blockSizeBitsValues) {
 			const result = list.drop(count);
 			expect(result.isEmpty).toBe(true);
 		});
+
+		it('drop from prepend-built list at all offsets maintains valid structure', () => {
+			const ctx = List.createContext({ blockSizeBits });
+			const total = maxBlockSize * maxBlockSize * 2;
+
+			let list: List<number> = ctx.empty<number>();
+			for (let i = 0; i < total; i++) {
+				list = list.prepend(i);
+			}
+
+			for (let amount = 1; amount < total; amount++) {
+				const dropped = list.drop(amount);
+				expect(dropped.size).toBe(total - amount);
+
+				const errors = verifyStructure(dropped);
+				expect(errors).toEqual([]);
+			}
+		});
+
+		it('negative drop from prepend-built list at all offsets maintains valid structure', () => {
+			const ctx = List.createContext({ blockSizeBits });
+			const total = maxBlockSize * maxBlockSize * 2;
+
+			let list: List<number> = ctx.empty<number>();
+			for (let i = 0; i < total; i++) {
+				list = list.prepend(i);
+			}
+
+			for (let amount = 1; amount < total; amount++) {
+				const dropped = list.drop(-amount);
+				expect(dropped.size).toBe(total - amount);
+
+				const errors = verifyStructure(dropped);
+				expect(errors).toEqual([]);
+			}
+		});
 	});
 
 	describe(`take verification (blockSizeBits=${blockSizeBits}, maxBlockSize=${maxBlockSize})`, () => {
@@ -468,6 +504,23 @@ for (const blockSizeBits of blockSizeBitsValues) {
 
 				const errors = verifyStructure(taken);
 				expect(errors).toEqual([]);
+			}
+		});
+
+		it('positive take across middle boundaries should not produce duplicate elements', () => {
+			const ctx = List.createContext({ blockSizeBits });
+
+			let list: List<number> = ctx.empty<number>();
+			const total = maxBlockSize * maxBlockSize * 4;
+			for (let i = 0; i < total; i++) {
+				list = list.append(i);
+			}
+
+			for (let amount = 1; amount <= total; amount++) {
+				const taken = list.take(amount);
+				const arr = taken.toArray();
+
+				expect(new Set(arr).size).toBe(arr.length);
 			}
 		});
 
