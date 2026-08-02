@@ -51,9 +51,9 @@ export declare namespace List {
 	}
 
 	export interface Capabilities<T>
-		extends Collection.WithFilter<T>,
-			IndexedCollection.WithOrderEditable<T>,
-			IndexedCollection.WithMap<T>,
+		extends Collection.Capability.WithFilter<T>,
+			IndexedCollection.Capability.WithOrderEditable<T>,
+			IndexedCollection.Capability.WithMap<T>,
 			List.WithUpdateAt<T>,
 			List.WithConcat<T>,
 			List.WithReversed<T> {
@@ -102,7 +102,9 @@ export declare namespace List {
 	export interface Context<T, IsNonEmpty extends boolean = boolean> {
 		readonly blockSizeBits: number;
 
-		__types: IsNonEmpty extends true ? List.Types.NonEmpty<T> : List.Types<T>;
+		__types: IsNonEmpty extends true
+			? List.Advanced.TypesNonEmpty<T>
+			: List.Advanced.Types<T>;
 
 		createContext(options: { blockSizeBits?: number }): List.Context<T>;
 
@@ -138,19 +140,20 @@ export declare namespace List {
 		): IsNonEmpty extends true ? LNE : LN;
 	}
 
-	export interface Types<T> extends IndexedCollection.Types<T> {
-		_NORMAL: List<T>;
-		_NON_EMPTY: List.NonEmpty<T>;
-		_BUILDER: List.Builder<T>;
-		_NEW_TYPES: List.Types<this['_NEW_E']>;
-	}
-
-	export namespace Types {
-		export interface NonEmpty<T> extends IndexedCollection.Types.NonEmpty<T> {
+	export namespace Advanced {
+		export interface Types<T> extends IndexedCollection.Advanced.Types<T> {
 			_NORMAL: List<T>;
 			_NON_EMPTY: List.NonEmpty<T>;
 			_BUILDER: List.Builder<T>;
-			_NEW_TYPES: List.Types.NonEmpty<this['_NEW_E']>;
+			_NEW_TYPES: List.Advanced.Types<this['_NEW_E']>;
+		}
+
+		export interface TypesNonEmpty<T>
+			extends IndexedCollection.Advanced.TypesNonEmpty<T> {
+			_NORMAL: List<T>;
+			_NON_EMPTY: List.NonEmpty<T>;
+			_BUILDER: List.Builder<T>;
+			_NEW_TYPES: List.Advanced.TypesNonEmpty<this['_NEW_E']>;
 		}
 	}
 }

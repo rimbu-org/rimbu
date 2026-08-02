@@ -24,12 +24,8 @@ describe('IndexedValuedCollection', () => {
 		expectTypeOf(c.last()).toEqualTypeOf<number | undefined>();
 		expectTypeOf(c.last('a')).toEqualTypeOf<number | string>();
 
-		expectTypeOf(c.take(3)).toEqualTypeOf<
-			IndexedValuedCollection<number>
-		>();
-		expectTypeOf(c.drop(3)).toEqualTypeOf<
-			IndexedValuedCollection<number>
-		>();
+		expectTypeOf(c.take(3)).toEqualTypeOf<IndexedValuedCollection<number>>();
+		expectTypeOf(c.drop(3)).toEqualTypeOf<IndexedValuedCollection<number>>();
 
 		expectTypeOf(c.stream()).toEqualTypeOf<Stream<number>>();
 		expectTypeOf(c.streamSlice({ amount: 3 })).toEqualTypeOf<Stream<number>>();
@@ -91,9 +87,9 @@ describe('IndexedValuedCollection', () => {
 		expectTypeOf<IndexedValuedCollection<string>>().toExtend<
 			IndexedValuedCollection<string | number>
 		>();
-		expectTypeOf<
-			IndexedValuedCollection<string | number>
-		>().not.toExtend<IndexedValuedCollection<string>>();
+		expectTypeOf<IndexedValuedCollection<string | number>>().not.toExtend<
+			IndexedValuedCollection<string>
+		>();
 	});
 
 	it('can assign non-empty to normal', () => {
@@ -166,9 +162,8 @@ describe('IndexedValuedCollection.Types', () => {
 	});
 
 	it('NonEmpty._firstLast returns element without fallback', () => {
-		const fl: IndexedValuedCollection.Types.NonEmpty<
-			number
-		>['_firstLast'] = 0 as any;
+		const fl: IndexedValuedCollection.Types.TypesNonEmpty<number>['_firstLast'] =
+			0 as any;
 
 		expectTypeOf(fl()).toEqualTypeOf<number>();
 	});
@@ -181,9 +176,7 @@ describe('IndexedValuedCollection.Types', () => {
 
 	it('NonEmpty._NEW_TYPES preserves NonEmpty', () => {
 		expectTypeOf<
-			IndexedValuedCollection.Types.NonEmpty<
-				number
-			>['_NEW_TYPES']['_NON_EMPTY']
+			IndexedValuedCollection.Types.TypesNonEmpty<number>['_NEW_TYPES']['_NON_EMPTY']
 		>().toEqualTypeOf<IndexedValuedCollection.NonEmpty<unknown>>();
 	});
 
@@ -201,7 +194,7 @@ describe('IndexedValuedCollection.Types', () => {
 
 	it('NonEmpty extends IndexedCollection.Types.NonEmpty', () => {
 		expectTypeOf<
-			IndexedValuedCollection.Types.NonEmpty<number>
+			IndexedValuedCollection.Types.TypesNonEmpty<number>
 		>().toExtend<IndexedCollection.Types.NonEmpty<number>>();
 	});
 });

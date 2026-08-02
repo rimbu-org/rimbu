@@ -21,10 +21,10 @@ import {
 import { Stream } from '@rimbu/stream';
 
 export abstract class CollectionEmptyBase<T>
-	implements Collection<T>, Collection.WithFilter<T>
+	implements Collection<T>, Collection.Capability.WithFilter<T>
 {
 	declare context: {
-		__types: Collection.Types<T>;
+		__types: Collection.Advanced.Types<T>;
 	};
 
 	[Symbol.iterator](): FastIterator<T> {
@@ -72,7 +72,7 @@ export abstract class CollectionNonEmptyBase<T>
 	implements Collection.NonEmpty<T>
 {
 	declare context: {
-		__types: Collection.Types.NonEmpty<T>;
+		__types: Collection.Advanced.TypesNonEmpty<T>;
 	};
 
 	abstract get size(): number;
@@ -130,7 +130,7 @@ export abstract class CollectionBuilderBase<T>
 	implements Collection.Builder<T>
 {
 	declare context: {
-		__types: Collection.Types<T>;
+		__types: Collection.Advanced.Types<T>;
 	};
 
 	abstract get size(): number;
@@ -188,12 +188,12 @@ export abstract class IndexedCollectionEmptyBase<T>
 	extends CollectionEmptyBase<T>
 	implements
 		IndexedCollection<T>,
-		IndexedCollection.WithMap<T>,
-		IndexedCollection.WithMoveTo<unknown, T>,
-		IndexedCollection.WithRemoveAt<T>,
-		IndexedCollection.WithSwapAt<T>
+		IndexedCollection.Capability.WithMap<T>,
+		IndexedCollection.Capability.WithMoveTo<unknown, T>,
+		IndexedCollection.Capability.WithRemoveAt<T>,
+		IndexedCollection.Capability.WithSwapAt<T>
 {
-	declare context: { __types: IndexedCollection.Types<T> };
+	declare context: { __types: IndexedCollection.Advanced.Types<T> };
 
 	streamSlice(): Stream<T> {
 		return Stream.empty<T>();
@@ -252,7 +252,7 @@ export abstract class IndexedCollectionNonEmptyBase<T>
 	extends CollectionNonEmptyBase<T>
 	implements IndexedCollection.NonEmpty<T>
 {
-	declare context: { __types: IndexedCollection.Types.NonEmpty<T> };
+	declare context: { __types: IndexedCollection.Advanced.TypesNonEmpty<T> };
 
 	abstract streamSlice(
 		range: IndexRange,
@@ -271,7 +271,7 @@ export abstract class ValuedCollectionEmptyBase<T>
 	extends CollectionEmptyBase<T>
 	implements ValuedCollection<T>
 {
-	declare context: { __types: ValuedCollection.Types<T> };
+	declare context: { __types: ValuedCollection.Advanced.Types<T> };
 
 	has(): false {
 		return false;
@@ -282,7 +282,7 @@ export abstract class ValuedCollectionNonEmptyBase<T>
 	extends CollectionNonEmptyBase<T>
 	implements ValuedCollection.NonEmpty<T>
 {
-	declare context: { __types: ValuedCollection.Types.NonEmpty<T> };
+	declare context: { __types: ValuedCollection.Advanced.TypesNonEmpty<T> };
 
 	abstract has(value: T): boolean;
 }
@@ -291,7 +291,7 @@ export abstract class KeyedCollectionEmptyBase<K, V>
 	extends CollectionEmptyBase<readonly [K, V]>
 	implements KeyedCollection<K, V>, KeyedCollection.WithMap<K, V>
 {
-	declare context: { __types: KeyedCollection.Types<K, V> };
+	declare context: { __types: KeyedCollection.Advanced.Types<K, V> };
 
 	get<O>(_: K, otherwise?: OptLazy<O>): O {
 		return OptLazy(otherwise) as O;
@@ -330,7 +330,7 @@ export abstract class KeyedCollectionNonEmptyBase<K, V>
 	extends CollectionNonEmptyBase<readonly [K, V]>
 	implements KeyedCollection.NonEmpty<K, V>
 {
-	declare context: { __types: KeyedCollection.Types.NonEmpty<K, V> };
+	declare context: { __types: KeyedCollection.Advanced.TypesNonEmpty<K, V> };
 
 	abstract get<UK, O>(key: UK, otherwise?: OptLazy<O>): O | V;
 
@@ -352,7 +352,7 @@ export abstract class IndexedValuedCollectionEmptyBase<T>
 	extends IndexedCollectionEmptyBase<T>
 	implements IndexedValuedCollection<T>
 {
-	declare context: { __types: IndexedValuedCollection.Types<T> };
+	declare context: { __types: IndexedValuedCollection.Advanced.Types<T> };
 
 	has(): false {
 		return false;
@@ -367,7 +367,9 @@ export abstract class IndexedValuedCollectionNonEmptyBase<T>
 	extends IndexedCollectionNonEmptyBase<T>
 	implements IndexedValuedCollection.NonEmpty<T>
 {
-	declare context: { __types: IndexedValuedCollection.Types.NonEmpty<T> };
+	declare context: {
+		__types: IndexedValuedCollection.Advanced.TypesNonEmpty<T>;
+	};
 
 	abstract has(value: T): boolean;
 	abstract indexOf<O>(value: T, otherwise?: OptLazy<O>): number | O;
@@ -377,7 +379,7 @@ export abstract class IndexedKeyedCollectionEmptyBase<K, V>
 	extends IndexedCollectionEmptyBase<readonly [K, V]>
 	implements IndexedKeyedCollection<K, V>
 {
-	declare context: { __types: IndexedKeyedCollection.Types<K, V> };
+	declare context: { __types: IndexedKeyedCollection.Advanced.Types<K, V> };
 
 	get<O>(_: K, otherwise?: OptLazy<O>): O {
 		return OptLazy(otherwise) as O;
@@ -404,7 +406,9 @@ export abstract class IndexedKeyedCollectionNonEmptyBase<K, V>
 	extends IndexedCollectionNonEmptyBase<readonly [K, V]>
 	implements IndexedKeyedCollection.NonEmpty<K, V>
 {
-	declare context: { __types: IndexedKeyedCollection.Types.NonEmpty<K, V> };
+	declare context: {
+		__types: IndexedKeyedCollection.Advanced.TypesNonEmpty<K, V>;
+	};
 
 	abstract get<UK, O>(key: UK, otherwise?: OptLazy<O>): O | V;
 
