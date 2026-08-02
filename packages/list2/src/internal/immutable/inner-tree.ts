@@ -440,7 +440,7 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 		const middleAmount = amount - this.left.size;
 
 		if (null === this.middle) {
-			if (!Int.isAtLeastOne(middleAmount)) {
+			if (middleAmount < 0) {
 				// drop only from left no middle
 				const [newLeft, upLeft, upLeftAmount] = this.left.dropInternal(amount);
 
@@ -448,10 +448,14 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 					null === newLeft ? this.right : newLeft.concat(this.right);
 
 				return [newSelf, upLeft, upLeftAmount];
-			} else {
-				// drop only from right
-				return this.right.dropInternal(middleAmount);
 			}
+			if (!Int.isAtLeastOne(middleAmount)) {
+				// middleAmount === 0: drop exactly left.size, boundary at right start
+				const [newRightBlock, firstChild] = this.right.dropFirstChild();
+				return [newRightBlock, firstChild, 0 as Int.AtLeastZero];
+			}
+			// drop only from right
+			return this.right.dropInternal(middleAmount);
 		}
 
 		if (!Int.isAtLeastZero(middleAmount)) {
@@ -486,9 +490,9 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 
 		const rightAmount = middleAmount - this.middle.size;
 
-		if (Int.isAtLeastOne(rightAmount)) {
+		if (rightAmount >= 0) {
 			// drop only from right
-			return this.right.dropInternal(rightAmount);
+			return this.right.dropInternal(rightAmount as Int.AtLeastZero);
 		}
 
 		// drop from middle
