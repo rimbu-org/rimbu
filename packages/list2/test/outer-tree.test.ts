@@ -550,7 +550,6 @@ describe('OuterTree.updateAtAndReturn', () => {
 });
 
 describe('OuterTree.setAtAndReturn', () => {
-	const bits = 2;
 
 	it('replaces element and returns previous value', () => {
 		const t = simpleTree([10, 20], [30, 40]);
@@ -617,7 +616,6 @@ describe('OuterTree.take', () => {
 });
 
 describe('OuterTree.drop', () => {
-	const bits = 2;
 
 	it('drop from left block only', () => {
 		const t = simpleTree([1, 2, 3], [10, 20]);

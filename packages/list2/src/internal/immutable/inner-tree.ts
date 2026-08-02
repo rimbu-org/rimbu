@@ -62,6 +62,7 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 	): Inner<T, C> {
 		if (null === middle) {
 			const nrChildren = left._nrChildren + right._nrChildren;
+
 			if (nrChildren <= 2 * this.context.maxBlockSize) {
 				return left.concat(right);
 			}
@@ -460,14 +461,24 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 				// all of left gone
 				const [newMiddle, toLeft] = this.middle.dropFirstChild();
 				const newSize = toLeft.size + this.right.size + (newMiddle?.size ?? 0);
-				const newSelf = this.copy(toLeft, undefined, newMiddle, newSize);
+				const newSelf = this.#createNormalized(
+					toLeft,
+					undefined,
+					newMiddle,
+					newSize,
+				);
 
 				return [newSelf, upLeft, upLeftAmount];
 			}
 
 			// left remaining
 			const newSize = newLeft.size + this.right.size + this.middle.size;
-			const newSelf = this.copy(newLeft, undefined, undefined, newSize);
+			const newSelf = this.#createNormalized(
+				newLeft,
+				undefined,
+				undefined,
+				newSize,
+			);
 
 			return [newSelf, upLeft, upLeftAmount];
 		}
@@ -484,11 +495,12 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 			this.middle.dropInternal(middleAmount);
 
 		const newSize = upLeft.size + this.right.size + (newMiddle?.size ?? 0);
-		const newSelf = this.copy(upLeft, undefined, newMiddle, newSize);
-
-		if (!Int.isAtLeastOne(inUpLeft)) {
-			return [newSelf, upLeft, inUpLeft];
-		}
+		const newSelf = this.#createNormalized(
+			upLeft,
+			undefined,
+			newMiddle,
+			newSize,
+		);
 
 		return newSelf.dropInternal(inUpLeft);
 	}

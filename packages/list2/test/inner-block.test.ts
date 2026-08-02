@@ -661,23 +661,23 @@ describe('InnerBlock.takeInternal', () => {
 	it('returns first children and boundary child with offset', () => {
 		const b = inner(ctx, [ob(ctx, [1, 2]), ob(ctx, [3, 4, 5]), ob(ctx, [6, 7])]);
 		const [newInner, lastChild, lastChildCount] = b.takeInternal(
-			3 as Int.AtLeastZero,
+			3 as Int.AtLeastOne,
 		);
 		expect(newInner!._nrChildren).toBe(1);
 		expect(newInner!.toArray()).toEqual([1, 2]);
 		expect(lastChild.toArray()).toEqual([3, 4, 5]);
-		expect(lastChildCount).toBe(1);
+		expect(lastChildCount as number).toBe(1);
 	});
 
 	it('returns null inner and full last child when amount aligns at child boundary', () => {
 		const b = inner(ctx, [ob(ctx, [1, 2]), ob(ctx, [3, 4])]);
 		const [newInner, lastChild, lastChildCount] = b.takeInternal(
-			2 as Int.AtLeastZero,
+			2 as Int.AtLeastOne,
 		);
 		// first child has exactly 2 elements, forTake returns all from first
 		expect(newInner).toBeNull();
 		expect(lastChild.toArray()).toEqual([1, 2]);
-		expect(lastChildCount).toBe(2);
+		expect(lastChildCount as number).toBe(2);
 	});
 });
 
@@ -691,7 +691,7 @@ describe('InnerBlock.dropInternal', () => {
 		);
 		expect(newInner!.toArray()).toEqual([6, 7]);
 		expect(firstChild.toArray()).toEqual([3, 4, 5]);
-		expect(inFirstChildCount).toBe(1);
+		expect(inFirstChildCount as number).toBe(1);
 	});
 
 	it('drop at exact child boundary returns remaining children', () => {
@@ -701,7 +701,7 @@ describe('InnerBlock.dropInternal', () => {
 		);
 		expect(newInner).toBeNull();
 		expect(firstChild.toArray()).toEqual([3, 4]);
-		expect(inFirstChildCount).toBe(0);
+		expect(inFirstChildCount as number).toBe(0);
 	});
 });
 

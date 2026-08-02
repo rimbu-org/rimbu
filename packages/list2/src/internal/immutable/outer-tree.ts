@@ -70,7 +70,7 @@ export class OuterTree<T>
 				return left.concat(right);
 			}
 
-			return this.context.from(this.left, middle, this.right);
+			return this.context.from(left, middle, right);
 		}
 
 		return this.copy(left, right, middle, size);
