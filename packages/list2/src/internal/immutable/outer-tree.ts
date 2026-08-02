@@ -293,10 +293,10 @@ export class OuterTree<T>
 
 	take(count: number): List<T> {
 		if (count === 0) return this.context.empty();
-		if (count >= this.size || -count > this.size) return this;
+		if (count >= this.size || -count >= this.size) return this;
 
 		if (count < 0) {
-			count = this.size + count;
+			return this.drop(this.size + count);
 		}
 
 		Int.checkAtLeastOne(count);
@@ -336,10 +336,10 @@ export class OuterTree<T>
 
 	drop(count: number): List<T> {
 		if (count === 0) return this;
-		if (count >= this.size || -count > this.size) return this.context.empty();
+		if (count >= this.size || -count >= this.size) return this.context.empty();
 
 		if (count < 0) {
-			count = this.size + count;
+			return this.take(this.size + count);
 		}
 
 		Int.checkAtLeastOne(count);

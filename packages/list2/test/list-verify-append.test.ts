@@ -167,8 +167,44 @@ for (const blockSizeBits of blockSizeBitsValues) {
 			for (const offset of dropOffsets) {
 				const dropped = list.drop(offset);
 				expect(dropped.size).toBe(
-					Math.max(0, total - (offset >= 0 ? offset : total + offset)),
+					Math.max(0, total - (offset >= 0 ? offset : -offset)),
 				);
+
+				const errors = verifyStructure(dropped);
+				expect(errors).toEqual([]);
+			}
+		});
+
+		it('drop at every positive offset maintains valid structure', () => {
+			const ctx = List.createContext({ blockSizeBits });
+			const total = maxBlockSize * maxBlockSize * 2;
+
+			let list: List<number> = ctx.empty<number>();
+			for (let i = 0; i < total; i++) {
+				list = list.append(i);
+			}
+
+			for (let amount = 1; amount <= total; amount++) {
+				const dropped = list.drop(amount);
+				expect(dropped.size).toBe(total - amount);
+
+				const errors = verifyStructure(dropped);
+				expect(errors).toEqual([]);
+			}
+		});
+
+		it('drop at every negative offset maintains valid structure', () => {
+			const ctx = List.createContext({ blockSizeBits });
+			const total = maxBlockSize * maxBlockSize * 2;
+
+			let list: List<number> = ctx.empty<number>();
+			for (let i = 0; i < total; i++) {
+				list = list.append(i);
+			}
+
+			for (let amount = 1; amount <= total; amount++) {
+				const dropped = list.drop(-amount);
+				expect(dropped.size).toBe(total - amount);
 
 				const errors = verifyStructure(dropped);
 				expect(errors).toEqual([]);
@@ -399,23 +435,73 @@ for (const blockSizeBits of blockSizeBitsValues) {
 			}
 		});
 
+		it('drop from deep tree should not produce uncollapsed trees', () => {
+			const ctx = List.createContext({ blockSizeBits });
+
+			let list: List<number> = ctx.empty<number>();
+			const total = maxBlockSize * maxBlockSize * 4;
+			for (let i = 0; i < total; i++) {
+				list = list.append(i);
+			}
+
+			for (let amount = 1; amount < total; amount++) {
+				const dropped = list.drop(amount);
+				expect(dropped.size).toBe(total - amount);
+
+				const errors = verifyStructure(dropped);
+				expect(errors).toEqual([]);
+			}
+		});
+
+		it('negative drop from deep tree should not produce uncollapsed trees', () => {
+			const ctx = List.createContext({ blockSizeBits });
+
+			let list: List<number> = ctx.empty<number>();
+			const total = maxBlockSize * maxBlockSize * 4;
+			for (let i = 0; i < total; i++) {
+				list = list.append(i);
+			}
+
+			for (let amount = 1; amount < total; amount++) {
+				const dropped = list.drop(-amount);
+				expect(dropped.size).toBe(total - amount);
+
+				const errors = verifyStructure(dropped);
+				expect(errors).toEqual([]);
+			}
+		});
+
 		it('drop across middle boundaries should not produce duplicate elements', () => {
-			if (blockSizeBits < 4) {
-				const ctx = List.createContext({ blockSizeBits });
+			const ctx = List.createContext({ blockSizeBits });
 
-				let list: List<number> = ctx.empty<number>();
-				const total = maxBlockSize * maxBlockSize * 2;
-				for (let i = 0; i < total; i++) {
-					list = list.append(i);
-				}
+			let list: List<number> = ctx.empty<number>();
+			const total = maxBlockSize * maxBlockSize * 4;
+			for (let i = 0; i < total; i++) {
+				list = list.append(i);
+			}
 
-				const dropAmount = maxBlockSize + 1;
-				if (dropAmount < total) {
-					const dropped = list.drop(dropAmount);
-					const arr = dropped.toArray();
+			for (let amount = 1; amount < total; amount++) {
+				const dropped = list.drop(amount);
+				const arr = dropped.toArray();
 
-					expect(new Set(arr).size).toBe(arr.length);
-				}
+				expect(new Set(arr).size).toBe(arr.length);
+			}
+		});
+
+		it('negative drop across middle boundaries should not produce duplicate elements', () => {
+			const ctx = List.createContext({ blockSizeBits });
+
+			let list: List<number> = ctx.empty<number>();
+			const total = maxBlockSize * maxBlockSize * 4;
+			for (let i = 0; i < total; i++) {
+				list = list.append(i);
+			}
+
+			for (let amount = 1; amount < total; amount++) {
+				const dropped = list.drop(-amount);
+				const arr = dropped.toArray();
+
+				expect(new Set(arr).size).toBe(arr.length);
 			}
 		});
 	});
