@@ -3,10 +3,10 @@ import { describe, expect, it } from 'bun:test';
 import type { Int } from '@rimbu/base';
 
 import type { ListContext } from '#list/context';
-import type { OuterBlock } from '#list/immutable/outer-block';
-import type { OuterTree } from '#list/immutable/outer-tree';
 import type { InnerBlock } from '#list/immutable/inner-block';
 import type { InnerTree } from '#list/immutable/inner-tree';
+import type { OuterBlock } from '#list/immutable/outer-block';
+import type { OuterTree } from '#list/immutable/outer-tree';
 
 import { List } from '@rimbu/list';
 
@@ -23,14 +23,15 @@ function ob<T>(ctx: ListContext<T>, vals: T[]): OuterBlock<T> {
 }
 
 function obRev<T>(ctx: ListContext<T>, vals: T[]): OuterBlock<T> {
-	return ctx.outerBlockRightLeft(ctx.childrenOps.of(vals.toReversed() as [T, ...T[]]));
+	return ctx.outerBlockRightLeft(
+		ctx.childrenOps.of(vals.toReversed() as [T, ...T[]]),
+	);
 }
 
-function ib<T, C extends import('#list/immutable/common').Block<T> & { _self: C }>(
-	ctx: ListContext<T>,
-	children: C[],
-	level: number,
-): InnerBlock<T, C> {
+function ib<
+	T,
+	C extends import('#list/immutable/common').Block<T> & { _self: C },
+>(ctx: ListContext<T>, children: C[], level: number): InnerBlock<T, C> {
 	const size = children.reduce((s, c) => s + c.size, 0);
 	return ctx.innerBlock(children, size, level);
 }
@@ -95,7 +96,10 @@ for (const bits of blockSizeBitsValues) {
 					for (let n = 1; n <= max; n++) {
 						const r = b.take(n);
 						expect(r.size).toBe(n);
-						assertValid(b as unknown as { _verifyStructure(): string[] }, `take(${n})`);
+						assertValid(
+							b as unknown as { _verifyStructure(): string[] },
+							`take(${n})`,
+						);
 					}
 				});
 
@@ -195,7 +199,7 @@ for (const bits of blockSizeBitsValues) {
 					for (let n = 1; n <= max; n++) {
 						const r = b._takeChildren(n as Int.AtLeastOne);
 						expect(r.size).toBe(n);
-				expect(r.toArray() as readonly number[]).toEqual(vals.slice(0, n));
+						expect(r.toArray() as readonly number[]).toEqual(vals.slice(0, n));
 					}
 				});
 			});
@@ -297,7 +301,7 @@ for (const bits of blockSizeBitsValues) {
 					for (let n = 1; n <= max; n++) {
 						const r = b._takeChildren(n as Int.AtLeastOne);
 						expect(r.size).toBe(n);
-				expect(r.toArray() as readonly number[]).toEqual(vals.slice(0, n));
+						expect(r.toArray() as readonly number[]).toEqual(vals.slice(0, n));
 					}
 				});
 			});
@@ -340,8 +344,14 @@ for (const bits of blockSizeBitsValues) {
 
 		function makeSimpleTree(): OuterTree<number> {
 			return ctx.outerTree(
-				ob(ctx, Array.from({ length: leftSize }, (_, i) => i)),
-				ob(ctx, Array.from({ length: rightSize }, (_, i) => i + leftSize)),
+				ob(
+					ctx,
+					Array.from({ length: leftSize }, (_, i) => i),
+				),
+				ob(
+					ctx,
+					Array.from({ length: rightSize }, (_, i) => i + leftSize),
+				),
 				null,
 				totalSize,
 			);
@@ -353,8 +363,13 @@ for (const bits of blockSizeBitsValues) {
 					const t = makeSimpleTree();
 					const r = t.take(n);
 					expect(r.size).toBe(n);
-					expect(r.toArray() as readonly number[]).toEqual(Array.from({ length: n }, (_, i) => i));
-					assertValid(t as unknown as { _verifyStructure(): string[] }, `take(${n})`);
+					expect(r.toArray() as readonly number[]).toEqual(
+						Array.from({ length: n }, (_, i) => i),
+					);
+					assertValid(
+						t as unknown as { _verifyStructure(): string[] },
+						`take(${n})`,
+					);
 				}
 			});
 
@@ -363,8 +378,13 @@ for (const bits of blockSizeBitsValues) {
 					const t = makeSimpleTree();
 					const r = t.take(n);
 					expect(r.size).toBe(n);
-					expect(r.toArray() as readonly number[]).toEqual(Array.from({ length: n }, (_, i) => i));
-					assertValid(r as unknown as { _verifyStructure(): string[] }, `take(${n})`);
+					expect(r.toArray() as readonly number[]).toEqual(
+						Array.from({ length: n }, (_, i) => i),
+					);
+					assertValid(
+						r as unknown as { _verifyStructure(): string[] },
+						`take(${n})`,
+					);
 				}
 			});
 
@@ -423,7 +443,10 @@ for (const bits of blockSizeBitsValues) {
 					expect(r.size).toBe(n);
 					const arr = r.toArray();
 					expect(arr).toEqual(Array.from({ length: n }, (_, i) => i));
-					assertValid(r as unknown as { _verifyStructure(): string[] }, `take(${n})`);
+					assertValid(
+						r as unknown as { _verifyStructure(): string[] },
+						`take(${n})`,
+					);
 				}
 			});
 		});
@@ -437,7 +460,10 @@ for (const bits of blockSizeBitsValues) {
 					expect(r.toArray()).toEqual(
 						Array.from({ length: totalSize - n }, (_, i) => i + n),
 					);
-					assertValid(r as unknown as { _verifyStructure(): string[] }, `drop(${n})`);
+					assertValid(
+						r as unknown as { _verifyStructure(): string[] },
+						`drop(${n})`,
+					);
 				}
 			});
 
@@ -452,7 +478,10 @@ for (const bits of blockSizeBitsValues) {
 					// Verify no duplicate elements
 					const arr = r.toArray();
 					expect(new Set(arr).size).toBe(arr.length);
-					assertValid(r as unknown as { _verifyStructure(): string[] }, `drop(${n})`);
+					assertValid(
+						r as unknown as { _verifyStructure(): string[] },
+						`drop(${n})`,
+					);
 				}
 			});
 
@@ -599,8 +628,13 @@ for (const bits of blockSizeBitsValues) {
 				for (const n of [1, Math.floor(leftSize / 2), leftSize]) {
 					const r = t.take(n);
 					expect(r.size).toBe(n);
-					expect(r.toArray() as readonly number[]).toEqual(Array.from({ length: n }, (_, i) => i));
-					assertValid(r as unknown as { _verifyStructure(): string[] }, `take(${n})`);
+					expect(r.toArray() as readonly number[]).toEqual(
+						Array.from({ length: n }, (_, i) => i),
+					);
+					assertValid(
+						r as unknown as { _verifyStructure(): string[] },
+						`take(${n})`,
+					);
 				}
 			});
 		});
@@ -620,8 +654,13 @@ for (const bits of blockSizeBitsValues) {
 					const t = makeTreeWithMiddle();
 					const r = t.take(n);
 					expect(r.size).toBe(n);
-					expect(r.toArray() as readonly number[]).toEqual(Array.from({ length: n }, (_, i) => i));
-					assertValid(r as unknown as { _verifyStructure(): string[] }, `take(${n})`);
+					expect(r.toArray() as readonly number[]).toEqual(
+						Array.from({ length: n }, (_, i) => i),
+					);
+					assertValid(
+						r as unknown as { _verifyStructure(): string[] },
+						`take(${n})`,
+					);
 				});
 			}
 		});
@@ -636,8 +675,13 @@ for (const bits of blockSizeBitsValues) {
 					const t = makeTreeWithMiddle();
 					const r = t.take(n);
 					expect(r.size).toBe(n);
-					expect(r.toArray() as readonly number[]).toEqual(Array.from({ length: n }, (_, i) => i));
-					assertValid(r as unknown as { _verifyStructure(): string[] }, `take(${n})`);
+					expect(r.toArray() as readonly number[]).toEqual(
+						Array.from({ length: n }, (_, i) => i),
+					);
+					assertValid(
+						r as unknown as { _verifyStructure(): string[] },
+						`take(${n})`,
+					);
 				});
 			}
 		});
@@ -689,7 +733,10 @@ for (const bits of blockSizeBitsValues) {
 					expect(r.toArray()).toEqual(
 						Array.from({ length: totalSize - n }, (_, i) => i + n),
 					);
-					assertValid(r as unknown as { _verifyStructure(): string[] }, `drop(${n})`);
+					assertValid(
+						r as unknown as { _verifyStructure(): string[] },
+						`drop(${n})`,
+					);
 				}
 			});
 		});
@@ -714,14 +761,21 @@ for (const bits of blockSizeBitsValues) {
 					);
 					const arr = r.toArray();
 					expect(new Set(arr).size).toBe(arr.length);
-					assertValid(r as unknown as { _verifyStructure(): string[] }, `drop(${n})`);
+					assertValid(
+						r as unknown as { _verifyStructure(): string[] },
+						`drop(${n})`,
+					);
 				});
 			}
 		});
 
 		describe('drop crossing into right', () => {
 			const boundary = leftSize + middleSize;
-			const amounts = [boundary + 1, boundary + Math.floor(rightSize / 2), boundary + rightSize - 1];
+			const amounts = [
+				boundary + 1,
+				boundary + Math.floor(rightSize / 2),
+				boundary + rightSize - 1,
+			];
 
 			for (const n of amounts) {
 				if (n >= totalSize) continue;
@@ -734,7 +788,10 @@ for (const bits of blockSizeBitsValues) {
 					);
 					const arr = r.toArray();
 					expect(new Set(arr).size).toBe(arr.length);
-					assertValid(r as unknown as { _verifyStructure(): string[] }, `drop(${n})`);
+					assertValid(
+						r as unknown as { _verifyStructure(): string[] },
+						`drop(${n})`,
+					);
 				});
 			}
 		});
@@ -885,7 +942,10 @@ for (const bits of blockSizeBitsValues) {
 		): InnerBlock<number, OuterBlock<number>> {
 			let base = 0;
 			const children = childSizes.map((size) => {
-				const child = ob(ctx, Array.from({ length: size }, (_, i) => base + i));
+				const child = ob(
+					ctx,
+					Array.from({ length: size }, (_, i) => base + i),
+				);
 				base += size;
 				return child;
 			});
@@ -895,9 +955,13 @@ for (const bits of blockSizeBitsValues) {
 		describe('takeInternal', () => {
 			it('at child boundary - returns null newInner', () => {
 				const b = makeInnerBlock([min, min]);
-				const [newInner, lastChild, inChild] = b.takeInternal(min as Int.AtLeastOne);
+				const [newInner, lastChild, inChild] = b.takeInternal(
+					min as Int.AtLeastOne,
+				);
 				expect(newInner).toBeNull();
-				expect(lastChild.toArray() as readonly number[]).toEqual(Array.from({ length: min }, (_, i) => i));
+				expect(lastChild.toArray() as readonly number[]).toEqual(
+					Array.from({ length: min }, (_, i) => i),
+				);
 				expect(inChild as number).toBe(min);
 			});
 
@@ -917,7 +981,9 @@ for (const bits of blockSizeBitsValues) {
 
 			it('take 1 from block with varied child sizes', () => {
 				const b = makeInnerBlock([1, min, max]);
-				const [newInner, lastChild, inChild] = b.takeInternal(1 as Int.AtLeastOne);
+				const [newInner, lastChild, inChild] = b.takeInternal(
+					1 as Int.AtLeastOne,
+				);
 				expect(newInner).toBeNull();
 				expect(lastChild.size).toBe(1);
 				expect(inChild as number).toBe(1);
@@ -957,13 +1023,17 @@ for (const bits of blockSizeBitsValues) {
 					min as Int.AtLeastZero,
 				);
 				expect(newInner).toBeNull();
-				expect(firstChild.toArray() as readonly number[]).toEqual(Array.from({ length: max }, (_, i) => i + min));
+				expect(firstChild.toArray() as readonly number[]).toEqual(
+					Array.from({ length: max }, (_, i) => i + min),
+				);
 				expect(inChild as number).toBe(0);
 			});
 
 			it('drop 0 returns first child', () => {
 				const b = makeInnerBlock([min, max]);
-				const [newInner, firstChild, inChild] = b.dropInternal(0 as Int.AtLeastZero);
+				const [newInner, firstChild, inChild] = b.dropInternal(
+					0 as Int.AtLeastZero,
+				);
 				// newInner = children AFTER boundary child = second child only
 				expect(newInner!._nrChildren).toBe(1);
 				expect(newInner!.size).toBe(max);
@@ -1048,33 +1118,25 @@ for (const bits of blockSizeBitsValues) {
 				const r = b.takeChildren(min);
 				expect(r).not.toBeNull();
 				// Left/right boundary blocks are exempt from min, so don't enforce
-				assertValid(
-					r! as unknown as { _verifyStructure(): string[] },
-				);
+				assertValid(r! as unknown as { _verifyStructure(): string[] });
 			});
 
 			it('valid after dropChildren', () => {
 				const b = makeInnerBlock(Array.from({ length: max }, () => min));
 				const r = b.dropChildren(max - min);
 				expect(r).not.toBeNull();
-				assertValid(
-					r! as unknown as { _verifyStructure(): string[] },
-				);
+				assertValid(r! as unknown as { _verifyStructure(): string[] });
 			});
 
 			it('original block valid before takeInternal', () => {
 				const b = makeInnerBlock([min + 1, max - 2, max - 1]);
 				// Original block may be a boundary block, don't enforce min
-				assertValid(
-					b as unknown as { _verifyStructure(): string[] },
-				);
+				assertValid(b as unknown as { _verifyStructure(): string[] });
 			});
 
 			it('original block valid before dropInternal', () => {
 				const b = makeInnerBlock([min + 1, max - 2, max - 1]);
-				assertValid(
-					b as unknown as { _verifyStructure(): string[] },
-				);
+				assertValid(b as unknown as { _verifyStructure(): string[] });
 			});
 		});
 	});
@@ -1298,9 +1360,7 @@ for (const bits of blockSizeBitsValues) {
 
 			it('drop 0 returns full structure', () => {
 				const t = makeSimpleInnerTree([max], [max]);
-				const [, firstChild, inChild] = t.dropInternal(
-					0 as Int.AtLeastZero,
-				);
+				const [, firstChild, inChild] = t.dropInternal(0 as Int.AtLeastZero);
 				expect(firstChild.size).toBe(max);
 				expect(inChild as number).toBe(0);
 			});

@@ -45,10 +45,6 @@ export declare namespace List {
 				...sources: ArrayNonEmpty<StreamSource<E>>
 			): this['context']['__types']['_SELF'];
 		}
-
-		export interface WithReversed<E> extends IndexedCollection<E> {
-			reversed(): this['context']['__types']['_SELF'];
-		}
 	}
 
 	export interface Context<T, IsNonEmpty extends boolean = boolean>
@@ -90,21 +86,18 @@ export declare namespace List {
 		export interface Capabilities<T>
 			extends Collection.Capability.WithFilter<T>,
 				Collection.Capability.WithMap<T>,
-				IndexedCollection.Capability.WithPrependAppend<T>,
 				IndexedCollection.Capability.WithFilterIndexed<T>,
 				IndexedCollection.Capability.WithMapIndexed<T>,
+				IndexedCollection.Capability.WithPrependAppend<T>,
+				IndexedCollection.Capability.WithReversed<T>,
+				IndexedCollection.Capability.WithSpliceAt<T>,
+				IndexedCollection.Capability.WithSwapAt<T>,
 				IndexedCollection.Capability.WithUpdateAt<T>,
-				List.Capability.WithConcat<T>,
-				List.Capability.WithReversed<T> {
+				List.Capability.WithConcat<T> {
 			readonly context: List.Context<T>;
 		}
 
-		export interface Factory<
-			T = any,
-			Tp extends List.Advanced.Types<T> | List.Advanced.TypesNonEmpty<T> =
-				| List.Advanced.Types<T>
-				| List.Advanced.TypesNonEmpty<T>,
-		> {
+		export interface Factory<T, Tp extends List.Advanced.Types<T>> {
 			createContext(options: { blockSizeBits?: number }): List.Context<T>;
 
 			empty<T extends Tp['_UPPER_E']>(): (Tp & {
@@ -127,6 +120,8 @@ export declare namespace List {
 			})['_NEW_TYPES']['_BUILDER'];
 		}
 
+		export type DefaultFactory = Factory<any, List.Advanced.Types<any>>;
+
 		export interface Types<T> extends IndexedCollection.Advanced.Types<T> {
 			_NORMAL: List<T>;
 			_NON_EMPTY: List.NonEmpty<T>;
@@ -144,7 +139,7 @@ export declare namespace List {
 	}
 }
 
-export const List: List.Advanced.Factory = createListContextModule({
+export const List: List.Advanced.DefaultFactory = createListContextModule({
 	blockSizeBits: 5,
 	childrenOps: new ArrayOuterChildrenOps() as ChildrenOps,
 });

@@ -6,6 +6,7 @@ import type { ListContext } from '#list/context';
 import type { OuterBlock } from '#list/immutable/outer-block';
 import type { OuterTree } from '#list/immutable/outer-tree';
 
+import { throwInvalidStateError } from '@rimbu/base';
 import { IndexedCollectionNonEmptyBase } from '@rimbu/collection-types/advanced/capabilities/base';
 import { type ArrayNonEmpty, IndexRange } from '@rimbu/common';
 
@@ -53,6 +54,66 @@ export abstract class ListNonEmptyBase<T>
 		return this.updateAtAndReturn(index, f).collection;
 	}
 
+	swapAt(indexA: number, indexB: number): this['_self'] {
+		return this.swapAtAndReturn(indexA, indexB).collection;
+	}
+
+	swapAtAndReturn(
+		indexA: number,
+		indexB: number,
+	): Op.DynamicResult<
+		this['_self'],
+		[previous1: undefined, previous2: undefined],
+		[previous1: T, previous2: T]
+	> {
+		if (
+			indexA >= this.size ||
+			-indexA > this.size ||
+			indexB >= this.size ||
+			-indexB > this.size
+		) {
+			return {
+				collection: this,
+				hasResult: false,
+				result: [undefined, undefined],
+				hasChanged: false,
+			};
+		}
+
+		if (indexA < 0) indexA = this.size + indexA;
+		if (indexB < 0) indexB = this.size + indexB;
+
+		if (indexA === indexB) {
+			const current = this.at(indexA) as T;
+			return {
+				collection: this,
+				hasResult: true,
+				result: [current, current],
+				hasChanged: false,
+			};
+		}
+
+		const previousB = this.at(indexB) as T;
+		const withNewA = this.setAtAndReturn(indexA, previousB);
+
+		if (withNewA.hasResult) {
+			const previousA = withNewA.result;
+			const isSame = Object.is(previousA, previousB);
+			const withSwapped = isSame
+				? withNewA.collection
+				: withNewA.collection.setAt(indexB, previousA);
+
+			return {
+				collection: withSwapped,
+				hasResult: true,
+				result: [previousA, previousB],
+				hasChanged: this !== withSwapped,
+			};
+		}
+
+		throwInvalidStateError();
+	}
+
 	slice(range: IndexRange): List<T> {
 		const result = IndexRange.getIndicesFor(range, this.size);
 
@@ -66,6 +127,92 @@ export abstract class ListNonEmptyBase<T>
 		const values = this.drop(start).take(end - start + 1);
 
 		return values;
+	}
+
+	spliceAt(
+		index: number,
+		options: { removeAmount?: number; insert: StreamSource.NonEmpty<T> },
+	): List.NonEmpty<T>;
+	spliceAt(
+		index: number,
+		options?: { removeAmount?: number; insert?: StreamSource<T> },
+	): List<T> {
+		if (undefined === options) {
+			return this.take(index);
+		}
+
+		if (index >= this.size) {
+			return this.concat(options.insert);
+		}
+		if (index === 0 || -index >= this.size) {
+			return this.context.from(options.insert, this);
+		}
+
+		// const
+
+		return 0 as any;
+	}
+
+	spliceAtAndReturn(
+		index: number,
+		options: {
+			removeAmount?: number | undefined;
+			insert: StreamSource.NonEmpty<T>;
+		},
+	): Op.WithResult<
+		List.NonEmpty<T>,
+		[removed: List<T>, inserted: List.NonEmpty<T>],
+		true
+	>;
+	spliceAtAndReturn(
+		index: number,
+		options: {
+			removeAmount?: number | undefined;
+			insert?: StreamSource<T> | undefined;
+		} = {},
+	): Op.DynamicResult<
+		List.NonEmpty<T>,
+		[removed: List<T>, inserted: List<T>],
+		[removed: List<T>, inserted: List<T>],
+		List<T>
+	> {
+		// if (undefined === options) {
+		const { removeAmount = 0, insert } = options;
+		const insertList = this.context.from(insert);
+
+		if (index >= this.size) {
+			return {
+				collection: this.concat(insertList),
+				hasResult: insertList.nonEmpty(),
+				result: [this.context.empty(), insertList],
+				hasChanged: insertList.nonEmpty(),
+			};
+		}
+
+		const [left, remain] = this.splitAt(index);
+		const [removed, right] = remain.splitAt(removeAmount);
+
+		const collection = left.concat(insertList, right);
+
+		if (removed.nonEmpty() || insertList.nonEmpty()) {
+			return {
+				collection,
+				hasResult: true,
+				result: [removed, insertList],
+				hasChanged: true,
+			};
+		}
+
+		if (collection.nonEmpty()) {
+			return {
+				collection: collection,
+				hasResult: false,
+				result: [removed, insertList],
+				hasChanged: false,
+			};
+		}
+
+		throwInvalidStateError();
 	}
 
 	mapIndexed<T2>(
