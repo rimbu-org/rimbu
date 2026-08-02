@@ -6,6 +6,7 @@ import type {
 	KeyedCollection,
 	ValuedCollection,
 } from '@rimbu/collection-types/capabilities';
+import type { Op } from '@rimbu/collection-types/types';
 import type { FastIterator } from '@rimbu/stream/stream-types';
 
 import {
@@ -21,7 +22,10 @@ import {
 import { Stream } from '@rimbu/stream';
 
 export abstract class CollectionEmptyBase<T>
-	implements Collection<T>, Collection.Capability.WithFilter<T>
+	implements
+		Collection<T>,
+		Collection.Capability.WithFilter<T>,
+		Collection.Capability.WithMap<T>
 {
 	declare context: {
 		__types: Collection.Advanced.Types<T>;
@@ -60,6 +64,12 @@ export abstract class CollectionEmptyBase<T>
 	}
 
 	filterIndexed(): this['context']['__types']['_NORMAL'] {
+		return this;
+	}
+
+	map<T2>(): (this['context']['__types'] & {
+		_NEW_E: T2;
+	})['_NEW_TYPES']['_NORMAL'] {
 		return this;
 	}
 
@@ -188,10 +198,12 @@ export abstract class IndexedCollectionEmptyBase<T>
 	extends CollectionEmptyBase<T>
 	implements
 		IndexedCollection<T>,
+		IndexedCollection.Capability.WithFilterIndexed<T>,
 		IndexedCollection.Capability.WithMapIndexed<T>,
-		// IndexedCollection.Capability.WithMoveTo<unknown, T>,
 		IndexedCollection.Capability.WithRemoveAt<T>,
-		IndexedCollection.Capability.WithSwapAt<T>
+		IndexedCollection.Capability.WithReversed<T>,
+		IndexedCollection.Capability.WithSwapAt<T>,
+		IndexedCollection.Capability.WithUpdateAt<T>
 {
 	declare context: { __types: IndexedCollection.Advanced.Types<T> };
 
@@ -219,13 +231,14 @@ export abstract class IndexedCollectionEmptyBase<T>
 		return this;
 	}
 
-	slice(): this['context']['__types']['_NORMAL'] {
-		return this;
+	splitAt(): [
+		this['context']['__types']['_NORMAL'],
+		this['context']['__types']['_NORMAL'],
+	] {
+		return [this, this];
 	}
 
-	map<T2>(): (this['context']['__types'] & {
-		_NEW_E: T2;
-	})['_NEW_TYPES']['_NORMAL'] {
+	slice(): this['context']['__types']['_NORMAL'] {
 		return this;
 	}
 
@@ -235,7 +248,7 @@ export abstract class IndexedCollectionEmptyBase<T>
 		return this;
 	}
 
-	moveTo(): this['context']['__types']['_NORMAL'] {
+	filterIndexed(): this['context']['__types']['_NORMAL'] {
 		return this;
 	}
 
@@ -243,8 +256,59 @@ export abstract class IndexedCollectionEmptyBase<T>
 		return this;
 	}
 
+	reversed(): this['context']['__types']['_NORMAL'] {
+		return this;
+	}
+
+	setAt(): this['context']['__types']['_NORMAL'] {
+		return this;
+	}
+
+	setAtAndReturn(): Op.WithResult<
+		this['context']['__types']['_NORMAL'],
+		undefined,
+		false
+	> {
+		return {
+			collection: this,
+			hasResult: false,
+			result: undefined,
+			hasChanged: false,
+		};
+	}
+
+	updateAt(): this['context']['__types']['_NORMAL'] {
+		return this;
+	}
+
+	updateAtAndReturn(): Op.WithResult<
+		this['context']['__types']['_NORMAL'],
+		[previous: undefined, current: undefined],
+		false
+	> {
+		return {
+			collection: this,
+			hasResult: false,
+			result: [undefined, undefined],
+			hasChanged: false,
+		};
+	}
+
 	swapAt(): this['context']['__types']['_NORMAL'] {
 		return this;
+	}
+
+	swapAtAndReturn(): Op.WithResult<
+		this['context']['__types']['_NORMAL'],
+		[previous1: undefined, previous2: undefined],
+		false
+	> {
+		return {
+			collection: this,
+			hasResult: false,
+			result: [undefined, undefined],
+			hasChanged: false,
+		};
 	}
 }
 
@@ -265,6 +329,18 @@ export abstract class IndexedCollectionNonEmptyBase<T>
 	abstract take(count: number): this['context']['__types']['_NORMAL'];
 	abstract drop(count: number): this['context']['__types']['_NORMAL'];
 	abstract slice(range: IndexRange): this['context']['__types']['_NORMAL'];
+
+	splitAt(
+		index: number,
+	): [
+		this['context']['__types']['_NORMAL'],
+		this['context']['__types']['_NORMAL'],
+	] {
+		const left = this.take(index);
+		const right = this.drop(index);
+
+		return [left, right];
+	}
 }
 
 export abstract class ValuedCollectionEmptyBase<T>

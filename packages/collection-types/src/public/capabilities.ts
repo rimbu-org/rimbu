@@ -8,7 +8,7 @@ import type {
 	RelatedTo,
 	TraverseState,
 } from '@rimbu/common';
-import type { FastIterable, Stream } from '@rimbu/stream';
+import type { FastIterable, Stream, StreamSource } from '@rimbu/stream';
 
 export interface Collection<E> extends FastIterable<E> {
 	readonly context: {
@@ -131,6 +131,7 @@ export interface IndexedCollection<E> extends Collection<E> {
 
 	take: this['context']['__types']['_take'];
 	drop(amount: number): this['context']['__types']['_NORMAL'];
+	splitAt: this['context']['__types']['_splitAt'];
 	slice(range: IndexRange): this['context']['__types']['_NORMAL'];
 }
 
@@ -166,12 +167,18 @@ export declare namespace IndexedCollection {
 			(amount: number): RN;
 		}
 
+		export interface SplitAtNonEmpty<RN, RNE> {
+			<const N extends number>(amount: N): [0 extends N ? RN : RNE, RN];
+			(amount: number): [RN, RN];
+		}
+
 		export interface Types<E> extends Collection.Advanced.Types<E> {
 			_NORMAL: IndexedCollection<E>;
 			_NON_EMPTY: IndexedCollection.NonEmpty<E>;
 
 			_firstLast: IndexedCollection.Advanced.FirstLast<E>;
 			_take: (amount: number) => this['_NORMAL'];
+			_splitAt: (index: number) => [this['_NORMAL'], this['_NORMAL']];
 			_stream: (
 				options?: { reversed?: boolean | undefined } | undefined,
 			) => Stream<E>;
@@ -186,6 +193,7 @@ export declare namespace IndexedCollection {
 
 			_firstLast: IndexedCollection.Advanced.FirstLast<E, true>;
 			_take: TakeNonEmpty<this['_NORMAL'], this['_NON_EMPTY']>;
+			_splitAt: SplitAtNonEmpty<this['_NORMAL'], this['_NON_EMPTY']>;
 
 			_stream: (
 				options?: { reversed?: boolean | undefined } | undefined,
@@ -196,6 +204,10 @@ export declare namespace IndexedCollection {
 	}
 
 	export namespace Capability {
+		export interface WithReversed<E> extends IndexedCollection<E> {
+			reversed(): this['context']['__types']['_SELF'];
+		}
+
 		export interface WithMapIndexed<E> extends IndexedCollection<E> {
 			mapIndexed<E2 extends this['context']['__types']['_UPPER_E']>(
 				f: (element: E, index: number) => E2,
@@ -228,6 +240,68 @@ export declare namespace IndexedCollection {
 				index1: number,
 				index2: number,
 			): this['context']['__types']['_SELF'];
+			swapAtAndReturn(
+				index1: number,
+				index2: number,
+			): Op.DynamicResult<
+				this['context']['__types']['_SELF'],
+				[previous1: undefined, previous2: undefined],
+				[previous1: E, previous2: E],
+				this['context']['__types']['_NON_EMPTY']
+			>;
+		}
+
+		export interface WithSpliceAt<E> extends IndexedCollection<E> {
+			spliceAt(
+				index: number,
+				options: {
+					removeAmount?: number | undefined;
+					insert: StreamSource.NonEmpty<E>;
+				},
+			): this['context']['__types']['_NON_EMPTY'];
+			spliceAt(
+				index: number,
+				options?:
+					| {
+							removeAmount?: number | undefined;
+							insert?: StreamSource<E> | undefined;
+					  }
+					| undefined,
+			): this['context']['__types']['_NORMAL'];
+			spliceAtAndReturn(
+				index: number,
+				options: {
+					removeAmount?: number | undefined;
+					insert: StreamSource.NonEmpty<E>;
+				},
+			): Op.WithResult<
+				this['context']['__types']['_NON_EMPTY'],
+				[
+					removed: this['context']['__types']['_NORMAL'],
+					inserted: this['context']['__types']['_NON_EMPTY'],
+				],
+				true
+			>;
+			spliceAtAndReturn(
+				index: number,
+				options?:
+					| {
+							removeAmount?: number | undefined;
+							insert?: StreamSource<E> | undefined;
+					  }
+					| undefined,
+			): Op.DynamicResult<
+				this['context']['__types']['_SELF'],
+				[
+					removed: this['context']['__types']['_NORMAL'],
+					inserted: this['context']['__types']['_NORMAL'],
+				],
+				[
+					removed: this['context']['__types']['_NORMAL'],
+					inserted: this['context']['__types']['_NORMAL'],
+				],
+				this['context']['__types']['_NORMAL']
+			>;
 		}
 
 		export interface WithUpdateAt<E> extends IndexedCollection<E> {
