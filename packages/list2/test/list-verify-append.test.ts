@@ -282,6 +282,42 @@ for (const blockSizeBits of blockSizeBitsValues) {
 			}
 		});
 
+		it('negative take from append-built list at all offsets maintains valid structure', () => {
+			const ctx = List.createContext({ blockSizeBits });
+			const total = maxBlockSize * maxBlockSize * 2;
+
+			let list: List<number> = ctx.empty<number>();
+			for (let i = 0; i < total; i++) {
+				list = list.append(i);
+			}
+
+			for (let amount = 1; amount <= total; amount++) {
+				const taken = list.take(-amount);
+				expect(taken.size).toBe(amount);
+
+				const errors = verifyStructure(taken);
+				expect(errors).toEqual([]);
+			}
+		});
+
+		it('negative take from prepend-built list at all offsets maintains valid structure', () => {
+			const ctx = List.createContext({ blockSizeBits });
+			const total = maxBlockSize * maxBlockSize * 2;
+
+			let list: List<number> = ctx.empty<number>();
+			for (let i = 0; i < total; i++) {
+				list = list.prepend(i);
+			}
+
+			for (let amount = 1; amount <= total; amount++) {
+				const taken = list.take(-amount);
+				expect(taken.size).toBe(amount);
+
+				const errors = verifyStructure(taken);
+				expect(errors).toEqual([]);
+			}
+		});
+
 		it('take zero returns empty', () => {
 			const ctx = List.createContext({ blockSizeBits });
 			const count = maxBlockSize * maxBlockSize;
@@ -432,6 +468,41 @@ for (const blockSizeBits of blockSizeBitsValues) {
 
 				const errors = verifyStructure(taken);
 				expect(errors).toEqual([]);
+			}
+		});
+
+		it('negative take from deep tree should not produce uncollapsed trees', () => {
+			const ctx = List.createContext({ blockSizeBits });
+
+			let list: List<number> = ctx.empty<number>();
+			const total = maxBlockSize * maxBlockSize * 4;
+			for (let i = 0; i < total; i++) {
+				list = list.append(i);
+			}
+
+			for (let amount = 1; amount <= total; amount++) {
+				const taken = list.take(-amount);
+				expect(taken.size).toBe(amount);
+
+				const errors = verifyStructure(taken);
+				expect(errors).toEqual([]);
+			}
+		});
+
+		it('negative take across middle boundaries should not produce duplicate elements', () => {
+			const ctx = List.createContext({ blockSizeBits });
+
+			let list: List<number> = ctx.empty<number>();
+			const total = maxBlockSize * maxBlockSize * 4;
+			for (let i = 0; i < total; i++) {
+				list = list.append(i);
+			}
+
+			for (let amount = 1; amount <= total; amount++) {
+				const taken = list.take(-amount);
+				const arr = taken.toArray();
+
+				expect(new Set(arr).size).toBe(arr.length);
 			}
 		});
 
