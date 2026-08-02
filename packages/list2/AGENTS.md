@@ -290,7 +290,8 @@ expect(verifyStructure(list)).toEqual([]);
 bun run build:seq
 
 # From this package
-bun run typecheck    # tsc --noEmit
-bun run test         # bun test
-bun run biome:check  # lint + format
+bun run typecheck         # tsc --noEmit
+bun run test              # bun test test/* -- run all test files
+bun test:single <file>    # run a single test file, e.g. bun test:single test/list.test.ts
+bun run biome:check       # lint + format
 ```
