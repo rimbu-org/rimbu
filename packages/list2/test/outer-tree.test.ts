@@ -387,8 +387,8 @@ describe('OuterTree.prepend', () => {
 		);
 		const r = t.prepend(0);
 		expect(r.toArray()).toEqual([
-			0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
-			19, 20, 21, 22, 23, 24,
+			0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+			21, 22, 23, 24,
 		]);
 		expect(r.size).toBe(25);
 	});
@@ -476,8 +476,8 @@ describe('OuterTree.append', () => {
 		);
 		const r = t.append(25);
 		expect(r.toArray()).toEqual([
-			1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
-			19, 20, 21, 22, 23, 24, 25,
+			1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
+			22, 23, 24, 25,
 		]);
 		expect(r.size).toBe(25);
 	});
@@ -488,8 +488,10 @@ describe('OuterTree.updateAtAndReturn', () => {
 
 	it('updates element in left block', () => {
 		const t = simpleTree([1, 2], [5, 6]);
-		const { collection, hasResult, result, hasChanged } =
-			t.updateAtAndReturn(0, (x) => x + 10);
+		const { collection, hasResult, result, hasChanged } = t.updateAtAndReturn(
+			0,
+			(x) => x + 10,
+		);
 		expect(hasResult).toBe(true);
 		expect(hasChanged).toBe(true);
 		const [prev, curr] = result;
@@ -500,8 +502,10 @@ describe('OuterTree.updateAtAndReturn', () => {
 
 	it('updates element in right block', () => {
 		const t = simpleTree([10, 20], [30, 40]);
-		const { collection, hasResult, result, hasChanged } =
-			t.updateAtAndReturn(3, (x) => x + 1);
+		const { collection, hasResult, result, hasChanged } = t.updateAtAndReturn(
+			3,
+			(x) => x + 1,
+		);
 		expect(hasResult).toBe(true);
 		expect(hasChanged).toBe(true);
 		const [prev, curr] = result;
@@ -512,8 +516,7 @@ describe('OuterTree.updateAtAndReturn', () => {
 
 	it('updates element at negative index', () => {
 		const t = simpleTree([10, 20], [30, 40]);
-		const { collection, result } =
-			t.updateAtAndReturn(-2, (x) => x * 10);
+		const { collection, result } = t.updateAtAndReturn(-2, (x) => x * 10);
 		const [prev, curr] = result;
 		expect(prev).toBe(30);
 		expect(curr).toBe(300);
@@ -522,8 +525,7 @@ describe('OuterTree.updateAtAndReturn', () => {
 
 	it('updates element in middle block', () => {
 		const t = treeWithMiddle([1, 2], [[3, 4]], [5, 6], bits);
-		const { collection, result } =
-			t.updateAtAndReturn(3, (x) => x + 100);
+		const { collection, result } = t.updateAtAndReturn(3, (x) => x + 100);
 		const [prev, curr] = result;
 		expect(prev).toBe(4);
 		expect(curr).toBe(104);
@@ -532,8 +534,10 @@ describe('OuterTree.updateAtAndReturn', () => {
 
 	it('returns unchanged and no result for out-of-bounds index', () => {
 		const t = simpleTree([10, 20], [30, 40]);
-		const { collection, hasResult, result, hasChanged } =
-			t.updateAtAndReturn(100, (x) => x + 1);
+		const { collection, hasResult, result, hasChanged } = t.updateAtAndReturn(
+			100,
+			(x) => x + 1,
+		);
 		expect(collection).toBe(t);
 		expect(hasResult).toBe(false);
 		expect(hasChanged).toBe(false);
@@ -550,11 +554,14 @@ describe('OuterTree.updateAtAndReturn', () => {
 });
 
 describe('OuterTree.setAtAndReturn', () => {
-
 	it('replaces element and returns previous value', () => {
 		const t = simpleTree([10, 20], [30, 40]);
-		const { collection, hasResult, result: previous, hasChanged } =
-			t.setAtAndReturn(1, 99);
+		const {
+			collection,
+			hasResult,
+			result: previous,
+			hasChanged,
+		} = t.setAtAndReturn(1, 99);
 		expect(hasResult).toBe(true);
 		expect(hasChanged).toBe(true);
 		expect(previous).toBe(20);
@@ -563,8 +570,12 @@ describe('OuterTree.setAtAndReturn', () => {
 
 	it('returns unchanged for out-of-bounds', () => {
 		const t = simpleTree([10, 20], [30, 40]);
-		const { collection, hasResult, result: previous, hasChanged } =
-			t.setAtAndReturn(100, 999);
+		const {
+			collection,
+			hasResult,
+			result: previous,
+			hasChanged,
+		} = t.setAtAndReturn(100, 999);
 		expect(collection).toBe(t);
 		expect(hasResult).toBe(false);
 		expect(previous).toBeUndefined();
@@ -616,7 +627,6 @@ describe('OuterTree.take', () => {
 });
 
 describe('OuterTree.drop', () => {
-
 	it('drop from left block only', () => {
 		const t = simpleTree([1, 2, 3], [10, 20]);
 		const r = t.drop(1);
@@ -792,12 +802,7 @@ describe('OuterTree.reversed', () => {
 	});
 
 	it('reversed tree with middle via forEach', () => {
-		const t = treeWithMiddle(
-			[1, 2],
-			[[3, 4]],
-			[5, 6],
-			bits,
-		);
+		const t = treeWithMiddle([1, 2], [[3, 4]], [5, 6], bits);
 		const r = t.reversed();
 		const result: number[] = [];
 		r.forEach((v) => result.push(v));
@@ -814,12 +819,7 @@ describe('OuterTree.reversed', () => {
 	});
 
 	it('double reverse of tree with middle', () => {
-		const t = treeWithMiddle(
-			[1, 2],
-			[[3, 4]],
-			[5, 6],
-			bits,
-		);
+		const t = treeWithMiddle([1, 2], [[3, 4]], [5, 6], bits);
 		const r = t.reversed().reversed();
 		const result: number[] = [];
 		r.forEach((v) => result.push(v));

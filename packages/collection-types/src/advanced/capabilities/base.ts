@@ -188,8 +188,8 @@ export abstract class IndexedCollectionEmptyBase<T>
 	extends CollectionEmptyBase<T>
 	implements
 		IndexedCollection<T>,
-		IndexedCollection.Capability.WithMap<T>,
-		IndexedCollection.Capability.WithMoveTo<unknown, T>,
+		IndexedCollection.Capability.WithMapIndexed<T>,
+		// IndexedCollection.Capability.WithMoveTo<unknown, T>,
 		IndexedCollection.Capability.WithRemoveAt<T>,
 		IndexedCollection.Capability.WithSwapAt<T>
 {
@@ -289,7 +289,9 @@ export abstract class ValuedCollectionNonEmptyBase<T>
 
 export abstract class KeyedCollectionEmptyBase<K, V>
 	extends CollectionEmptyBase<readonly [K, V]>
-	implements KeyedCollection<K, V>, KeyedCollection.WithMap<K, V>
+	implements
+		KeyedCollection<K, V>,
+		KeyedCollection.Capability.WithMapValues<K, V>
 {
 	declare context: { __types: KeyedCollection.Advanced.Types<K, V> };
 
@@ -309,7 +311,7 @@ export abstract class KeyedCollectionEmptyBase<K, V>
 		return Stream.empty<V>();
 	}
 
-	map<T2>(): (this['context']['__types'] & { _NEW_E: T2 })['_NORMAL'] {
+	mapValues<T2>(): (this['context']['__types'] & { _NEW_E: T2 })['_NORMAL'] {
 		return this;
 	}
 

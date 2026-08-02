@@ -10,22 +10,6 @@ import type { ChildrenOps } from '#advanced/children-ops';
 import { ArrayOuterChildrenOps } from '#list/children-ops/array';
 import { createListContextModule } from '#list/context';
 
-export type OpWithResult<Col, Result, HasResult extends boolean = boolean> = {
-	collection: Col;
-	hasResult: HasResult;
-	result: Result;
-	hasChanged: boolean;
-};
-
-export type OpWithChangeResult<
-	ColWithoutResult,
-	ResultWithoutHasResult,
-	ResultWithHasResult = ResultWithoutHasResult,
-	ColWithResult = ColWithoutResult,
-> =
-	| OpWithResult<ColWithoutResult, ResultWithoutHasResult, false>
-	| OpWithResult<ColWithResult, ResultWithHasResult, true>;
-
 export interface List<T>
 	extends IndexedCollection<T>,
 		List.Advanced.Capabilities<T> {
@@ -53,32 +37,6 @@ export declare namespace List {
 	}
 
 	export namespace Capability {
-		export interface WithUpdateAt<E> extends IndexedCollection<E> {
-			setAt(index: number, element: E): this['context']['__types']['_SELF'];
-			setAtAndReturn(
-				index: number,
-				element: E,
-			): OpWithChangeResult<
-				this['context']['__types']['_SELF'],
-				undefined,
-				E,
-				this['context']['__types']['_NON_EMPTY']
-			>;
-			updateAt(
-				index: number,
-				f: (element: E) => E,
-			): this['context']['__types']['_SELF'];
-			updateAtAndReturn(
-				index: number,
-				f: (element: E) => E,
-			): OpWithChangeResult<
-				this['context']['__types']['_SELF'],
-				[previous: undefined, current: undefined],
-				[previous: E, current: E],
-				this['context']['__types']['_NON_EMPTY']
-			>;
-		}
-
 		export interface WithConcat<E> extends IndexedCollection<E> {
 			concat(
 				...sources: ArrayNonEmpty<StreamSource.NonEmpty<E>>
@@ -131,9 +89,11 @@ export declare namespace List {
 	export namespace Advanced {
 		export interface Capabilities<T>
 			extends Collection.Capability.WithFilter<T>,
-				IndexedCollection.Capability.WithOrderEditable<T>,
-				IndexedCollection.Capability.WithMap<T>,
-				List.Capability.WithUpdateAt<T>,
+				Collection.Capability.WithMap<T>,
+				IndexedCollection.Capability.WithPrependAppend<T>,
+				IndexedCollection.Capability.WithFilterIndexed<T>,
+				IndexedCollection.Capability.WithMapIndexed<T>,
+				IndexedCollection.Capability.WithUpdateAt<T>,
 				List.Capability.WithConcat<T>,
 				List.Capability.WithReversed<T> {
 			readonly context: List.Context<T>;

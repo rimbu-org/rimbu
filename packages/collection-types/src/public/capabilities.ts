@@ -1,3 +1,4 @@
+import type { Op } from '@rimbu/collection-types/types';
 import type {
 	ArrayNonEmpty,
 	Comp,
@@ -102,21 +103,12 @@ export declare namespace Collection {
 				pred: (element: E) => boolean,
 				options?: { negate?: boolean | undefined } | undefined,
 			): this['context']['__types']['_NORMAL'];
+		}
 
-			filterIndexed<E2 extends E, NE2 = Exclude<E, E2>>(
-				pred: (element: E, index: number, halt: () => void) => element is E2,
-				options: { negate: true },
-			): (this['context']['__types'] & {
-				_NEW_E: NE2;
-			})['_NEW_TYPES']['_NORMAL'];
-			filterIndexed<E2 extends E>(
-				pred: (element: E, index: number, halt: () => void) => element is E2,
-				options?: { negate?: false | undefined } | undefined,
-			): (this['context']['__types'] & { _NEW_E: E2 })['_NEW_TYPES']['_NORMAL'];
-			filterIndexed(
-				pred: (element: E, index: number, halt: () => void) => boolean,
-				options?: { negate?: boolean | undefined } | undefined,
-			): this['context']['__types']['_NORMAL'];
+		export interface WithMap<E> extends Collection<E> {
+			map<E2 extends this['context']['__types']['_UPPER_E']>(
+				f: (element: E) => E2,
+			): (this['context']['__types'] & { _NEW_E: E2 })['_NEW_TYPES']['_SELF'];
 		}
 	}
 }
@@ -204,13 +196,27 @@ export declare namespace IndexedCollection {
 	}
 
 	export namespace Capability {
-		export interface WithMap<E> extends IndexedCollection<E> {
-			map<E2 extends this['context']['__types']['_UPPER_E']>(
-				f: (element: E) => E2,
-			): (this['context']['__types'] & { _NEW_E: E2 })['_NEW_TYPES']['_SELF'];
+		export interface WithMapIndexed<E> extends IndexedCollection<E> {
 			mapIndexed<E2 extends this['context']['__types']['_UPPER_E']>(
 				f: (element: E, index: number) => E2,
 			): (this['context']['__types'] & { _NEW_E: E2 })['_NEW_TYPES']['_SELF'];
+		}
+
+		export interface WithFilterIndexed<E> extends IndexedCollection<E> {
+			filterIndexed<E2 extends E, NE2 = Exclude<E, E2>>(
+				pred: (element: E, index: number, halt: () => void) => element is E2,
+				options: { negate: true },
+			): (this['context']['__types'] & {
+				_NEW_E: NE2;
+			})['_NEW_TYPES']['_NORMAL'];
+			filterIndexed<E2 extends E>(
+				pred: (element: E, index: number, halt: () => void) => element is E2,
+				options?: { negate?: false | undefined } | undefined,
+			): (this['context']['__types'] & { _NEW_E: E2 })['_NEW_TYPES']['_NORMAL'];
+			filterIndexed(
+				pred: (element: E, index: number, halt: () => void) => boolean,
+				options?: { negate?: boolean | undefined } | undefined,
+			): this['context']['__types']['_NORMAL'];
 		}
 
 		export interface WithRemoveAt<E> extends IndexedCollection<E> {
@@ -224,16 +230,42 @@ export declare namespace IndexedCollection {
 			): this['context']['__types']['_SELF'];
 		}
 
-		export interface WithOrderEditable<E> extends IndexedCollection<E> {
+		export interface WithUpdateAt<E> extends IndexedCollection<E> {
+			setAt(index: number, element: E): this['context']['__types']['_SELF'];
+			setAtAndReturn(
+				index: number,
+				element: E,
+			): Op.DynamicResult<
+				this['context']['__types']['_SELF'],
+				undefined,
+				E,
+				this['context']['__types']['_NON_EMPTY']
+			>;
+			updateAt(
+				index: number,
+				f: (element: E) => E,
+			): this['context']['__types']['_SELF'];
+			updateAtAndReturn(
+				index: number,
+				f: (element: E) => E,
+			): Op.DynamicResult<
+				this['context']['__types']['_SELF'],
+				[previous: undefined, current: undefined],
+				[previous: E, current: E],
+				this['context']['__types']['_NON_EMPTY']
+			>;
+		}
+
+		export interface WithPrependAppend<E> extends IndexedCollection<E> {
 			prepend(element: E): this['context']['__types']['_NON_EMPTY'];
 			append(element: E): this['context']['__types']['_NON_EMPTY'];
+		}
+
+		export interface WithOrderEditable<E> extends IndexedCollection<E> {
 			placeAt(
 				index: number,
 				element: E,
 			): this['context']['__types']['_NON_EMPTY'];
-		}
-
-		export interface WithMoveTo<I, E> extends IndexedCollection<E> {
 			moveTo(index: number, element: E): this['context']['__types']['_SELF'];
 		}
 	}
@@ -346,13 +378,12 @@ export declare namespace KeyedCollection {
 		}
 	}
 
-	export interface WithMap<K, V> extends KeyedCollection<K, V> {
-		map<V2>(
-			f: (value: V, key: K) => V2,
-		): (this['context']['__types'] & { _NEW_V: V2 })['_NEW_TYPES']['_SELF'];
-		mapIndexed<V2>(
-			f: (value: V, key: K, index: number) => V2,
-		): (this['context']['__types'] & { _NEW_V: V2 })['_NEW_TYPES']['_SELF'];
+	export namespace Capability {
+		export interface WithMapValues<K, V> extends KeyedCollection<K, V> {
+			mapValues<V2>(
+				f: (value: V, key: K, index: number) => V2,
+			): (this['context']['__types'] & { _NEW_V: V2 })['_NEW_TYPES']['_SELF'];
+		}
 	}
 }
 

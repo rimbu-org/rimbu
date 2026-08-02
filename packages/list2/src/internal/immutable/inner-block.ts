@@ -1,5 +1,6 @@
+import type { Op } from '@rimbu/collection-types/types';
 import type { TraverseState } from '@rimbu/common';
-import type { List, OpWithResult } from '@rimbu/list';
+import type { List } from '@rimbu/list';
 
 import type { ListContext } from '#list/context';
 import type { Block, Inner, Self } from '#list/immutable/common';
@@ -109,7 +110,7 @@ export class InnerBlock<T, C extends Self<Block<T>, C>>
 	_update(
 		index: Int.AtLeastZero,
 		f: (element: T) => T,
-	): OpWithResult<InnerBlock<T, C>, [previous: T, current: T], true> {
+	): Op.WithResult<InnerBlock<T, C>, [previous: T, current: T], true> {
 		const [childIndex, inChildIndex] = this.sizeTable.getCoordinates(index);
 		const outcome = this.#children[childIndex]._update(inChildIndex, f);
 

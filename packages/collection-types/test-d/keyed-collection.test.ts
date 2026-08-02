@@ -6,8 +6,8 @@ import type {
 } from '@rimbu/collection-types/capabilities';
 import type { Stream } from '@rimbu/stream';
 
-interface WithMapNonEmpty<K, V> extends KeyedCollection.WithMap<K, V> {
-	readonly context: { __types: KeyedCollection.Types.NonEmpty<K, V> };
+interface WithMapNonEmpty<K, V> extends KeyedCollection.WithMapValues<K, V> {
+	readonly context: { __types: KeyedCollection.Advanced.TypesNonEmpty<K, V> };
 }
 
 describe('KeyedCollection', () => {
@@ -94,9 +94,9 @@ describe('KeyedCollection.Builder', () => {
 
 describe('KeyedCollection.WithMap', () => {
 	it('normal maps values using _NEW_V slot', () => {
-		const c: KeyedCollection.WithMap<number, string> = 0 as any;
+		const c: KeyedCollection.WithMapValues<number, string> = 0 as any;
 
-		expectTypeOf(c.map((v) => v.length)).toEqualTypeOf<
+		expectTypeOf(c.mapValues((v) => v.length)).toEqualTypeOf<
 			KeyedCollection<unknown, number>
 		>();
 	});
@@ -104,13 +104,13 @@ describe('KeyedCollection.WithMap', () => {
 	it('NonEmpty preserves NonEmpty via _SELF slot', () => {
 		const c: WithMapNonEmpty<number, string> = 0 as any;
 
-		expectTypeOf(c.map((v) => v.length)).toEqualTypeOf<
+		expectTypeOf(c.mapValues((v) => v.length)).toEqualTypeOf<
 			KeyedCollection.NonEmpty<unknown, number>
 		>();
 	});
 
 	it('mapIndexed normal preserves type', () => {
-		const c: KeyedCollection.WithMap<number, string> = 0 as any;
+		const c: KeyedCollection.WithMapValues<number, string> = 0 as any;
 
 		expectTypeOf(c.mapIndexed((v, k, i) => v.length)).toEqualTypeOf<
 			KeyedCollection<unknown, number>
@@ -126,7 +126,7 @@ describe('KeyedCollection.WithMap', () => {
 	});
 
 	it('extends KeyedCollection', () => {
-		expectTypeOf<KeyedCollection.WithMap<number, string>>().toExtend<
+		expectTypeOf<KeyedCollection.WithMapValues<number, string>>().toExtend<
 			KeyedCollection<number, string>
 		>();
 	});

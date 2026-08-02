@@ -1,4 +1,4 @@
-import type { OpWithResult } from '@rimbu/list';
+import type { Op } from '@rimbu/collection-types/types';
 import type { Stream } from '@rimbu/stream';
 
 import type { Tree } from '#list/immutable/common';
@@ -44,7 +44,7 @@ export function treeUpdate<T, TR extends Tree<T> & { _self: TR }>(
 	tree: TR,
 	index: Int.AtLeastZero,
 	f: (element: T) => T,
-): OpWithResult<TR, [previous: T, current: T], true> {
+): Op.WithResult<TR, [previous: T, current: T], true> {
 	const middleIndex = index - tree.left.size;
 
 	if (!Int.isAtLeastZero(middleIndex)) {

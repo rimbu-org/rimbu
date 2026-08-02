@@ -261,19 +261,12 @@ describe('InnerTree.prependChild', () => {
 		// middle InnerBlock at level+1 has 4 children (at capacity)
 		const t = innerTreeWithMiddle(
 			[ob(ctx, [1]), ob(ctx, [2]), ob(ctx, [3]), ob(ctx, [4])],
-			[
-				[ob(ctx, [5])],
-				[ob(ctx, [6])],
-				[ob(ctx, [7])],
-				[ob(ctx, [8])],
-			],
+			[[ob(ctx, [5])], [ob(ctx, [6])], [ob(ctx, [7])], [ob(ctx, [8])]],
 			[ob(ctx, [9]), ob(ctx, [10]), ob(ctx, [11]), ob(ctx, [12])],
 			bits,
 		);
 		const r = t.prependChild(ob(ctx, [0]));
-		expect(r.toArray()).toEqual([
-			0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
-		]);
+		expect(r.toArray()).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
 		expect(r.size).toBe(13);
 	});
 });
@@ -341,19 +334,12 @@ describe('InnerTree.appendChild', () => {
 	it('promotes middle to InnerTree when middle is full and right overflows', () => {
 		const t = innerTreeWithMiddle(
 			[ob(ctx, [1]), ob(ctx, [2]), ob(ctx, [3]), ob(ctx, [4])],
-			[
-				[ob(ctx, [5])],
-				[ob(ctx, [6])],
-				[ob(ctx, [7])],
-				[ob(ctx, [8])],
-			],
+			[[ob(ctx, [5])], [ob(ctx, [6])], [ob(ctx, [7])], [ob(ctx, [8])]],
 			[ob(ctx, [9]), ob(ctx, [10]), ob(ctx, [11]), ob(ctx, [12])],
 			bits,
 		);
 		const r = t.appendChild(ob(ctx, [13]));
-		expect(r.toArray()).toEqual([
-			1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
-		]);
+		expect(r.toArray()).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]);
 		expect(r.size).toBe(13);
 	});
 });
@@ -408,7 +394,10 @@ describe('InnerTree.filter', () => {
 	const ctx = makeContext<number>(3);
 
 	it('keeps matching elements across left and right', () => {
-		const t = simpleInnerTree([ob(ctx, [1, 2]), ob(ctx, [3])], [ob(ctx, [4, 5])]);
+		const t = simpleInnerTree(
+			[ob(ctx, [1, 2]), ob(ctx, [3])],
+			[ob(ctx, [4, 5])],
+		);
 		const r = t.filter((x) => x % 2 === 0);
 		expect(r.toArray()).toEqual([2, 4]);
 	});
@@ -452,11 +441,7 @@ describe('InnerTree.dropFirstChild', () => {
 	});
 
 	it('when left depleted and no middle, returns right block', () => {
-		const t = simpleInnerTree(
-			[ob(ctx, [1])],
-			[ob(ctx, [2, 3])],
-			2,
-		);
+		const t = simpleInnerTree([ob(ctx, [1])], [ob(ctx, [2, 3])], 2);
 		const [newTree, firstChild] = t.dropFirstChild();
 		expect(firstChild.toArray()).toEqual([1]);
 		expect(collectForEach(newTree!)).toEqual([2, 3]);
@@ -491,11 +476,7 @@ describe('InnerTree.dropLastChild', () => {
 	});
 
 	it('when right depleted and no middle, returns left block', () => {
-		const t = simpleInnerTree(
-			[ob(ctx, [1, 2])],
-			[ob(ctx, [3])],
-			2,
-		);
+		const t = simpleInnerTree([ob(ctx, [1, 2])], [ob(ctx, [3])], 2);
 		const [newTree, lastChild] = t.dropLastChild();
 		expect(lastChild.toArray()).toEqual([3]);
 		expect(collectForEach(newTree!)).toEqual([1, 2]);
@@ -561,7 +542,11 @@ describe('InnerTree.concat', () => {
 		const right = ib(ctx, [ob(ctx, [6])], 1);
 		const tree = ctx.innerTree(left, right, null, left.size + right.size, 1);
 
-		const block = ib(ctx, [ob(ctx, [1]), ob(ctx, [2]), ob(ctx, [3]), ob(ctx, [4])], 1);
+		const block = ib(
+			ctx,
+			[ob(ctx, [1]), ob(ctx, [2]), ob(ctx, [3]), ob(ctx, [4])],
+			1,
+		);
 		// block full (4), left._hasEnoughChildren (2 ≥ 2) → Case 2
 		const r = block.concat(tree);
 		expect(collectForEach(r)).toEqual([1, 2, 3, 4, 5, 5.1, 6]);
@@ -573,7 +558,11 @@ describe('InnerTree.concat', () => {
 		const right = ib(ctx, [ob(ctx, [6])], 1);
 		const tree = ctx.innerTree(left, right, null, left.size + right.size, 1);
 
-		const block = ib(ctx, [ob(ctx, [1]), ob(ctx, [2]), ob(ctx, [3]), ob(ctx, [4])], 1);
+		const block = ib(
+			ctx,
+			[ob(ctx, [1]), ob(ctx, [2]), ob(ctx, [3]), ob(ctx, [4])],
+			1,
+		);
 		// block full (4), left < min → Case 3 split
 		const r = block.concat(tree);
 		expect(collectForEach(r)).toEqual([1, 2, 3, 4, 5, 6]);
@@ -585,19 +574,13 @@ describe('InnerTree.reversed', () => {
 	const ctx = makeContext<number>(3);
 
 	it('preserves size', () => {
-		const t = simpleInnerTree(
-			[ob(ctx, [1, 2])],
-			[ob(ctx, [3, 4])],
-		);
+		const t = simpleInnerTree([ob(ctx, [1, 2])], [ob(ctx, [3, 4])]);
 		const r = t.reversed();
 		expect(r.size).toBe(4);
 	});
 
 	it('swaps left and right via forEach on tree without middle', () => {
-		const t = simpleInnerTree(
-			[ob(ctx, [1, 2])],
-			[ob(ctx, [3, 4])],
-		);
+		const t = simpleInnerTree([ob(ctx, [1, 2])], [ob(ctx, [3, 4])]);
 		const r = t.reversed();
 		const result: number[] = [];
 		r.forEach((v) => result.push(v));
@@ -617,19 +600,13 @@ describe('InnerTree.reversed', () => {
 	});
 
 	it('does not mutate original', () => {
-		const t = simpleInnerTree(
-			[ob(ctx, [1, 2])],
-			[ob(ctx, [3, 4])],
-		);
+		const t = simpleInnerTree([ob(ctx, [1, 2])], [ob(ctx, [3, 4])]);
 		t.reversed();
 		expect(t.toArray()).toEqual([1, 2, 3, 4]);
 	});
 
 	it('returns an InnerTree', () => {
-		const t = simpleInnerTree(
-			[ob(ctx, [1, 2])],
-			[ob(ctx, [3, 4])],
-		);
+		const t = simpleInnerTree([ob(ctx, [1, 2])], [ob(ctx, [3, 4])]);
 		const r = t.reversed();
 		expect(r).toHaveProperty('left');
 		expect(r).toHaveProperty('right');

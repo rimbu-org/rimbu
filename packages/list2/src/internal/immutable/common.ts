@@ -1,6 +1,7 @@
 import type { Int } from '@rimbu/base';
+import type { Op } from '@rimbu/collection-types/types';
 import type { TraverseState } from '@rimbu/common';
-import type { List, OpWithResult } from '@rimbu/list';
+import type { List } from '@rimbu/list';
 import type { Stream } from '@rimbu/stream';
 
 import type { InnerBlock } from '#list/immutable/inner-block';
@@ -37,7 +38,7 @@ interface ListNode<T> {
 	_update(
 		index: Int.AtLeastZero,
 		f: (element: T) => T,
-	): OpWithResult<this['_self'], [previous: T, current: T], true>;
+	): Op.WithResult<this['_self'], [previous: T, current: T], true>;
 	_verifyStructure(errors?: string[], enforceChildren?: boolean): string[];
 }
 

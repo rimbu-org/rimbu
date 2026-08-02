@@ -642,12 +642,11 @@ describe('InnerBlock.prependTree', () => {
 		const treeLeft = inner(ctx, [ob(ctx, [1])], level);
 		const treeRight = inner(ctx, [ob(ctx, [3])], level); // 1 < min=2
 		const tree = ctx.innerTree(treeLeft, treeRight, null, 2, level + 1);
-		const block = inner(ctx, [
-			ob(ctx, [4]),
-			ob(ctx, [5]),
-			ob(ctx, [6]),
-			ob(ctx, [7]),
-		], level);
+		const block = inner(
+			ctx,
+			[ob(ctx, [4]), ob(ctx, [5]), ob(ctx, [6]), ob(ctx, [7])],
+			level,
+		);
 		// block.prependTree(tree): joint > max, tree.right < min → split
 		const r = block.prependTree(tree);
 		expect(r.toArray()).toEqual([1, 3, 4, 5, 6, 7]);
@@ -659,7 +658,11 @@ describe('InnerBlock.takeInternal', () => {
 	const ctx = makeContext<number>(3); // max=8
 
 	it('returns first children and boundary child with offset', () => {
-		const b = inner(ctx, [ob(ctx, [1, 2]), ob(ctx, [3, 4, 5]), ob(ctx, [6, 7])]);
+		const b = inner(ctx, [
+			ob(ctx, [1, 2]),
+			ob(ctx, [3, 4, 5]),
+			ob(ctx, [6, 7]),
+		]);
 		const [newInner, lastChild, lastChildCount] = b.takeInternal(
 			3 as Int.AtLeastOne,
 		);
@@ -685,7 +688,11 @@ describe('InnerBlock.dropInternal', () => {
 	const ctx = makeContext<number>(3); // max=8
 
 	it('returns remaining children after dropping first n elements', () => {
-		const b = inner(ctx, [ob(ctx, [1, 2]), ob(ctx, [3, 4, 5]), ob(ctx, [6, 7])]);
+		const b = inner(ctx, [
+			ob(ctx, [1, 2]),
+			ob(ctx, [3, 4, 5]),
+			ob(ctx, [6, 7]),
+		]);
 		const [newInner, firstChild, inFirstChildCount] = b.dropInternal(
 			3 as Int.AtLeastZero,
 		);

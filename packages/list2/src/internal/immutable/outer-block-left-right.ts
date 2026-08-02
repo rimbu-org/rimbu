@@ -1,6 +1,7 @@
 import type { Int } from '@rimbu/base';
+import type { Op } from '@rimbu/collection-types/types';
 import type { ArrayNonEmpty, IndexRange, TraverseState } from '@rimbu/common';
-import type { List, OpWithResult } from '@rimbu/list';
+import type { List } from '@rimbu/list';
 import type { Stream } from '@rimbu/stream';
 
 import type { ChildrenOps, OuterChildren } from '#advanced/children-ops';
@@ -49,7 +50,7 @@ export class OuterBlockLeftRight<T> extends OuterBlock<T> {
 	_update(
 		index: Int.AtLeastZero,
 		f: (element: T) => T,
-	): OpWithResult<OuterBlock<T>, [previous: T, current: T], true> {
+	): Op.WithResult<OuterBlock<T>, [previous: T, current: T], true> {
 		const outcome = this.#ops.updateAt(this.#children, index, f);
 
 		const collection = outcome.hasChanged

@@ -1,4 +1,5 @@
-import type { List, OpWithChangeResult } from '@rimbu/list';
+import type { Op } from '@rimbu/collection-types/types';
+import type { List } from '@rimbu/list';
 import type { StreamSource } from '@rimbu/stream';
 
 import type { ListContext } from '#list/context';
@@ -21,11 +22,11 @@ export abstract class ListNonEmptyBase<T>
 	abstract setAtAndReturn(
 		index: number,
 		element: T,
-	): OpWithChangeResult<this['_self'], undefined, T>;
+	): Op.DynamicResult<this['_self'], undefined, T>;
 	abstract updateAtAndReturn(
 		index: number,
 		f: (element: T) => T,
-	): OpWithChangeResult<
+	): Op.DynamicResult<
 		this['_self'],
 		[previous: undefined, current: undefined],
 		[previous: T, current: T]

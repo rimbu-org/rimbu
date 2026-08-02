@@ -1,4 +1,5 @@
-import type { List, OpWithChangeResult, OpWithResult } from '@rimbu/list';
+import type { Op } from '@rimbu/collection-types/types';
+import type { List } from '@rimbu/list';
 import type { Stream, StreamSource } from '@rimbu/stream';
 
 import type { ListContext } from '#list/context';
@@ -121,7 +122,7 @@ export class OuterTree<T>
 	setAtAndReturn(
 		index: number,
 		element: T,
-	): OpWithChangeResult<OuterTree<T>, undefined, T> {
+	): Op.DynamicResult<OuterTree<T>, undefined, T> {
 		const outcome = this.updateAtAndReturn(index, () => element);
 
 		const [previous] = outcome.result;
@@ -136,7 +137,7 @@ export class OuterTree<T>
 	updateAtAndReturn(
 		index: number,
 		f: (element: T) => T,
-	): OpWithChangeResult<
+	): Op.DynamicResult<
 		OuterTree<T>,
 		[previous: undefined, current: undefined],
 		[previous: T, current: T]
@@ -162,7 +163,7 @@ export class OuterTree<T>
 	_update(
 		index: Int.AtLeastZero,
 		f: (element: T) => T,
-	): OpWithResult<OuterTree<T>, [previous: T, current: T], true> {
+	): Op.WithResult<OuterTree<T>, [previous: T, current: T], true> {
 		return treeUpdate(this as OuterTree<T>, index, f);
 	}
 

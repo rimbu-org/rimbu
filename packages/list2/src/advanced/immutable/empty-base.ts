@@ -1,5 +1,6 @@
+import type { Op } from '@rimbu/collection-types/types';
 import type { ArrayNonEmpty } from '@rimbu/common';
-import type { List, OpWithResult } from '@rimbu/list';
+import type { List } from '@rimbu/list';
 import type { StreamSource } from '@rimbu/stream';
 
 import type { ListContext } from '#list/context';
@@ -22,7 +23,7 @@ export class ListEmptyBase<T>
 		return this;
 	}
 
-	setAtAndReturn(): OpWithResult<List<T>, undefined, false> {
+	setAtAndReturn(): Op.WithResult<List<T>, undefined, false> {
 		return {
 			collection: this,
 			hasResult: false,
@@ -35,7 +36,7 @@ export class ListEmptyBase<T>
 		return this;
 	}
 
-	updateAtAndReturn(): OpWithResult<
+	updateAtAndReturn(): Op.WithResult<
 		List<T>,
 		[previous: undefined, current: undefined],
 		false

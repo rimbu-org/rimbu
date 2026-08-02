@@ -1,4 +1,5 @@
-import type { List, OpWithChangeResult, OpWithResult } from '@rimbu/list';
+import type { Op } from '@rimbu/collection-types/types';
+import type { List } from '@rimbu/list';
 import type { Stream, StreamSource } from '@rimbu/stream';
 
 import type { ChildrenOps, OuterChildren } from '#advanced/children-ops';
@@ -38,7 +39,7 @@ export abstract class OuterBlock<T>
 	abstract _update(
 		index: Int.AtLeastZero,
 		f: (element: T) => T,
-	): OpWithResult<OuterBlock<T>, [previous: T, current: T], true>;
+	): Op.WithResult<OuterBlock<T>, [previous: T, current: T], true>;
 	abstract forEach(f: (element: T) => void): void;
 	abstract filter(f: (element: T) => boolean): List<T>;
 	abstract filterIndexed(
@@ -114,7 +115,7 @@ export abstract class OuterBlock<T>
 	setAtAndReturn(
 		index: number,
 		element: T,
-	): OpWithChangeResult<OuterBlock<T>, undefined, T> {
+	): Op.DynamicResult<OuterBlock<T>, undefined, T> {
 		const outcome = this.updateAtAndReturn(index, () => element);
 
 		const [result] = outcome.result;
@@ -125,7 +126,7 @@ export abstract class OuterBlock<T>
 	updateAtAndReturn(
 		index: number,
 		f: (element: T) => T,
-	): OpWithChangeResult<
+	): Op.DynamicResult<
 		OuterBlock<T>,
 		[previous: undefined, current: undefined],
 		[previous: T, current: T]

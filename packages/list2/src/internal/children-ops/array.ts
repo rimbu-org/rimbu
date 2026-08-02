@@ -1,4 +1,4 @@
-import type { OpWithResult } from '@rimbu/list';
+import type { Op } from '@rimbu/collection-types/types';
 
 import type { ChildrenOps, OuterChildren } from '#advanced/children-ops';
 
@@ -36,7 +36,7 @@ export class ArrayOuterChildrenOps
 		children: T[],
 		index: number,
 		update: (current: T) => T,
-	): OpWithResult<T[], [previous: T, current: T], true> {
+	): Op.WithResult<T[], [previous: T, current: T], true> {
 		const previous = children.at(index)!;
 		const current = update(previous);
 
