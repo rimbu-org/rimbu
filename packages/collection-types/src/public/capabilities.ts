@@ -64,6 +64,8 @@ export declare namespace Collection {
 			_NORMAL: Collection<E>;
 			_NON_EMPTY: Collection.NonEmpty<E>;
 			_SELF: this['_NORMAL'];
+			_BUILDER: Collection.Builder<E>;
+			_AS_STREAM: Stream<E>;
 
 			_isEmpty: boolean;
 			_nonEmpty: () => this is this['_NON_EMPTY'];
@@ -78,6 +80,7 @@ export declare namespace Collection {
 
 		export interface TypesNonEmpty<E> extends Collection.Advanced.Types<E> {
 			_SELF: this['_NON_EMPTY'];
+			_AS_STREAM: Stream.NonEmpty<E>;
 
 			_isEmpty: false;
 			_stream: () => Stream.NonEmpty<E>;
@@ -109,6 +112,25 @@ export declare namespace Collection {
 			map<E2 extends this['context']['__types']['_UPPER_E']>(
 				f: (element: E) => E2,
 			): (this['context']['__types'] & { _NEW_E: E2 })['_NEW_TYPES']['_SELF'];
+		}
+
+		export interface WithMutate<E> extends Collection<E> {
+			mutate(
+				f: (builder: this['context']['__types']['_BUILDER']) => void,
+			): this['context']['__types']['_NORMAL'];
+		}
+
+		export interface WithRecompose<E> extends Collection<E> {
+			recompose<E2 extends this['context']['__types']['_UPPER_E']>(
+				f: (
+					stream: this['context']['__types']['_AS_STREAM'],
+				) => StreamSource.NonEmpty<E2>,
+			): (this['context']['__types'] & { _NEW_E: E2 })['_NEW_TYPES']['_SELF'];
+			recompose<E2 extends this['context']['__types']['_UPPER_E']>(
+				f: (
+					stream: this['context']['__types']['_AS_STREAM'],
+				) => StreamSource<E2>,
+			): (this['context']['__types'] & { _NEW_E: E2 })['_NEW_TYPES']['_NORMAL'];
 		}
 	}
 }
@@ -175,6 +197,7 @@ export declare namespace IndexedCollection {
 		export interface Types<E> extends Collection.Advanced.Types<E> {
 			_NORMAL: IndexedCollection<E>;
 			_NON_EMPTY: IndexedCollection.NonEmpty<E>;
+			_BUILDER: IndexedCollection.Builder<E>;
 
 			_firstLast: IndexedCollection.Advanced.FirstLast<E>;
 			_take: (amount: number) => this['_NORMAL'];
@@ -190,6 +213,7 @@ export declare namespace IndexedCollection {
 			extends Collection.Advanced.TypesNonEmpty<E> {
 			_NORMAL: IndexedCollection<E>;
 			_NON_EMPTY: IndexedCollection.NonEmpty<E>;
+			_BUILDER: IndexedCollection.Builder<E>;
 
 			_firstLast: IndexedCollection.Advanced.FirstLast<E, true>;
 			_take: TakeNonEmpty<this['_NORMAL'], this['_NON_EMPTY']>;
@@ -302,6 +326,30 @@ export declare namespace IndexedCollection {
 				],
 				this['context']['__types']['_NORMAL']
 			>;
+
+			insertAt(
+				index: number,
+				values: StreamSource.NonEmpty<E>,
+			): this['context']['__types']['_NON_EMPTY'];
+			insertAt(
+				index: number,
+				values: StreamSource<E>,
+			): this['context']['__types']['_SELF'];
+
+			removeAt(
+				index: number,
+				amount?: number | undefined,
+			): this['context']['__types']['_NORMAL'];
+
+			removeAtAndReturn(
+				index: number,
+				amount?: number | undefined,
+			): Op.DynamicResult<
+				this['context']['__types']['_SELF'],
+				this['context']['__types']['_NORMAL'],
+				this['context']['__types']['_NON_EMPTY'],
+				this['context']['__types']['_NORMAL']
+			>;
 		}
 
 		export interface WithUpdateAt<E> extends IndexedCollection<E> {
@@ -374,6 +422,7 @@ export declare namespace ValuedCollection {
 		export interface Types<T> extends Collection.Advanced.Types<T> {
 			_NORMAL: ValuedCollection<T>;
 			_NON_EMPTY: ValuedCollection.NonEmpty<T>;
+			_BUILDER: ValuedCollection.Builder<T>;
 			_NEW_TYPES: ValuedCollection.Advanced.Types<this['_NEW_E']>;
 		}
 
@@ -381,6 +430,7 @@ export declare namespace ValuedCollection {
 			extends Collection.Advanced.TypesNonEmpty<T> {
 			_NORMAL: ValuedCollection<T>;
 			_NON_EMPTY: ValuedCollection.NonEmpty<T>;
+			_BUILDER: ValuedCollection.Builder<T>;
 			_NEW_TYPES: ValuedCollection.Advanced.TypesNonEmpty<this['_NEW_E']>;
 		}
 	}
@@ -423,6 +473,7 @@ export declare namespace KeyedCollection {
 			extends Collection.Advanced.Types<readonly [K, V]> {
 			_NORMAL: KeyedCollection<K, V>;
 			_NON_EMPTY: KeyedCollection.NonEmpty<K, V>;
+			_BUILDER: KeyedCollection.Builder<K, V>;
 
 			_streamKeys: () => Stream<K>;
 			_streamValues: () => Stream<V>;
@@ -439,6 +490,7 @@ export declare namespace KeyedCollection {
 			extends Collection.Advanced.TypesNonEmpty<readonly [K, V]> {
 			_NORMAL: KeyedCollection<K, V>;
 			_NON_EMPTY: KeyedCollection.NonEmpty<K, V>;
+			_BUILDER: KeyedCollection.Builder<K, V>;
 
 			_streamKeys: () => Stream.NonEmpty<K>;
 			_streamValues: () => Stream.NonEmpty<V>;
@@ -502,6 +554,7 @@ export declare namespace IndexedValuedCollection {
 				ValuedCollection.Advanced.Types<T> {
 			_NORMAL: IndexedValuedCollection<T>;
 			_NON_EMPTY: IndexedValuedCollection.NonEmpty<T>;
+			_BUILDER: IndexedValuedCollection.Builder<T>;
 			_NEW_TYPES: IndexedValuedCollection.Advanced.Types<this['_NEW_E']>;
 
 			_stream: IndexedCollection.Advanced.Types<T>['_stream'];
@@ -511,6 +564,7 @@ export declare namespace IndexedValuedCollection {
 			extends IndexedCollection.Advanced.TypesNonEmpty<T> {
 			_NORMAL: IndexedValuedCollection<T>;
 			_NON_EMPTY: IndexedValuedCollection.NonEmpty<T>;
+			_BUILDER: IndexedValuedCollection.Builder<T>;
 			_NEW_TYPES: IndexedValuedCollection.Advanced.TypesNonEmpty<
 				this['_NEW_E']
 			>;
@@ -557,6 +611,7 @@ export declare namespace IndexedKeyedCollection {
 				KeyedCollection.Advanced.Types<K, V> {
 			_NORMAL: IndexedKeyedCollection<K, V>;
 			_NON_EMPTY: IndexedKeyedCollection.NonEmpty<K, V>;
+			_BUILDER: IndexedKeyedCollection.Builder<K, V>;
 
 			_stream: IndexedCollection.Advanced.Types<readonly [K, V]>['_stream'];
 
@@ -578,6 +633,7 @@ export declare namespace IndexedKeyedCollection {
 				KeyedCollection.Advanced.TypesNonEmpty<K, V> {
 			_NORMAL: IndexedKeyedCollection<K, V>;
 			_NON_EMPTY: IndexedKeyedCollection.NonEmpty<K, V>;
+			_BUILDER: IndexedKeyedCollection.Builder<K, V>;
 
 			_stream: IndexedCollection.Advanced.TypesNonEmpty<
 				readonly [K, V]
@@ -675,6 +731,7 @@ export declare namespace SortedCollection {
 		export interface Types<S, E> extends Collection.Advanced.Types<E> {
 			_NORMAL: SortedCollection<S, E>;
 			_NON_EMPTY: SortedCollection.NonEmpty<S, E>;
+			_BUILDER: SortedCollection.Builder<S, E>;
 
 			_NEW_S: unknown;
 			_NEW_TYPES: SortedCollection.Advanced.Types<
@@ -687,6 +744,7 @@ export declare namespace SortedCollection {
 			extends Collection.Advanced.TypesNonEmpty<E> {
 			_NORMAL: SortedCollection<S, E>;
 			_NON_EMPTY: SortedCollection.NonEmpty<S, E>;
+			_BUILDER: SortedCollection.Builder<S, E>;
 
 			_NEW_S: unknown;
 			_NEW_TYPES: SortedCollection.Advanced.TypesNonEmpty<

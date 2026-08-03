@@ -56,30 +56,9 @@ export declare namespace List {
 		> {
 		readonly blockSizeBits: number;
 
-		__types: IsNonEmpty extends true
+		readonly __types: IsNonEmpty extends true
 			? List.Advanced.TypesNonEmpty<T>
 			: List.Advanced.Types<T>;
-
-		createContext(options: { blockSizeBits?: number }): List.Context<T>;
-
-		empty<T extends this['__types']['_UPPER_E']>(): (this['__types'] & {
-			_NEW_E: T;
-		})['_NEW_TYPES']['_NORMAL'];
-
-		of<T extends this['__types']['_UPPER_E']>(
-			...elements: ArrayNonEmpty<T>
-		): (this['__types'] & { _NEW_E: T })['_NEW_TYPES']['_NON_EMPTY'];
-
-		from<T extends this['__types']['_UPPER_E']>(
-			...sources: ArrayNonEmpty<StreamSource.NonEmpty<T>>
-		): (this['__types'] & { _NEW_E: T })['_NEW_TYPES']['_NON_EMPTY'];
-		from<T extends this['__types']['_UPPER_E']>(
-			...sources: ArrayNonEmpty<StreamSource<T>>
-		): (this['__types'] & { _NEW_E: T })['_NEW_TYPES']['_NORMAL'];
-
-		builder<T extends this['__types']['_UPPER_E']>(): (this['__types'] & {
-			_NEW_E: T;
-		})['_NEW_TYPES']['_BUILDER'];
 	}
 
 	export namespace Advanced {
