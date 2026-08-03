@@ -1,24 +1,27 @@
-import type { ValuedCollection } from '@rimbu/collection-types/capabilities';
+import type {
+	Collection,
+	ValuedCollection,
+} from '@rimbu/collection-types/capabilities';
 
 export interface SetCollection<T> extends ValuedCollection<T> {
-	readonly context: {
-		__types: SetCollection.Advanced.Types<T>;
-	};
+	readonly context: Collection.Advanced.ContextBase<
+		SetCollection.Advanced.Types<T>
+	>;
 }
 
 export namespace SetCollection {
 	export interface NonEmpty<T>
 		extends SetCollection<T>,
 			ValuedCollection.NonEmpty<T> {
-		readonly context: {
-			__types: SetCollection.Advanced.TypesNonEmpty<T>;
-		};
+		readonly context: Collection.Advanced.ContextBase<
+			SetCollection.Advanced.TypesNonEmpty<T>
+		>;
 	}
 
 	export interface Builder<T> extends ValuedCollection.Builder<T> {
-		readonly context: {
-			__types: SetCollection.Advanced.Types<T>;
-		};
+		readonly context: Collection.Advanced.ContextBase<
+			SetCollection.Advanced.Types<T>
+		>;
 	}
 
 	export namespace Advanced {

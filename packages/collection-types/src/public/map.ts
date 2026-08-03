@@ -1,24 +1,27 @@
-import type { KeyedCollection } from '@rimbu/collection-types/capabilities';
+import type {
+	Collection,
+	KeyedCollection,
+} from '@rimbu/collection-types/capabilities';
 
 export interface MapCollection<K, V> extends KeyedCollection<K, V> {
-	readonly context: {
-		__types: MapCollection.Advanced.Types<K, V>;
-	};
+	readonly context: Collection.Advanced.ContextBase<
+		MapCollection.Advanced.Types<K, V>
+	>;
 }
 
 export declare namespace MapCollection {
 	export interface NonEmpty<K, V>
 		extends MapCollection<K, V>,
 			KeyedCollection.NonEmpty<K, V> {
-		readonly context: {
-			__types: MapCollection.Advanced.TypesNonEmpty<K, V>;
-		};
+		readonly context: Collection.Advanced.ContextBase<
+			MapCollection.Advanced.TypesNonEmpty<K, V>
+		>;
 	}
 
 	export interface Builder<K, V> extends KeyedCollection.Builder<K, V> {
-		readonly context: {
-			__types: MapCollection.Advanced.Types<K, V>;
-		};
+		readonly context: Collection.Advanced.ContextBase<
+			MapCollection.Advanced.Types<K, V>
+		>;
 	}
 
 	export namespace Advanced {

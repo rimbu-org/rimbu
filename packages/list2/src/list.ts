@@ -36,17 +36,6 @@ export declare namespace List {
 		appendAll(elements: StreamSource<T>): void;
 	}
 
-	export namespace Capability {
-		export interface WithConcat<E> extends IndexedCollection<E> {
-			concat(
-				...sources: ArrayNonEmpty<StreamSource.NonEmpty<E>>
-			): this['context']['__types']['_NON_EMPTY'];
-			concat(
-				...sources: ArrayNonEmpty<StreamSource<E>>
-			): this['context']['__types']['_SELF'];
-		}
-	}
-
 	export interface Context<T, IsNonEmpty extends boolean = boolean>
 		extends List.Advanced.Factory<
 			T,
@@ -61,6 +50,17 @@ export declare namespace List {
 			: List.Advanced.Types<T>;
 	}
 
+	export namespace Capability {
+		export interface WithConcat<E> extends IndexedCollection<E> {
+			concat(
+				...sources: ArrayNonEmpty<StreamSource.NonEmpty<E>>
+			): this['context']['__types']['_NON_EMPTY'];
+			concat(
+				...sources: ArrayNonEmpty<StreamSource<E>>
+			): this['context']['__types']['_SELF'];
+		}
+	}
+
 	export namespace Advanced {
 		export interface Capabilities<T>
 			extends Collection.Capability.WithFilter<T>,
@@ -70,7 +70,9 @@ export declare namespace List {
 				IndexedCollection.Capability.WithFilterIndexed<T>,
 				IndexedCollection.Capability.WithMapIndexed<T>,
 				IndexedCollection.Capability.WithPrependAppend<T>,
+				IndexedCollection.Capability.WithRepeat<T>,
 				IndexedCollection.Capability.WithReversed<T>,
+				IndexedCollection.Capability.WithRotate<T>,
 				IndexedCollection.Capability.WithSpliceAt<T>,
 				IndexedCollection.Capability.WithSwapAt<T>,
 				IndexedCollection.Capability.WithUpdateAt<T>,
@@ -78,27 +80,9 @@ export declare namespace List {
 			readonly context: List.Context<T>;
 		}
 
-		export interface Factory<T, Tp extends List.Advanced.Types<T>> {
+		export interface Factory<T, Tp extends List.Advanced.Types<T>>
+			extends Collection.Advanced.ContextBase<Tp> {
 			createContext(options: { blockSizeBits?: number }): List.Context<T>;
-
-			empty<T extends Tp['_UPPER_E']>(): (Tp & {
-				_NEW_E: T;
-			})['_NEW_TYPES']['_NORMAL'];
-
-			of<T extends Tp['_UPPER_E']>(
-				...elements: ArrayNonEmpty<T>
-			): (Tp & { _NEW_E: T })['_NEW_TYPES']['_NON_EMPTY'];
-
-			from<T extends Tp['_UPPER_E']>(
-				...sources: ArrayNonEmpty<StreamSource.NonEmpty<T>>
-			): (Tp & { _NEW_E: T })['_NEW_TYPES']['_NON_EMPTY'];
-			from<T extends Tp['_UPPER_E']>(
-				...sources: ArrayNonEmpty<StreamSource<T>>
-			): (Tp & { _NEW_E: T })['_NEW_TYPES']['_NORMAL'];
-
-			builder<T extends Tp['_UPPER_E']>(): (Tp & {
-				_NEW_E: T;
-			})['_NEW_TYPES']['_BUILDER'];
 		}
 
 		export type DefaultFactory = Factory<any, List.Advanced.Types<any>>;

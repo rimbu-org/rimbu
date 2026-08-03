@@ -1,11 +1,10 @@
 import type { Op } from '@rimbu/collection-types/types';
-import type { ArrayNonEmpty } from '@rimbu/common';
 import type { List } from '@rimbu/list';
+import type { StreamSource } from '@rimbu/stream';
 
 import type { ListContext } from '#list/context';
 
 import { IndexedCollectionEmptyBase } from '@rimbu/collection-types/advanced/capabilities/base';
-import { Stream, type StreamSource } from '@rimbu/stream';
 
 export class ListEmptyBase<T>
 	extends IndexedCollectionEmptyBase<T>
@@ -13,18 +12,6 @@ export class ListEmptyBase<T>
 {
 	constructor(readonly context: ListContext<T>) {
 		super();
-	}
-
-	get #ops() {
-		return this.context.childrenOps;
-	}
-
-	prepend(element: T): List.NonEmpty<T> {
-		return this.context.outerBlockLeftRight(this.#ops.of([element]));
-	}
-
-	append(element: T): List.NonEmpty<T> {
-		return this.context.outerBlockLeftRight(this.#ops.of([element]));
 	}
 
 	spliceAt(
@@ -96,21 +83,5 @@ export class ListEmptyBase<T>
 			result: this,
 			hasChanged: false,
 		};
-	}
-
-	recompose<E2>(f: (stream: Stream<T>) => StreamSource<E2>): List<E2> {
-		return this.context.from(f(Stream.empty()));
-	}
-
-	mutate(f: (builder: List.Builder<T>) => void): List<T> {
-		const builder = this.context.builder<T>();
-		f(builder);
-		return builder.build();
-	}
-
-	concat(...sources: ArrayNonEmpty<StreamSource<T>>): List.NonEmpty<T> {
-		if (sources.length === 0) return this as any;
-
-		return this.context.from(...sources) as any;
 	}
 }

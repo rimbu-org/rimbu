@@ -1,6 +1,7 @@
 import type { Op } from '@rimbu/collection-types/types';
+import type { ArrayNonEmpty } from '@rimbu/common';
 import type { List } from '@rimbu/list';
-import type { Stream, StreamSource } from '@rimbu/stream';
+import type { StreamSource } from '@rimbu/stream';
 
 import type { ListContext } from '#list/context';
 import type { OuterBlock } from '#list/immutable/outer-block';
@@ -9,7 +10,6 @@ import type { OuterBuilder } from '#list/mutable/common';
 
 import { Int, throwInvalidStateError } from '@rimbu/base';
 import { IndexedCollectionNonEmptyBase } from '@rimbu/collection-types/advanced/capabilities/base';
-import { type ArrayNonEmpty, IndexRange } from '@rimbu/common';
 
 export abstract class ListNonEmptyBase<T>
 	extends IndexedCollectionNonEmptyBase<T>
@@ -114,21 +114,6 @@ export abstract class ListNonEmptyBase<T>
 		}
 
 		throwInvalidStateError();
-	}
-
-	slice(range: IndexRange): List<T> {
-		const result = IndexRange.getIndicesFor(range, this.size);
-
-		if (result === 'all') {
-			return this;
-		}
-
-		if (result === 'empty') return this.context.empty();
-
-		const [start, end] = result;
-		const values = this.drop(start).take(end - start + 1);
-
-		return values;
 	}
 
 	spliceAt(
@@ -250,6 +235,37 @@ export abstract class ListNonEmptyBase<T>
 		};
 	}
 
+	rotateLeft(amount: number): List.NonEmpty<T> {
+		Int.check(amount);
+		const normalizedAmount = amount % this.size;
+		if (normalizedAmount === 0) return this;
+
+		return this.drop(normalizedAmount)
+			.concat(this.take(normalizedAmount))
+			.assumeNonEmpty();
+	}
+
+	repeat(amount: number): List.NonEmpty<T> {
+		Int.checkAtLeastZero(amount);
+
+		if (amount <= 0) {
+			return this.context.empty() as List.NonEmpty<T>;
+		}
+		if (amount === 1) {
+			return this;
+		}
+
+		const nextRepeat = amount >>> 1;
+		const remain = amount % 2;
+
+		return this.context
+			.from(
+				this.concat(this).repeat(nextRepeat),
+				remain === 0 ? undefined : this,
+			)
+			.assumeNonEmpty();
+	}
+
 	mapIndexed<T2>(
 		f: (element: T, index: number) => T2,
 		options: { indexOffset?: number } = {},
@@ -258,19 +274,6 @@ export abstract class ListNonEmptyBase<T>
 
 		let index = indexOffset;
 		return this.map((e) => f(e, index++));
-	}
-
-	recompose<T2>(
-		f: (stream: Stream.NonEmpty<T>) => StreamSource.NonEmpty<T2>,
-	): List.NonEmpty<T2>;
-	recompose<T2>(f: (stream: Stream.NonEmpty<T>) => StreamSource<T2>): List<T2> {
-		return this.context.from(f(this.stream()));
-	}
-
-	mutate(f: (builder: List.Builder<T>) => void): List<T> {
-		const builder = this.toBuilder();
-		f(builder);
-		return builder.build();
 	}
 
 	toBuilder(): List.Builder<T> {
