@@ -12,11 +12,13 @@ import type { FastIterator } from '@rimbu/stream/stream-types';
 import {
 	EmptyCollectionAssumedNonEmptyError,
 	Int,
+	throwInvalidStateError,
 	throwModifiedBuilderWhileLoopingOverItError,
 } from '@rimbu/base';
 import {
 	type ArrayNonEmpty,
 	CollectFun,
+	Err,
 	IndexRange,
 	OptLazy,
 	TraverseState,
@@ -890,67 +892,78 @@ export function defaultRemoveAtAndReturn<
 	};
 }
 
-// export function defaultSwapAtAndReturn<
-// 	E,
-// 	C extends IndexedCollection<E> &
-// 		IndexedCollection.Capability.WithUpdateAt<E> &
-// 		IndexedCollection.Capability.WithSwapAt<E>,
-// >(
-// 	col: C,
-// 	index1: number,
-// 	index2: number,
-// ): Op.DynamicResult<
-// 	C['context']['__types']['_SELF'],
-// 	[previous1: undefined, previous2: undefined],
-// 	[previous1: E, previous2: E]
-// > {
-// 	Int.check(index1);
-// 	Int.check(index2);
+export interface DefaultSwapAtAndReturnTypes<E>
+	extends IndexedCollection.Advanced.TypesNonEmpty<E> {
+	_NON_EMPTY: IndexedCollection.NonEmpty<E> &
+		IndexedCollection.Capability.WithUpdateAt<E> &
+		IndexedCollection.Capability.WithSwapAt<E>;
+}
 
-// 	if (
-// 		index1 >= col.size ||
-// 		-index1 > col.size ||
-// 		index2 >= col.size ||
-// 		-index2 > col.size
-// 	) {
-// 		return {
-// 			collection: col,
-// 			hasResult: false,
-// 			result: [undefined, undefined],
-// 			hasChanged: false,
-// 		};
-// 	}
+export function defaultSwapAtAndReturn<
+	E,
+	C extends IndexedCollection.NonEmpty<E, DefaultSwapAtAndReturnTypes<E>> &
+		IndexedCollection.Capability.WithUpdateAt<E> &
+		IndexedCollection.Capability.WithSwapAt<E>,
+>(
+	col: C,
+	index1: number,
+	index2: number,
+): Op.DynamicResult<
+	C['context']['__types']['_NON_EMPTY'],
+	[previous1: undefined, previous2: undefined],
+	[previous1: E, previous2: E]
+> {
+	Int.check(index1);
+	Int.check(index2);
 
-// 	if (index1 < 0) index1 = col.size + index1;
-// 	if (index2 < 0) index2 = col.size + index2;
+	if (
+		index1 >= col.size ||
+		-index1 > col.size ||
+		index2 >= col.size ||
+		-index2 > col.size
+	) {
+		return {
+			collection: col,
+			hasResult: false,
+			result: [undefined, undefined],
+			hasChanged: false,
+		};
+	}
 
-// 	if (index1 === index2) {
-// 		const current = col.at(index1, Err);
-// 		return {
-// 			collection: col,
-// 			hasResult: true,
-// 			result: [current, current],
-// 			hasChanged: false,
-// 		};
-// 	}
+	if (index1 < 0) index1 = col.size + index1;
+	if (index2 < 0) index2 = col.size + index2;
 
-// 	const previousB = col.at(index2, Err);
-// 	const withNewA = col.setAtAndReturn(index1, previousB);
+	if (index1 === index2) {
+		const current = col.at(index1, Err);
 
-// 	if (withNewA.hasResult) {
-// 		const previousA = withNewA.result;
-// 		const isSame = Object.is(previousA, previousB);
-// 		const withSwapped = isSame
-// 			? withNewA.collection
-// 			: withNewA.collection.setAt(index2, previousA);
+		return {
+			collection: col,
+			hasResult: true,
+			result: [current, current],
+			hasChanged: false,
+		};
+	}
 
-// 		return {
-// 			collection: withSwapped,
-// 			hasResult: true,
-// 			result: [previousA, previousB],
-// 			hasChanged: col !== withSwapped,
-// 		};
-// 	}
+	const previousB = col.at(index2, Err);
+	const withNewA = col.setAtAndReturn(index1, previousB);
 
-// 	throwInvalidStateError();
-// }
+	if (withNewA.hasResult) {
+		const previousA = withNewA.result;
+		const isSame = Object.is(previousA, previousB);
+		const withSwapped = isSame
+			? withNewA.collection
+			: (withNewA.collection.setAt(
+					index2,
+					previousA,
+				) as C['context']['__types']['_NON_EMPTY']);
+
+		return {
+			collection: withSwapped,
+			hasResult: true,
+			result: [previousA, previousB],
+			hasChanged: col !== withSwapped,
+		};
+	}
+
+	throwInvalidStateError();
+}

@@ -1,4 +1,5 @@
 import type { Op } from '@rimbu/collection-types/types';
+import type { ArrayNonEmpty, CollectFun } from '@rimbu/common';
 import type { List } from '@rimbu/list';
 import type { StreamSource } from '@rimbu/stream';
 
@@ -13,9 +14,9 @@ import {
 	defaultFilterIndexed,
 	defaultRemoveAtAndReturn,
 	defaultRepeat,
+	defaultSwapAtAndReturn,
 	IndexedCollectionNonEmptyBase,
 } from '@rimbu/collection-types/advanced/capabilities/base';
-import { type ArrayNonEmpty, type CollectFun, Err } from '@rimbu/common';
 
 export abstract class ListNonEmptyBase<T>
 	extends IndexedCollectionNonEmptyBase<T>
@@ -59,7 +60,7 @@ export abstract class ListNonEmptyBase<T>
 		return this.updateAtAndReturn(index, f).collection;
 	}
 
-	swapAt(indexA: number, indexB: number): this['_self'] {
+	swapAt(indexA: number, indexB: number): List.NonEmpty<T> {
 		return this.swapAtAndReturn(indexA, indexB).collection;
 	}
 
@@ -67,59 +68,11 @@ export abstract class ListNonEmptyBase<T>
 		indexA: number,
 		indexB: number,
 	): Op.DynamicResult<
-		this['_self'],
+		List.NonEmpty<T>,
 		[previous1: undefined, previous2: undefined],
 		[previous1: T, previous2: T]
 	> {
-		Int.check(indexA);
-		Int.check(indexB);
-
-		if (
-			indexA >= this.size ||
-			-indexA > this.size ||
-			indexB >= this.size ||
-			-indexB > this.size
-		) {
-			return {
-				collection: this,
-				hasResult: false,
-				result: [undefined, undefined],
-				hasChanged: false,
-			};
-		}
-
-		if (indexA < 0) indexA = this.size + indexA;
-		if (indexB < 0) indexB = this.size + indexB;
-
-		if (indexA === indexB) {
-			const current = this.at(indexA, Err);
-			return {
-				collection: this,
-				hasResult: true,
-				result: [current, current],
-				hasChanged: false,
-			};
-		}
-
-		const previousB = this.at(indexB, Err);
-		const withNewA = this.setAtAndReturn(indexA, previousB);
-
-		if (withNewA.hasResult) {
-			const previousA = withNewA.result;
-			const isSame = Object.is(previousA, previousB);
-			const withSwapped = isSame
-				? withNewA.collection
-				: withNewA.collection.setAt(indexB, previousA);
-
-			return {
-				collection: withSwapped,
-				hasResult: true,
-				result: [previousA, previousB],
-				hasChanged: this !== withSwapped,
-			};
-		}
-
-		throwInvalidStateError();
+		return defaultSwapAtAndReturn<T, List.NonEmpty<T>>(this, indexA, indexB);
 	}
 
 	spliceAt(

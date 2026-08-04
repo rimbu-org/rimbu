@@ -126,10 +126,6 @@ export class OuterTree<T>
 		return { ...outcome, result: previous as any };
 	}
 
-	updateAt(index: number, f: (element: T) => T): OuterTree<T> {
-		return this.updateAtAndReturn(index, f).collection;
-	}
-
 	updateAtAndReturn(
 		index: number,
 		f: (element: T) => T,
@@ -271,20 +267,6 @@ export class OuterTree<T>
 			newMiddle,
 			newLength,
 		);
-	}
-
-	placeAt(index: number, element: T): OuterBlock<T> {
-		Int.checkAtLeastZero(index);
-
-		return 0 as any;
-
-		// if (index >= this.size) {
-		// 	return this.append(element);
-		// }
-		// if (-index > this.size) {
-		// 	return this.prepend(element);
-		// }
-		// return this.set
 	}
 
 	take(count: number): List<T> {
