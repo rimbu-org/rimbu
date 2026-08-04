@@ -11,10 +11,12 @@ import type { FastIterator } from '@rimbu/stream/stream-types';
 
 import {
 	EmptyCollectionAssumedNonEmptyError,
+	Int,
 	throwModifiedBuilderWhileLoopingOverItError,
 } from '@rimbu/base';
 import {
 	type ArrayNonEmpty,
+	CollectFun,
 	IndexRange,
 	OptLazy,
 	TraverseState,
@@ -24,6 +26,7 @@ import { Stream, type StreamSource } from '@rimbu/stream';
 export abstract class CollectionEmptyBase<T>
 	implements
 		Collection<T>,
+		Collection.Capability.WithCollect<T>,
 		Collection.Capability.WithConcat<T>,
 		Collection.Capability.WithFilter<T>,
 		Collection.Capability.WithMap<T>,
@@ -78,6 +81,12 @@ export abstract class CollectionEmptyBase<T>
 	forEachIndexed(): void {}
 
 	filter(): this['context']['__types']['_NORMAL'] {
+		return this;
+	}
+
+	collect<E2>(): (this['context']['__types'] & {
+		_NEW_E: E2;
+	})['_NEW_TYPES']['_NORMAL'] {
 		return this;
 	}
 
@@ -251,6 +260,7 @@ export abstract class IndexedCollectionEmptyBase<T>
 	extends CollectionEmptyBase<T>
 	implements
 		IndexedCollection<T>,
+		IndexedCollection.Capability.WithCollectIndexed<T>,
 		IndexedCollection.Capability.WithFlatMapIndexed<T>,
 		IndexedCollection.Capability.WithFilterIndexed<T>,
 		IndexedCollection.Capability.WithMapIndexed<T>,
@@ -322,6 +332,12 @@ export abstract class IndexedCollectionEmptyBase<T>
 	}
 
 	filterIndexed(): this['context']['__types']['_NORMAL'] {
+		return this;
+	}
+
+	collectIndexed<E2>(): (this['context']['__types'] & {
+		_NEW_E: E2;
+	})['_NEW_TYPES']['_NORMAL'] {
 		return this;
 	}
 
@@ -613,3 +629,328 @@ export abstract class IndexedKeyedCollectionNonEmptyBase<K, V>
 		return this.stream().map(second);
 	}
 }
+
+export function defaultFilterIndexed<
+	E,
+	C extends Collection.Capability.WithFilter<E>,
+>(
+	col: C,
+	pred: (element: E, index: number) => boolean,
+	options: {
+		negate?: boolean | undefined;
+		indexOffset?: number | undefined;
+	} = {},
+): C['context']['__types']['_NORMAL'] {
+	const { negate = false, indexOffset = 0 } = options;
+	let index = indexOffset;
+	return negate
+		? col.filter((element) => !pred(element, index++))
+		: col.filter((element) => pred(element, index++));
+}
+
+export function defaultCollect<
+	E,
+	E2,
+	C extends IndexedCollection<
+		E,
+		IndexedCollection.Capability.BuilderWithAppendPrepend<E>
+	>,
+>(
+	col: C,
+	collectFun: (
+		element: E,
+		skip: CollectFun.Skip,
+		halt: () => void,
+	) => E2 | CollectFun.Skip,
+): (C['context']['__types'] & { _NEW_E: E2 })['_NEW_TYPES']['_NORMAL'] {
+	const builder = col.context.builder<E2>();
+
+	const token = Symbol();
+	const iterator = col[Symbol.iterator]();
+
+	let element: E | typeof token;
+	let halted = false;
+
+	function halt() {
+		halted = true;
+	}
+
+	while (token !== (element = iterator.fastNext(token))) {
+		const nextValue = collectFun(element, CollectFun.Skip, halt);
+		if (CollectFun.Skip !== nextValue) {
+			builder.append(nextValue);
+		}
+
+		if (halted) break;
+	}
+
+	return builder.build();
+}
+
+export function defaultCollectIndexed<
+	E,
+	E2,
+	C extends Collection.Capability.WithCollect<E>,
+>(
+	col: C,
+	collectFun: (
+		element: E,
+		index: number,
+		skip: CollectFun.Skip,
+		halt: () => void,
+	) => E2 | CollectFun.Skip,
+	options: { indexOffset?: number | undefined } = {},
+): (C['context']['__types'] & { _NEW_E: E2 })['_NEW_TYPES']['_NORMAL'] {
+	const { indexOffset = 0 } = options;
+	let index = indexOffset;
+
+	return col.collect((element, skip, halt) =>
+		collectFun(element, index++, skip, halt),
+	);
+}
+
+export function defaultRepeat<
+	E,
+	C extends Collection<E> &
+		Collection.Capability.WithConcat<E> & {
+			context: { __types: { _SELF: C } };
+		},
+>(col: C, amount: number): C['context']['__types']['_NORMAL'] {
+	Int.checkAtLeastZero(amount);
+
+	if (amount === 0) {
+		return col.context.empty();
+	}
+	if (amount === 1) {
+		return col;
+	}
+
+	const nextRepeat = amount >>> 1;
+	const remain = amount % 2;
+
+	const repeated = defaultRepeat(col.concat(col), nextRepeat);
+
+	return remain === 0 ? repeated : col.concat(col);
+}
+
+export function defaultMapIndexed<
+	E,
+	E2,
+	C extends Collection.Capability.WithMap<E>,
+>(
+	col: C,
+	mapFun: (element: E, index: number) => E2,
+	options: { indexOffset?: number | undefined } = {},
+): (C['context']['__types'] & { _NEW_E: E2 })['_NEW_TYPES']['_NORMAL'] {
+	const { indexOffset = 0 } = options;
+	let index = indexOffset;
+
+	return col.map((element) => mapFun(element, index++));
+}
+
+export function defaultFlatMap<
+	E,
+	C extends Collection<E> &
+		Collection.Capability.WithConcat<E> & {
+			context: { __types: { _SELF: C } };
+		},
+>(
+	col: C,
+	f: (element: E) => StreamSource<E>,
+): C['context']['__types']['_NORMAL'] {
+	const token = Symbol();
+	const iterator = col[Symbol.iterator]();
+
+	let result = col.context.empty<E>() as C;
+	let element: E | typeof token;
+
+	while (token !== (element = iterator.fastNext(token))) {
+		result = result.concat(f(element));
+	}
+
+	return result;
+}
+
+export function defaultFlatMapIndexed<
+	E,
+	C extends Collection<E> &
+		Collection.Capability.WithConcat<E> & {
+			context: { __types: { _SELF: C } };
+		},
+>(
+	col: C,
+	f: (element: E, index: number) => StreamSource<E>,
+	options: { indexOffset?: number | undefined } = {},
+): C['context']['__types']['_NORMAL'] {
+	const { indexOffset = 0 } = options;
+	let index = indexOffset;
+
+	return defaultFlatMap<E, C>(col, (element) => f(element, index++));
+}
+
+// export function defaultSpliceAtAndReturn<
+// 	E,
+// 	C extends IndexedCollection<E> & Collection.Capability.WithConcat<E>,
+// >(
+// 	col: C,
+// 	index: number,
+// 	options:
+// 		| {
+// 				removeAmount?: number | undefined;
+// 				insert?: StreamSource<E> | undefined;
+// 		  }
+// 		| undefined = {},
+// ): Op.DynamicResult<
+// 	C['context']['__types']['_SELF'],
+// 	[
+// 		removed: C['context']['__types']['_NORMAL'],
+// 		inserted: C['context']['__types']['_NORMAL'],
+// 	],
+// 	[
+// 		removed: C['context']['__types']['_NORMAL'],
+// 		inserted: C['context']['__types']['_NORMAL'],
+// 	],
+// 	C['context']['__types']['_NORMAL']
+// > {
+// 	const { removeAmount = 0, insert } = options;
+
+// 	Int.checkAtLeastZero(removeAmount);
+
+// 	const insertList = col.context.from(insert);
+
+// 	if (index >= col.size) {
+// 		return {
+// 			collection: col.concat(insertList),
+// 			hasResult: insertList.nonEmpty(),
+// 			result: [col.context.empty(), insertList],
+// 			hasChanged: insertList.nonEmpty(),
+// 		};
+// 	}
+
+// 	const [left, remain] = col.splitAt(index);
+// 	const [removed, right] = remain.splitAt(removeAmount);
+
+// 	const collection = left.concat(insertList, right);
+
+// 	if (removed.nonEmpty() || insertList.nonEmpty()) {
+// 		return {
+// 			collection,
+// 			hasResult: true,
+// 			result: [removed, insertList],
+// 			hasChanged: true,
+// 		};
+// 	}
+
+// 	if (collection.nonEmpty()) {
+// 		return {
+// 			collection: collection,
+// 			hasResult: false,
+// 			result: [removed, insertList],
+// 			hasChanged: false,
+// 		};
+// 	}
+
+// 	throwInvalidStateError();
+// }
+
+export function defaultRemoveAtAndReturn<
+	E,
+	C extends IndexedCollection.NonEmpty<E> &
+		IndexedCollection.Capability.WithSpliceAt<E>,
+>(
+	col: C,
+	index: number,
+	amount = 1,
+): Op.DynamicResult<
+	C['context']['__types']['_NON_EMPTY'],
+	C['context']['__types']['_NORMAL'],
+	C['context']['__types']['_NON_EMPTY'],
+	C['context']['__types']['_NORMAL']
+> {
+	const outcome = col.spliceAtAndReturn(index, {
+		removeAmount: amount,
+	} as any);
+
+	const [removed] = outcome.result;
+
+	if (removed.nonEmpty()) {
+		return {
+			collection: outcome.collection,
+			hasResult: true,
+			result: removed,
+			hasChanged: true,
+		};
+	}
+
+	return {
+		collection: col,
+		hasResult: false,
+		result: removed,
+		hasChanged: false,
+	};
+}
+
+// export function defaultSwapAtAndReturn<
+// 	E,
+// 	C extends IndexedCollection<E> &
+// 		IndexedCollection.Capability.WithUpdateAt<E> &
+// 		IndexedCollection.Capability.WithSwapAt<E>,
+// >(
+// 	col: C,
+// 	index1: number,
+// 	index2: number,
+// ): Op.DynamicResult<
+// 	C['context']['__types']['_SELF'],
+// 	[previous1: undefined, previous2: undefined],
+// 	[previous1: E, previous2: E]
+// > {
+// 	Int.check(index1);
+// 	Int.check(index2);
+
+// 	if (
+// 		index1 >= col.size ||
+// 		-index1 > col.size ||
+// 		index2 >= col.size ||
+// 		-index2 > col.size
+// 	) {
+// 		return {
+// 			collection: col,
+// 			hasResult: false,
+// 			result: [undefined, undefined],
+// 			hasChanged: false,
+// 		};
+// 	}
+
+// 	if (index1 < 0) index1 = col.size + index1;
+// 	if (index2 < 0) index2 = col.size + index2;
+
+// 	if (index1 === index2) {
+// 		const current = col.at(index1, Err);
+// 		return {
+// 			collection: col,
+// 			hasResult: true,
+// 			result: [current, current],
+// 			hasChanged: false,
+// 		};
+// 	}
+
+// 	const previousB = col.at(index2, Err);
+// 	const withNewA = col.setAtAndReturn(index1, previousB);
+
+// 	if (withNewA.hasResult) {
+// 		const previousA = withNewA.result;
+// 		const isSame = Object.is(previousA, previousB);
+// 		const withSwapped = isSame
+// 			? withNewA.collection
+// 			: withNewA.collection.setAt(index2, previousA);
+
+// 		return {
+// 			collection: withSwapped,
+// 			hasResult: true,
+// 			result: [previousA, previousB],
+// 			hasChanged: col !== withSwapped,
+// 		};
+// 	}
+
+// 	throwInvalidStateError();
+// }

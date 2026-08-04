@@ -9,12 +9,7 @@ import type { OuterTree } from '#list/immutable/outer-tree';
 import type { OuterBlockBuilder } from '#list/mutable/outer-block-builder';
 
 import { Int } from '@rimbu/base';
-import {
-	type ArrayNonEmpty,
-	type IndexRange,
-	OptLazy,
-	type TraverseState,
-} from '@rimbu/common';
+import { type ArrayNonEmpty, type IndexRange, OptLazy } from '@rimbu/common';
 
 import { ListNonEmptyBase } from '#advanced/immutable/non-empty-base';
 
@@ -42,14 +37,6 @@ export abstract class OuterBlock<T>
 	): Op.WithResult<OuterBlock<T>, [previous: T, current: T], true>;
 	abstract forEach(f: (element: T) => void): void;
 	abstract filter(f: (element: T) => boolean): List<T>;
-	abstract filterIndexed(
-		f: (element: T, index: number, halt: () => void) => boolean,
-		options?: {
-			reversed?: boolean | undefined;
-			negate?: boolean | undefined;
-			state?: TraverseState;
-		},
-	): List<T>;
 	abstract reversed(): OuterBlock<T>;
 	abstract toArray(options?: {
 		reversed?: boolean | undefined;

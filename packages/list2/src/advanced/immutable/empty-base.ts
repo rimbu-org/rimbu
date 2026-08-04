@@ -4,6 +4,7 @@ import type { StreamSource } from '@rimbu/stream';
 
 import type { ListContext } from '#list/context';
 
+import { Int } from '@rimbu/base';
 import { IndexedCollectionEmptyBase } from '@rimbu/collection-types/advanced/capabilities/base';
 
 export class ListEmptyBase<T>
@@ -83,5 +84,13 @@ export class ListEmptyBase<T>
 			result: this,
 			hasChanged: false,
 		};
+	}
+
+	padTo(size: number, fill: T): List<T> {
+		Int.checkAtLeastZero(size);
+
+		if (size === 0) return this;
+
+		return this.context.of(fill).repeat(size);
 	}
 }

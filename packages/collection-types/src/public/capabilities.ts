@@ -1,6 +1,7 @@
 import type { Op } from '@rimbu/collection-types/types';
 import type {
 	ArrayNonEmpty,
+	CollectFun,
 	Comp,
 	IndexRange,
 	OptLazy,
@@ -10,11 +11,11 @@ import type {
 } from '@rimbu/common';
 import type { FastIterable, Stream, StreamSource } from '@rimbu/stream';
 
-export interface Collection<E> extends FastIterable<E> {
-	readonly context: Collection.Advanced.ContextBase<
-		Collection.Advanced.Types<E>
-	>;
-
+export interface Collection<
+	E,
+	Tp extends Collection.Advanced.Types<E> = Collection.Advanced.Types<E>,
+> extends FastIterable<E>,
+		Collection.Advanced.Trait<E, Tp> {
 	readonly isEmpty: this['context']['__types']['_isEmpty'];
 	readonly size: number;
 
@@ -34,15 +35,18 @@ export interface Collection<E> extends FastIterable<E> {
 }
 
 export declare namespace Collection {
-	export interface NonEmpty<E> extends Collection<E> {
+	export interface NonEmpty<
+		E,
+		Tp extends
+			Collection.Advanced.TypesNonEmpty<E> = Collection.Advanced.TypesNonEmpty<E>,
+	> extends Collection<E, Tp> {
 		asNormal(): this['context']['__types']['_NORMAL'];
 	}
 
-	export interface Builder<E> {
-		readonly context: Collection.Advanced.ContextBase<
-			Collection.Advanced.Types<E>
-		>;
-
+	export interface Builder<
+		E,
+		Tp extends Collection.Advanced.Types<E> = Collection.Advanced.Types<E>,
+	> extends Collection.Advanced.Trait<E, Tp> {
 		get isEmpty(): boolean;
 		get size(): number;
 
@@ -57,10 +61,11 @@ export declare namespace Collection {
 	}
 
 	export namespace Advanced {
-		export interface Trait<E> {
-			readonly context: Collection.Advanced.ContextBase<
-				Collection.Advanced.Types<E>
-			>;
+		export interface Trait<
+			E,
+			Tp extends Collection.Advanced.Types<E> = Collection.Advanced.Types<E>,
+		> {
+			readonly context: Collection.Advanced.ContextBase<Tp>;
 		}
 
 		export interface ContextBase<Tp extends Collection.Advanced.Types<any>> {
@@ -116,6 +121,16 @@ export declare namespace Collection {
 	}
 
 	export namespace Capability {
+		export interface WithCollect<E> extends Collection.Advanced.Trait<E> {
+			collect<E2 extends this['context']['__types']['_UPPER_E']>(
+				collectFun: (
+					element: E,
+					skip: CollectFun.Skip,
+					halt: () => void,
+				) => E2 | CollectFun.Skip,
+			): (this['context']['__types'] & { _NEW_E: E2 })['_NEW_TYPES']['_NORMAL'];
+		}
+
 		export interface WithConcat<E> extends Collection.Advanced.Trait<E> {
 			concat(
 				...elements: ArrayNonEmpty<StreamSource.NonEmpty<E>>
@@ -176,11 +191,11 @@ export declare namespace Collection {
 	}
 }
 
-export interface IndexedCollection<E> extends Collection<E> {
-	readonly context: Collection.Advanced.ContextBase<
-		IndexedCollection.Advanced.Types<E>
-	>;
-
+export interface IndexedCollection<
+	E,
+	Tp extends
+		IndexedCollection.Advanced.Types<E> = IndexedCollection.Advanced.Types<E>,
+> extends Collection<E, Tp> {
 	streamSlice(
 		range: IndexRange,
 		options?: { reversed?: boolean | undefined } | undefined,
@@ -199,19 +214,18 @@ export interface IndexedCollection<E> extends Collection<E> {
 }
 
 export declare namespace IndexedCollection {
-	export interface NonEmpty<E>
-		extends IndexedCollection<E>,
-			Collection.NonEmpty<E> {
-		readonly context: Collection.Advanced.ContextBase<
-			IndexedCollection.Advanced.TypesNonEmpty<E>
-		>;
-	}
+	export interface NonEmpty<
+		E,
+		Tp extends
+			IndexedCollection.Advanced.TypesNonEmpty<E> = IndexedCollection.Advanced.TypesNonEmpty<E>,
+	> extends IndexedCollection<E, Tp>,
+			Collection.NonEmpty<E, Tp> {}
 
-	export interface Builder<E> extends Collection.Builder<E> {
-		readonly context: Collection.Advanced.ContextBase<
-			IndexedCollection.Advanced.Types<E>
-		>;
-
+	export interface Builder<
+		E,
+		Tp extends
+			IndexedCollection.Advanced.Types<E> = IndexedCollection.Advanced.Types<E>,
+	> extends Collection.Builder<E, Tp> {
 		at(index: number): E | undefined;
 		at<O>(index: number, otherwise: OptLazy<O>): E | O;
 
@@ -220,11 +234,11 @@ export declare namespace IndexedCollection {
 	}
 
 	export namespace Advanced {
-		export interface Trait<E> {
-			readonly context: Collection.Advanced.ContextBase<
-				IndexedCollection.Advanced.Types<E>
-			>;
-		}
+		export interface Trait<
+			E,
+			Tp extends
+				IndexedCollection.Advanced.Types<E> = IndexedCollection.Advanced.Types<E>,
+		> extends Collection.Advanced.Trait<E, Tp> {}
 
 		export interface FirstLast<R, IsNonEmpty extends boolean = boolean> {
 			(): IsNonEmpty extends true ? R : R | undefined;
@@ -275,6 +289,30 @@ export declare namespace IndexedCollection {
 	}
 
 	export namespace Capability {
+		export interface BuilderWithAppendPrepend<E>
+			extends IndexedCollection.Advanced.Types<E> {
+			_BUILDER: IndexedCollection.Builder<E> & {
+				prepend(element: E): void;
+				append(element: E): void;
+			};
+			_NEW_E: unknown;
+
+			_NEW_TYPES: BuilderWithAppendPrepend<this['_NEW_E']>;
+		}
+
+		export interface WithCollectIndexed<E>
+			extends IndexedCollection.Advanced.Trait<E> {
+			collectIndexed<E2 extends this['context']['__types']['_UPPER_E']>(
+				collectFun: (
+					element: E,
+					index: number,
+					skip: CollectFun.Skip,
+					halt: () => void,
+				) => E2 | CollectFun.Skip,
+				options?: { indexOffset?: number | undefined } | undefined,
+			): (this['context']['__types'] & { _NEW_E: E2 })['_NEW_TYPES']['_NORMAL'];
+		}
+
 		export interface WithFlatMapIndexed<E>
 			extends IndexedCollection.Advanced.Trait<E> {
 			flatMapIndexed<E2 extends this['context']['__types']['_UPPER_E']>(
@@ -289,17 +327,21 @@ export declare namespace IndexedCollection {
 			extends IndexedCollection.Advanced.Trait<E> {
 			filterIndexed<E2 extends E, NE2 = Exclude<E, E2>>(
 				pred: (element: E, index: number) => element is E2,
-				options: { negate: true },
+				options: { negate: true; indexOffset?: number | undefined },
 			): (this['context']['__types'] & {
 				_NEW_E: NE2;
 			})['_NEW_TYPES']['_NORMAL'];
 			filterIndexed<E2 extends E>(
 				pred: (element: E, index: number) => element is E2,
-				options?: { negate?: false | undefined } | undefined,
+				options?:
+					| { negate?: false | undefined; indexOffset?: number | undefined }
+					| undefined,
 			): (this['context']['__types'] & { _NEW_E: E2 })['_NEW_TYPES']['_NORMAL'];
 			filterIndexed(
 				pred: (element: E, index: number) => boolean,
-				options?: { negate?: boolean | undefined } | undefined,
+				options?:
+					| { negate?: boolean | undefined; indexOffset?: number | undefined }
+					| undefined,
 			): this['context']['__types']['_NORMAL'];
 		}
 
@@ -317,6 +359,14 @@ export declare namespace IndexedCollection {
 				element: E,
 			): this['context']['__types']['_NON_EMPTY'];
 			moveTo(index: number, element: E): this['context']['__types']['_SELF'];
+		}
+
+		export interface WithPadTo<E> extends IndexedCollection.Advanced.Trait<E> {
+			padTo(
+				size: number,
+				fill: E,
+				options?: { rightBias?: number | undefined } | undefined,
+			): this['context']['__types']['_SELF'];
 		}
 
 		export interface WithPrependAppend<E>

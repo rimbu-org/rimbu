@@ -1,6 +1,6 @@
 import type { Int } from '@rimbu/base';
 import type { Op } from '@rimbu/collection-types/types';
-import type { ArrayNonEmpty, IndexRange, TraverseState } from '@rimbu/common';
+import type { ArrayNonEmpty, IndexRange } from '@rimbu/common';
 import type { List } from '@rimbu/list';
 import type { Stream } from '@rimbu/stream';
 
@@ -68,23 +68,6 @@ export class OuterBlockLeftRight<T> extends OuterBlock<T> {
 		const newChildren = this.#ops.filter(this.#children, f);
 
 		if (undefined === newChildren) return this;
-		if (this.#ops.size(newChildren) === 0) return this.context.empty();
-
-		return this.#copy(newChildren);
-	}
-
-	filterIndexed(
-		f: (element: T, index: number, halt: () => void) => boolean,
-		options?: {
-			reversed?: boolean | undefined;
-			negate?: boolean | undefined;
-			state?: TraverseState;
-		},
-	): List<T> {
-		const newChildren = this.#ops.filterIndexed(this.#children, f, options);
-
-		if (newChildren === this.#children) return this;
-
 		if (this.#ops.size(newChildren) === 0) return this.context.empty();
 
 		return this.#copy(newChildren);

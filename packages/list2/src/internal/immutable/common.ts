@@ -1,6 +1,5 @@
 import type { Int } from '@rimbu/base';
 import type { Op } from '@rimbu/collection-types/types';
-import type { TraverseState } from '@rimbu/common';
 import type { List } from '@rimbu/list';
 import type { Stream } from '@rimbu/stream';
 
@@ -22,14 +21,6 @@ interface ListNode<T> {
 	stream(options?: { reversed?: boolean | undefined }): Stream.NonEmpty<T>;
 	forEach(f: (element: T) => void): void;
 	filter(f: (element: T) => boolean): List<T>;
-	filterIndexed(
-		f: (element: T, index: number, halt: () => void) => boolean,
-		options: {
-			reversed?: boolean | undefined;
-			negate?: boolean | undefined;
-			state?: TraverseState;
-		},
-	): List<T>;
 	reversed(): this['_self'];
 	toArray(): T[];
 

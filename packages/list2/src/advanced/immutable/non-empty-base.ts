@@ -1,5 +1,4 @@
 import type { Op } from '@rimbu/collection-types/types';
-import type { ArrayNonEmpty } from '@rimbu/common';
 import type { List } from '@rimbu/list';
 import type { StreamSource } from '@rimbu/stream';
 
@@ -9,7 +8,14 @@ import type { OuterTree } from '#list/immutable/outer-tree';
 import type { OuterBuilder } from '#list/mutable/common';
 
 import { Int, throwInvalidStateError } from '@rimbu/base';
-import { IndexedCollectionNonEmptyBase } from '@rimbu/collection-types/advanced/capabilities/base';
+import {
+	defaultCollect,
+	defaultFilterIndexed,
+	defaultRemoveAtAndReturn,
+	defaultRepeat,
+	IndexedCollectionNonEmptyBase,
+} from '@rimbu/collection-types/advanced/capabilities/base';
+import { type ArrayNonEmpty, type CollectFun, Err } from '@rimbu/common';
 
 export abstract class ListNonEmptyBase<T>
 	extends IndexedCollectionNonEmptyBase<T>
@@ -34,9 +40,6 @@ export abstract class ListNonEmptyBase<T>
 		[previous: T, current: T]
 	>;
 	abstract filter(f: (element: T) => boolean): List<T>;
-	abstract filterIndexed(
-		f: (element: T, index: number, halt: () => void) => boolean,
-	): List<T>;
 	abstract map<T2>(f: (element: T) => T2): List.NonEmpty<T2>;
 	abstract prepend(element: T): List.NonEmpty<T>;
 	abstract append(element: T): List.NonEmpty<T>;
@@ -68,6 +71,9 @@ export abstract class ListNonEmptyBase<T>
 		[previous1: undefined, previous2: undefined],
 		[previous1: T, previous2: T]
 	> {
+		Int.check(indexA);
+		Int.check(indexB);
+
 		if (
 			indexA >= this.size ||
 			-indexA > this.size ||
@@ -86,7 +92,7 @@ export abstract class ListNonEmptyBase<T>
 		if (indexB < 0) indexB = this.size + indexB;
 
 		if (indexA === indexB) {
-			const current = this.at(indexA) as T;
+			const current = this.at(indexA, Err);
 			return {
 				collection: this,
 				hasResult: true,
@@ -95,7 +101,7 @@ export abstract class ListNonEmptyBase<T>
 			};
 		}
 
-		const previousB = this.at(indexB) as T;
+		const previousB = this.at(indexB, Err);
 		const withNewA = this.setAtAndReturn(indexA, previousB);
 
 		if (withNewA.hasResult) {
@@ -157,7 +163,6 @@ export abstract class ListNonEmptyBase<T>
 		[removed: List<T>, inserted: List<T>],
 		List<T>
 	> {
-		// if (undefined === options) {
 		const { removeAmount = 0, insert } = options;
 
 		Int.checkAtLeastZero(removeAmount);
@@ -199,6 +204,43 @@ export abstract class ListNonEmptyBase<T>
 		throwInvalidStateError();
 	}
 
+	filterIndexed(
+		pred: (element: T, index: number) => boolean,
+		options: {
+			negate?: boolean | undefined;
+			indexOffset?: number | undefined;
+		} = {},
+	): List<T> {
+		return defaultFilterIndexed(this, pred, options);
+	}
+
+	collect<T2>(
+		collectFun: (
+			element: T,
+			skip: CollectFun.Skip,
+			halt: () => void,
+		) => T2 | CollectFun.Skip,
+	): List<T2> {
+		return defaultCollect<T, T2, List<T>>(this, collectFun);
+	}
+
+	collectIndexed<T2>(
+		collectFun: (
+			element: T,
+			index: number,
+			skip: CollectFun.Skip,
+			halt: () => void,
+		) => T2 | CollectFun.Skip,
+		options: { indexOffset?: number | undefined } = {},
+	): List<T2> {
+		const { indexOffset = 0 } = options;
+		let index = indexOffset;
+
+		return this.collect((element, skip, halt) =>
+			collectFun(element, index++, skip, halt),
+		);
+	}
+
 	insertAt(index: number, values: StreamSource.NonEmpty<T>): List.NonEmpty<T>;
 	insertAt(index: number, values: StreamSource<T>): List<T> {
 		return this.spliceAt(index, { insert: values as StreamSource.NonEmpty<T> });
@@ -212,27 +254,7 @@ export abstract class ListNonEmptyBase<T>
 		index: number,
 		amount = 1,
 	): Op.DynamicResult<List.NonEmpty<T>, List<T>, List.NonEmpty<T>, List<T>> {
-		const outcome = this.spliceAtAndReturn(index, {
-			removeAmount: amount,
-		} as any);
-
-		const [removed] = outcome.result;
-
-		if (removed.nonEmpty()) {
-			return {
-				collection: outcome.collection,
-				hasResult: true,
-				result: removed,
-				hasChanged: true,
-			};
-		}
-
-		return {
-			collection: this,
-			hasResult: false,
-			result: removed,
-			hasChanged: false,
-		};
+		return defaultRemoveAtAndReturn<T, List.NonEmpty<T>>(this, index, amount);
 	}
 
 	rotateLeft(amount: number): List.NonEmpty<T> {
@@ -246,24 +268,7 @@ export abstract class ListNonEmptyBase<T>
 	}
 
 	repeat(amount: number): List.NonEmpty<T> {
-		Int.checkAtLeastZero(amount);
-
-		if (amount <= 0) {
-			return this.context.empty() as List.NonEmpty<T>;
-		}
-		if (amount === 1) {
-			return this;
-		}
-
-		const nextRepeat = amount >>> 1;
-		const remain = amount % 2;
-
-		return this.context
-			.from(
-				this.concat(this).repeat(nextRepeat),
-				remain === 0 ? undefined : this,
-			)
-			.assumeNonEmpty();
+		return defaultRepeat<T, List<T>>(this, amount) as List.NonEmpty<T>;
 	}
 
 	mapIndexed<T2>(
@@ -274,6 +279,46 @@ export abstract class ListNonEmptyBase<T>
 
 		let index = indexOffset;
 		return this.map((e) => f(e, index++));
+	}
+
+	flatMap<T2>(f: (element: T) => StreamSource.NonEmpty<T2>): List.NonEmpty<T2>;
+	flatMap<T2>(f: (element: T) => StreamSource<T2>): List<T2> {
+		let result = this.context.empty<T2>();
+
+		this.forEach((e) => {
+			result = result.concat(f(e));
+		});
+
+		return result;
+	}
+
+	flatMapIndexed<T2>(
+		f: (element: T, index: number) => StreamSource<T2>,
+		options: { indexOffset?: number } = {},
+	): List.NonEmpty<T2> {
+		const { indexOffset = 0 } = options;
+
+		let index = indexOffset;
+		return this.flatMap((e) => f(e, index++) as StreamSource.NonEmpty<T2>);
+	}
+
+	padTo(
+		size: number,
+		fill: T,
+		options: { rightBias?: number | undefined } = {},
+	): List.NonEmpty<T> {
+		Int.checkAtLeastZero(size);
+
+		if (this.size >= size) return this;
+
+		const diff = size - this.size;
+
+		const { rightBias = 0 } = options;
+
+		const frac = Math.max(0, Math.min(1.0, rightBias));
+		const frontSize = Math.round(diff * frac);
+		const pad = this.context.of(fill).repeat(diff);
+		return pad.spliceAt(frontSize, { insert: this });
 	}
 
 	toBuilder(): List.Builder<T> {

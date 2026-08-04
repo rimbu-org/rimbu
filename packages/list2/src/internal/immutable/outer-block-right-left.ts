@@ -5,11 +5,7 @@ import type { List } from '@rimbu/list';
 import type { ChildrenOps, OuterChildren } from '#advanced/children-ops';
 import type { ListContext } from '#list/context';
 
-import {
-	type ArrayNonEmpty,
-	IndexRange,
-	type TraverseState,
-} from '@rimbu/common';
+import { type ArrayNonEmpty, IndexRange } from '@rimbu/common';
 import { Stream } from '@rimbu/stream';
 
 import { OuterBlock } from '#list/immutable/outer-block';
@@ -90,28 +86,6 @@ export class OuterBlockRightLeft<T> extends OuterBlock<T> {
 		const newChildren = this.#ops.reverseFilter(this.#children, f);
 
 		if (undefined === newChildren) return this;
-		if (this.#ops.size(newChildren) === 0) return this.context.empty();
-
-		return this.context.outerBlockLeftRight(newChildren);
-	}
-
-	filterIndexed(
-		f: (element: T, index: number, halt: () => void) => boolean,
-		options: {
-			reversed?: boolean | undefined;
-			negate?: boolean | undefined;
-			state?: TraverseState;
-		} = {},
-	): List<T> {
-		const { reversed = false } = options;
-
-		const newChildren = this.#ops.filterIndexed(this.#children, f, {
-			...options,
-			reversed: !reversed,
-		});
-
-		if (newChildren === this.#children) return this;
-
 		if (this.#ops.size(newChildren) === 0) return this.context.empty();
 
 		return this.context.outerBlockLeftRight(newChildren);

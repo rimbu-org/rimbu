@@ -8,12 +8,7 @@ import type { OuterBlock } from '#list/immutable/outer-block';
 import type { OuterTreeBuilder } from '#list/mutable/outer-tree-builder';
 
 import { Int } from '@rimbu/base';
-import {
-	type ArrayNonEmpty,
-	type IndexRange,
-	OptLazy,
-	TraverseState,
-} from '@rimbu/common';
+import { type ArrayNonEmpty, type IndexRange, OptLazy } from '@rimbu/common';
 
 import { ListNonEmptyBase } from '#advanced/immutable/non-empty-base';
 import { treeGet, treeStream, treeUpdate } from '#list/immutable/tree';
@@ -384,41 +379,6 @@ export class OuterTree<T>
 			.concat(this.middle?.filter(f), this.right.filter(f));
 
 		if (result.size === this.size) return this;
-		return result;
-	}
-
-	filterIndexed(
-		f: (element: T, index: number, halt: () => void) => boolean,
-		options: {
-			reversed?: boolean | undefined;
-			negate?: boolean | undefined;
-			state?: TraverseState;
-		} = {},
-	): List<T> {
-		const { reversed = false, state = TraverseState() } = options;
-
-		if (state.halted) return this.context.empty();
-
-		const newOptions = { ...options, state };
-
-		const first = reversed ? this.right : this.left;
-
-		let result = first.filterIndexed(f, newOptions);
-
-		if (state.halted) return result;
-
-		if (null !== this.middle) {
-			result = result.concat(this.middle.filterIndexed(f, newOptions));
-
-			if (state.halted) return result;
-		}
-
-		const last = reversed ? this.left : this.right;
-
-		result = result.concat(last.filterIndexed(f, newOptions));
-
-		if (result.size === this.size) return this;
-
 		return result;
 	}
 

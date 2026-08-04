@@ -1,5 +1,4 @@
 import type { Op } from '@rimbu/collection-types/types';
-import type { TraverseState } from '@rimbu/common';
 import type { List } from '@rimbu/list';
 
 import type { ListContext } from '#list/context';
@@ -175,40 +174,6 @@ export class InnerBlock<T, C extends Self<Block<T>, C>>
 		for (const child of this.#children) {
 			const filteredChild = child.filter(f);
 			result = result.concat(filteredChild);
-		}
-
-		return result;
-	}
-
-	filterIndexed(
-		f: (element: T, index: number, halt: () => void) => boolean,
-		options: {
-			reversed?: boolean | undefined;
-			negate?: boolean | undefined;
-			state: TraverseState;
-		},
-	): List<T> {
-		const { reversed = false, state } = options;
-
-		let result: List<T> = this.context.empty<T>();
-
-		if (state?.halted) return result;
-
-		if (reversed) {
-			for (let i = this.#children.length - 1; i >= 0; i--) {
-				const child = this.#children[i];
-				const filteredChild = child.filterIndexed(f, options);
-				result = result.concat(filteredChild);
-
-				if (state?.halted) break;
-			}
-		} else {
-			for (const child of this.#children) {
-				const filteredChild = child.filterIndexed(f, options);
-				result = result.concat(filteredChild);
-
-				if (state?.halted) break;
-			}
 		}
 
 		return result;

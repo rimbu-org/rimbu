@@ -1,5 +1,5 @@
 import type { Op } from '@rimbu/collection-types/types';
-import type { ArrayNonEmpty, IndexRange, TraverseState } from '@rimbu/common';
+import type { ArrayNonEmpty, IndexRange } from '@rimbu/common';
 import type { Stream } from '@rimbu/stream';
 
 /**
@@ -131,15 +131,6 @@ export interface ChildrenOps<Tp extends ChildrenOps.Types = ChildrenOps.Types> {
 		children: (Tp & { _T: T })['_C'],
 		f: (value: T) => boolean,
 	): (Tp & { _T: T })['_C'] | undefined;
-	filterIndexed<T>(
-		children: (Tp & { _T: T })['_C'],
-		f: (value: T, index: number, halt: () => void) => boolean,
-		options?: {
-			reversed?: boolean | undefined;
-			negate?: boolean | undefined;
-			state?: TraverseState | undefined;
-		},
-	): (Tp & { _T: T })['_C'];
 	/** New collection with each element transformed by `f`. */
 	map<T, T2>(
 		children: (Tp & { _T: T })['_C'],

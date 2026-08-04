@@ -2,7 +2,7 @@ import type {
 	Collection,
 	IndexedCollection,
 } from '@rimbu/collection-types/capabilities';
-import type { ArrayNonEmpty, OptLazy } from '@rimbu/common';
+import type { OptLazy } from '@rimbu/common';
 import type { StreamSource } from '@rimbu/stream';
 
 import type { ChildrenOps } from '#advanced/children-ops';
@@ -50,33 +50,26 @@ export declare namespace List {
 			: List.Advanced.Types<T>;
 	}
 
-	export namespace Capability {
-		export interface WithConcat<E> extends IndexedCollection<E> {
-			concat(
-				...sources: ArrayNonEmpty<StreamSource.NonEmpty<E>>
-			): this['context']['__types']['_NON_EMPTY'];
-			concat(
-				...sources: ArrayNonEmpty<StreamSource<E>>
-			): this['context']['__types']['_SELF'];
-		}
-	}
-
 	export namespace Advanced {
 		export interface Capabilities<T>
 			extends Collection.Capability.WithFilter<T>,
+				Collection.Capability.WithCollect<T>,
+				Collection.Capability.WithConcat<T>,
 				Collection.Capability.WithMap<T>,
 				Collection.Capability.WithMutate<T>,
 				Collection.Capability.WithRecompose<T>,
+				IndexedCollection.Capability.WithCollectIndexed<T>,
+				IndexedCollection.Capability.WithFlatMapIndexed<T>,
 				IndexedCollection.Capability.WithFilterIndexed<T>,
 				IndexedCollection.Capability.WithMapIndexed<T>,
+				IndexedCollection.Capability.WithPadTo<T>,
 				IndexedCollection.Capability.WithPrependAppend<T>,
 				IndexedCollection.Capability.WithRepeat<T>,
 				IndexedCollection.Capability.WithReversed<T>,
 				IndexedCollection.Capability.WithRotate<T>,
 				IndexedCollection.Capability.WithSpliceAt<T>,
 				IndexedCollection.Capability.WithSwapAt<T>,
-				IndexedCollection.Capability.WithUpdateAt<T>,
-				List.Capability.WithConcat<T> {
+				IndexedCollection.Capability.WithUpdateAt<T> {
 			readonly context: List.Context<T>;
 		}
 
