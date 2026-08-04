@@ -790,70 +790,76 @@ export function defaultFlatMapIndexed<
 	return defaultFlatMap<E, C>(col, (element) => f(element, index++));
 }
 
-// export function defaultSpliceAtAndReturn<
-// 	E,
-// 	C extends IndexedCollection<E> & Collection.Capability.WithConcat<E>,
-// >(
-// 	col: C,
-// 	index: number,
-// 	options:
-// 		| {
-// 				removeAmount?: number | undefined;
-// 				insert?: StreamSource<E> | undefined;
-// 		  }
-// 		| undefined = {},
-// ): Op.DynamicResult<
-// 	C['context']['__types']['_SELF'],
-// 	[
-// 		removed: C['context']['__types']['_NORMAL'],
-// 		inserted: C['context']['__types']['_NORMAL'],
-// 	],
-// 	[
-// 		removed: C['context']['__types']['_NORMAL'],
-// 		inserted: C['context']['__types']['_NORMAL'],
-// 	],
-// 	C['context']['__types']['_NORMAL']
-// > {
-// 	const { removeAmount = 0, insert } = options;
+export interface DefaultSpliceAtAndReturnTypes<E>
+	extends IndexedCollection.Advanced.TypesNonEmpty<E> {
+	_NORMAL: IndexedCollection<E> & Collection.Capability.WithConcat<E>;
+}
 
-// 	Int.checkAtLeastZero(removeAmount);
+export function defaultSpliceAtAndReturn<
+	E,
+	C extends IndexedCollection.NonEmpty<E, DefaultSpliceAtAndReturnTypes<E>> &
+		Collection.Capability.WithConcat<E>,
+>(
+	col: C,
+	index: number,
+	options:
+		| {
+				removeAmount?: number | undefined;
+				insert?: StreamSource<E> | undefined;
+		  }
+		| undefined = {},
+): Op.DynamicResult<
+	C['context']['__types']['_NON_EMPTY'],
+	[
+		removed: C['context']['__types']['_NORMAL'],
+		inserted: C['context']['__types']['_NORMAL'],
+	],
+	[
+		removed: C['context']['__types']['_NORMAL'],
+		inserted: C['context']['__types']['_NORMAL'],
+	],
+	C['context']['__types']['_NORMAL']
+> {
+	const { removeAmount = 0, insert } = options;
 
-// 	const insertList = col.context.from(insert);
+	Int.checkAtLeastZero(removeAmount);
 
-// 	if (index >= col.size) {
-// 		return {
-// 			collection: col.concat(insertList),
-// 			hasResult: insertList.nonEmpty(),
-// 			result: [col.context.empty(), insertList],
-// 			hasChanged: insertList.nonEmpty(),
-// 		};
-// 	}
+	const insertList = col.context.from(insert);
 
-// 	const [left, remain] = col.splitAt(index);
-// 	const [removed, right] = remain.splitAt(removeAmount);
+	if (index >= col.size) {
+		return {
+			collection: col.concat(insertList),
+			hasResult: insertList.nonEmpty(),
+			result: [col.context.empty() as C, insertList as C],
+			hasChanged: insertList.nonEmpty(),
+		};
+	}
 
-// 	const collection = left.concat(insertList, right);
+	const [left, remain] = col.splitAt(index);
+	const [removed, right] = remain.splitAt(removeAmount);
 
-// 	if (removed.nonEmpty() || insertList.nonEmpty()) {
-// 		return {
-// 			collection,
-// 			hasResult: true,
-// 			result: [removed, insertList],
-// 			hasChanged: true,
-// 		};
-// 	}
+	const collection = left.concat(insertList, right) as C;
 
-// 	if (collection.nonEmpty()) {
-// 		return {
-// 			collection: collection,
-// 			hasResult: false,
-// 			result: [removed, insertList],
-// 			hasChanged: false,
-// 		};
-// 	}
+	if (removed.nonEmpty() || insertList.nonEmpty()) {
+		return {
+			collection,
+			hasResult: true,
+			result: [removed as C, insertList as C],
+			hasChanged: true,
+		};
+	}
 
-// 	throwInvalidStateError();
-// }
+	if (collection.nonEmpty()) {
+		return {
+			collection: collection,
+			hasResult: false,
+			result: [removed as C, insertList as C],
+			hasChanged: false,
+		};
+	}
+
+	throwInvalidStateError();
+}
 
 export function defaultRemoveAtAndReturn<
 	E,
@@ -966,4 +972,37 @@ export function defaultSwapAtAndReturn<
 	}
 
 	throwInvalidStateError();
+}
+
+export interface DefaultPadToTypes<E>
+	extends IndexedCollection.Advanced.TypesNonEmpty<E> {
+	_NON_EMPTY: IndexedCollection.NonEmpty<E> &
+		IndexedCollection.Capability.WithRepeat<E>;
+
+	_NEW_TYPES: DefaultPadToTypes<this['_NEW_E']>;
+}
+
+export function defaultPadTo<
+	E,
+	C extends IndexedCollection.NonEmpty<E, DefaultPadToTypes<E>> &
+		IndexedCollection.Capability.WithSpliceAt<E>,
+>(
+	col: C,
+	size: number,
+	fill: E,
+	options: { rightBias?: number | undefined } = {},
+) {
+	Int.checkAtLeastZero(size);
+
+	if (col.size >= size) return col;
+
+	const diff = size - col.size;
+
+	const { rightBias = 0 } = options;
+
+	const frac = Math.max(0, Math.min(1.0, rightBias));
+	const frontSize = Math.round(diff * frac);
+	const pad = col.context.of(fill).repeat(diff) as C;
+
+	return pad.spliceAt(frontSize, { insert: col });
 }

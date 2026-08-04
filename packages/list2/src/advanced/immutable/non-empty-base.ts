@@ -8,12 +8,14 @@ import type { OuterBlock } from '#list/immutable/outer-block';
 import type { OuterTree } from '#list/immutable/outer-tree';
 import type { OuterBuilder } from '#list/mutable/common';
 
-import { Int, throwInvalidStateError } from '@rimbu/base';
+import { Int } from '@rimbu/base';
 import {
 	defaultCollect,
 	defaultFilterIndexed,
+	defaultPadTo,
 	defaultRemoveAtAndReturn,
 	defaultRepeat,
+	defaultSpliceAtAndReturn,
 	defaultSwapAtAndReturn,
 	IndexedCollectionNonEmptyBase,
 } from '@rimbu/collection-types/advanced/capabilities/base';
@@ -116,45 +118,7 @@ export abstract class ListNonEmptyBase<T>
 		[removed: List<T>, inserted: List<T>],
 		List<T>
 	> {
-		const { removeAmount = 0, insert } = options;
-
-		Int.checkAtLeastZero(removeAmount);
-
-		const insertList = this.context.from(insert);
-
-		if (index >= this.size) {
-			return {
-				collection: this.concat(insertList),
-				hasResult: insertList.nonEmpty(),
-				result: [this.context.empty(), insertList],
-				hasChanged: insertList.nonEmpty(),
-			};
-		}
-
-		const [left, remain] = this.splitAt(index);
-		const [removed, right] = remain.splitAt(removeAmount);
-
-		const collection = left.concat(insertList, right);
-
-		if (removed.nonEmpty() || insertList.nonEmpty()) {
-			return {
-				collection,
-				hasResult: true,
-				result: [removed, insertList],
-				hasChanged: true,
-			};
-		}
-
-		if (collection.nonEmpty()) {
-			return {
-				collection: collection,
-				hasResult: false,
-				result: [removed, insertList],
-				hasChanged: false,
-			};
-		}
-
-		throwInvalidStateError();
+		return defaultSpliceAtAndReturn<T, List.NonEmpty<T>>(this, index, options);
 	}
 
 	filterIndexed(
@@ -258,20 +222,9 @@ export abstract class ListNonEmptyBase<T>
 	padTo(
 		size: number,
 		fill: T,
-		options: { rightBias?: number | undefined } = {},
+		options?: { rightBias?: number | undefined } | undefined,
 	): List.NonEmpty<T> {
-		Int.checkAtLeastZero(size);
-
-		if (this.size >= size) return this;
-
-		const diff = size - this.size;
-
-		const { rightBias = 0 } = options;
-
-		const frac = Math.max(0, Math.min(1.0, rightBias));
-		const frontSize = Math.round(diff * frac);
-		const pad = this.context.of(fill).repeat(diff);
-		return pad.spliceAt(frontSize, { insert: this });
+		return defaultPadTo<T, List.NonEmpty<T>>(this, size, fill, options);
 	}
 
 	toBuilder(): List.Builder<T> {
