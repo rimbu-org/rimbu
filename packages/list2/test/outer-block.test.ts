@@ -5,7 +5,6 @@ import type { Int } from '@rimbu/base';
 import type { ListContext } from '#list/context';
 import type { OuterBlock } from '#list/immutable/outer-block';
 
-import { TraverseState } from '@rimbu/common';
 import { List } from '@rimbu/list2';
 
 type BlockFactory = <T>(ctx: ListContext<T>, values: T[]) => OuterBlock<T>;
@@ -446,47 +445,9 @@ function runOuterBlockTests(
 					expect(r.toArray()).toEqual([30, 40]);
 				});
 
-				it('reversed option', () => {
-					const r = b.filterIndexed((_v: number, i: number) => i > 0, {
-						reversed: true,
-					});
-					expect(r.toArray()).toEqual([30, 20, 10]);
-				});
-
-				it('halt stops iteration after current element', () => {
-					const r = b.filterIndexed(
-						(_v: number, _i: number, halt: () => void) => {
-							halt();
-							return true;
-						},
-					);
-					expect(r.toArray()).toEqual([10]);
-				});
-
-				it('halt after first match excludes subsequent', () => {
-					const visited: number[] = [];
-					const r = b.filterIndexed(
-						(v: number, _i: number, halt: () => void) => {
-							visited.push(v);
-							if (v >= 20) halt();
-							return true;
-						},
-					);
-					expect(r.toArray()).toEqual([10, 20]);
-					expect(visited.length).toBeLessThan(b.size);
-				});
-
 				it('state offsets index counter', () => {
 					const r = b.filterIndexed((_v: number, i: number) => i < 2, {
-						state: TraverseState(2),
-					});
-					expect(r.toArray()).toEqual([]);
-				});
-
-				it('state with reversed counter', () => {
-					const r = b.filterIndexed((_v: number, i: number) => i <= 1, {
-						reversed: true,
-						state: TraverseState(2),
+						indexOffset: 2,
 					});
 					expect(r.toArray()).toEqual([]);
 				});

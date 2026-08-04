@@ -1,6 +1,6 @@
 import type { Op } from '@rimbu/collection-types/types';
 import type { List } from '@rimbu/list';
-import type { Stream, StreamSource } from '@rimbu/stream';
+import type { Stream } from '@rimbu/stream';
 
 import type { ChildrenOps, OuterChildren } from '#advanced/children-ops';
 import type { ListContext } from '#list/context';
@@ -188,18 +188,12 @@ export abstract class OuterBlock<T>
 		);
 	}
 
-	concat(...sources: ArrayNonEmpty<StreamSource<T>>): List.NonEmpty<T> {
-		const asList = this.context.from(...sources);
-
-		if (!asList.nonEmpty()) {
-			return this;
-		}
-
-		if (asList === this && this.size > this.context.minBlockSize) {
+	_concat(source: List.NonEmpty<T>): List.NonEmpty<T> {
+		if (source === this && this.size > this.context.minBlockSize) {
 			return this.context.outerTree(this, this, null, this.size * 2);
 		}
 
-		return (asList as ListNonEmptyBase<T>)._prependBlock(this);
+		return (source as ListNonEmptyBase<T>)._prependBlock(this);
 	}
 
 	toNodeBuilder(): OuterBlockBuilder<T> {

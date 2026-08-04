@@ -46,11 +46,11 @@ export abstract class ListNonEmptyBase<T>
 	abstract map<T2>(f: (element: T) => T2): List.NonEmpty<T2>;
 	abstract prepend(element: T): List.NonEmpty<T>;
 	abstract append(element: T): List.NonEmpty<T>;
-	abstract concat(...sources: ArrayNonEmpty<StreamSource<T>>): List.NonEmpty<T>;
 	abstract reversed(): List.NonEmpty<T>;
 
 	abstract toNodeBuilder(): OuterBuilder<T>;
 
+	abstract _concat(sources: List.NonEmpty<T>): List.NonEmpty<T>;
 	abstract _prependBlock(leftBlock: OuterBlock<T>): List.NonEmpty<T>;
 	abstract _prependTree(leftTree: OuterTree<T>): List.NonEmpty<T>;
 
@@ -119,6 +119,19 @@ export abstract class ListNonEmptyBase<T>
 		List<T>
 	> {
 		return defaultSpliceAtAndReturn<T, List.NonEmpty<T>>(this, index, options);
+	}
+
+	concat(...sources: ArrayNonEmpty<StreamSource<T>>): List.NonEmpty<T> {
+		let result: List.NonEmpty<T> = this;
+
+		for (const source of sources) {
+			const asList = this.context.from(source);
+			if (asList.nonEmpty()) {
+				result = (result as ListNonEmptyBase<T>)._concat(asList);
+			}
+		}
+
+		return result;
 	}
 
 	filterIndexed(

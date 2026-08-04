@@ -1,6 +1,6 @@
 import type { Op } from '@rimbu/collection-types/types';
 import type { List } from '@rimbu/list';
-import type { Stream, StreamSource } from '@rimbu/stream';
+import type { Stream } from '@rimbu/stream';
 
 import type { ListContext } from '#list/context';
 import type { Inner, Tree } from '#list/immutable/common';
@@ -373,14 +373,8 @@ export class OuterTree<T>
 		);
 	}
 
-	concat(...sources: ArrayNonEmpty<StreamSource<T>>): List.NonEmpty<T> {
-		const asList = this.context.from(...sources);
-
-		if (!asList.nonEmpty()) {
-			return this;
-		}
-
-		return (asList as ListNonEmptyBase<T>)._prependTree(this);
+	_concat(source: List.NonEmpty<T>): List.NonEmpty<T> {
+		return (source as ListNonEmptyBase<T>)._prependTree(this);
 	}
 
 	reversed(): OuterTree<T> {
