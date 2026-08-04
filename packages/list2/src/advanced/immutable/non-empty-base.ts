@@ -126,6 +126,7 @@ export abstract class ListNonEmptyBase<T>
 
 		for (const source of sources) {
 			const asList = this.context.from(source);
+
 			if (asList.nonEmpty()) {
 				result = (result as ListNonEmptyBase<T>)._concat(asList);
 			}
