@@ -1,4 +1,5 @@
 import type { ListContext } from '#list/context';
+import type { CacheMap } from '#list/immutable/cache-map';
 import type { InnerBlock } from '#list/immutable/inner-block';
 import type { BlockBuilder, InnerBuilder } from '#list/mutable/common';
 
@@ -192,11 +193,11 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		);
 	}
 
-	buildMap<T2>(f: (element: T) => T2): InnerBlock<T2, any> {
-		if (this.#source) return this.#source.map(f);
+	buildMap<T2>(f: (element: T) => T2, cacheMap: CacheMap): InnerBlock<T2, any> {
+		if (this.#source) return this.#source.map(f, cacheMap);
 
 		return this.context.innerBlock(
-			this.#children.map((c) => c.buildMap(f)),
+			this.#children.map((c) => c.buildMap(f, cacheMap)),
 			this.#size,
 			this.level,
 			this.#_sizeTable,

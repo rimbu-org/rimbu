@@ -6,6 +6,7 @@ import type { Stream } from '@rimbu/stream';
 
 import type { ChildrenOps, OuterChildren } from '#advanced/children-ops';
 import type { ListContext } from '#list/context';
+import type { CacheMap } from '#list/immutable/cache-map';
 
 import { OuterBlock } from '#list/immutable/outer-block';
 
@@ -89,10 +90,15 @@ export class OuterBlockRightLeft<T> extends OuterBlock<T> {
 		return this.context.outerBlockLeftRight(newChildren);
 	}
 
-	map<T2>(f: (element: T) => T2): OuterBlock<T2> {
-		return this.context.outerBlockLeftRight(
+	map<T2>(f: (element: T) => T2, cacheMap?: CacheMap): OuterBlock<T2> {
+		const cached = cacheMap?.get<OuterBlock<T2>>(this);
+		if (cached) return cached;
+
+		const newBlock = this.context.outerBlockLeftRight(
 			this.#ops.reverseMap(this.#children, f),
 		);
+
+		return cacheMap?.setAndReturn(this, newBlock) ?? newBlock;
 	}
 
 	reversed(): OuterBlock<T> {

@@ -1,5 +1,6 @@
 import type { Op } from '@rimbu/collection-types/types';
 import type { List } from '@rimbu/list';
+import type { Stream } from '@rimbu/stream';
 
 import type { ListContext } from '#list/context';
 import type { Inner, Tree } from '#list/immutable/common';
@@ -8,9 +9,9 @@ import type { OuterTreeBuilder } from '#list/mutable/outer-tree-builder';
 
 import { Int } from '@rimbu/base';
 import { type ArrayNonEmpty, OptLazy } from '@rimbu/common';
-import { Stream } from '@rimbu/stream';
 
 import { ListNonEmptyBase } from '#advanced/immutable/non-empty-base';
+import { CacheMap } from '#list/immutable/cache-map';
 import {
 	treeGet,
 	treeStream,
@@ -370,12 +371,18 @@ export class OuterTree<T>
 		return result;
 	}
 
-	map<T2>(f: (element: T) => T2): OuterTree<T2> {
-		return this.#copyAsType(
-			this.left.map(f),
-			this.right.map(f),
-			this.middle?.map(f) ?? null,
-			this.size,
+	map<T2>(f: (element: T) => T2, cacheMap = new CacheMap()): OuterTree<T2> {
+		return (
+			cacheMap.get(this) ??
+			cacheMap.setAndReturn(
+				this,
+				this.#copyAsType(
+					this.left.map(f, cacheMap),
+					this.right.map(f, cacheMap),
+					this.middle?.map(f, cacheMap) ?? null,
+					this.size,
+				),
+			)
 		);
 	}
 

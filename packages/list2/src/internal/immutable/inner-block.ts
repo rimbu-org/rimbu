@@ -9,6 +9,7 @@ import type { InnerBlockBuilder } from '#list/mutable/inner-block-builder';
 import { type Int, throwInvalidStateError } from '@rimbu/base';
 import { Stream } from '@rimbu/stream';
 
+import { CacheMap } from '#list/immutable/cache-map';
 import { SizeTable } from '#list/size-table';
 
 export class InnerBlock<T, C extends Self<Block<T>, C>>
@@ -193,11 +194,20 @@ export class InnerBlock<T, C extends Self<Block<T>, C>>
 		}
 	}
 
-	map<T2>(f: (element: T) => T2): InnerBlock<T2, any> {
-		return this.#copyAsType(
-			this.#children.map((child) => child.map(f)),
-			this.size,
-			this.#_sizeTable,
+	map<T2>(
+		f: (element: T) => T2,
+		cacheMap = new CacheMap(),
+	): InnerBlock<T2, any> {
+		return (
+			cacheMap.get(this) ??
+			cacheMap.setAndReturn(
+				this,
+				this.#copyAsType(
+					this.#children.map((child) => child.map(f, cacheMap)),
+					this.size,
+					this.#_sizeTable,
+				),
+			)
 		);
 	}
 

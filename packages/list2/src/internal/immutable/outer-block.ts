@@ -4,6 +4,7 @@ import type { Stream } from '@rimbu/stream';
 
 import type { ChildrenOps, OuterChildren } from '#advanced/children-ops';
 import type { ListContext } from '#list/context';
+import type { CacheMap } from '#list/immutable/cache-map';
 import type { Block } from '#list/immutable/common';
 import type { OuterTree } from '#list/immutable/outer-tree';
 import type { OuterBlockBuilder } from '#list/mutable/outer-block-builder';
@@ -37,7 +38,7 @@ export abstract class OuterBlock<T>
 	abstract toArray(options?: {
 		reversed?: boolean | undefined;
 	}): ArrayNonEmpty<T>;
-	abstract map<T2>(f: (element: T) => T2): OuterBlock<T2>;
+	abstract map<T2>(f: (element: T) => T2, cacheMap?: CacheMap): OuterBlock<T2>;
 
 	abstract _get(index: Int.AtLeastZero): T;
 	abstract _appendBlockChild(child: T): OuterBlock<T>;

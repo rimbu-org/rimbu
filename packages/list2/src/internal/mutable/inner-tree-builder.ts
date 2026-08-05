@@ -1,6 +1,7 @@
 import type { Int } from '@rimbu/base';
 
 import type { ListContext } from '#list/context';
+import type { CacheMap } from '#list/immutable/cache-map';
 import type { Inner } from '#list/immutable/common';
 import type { InnerTree } from '#list/immutable/inner-tree';
 import type { BlockBuilder, InnerBuilder } from '#list/mutable/common';
@@ -185,12 +186,12 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 		);
 	}
 
-	buildMap<T2>(f: (element: T) => T2): Inner<T2, any> {
-		if (undefined !== this.#source) return this.#source.map(f);
+	buildMap<T2>(f: (element: T) => T2, cacheMap: CacheMap): Inner<T2, any> {
+		if (undefined !== this.#source) return this.#source.map(f, cacheMap);
 
 		return this.context.innerTree(
-			this.left.buildMap(f),
-			this.right.buildMap(f),
+			this.left.buildMap(f, cacheMap),
+			this.right.buildMap(f, cacheMap),
 			null,
 			this.#size,
 			this.level,

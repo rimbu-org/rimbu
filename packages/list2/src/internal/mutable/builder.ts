@@ -9,6 +9,8 @@ import { CollectionBuilderBase } from '@rimbu/collection-types/advanced/capabili
 import { OptLazy } from '@rimbu/common';
 import { Stream } from '@rimbu/stream';
 
+import { CacheMap } from '#list/immutable/cache-map';
+
 export class ListBuilder<T>
 	extends CollectionBuilderBase<T>
 	implements List.Builder<T>
@@ -234,5 +236,13 @@ export class ListBuilder<T>
 		}
 
 		return this.#outerBuilder.build();
+	};
+
+	buildMap = <T2>(f: (element: T) => T2): List<T2> => {
+		if (undefined === this.#outerBuilder) {
+			return this.context.empty();
+		}
+
+		return this.#outerBuilder.buildMap(f, new CacheMap());
 	};
 }

@@ -9,6 +9,7 @@ import type { InnerTreeBuilder } from '#list/mutable/inner-tree-builder';
 
 import { Int, throwInvalidStateError } from '@rimbu/base';
 
+import { CacheMap } from '#list/immutable/cache-map';
 import {
 	treeGet,
 	treeStream,
@@ -111,13 +112,22 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 			.concat(this.middle?.filter(f), this.right.filter(f));
 	}
 
-	map<T2>(f: (element: T) => T2): InnerTree<T2, any> {
-		return this.#copyAsType(
-			this.left.map(f),
-			this.right.map(f),
-			this.middle?.map(f) ?? null,
-			this.size,
-			this.level,
+	map<T2>(
+		f: (element: T) => T2,
+		cacheMap = new CacheMap(),
+	): InnerTree<T2, any> {
+		return (
+			cacheMap.get(this) ??
+			cacheMap.setAndReturn(
+				this,
+				this.#copyAsType(
+					this.left.map(f, cacheMap),
+					this.right.map(f, cacheMap),
+					this.middle?.map(f, cacheMap) ?? null,
+					this.size,
+					this.level,
+				),
+			)
 		);
 	}
 

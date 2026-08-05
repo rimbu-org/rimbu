@@ -1,6 +1,7 @@
 import type { Int } from '@rimbu/base';
 import type { List } from '@rimbu/list';
 
+import type { CacheMap } from '#list/immutable/cache-map';
 import type { Block, Inner } from '#list/immutable/common';
 
 export interface BuilderCommon<T, C> {
@@ -29,14 +30,14 @@ export interface BlockBuilder<T, C = unknown> extends BuilderCommon<T, C> {
 	dropLastChild(): C;
 	splitRight(index?: number): BlockBuilder<T, C>;
 	build(): Block<T>;
-	buildMap<T2>(f: (element: T) => T2): Block<T2>;
+	buildMap<T2>(f: (element: T) => T2, cacheMap: CacheMap): Block<T2>;
 }
 
 export interface OuterBuilder<T> extends BuilderCommon<T, T> {
 	prepend(element: T): void;
 	append(element: T): void;
 	build(): List<T>;
-	buildMap<T2>(f: (element: T) => T2): List<T2>;
+	buildMap<T2>(f: (element: T) => T2, cacheMap: CacheMap): List<T2>;
 	normalized(): OuterBuilder<T> | undefined;
 }
 
@@ -49,6 +50,6 @@ export interface InnerBuilder<T, C extends BlockBuilder<T>>
 	dropFirstChild(): C;
 	dropLastChild(): C;
 	build(): Inner<T, any>;
-	buildMap<T2>(f: (element: T) => T2): Inner<T2, any>;
+	buildMap<T2>(f: (element: T) => T2, cacheMap: CacheMap): Inner<T2, any>;
 	normalized(): InnerBuilder<T, C> | undefined;
 }

@@ -3,6 +3,7 @@ import type { Op } from '@rimbu/collection-types/types';
 import type { List } from '@rimbu/list';
 import type { Stream } from '@rimbu/stream';
 
+import type { CacheMap } from '#list/immutable/cache-map';
 import type { InnerBlock } from '#list/immutable/inner-block';
 import type { InnerTree } from '#list/immutable/inner-tree';
 import type { BlockBuilder, InnerBuilder } from '#list/mutable/common';
@@ -56,7 +57,7 @@ export interface Block<T> extends ListNode<T> {
 	readonly _hasEnoughChildren: boolean;
 	readonly _notTooManyChildren: boolean;
 
-	map<T2>(f: (element: T) => T2): Block<T2>;
+	map<T2>(f: (element: T) => T2, cacheMap?: CacheMap): Block<T2>;
 	toNodeBuilder(): BlockBuilder<T, T>;
 }
 
@@ -82,7 +83,7 @@ export interface Inner<T, C extends Self<Block<T>, C>> extends ListNode<T> {
 
 	readonly level: number;
 
-	map<T2>(f: (element: T) => T2): Inner<T2, any>;
+	map<T2>(f: (element: T) => T2, cacheMap: CacheMap): Inner<T2, any>;
 	prependChild(child: C): Inner<T, C>;
 	appendChild(child: C): Inner<T, C>;
 	dropLastChild(): [Inner<T, C> | null, C];
