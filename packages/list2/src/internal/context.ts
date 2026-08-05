@@ -249,7 +249,9 @@ export function createListContextModule<UT>(options: {
 					const builder =
 						undefined === result ? mod.builder<T>() : result.toBuilder();
 					builder.appendAll(source);
-					result = builder.build() as List.NonEmpty<T>;
+					if (!builder.isEmpty) {
+						result = builder.build().assumeNonEmpty();
+					}
 				}
 			}
 

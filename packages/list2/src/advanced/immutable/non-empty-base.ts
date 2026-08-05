@@ -236,7 +236,7 @@ export abstract class ListNonEmptyBase<T>
 	padTo(
 		size: number,
 		fill: T,
-		options?: { rightBias?: number | undefined } | undefined,
+		options?: { paddingLeftBias?: number | undefined } | undefined,
 	): List.NonEmpty<T> {
 		return defaultPadTo<T, List.NonEmpty<T>>(this, size, fill, options);
 	}
