@@ -1,7 +1,5 @@
 import type { Op } from '@rimbu/collection-types/types';
-import type { ArrayNonEmpty, CollectFun } from '@rimbu/common';
 import type { List } from '@rimbu/list';
-import type { StreamSource } from '@rimbu/stream';
 
 import type { ListContext } from '#list/context';
 import type { OuterBlock } from '#list/immutable/outer-block';
@@ -19,6 +17,8 @@ import {
 	defaultSwapAtAndReturn,
 	IndexedCollectionNonEmptyBase,
 } from '@rimbu/collection-types/advanced/capabilities/base';
+import { type ArrayNonEmpty, type CollectFun, IndexRange } from '@rimbu/common';
+import { Stream, type StreamSource } from '@rimbu/stream';
 
 export abstract class ListNonEmptyBase<T>
 	extends IndexedCollectionNonEmptyBase<T>
@@ -30,6 +30,9 @@ export abstract class ListNonEmptyBase<T>
 		super();
 	}
 
+	abstract stream(options?: {
+		reversed?: boolean | undefined;
+	}): Stream.NonEmpty<T>;
 	abstract setAtAndReturn(
 		index: number,
 		element: T,
@@ -50,9 +53,28 @@ export abstract class ListNonEmptyBase<T>
 
 	abstract toNodeBuilder(): OuterBuilder<T>;
 
+	abstract _streamSlice(
+		start: number,
+		end: number,
+		options?: { reversed?: boolean | undefined },
+	): Stream<T>;
 	abstract _concat(sources: List.NonEmpty<T>): List.NonEmpty<T>;
 	abstract _prependBlock(leftBlock: OuterBlock<T>): List.NonEmpty<T>;
 	abstract _prependTree(leftTree: OuterTree<T>): List.NonEmpty<T>;
+
+	streamSlice(
+		range: IndexRange,
+		options: { reversed?: boolean | undefined } = {},
+	): Stream<T> {
+		const indices = IndexRange.getIndicesFor(range, this.size);
+
+		if (indices === 'empty') return Stream.empty();
+		if (indices === 'all') return this.stream(options);
+
+		const [start, end] = indices;
+
+		return this._streamSlice(start, end, options);
+	}
 
 	setAt(index: number, element: T): this['_self'] {
 		return this.setAtAndReturn(index, element).collection;

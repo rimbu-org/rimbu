@@ -66,7 +66,7 @@ export abstract class CollectionEmptyBase<T>
 		...sources: ArrayNonEmpty<StreamSource<T>>
 	): this['context']['__types']['_NORMAL'] {
 		return this.context.from(
-			sources,
+			...sources,
 		) as this['context']['__types']['_NON_EMPTY'];
 	}
 
@@ -990,7 +990,7 @@ export function defaultPadTo<
 	col: C,
 	size: number,
 	fill: E,
-	options: { rightBias?: number | undefined } = {},
+	options: { paddingLeftBias?: number | undefined } = {},
 ) {
 	Int.checkAtLeastZero(size);
 
@@ -998,9 +998,9 @@ export function defaultPadTo<
 
 	const diff = size - col.size;
 
-	const { rightBias = 0 } = options;
+	const { paddingLeftBias = 0 } = options;
 
-	const frac = Math.max(0, Math.min(1.0, rightBias));
+	const frac = Math.max(0, Math.min(1.0, paddingLeftBias));
 	const frontSize = Math.round(diff * frac);
 	const pad = col.context.of(fill).repeat(diff) as C;
 

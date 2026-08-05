@@ -19,6 +19,11 @@ interface ListNode<T> {
 	readonly size: number;
 
 	stream(options?: { reversed?: boolean | undefined }): Stream.NonEmpty<T>;
+	_streamSlice(
+		start: number,
+		end: number,
+		options?: { reversed?: boolean | undefined } | undefined,
+	): Stream<T>;
 	forEach(f: (element: T) => void): void;
 	filter(f: (element: T) => boolean): List<T>;
 	reversed(): this['_self'];

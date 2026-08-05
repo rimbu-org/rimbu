@@ -133,10 +133,10 @@ export declare namespace Collection {
 
 		export interface WithConcat<E> extends Collection.Advanced.Trait<E> {
 			concat(
-				...elements: ArrayNonEmpty<StreamSource.NonEmpty<E>>
+				...sources: ArrayNonEmpty<StreamSource.NonEmpty<E>>
 			): this['context']['__types']['_NON_EMPTY'];
 			concat(
-				...elements: ArrayNonEmpty<StreamSource<E>>
+				...sources: ArrayNonEmpty<StreamSource<E>>
 			): this['context']['__types']['_SELF'];
 
 			flatMap<E2 extends this['context']['__types']['_UPPER_E']>(
@@ -365,7 +365,7 @@ export declare namespace IndexedCollection {
 			padTo(
 				size: number,
 				fill: E,
-				options?: { rightBias?: number | undefined } | undefined,
+				options?: { paddingLeftBias?: number | undefined } | undefined,
 			): this['context']['__types']['_SELF'];
 		}
 

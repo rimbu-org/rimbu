@@ -1,6 +1,5 @@
 import type { Op } from '@rimbu/collection-types/types';
 import type { List } from '@rimbu/list';
-import type { Stream } from '@rimbu/stream';
 
 import type { ListContext } from '#list/context';
 import type { Inner, Tree } from '#list/immutable/common';
@@ -8,10 +7,16 @@ import type { OuterBlock } from '#list/immutable/outer-block';
 import type { OuterTreeBuilder } from '#list/mutable/outer-tree-builder';
 
 import { Int } from '@rimbu/base';
-import { type ArrayNonEmpty, type IndexRange, OptLazy } from '@rimbu/common';
+import { type ArrayNonEmpty, OptLazy } from '@rimbu/common';
+import { Stream } from '@rimbu/stream';
 
 import { ListNonEmptyBase } from '#advanced/immutable/non-empty-base';
-import { treeGet, treeStream, treeUpdate } from '#list/immutable/tree';
+import {
+	treeGet,
+	treeStream,
+	treeStreamSlice,
+	treeUpdate,
+} from '#list/immutable/tree';
 
 export class OuterTree<T>
 	extends ListNonEmptyBase<T>
@@ -81,11 +86,12 @@ export class OuterTree<T>
 		return treeStream(this, options);
 	}
 
-	streamSlice(
-		range: IndexRange,
-		options?: { reversed?: boolean | undefined },
+	_streamSlice(
+		start: number,
+		end: number,
+		options: { reversed?: boolean | undefined } = {},
 	): Stream<T> {
-		return 0 as any;
+		return treeStreamSlice(this, start, end, options);
 	}
 
 	at<O>(index: number, otherwise?: OptLazy<O>): T | O {

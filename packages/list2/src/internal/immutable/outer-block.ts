@@ -9,7 +9,7 @@ import type { OuterTree } from '#list/immutable/outer-tree';
 import type { OuterBlockBuilder } from '#list/mutable/outer-block-builder';
 
 import { Int } from '@rimbu/base';
-import { type ArrayNonEmpty, type IndexRange, OptLazy } from '@rimbu/common';
+import { type ArrayNonEmpty, OptLazy } from '@rimbu/common';
 
 import { ListNonEmptyBase } from '#advanced/immutable/non-empty-base';
 
@@ -27,10 +27,6 @@ export abstract class OuterBlock<T>
 	abstract stream(options?: {
 		reversed?: boolean | undefined;
 	}): Stream.NonEmpty<T>;
-	abstract streamSlice(
-		range: IndexRange,
-		options?: { reversed?: boolean | undefined },
-	): Stream<T>;
 	abstract _update(
 		index: Int.AtLeastZero,
 		f: (element: T) => T,

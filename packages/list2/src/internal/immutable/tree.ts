@@ -1,9 +1,9 @@
 import type { Op } from '@rimbu/collection-types/types';
-import type { Stream } from '@rimbu/stream';
 
 import type { Tree } from '#list/immutable/common';
 
 import { Int } from '@rimbu/base';
+import { Stream } from '@rimbu/stream';
 
 export function treeGet<T>(tree: Tree<T>, index: Int.AtLeastZero): T {
 	const middleIndex = index - tree.left.size;
@@ -38,6 +38,37 @@ export function treeStream<T>(
 	return tree.left
 		.stream(options)
 		.concat(tree.middle?.stream(options), tree.right.stream(options));
+}
+
+export function treeStreamSlice<T>(
+	tree: Tree<T>,
+	start: number,
+	end: number,
+	options: { reversed?: boolean | undefined } = {},
+): Stream<T> {
+	const leftStream = tree.left._streamSlice(start, end, options);
+
+	const leftSize = tree.left.size;
+	const middleStart = start - leftSize;
+	const middleEnd = end - leftSize;
+
+	const middleStream =
+		tree.middle?._streamSlice(middleStart, middleEnd, options) ??
+		Stream.empty<T>();
+
+	const middleSize = tree.middle?.size ?? 0;
+	const rightStart = middleStart - middleSize;
+	const rightEnd = middleEnd - middleSize;
+
+	const rightStream = tree.right._streamSlice(rightStart, rightEnd, options);
+
+	const { reversed = false } = options;
+
+	if (reversed) {
+		return Stream.from(rightStream, middleStream, leftStream);
+	}
+
+	return leftStream.concat(middleStream, rightStream);
 }
 
 export function treeUpdate<T, TR extends Tree<T> & { _self: TR }>(

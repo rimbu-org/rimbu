@@ -1,12 +1,11 @@
 import type { Int } from '@rimbu/base';
 import type { Op } from '@rimbu/collection-types/types';
+import type { ArrayNonEmpty } from '@rimbu/common';
 import type { List } from '@rimbu/list';
+import type { Stream } from '@rimbu/stream';
 
 import type { ChildrenOps, OuterChildren } from '#advanced/children-ops';
 import type { ListContext } from '#list/context';
-
-import { type ArrayNonEmpty, IndexRange } from '@rimbu/common';
-import { Stream } from '@rimbu/stream';
 
 import { OuterBlock } from '#list/immutable/outer-block';
 
@@ -39,26 +38,25 @@ export class OuterBlockRightLeft<T> extends OuterBlock<T> {
 		return this.#ops.stream(this.#children, { reversed: !reversed });
 	}
 
-	streamSlice(
-		range: IndexRange,
-		options: { reversed?: boolean | undefined } = {},
+	_streamSlice(
+		start: number,
+		end: number,
+		options: { reversed?: boolean },
 	): Stream<T> {
 		const { reversed = false } = options;
 
-		const [start, end = this.size - 1] = IndexRange.getIndexRangeIndices(range);
-
 		const lastIndex = this.size - 1;
 
-		if (start > lastIndex || end < start) return Stream.empty();
+		const reversedStart = lastIndex - Math.min(end, lastIndex);
+		const reversedEnd = lastIndex - start;
 
-		const reverseRange = {
-			start: lastIndex - Math.min(end, lastIndex),
-			end: lastIndex - start,
-		};
-
-		return this.#ops.streamRange(this.#children, reverseRange, {
-			reversed: !reversed,
-		});
+		return this.#ops.streamRange(
+			this.#children,
+			{ start: reversedStart, end: reversedEnd },
+			{
+				reversed: !reversed,
+			},
+		);
 	}
 
 	_update(

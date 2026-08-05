@@ -1,6 +1,6 @@
 import type { Int } from '@rimbu/base';
 import type { Op } from '@rimbu/collection-types/types';
-import type { ArrayNonEmpty, IndexRange } from '@rimbu/common';
+import type { ArrayNonEmpty } from '@rimbu/common';
 import type { List } from '@rimbu/list';
 import type { Stream } from '@rimbu/stream';
 
@@ -43,8 +43,12 @@ export class OuterBlockLeftRight<T> extends OuterBlock<T> {
 		return this.#ops.stream(this.#children, options);
 	}
 
-	streamSlice(range: IndexRange, options: { reversed?: boolean }): Stream<T> {
-		return this.#ops.streamRange(this.#children, range, options);
+	_streamSlice(
+		start: number,
+		end: number,
+		options: { reversed?: boolean },
+	): Stream<T> {
+		return this.#ops.streamRange(this.#children, { start, end }, options);
 	}
 
 	_update(

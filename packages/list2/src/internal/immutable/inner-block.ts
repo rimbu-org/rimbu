@@ -100,6 +100,43 @@ export class InnerBlock<T, C extends Self<Block<T>, C>>
 			.flatMap((child) => child.stream(options));
 	}
 
+	_streamSlice(
+		start: number,
+		end: number,
+		options: { reversed?: boolean | undefined } = {},
+	): Stream<T> {
+		const [startChildIndex, inStartChildIndex] =
+			this.sizeTable.getCoordinates(start);
+		const [endChildIndex, inEndChildIndex] = this.sizeTable.getCoordinates(end);
+
+		if (startChildIndex === endChildIndex) {
+			const child = this.#children[startChildIndex];
+
+			return child._streamSlice(inStartChildIndex, inEndChildIndex, options);
+		}
+
+		const { reversed = false } = options;
+
+		const startChild = this.#children[startChildIndex];
+		const endChild = this.#children[endChildIndex];
+		const childStream = Stream.fromArray(this.#children, {
+			range: { start: startChildIndex, end: endChildIndex },
+			reversed,
+		});
+
+		return childStream.flatMap((child: Block<T>): Stream<T> => {
+			if (child === startChild)
+				return child._streamSlice(
+					inStartChildIndex,
+					startChild.size - 1,
+					options,
+				);
+			if (child === endChild)
+				return child._streamSlice(0, inEndChildIndex, options);
+			return child.stream(options);
+		});
+	}
+
 	_get(index: Int.AtLeastZero): T {
 		const [childIndex, inChildIndex] = this.sizeTable.getCoordinates(index);
 

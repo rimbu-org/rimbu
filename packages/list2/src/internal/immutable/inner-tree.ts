@@ -9,7 +9,12 @@ import type { InnerTreeBuilder } from '#list/mutable/inner-tree-builder';
 
 import { Int, throwInvalidStateError } from '@rimbu/base';
 
-import { treeGet, treeStream, treeUpdate } from '#list/immutable/tree';
+import {
+	treeGet,
+	treeStream,
+	treeStreamSlice,
+	treeUpdate,
+} from '#list/immutable/tree';
 import { SizeTable } from '#list/size-table';
 
 export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
@@ -73,6 +78,14 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 
 	stream(options?: { reversed?: boolean }): Stream.NonEmpty<T> {
 		return treeStream(this, options);
+	}
+
+	_streamSlice(
+		start: number,
+		end: number,
+		options: { reversed?: boolean | undefined } = {},
+	): Stream<T> {
+		return treeStreamSlice(this, start, end, options);
 	}
 
 	_get(index: Int.AtLeastZero): T {
