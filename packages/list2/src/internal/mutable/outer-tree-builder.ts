@@ -1,11 +1,11 @@
 import type { Int } from '@rimbu/base';
 
 import type { ListContext } from '#list/context';
-import type { CacheMap } from '#list/immutable/cache-map';
 import type { OuterTree } from '#list/immutable/outer-tree';
 import type { InnerBuilder, OuterBuilder } from '#list/mutable/common';
 import type { OuterBlockBuilder } from '#list/mutable/outer-block-builder';
 
+import { CacheMap } from '#list/immutable/cache-map';
 import { TreeBuilderBase } from '#list/mutable/tree-builder-base';
 
 export class OuterTreeBuilder<T>
@@ -141,18 +141,20 @@ export class OuterTreeBuilder<T>
 		return this.context.outerTree(
 			this.left.build(),
 			this.right.build(),
-			(this.middle?.build() as any) ?? null,
+			this.middle?.build() ?? null,
 			this.#size,
 		);
 	}
 
-	buildMap<T2>(f: (element: T) => T2, cacheMap: CacheMap): OuterTree<T2> {
-		if (undefined !== this.#source) return this.#source.map(f, cacheMap);
+	buildMap<T2>(f: (element: T) => T2): OuterTree<T2> {
+		if (undefined !== this.#source) return this.#source.map(f);
+
+		const cacheMap = new CacheMap();
 
 		return this.context.outerTree(
 			this.left.buildMap(f, cacheMap),
 			this.right.buildMap(f, cacheMap),
-			null,
+			this.middle?.buildMap(f, cacheMap) ?? null,
 			this.#size,
 		);
 	}

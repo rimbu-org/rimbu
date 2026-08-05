@@ -215,15 +215,22 @@ export class InnerBlock<T, C extends Self<Block<T>, C>>
 		return this.#children.map(f);
 	}
 
-	filter(f: (element: T) => boolean): List<T> {
+	filter(
+		f: (element: T) => boolean,
+		options?: { negate?: boolean | undefined },
+		cacheMap = new CacheMap(),
+	): List<T> {
+		const cached = cacheMap.get<List<T>>(this);
+		if (cached) return cached;
+
 		let result: List<T> = this.context.empty<T>();
 
 		for (const child of this.#children) {
-			const filteredChild = child.filter(f);
+			const filteredChild = child.filter(f, options, cacheMap);
 			result = result.concat(filteredChild);
 		}
 
-		return result;
+		return cacheMap.setAndReturn(this, result);
 	}
 
 	childAt(index: number): C {

@@ -33,11 +33,13 @@ export abstract class OuterBlock<T>
 		f: (element: T) => T,
 	): Op.WithResult<OuterBlock<T>, [previous: T, current: T], true>;
 	abstract forEach(f: (element: T) => void): void;
-	abstract filter(f: (element: T) => boolean): List<T>;
+	abstract filter(
+		f: (element: T) => boolean,
+		options?: { negate?: boolean | undefined },
+		cacheMap?: CacheMap,
+	): List<T>;
 	abstract reversed(): OuterBlock<T>;
-	abstract toArray(options?: {
-		reversed?: boolean | undefined;
-	}): ArrayNonEmpty<T>;
+	abstract toArray(): ArrayNonEmpty<T>;
 	abstract map<T2>(f: (element: T) => T2, cacheMap?: CacheMap): OuterBlock<T2>;
 
 	abstract _get(index: Int.AtLeastZero): T;

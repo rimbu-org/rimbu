@@ -106,10 +106,22 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 		this.right.forEach(f);
 	}
 
-	filter(f: (element: T) => boolean): List<T> {
-		return this.left
-			.filter(f)
-			.concat(this.middle?.filter(f), this.right.filter(f));
+	filter(
+		f: (element: T) => boolean,
+		options?: { negate?: boolean | undefined },
+		cacheMap = new CacheMap(),
+	): List<T> {
+		const cached = cacheMap.get<List<T>>(this);
+		if (cached) return cached;
+
+		const result = this.left
+			.filter(f, options, cacheMap)
+			.concat(
+				this.middle?.filter(f, options, cacheMap),
+				this.right.filter(f, options, cacheMap),
+			);
+
+		return cacheMap.setAndReturn(this, result);
 	}
 
 	map<T2>(
@@ -831,74 +843,4 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 
 		return messages;
 	}
-
-	// #normalize(): Inner<T, C> {
-	// 	if (null === this.middle) {
-	// 		if (
-	// 			this.left._nrChildren + this.right._nrChildren <=
-	// 			this.context.maxBlockSize
-	// 		) {
-	// 			// can merge left and right
-	// 			return this.left.concat(this.right);
-	// 		}
-
-	// 		return this;
-	// 	}
-
-	// 	const normalized1 = this.middle.normalizeWith
-
-	// 	this.middle.modifyFirstChild((firstMiddleBlock) => {
-	// 		if (
-	// 			this.left._nrChildren + firstMiddleBlock._nrChildren >=
-	// 			this.context.maxBlockSize
-	// 		) {
-	// 			return;
-	// 		}
-
-	// 	});
-
-	// 	if (this.context.isInnerBlock<T, C>(this.middle)) {
-	// 		const firstChild = this.middle.children[0];
-
-	// 		if (
-	// 			this.left.nrChildren + firstChild.nrChildren <=
-	// 			this.context.maxBlockSize
-	// 		) {
-	// 			// first middle child can be merged with left
-	// 			const [newMiddle, block] = this.middle.dropFirstChild();
-
-	// 			if (this.context.isInnerBlock<T, C>(block)) {
-	// 				return this.copy(
-	// 					this.left.concatChildren(block),
-	// 					undefined,
-	// 					newMiddle,
-	// 				)._normalize();
-	// 			}
-
-	// 			throwInvalidStateError();
-	// 		}
-
-	// 		const lastChild = this.middle.children[this.middle.nrChildren - 1];
-
-	// 		if (
-	// 			this.right.nrChildren + lastChild.nrChildren <=
-	// 			this.context.maxBlockSize
-	// 		) {
-	// 			// last middle child can be merged with right
-	// 			const [newMiddle, block] = this.middle.dropLastChild();
-
-	// 			if (this.context.isInnerBlock<T, C>(block)) {
-	// 				return this.copy(
-	// 					undefined,
-	// 					block.concatChildren(this.right),
-	// 					newMiddle,
-	// 				)._normalize();
-	// 			}
-
-	// 			throwInvalidStateError();
-	// 		}
-	// 	}
-
-	// 	return this;
-	// }
 }

@@ -26,7 +26,11 @@ interface ListNode<T> {
 		options?: { reversed?: boolean | undefined } | undefined,
 	): Stream<T>;
 	forEach(f: (element: T) => void): void;
-	filter(f: (element: T) => boolean): List<T>;
+	filter(
+		f: (element: T) => boolean,
+		options?: { negate?: boolean | undefined },
+		cacheMap?: CacheMap,
+	): List<T>;
 	reversed(): this['_self'];
 	toArray(): T[];
 

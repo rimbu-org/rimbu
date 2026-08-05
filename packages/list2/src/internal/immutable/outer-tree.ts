@@ -362,27 +362,30 @@ export class OuterTree<T>
 		this.right.forEach(f);
 	}
 
-	filter(f: (element: T) => boolean): List<T> {
-		const result = this.left
-			.filter(f)
-			.concat(this.middle?.filter(f), this.right.filter(f));
+	filter(
+		f: (element: T) => boolean,
+		options?: { negate?: boolean | undefined },
+	): List<T> {
+		const cacheMap = new CacheMap();
 
-		if (result.size === this.size) return this;
-		return result;
+		const newList = this.left
+			.filter(f, options, cacheMap)
+			.concat(
+				this.middle?.filter(f, options, cacheMap),
+				this.right.filter(f, options, cacheMap),
+			);
+
+		return newList.size === this.size ? this : newList;
 	}
 
-	map<T2>(f: (element: T) => T2, cacheMap = new CacheMap()): OuterTree<T2> {
-		return (
-			cacheMap.get(this) ??
-			cacheMap.setAndReturn(
-				this,
-				this.#copyAsType(
-					this.left.map(f, cacheMap),
-					this.right.map(f, cacheMap),
-					this.middle?.map(f, cacheMap) ?? null,
-					this.size,
-				),
-			)
+	map<T2>(f: (element: T) => T2): OuterTree<T2> {
+		const cacheMap = new CacheMap();
+
+		return this.#copyAsType(
+			this.left.map(f, cacheMap),
+			this.right.map(f, cacheMap),
+			this.middle?.map(f, cacheMap) ?? null,
+			this.size,
 		);
 	}
 

@@ -45,7 +45,10 @@ export abstract class ListNonEmptyBase<T>
 		[previous: undefined, current: undefined],
 		[previous: T, current: T]
 	>;
-	abstract filter(f: (element: T) => boolean): List<T>;
+	abstract filter(
+		f: (element: T) => boolean,
+		options?: { negate?: boolean | undefined } | undefined,
+	): List<T>;
 	abstract map<T2>(f: (element: T) => T2): List.NonEmpty<T2>;
 	abstract prepend(element: T): List.NonEmpty<T>;
 	abstract append(element: T): List.NonEmpty<T>;

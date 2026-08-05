@@ -29,7 +29,7 @@ export class OuterBlockLeftRight<T> extends OuterBlock<T> {
 		return this.#ops.size(this.#children);
 	}
 
-	#copy(children: any): OuterBlock<T> {
+	#copy(children: OuterChildren<T>): OuterBlock<T> {
 		if (children === this.#children) return this;
 		return this.context.outerBlockLeftRight(children);
 	}
@@ -69,13 +69,28 @@ export class OuterBlockLeftRight<T> extends OuterBlock<T> {
 		this.#ops.forEach(this.#children, f);
 	}
 
-	filter(f: (element: T) => boolean): List<T> {
-		const newChildren = this.#ops.filter(this.#children, f);
+	filter(
+		f: (element: T) => boolean,
+		options?: { negate?: boolean | undefined },
+		cacheMap?: CacheMap,
+	): List<T> {
+		const cached = cacheMap?.get<List<T>>(this);
+		if (cached) return cached;
 
-		if (undefined === newChildren) return this;
-		if (this.#ops.size(newChildren) === 0) return this.context.empty();
+		const newChildren = this.#ops.filter(this.#children, f, options);
 
-		return this.#copy(newChildren);
+		const result: List<T> =
+			undefined === newChildren
+				? this
+				: this.#ops.size(newChildren) === 0
+					? this.context.empty()
+					: this.#copy(newChildren);
+
+		if (cacheMap) {
+			return cacheMap.setAndReturn(this, result);
+		}
+
+		return result;
 	}
 
 	map<T2>(f: (element: T) => T2, cacheMap?: CacheMap): OuterBlock<T2> {
@@ -85,8 +100,9 @@ export class OuterBlockLeftRight<T> extends OuterBlock<T> {
 		const newBlock = this.#copyAsType(this.#ops.map(this.#children, f));
 
 		if (cacheMap) {
-			return cacheMap?.setAndReturn(this, newBlock);
+			return cacheMap.setAndReturn(this, newBlock);
 		}
+
 		return newBlock;
 	}
 
@@ -94,9 +110,8 @@ export class OuterBlockLeftRight<T> extends OuterBlock<T> {
 		return this.context.outerBlockRightLeft(this.#children);
 	}
 
-	toArray(options: { reversed?: boolean } = {}): ArrayNonEmpty<T> {
-		const { reversed = false } = options;
-		return this.#ops.toArray(this.#children, reversed);
+	toArray(): ArrayNonEmpty<T> {
+		return this.#ops.toArray(this.#children);
 	}
 
 	_get(index: number): T {

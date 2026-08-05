@@ -94,17 +94,31 @@ export class ArrayOuterChildrenOps
 		}
 		return children.join(separator);
 	}
-	filter<T>(children: T[], f: (value: T) => boolean): T[] | undefined {
-		const result = children.filter(f);
+	filter<T>(
+		children: T[],
+		f: (value: T) => boolean,
+		options?: { negate?: boolean | undefined },
+	): T[] | undefined {
+		const result =
+			options?.negate === true
+				? children.filter((value) => !f(value))
+				: children.filter(f);
+
 		if (result.length === children.length) return undefined;
+
 		return result;
 	}
-	reverseFilter<T>(children: T[], f: (value: T) => boolean): T[] | undefined {
+	reverseFilter<T>(
+		children: T[],
+		f: (value: T) => boolean,
+		options?: { negate?: boolean | undefined },
+	): T[] | undefined {
 		const result: T[] = [];
+		const negate = options?.negate === true;
 
 		for (let i = children.length - 1; i >= 0; i--) {
 			const value = children[i];
-			if (f(value)) {
+			if (f(value) !== negate) {
 				result.push(value);
 			}
 		}

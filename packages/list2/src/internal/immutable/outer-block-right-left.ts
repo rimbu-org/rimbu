@@ -81,13 +81,28 @@ export class OuterBlockRightLeft<T> extends OuterBlock<T> {
 		this.#ops.forEach(this.#children, f, { reversed: true });
 	}
 
-	filter(f: (element: T) => boolean): List<T> {
-		const newChildren = this.#ops.reverseFilter(this.#children, f);
+	filter(
+		f: (element: T) => boolean,
+		options?: { negate?: boolean | undefined },
+		cacheMap?: CacheMap,
+	): List<T> {
+		const cached = cacheMap?.get<List<T>>(this);
+		if (cached) return cached;
 
-		if (undefined === newChildren) return this;
-		if (this.#ops.size(newChildren) === 0) return this.context.empty();
+		const newChildren = this.#ops.reverseFilter(this.#children, f, options);
 
-		return this.context.outerBlockLeftRight(newChildren);
+		const result: List<T> =
+			undefined === newChildren
+				? this
+				: this.#ops.size(newChildren) === 0
+					? this.context.empty()
+					: this.context.outerBlockLeftRight(newChildren);
+
+		if (cacheMap) {
+			return cacheMap.setAndReturn(this, result);
+		}
+
+		return result;
 	}
 
 	map<T2>(f: (element: T) => T2, cacheMap?: CacheMap): OuterBlock<T2> {
@@ -98,16 +113,19 @@ export class OuterBlockRightLeft<T> extends OuterBlock<T> {
 			this.#ops.reverseMap(this.#children, f),
 		);
 
-		return cacheMap?.setAndReturn(this, newBlock) ?? newBlock;
+		if (cacheMap) {
+			return cacheMap?.setAndReturn(this, newBlock);
+		}
+
+		return newBlock;
 	}
 
 	reversed(): OuterBlock<T> {
 		return this.context.outerBlockLeftRight(this.#children);
 	}
 
-	toArray(options: { reversed?: boolean } = {}): ArrayNonEmpty<T> {
-		const { reversed = false } = options;
-		return this.#ops.toArray(this.#children, !reversed);
+	toArray(): ArrayNonEmpty<T> {
+		return this.#ops.toArray(this.#children, true);
 	}
 
 	_get(index: number): T {

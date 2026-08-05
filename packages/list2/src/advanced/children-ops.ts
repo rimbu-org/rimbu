@@ -126,10 +126,12 @@ export interface ChildrenOps<Tp extends ChildrenOps.Types = ChildrenOps.Types> {
 	filter<T>(
 		children: (Tp & { _T: T })['_C'],
 		f: (value: T) => boolean,
+		options?: { negate?: boolean | undefined } | undefined,
 	): (Tp & { _T: T })['_C'] | undefined;
 	reverseFilter<T>(
 		children: (Tp & { _T: T })['_C'],
 		f: (value: T) => boolean,
+		options?: { negate?: boolean | undefined } | undefined,
 	): (Tp & { _T: T })['_C'] | undefined;
 	/** New collection with each element transformed by `f`. */
 	map<T, T2>(
