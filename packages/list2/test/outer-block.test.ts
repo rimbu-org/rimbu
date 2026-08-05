@@ -379,6 +379,87 @@ function runOuterBlockTests(
 				});
 			});
 
+			describe('insertAt', () => {
+				it('inserts at the beginning of a single-element block', () => {
+					const b = makeBlock([2]);
+					const result = b.insertAt(0, List.of(1));
+
+					expect(result.toArray()).toEqual([1, 2]);
+				});
+
+				it('inserts multiple elements at the end', () => {
+					const b = makeBlock([1, 2, 3]);
+					const result = b.insertAt(3, List.of(4, 5));
+
+					expect(result.toArray()).toEqual([1, 2, 3, 4, 5]);
+				});
+
+				it('inserts in the middle of a full block', () => {
+					const ctx = makeContext<number>(2);
+					const b = factory(ctx, [1, 2, 3, 4]);
+					const result = b.insertAt(2, ctx.of(9, 10));
+
+					expect(result.toArray()).toEqual([1, 2, 9, 10, 3, 4]);
+					expect(result.size).toBe(6);
+				});
+
+				it('clamps positions beyond either end', () => {
+					const b = makeBlock([1, 2, 3]);
+
+					expect(b.insertAt(100, List.of(4)).toArray()).toEqual([1, 2, 3, 4]);
+					expect(b.insertAt(-100, List.of(0)).toArray()).toEqual([0, 1, 2, 3]);
+				});
+
+				it('inserts before the element addressed by a negative index', () => {
+					const b = makeBlock([1, 2, 3]);
+					const result = b.insertAt(-1, List.of(9));
+
+					expect(result.toArray()).toEqual([1, 2, 9, 3]);
+				});
+			});
+
+			describe('removeAt', () => {
+				it('removes the first element using the default amount', () => {
+					const b = makeBlock([1, 2, 3]);
+
+					expect(b.removeAt(0).toArray()).toEqual([2, 3]);
+				});
+
+				it('removes multiple elements from the middle of a full block', () => {
+					const ctx = makeContext<number>(2);
+					const b = factory(ctx, [1, 2, 3, 4]);
+					const result = b.removeAt(1, 2);
+
+					expect(result.toArray()).toEqual([1, 4]);
+					expect(result.size).toBe(2);
+				});
+
+				it('removes the last element using a negative index', () => {
+					const b = makeBlock([1, 2, 3]);
+
+					expect(b.removeAt(-1).toArray()).toEqual([1, 2]);
+				});
+
+				it('clamps removal to the remaining elements', () => {
+					const b = makeBlock([1, 2, 3]);
+
+					expect(b.removeAt(1, 100).toArray()).toEqual([1]);
+					expect(b.removeAt(100).toArray()).toEqual([1, 2, 3]);
+				});
+
+				it('zero amount leaves the elements unchanged', () => {
+					const b = makeBlock([1, 2, 3]);
+
+					expect(b.removeAt(1, 0).toArray()).toEqual([1, 2, 3]);
+				});
+
+				it('removing the only element returns an empty list', () => {
+					const b = makeBlock([42]);
+
+					expect(b.removeAt(0).isEmpty).toBe(true);
+				});
+			});
+
 			describe('forEach', () => {
 				it('visits all elements in order', () => {
 					const result: number[] = [];

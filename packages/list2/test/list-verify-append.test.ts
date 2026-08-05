@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 
+import type { ArrayNonEmpty } from '@rimbu/common';
 import { List } from '@rimbu/list';
 
 function verifyStructure(list: List<number>): string[] {
@@ -28,6 +29,10 @@ function buildList(
 	}
 
 	return list;
+}
+
+function normalizeIndex(index: number, size: number): number {
+	return Math.max(0, Math.min(index < 0 ? size + index : index, size));
 }
 
 const blockSizeBitsValues = [2, 3, 4, 5] as const;
@@ -75,7 +80,10 @@ for (const blockSizeBits of blockSizeBitsValues) {
 				const result = left.concat(right);
 
 				expectValid(result);
-				expect(result.toArray()).toEqual([...values, ...[...values].reverse()]);
+				expect(result.toArray()).toEqual([
+					...values,
+					...[...values].reverse(),
+				] as ArrayNonEmpty<number>);
 			});
 		});
 
@@ -139,6 +147,106 @@ for (const blockSizeBits of blockSizeBitsValues) {
 							: values.slice(0, totalElements - removed),
 					);
 					expectValid(dropped);
+				}
+			});
+		});
+
+		describe('insertAt', () => {
+			it('maintains structure and order at representative boundaries', () => {
+				const ctx = List.createContext({ blockSizeBits });
+				let list = buildList(ctx, totalElements, 'append');
+				const expected = [...values];
+				let nextValue = totalElements;
+
+				const insert = (index: number, amount = 1) => {
+					const inserted = Array.from({ length: amount }, () => nextValue++);
+
+					list = list.insertAt(index, ctx.from(inserted));
+					expected.splice(
+						normalizeIndex(index, expected.length),
+						0,
+						...inserted,
+					);
+
+					expect(list.size).toBe(expected.length);
+					expect(list.toArray()).toEqual(expected);
+					expectValid(list);
+				};
+
+				insert(0, 2);
+				insert(1);
+				insert(maxBlockSize - 1);
+				insert(maxBlockSize);
+				insert(maxBlockSize + 1);
+				insert(Math.floor(expected.length / 2));
+				insert(totalElements);
+				insert(totalElements + 1);
+			});
+
+			it('supports negative indices while maintaining valid structure', () => {
+				const ctx = List.createContext({ blockSizeBits });
+				let list = buildList(ctx, totalElements, 'append');
+				const expected = [...values];
+				let nextValue = totalElements;
+
+				for (const index of [
+					-1,
+					-maxBlockSize,
+					-totalElements,
+					-(totalElements + 1),
+				]) {
+					const inserted = nextValue++;
+					list = list.insertAt(index, ctx.of(inserted));
+					expected.splice(normalizeIndex(index, expected.length), 0, inserted);
+
+					expect(list.toArray()).toEqual(expected);
+					expectValid(list);
+				}
+			});
+		});
+
+		describe('removeAt', () => {
+			it.only('maintains structure and order at representative boundaries', () => {
+				const ctx = List.createContext({ blockSizeBits });
+				let list = buildList(ctx, totalElements, 'append');
+				const expected = [...values];
+
+				const remove = (index: number, amount = 1) => {
+					list =
+						amount === 1 ? list.removeAt(index) : list.removeAt(index, amount);
+					expected.splice(normalizeIndex(index, expected.length), amount);
+
+					expect(list.size).toBe(expected.length);
+					expect(list.toArray()).toEqual(expected);
+					expectValid(list);
+				};
+
+				remove(0);
+				remove(maxBlockSize - 1);
+				remove(maxBlockSize, maxBlockSize);
+				remove(Math.floor(expected.length / 2), 2);
+				remove(expected.length - 1);
+				remove(0, expected.length);
+
+				expect(list.isEmpty).toBe(true);
+			});
+
+			it('supports negative indices while maintaining valid structure', () => {
+				const ctx = List.createContext({ blockSizeBits });
+				let list = buildList(ctx, totalElements, 'append');
+				const expected = [...values];
+
+				for (const [index, amount] of [
+					[-1, 1],
+					[-maxBlockSize, 2],
+					[-totalElements, 1],
+					[-(totalElements + 1), 2],
+				] as const) {
+					list = list.removeAt(index, amount);
+					expected.splice(normalizeIndex(index, expected.length), amount);
+
+					expect(list.toArray()).toEqual(expected);
+					expectValid(list);
 				}
 			});
 		});
