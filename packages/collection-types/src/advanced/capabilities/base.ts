@@ -822,9 +822,11 @@ export function defaultSpliceAtAndReturn<
 > {
 	const { removeAmount = 0, insert } = options;
 
+	Int.check(index);
 	Int.checkAtLeastZero(removeAmount);
 
 	const insertList = col.context.from(insert);
+	if (index < 0) index = Math.max(0, col.size + index);
 
 	if (index >= col.size) {
 		return {
