@@ -1,10 +1,10 @@
 import type { ListContext } from '#list/context';
-import type { CacheMap } from '#list/immutable/cache-map';
 import type { InnerBlock } from '#list/immutable/inner-block';
 import type { BlockBuilder, InnerBuilder } from '#list/mutable/common';
 
 import { type Int, throwInvalidUsageError } from '@rimbu/base';
 
+import { CacheMap } from '#list/immutable/cache-map';
 import { SizeTable } from '#list/size-table';
 
 export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
@@ -193,7 +193,10 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		);
 	}
 
-	buildMap<T2>(f: (element: T) => T2, cacheMap: CacheMap): InnerBlock<T2, any> {
+	buildMap<T2>(
+		f: (element: T) => T2,
+		cacheMap = new CacheMap(),
+	): InnerBlock<T2, any> {
 		if (this.#source) return this.#source.map(f, cacheMap);
 
 		return this.context.innerBlock(

@@ -1,10 +1,11 @@
 import type { OuterChildren } from '#advanced/children-ops';
 import type { ListContext } from '#list/context';
-import type { CacheMap } from '#list/immutable/cache-map';
 import type { OuterBlock } from '#list/immutable/outer-block';
 import type { BlockBuilder, OuterBuilder } from '#list/mutable/common';
 
 import { type Int, throwInvalidUsageError } from '@rimbu/base';
+
+import { CacheMap } from '#list/immutable/cache-map';
 
 export class OuterBlockBuilder<T>
 	implements OuterBuilder<T>, BlockBuilder<T, T>
@@ -170,7 +171,10 @@ export class OuterBlockBuilder<T>
 		);
 	}
 
-	buildMap<T2>(f: (element: T) => T2, cacheMap: CacheMap): OuterBlock<T2> {
+	buildMap<T2>(
+		f: (element: T) => T2,
+		cacheMap = new CacheMap(),
+	): OuterBlock<T2> {
 		return (
 			this.#source?.map(f, cacheMap) ??
 			this.context.outerBlockLeftRight(this.#ops.map(this.#children, f))
