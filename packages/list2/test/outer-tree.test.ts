@@ -660,6 +660,89 @@ describe('OuterTree.drop', () => {
 	});
 });
 
+describe('OuterTree.insertAt', () => {
+	const bits = 2;
+	const ctx = makeContext<number>(bits);
+
+	it('inserts at the left, block, and right boundaries', () => {
+		const t = simpleTree([1, 2], [3, 4], bits);
+
+		expect(t.insertAt(0, ctx.of(0)).toArray()).toEqual([0, 1, 2, 3, 4]);
+		expect(t.insertAt(2, ctx.of(9, 10)).toArray()).toEqual([
+			1, 2, 9, 10, 3, 4,
+		]);
+		expect(t.insertAt(t.size, ctx.of(5)).toArray()).toEqual([1, 2, 3, 4, 5]);
+	});
+
+	it('inserts across the middle of a tree with middle blocks', () => {
+		const t = treeWithMiddle([1, 2], [[3, 4], [5, 6]], [7, 8], bits);
+
+		expect(t.insertAt(2, ctx.of(9, 10)).toArray()).toEqual([
+			1, 2, 9, 10, 3, 4, 5, 6, 7, 8,
+		]);
+		expect(t.insertAt(6, ctx.of(11)).toArray()).toEqual([
+			1, 2, 3, 4, 5, 6, 11, 7, 8,
+		]);
+	});
+
+	it('supports negative and out-of-range positions', () => {
+		const t = simpleTree([1, 2], [3, 4], bits);
+
+		expect(t.insertAt(-1, ctx.of(9)).toArray()).toEqual([1, 2, 3, 9, 4]);
+		expect(t.insertAt(-100, ctx.of(0)).toArray()).toEqual([0, 1, 2, 3, 4]);
+		expect(t.insertAt(100, ctx.of(5)).toArray()).toEqual([1, 2, 3, 4, 5]);
+	});
+
+	it('does not mutate the original tree', () => {
+		const t = simpleTree([1, 2], [3, 4], bits);
+
+		t.insertAt(2, ctx.of(9));
+
+		expect(t.toArray()).toEqual([1, 2, 3, 4]);
+	});
+});
+
+describe('OuterTree.removeAt', () => {
+	const bits = 2;
+
+	it('removes from the left, middle, and right boundaries', () => {
+		const t = simpleTree([1, 2], [3, 4], bits);
+
+		expect(t.removeAt(0).toArray()).toEqual([2, 3, 4]);
+		expect(t.removeAt(1, 2).toArray()).toEqual([1, 4]);
+		expect(t.removeAt(-1).toArray()).toEqual([1, 2, 3]);
+	});
+
+	it('removes across the middle of a tree with middle blocks', () => {
+		const t = treeWithMiddle([1, 2], [[3, 4], [5, 6]], [7, 8], bits);
+
+		expect(t.removeAt(2, 3).toArray()).toEqual([1, 2, 6, 7, 8]);
+		expect(t.removeAt(6, 2).toArray()).toEqual([1, 2, 3, 4, 5, 6]);
+	});
+
+	it('clamps negative and out-of-range positions', () => {
+		const t = simpleTree([1, 2], [3, 4], bits);
+
+		expect(t.removeAt(-100).toArray()).toEqual([2, 3, 4]);
+		expect(t.removeAt(100).toArray()).toEqual([1, 2, 3, 4]);
+		expect(t.removeAt(1, 100).toArray()).toEqual([1]);
+	});
+
+	it('removing all elements returns an empty list', () => {
+		const t = simpleTree([1, 2], [3, 4], bits);
+
+		expect(t.removeAt(0, t.size).isEmpty).toBe(true);
+	});
+
+	it('does not mutate the original tree', () => {
+		const t = simpleTree([1, 2], [3, 4], bits);
+
+		t.removeAt(2);
+
+		expect(t.toArray()).toEqual([1, 2, 3, 4]);
+	});
+});
+
 describe('OuterTree.filter', () => {
 	const bits = 2;
 

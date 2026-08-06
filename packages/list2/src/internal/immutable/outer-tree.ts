@@ -529,7 +529,7 @@ export class OuterTree<T>
 				this.left._copyChildren(),
 			);
 			const joint = this.context.outerBlockLeftRight(jointChildren);
-			const newThisMiddle = this._appendMiddle(joint);
+			const newThisMiddle = this._prependMiddle(joint);
 			const newMiddle =
 				null === leftTree.middle
 					? newThisMiddle
