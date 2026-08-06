@@ -118,25 +118,63 @@ export declare namespace Collection {
 			})['_NEW_TYPES']['_BUILDER'];
 		}
 
-		export interface Types<E> {
-			_NORMAL: Collection<E>;
-			_NON_EMPTY: Collection.NonEmpty<E>;
-			_SELF: this['_NORMAL'];
-			_BUILDER: Collection.Builder<E>;
-			_AS_STREAM: Stream<E>;
+		/**
+		 * The types record is split along two orthogonal axes.
+		 *
+		 * - **Family** — *which* collection this is: `_NORMAL`, `_NON_EMPTY`,
+		 *   `_BUILDER`. Identical for the possibly-empty and non-empty variants,
+		 *   so a package declares it exactly once.
+		 * - **Variant** — whether the collection may be empty: `_SELF`,
+		 *   `_isEmpty`, `_stream`, `_toArray`, ... Fully determined by this
+		 *   library, so a package never restates it.
+		 *
+		 * The two axes are combined with `&`, never `extends`: an intersection
+		 * has no "members must be identical" rule (TS2320), and `unknown & X`
+		 * reduces to `X`, so a narrowing family composes cleanly with a variant
+		 * that leaves the family slots open.
+		 *
+		 * Consequently a `*Variant` interface must only ever extend the variant
+		 * chain — extending a *narrowing* family from a variant reintroduces
+		 * TS2320.
+		 */
+		export interface FamilyBase<E> {
+			_NORMAL: unknown;
+			_NON_EMPTY: unknown;
+			_BUILDER: unknown;
 
-			_isEmpty: boolean;
 			_nonEmpty: () => this is this['_NON_EMPTY'];
 			_assumeNonEmpty: () => this['_NON_EMPTY'];
-			_stream: () => Stream<E>;
-			_toArray: () => E[];
 
 			_UPPER_E: unknown;
 			_NEW_E: this['_UPPER_E'];
-			_NEW_TYPES: Collection.Advanced.Types<this['_NEW_E']>;
+			_NEW_FAMILY: Collection.Advanced.FamilyBase<this['_NEW_E']>;
+
+			__e?: E;
 		}
 
-		export interface TypesNonEmpty<E> extends Collection.Advanced.Types<E> {
+		export interface Family<E> extends Collection.Advanced.FamilyBase<E> {
+			_NORMAL: Collection<E>;
+			_NON_EMPTY: Collection.NonEmpty<E>;
+			_BUILDER: Collection.Builder<E>;
+
+			_NEW_FAMILY: Collection.Advanced.Family<this['_NEW_E']>;
+		}
+
+		export interface NormalVariant<E>
+			extends Collection.Advanced.FamilyBase<E> {
+			_SELF: this['_NORMAL'];
+			_AS_STREAM: Stream<E>;
+
+			_isEmpty: boolean;
+			_stream: () => Stream<E>;
+			_toArray: () => E[];
+
+			_NEW_TYPES: this['_NEW_FAMILY'] &
+				Collection.Advanced.NormalVariant<this['_NEW_E']>;
+		}
+
+		export interface NonEmptyVariant<E>
+			extends Collection.Advanced.FamilyBase<E> {
 			_SELF: this['_NON_EMPTY'];
 			_AS_STREAM: Stream.NonEmpty<E>;
 
@@ -144,8 +182,15 @@ export declare namespace Collection {
 			_stream: () => Stream.NonEmpty<E>;
 			_toArray: () => ArrayNonEmpty<E>;
 
-			_NEW_TYPES: Collection.Advanced.TypesNonEmpty<this['_NEW_E']>;
+			_NEW_TYPES: this['_NEW_FAMILY'] &
+				Collection.Advanced.NonEmptyVariant<this['_NEW_E']>;
 		}
+
+		export type Types<E> = Collection.Advanced.Family<E> &
+			Collection.Advanced.NormalVariant<E>;
+
+		export type TypesNonEmpty<E> = Collection.Advanced.Family<E> &
+			Collection.Advanced.NonEmptyVariant<E>;
 	}
 
 	export namespace Capability {
@@ -279,11 +324,16 @@ export declare namespace IndexedCollection {
 			(amount: number): [RN, RN];
 		}
 
-		export interface Types<E> extends Collection.Advanced.Types<E> {
+		export interface Family<E> extends Collection.Advanced.Family<E> {
 			_NORMAL: IndexedCollection<E>;
 			_NON_EMPTY: IndexedCollection.NonEmpty<E>;
 			_BUILDER: IndexedCollection.Builder<E>;
 
+			_NEW_FAMILY: IndexedCollection.Advanced.Family<this['_NEW_E']>;
+		}
+
+		export interface NormalVariant<E>
+			extends Collection.Advanced.NormalVariant<E> {
 			_firstLast: IndexedCollection.Advanced.FirstLast<E>;
 			_take: (amount: number) => this['_NORMAL'];
 			_splitAt: (index: number) => [this['_NORMAL'], this['_NORMAL']];
@@ -291,15 +341,12 @@ export declare namespace IndexedCollection {
 				options?: { reversed?: boolean | undefined } | undefined,
 			) => Stream<E>;
 
-			_NEW_TYPES: IndexedCollection.Advanced.Types<this['_NEW_E']>;
+			_NEW_TYPES: this['_NEW_FAMILY'] &
+				IndexedCollection.Advanced.NormalVariant<this['_NEW_E']>;
 		}
 
-		export interface TypesNonEmpty<E>
-			extends Collection.Advanced.TypesNonEmpty<E> {
-			_NORMAL: IndexedCollection<E>;
-			_NON_EMPTY: IndexedCollection.NonEmpty<E>;
-			_BUILDER: IndexedCollection.Builder<E>;
-
+		export interface NonEmptyVariant<E>
+			extends Collection.Advanced.NonEmptyVariant<E> {
 			_firstLast: IndexedCollection.Advanced.FirstLast<E, true>;
 			_take: TakeNonEmpty<this['_NORMAL'], this['_NON_EMPTY']>;
 			_splitAt: SplitAtNonEmpty<this['_NORMAL'], this['_NON_EMPTY']>;
@@ -308,8 +355,15 @@ export declare namespace IndexedCollection {
 				options?: { reversed?: boolean | undefined } | undefined,
 			) => Stream.NonEmpty<E>;
 
-			_NEW_TYPES: IndexedCollection.Advanced.TypesNonEmpty<this['_NEW_E']>;
+			_NEW_TYPES: this['_NEW_FAMILY'] &
+				IndexedCollection.Advanced.NonEmptyVariant<this['_NEW_E']>;
 		}
+
+		export type Types<E> = IndexedCollection.Advanced.Family<E> &
+			IndexedCollection.Advanced.NormalVariant<E>;
+
+		export type TypesNonEmpty<E> = IndexedCollection.Advanced.Family<E> &
+			IndexedCollection.Advanced.NonEmptyVariant<E>;
 	}
 
 	export namespace Capability {
@@ -565,20 +619,31 @@ export declare namespace ValuedCollection {
 	}
 
 	export namespace Advanced {
-		export interface Types<T> extends Collection.Advanced.Types<T> {
+		export interface Family<T> extends Collection.Advanced.Family<T> {
 			_NORMAL: ValuedCollection<T>;
 			_NON_EMPTY: ValuedCollection.NonEmpty<T>;
 			_BUILDER: ValuedCollection.Builder<T>;
-			_NEW_TYPES: ValuedCollection.Advanced.Types<this['_NEW_E']>;
+
+			_NEW_FAMILY: ValuedCollection.Advanced.Family<this['_NEW_E']>;
 		}
 
-		export interface TypesNonEmpty<T>
-			extends Collection.Advanced.TypesNonEmpty<T> {
-			_NORMAL: ValuedCollection<T>;
-			_NON_EMPTY: ValuedCollection.NonEmpty<T>;
-			_BUILDER: ValuedCollection.Builder<T>;
-			_NEW_TYPES: ValuedCollection.Advanced.TypesNonEmpty<this['_NEW_E']>;
+		export interface NormalVariant<T>
+			extends Collection.Advanced.NormalVariant<T> {
+			_NEW_TYPES: this['_NEW_FAMILY'] &
+				ValuedCollection.Advanced.NormalVariant<this['_NEW_E']>;
 		}
+
+		export interface NonEmptyVariant<T>
+			extends Collection.Advanced.NonEmptyVariant<T> {
+			_NEW_TYPES: this['_NEW_FAMILY'] &
+				ValuedCollection.Advanced.NonEmptyVariant<this['_NEW_E']>;
+		}
+
+		export type Types<T> = ValuedCollection.Advanced.Family<T> &
+			ValuedCollection.Advanced.NormalVariant<T>;
+
+		export type TypesNonEmpty<T> = ValuedCollection.Advanced.Family<T> &
+			ValuedCollection.Advanced.NonEmptyVariant<T>;
 	}
 }
 
@@ -623,39 +688,53 @@ export declare namespace KeyedCollection {
 	}
 
 	export namespace Advanced {
-		export interface Types<K, V>
-			extends Collection.Advanced.Types<readonly [K, V]> {
+		export interface FamilyBase<K, V>
+			extends Collection.Advanced.FamilyBase<readonly [K, V]> {
+			_NEW_K: unknown;
+			_NEW_V: unknown;
+		}
+
+		export interface Family<K, V>
+			extends Collection.Advanced.Family<readonly [K, V]>,
+				KeyedCollection.Advanced.FamilyBase<K, V> {
 			_NORMAL: KeyedCollection<K, V>;
 			_NON_EMPTY: KeyedCollection.NonEmpty<K, V>;
 			_BUILDER: KeyedCollection.Builder<K, V>;
 
+			_NEW_FAMILY: KeyedCollection.Advanced.Family<
+				this['_NEW_K'],
+				this['_NEW_V']
+			>;
+		}
+
+		export interface NormalVariant<K, V>
+			extends Collection.Advanced.NormalVariant<readonly [K, V]>,
+				KeyedCollection.Advanced.FamilyBase<K, V> {
 			_streamKeys: () => Stream<K>;
 			_streamValues: () => Stream<V>;
 
-			_NEW_K: unknown;
-			_NEW_V: unknown;
-			_NEW_TYPES: KeyedCollection.Advanced.Types<
-				this['_NEW_K'],
-				this['_NEW_V']
-			>;
+			_NEW_TYPES: this['_NEW_FAMILY'] &
+				KeyedCollection.Advanced.NormalVariant<this['_NEW_K'], this['_NEW_V']>;
 		}
 
-		export interface TypesNonEmpty<K, V>
-			extends Collection.Advanced.TypesNonEmpty<readonly [K, V]> {
-			_NORMAL: KeyedCollection<K, V>;
-			_NON_EMPTY: KeyedCollection.NonEmpty<K, V>;
-			_BUILDER: KeyedCollection.Builder<K, V>;
-
+		export interface NonEmptyVariant<K, V>
+			extends Collection.Advanced.NonEmptyVariant<readonly [K, V]>,
+				KeyedCollection.Advanced.FamilyBase<K, V> {
 			_streamKeys: () => Stream.NonEmpty<K>;
 			_streamValues: () => Stream.NonEmpty<V>;
 
-			_NEW_K: unknown;
-			_NEW_V: unknown;
-			_NEW_TYPES: KeyedCollection.Advanced.TypesNonEmpty<
-				this['_NEW_K'],
-				this['_NEW_V']
-			>;
+			_NEW_TYPES: this['_NEW_FAMILY'] &
+				KeyedCollection.Advanced.NonEmptyVariant<
+					this['_NEW_K'],
+					this['_NEW_V']
+				>;
 		}
+
+		export type Types<K, V> = KeyedCollection.Advanced.Family<K, V> &
+			KeyedCollection.Advanced.NormalVariant<K, V>;
+
+		export type TypesNonEmpty<K, V> = KeyedCollection.Advanced.Family<K, V> &
+			KeyedCollection.Advanced.NonEmptyVariant<K, V>;
 	}
 
 	export namespace Capability {
@@ -700,29 +779,42 @@ export declare namespace IndexedValuedCollection {
 	}
 
 	export namespace Advanced {
-		export interface Types<T>
-			extends IndexedCollection.Advanced.Types<T>,
-				ValuedCollection.Advanced.Types<T> {
+		// Combining two family axes still requires restating the narrowed
+		// slots to resolve TS2320 -- but now only once, in the family, rather
+		// than once per variant.
+		export interface Family<T>
+			extends IndexedCollection.Advanced.Family<T>,
+				ValuedCollection.Advanced.Family<T> {
 			_NORMAL: IndexedValuedCollection<T>;
 			_NON_EMPTY: IndexedValuedCollection.NonEmpty<T>;
 			_BUILDER: IndexedValuedCollection.Builder<T>;
-			_NEW_TYPES: IndexedValuedCollection.Advanced.Types<this['_NEW_E']>;
 
-			_stream: IndexedCollection.Advanced.Types<T>['_stream'];
+			_NEW_FAMILY: IndexedValuedCollection.Advanced.Family<this['_NEW_E']>;
 		}
 
-		export interface TypesNonEmpty<T>
-			extends IndexedCollection.Advanced.TypesNonEmpty<T>,
-				ValuedCollection.Advanced.TypesNonEmpty<T> {
-			_NORMAL: IndexedValuedCollection<T>;
-			_NON_EMPTY: IndexedValuedCollection.NonEmpty<T>;
-			_BUILDER: IndexedValuedCollection.Builder<T>;
-			_NEW_TYPES: IndexedValuedCollection.Advanced.TypesNonEmpty<
-				this['_NEW_E']
-			>;
+		export interface NormalVariant<T>
+			extends IndexedCollection.Advanced.NormalVariant<T>,
+				ValuedCollection.Advanced.NormalVariant<T> {
+			_stream: IndexedCollection.Advanced.NormalVariant<T>['_stream'];
 
-			_stream: IndexedCollection.Advanced.TypesNonEmpty<T>['_stream'];
+			_NEW_TYPES: this['_NEW_FAMILY'] &
+				IndexedValuedCollection.Advanced.NormalVariant<this['_NEW_E']>;
 		}
+
+		export interface NonEmptyVariant<T>
+			extends IndexedCollection.Advanced.NonEmptyVariant<T>,
+				ValuedCollection.Advanced.NonEmptyVariant<T> {
+			_stream: IndexedCollection.Advanced.NonEmptyVariant<T>['_stream'];
+
+			_NEW_TYPES: this['_NEW_FAMILY'] &
+				IndexedValuedCollection.Advanced.NonEmptyVariant<this['_NEW_E']>;
+		}
+
+		export type Types<T> = IndexedValuedCollection.Advanced.Family<T> &
+			IndexedValuedCollection.Advanced.NormalVariant<T>;
+
+		export type TypesNonEmpty<T> = IndexedValuedCollection.Advanced.Family<T> &
+			IndexedValuedCollection.Advanced.NonEmptyVariant<T>;
 	}
 }
 
@@ -768,14 +860,25 @@ export declare namespace IndexedKeyedCollection {
 	}
 
 	export namespace Advanced {
-		export interface Types<K, V>
-			extends IndexedCollection.Advanced.Types<readonly [K, V]>,
-				KeyedCollection.Advanced.Types<K, V> {
+		export interface Family<K, V>
+			extends IndexedCollection.Advanced.Family<readonly [K, V]>,
+				KeyedCollection.Advanced.Family<K, V> {
 			_NORMAL: IndexedKeyedCollection<K, V>;
 			_NON_EMPTY: IndexedKeyedCollection.NonEmpty<K, V>;
 			_BUILDER: IndexedKeyedCollection.Builder<K, V>;
 
-			_stream: IndexedCollection.Advanced.Types<readonly [K, V]>['_stream'];
+			_NEW_FAMILY: IndexedKeyedCollection.Advanced.Family<
+				this['_NEW_K'],
+				this['_NEW_V']
+			>;
+		}
+
+		export interface NormalVariant<K, V>
+			extends IndexedCollection.Advanced.NormalVariant<readonly [K, V]>,
+				KeyedCollection.Advanced.NormalVariant<K, V> {
+			_stream: IndexedCollection.Advanced.NormalVariant<
+				readonly [K, V]
+			>['_stream'];
 
 			_streamKeys: (
 				options?: { reversed?: boolean | undefined } | undefined,
@@ -784,20 +887,17 @@ export declare namespace IndexedKeyedCollection {
 				options?: { reversed?: boolean | undefined } | undefined,
 			) => Stream<V>;
 
-			_NEW_TYPES: IndexedKeyedCollection.Advanced.Types<
-				this['_NEW_K'],
-				this['_NEW_V']
-			>;
+			_NEW_TYPES: this['_NEW_FAMILY'] &
+				IndexedKeyedCollection.Advanced.NormalVariant<
+					this['_NEW_K'],
+					this['_NEW_V']
+				>;
 		}
 
-		export interface TypesNonEmpty<K, V>
-			extends IndexedCollection.Advanced.TypesNonEmpty<readonly [K, V]>,
-				KeyedCollection.Advanced.TypesNonEmpty<K, V> {
-			_NORMAL: IndexedKeyedCollection<K, V>;
-			_NON_EMPTY: IndexedKeyedCollection.NonEmpty<K, V>;
-			_BUILDER: IndexedKeyedCollection.Builder<K, V>;
-
-			_stream: IndexedCollection.Advanced.TypesNonEmpty<
+		export interface NonEmptyVariant<K, V>
+			extends IndexedCollection.Advanced.NonEmptyVariant<readonly [K, V]>,
+				KeyedCollection.Advanced.NonEmptyVariant<K, V> {
+			_stream: IndexedCollection.Advanced.NonEmptyVariant<
 				readonly [K, V]
 			>['_stream'];
 
@@ -808,11 +908,21 @@ export declare namespace IndexedKeyedCollection {
 				options?: { reversed?: boolean | undefined } | undefined,
 			) => Stream.NonEmpty<V>;
 
-			_NEW_TYPES: IndexedKeyedCollection.Advanced.TypesNonEmpty<
-				this['_NEW_K'],
-				this['_NEW_V']
-			>;
+			_NEW_TYPES: this['_NEW_FAMILY'] &
+				IndexedKeyedCollection.Advanced.NonEmptyVariant<
+					this['_NEW_K'],
+					this['_NEW_V']
+				>;
 		}
+
+		export type Types<K, V> = IndexedKeyedCollection.Advanced.Family<K, V> &
+			IndexedKeyedCollection.Advanced.NormalVariant<K, V>;
+
+		export type TypesNonEmpty<K, V> = IndexedKeyedCollection.Advanced.Family<
+			K,
+			V
+		> &
+			IndexedKeyedCollection.Advanced.NonEmptyVariant<K, V>;
 	}
 }
 
@@ -902,29 +1012,45 @@ export declare namespace SortedCollection {
 	}
 
 	export namespace Advanced {
-		export interface Types<S, E> extends Collection.Advanced.Types<E> {
+		export interface FamilyBase<S, E>
+			extends Collection.Advanced.FamilyBase<E> {
+			_NEW_S: unknown;
+		}
+
+		export interface Family<S, E>
+			extends Collection.Advanced.Family<E>,
+				SortedCollection.Advanced.FamilyBase<S, E> {
 			_NORMAL: SortedCollection<S, E>;
 			_NON_EMPTY: SortedCollection.NonEmpty<S, E>;
 			_BUILDER: SortedCollection.Builder<S, E>;
 
-			_NEW_S: unknown;
-			_NEW_TYPES: SortedCollection.Advanced.Types<
+			_NEW_FAMILY: SortedCollection.Advanced.Family<
 				this['_NEW_S'],
 				this['_NEW_E']
 			>;
 		}
 
-		export interface TypesNonEmpty<S, E>
-			extends Collection.Advanced.TypesNonEmpty<E> {
-			_NORMAL: SortedCollection<S, E>;
-			_NON_EMPTY: SortedCollection.NonEmpty<S, E>;
-			_BUILDER: SortedCollection.Builder<S, E>;
-
-			_NEW_S: unknown;
-			_NEW_TYPES: SortedCollection.Advanced.TypesNonEmpty<
-				this['_NEW_S'],
-				this['_NEW_E']
-			>;
+		export interface NormalVariant<S, E>
+			extends Collection.Advanced.NormalVariant<E>,
+				SortedCollection.Advanced.FamilyBase<S, E> {
+			_NEW_TYPES: this['_NEW_FAMILY'] &
+				SortedCollection.Advanced.NormalVariant<this['_NEW_S'], this['_NEW_E']>;
 		}
+
+		export interface NonEmptyVariant<S, E>
+			extends Collection.Advanced.NonEmptyVariant<E>,
+				SortedCollection.Advanced.FamilyBase<S, E> {
+			_NEW_TYPES: this['_NEW_FAMILY'] &
+				SortedCollection.Advanced.NonEmptyVariant<
+					this['_NEW_S'],
+					this['_NEW_E']
+				>;
+		}
+
+		export type Types<S, E> = SortedCollection.Advanced.Family<S, E> &
+			SortedCollection.Advanced.NormalVariant<S, E>;
+
+		export type TypesNonEmpty<S, E> = SortedCollection.Advanced.Family<S, E> &
+			SortedCollection.Advanced.NonEmptyVariant<S, E>;
 	}
 }

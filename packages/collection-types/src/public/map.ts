@@ -30,20 +30,22 @@ export declare namespace MapCollection {
 	> extends KeyedCollection.Builder<K, V, Tp> {}
 
 	export namespace Advanced {
-		export interface Types<K, V> extends KeyedCollection.Advanced.Types<K, V> {
+		// The package declares its family ONCE; both variants are derived.
+		export interface Family<K, V>
+			extends KeyedCollection.Advanced.Family<K, V> {
 			_NORMAL: MapCollection<K, V>;
 			_NON_EMPTY: MapCollection.NonEmpty<K, V>;
-			_NEW_TYPES: MapCollection.Advanced.Types<this['_NEW_K'], this['_NEW_V']>;
-		}
 
-		export interface TypesNonEmpty<K, V>
-			extends KeyedCollection.Advanced.TypesNonEmpty<K, V> {
-			_NORMAL: MapCollection<K, V>;
-			_NON_EMPTY: MapCollection.NonEmpty<K, V>;
-			_NEW_TYPES: MapCollection.Advanced.TypesNonEmpty<
+			_NEW_FAMILY: MapCollection.Advanced.Family<
 				this['_NEW_K'],
 				this['_NEW_V']
 			>;
 		}
+
+		export type Types<K, V> = MapCollection.Advanced.Family<K, V> &
+			KeyedCollection.Advanced.NormalVariant<K, V>;
+
+		export type TypesNonEmpty<K, V> = MapCollection.Advanced.Family<K, V> &
+			KeyedCollection.Advanced.NonEmptyVariant<K, V>;
 	}
 }

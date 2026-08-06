@@ -79,20 +79,24 @@ export declare namespace List {
 
 		export type DefaultFactory = Factory<any, List.Advanced.Types<any>>;
 
-		export interface Types<T> extends IndexedCollection.Advanced.Types<T> {
+		/**
+		 * The family — *which* collection this is. Declared once; both the
+		 * possibly-empty and non-empty type records are derived from it, so
+		 * there is no second place that can disagree.
+		 */
+		export interface Family<T> extends IndexedCollection.Advanced.Family<T> {
 			_NORMAL: List<T>;
 			_NON_EMPTY: List.NonEmpty<T>;
 			_BUILDER: List.Builder<T>;
-			_NEW_TYPES: List.Advanced.Types<this['_NEW_E']>;
+
+			_NEW_FAMILY: List.Advanced.Family<this['_NEW_E']>;
 		}
 
-		export interface TypesNonEmpty<T>
-			extends IndexedCollection.Advanced.TypesNonEmpty<T> {
-			_NORMAL: List<T>;
-			_NON_EMPTY: List.NonEmpty<T>;
-			_BUILDER: List.Builder<T>;
-			_NEW_TYPES: List.Advanced.TypesNonEmpty<this['_NEW_E']>;
-		}
+		export type Types<T> = List.Advanced.Family<T> &
+			IndexedCollection.Advanced.NormalVariant<T>;
+
+		export type TypesNonEmpty<T> = List.Advanced.Family<T> &
+			IndexedCollection.Advanced.NonEmptyVariant<T>;
 	}
 }
 

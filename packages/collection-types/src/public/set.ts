@@ -20,17 +20,18 @@ export namespace SetCollection {
 	> extends ValuedCollection.Builder<T, Tp> {}
 
 	export namespace Advanced {
-		export interface Types<T> extends ValuedCollection.Advanced.Types<T> {
+		// The package declares its family ONCE; both variants are derived.
+		export interface Family<T> extends ValuedCollection.Advanced.Family<T> {
 			_NORMAL: SetCollection<T>;
 			_NON_EMPTY: SetCollection.NonEmpty<T>;
-			_NEW_TYPES: SetCollection.Advanced.Types<this['_NEW_E']>;
+
+			_NEW_FAMILY: SetCollection.Advanced.Family<this['_NEW_E']>;
 		}
 
-		export interface TypesNonEmpty<T>
-			extends ValuedCollection.Advanced.TypesNonEmpty<T> {
-			_NORMAL: SetCollection<T>;
-			_NON_EMPTY: SetCollection.NonEmpty<T>;
-			_NEW_TYPES: SetCollection.Advanced.TypesNonEmpty<this['_NEW_E']>;
-		}
+		export type Types<T> = SetCollection.Advanced.Family<T> &
+			ValuedCollection.Advanced.NormalVariant<T>;
+
+		export type TypesNonEmpty<T> = SetCollection.Advanced.Family<T> &
+			ValuedCollection.Advanced.NonEmptyVariant<T>;
 	}
 }
