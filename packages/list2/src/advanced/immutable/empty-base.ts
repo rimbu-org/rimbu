@@ -6,7 +6,7 @@ import type { StreamSource } from '@rimbu/stream';
 import type { ListContext } from '#list/context';
 
 import { Int } from '@rimbu/base';
-import { IndexedCollectionEmptyBase } from '@rimbu/collection-types/advanced/capabilities/base';
+import { IndexedCollectionEmptyBase } from '@rimbu/collection-types/advanced/collection/indexed-base';
 
 export class ListEmptyBase<T>
 	extends IndexedCollectionEmptyBase<T>

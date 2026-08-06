@@ -1,0 +1,290 @@
+import type { Collection } from '@rimbu/collection-types/collection';
+import type { TypesKey } from '@rimbu/collection-types/types';
+import type { FastIterator } from '@rimbu/stream/stream-types';
+
+import {
+	EmptyCollectionAssumedNonEmptyError,
+	Int,
+	throwModifiedBuilderWhileLoopingOverItError,
+} from '@rimbu/base';
+import { type ArrayNonEmpty, TraverseState } from '@rimbu/common';
+import { Stream, type StreamSource } from '@rimbu/stream';
+
+export abstract class CollectionEmptyBase<T>
+	implements
+		Collection<T>,
+		Collection.Capability.WithCollect<T>,
+		Collection.Capability.WithConcat<T>,
+		Collection.Capability.WithFilter<T>,
+		Collection.Capability.WithMap<T>,
+		Collection.Capability.WithMutate<T>,
+		Collection.Capability.WithRecompose<T>
+{
+	declare readonly [TypesKey]: Collection.Advanced.Types<T>;
+
+	abstract readonly context: Collection.Advanced.ContextBase<
+		Collection.Advanced.Types<T>
+	>;
+
+	[Symbol.iterator](): FastIterator<T> {
+		return Stream.empty<T>()[Symbol.iterator]();
+	}
+
+	get isEmpty(): true {
+		return true;
+	}
+
+	get size(): 0 {
+		return 0;
+	}
+
+	nonEmpty(): this is this[TypesKey]['_NON_EMPTY'] {
+		return false;
+	}
+
+	assumeNonEmpty(): never {
+		throw new EmptyCollectionAssumedNonEmptyError();
+	}
+
+	concat(
+		...sources: ArrayNonEmpty<StreamSource.NonEmpty<T>>
+	): this[TypesKey]['_NON_EMPTY'];
+	concat(
+		...sources: ArrayNonEmpty<StreamSource<T>>
+	): this[TypesKey]['_NORMAL'] {
+		return this.context.from(...sources) as this[TypesKey]['_NON_EMPTY'];
+	}
+
+	flatMap(): this[TypesKey]['_NORMAL'] {
+		return this;
+	}
+
+	stream(): Stream<T> {
+		return Stream.empty<T>();
+	}
+
+	forEach(): void {}
+
+	forEachIndexed(): void {}
+
+	filter(): this[TypesKey]['_NORMAL'] {
+		return this;
+	}
+
+	collect<E2>(): (this[TypesKey] & {
+		_NEW_E: E2;
+	})['_NEW_TYPES']['_NORMAL'] {
+		return this;
+	}
+
+	recompose<E2>(
+		f: (stream: Stream<T>) => StreamSource<E2>,
+	): (this[TypesKey] & { _NEW_E: E2 })['_NEW_TYPES']['_NORMAL'] {
+		return this.context.from(f(Stream.empty()));
+	}
+
+	mutate(
+		f: (builder: this[TypesKey]['_BUILDER']) => void,
+	): this[TypesKey]['_NORMAL'] {
+		const builder = this.context.builder<T>();
+		f(builder);
+		return builder.build();
+	}
+
+	map<T2>(): (this[TypesKey] & {
+		_NEW_E: T2;
+	})['_NEW_TYPES']['_NORMAL'] {
+		return this;
+	}
+
+	toArray(): [] {
+		return [];
+	}
+
+	toBuilder(): this[TypesKey]['_BUILDER'] {
+		return this.context.builder();
+	}
+}
+
+export abstract class CollectionNonEmptyBase<T>
+	implements
+		Collection.NonEmpty<T>,
+		Collection.Capability.WithMutate<T>,
+		Collection.Capability.WithRecompose<T>
+{
+	declare readonly [TypesKey]: Collection.Advanced.TypesNonEmpty<T>;
+
+	abstract readonly context: Collection.Advanced.ContextBase<
+		Collection.Advanced.TypesNonEmpty<T>
+	>;
+
+	abstract get size(): number;
+	abstract stream(): Stream.NonEmpty<T>;
+	abstract forEach(f: (value: T) => void): void;
+	abstract toArray(): ArrayNonEmpty<T>;
+	abstract toBuilder(): this[TypesKey]['_BUILDER'];
+
+	[Symbol.iterator](): FastIterator<T> {
+		return this.stream()[Symbol.iterator]();
+	}
+
+	get isEmpty(): false {
+		return false;
+	}
+
+	nonEmpty(): this is this[TypesKey]['_NON_EMPTY'] {
+		return true;
+	}
+
+	assumeNonEmpty(): this[TypesKey]['_NON_EMPTY'] {
+		return this;
+	}
+
+	asNormal(): this[TypesKey]['_NORMAL'] {
+		return this;
+	}
+
+	forEachIndexed(
+		f: (value: T, index: number, halt: () => void) => void,
+		options: { state?: TraverseState } = {},
+	): void {
+		const { state = TraverseState() } = options;
+
+		if (state.halted) return;
+
+		const haltSymbol = Symbol();
+
+		try {
+			this.forEach((value) => {
+				f(value, state.nextIndex(), state.halt);
+
+				if (state.halted) {
+					throw haltSymbol;
+				}
+			});
+		} catch (err) {
+			if (haltSymbol !== err) {
+				throw err;
+			}
+		}
+	}
+
+	recompose<T2 extends this[TypesKey]['_UPPER_E']>(
+		f: (stream: Stream.NonEmpty<T>) => StreamSource.NonEmpty<T2>,
+	): (this[TypesKey] & { _NEW_E: T2 })['_NEW_TYPES']['_NON_EMPTY'];
+	recompose<T2 extends this[TypesKey]['_UPPER_E']>(
+		f: (stream: Stream.NonEmpty<T>) => StreamSource<T2>,
+	): (this[TypesKey] & { _NEW_E: T2 })['_NEW_TYPES']['_NON_EMPTY'] {
+		return this.context.from(f(this.stream())) as any;
+	}
+
+	mutate(
+		f: (builder: this[TypesKey]['_BUILDER']) => void,
+	): this[TypesKey]['_NORMAL'] {
+		const builder = this.toBuilder();
+		f(builder);
+		return builder.build();
+	}
+}
+
+export abstract class CollectionBuilderBase<T>
+	implements Collection.Builder<T>
+{
+	declare readonly [TypesKey]: Collection.Advanced.Types<T>;
+
+	abstract readonly context: Collection.Advanced.ContextBase<
+		Collection.Advanced.Types<T>
+	>;
+
+	abstract get size(): number;
+	abstract clear(): void;
+	abstract forEach(f: (value: T) => void): void;
+	abstract build(): this[TypesKey]['_NORMAL'];
+
+	#iterationDepth = 0;
+
+	checkLock(): void {
+		if (this.#iterationDepth) {
+			throwModifiedBuilderWhileLoopingOverItError();
+		}
+	}
+
+	startIteration(): void {
+		this.#iterationDepth++;
+	}
+
+	endIteration(): void {
+		this.#iterationDepth--;
+	}
+
+	get isEmpty(): boolean {
+		return 0 === this.size;
+	}
+
+	forEachIndexed(
+		f: (value: T, index: number, halt: () => void) => void,
+		options: { state?: TraverseState } = {},
+	): void {
+		const { state = TraverseState() } = options;
+
+		if (state.halted) return;
+
+		const haltSymbol = Symbol();
+
+		try {
+			this.forEach((value) => {
+				f(value, state.nextIndex(), state.halt);
+
+				if (state.halted) {
+					throw haltSymbol;
+				}
+			});
+		} catch (err) {
+			if (haltSymbol !== err) {
+				throw err;
+			}
+		}
+	}
+}
+
+export function defaultFlatMap<
+	E,
+	C extends Collection<E> &
+		Collection.Capability.WithConcat<E> & {
+			[TypesKey]: { _SELF: C };
+		},
+>(col: C, f: (element: E) => StreamSource<E>): C[TypesKey]['_NORMAL'] {
+	const token = Symbol();
+	const iterator = col[Symbol.iterator]();
+
+	let result = col.context.empty<E>() as C;
+	let element: E | typeof token;
+
+	while (token !== (element = iterator.fastNext(token))) {
+		result = result.concat(f(element));
+	}
+
+	return result;
+}
+
+export function defaultRepeat<
+	E,
+	C extends Collection<E> &
+		Collection.Capability.WithConcat<E> & {
+			[TypesKey]: { _SELF: C };
+		},
+>(col: C, amount: number): C[TypesKey]['_NORMAL'] {
+	Int.checkAtLeastZero(amount);
+
+	if (amount === 0) {
+		return col.context.empty();
+	}
+	if (amount === 1) {
+		return col;
+	}
+
+	// repeat by doubling: `half` holds 2 * (amount >>> 1) copies
+	const half = defaultRepeat(col.concat(col), amount >>> 1);
+
+	return amount % 2 === 0 ? half : col.concat(half);
+}

@@ -13,11 +13,11 @@ import {
 	defaultFilterIndexed,
 	defaultPadTo,
 	defaultRemoveAtAndReturn,
-	defaultRepeat,
 	defaultSpliceAtAndReturn,
 	defaultSwapAtAndReturn,
 	IndexedCollectionNonEmptyBase,
-} from '@rimbu/collection-types/advanced/capabilities/base';
+} from '@rimbu/collection-types/advanced/collection/indexed-base';
+import { defaultRepeat } from '@rimbu/collection-types/advanced/collection-base';
 import { type ArrayNonEmpty, type CollectFun, IndexRange } from '@rimbu/common';
 import { Stream, type StreamSource } from '@rimbu/stream';
 

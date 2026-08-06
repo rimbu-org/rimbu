@@ -1,4 +1,4 @@
-import type { KeyedCollection } from '@rimbu/collection-types/capabilities';
+import type { KeyedCollection } from '@rimbu/collection-types/collection/keyed';
 
 export interface MapCollection<
 	K,

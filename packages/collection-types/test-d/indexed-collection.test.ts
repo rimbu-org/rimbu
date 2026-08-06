@@ -3,11 +3,11 @@ import { describe, expectTypeOf, it } from 'bun:test';
 import type {
 	Collection,
 	IndexedCollection,
-} from '@rimbu/collection-types/capabilities';
+} from '@rimbu/collection-types/collection/sorted';
 import type { Stream } from '@rimbu/stream';
 
-interface WithMapNonEmpty<E> extends IndexedCollection.WithMap<E> {
-	context: { __types: IndexedCollection.Types.NonEmpty<E> };
+interface WithMapNonEmpty<E> extends IndexedCollection.Capability.WithMap<E> {
+	context: { __types: IndexedCollection.Advanced.TypesNonEmpty<E> };
 }
 
 describe('IndexedCollection', () => {
@@ -96,7 +96,7 @@ describe('IndexedCollection', () => {
 	});
 
 	it('WithMap interface is correct', () => {
-		const c: IndexedCollection.WithMap<number> = 0 as any;
+		const c: IndexedCollection.Capability.WithMap<number> = 0 as any;
 
 		expectTypeOf(c.map(String)).toEqualTypeOf<IndexedCollection<string>>();
 
@@ -198,15 +198,48 @@ describe('IndexedCollection.FirstLast', () => {
 	});
 });
 
+describe('IndexedCollection.Capability.WithFilterIndexed', () => {
+	it('filterIndexed type guard narrows element type', () => {
+		const c: Collection.Capability.WithFilterIndexed<string | number> =
+			0 as any;
+
+		expectTypeOf(
+			c.filterIndexed((v): v is string => typeof v === 'string'),
+		).toEqualTypeOf<Collection<string>>();
+
+		expectTypeOf(
+			c.filterIndexed((v): v is number => typeof v === 'number'),
+		).toEqualTypeOf<Collection<number>>();
+	});
+
+	it('filterIndexed boolean predicate returns _NORMAL', () => {
+		const c: Collection.Capability.WithFilter<number> = 0 as any;
+
+		expectTypeOf(c.filterIndexed((v, i) => i % 2 === 0)).toEqualTypeOf<
+			Collection<number>
+		>();
+	});
+
+	it('filterIndexed negate with type guard returns complement', () => {
+		const c: Collection.Capability.WithFilter<string | number> = 0 as any;
+
+		expectTypeOf(
+			c.filterIndexed((v): v is string => typeof v === 'string', {
+				negate: true,
+			}),
+		).toEqualTypeOf<Collection<number>>();
+	});
+});
+
 describe('IndexedCollection.WithRemoveAt', () => {
 	it('interface is correct', () => {
-		const c: IndexedCollection.WithRemoveAt<number> = 0 as any;
+		const c: IndexedCollection.Capability.WithRemoveAt<number> = 0 as any;
 
 		expectTypeOf(c.removeAt(3)).toEqualTypeOf<IndexedCollection<number>>();
 	});
 
 	it('extends IndexedCollection', () => {
-		expectTypeOf<IndexedCollection.WithRemoveAt<number>>().toExtend<
+		expectTypeOf<IndexedCollection.Capability.WithRemoveAt<number>>().toExtend<
 			IndexedCollection<number>
 		>();
 	});
@@ -214,13 +247,13 @@ describe('IndexedCollection.WithRemoveAt', () => {
 
 describe('IndexedCollection.WithSwapAt', () => {
 	it('interface is correct', () => {
-		const c: IndexedCollection.WithSwapAt<number> = 0 as any;
+		const c: IndexedCollection.Capability.WithSwapAt<number> = 0 as any;
 
 		expectTypeOf(c.swapAt(0, 3)).toEqualTypeOf<IndexedCollection<number>>();
 	});
 
 	it('extends IndexedCollection', () => {
-		expectTypeOf<IndexedCollection.WithSwapAt<number>>().toExtend<
+		expectTypeOf<IndexedCollection.Capability.WithSwapAt<number>>().toExtend<
 			IndexedCollection<number>
 		>();
 	});
@@ -228,7 +261,7 @@ describe('IndexedCollection.WithSwapAt', () => {
 
 describe('IndexedCollection.WithOrderEditable', () => {
 	it('interface is correct', () => {
-		const c: IndexedCollection.WithOrderEditable<number> = 0 as any;
+		const c: IndexedCollection.Capability.WithOrderEditable<number> = 0 as any;
 
 		expectTypeOf(c.prepend(1)).toEqualTypeOf<
 			IndexedCollection.NonEmpty<number>
@@ -242,48 +275,50 @@ describe('IndexedCollection.WithOrderEditable', () => {
 	});
 
 	it('extends IndexedCollection', () => {
-		expectTypeOf<IndexedCollection.WithOrderEditable<number>>().toExtend<
-			IndexedCollection<number>
-		>();
+		expectTypeOf<
+			IndexedCollection.Capability.WithOrderEditable<number>
+		>().toExtend<IndexedCollection<number>>();
 	});
 });
 
 describe('IndexedCollection.WithMoveTo', () => {
 	it('interface is correct', () => {
-		const c: IndexedCollection.WithMoveTo<unknown, number> = 0 as any;
+		const c: IndexedCollection.Capability.WithMoveTo<unknown, number> =
+			0 as any;
 
 		expectTypeOf(c.moveTo(3, 1)).toEqualTypeOf<IndexedCollection<number>>();
 	});
 
 	it('extends IndexedCollection', () => {
-		expectTypeOf<IndexedCollection.WithMoveTo<unknown, number>>().toExtend<
-			IndexedCollection<number>
-		>();
+		expectTypeOf<
+			IndexedCollection.Capability.WithMoveTo<unknown, number>
+		>().toExtend<IndexedCollection<number>>();
 	});
 });
 
 describe('IndexedCollection.Types', () => {
 	it('_NORMAL is IndexedCollection', () => {
-		expectTypeOf<IndexedCollection.Types<number>['_NORMAL']>().toEqualTypeOf<
-			IndexedCollection<number>
-		>();
+		expectTypeOf<
+			IndexedCollection.Advanced.Types<number>['_NORMAL']
+		>().toEqualTypeOf<IndexedCollection<number>>();
 	});
 
 	it('_NON_EMPTY is IndexedCollection.NonEmpty', () => {
-		expectTypeOf<IndexedCollection.Types<number>['_NON_EMPTY']>().toEqualTypeOf<
-			IndexedCollection.NonEmpty<number>
-		>();
+		expectTypeOf<
+			IndexedCollection.Advanced.Types<number>['_NON_EMPTY']
+		>().toEqualTypeOf<IndexedCollection.NonEmpty<number>>();
 	});
 
 	it('_stream takes optional reversed option', () => {
-		const streamFn: IndexedCollection.Types<number>['_stream'] = 0 as any;
+		const streamFn: IndexedCollection.Advanced.Types<number>['_stream'] =
+			0 as any;
 
 		expectTypeOf(streamFn()).toEqualTypeOf<Stream<number>>();
 		expectTypeOf(streamFn({ reversed: true })).toEqualTypeOf<Stream<number>>();
 	});
 
 	it('NonEmpty._stream takes optional reversed option', () => {
-		const streamFn: IndexedCollection.Types.NonEmpty<number>['_stream'] =
+		const streamFn: IndexedCollection.Advanced.TypesNonEmpty<number>['_stream'] =
 			0 as any;
 
 		expectTypeOf(streamFn()).toEqualTypeOf<Stream.NonEmpty<number>>();
@@ -293,26 +328,27 @@ describe('IndexedCollection.Types', () => {
 	});
 
 	it('_firstLast normal returns E | undefined', () => {
-		const fl: IndexedCollection.Types<number>['_firstLast'] = 0 as any;
+		const fl: IndexedCollection.Advanced.Types<number>['_firstLast'] = 0 as any;
 
 		expectTypeOf(fl()).toEqualTypeOf<number | undefined>();
 	});
 
 	it('_firstLast NonEmpty returns E', () => {
-		const fl: IndexedCollection.Types.NonEmpty<number>['_firstLast'] = 0 as any;
+		const fl: IndexedCollection.Advanced.Types.NonEmpty<number>['_firstLast'] =
+			0 as any;
 
 		expectTypeOf(fl()).toEqualTypeOf<number>();
 	});
 
 	it('_NEW_TYPES._NORMAL resolves', () => {
 		expectTypeOf<
-			IndexedCollection.Types<number>['_NEW_TYPES']['_NORMAL']
+			IndexedCollection.Advanced.Types<number>['_NEW_TYPES']['_NORMAL']
 		>().toEqualTypeOf<IndexedCollection<unknown>>();
 	});
 
 	it('_NEW_TYPES._SELF preserves NonEmpty from NonEmpty source', () => {
 		expectTypeOf<
-			IndexedCollection.Types.NonEmpty<number>['_NEW_TYPES']['_SELF']
+			IndexedCollection.Advanced.TypesNonEmpty<number>['_NEW_TYPES']['_SELF']
 		>().toEqualTypeOf<IndexedCollection.NonEmpty<unknown>>();
 	});
 });

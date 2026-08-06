@@ -668,14 +668,20 @@ describe('OuterTree.insertAt', () => {
 		const t = simpleTree([1, 2], [3, 4], bits);
 
 		expect(t.insertAt(0, ctx.of(0)).toArray()).toEqual([0, 1, 2, 3, 4]);
-		expect(t.insertAt(2, ctx.of(9, 10)).toArray()).toEqual([
-			1, 2, 9, 10, 3, 4,
-		]);
+		expect(t.insertAt(2, ctx.of(9, 10)).toArray()).toEqual([1, 2, 9, 10, 3, 4]);
 		expect(t.insertAt(t.size, ctx.of(5)).toArray()).toEqual([1, 2, 3, 4, 5]);
 	});
 
 	it('inserts across the middle of a tree with middle blocks', () => {
-		const t = treeWithMiddle([1, 2], [[3, 4], [5, 6]], [7, 8], bits);
+		const t = treeWithMiddle(
+			[1, 2],
+			[
+				[3, 4],
+				[5, 6],
+			],
+			[7, 8],
+			bits,
+		);
 
 		expect(t.insertAt(2, ctx.of(9, 10)).toArray()).toEqual([
 			1, 2, 9, 10, 3, 4, 5, 6, 7, 8,
@@ -714,7 +720,15 @@ describe('OuterTree.removeAt', () => {
 	});
 
 	it('removes across the middle of a tree with middle blocks', () => {
-		const t = treeWithMiddle([1, 2], [[3, 4], [5, 6]], [7, 8], bits);
+		const t = treeWithMiddle(
+			[1, 2],
+			[
+				[3, 4],
+				[5, 6],
+			],
+			[7, 8],
+			bits,
+		);
 
 		expect(t.removeAt(2, 3).toArray()).toEqual([1, 2, 6, 7, 8]);
 		expect(t.removeAt(6, 2).toArray()).toEqual([1, 2, 3, 4, 5, 6]);

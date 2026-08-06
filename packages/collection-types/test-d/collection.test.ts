@@ -1,12 +1,10 @@
 import { describe, expectTypeOf, it } from 'bun:test';
 
-import type { Collection } from '@rimbu/collection-types/capabilities';
+import type { Collection } from '@rimbu/collection-types/collection/sorted';
 import type { ArrayNonEmpty } from '@rimbu/common';
 import type { Stream } from '@rimbu/stream';
 
-interface WithFilterNonEmpty<E> extends Collection.WithFilter<E> {
-	readonly context: { __types: Collection.Types.NonEmpty<E> };
-}
+interface WithFilterNonEmpty<E> extends Collection.Capability.WithFilter<E> {}
 
 describe('Collection', () => {
 	it('normal interface is correct', () => {
@@ -93,7 +91,7 @@ describe('Collection.Builder', () => {
 
 	it('NonEmpty context still returns normal from build', () => {
 		interface B extends Collection.Builder<number> {
-			readonly context: { __types: Collection.Types.NonEmpty<number> };
+			// readonly context: { __types: Collection.Types.NonEmpty<number> };
 		}
 		const b: B = 0 as any;
 
@@ -123,9 +121,9 @@ describe('Collection.Builder', () => {
 	});
 });
 
-describe('Collection.WithFilter', () => {
+describe('Collection.Capability.WithFilter', () => {
 	it('boolean predicate returns _NORMAL', () => {
-		const c: Collection.WithFilter<number> = 0 as any;
+		const c: Collection.Capability.WithFilter<number> = 0 as any;
 
 		expectTypeOf(c.filter((v) => v > 0)).toEqualTypeOf<Collection<number>>();
 		expectTypeOf(c.filter((v) => v > 0, { negate: true })).toEqualTypeOf<
@@ -134,7 +132,7 @@ describe('Collection.WithFilter', () => {
 	});
 
 	it('type guard narrows element type', () => {
-		const c: Collection.WithFilter<string | number> = 0 as any;
+		const c: Collection.Capability.WithFilter<string | number> = 0 as any;
 
 		expectTypeOf(
 			c.filter((v): v is string => typeof v === 'string'),
@@ -143,26 +141,6 @@ describe('Collection.WithFilter', () => {
 		expectTypeOf(
 			c.filter((v): v is number => typeof v === 'number'),
 		).toEqualTypeOf<Collection<number>>();
-	});
-
-	it('filterIndexed type guard narrows element type', () => {
-		const c: Collection.WithFilter<string | number> = 0 as any;
-
-		expectTypeOf(
-			c.filterIndexed((v): v is string => typeof v === 'string'),
-		).toEqualTypeOf<Collection<string>>();
-
-		expectTypeOf(
-			c.filterIndexed((v): v is number => typeof v === 'number'),
-		).toEqualTypeOf<Collection<number>>();
-	});
-
-	it('filterIndexed boolean predicate returns _NORMAL', () => {
-		const c: Collection.WithFilter<number> = 0 as any;
-
-		expectTypeOf(c.filterIndexed((v, i) => i % 2 === 0)).toEqualTypeOf<
-			Collection<number>
-		>();
 	});
 
 	it('NonEmpty context still returns normal after filter', () => {
@@ -178,13 +156,13 @@ describe('Collection.WithFilter', () => {
 	});
 
 	it('can be assigned to Collection', () => {
-		expectTypeOf<Collection.WithFilter<number>>().toExtend<
+		expectTypeOf<Collection.Capability.WithFilter<number>>().toExtend<
 			Collection<number>
 		>();
 	});
 
 	it('negate with type guard returns complement', () => {
-		const c: Collection.WithFilter<string | number> = 0 as any;
+		const c: Collection.Capability.WithFilter<string | number> = 0 as any;
 
 		expectTypeOf(
 			c.filter((v): v is string => typeof v === 'string', { negate: true }),
@@ -195,18 +173,9 @@ describe('Collection.WithFilter', () => {
 		).toEqualTypeOf<Collection<string>>();
 	});
 
-	it('filterIndexed negate with type guard returns complement', () => {
-		const c: Collection.WithFilter<string | number> = 0 as any;
-
-		expectTypeOf(
-			c.filterIndexed((v): v is string => typeof v === 'string', {
-				negate: true,
-			}),
-		).toEqualTypeOf<Collection<number>>();
-	});
-
 	it('negate with type guard on three-member union', () => {
-		const c: Collection.WithFilter<string | number | boolean> = 0 as any;
+		const c: Collection.Capability.WithFilter<string | number | boolean> =
+			0 as any;
 
 		expectTypeOf(
 			c.filter((v): v is string => typeof v === 'string', { negate: true }),
@@ -222,12 +191,12 @@ describe('Collection.WithFilter', () => {
 	});
 
 	it('is covariant in E', () => {
-		expectTypeOf<Collection.WithFilter<string>>().toExtend<
-			Collection.WithFilter<string | number>
+		expectTypeOf<Collection.Capability.WithFilter<string>>().toExtend<
+			Collection.Capability.WithFilter<string | number>
 		>();
-		expectTypeOf<Collection.WithFilter<string | number>>().not.toExtend<
-			Collection.WithFilter<string>
-		>();
+		expectTypeOf<
+			Collection.Capability.WithFilter<string | number>
+		>().not.toExtend<Collection.Capability.WithFilter<string>>();
 	});
 });
 

@@ -4,7 +4,7 @@ import type {
 	IndexedCollection,
 	IndexedValuedCollection,
 	ValuedCollection,
-} from '@rimbu/collection-types/capabilities';
+} from '@rimbu/collection-types/collection/sorted';
 import type { Stream } from '@rimbu/stream';
 
 describe('IndexedValuedCollection', () => {

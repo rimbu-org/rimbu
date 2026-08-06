@@ -7,7 +7,7 @@ import type { ListContext } from '#list/context';
 import type { OuterBuilder } from '#list/mutable/common';
 
 import { Int } from '@rimbu/base';
-import { CollectionBuilderBase } from '@rimbu/collection-types/advanced/capabilities/base';
+import { CollectionBuilderBase } from '@rimbu/collection-types/advanced/collection-base';
 import { OptLazy } from '@rimbu/common';
 import { Stream } from '@rimbu/stream';
 

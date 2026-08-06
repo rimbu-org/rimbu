@@ -4,7 +4,7 @@ import type {
 	IndexedCollection,
 	IndexedKeyedCollection,
 	KeyedCollection,
-} from '@rimbu/collection-types/capabilities';
+} from '@rimbu/collection-types/collection/sorted';
 import type { Stream } from '@rimbu/stream';
 
 describe('IndexedKeyedCollection', () => {
@@ -19,14 +19,20 @@ describe('IndexedKeyedCollection', () => {
 
 		expectTypeOf(c.has(1)).toEqualTypeOf<boolean>();
 
-		expectTypeOf(c.at(3)).toEqualTypeOf<readonly [number, string] | undefined>();
+		expectTypeOf(c.at(3)).toEqualTypeOf<
+			readonly [number, string] | undefined
+		>();
 
 		expectTypeOf(c.first()).toEqualTypeOf<
 			readonly [number, string] | undefined
 		>();
-		expectTypeOf(c.last()).toEqualTypeOf<readonly [number, string] | undefined>();
+		expectTypeOf(c.last()).toEqualTypeOf<
+			readonly [number, string] | undefined
+		>();
 
-		expectTypeOf(c.take(3)).toEqualTypeOf<IndexedKeyedCollection<number, string>>();
+		expectTypeOf(c.take(3)).toEqualTypeOf<
+			IndexedKeyedCollection<number, string>
+		>();
 
 		expectTypeOf(c.stream()).toEqualTypeOf<Stream<readonly [number, string]>>();
 		expectTypeOf(c.streamSlice({ amount: 3 })).toEqualTypeOf<
@@ -119,7 +125,9 @@ describe('IndexedKeyedCollection.Builder', () => {
 
 		expectTypeOf(b.has(1)).toEqualTypeOf<boolean>();
 
-		expectTypeOf(b.at(3)).toEqualTypeOf<readonly [number, string] | undefined>();
+		expectTypeOf(b.at(3)).toEqualTypeOf<
+			readonly [number, string] | undefined
+		>();
 		expectTypeOf(b.first()).toEqualTypeOf<
 			readonly [number, string] | undefined
 		>();
@@ -156,10 +164,8 @@ describe('IndexedKeyedCollection.Types', () => {
 	});
 
 	it('_stream has indexed signature with reversed option', () => {
-		const fn: IndexedKeyedCollection.Types<
-			number,
-			string
-		>['_stream'] = 0 as any;
+		const fn: IndexedKeyedCollection.Types<number, string>['_stream'] =
+			0 as any;
 
 		expectTypeOf(fn()).toEqualTypeOf<Stream<readonly [number, string]>>();
 		expectTypeOf(fn({ reversed: true })).toEqualTypeOf<
@@ -168,20 +174,16 @@ describe('IndexedKeyedCollection.Types', () => {
 	});
 
 	it('_streamKeys has indexed signature with reversed option', () => {
-		const fn: IndexedKeyedCollection.Types<
-			number,
-			string
-		>['_streamKeys'] = 0 as any;
+		const fn: IndexedKeyedCollection.Types<number, string>['_streamKeys'] =
+			0 as any;
 
 		expectTypeOf(fn()).toEqualTypeOf<Stream<number>>();
 		expectTypeOf(fn({ reversed: true })).toEqualTypeOf<Stream<number>>();
 	});
 
 	it('_streamValues has indexed signature with reversed option', () => {
-		const fn: IndexedKeyedCollection.Types<
-			number,
-			string
-		>['_streamValues'] = 0 as any;
+		const fn: IndexedKeyedCollection.Types<number, string>['_streamValues'] =
+			0 as any;
 
 		expectTypeOf(fn()).toEqualTypeOf<Stream<string>>();
 		expectTypeOf(fn({ reversed: true })).toEqualTypeOf<Stream<string>>();

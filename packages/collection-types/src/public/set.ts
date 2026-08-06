@@ -1,4 +1,4 @@
-import type { ValuedCollection } from '@rimbu/collection-types/capabilities';
+import type { ValuedCollection } from '@rimbu/collection-types/collection/valued';
 
 export interface SetCollection<
 	T,

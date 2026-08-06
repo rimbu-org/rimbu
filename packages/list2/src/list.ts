@@ -1,7 +1,5 @@
-import type {
-	Collection,
-	IndexedCollection,
-} from '@rimbu/collection-types/capabilities';
+import type { Collection } from '@rimbu/collection-types/collection';
+import type { IndexedCollection } from '@rimbu/collection-types/collection/indexed';
 import type { TypesKey } from '@rimbu/collection-types/types';
 import type { OptLazy } from '@rimbu/common';
 import type { StreamSource } from '@rimbu/stream';

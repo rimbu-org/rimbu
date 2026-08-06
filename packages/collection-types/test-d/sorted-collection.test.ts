@@ -1,10 +1,11 @@
 import { describe, expectTypeOf, it } from 'bun:test';
 
-import type { Collection } from '@rimbu/collection-types/capabilities';
-import type { SortedCollection } from '@rimbu/collection-types/capabilities';
+import type {
+	Collection,
+	SortedCollection,
+} from '@rimbu/collection-types/collection/sorted';
 import type { Comp } from '@rimbu/common';
 import type { Stream } from '@rimbu/stream';
-
 describe('SortedCollection', () => {
 	it('normal interface is correct', () => {
 		const c: SortedCollection<number, string> = 0 as any;
@@ -84,9 +85,9 @@ describe('SortedCollection', () => {
 		expectTypeOf<SortedCollection<number, string>>().toExtend<
 			SortedCollection<number, string | boolean>
 		>();
-		expectTypeOf<
-			SortedCollection<number, string | boolean>
-		>().not.toExtend<SortedCollection<number, string>>();
+		expectTypeOf<SortedCollection<number, string | boolean>>().not.toExtend<
+			SortedCollection<number, string>
+		>();
 	});
 
 	it('can assign non-empty to normal', () => {

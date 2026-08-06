@@ -3,7 +3,7 @@ import { describe, expectTypeOf, it } from 'bun:test';
 import type {
 	Collection,
 	KeyedCollection,
-} from '@rimbu/collection-types/capabilities';
+} from '@rimbu/collection-types/collection/sorted';
 import type { Stream } from '@rimbu/stream';
 
 interface WithMapNonEmpty<K, V> extends KeyedCollection.WithMapValues<K, V> {

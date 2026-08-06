@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'bun:test';
 
 import type { ArrayNonEmpty } from '@rimbu/common';
+
 import { List } from '@rimbu/list';
 
 function verifyStructure(list: List<number>): string[] {
