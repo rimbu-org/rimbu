@@ -18,7 +18,7 @@ export class InnerBlock<T, C extends Self<Block<T>, C>>
 	declare _self: InnerBlock<T, C>;
 
 	constructor(
-		readonly context: ListContext<T, true>,
+		readonly context: ListContext<T>,
 		children: C[],
 		readonly size: number,
 		readonly level: number,

@@ -20,7 +20,7 @@ export abstract class OuterBlock<T>
 {
 	declare _self: this;
 
-	constructor(readonly context: ListContext<T, true>) {
+	constructor(readonly context: ListContext<T>) {
 		super(context);
 	}
 

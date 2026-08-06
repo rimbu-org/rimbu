@@ -2,6 +2,7 @@ import type {
 	Collection,
 	IndexedCollection,
 } from '@rimbu/collection-types/capabilities';
+import type { TypesKey } from '@rimbu/collection-types/types';
 import type { OptLazy } from '@rimbu/common';
 import type { StreamSource } from '@rimbu/stream';
 
@@ -11,19 +12,24 @@ import { ArrayOuterChildrenOps } from '#list/children-ops/array';
 import { createListContextModule } from '#list/context';
 
 export interface List<T>
-	extends IndexedCollection<T>,
+	extends IndexedCollection<T, List.Advanced.Types<T>>,
 		List.Advanced.Capabilities<T> {
+	readonly [TypesKey]: List.Advanced.Types<T>;
 	readonly context: List.Context<T>;
 }
 
 export declare namespace List {
-	export interface NonEmpty<T> extends List<T>, IndexedCollection.NonEmpty<T> {
-		readonly context: List.Context<T, true>;
+	export interface NonEmpty<T>
+		extends List<T>,
+			IndexedCollection.NonEmpty<T, List.Advanced.TypesNonEmpty<T>> {
+		readonly [TypesKey]: List.Advanced.TypesNonEmpty<T>;
+		readonly context: List.Context<T>;
 	}
 
 	export interface Builder<T>
 		extends IndexedCollection.Builder<T, List.Advanced.Types<T>>,
 			Collection.Builder.Capability.WithAppendPrepend<T> {
+		readonly [TypesKey]: List.Advanced.Types<T>;
 		readonly context: List.Context<T>;
 
 		setAt(index: number, element: T): T | undefined;
@@ -37,18 +43,9 @@ export declare namespace List {
 		appendAll(elements: StreamSource<T>): void;
 	}
 
-	export interface Context<T, IsNonEmpty extends boolean = boolean>
-		extends List.Advanced.Factory<
-			T,
-			IsNonEmpty extends true
-				? List.Advanced.TypesNonEmpty<T>
-				: List.Advanced.Types<T>
-		> {
+	export interface Context<T>
+		extends List.Advanced.Factory<T, List.Advanced.Types<T>> {
 		readonly blockSizeBits: number;
-
-		readonly __types: IsNonEmpty extends true
-			? List.Advanced.TypesNonEmpty<T>
-			: List.Advanced.Types<T>;
 	}
 
 	export namespace Advanced {
@@ -71,6 +68,7 @@ export declare namespace List {
 				IndexedCollection.Capability.WithSpliceAt<T>,
 				IndexedCollection.Capability.WithSwapAt<T>,
 				IndexedCollection.Capability.WithUpdateAt<T> {
+			readonly [TypesKey]: List.Advanced.Types<T>;
 			readonly context: List.Context<T>;
 		}
 

@@ -4,7 +4,7 @@ import type { BlockBuilder, InnerBuilder } from '#list/mutable/common';
 import { Int, throwInvalidStateError } from '@rimbu/base';
 
 export abstract class TreeBuilderBase<T, C> {
-	abstract readonly context: ListContext<T, true>;
+	abstract readonly context: ListContext<T>;
 	abstract readonly level: number;
 	abstract size: number;
 	abstract left: BlockBuilder<T, C>;

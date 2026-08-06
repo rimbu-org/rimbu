@@ -2,8 +2,10 @@ import type {
 	Collection,
 	KeyedCollection,
 } from '@rimbu/collection-types/capabilities';
+import type { TypesKey } from '@rimbu/collection-types/types';
 
 export interface MapCollection<K, V> extends KeyedCollection<K, V> {
+	readonly [TypesKey]: MapCollection.Advanced.Types<K, V>;
 	readonly context: Collection.Advanced.ContextBase<
 		MapCollection.Advanced.Types<K, V>
 	>;
@@ -13,12 +15,14 @@ export declare namespace MapCollection {
 	export interface NonEmpty<K, V>
 		extends MapCollection<K, V>,
 			KeyedCollection.NonEmpty<K, V> {
+		readonly [TypesKey]: MapCollection.Advanced.TypesNonEmpty<K, V>;
 		readonly context: Collection.Advanced.ContextBase<
 			MapCollection.Advanced.TypesNonEmpty<K, V>
 		>;
 	}
 
 	export interface Builder<K, V> extends KeyedCollection.Builder<K, V> {
+		readonly [TypesKey]: MapCollection.Advanced.Types<K, V>;
 		readonly context: Collection.Advanced.ContextBase<
 			MapCollection.Advanced.Types<K, V>
 		>;

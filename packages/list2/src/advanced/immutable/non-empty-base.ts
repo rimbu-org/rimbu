@@ -1,4 +1,5 @@
-import type { Op } from '@rimbu/collection-types/types';
+// biome-ignore lint/correctness/noUnusedImports: TypesKey is used as a computed property key, which Biome does not detect
+import type { Op, TypesKey } from '@rimbu/collection-types/types';
 import type { List } from '@rimbu/list';
 
 import type { ListContext } from '#list/context';
@@ -24,9 +25,10 @@ export abstract class ListNonEmptyBase<T>
 	extends IndexedCollectionNonEmptyBase<T>
 	implements List.NonEmpty<T>
 {
+	declare readonly [TypesKey]: List.Advanced.TypesNonEmpty<T>;
 	declare _self: ListNonEmptyBase<T>;
 
-	constructor(readonly context: ListContext<T, true>) {
+	constructor(readonly context: ListContext<T>) {
 		super();
 	}
 

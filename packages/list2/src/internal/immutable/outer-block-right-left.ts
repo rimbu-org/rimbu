@@ -12,7 +12,7 @@ import { OuterBlock } from '#list/immutable/outer-block';
 
 export class OuterBlockRightLeft<T> extends OuterBlock<T> {
 	constructor(
-		readonly context: ListContext<T, true>,
+		readonly context: ListContext<T>,
 		children: OuterChildren<T>,
 	) {
 		super(context);

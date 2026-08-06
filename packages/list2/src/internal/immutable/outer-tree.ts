@@ -26,7 +26,7 @@ export class OuterTree<T>
 	declare _self: OuterTree<T>;
 
 	constructor(
-		readonly context: ListContext<T, true>,
+		readonly context: ListContext<T>,
 		readonly left: OuterBlock<T>,
 		readonly right: OuterBlock<T>,
 		readonly middle: Inner<T, OuterBlock<T>> | null,

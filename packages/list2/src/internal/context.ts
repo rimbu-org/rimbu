@@ -26,9 +26,7 @@ import { OuterTree } from '#list/immutable/outer-tree';
 import { OuterBlockBuilder } from '#list/mutable/outer-block-builder';
 import { OuterTreeBuilder } from '#list/mutable/outer-tree-builder';
 
-export interface ListContext<T, IsNonEmpty extends boolean = boolean>
-	extends List.Context<T, IsNonEmpty> {
-	readonly __types: List.Context<T, IsNonEmpty>['__types'];
+export interface ListContext<T> extends List.Context<T> {
 	readonly minBlockSize: number;
 	readonly maxBlockSize: number;
 	readonly childrenOps: ChildrenOps;
@@ -93,7 +91,6 @@ export function createListContextModule<UT>(options: {
 	const { blockSizeBits = 5, childrenOps } = options;
 
 	return Module.create<ListContext<UT>>((mod) => ({
-		__types: undefined as any,
 		blockSizeBits,
 		minBlockSize: 1 << (blockSizeBits - 1),
 		maxBlockSize: 1 << blockSizeBits,

@@ -6,7 +6,7 @@ import type {
 	KeyedCollection,
 	ValuedCollection,
 } from '@rimbu/collection-types/capabilities';
-import type { Op } from '@rimbu/collection-types/types';
+import type { Op, TypesKey } from '@rimbu/collection-types/types';
 import type { FastIterator } from '@rimbu/stream/stream-types';
 
 import {
@@ -35,6 +35,8 @@ export abstract class CollectionEmptyBase<T>
 		Collection.Capability.WithMutate<T>,
 		Collection.Capability.WithRecompose<T>
 {
+	declare readonly [TypesKey]: Collection.Advanced.Types<T>;
+
 	abstract readonly context: Collection.Advanced.ContextBase<
 		Collection.Advanced.Types<T>
 	>;
@@ -51,7 +53,7 @@ export abstract class CollectionEmptyBase<T>
 		return 0;
 	}
 
-	nonEmpty(): this is this['context']['__types']['_NON_EMPTY'] {
+	nonEmpty(): this is this[TypesKey]['_NON_EMPTY'] {
 		return false;
 	}
 
@@ -61,16 +63,14 @@ export abstract class CollectionEmptyBase<T>
 
 	concat(
 		...sources: ArrayNonEmpty<StreamSource.NonEmpty<T>>
-	): this['context']['__types']['_NON_EMPTY'];
+	): this[TypesKey]['_NON_EMPTY'];
 	concat(
 		...sources: ArrayNonEmpty<StreamSource<T>>
-	): this['context']['__types']['_NORMAL'] {
-		return this.context.from(
-			...sources,
-		) as this['context']['__types']['_NON_EMPTY'];
+	): this[TypesKey]['_NORMAL'] {
+		return this.context.from(...sources) as this[TypesKey]['_NON_EMPTY'];
 	}
 
-	flatMap(): this['context']['__types']['_NORMAL'] {
+	flatMap(): this[TypesKey]['_NORMAL'] {
 		return this;
 	}
 
@@ -82,11 +82,11 @@ export abstract class CollectionEmptyBase<T>
 
 	forEachIndexed(): void {}
 
-	filter(): this['context']['__types']['_NORMAL'] {
+	filter(): this[TypesKey]['_NORMAL'] {
 		return this;
 	}
 
-	collect<E2>(): (this['context']['__types'] & {
+	collect<E2>(): (this[TypesKey] & {
 		_NEW_E: E2;
 	})['_NEW_TYPES']['_NORMAL'] {
 		return this;
@@ -94,19 +94,19 @@ export abstract class CollectionEmptyBase<T>
 
 	recompose<E2>(
 		f: (stream: Stream<T>) => StreamSource<E2>,
-	): (this['context']['__types'] & { _NEW_E: E2 })['_NEW_TYPES']['_NORMAL'] {
+	): (this[TypesKey] & { _NEW_E: E2 })['_NEW_TYPES']['_NORMAL'] {
 		return this.context.from(f(Stream.empty()));
 	}
 
 	mutate(
-		f: (builder: this['context']['__types']['_BUILDER']) => void,
-	): this['context']['__types']['_NORMAL'] {
+		f: (builder: this[TypesKey]['_BUILDER']) => void,
+	): this[TypesKey]['_NORMAL'] {
 		const builder = this.context.builder<T>();
 		f(builder);
 		return builder.build();
 	}
 
-	map<T2>(): (this['context']['__types'] & {
+	map<T2>(): (this[TypesKey] & {
 		_NEW_E: T2;
 	})['_NEW_TYPES']['_NORMAL'] {
 		return this;
@@ -116,7 +116,7 @@ export abstract class CollectionEmptyBase<T>
 		return [];
 	}
 
-	toBuilder(): this['context']['__types']['_BUILDER'] {
+	toBuilder(): this[TypesKey]['_BUILDER'] {
 		return this.context.builder();
 	}
 }
@@ -127,6 +127,8 @@ export abstract class CollectionNonEmptyBase<T>
 		Collection.Capability.WithMutate<T>,
 		Collection.Capability.WithRecompose<T>
 {
+	declare readonly [TypesKey]: Collection.Advanced.TypesNonEmpty<T>;
+
 	abstract readonly context: Collection.Advanced.ContextBase<
 		Collection.Advanced.TypesNonEmpty<T>
 	>;
@@ -135,7 +137,7 @@ export abstract class CollectionNonEmptyBase<T>
 	abstract stream(): Stream.NonEmpty<T>;
 	abstract forEach(f: (value: T) => void): void;
 	abstract toArray(): ArrayNonEmpty<T>;
-	abstract toBuilder(): this['context']['__types']['_BUILDER'];
+	abstract toBuilder(): this[TypesKey]['_BUILDER'];
 
 	[Symbol.iterator](): FastIterator<T> {
 		return this.stream()[Symbol.iterator]();
@@ -145,15 +147,15 @@ export abstract class CollectionNonEmptyBase<T>
 		return false;
 	}
 
-	nonEmpty(): this is this['context']['__types']['_NON_EMPTY'] {
+	nonEmpty(): this is this[TypesKey]['_NON_EMPTY'] {
 		return true;
 	}
 
-	assumeNonEmpty(): this['context']['__types']['_NON_EMPTY'] {
+	assumeNonEmpty(): this[TypesKey]['_NON_EMPTY'] {
 		return this;
 	}
 
-	asNormal(): this['context']['__types']['_NORMAL'] {
+	asNormal(): this[TypesKey]['_NORMAL'] {
 		return this;
 	}
 
@@ -182,18 +184,18 @@ export abstract class CollectionNonEmptyBase<T>
 		}
 	}
 
-	recompose<T2 extends this['context']['__types']['_UPPER_E']>(
+	recompose<T2 extends this[TypesKey]['_UPPER_E']>(
 		f: (stream: Stream.NonEmpty<T>) => StreamSource.NonEmpty<T2>,
-	): (this['context']['__types'] & { _NEW_E: T2 })['_NEW_TYPES']['_NON_EMPTY'];
-	recompose<T2 extends this['context']['__types']['_UPPER_E']>(
+	): (this[TypesKey] & { _NEW_E: T2 })['_NEW_TYPES']['_NON_EMPTY'];
+	recompose<T2 extends this[TypesKey]['_UPPER_E']>(
 		f: (stream: Stream.NonEmpty<T>) => StreamSource<T2>,
-	): (this['context']['__types'] & { _NEW_E: T2 })['_NEW_TYPES']['_NON_EMPTY'] {
+	): (this[TypesKey] & { _NEW_E: T2 })['_NEW_TYPES']['_NON_EMPTY'] {
 		return this.context.from(f(this.stream())) as any;
 	}
 
 	mutate(
-		f: (builder: this['context']['__types']['_BUILDER']) => void,
-	): this['context']['__types']['_NORMAL'] {
+		f: (builder: this[TypesKey]['_BUILDER']) => void,
+	): this[TypesKey]['_NORMAL'] {
 		const builder = this.toBuilder();
 		f(builder);
 		return builder.build();
@@ -203,6 +205,8 @@ export abstract class CollectionNonEmptyBase<T>
 export abstract class CollectionBuilderBase<T>
 	implements Collection.Builder<T>
 {
+	declare readonly [TypesKey]: Collection.Advanced.Types<T>;
+
 	abstract readonly context: Collection.Advanced.ContextBase<
 		Collection.Advanced.Types<T>
 	>;
@@ -210,7 +214,7 @@ export abstract class CollectionBuilderBase<T>
 	abstract get size(): number;
 	abstract clear(): void;
 	abstract forEach(f: (value: T) => void): void;
-	abstract build(): this['context']['__types']['_NORMAL'];
+	abstract build(): this[TypesKey]['_NORMAL'];
 
 	#iterationDepth = 0;
 
@@ -274,6 +278,8 @@ export abstract class IndexedCollectionEmptyBase<T>
 		IndexedCollection.Capability.WithSwapAt<T>,
 		IndexedCollection.Capability.WithUpdateAt<T>
 {
+	declare readonly [TypesKey]: IndexedCollection.Advanced.Types<T>;
+
 	abstract readonly context: Collection.Advanced.ContextBase<
 		IndexedCollection.Advanced.Types<T>
 	>;
@@ -294,72 +300,65 @@ export abstract class IndexedCollectionEmptyBase<T>
 		return OptLazy(otherwise) as O;
 	}
 
-	take(): this['context']['__types']['_NORMAL'] {
+	take(): this[TypesKey]['_NORMAL'] {
 		return this;
 	}
 
-	drop(): this['context']['__types']['_NORMAL'] {
+	drop(): this[TypesKey]['_NORMAL'] {
 		return this;
 	}
 
-	prepend(element: T): this['context']['__types']['_NON_EMPTY'] {
+	prepend(element: T): this[TypesKey]['_NON_EMPTY'] {
 		return this.context.of(element);
 	}
 
-	append(element: T): this['context']['__types']['_NON_EMPTY'] {
+	append(element: T): this[TypesKey]['_NON_EMPTY'] {
 		return this.context.of(element);
 	}
 
-	splitAt(): [
-		this['context']['__types']['_NORMAL'],
-		this['context']['__types']['_NORMAL'],
-	] {
+	splitAt(): [this[TypesKey]['_NORMAL'], this[TypesKey]['_NORMAL']] {
 		return [this, this];
 	}
 
-	slice(): this['context']['__types']['_NORMAL'] {
+	slice(): this[TypesKey]['_NORMAL'] {
 		return this;
 	}
 
-	mapIndexed<T2>(): (this['context']['__types'] & {
+	mapIndexed<T2>(): (this[TypesKey] & {
 		_NEW_E: T2;
 	})['_NEW_TYPES']['_NORMAL'] {
 		return this;
 	}
 
-	flatMapIndexed<T2>(): (this['context']['__types'] & {
+	flatMapIndexed<T2>(): (this[TypesKey] & {
 		_NEW_E: T2;
 	})['_NEW_TYPES']['_NORMAL'] {
 		return this;
 	}
 
-	filterIndexed(): this['context']['__types']['_NORMAL'] {
+	filterIndexed(): this[TypesKey]['_NORMAL'] {
 		return this;
 	}
 
-	collectIndexed<E2>(): (this['context']['__types'] & {
+	collectIndexed<E2>(): (this[TypesKey] & {
 		_NEW_E: E2;
 	})['_NEW_TYPES']['_NORMAL'] {
 		return this;
 	}
 
-	removeAt(): this['context']['__types']['_NORMAL'] {
+	removeAt(): this[TypesKey]['_NORMAL'] {
 		return this;
 	}
 
-	reversed(): this['context']['__types']['_NORMAL'] {
+	reversed(): this[TypesKey]['_NORMAL'] {
 		return this;
 	}
 
-	setAt(): this['context']['__types']['_NORMAL'] {
+	setAt(): this[TypesKey]['_NORMAL'] {
 		return this;
 	}
 
-	setAtAndReturn(): Op.WithResult<
-		this['context']['__types']['_NORMAL'],
-		undefined,
-		false
-	> {
+	setAtAndReturn(): Op.WithResult<this[TypesKey]['_NORMAL'], undefined, false> {
 		return {
 			collection: this,
 			hasResult: false,
@@ -368,20 +367,20 @@ export abstract class IndexedCollectionEmptyBase<T>
 		};
 	}
 
-	rotateLeft(): this['context']['__types']['_NORMAL'] {
+	rotateLeft(): this[TypesKey]['_NORMAL'] {
 		return this;
 	}
 
-	repeat(): this['context']['__types']['_NORMAL'] {
+	repeat(): this[TypesKey]['_NORMAL'] {
 		return this;
 	}
 
-	updateAt(): this['context']['__types']['_NORMAL'] {
+	updateAt(): this[TypesKey]['_NORMAL'] {
 		return this;
 	}
 
 	updateAtAndReturn(): Op.WithResult<
-		this['context']['__types']['_NORMAL'],
+		this[TypesKey]['_NORMAL'],
 		[previous: undefined, current: undefined],
 		false
 	> {
@@ -393,12 +392,12 @@ export abstract class IndexedCollectionEmptyBase<T>
 		};
 	}
 
-	swapAt(): this['context']['__types']['_NORMAL'] {
+	swapAt(): this[TypesKey]['_NORMAL'] {
 		return this;
 	}
 
 	swapAtAndReturn(): Op.WithResult<
-		this['context']['__types']['_NORMAL'],
+		this[TypesKey]['_NORMAL'],
 		[previous1: undefined, previous2: undefined],
 		false
 	> {
@@ -415,6 +414,8 @@ export abstract class IndexedCollectionNonEmptyBase<T>
 	extends CollectionNonEmptyBase<T>
 	implements IndexedCollection.NonEmpty<T>
 {
+	declare readonly [TypesKey]: IndexedCollection.Advanced.TypesNonEmpty<T>;
+
 	abstract readonly context: Collection.Advanced.ContextBase<
 		IndexedCollection.Advanced.TypesNonEmpty<T>
 	>;
@@ -427,10 +428,10 @@ export abstract class IndexedCollectionNonEmptyBase<T>
 	abstract first<O>(otherwise?: OptLazy<O>): T | O;
 	abstract last<O>(otherwise?: OptLazy<O>): T | O;
 
-	abstract take(count: number): this['context']['__types']['_NORMAL'];
-	abstract drop(count: number): this['context']['__types']['_NORMAL'];
+	abstract take(count: number): this[TypesKey]['_NORMAL'];
+	abstract drop(count: number): this[TypesKey]['_NORMAL'];
 
-	slice(range: IndexRange): this['context']['__types']['_NORMAL'] {
+	slice(range: IndexRange): this[TypesKey]['_NORMAL'] {
 		const result = IndexRange.getIndicesFor(range, this.size);
 
 		if (result === 'all') {
@@ -447,10 +448,7 @@ export abstract class IndexedCollectionNonEmptyBase<T>
 
 	splitAt(
 		index: number,
-	): [
-		this['context']['__types']['_NORMAL'],
-		this['context']['__types']['_NORMAL'],
-	] {
+	): [this[TypesKey]['_NORMAL'], this[TypesKey]['_NORMAL']] {
 		const left = this.take(index);
 		const right = this.drop(index);
 
@@ -462,6 +460,8 @@ export abstract class ValuedCollectionEmptyBase<T>
 	extends CollectionEmptyBase<T>
 	implements ValuedCollection<T>
 {
+	declare readonly [TypesKey]: ValuedCollection.Advanced.Types<T>;
+
 	abstract readonly context: Collection.Advanced.ContextBase<
 		ValuedCollection.Advanced.Types<T>
 	>;
@@ -475,6 +475,8 @@ export abstract class ValuedCollectionNonEmptyBase<T>
 	extends CollectionNonEmptyBase<T>
 	implements ValuedCollection.NonEmpty<T>
 {
+	declare readonly [TypesKey]: ValuedCollection.Advanced.TypesNonEmpty<T>;
+
 	abstract readonly context: Collection.Advanced.ContextBase<
 		ValuedCollection.Advanced.TypesNonEmpty<T>
 	>;
@@ -488,6 +490,8 @@ export abstract class KeyedCollectionEmptyBase<K, V>
 		KeyedCollection<K, V>,
 		KeyedCollection.Capability.WithMapValues<K, V>
 {
+	declare readonly [TypesKey]: KeyedCollection.Advanced.Types<K, V>;
+
 	abstract readonly context: Collection.Advanced.ContextBase<
 		KeyedCollection.Advanced.Types<K, V>
 	>;
@@ -508,7 +512,7 @@ export abstract class KeyedCollectionEmptyBase<K, V>
 		return Stream.empty<V>();
 	}
 
-	mapValues<V2>(): (this['context']['__types'] & {
+	mapValues<V2>(): (this[TypesKey] & {
 		_NEW_V: V2;
 	})['_NEW_TYPES']['_SELF'] {
 		return this as any;
@@ -527,6 +531,8 @@ export abstract class KeyedCollectionNonEmptyBase<K, V>
 	extends CollectionNonEmptyBase<readonly [K, V]>
 	implements KeyedCollection.NonEmpty<K, V>
 {
+	declare readonly [TypesKey]: KeyedCollection.Advanced.TypesNonEmpty<K, V>;
+
 	abstract readonly context: Collection.Advanced.ContextBase<
 		KeyedCollection.Advanced.TypesNonEmpty<K, V>
 	>;
@@ -551,6 +557,8 @@ export abstract class IndexedValuedCollectionEmptyBase<T>
 	extends IndexedCollectionEmptyBase<T>
 	implements IndexedValuedCollection<T>
 {
+	declare readonly [TypesKey]: IndexedValuedCollection.Advanced.Types<T>;
+
 	abstract readonly context: Collection.Advanced.ContextBase<
 		IndexedValuedCollection.Advanced.Types<T>
 	>;
@@ -568,6 +576,8 @@ export abstract class IndexedValuedCollectionNonEmptyBase<T>
 	extends IndexedCollectionNonEmptyBase<T>
 	implements IndexedValuedCollection.NonEmpty<T>
 {
+	declare readonly [TypesKey]: IndexedValuedCollection.Advanced.TypesNonEmpty<T>;
+
 	abstract readonly context: Collection.Advanced.ContextBase<
 		IndexedValuedCollection.Advanced.TypesNonEmpty<T>
 	>;
@@ -580,6 +590,8 @@ export abstract class IndexedKeyedCollectionEmptyBase<K, V>
 	extends IndexedCollectionEmptyBase<readonly [K, V]>
 	implements IndexedKeyedCollection<K, V>
 {
+	declare readonly [TypesKey]: IndexedKeyedCollection.Advanced.Types<K, V>;
+
 	abstract readonly context: Collection.Advanced.ContextBase<
 		IndexedKeyedCollection.Advanced.Types<K, V>
 	>;
@@ -609,6 +621,11 @@ export abstract class IndexedKeyedCollectionNonEmptyBase<K, V>
 	extends IndexedCollectionNonEmptyBase<readonly [K, V]>
 	implements IndexedKeyedCollection.NonEmpty<K, V>
 {
+	declare readonly [TypesKey]: IndexedKeyedCollection.Advanced.TypesNonEmpty<
+		K,
+		V
+	>;
+
 	abstract readonly context: Collection.Advanced.ContextBase<
 		IndexedKeyedCollection.Advanced.TypesNonEmpty<K, V>
 	>;
@@ -640,7 +657,7 @@ export function defaultFilterIndexed<
 		negate?: boolean | undefined;
 		indexOffset?: number | undefined;
 	} = {},
-): C['context']['__types']['_NORMAL'] {
+): C[TypesKey]['_NORMAL'] {
 	const { negate = false, indexOffset = 0 } = options;
 	let index = indexOffset;
 	return negate
@@ -659,7 +676,7 @@ export function defaultCollect<
 		skip: CollectFun.Skip,
 		halt: () => void,
 	) => E2 | CollectFun.Skip,
-): (C['context']['__types'] & { _NEW_E: E2 })['_NEW_TYPES']['_NORMAL'] {
+): (C[TypesKey] & { _NEW_E: E2 })['_NEW_TYPES']['_NORMAL'] {
 	const builder = col.context.builder<E2>();
 
 	const token = Symbol();
@@ -697,7 +714,7 @@ export function defaultCollectIndexed<
 		halt: () => void,
 	) => E2 | CollectFun.Skip,
 	options: { indexOffset?: number | undefined } = {},
-): (C['context']['__types'] & { _NEW_E: E2 })['_NEW_TYPES']['_NORMAL'] {
+): (C[TypesKey] & { _NEW_E: E2 })['_NEW_TYPES']['_NORMAL'] {
 	const { indexOffset = 0 } = options;
 	let index = indexOffset;
 
@@ -710,9 +727,9 @@ export function defaultRepeat<
 	E,
 	C extends Collection<E> &
 		Collection.Capability.WithConcat<E> & {
-			context: { __types: { _SELF: C } };
+			[TypesKey]: { _SELF: C };
 		},
->(col: C, amount: number): C['context']['__types']['_NORMAL'] {
+>(col: C, amount: number): C[TypesKey]['_NORMAL'] {
 	Int.checkAtLeastZero(amount);
 
 	if (amount === 0) {
@@ -736,7 +753,7 @@ export function defaultMapIndexed<
 	col: C,
 	mapFun: (element: E, index: number) => E2,
 	options: { indexOffset?: number | undefined } = {},
-): (C['context']['__types'] & { _NEW_E: E2 })['_NEW_TYPES']['_NORMAL'] {
+): (C[TypesKey] & { _NEW_E: E2 })['_NEW_TYPES']['_NORMAL'] {
 	const { indexOffset = 0 } = options;
 	let index = indexOffset;
 
@@ -747,12 +764,9 @@ export function defaultFlatMap<
 	E,
 	C extends Collection<E> &
 		Collection.Capability.WithConcat<E> & {
-			context: { __types: { _SELF: C } };
+			[TypesKey]: { _SELF: C };
 		},
->(
-	col: C,
-	f: (element: E) => StreamSource<E>,
-): C['context']['__types']['_NORMAL'] {
+>(col: C, f: (element: E) => StreamSource<E>): C[TypesKey]['_NORMAL'] {
 	const token = Symbol();
 	const iterator = col[Symbol.iterator]();
 
@@ -770,13 +784,13 @@ export function defaultFlatMapIndexed<
 	E,
 	C extends Collection<E> &
 		Collection.Capability.WithConcat<E> & {
-			context: { __types: { _SELF: C } };
+			[TypesKey]: { _SELF: C };
 		},
 >(
 	col: C,
 	f: (element: E, index: number) => StreamSource<E>,
 	options: { indexOffset?: number | undefined } = {},
-): C['context']['__types']['_NORMAL'] {
+): C[TypesKey]['_NORMAL'] {
 	const { indexOffset = 0 } = options;
 	let index = indexOffset;
 
@@ -802,16 +816,10 @@ export function defaultSpliceAtAndReturn<
 		  }
 		| undefined = {},
 ): Op.DynamicResult<
-	C['context']['__types']['_NON_EMPTY'],
-	[
-		removed: C['context']['__types']['_NORMAL'],
-		inserted: C['context']['__types']['_NORMAL'],
-	],
-	[
-		removed: C['context']['__types']['_NORMAL'],
-		inserted: C['context']['__types']['_NORMAL'],
-	],
-	C['context']['__types']['_NORMAL']
+	C[TypesKey]['_NON_EMPTY'],
+	[removed: C[TypesKey]['_NORMAL'], inserted: C[TypesKey]['_NORMAL']],
+	[removed: C[TypesKey]['_NORMAL'], inserted: C[TypesKey]['_NORMAL']],
+	C[TypesKey]['_NORMAL']
 > {
 	const { removeAmount = 0, insert } = options;
 
@@ -863,10 +871,10 @@ export function defaultRemoveAtAndReturn<
 	index: number,
 	amount = 1,
 ): Op.DynamicResult<
-	C['context']['__types']['_NON_EMPTY'],
-	C['context']['__types']['_NORMAL'],
-	C['context']['__types']['_NON_EMPTY'],
-	C['context']['__types']['_NORMAL']
+	C[TypesKey]['_NON_EMPTY'],
+	C[TypesKey]['_NORMAL'],
+	C[TypesKey]['_NON_EMPTY'],
+	C[TypesKey]['_NORMAL']
 > {
 	const outcome = col.spliceAtAndReturn(index, {
 		removeAmount: amount,
@@ -908,7 +916,7 @@ export function defaultSwapAtAndReturn<
 	index1: number,
 	index2: number,
 ): Op.DynamicResult<
-	C['context']['__types']['_NON_EMPTY'],
+	C[TypesKey]['_NON_EMPTY'],
 	[previous1: undefined, previous2: undefined],
 	[previous1: E, previous2: E]
 > {
@@ -954,7 +962,7 @@ export function defaultSwapAtAndReturn<
 			: (withNewA.collection.setAt(
 					index2,
 					previousA,
-				) as C['context']['__types']['_NON_EMPTY']);
+				) as C[TypesKey]['_NON_EMPTY']);
 
 		return {
 			collection: withSwapped,

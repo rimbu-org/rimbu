@@ -2,8 +2,10 @@ import type {
 	Collection,
 	ValuedCollection,
 } from '@rimbu/collection-types/capabilities';
+import type { TypesKey } from '@rimbu/collection-types/types';
 
 export interface SetCollection<T> extends ValuedCollection<T> {
+	readonly [TypesKey]: SetCollection.Advanced.Types<T>;
 	readonly context: Collection.Advanced.ContextBase<
 		SetCollection.Advanced.Types<T>
 	>;
@@ -13,12 +15,14 @@ export namespace SetCollection {
 	export interface NonEmpty<T>
 		extends SetCollection<T>,
 			ValuedCollection.NonEmpty<T> {
+		readonly [TypesKey]: SetCollection.Advanced.TypesNonEmpty<T>;
 		readonly context: Collection.Advanced.ContextBase<
 			SetCollection.Advanced.TypesNonEmpty<T>
 		>;
 	}
 
 	export interface Builder<T> extends ValuedCollection.Builder<T> {
+		readonly [TypesKey]: SetCollection.Advanced.Types<T>;
 		readonly context: Collection.Advanced.ContextBase<
 			SetCollection.Advanced.Types<T>
 		>;
