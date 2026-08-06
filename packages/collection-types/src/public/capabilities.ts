@@ -540,31 +540,27 @@ export declare namespace IndexedCollection {
 	}
 }
 
-export interface ValuedCollection<T> extends Collection<T> {
-	readonly [TypesKey]: ValuedCollection.Advanced.Types<T>;
-	readonly context: Collection.Advanced.ContextBase<
-		ValuedCollection.Advanced.Types<T>
-	>;
-
+export interface ValuedCollection<
+	T,
+	Tp extends
+		ValuedCollection.Advanced.Types<T> = ValuedCollection.Advanced.Types<T>,
+> extends Collection<T, Tp> {
 	has<UT = T>(value: RelatedTo<T, UT>): boolean;
 }
 
 export declare namespace ValuedCollection {
-	export interface NonEmpty<T>
-		extends ValuedCollection<T>,
-			Collection.NonEmpty<T> {
-		readonly [TypesKey]: ValuedCollection.Advanced.TypesNonEmpty<T>;
-		readonly context: Collection.Advanced.ContextBase<
-			ValuedCollection.Advanced.TypesNonEmpty<T>
-		>;
-	}
+	export interface NonEmpty<
+		T,
+		Tp extends
+			ValuedCollection.Advanced.TypesNonEmpty<T> = ValuedCollection.Advanced.TypesNonEmpty<T>,
+	> extends ValuedCollection<T, Tp>,
+			Collection.NonEmpty<T, Tp> {}
 
-	export interface Builder<T> extends Collection.Builder<T> {
-		readonly [TypesKey]: ValuedCollection.Advanced.Types<T>;
-		readonly context: Collection.Advanced.ContextBase<
-			ValuedCollection.Advanced.Types<T>
-		>;
-
+	export interface Builder<
+		T,
+		Tp extends
+			ValuedCollection.Advanced.Types<T> = ValuedCollection.Advanced.Types<T>,
+	> extends Collection.Builder<T, Tp> {
 		has<UT = T>(value: RelatedTo<T, UT>): boolean;
 	}
 
@@ -586,12 +582,14 @@ export declare namespace ValuedCollection {
 	}
 }
 
-export interface KeyedCollection<K, V> extends Collection<readonly [K, V]> {
-	readonly [TypesKey]: KeyedCollection.Advanced.Types<K, V>;
-	readonly context: Collection.Advanced.ContextBase<
-		KeyedCollection.Advanced.Types<K, V>
-	>;
-
+export interface KeyedCollection<
+	K,
+	V,
+	Tp extends KeyedCollection.Advanced.Types<
+		K,
+		V
+	> = KeyedCollection.Advanced.Types<K, V>,
+> extends Collection<readonly [K, V], Tp> {
 	get<UK = K>(key: RelatedTo<K, UK>): V | undefined;
 	get<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O;
 	has<UK = K>(key: RelatedTo<K, UK>): boolean;
@@ -601,21 +599,24 @@ export interface KeyedCollection<K, V> extends Collection<readonly [K, V]> {
 }
 
 export declare namespace KeyedCollection {
-	export interface NonEmpty<K, V>
-		extends KeyedCollection<K, V>,
-			Collection.NonEmpty<readonly [K, V]> {
-		readonly [TypesKey]: KeyedCollection.Advanced.TypesNonEmpty<K, V>;
-		readonly context: Collection.Advanced.ContextBase<
-			KeyedCollection.Advanced.TypesNonEmpty<K, V>
-		>;
-	}
+	export interface NonEmpty<
+		K,
+		V,
+		Tp extends KeyedCollection.Advanced.TypesNonEmpty<
+			K,
+			V
+		> = KeyedCollection.Advanced.TypesNonEmpty<K, V>,
+	> extends KeyedCollection<K, V, Tp>,
+			Collection.NonEmpty<readonly [K, V], Tp> {}
 
-	export interface Builder<K, V> extends Collection.Builder<readonly [K, V]> {
-		readonly [TypesKey]: KeyedCollection.Advanced.Types<K, V>;
-		readonly context: Collection.Advanced.ContextBase<
-			KeyedCollection.Advanced.Types<K, V>
-		>;
-
+	export interface Builder<
+		K,
+		V,
+		Tp extends KeyedCollection.Advanced.Types<
+			K,
+			V
+		> = KeyedCollection.Advanced.Types<K, V>,
+	> extends Collection.Builder<readonly [K, V], Tp> {
 		get<UK = K>(key: RelatedTo<K, UK>): V | undefined;
 		get<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O;
 		has<UK = K>(key: RelatedTo<K, UK>): boolean;
@@ -666,40 +667,34 @@ export declare namespace KeyedCollection {
 	}
 }
 
-export interface IndexedValuedCollection<T>
-	extends IndexedCollection<T>,
-		ValuedCollection<T> {
-	readonly [TypesKey]: IndexedValuedCollection.Advanced.Types<T>;
-	readonly context: Collection.Advanced.ContextBase<
-		IndexedValuedCollection.Advanced.Types<T>
-	>;
-
+export interface IndexedValuedCollection<
+	T,
+	Tp extends
+		IndexedValuedCollection.Advanced.Types<T> = IndexedValuedCollection.Advanced.Types<T>,
+> extends IndexedCollection<T, Tp>,
+		ValuedCollection<T, Tp> {
 	indexOf<UT = T>(value: RelatedTo<T, UT>): number | undefined;
 	indexOf<UT, O>(value: RelatedTo<T, UT>, otherwise: OptLazy<O>): number | O;
 }
 
 export declare namespace IndexedValuedCollection {
-	export interface NonEmpty<T>
-		extends IndexedValuedCollection<T>,
-			IndexedCollection.NonEmpty<T>,
-			ValuedCollection.NonEmpty<T> {
-		readonly [TypesKey]: IndexedValuedCollection.Advanced.TypesNonEmpty<T>;
-		readonly context: Collection.Advanced.ContextBase<
-			IndexedValuedCollection.Advanced.TypesNonEmpty<T>
-		>;
-
+	export interface NonEmpty<
+		T,
+		Tp extends
+			IndexedValuedCollection.Advanced.TypesNonEmpty<T> = IndexedValuedCollection.Advanced.TypesNonEmpty<T>,
+	> extends IndexedValuedCollection<T, Tp>,
+			IndexedCollection.NonEmpty<T, Tp>,
+			ValuedCollection.NonEmpty<T, Tp> {
 		indexOf<UT = T>(value: RelatedTo<T, UT>): number | undefined;
 		indexOf<UT, O>(value: RelatedTo<T, UT>, otherwise: OptLazy<O>): number | O;
 	}
 
-	export interface Builder<T>
-		extends IndexedCollection.Builder<T>,
-			ValuedCollection.Builder<T> {
-		readonly [TypesKey]: IndexedValuedCollection.Advanced.Types<T>;
-		readonly context: Collection.Advanced.ContextBase<
-			IndexedValuedCollection.Advanced.Types<T>
-		>;
-
+	export interface Builder<
+		T,
+		Tp extends
+			IndexedValuedCollection.Advanced.Types<T> = IndexedValuedCollection.Advanced.Types<T>,
+	> extends IndexedCollection.Builder<T, Tp>,
+			ValuedCollection.Builder<T, Tp> {
 		indexOf<UT = T>(value: RelatedTo<T, UT>): number | undefined;
 		indexOf<UT, O>(value: RelatedTo<T, UT>, otherwise: OptLazy<O>): number | O;
 	}
@@ -731,40 +726,43 @@ export declare namespace IndexedValuedCollection {
 	}
 }
 
-export interface IndexedKeyedCollection<K, V>
-	extends IndexedCollection<readonly [K, V]>,
-		KeyedCollection<K, V> {
-	readonly [TypesKey]: IndexedKeyedCollection.Advanced.Types<K, V>;
-	readonly context: Collection.Advanced.ContextBase<
-		IndexedKeyedCollection.Advanced.Types<K, V>
-	>;
-
+export interface IndexedKeyedCollection<
+	K,
+	V,
+	Tp extends IndexedKeyedCollection.Advanced.Types<
+		K,
+		V
+	> = IndexedKeyedCollection.Advanced.Types<K, V>,
+> extends IndexedCollection<readonly [K, V], Tp>,
+		KeyedCollection<K, V, Tp> {
 	indexOf<UK = K>(key: RelatedTo<K, UK>): number | undefined;
 	indexOf<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): number | O;
 }
 
 export declare namespace IndexedKeyedCollection {
-	export interface NonEmpty<K, V>
-		extends IndexedKeyedCollection<K, V>,
-			IndexedCollection.NonEmpty<readonly [K, V]>,
-			KeyedCollection.NonEmpty<K, V> {
-		readonly [TypesKey]: IndexedKeyedCollection.Advanced.TypesNonEmpty<K, V>;
-		readonly context: Collection.Advanced.ContextBase<
-			IndexedKeyedCollection.Advanced.TypesNonEmpty<K, V>
-		>;
-
+	export interface NonEmpty<
+		K,
+		V,
+		Tp extends IndexedKeyedCollection.Advanced.TypesNonEmpty<
+			K,
+			V
+		> = IndexedKeyedCollection.Advanced.TypesNonEmpty<K, V>,
+	> extends IndexedKeyedCollection<K, V, Tp>,
+			IndexedCollection.NonEmpty<readonly [K, V], Tp>,
+			KeyedCollection.NonEmpty<K, V, Tp> {
 		indexOf<UK = K>(key: RelatedTo<K, UK>): number | undefined;
 		indexOf<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): number | O;
 	}
 
-	export interface Builder<K, V>
-		extends IndexedCollection.Builder<readonly [K, V]>,
-			KeyedCollection.Builder<K, V> {
-		readonly [TypesKey]: IndexedKeyedCollection.Advanced.Types<K, V>;
-		readonly context: Collection.Advanced.ContextBase<
-			IndexedKeyedCollection.Advanced.Types<K, V>
-		>;
-
+	export interface Builder<
+		K,
+		V,
+		Tp extends IndexedKeyedCollection.Advanced.Types<
+			K,
+			V
+		> = IndexedKeyedCollection.Advanced.Types<K, V>,
+	> extends IndexedCollection.Builder<readonly [K, V], Tp>,
+			KeyedCollection.Builder<K, V, Tp> {
 		indexOf<UK = K>(key: RelatedTo<K, UK>): number | undefined;
 		indexOf<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): number | O;
 	}
@@ -818,12 +816,14 @@ export declare namespace IndexedKeyedCollection {
 	}
 }
 
-export interface SortedCollection<S, E> extends Collection<E> {
-	readonly [TypesKey]: SortedCollection.Advanced.Types<S, E>;
-	readonly context: Collection.Advanced.ContextBase<
-		SortedCollection.Advanced.Types<S, E>
-	>;
-
+export interface SortedCollection<
+	S,
+	E,
+	Tp extends SortedCollection.Advanced.Types<
+		S,
+		E
+	> = SortedCollection.Advanced.Types<S, E>,
+> extends Collection<E, Tp> {
 	readonly comp: Comp<S>;
 
 	lowerBound(search: S): number;
@@ -858,21 +858,24 @@ export interface SortedCollection<S, E> extends Collection<E> {
 }
 
 export declare namespace SortedCollection {
-	export interface NonEmpty<S, E>
-		extends SortedCollection<S, E>,
-			Collection.NonEmpty<E> {
-		readonly [TypesKey]: SortedCollection.Advanced.TypesNonEmpty<S, E>;
-		readonly context: Collection.Advanced.ContextBase<
-			SortedCollection.Advanced.TypesNonEmpty<S, E>
-		>;
-	}
+	export interface NonEmpty<
+		S,
+		E,
+		Tp extends SortedCollection.Advanced.TypesNonEmpty<
+			S,
+			E
+		> = SortedCollection.Advanced.TypesNonEmpty<S, E>,
+	> extends SortedCollection<S, E, Tp>,
+			Collection.NonEmpty<E, Tp> {}
 
-	export interface Builder<S, E> extends Collection.Builder<E> {
-		readonly [TypesKey]: SortedCollection.Advanced.Types<S, E>;
-		readonly context: Collection.Advanced.ContextBase<
-			SortedCollection.Advanced.Types<S, E>
-		>;
-
+	export interface Builder<
+		S,
+		E,
+		Tp extends SortedCollection.Advanced.Types<
+			S,
+			E
+		> = SortedCollection.Advanced.Types<S, E>,
+	> extends Collection.Builder<E, Tp> {
 		lowerBound(search: S): number;
 		upperBound(search: S): number;
 

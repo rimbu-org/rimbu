@@ -1,32 +1,23 @@
-import type {
-	Collection,
-	ValuedCollection,
-} from '@rimbu/collection-types/capabilities';
-import type { TypesKey } from '@rimbu/collection-types/types';
+import type { ValuedCollection } from '@rimbu/collection-types/capabilities';
 
-export interface SetCollection<T> extends ValuedCollection<T> {
-	readonly [TypesKey]: SetCollection.Advanced.Types<T>;
-	readonly context: Collection.Advanced.ContextBase<
-		SetCollection.Advanced.Types<T>
-	>;
-}
+export interface SetCollection<
+	T,
+	Tp extends SetCollection.Advanced.Types<T> = SetCollection.Advanced.Types<T>,
+> extends ValuedCollection<T, Tp> {}
 
 export namespace SetCollection {
-	export interface NonEmpty<T>
-		extends SetCollection<T>,
-			ValuedCollection.NonEmpty<T> {
-		readonly [TypesKey]: SetCollection.Advanced.TypesNonEmpty<T>;
-		readonly context: Collection.Advanced.ContextBase<
-			SetCollection.Advanced.TypesNonEmpty<T>
-		>;
-	}
+	export interface NonEmpty<
+		T,
+		Tp extends
+			SetCollection.Advanced.TypesNonEmpty<T> = SetCollection.Advanced.TypesNonEmpty<T>,
+	> extends SetCollection<T, Tp>,
+			ValuedCollection.NonEmpty<T, Tp> {}
 
-	export interface Builder<T> extends ValuedCollection.Builder<T> {
-		readonly [TypesKey]: SetCollection.Advanced.Types<T>;
-		readonly context: Collection.Advanced.ContextBase<
-			SetCollection.Advanced.Types<T>
-		>;
-	}
+	export interface Builder<
+		T,
+		Tp extends
+			SetCollection.Advanced.Types<T> = SetCollection.Advanced.Types<T>,
+	> extends ValuedCollection.Builder<T, Tp> {}
 
 	export namespace Advanced {
 		export interface Types<T> extends ValuedCollection.Advanced.Types<T> {

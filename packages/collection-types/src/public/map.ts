@@ -1,32 +1,33 @@
-import type {
-	Collection,
-	KeyedCollection,
-} from '@rimbu/collection-types/capabilities';
-import type { TypesKey } from '@rimbu/collection-types/types';
+import type { KeyedCollection } from '@rimbu/collection-types/capabilities';
 
-export interface MapCollection<K, V> extends KeyedCollection<K, V> {
-	readonly [TypesKey]: MapCollection.Advanced.Types<K, V>;
-	readonly context: Collection.Advanced.ContextBase<
-		MapCollection.Advanced.Types<K, V>
-	>;
-}
+export interface MapCollection<
+	K,
+	V,
+	Tp extends MapCollection.Advanced.Types<K, V> = MapCollection.Advanced.Types<
+		K,
+		V
+	>,
+> extends KeyedCollection<K, V, Tp> {}
 
 export declare namespace MapCollection {
-	export interface NonEmpty<K, V>
-		extends MapCollection<K, V>,
-			KeyedCollection.NonEmpty<K, V> {
-		readonly [TypesKey]: MapCollection.Advanced.TypesNonEmpty<K, V>;
-		readonly context: Collection.Advanced.ContextBase<
-			MapCollection.Advanced.TypesNonEmpty<K, V>
-		>;
-	}
+	export interface NonEmpty<
+		K,
+		V,
+		Tp extends MapCollection.Advanced.TypesNonEmpty<
+			K,
+			V
+		> = MapCollection.Advanced.TypesNonEmpty<K, V>,
+	> extends MapCollection<K, V, Tp>,
+			KeyedCollection.NonEmpty<K, V, Tp> {}
 
-	export interface Builder<K, V> extends KeyedCollection.Builder<K, V> {
-		readonly [TypesKey]: MapCollection.Advanced.Types<K, V>;
-		readonly context: Collection.Advanced.ContextBase<
-			MapCollection.Advanced.Types<K, V>
-		>;
-	}
+	export interface Builder<
+		K,
+		V,
+		Tp extends MapCollection.Advanced.Types<
+			K,
+			V
+		> = MapCollection.Advanced.Types<K, V>,
+	> extends KeyedCollection.Builder<K, V, Tp> {}
 
 	export namespace Advanced {
 		export interface Types<K, V> extends KeyedCollection.Advanced.Types<K, V> {
