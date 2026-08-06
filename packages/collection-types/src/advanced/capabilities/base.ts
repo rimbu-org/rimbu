@@ -508,12 +508,10 @@ export abstract class KeyedCollectionEmptyBase<K, V>
 		return Stream.empty<V>();
 	}
 
-	mapValues<T2>(): (this['context']['__types'] & { _NEW_E: T2 })['_NORMAL'] {
-		return this;
-	}
-
-	mapIndexed<T2>(): (this['context']['__types'] & { _NEW_E: T2 })['_NORMAL'] {
-		return this;
+	mapValues<V2>(): (this['context']['__types'] & {
+		_NEW_V: V2;
+	})['_NEW_TYPES']['_SELF'] {
+		return this as any;
 	}
 }
 
@@ -724,12 +722,10 @@ export function defaultRepeat<
 		return col;
 	}
 
-	const nextRepeat = amount >>> 1;
-	const remain = amount % 2;
+	// repeat by doubling: `half` holds 2 * (amount >>> 1) copies
+	const half = defaultRepeat(col.concat(col), amount >>> 1);
 
-	const repeated = defaultRepeat(col.concat(col), nextRepeat);
-
-	return remain === 0 ? repeated : col.concat(col);
+	return amount % 2 === 0 ? half : col.concat(half);
 }
 
 export function defaultMapIndexed<

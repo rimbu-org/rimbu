@@ -22,12 +22,10 @@ export declare namespace List {
 	}
 
 	export interface Builder<T>
-		extends IndexedCollection.Builder<
-			T,
-			List.Advanced.Types<T> &
-				IndexedCollection.Capability.BuilderWithAppendPrependTypes<T>
-		> {
-		// readonly context: List.Context<T>;
+		extends IndexedCollection.Builder<T, List.Advanced.Types<T>>,
+			Collection.Builder.Capability.WithAppendPrepend<T> {
+		readonly context: List.Context<T>;
+
 		setAt(index: number, element: T): T | undefined;
 		setAt<O>(index: number, element: T, otherwise: OptLazy<O>): T | O;
 		updateAt(
@@ -35,9 +33,7 @@ export declare namespace List {
 			f: (element: T) => T,
 		): [previous: T, current: T] | undefined;
 		swapAt(index1: number, index2: number): void;
-		prepend(element: T): void;
 		prependAll(elements: StreamSource<T>): void;
-		append(element: T): void;
 		appendAll(elements: StreamSource<T>): void;
 	}
 

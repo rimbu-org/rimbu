@@ -60,6 +60,26 @@ export declare namespace Collection {
 		build(): this['context']['__types']['_NORMAL'];
 	}
 
+	export namespace Builder {
+		/**
+		 * Optional capabilities a concrete `Collection.Builder` can mix in.
+		 *
+		 * Like `Collection.Capability.*`, these are plain interface mixins: they
+		 * may *read* slots from the types record but must never *override* one.
+		 * A capability that overrides a slot can only be composed with `&` on the
+		 * types record, and `&` intersects every slot rather than overriding the
+		 * single intended one — which leaks intersections such as
+		 * `List<T> & IndexedCollection<T>` into `build()`'s return type.
+		 * Composing read-only mixins with `extends` keeps concrete types exact.
+		 */
+		export namespace Capability {
+			export interface WithAppendPrepend<E> {
+				prepend(element: E): void;
+				append(element: E): void;
+			}
+		}
+	}
+
 	export namespace Advanced {
 		export interface Trait<
 			E,
@@ -289,15 +309,20 @@ export declare namespace IndexedCollection {
 	}
 
 	export namespace Capability {
-		export interface BWA<E, Tp extends IndexedCollection.Advanced.Types<E>>
-			extends IndexedCollection.Builder<E, Tp> {
-			prepend(element: E): void;
-			append(element: E): void;
-		}
-
+		/**
+		 * A types record describing "any collection whose builder supports
+		 * `append`/`prepend`".
+		 *
+		 * This exists purely as a *constraint* for generic helpers such as
+		 * `defaultCollect`. Concrete collections must never intersect it into
+		 * their own `Builder` declaration — they simply mix in
+		 * `Collection.Builder.Capability.WithAppendPrepend` via `extends`, and
+		 * their own types record then satisfies this constraint structurally.
+		 */
 		export interface BuilderWithAppendPrependTypes<E>
 			extends IndexedCollection.Advanced.Types<E> {
-			_BUILDER: BWA<E, BuilderWithAppendPrependTypes<E>>;
+			_BUILDER: IndexedCollection.Builder<E, BuilderWithAppendPrependTypes<E>> &
+				Collection.Builder.Capability.WithAppendPrepend<E>;
 
 			_NEW_TYPES: BuilderWithAppendPrependTypes<this['_NEW_E']>;
 		}
@@ -693,13 +718,16 @@ export declare namespace IndexedValuedCollection {
 		}
 
 		export interface TypesNonEmpty<T>
-			extends IndexedCollection.Advanced.TypesNonEmpty<T> {
+			extends IndexedCollection.Advanced.TypesNonEmpty<T>,
+				ValuedCollection.Advanced.TypesNonEmpty<T> {
 			_NORMAL: IndexedValuedCollection<T>;
 			_NON_EMPTY: IndexedValuedCollection.NonEmpty<T>;
 			_BUILDER: IndexedValuedCollection.Builder<T>;
 			_NEW_TYPES: IndexedValuedCollection.Advanced.TypesNonEmpty<
 				this['_NEW_E']
 			>;
+
+			_stream: IndexedCollection.Advanced.TypesNonEmpty<T>['_stream'];
 		}
 	}
 }
