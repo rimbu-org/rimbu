@@ -21,8 +21,13 @@ export declare namespace List {
 		readonly context: List.Context<T, true>;
 	}
 
-	export interface Builder<T> extends IndexedCollection.Builder<T> {
-		readonly context: List.Context<T>;
+	export interface Builder<T>
+		extends IndexedCollection.Builder<
+			T,
+			List.Advanced.Types<T> &
+				IndexedCollection.Capability.BuilderWithAppendPrependTypes<T>
+		> {
+		// readonly context: List.Context<T>;
 		setAt(index: number, element: T): T | undefined;
 		setAt<O>(index: number, element: T, otherwise: OptLazy<O>): T | O;
 		updateAt(

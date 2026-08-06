@@ -653,10 +653,7 @@ export function defaultFilterIndexed<
 export function defaultCollect<
 	E,
 	E2,
-	C extends IndexedCollection<
-		E,
-		IndexedCollection.Capability.BuilderWithAppendPrepend<E>
-	>,
+	C extends IndexedCollection.Capability.WithBuilderWithAppendPrepend<E>,
 >(
 	col: C,
 	collectFun: (
@@ -822,11 +819,9 @@ export function defaultSpliceAtAndReturn<
 > {
 	const { removeAmount = 0, insert } = options;
 
-	Int.check(index);
 	Int.checkAtLeastZero(removeAmount);
 
 	const insertList = col.context.from(insert);
-	if (index < 0) index = Math.max(0, col.size + index);
 
 	if (index >= col.size) {
 		return {

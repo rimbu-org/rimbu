@@ -289,16 +289,21 @@ export declare namespace IndexedCollection {
 	}
 
 	export namespace Capability {
-		export interface BuilderWithAppendPrepend<E>
-			extends IndexedCollection.Advanced.Types<E> {
-			_BUILDER: IndexedCollection.Builder<E> & {
-				prepend(element: E): void;
-				append(element: E): void;
-			};
-			_NEW_E: unknown;
-
-			_NEW_TYPES: BuilderWithAppendPrepend<this['_NEW_E']>;
+		export interface BWA<E, Tp extends IndexedCollection.Advanced.Types<E>>
+			extends IndexedCollection.Builder<E, Tp> {
+			prepend(element: E): void;
+			append(element: E): void;
 		}
+
+		export interface BuilderWithAppendPrependTypes<E>
+			extends IndexedCollection.Advanced.Types<E> {
+			_BUILDER: BWA<E, BuilderWithAppendPrependTypes<E>>;
+
+			_NEW_TYPES: BuilderWithAppendPrependTypes<this['_NEW_E']>;
+		}
+
+		export interface WithBuilderWithAppendPrepend<E>
+			extends IndexedCollection<E, BuilderWithAppendPrependTypes<E>> {}
 
 		export interface WithCollectIndexed<E>
 			extends IndexedCollection.Advanced.Trait<E> {
