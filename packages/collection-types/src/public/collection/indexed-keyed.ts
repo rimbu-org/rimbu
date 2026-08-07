@@ -58,10 +58,10 @@ export declare namespace IndexedKeyedCollection {
 			>;
 		}
 
-		export interface NormalVariant<K, V>
-			extends IndexedCollection.Advanced.NormalVariant<readonly [K, V]>,
-				KeyedCollection.Advanced.NormalVariant<K, V> {
-			_stream: IndexedCollection.Advanced.NormalVariant<
+		export interface NormalKind<K, V>
+			extends IndexedCollection.Advanced.NormalKind<readonly [K, V]>,
+				KeyedCollection.Advanced.NormalKind<K, V> {
+			_stream: IndexedCollection.Advanced.NormalKind<
 				readonly [K, V]
 			>['_stream'];
 
@@ -73,16 +73,16 @@ export declare namespace IndexedKeyedCollection {
 			) => Stream<V>;
 
 			_NEW_TYPES: this['_NEW_FAMILY'] &
-				IndexedKeyedCollection.Advanced.NormalVariant<
+				IndexedKeyedCollection.Advanced.NormalKind<
 					this['_NEW_K'],
 					this['_NEW_V']
 				>;
 		}
 
-		export interface NonEmptyVariant<K, V>
-			extends IndexedCollection.Advanced.NonEmptyVariant<readonly [K, V]>,
-				KeyedCollection.Advanced.NonEmptyVariant<K, V> {
-			_stream: IndexedCollection.Advanced.NonEmptyVariant<
+		export interface NonEmptyKind<K, V>
+			extends IndexedCollection.Advanced.NonEmptyKind<readonly [K, V]>,
+				KeyedCollection.Advanced.NonEmptyKind<K, V> {
+			_stream: IndexedCollection.Advanced.NonEmptyKind<
 				readonly [K, V]
 			>['_stream'];
 
@@ -94,19 +94,19 @@ export declare namespace IndexedKeyedCollection {
 			) => Stream.NonEmpty<V>;
 
 			_NEW_TYPES: this['_NEW_FAMILY'] &
-				IndexedKeyedCollection.Advanced.NonEmptyVariant<
+				IndexedKeyedCollection.Advanced.NonEmptyKind<
 					this['_NEW_K'],
 					this['_NEW_V']
 				>;
 		}
 
 		export type Types<K, V> = IndexedKeyedCollection.Advanced.Family<K, V> &
-			IndexedKeyedCollection.Advanced.NormalVariant<K, V>;
+			IndexedKeyedCollection.Advanced.NormalKind<K, V>;
 
 		export type TypesNonEmpty<K, V> = IndexedKeyedCollection.Advanced.Family<
 			K,
 			V
 		> &
-			IndexedKeyedCollection.Advanced.NonEmptyVariant<K, V>;
+			IndexedKeyedCollection.Advanced.NonEmptyKind<K, V>;
 	}
 }

@@ -10,8 +10,8 @@ export interface Collection<
 	readonly isEmpty: this[TypesKey]['_isEmpty'];
 	readonly size: number;
 
-	nonEmpty: this[TypesKey]['_nonEmpty'];
-	assumeNonEmpty: this[TypesKey]['_assumeNonEmpty'];
+	nonEmpty(): this is this[TypesKey]['_NON_EMPTY'];
+	assumeNonEmpty(): this[TypesKey]['_NON_EMPTY'];
 
 	stream: this[TypesKey]['_stream'];
 
@@ -89,15 +89,6 @@ export declare namespace Collection {
 			readonly context: Collection.Advanced.ContextBase<Tp>;
 		}
 
-		export type WithSelf<
-			E,
-			C extends Collection<E>,
-		> = Collection.Advanced.Trait<E> & {
-			readonly [TypesKey]: Collection.Advanced.Family<E> & {
-				_SELF: C;
-			};
-		};
-
 		export interface ContextBase<Tp extends Collection.Advanced.Types<any>> {
 			empty<E extends Tp['_UPPER_E']>(): (Tp & {
 				_NEW_E: E;
@@ -122,28 +113,25 @@ export declare namespace Collection {
 		 * The types record is split along two orthogonal axes.
 		 *
 		 * - **Family** — *which* collection this is: `_NORMAL`, `_NON_EMPTY`,
-		 *   `_BUILDER`. Identical for the possibly-empty and non-empty variants,
+		 *   `_BUILDER`. Identical for the possibly-empty and non-empty Kinds,
 		 *   so a package declares it exactly once.
-		 * - **Variant** — whether the collection may be empty: `_SELF`,
+		 * - **Kind** — whether the collection may be empty: `_SELF`,
 		 *   `_isEmpty`, `_stream`, `_toArray`, ... Fully determined by this
 		 *   library, so a package never restates it.
 		 *
 		 * The two axes are combined with `&`, never `extends`: an intersection
 		 * has no "members must be identical" rule (TS2320), and `unknown & X`
-		 * reduces to `X`, so a narrowing family composes cleanly with a variant
+		 * reduces to `X`, so a narrowing family composes cleanly with a Kind
 		 * that leaves the family slots open.
 		 *
-		 * Consequently a `*Variant` interface must only ever extend the variant
-		 * chain — extending a *narrowing* family from a variant reintroduces
+		 * Consequently a `*Kind` interface must only ever extend the Kind
+		 * chain — extending a *narrowing* family from a Kind reintroduces
 		 * TS2320.
 		 */
 		export interface FamilyBase<E> {
 			_NORMAL: unknown;
 			_NON_EMPTY: unknown;
 			_BUILDER: unknown;
-
-			_nonEmpty: () => this is this['_NON_EMPTY'];
-			_assumeNonEmpty: () => this['_NON_EMPTY'];
 
 			_UPPER_E: unknown;
 			_NEW_E: this['_UPPER_E'];
@@ -160,8 +148,7 @@ export declare namespace Collection {
 			_NEW_FAMILY: Collection.Advanced.Family<this['_NEW_E']>;
 		}
 
-		export interface NormalVariant<E>
-			extends Collection.Advanced.FamilyBase<E> {
+		export interface NormalKind<E> extends Collection.Advanced.FamilyBase<E> {
 			_SELF: this['_NORMAL'];
 			_AS_STREAM: Stream<E>;
 
@@ -170,11 +157,10 @@ export declare namespace Collection {
 			_toArray: () => E[];
 
 			_NEW_TYPES: this['_NEW_FAMILY'] &
-				Collection.Advanced.NormalVariant<this['_NEW_E']>;
+				Collection.Advanced.NormalKind<this['_NEW_E']>;
 		}
 
-		export interface NonEmptyVariant<E>
-			extends Collection.Advanced.FamilyBase<E> {
+		export interface NonEmptyKind<E> extends Collection.Advanced.FamilyBase<E> {
 			_SELF: this['_NON_EMPTY'];
 			_AS_STREAM: Stream.NonEmpty<E>;
 
@@ -183,14 +169,14 @@ export declare namespace Collection {
 			_toArray: () => ArrayNonEmpty<E>;
 
 			_NEW_TYPES: this['_NEW_FAMILY'] &
-				Collection.Advanced.NonEmptyVariant<this['_NEW_E']>;
+				Collection.Advanced.NonEmptyKind<this['_NEW_E']>;
 		}
 
 		export type Types<E> = Collection.Advanced.Family<E> &
-			Collection.Advanced.NormalVariant<E>;
+			Collection.Advanced.NormalKind<E>;
 
 		export type TypesNonEmpty<E> = Collection.Advanced.Family<E> &
-			Collection.Advanced.NonEmptyVariant<E>;
+			Collection.Advanced.NonEmptyKind<E>;
 	}
 
 	export namespace Capability {
@@ -204,7 +190,10 @@ export declare namespace Collection {
 			): (this[TypesKey] & { _NEW_E: E2 })['_NEW_TYPES']['_NORMAL'];
 		}
 
-		export interface WithConcat<E> extends Collection.Advanced.Trait<E> {
+		export interface WithConcat<
+			E,
+			Tp extends Collection.Advanced.Types<E> = Collection.Advanced.Types<E>,
+		> extends Collection.Advanced.Trait<E, Tp> {
 			concat(
 				...sources: ArrayNonEmpty<StreamSource.NonEmpty<E>>
 			): this[TypesKey]['_NON_EMPTY'];

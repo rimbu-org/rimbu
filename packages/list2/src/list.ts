@@ -91,10 +91,10 @@ export declare namespace List {
 		}
 
 		export type Types<T> = List.Advanced.Family<T> &
-			IndexedCollection.Advanced.NormalVariant<T>;
+			IndexedCollection.Advanced.NormalKind<T>;
 
 		export type TypesNonEmpty<T> = List.Advanced.Family<T> &
-			IndexedCollection.Advanced.NonEmptyVariant<T>;
+			IndexedCollection.Advanced.NonEmptyKind<T>;
 	}
 }
 

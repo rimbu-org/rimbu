@@ -16,7 +16,7 @@ export interface IndexedCollection<
 	at(index: number): E | undefined;
 	at<O>(index: number, otherwise: OptLazy<O>): E | O;
 
-	first: this[TypesKey]['_firstLast'];
+	first(): E | undefined;
 	last: this[TypesKey]['_firstLast'];
 
 	take: this[TypesKey]['_take'];
@@ -75,8 +75,7 @@ export declare namespace IndexedCollection {
 			_NEW_FAMILY: IndexedCollection.Advanced.Family<this['_NEW_E']>;
 		}
 
-		export interface NormalVariant<E>
-			extends Collection.Advanced.NormalVariant<E> {
+		export interface NormalKind<E> extends Collection.Advanced.NormalKind<E> {
 			_firstLast: IndexedCollection.Advanced.FirstLast<E>;
 			_take: (amount: number) => this['_NORMAL'];
 			_splitAt: (index: number) => [this['_NORMAL'], this['_NORMAL']];
@@ -85,11 +84,11 @@ export declare namespace IndexedCollection {
 			) => Stream<E>;
 
 			_NEW_TYPES: this['_NEW_FAMILY'] &
-				IndexedCollection.Advanced.NormalVariant<this['_NEW_E']>;
+				IndexedCollection.Advanced.NormalKind<this['_NEW_E']>;
 		}
 
-		export interface NonEmptyVariant<E>
-			extends Collection.Advanced.NonEmptyVariant<E> {
+		export interface NonEmptyKind<E>
+			extends Collection.Advanced.NonEmptyKind<E> {
 			_firstLast: IndexedCollection.Advanced.FirstLast<E, true>;
 			_take: TakeNonEmpty<this['_NORMAL'], this['_NON_EMPTY']>;
 			_splitAt: SplitAtNonEmpty<this['_NORMAL'], this['_NON_EMPTY']>;
@@ -99,14 +98,14 @@ export declare namespace IndexedCollection {
 			) => Stream.NonEmpty<E>;
 
 			_NEW_TYPES: this['_NEW_FAMILY'] &
-				IndexedCollection.Advanced.NonEmptyVariant<this['_NEW_E']>;
+				IndexedCollection.Advanced.NonEmptyKind<this['_NEW_E']>;
 		}
 
 		export type Types<E> = IndexedCollection.Advanced.Family<E> &
-			IndexedCollection.Advanced.NormalVariant<E>;
+			IndexedCollection.Advanced.NormalKind<E>;
 
 		export type TypesNonEmpty<E> = IndexedCollection.Advanced.Family<E> &
-			IndexedCollection.Advanced.NonEmptyVariant<E>;
+			IndexedCollection.Advanced.NonEmptyKind<E>;
 	}
 
 	export namespace Capability {

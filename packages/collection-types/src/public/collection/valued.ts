@@ -34,22 +34,21 @@ export declare namespace ValuedCollection {
 			_NEW_FAMILY: ValuedCollection.Advanced.Family<this['_NEW_E']>;
 		}
 
-		export interface NormalVariant<T>
-			extends Collection.Advanced.NormalVariant<T> {
+		export interface NormalKind<T> extends Collection.Advanced.NormalKind<T> {
 			_NEW_TYPES: this['_NEW_FAMILY'] &
-				ValuedCollection.Advanced.NormalVariant<this['_NEW_E']>;
+				ValuedCollection.Advanced.NormalKind<this['_NEW_E']>;
 		}
 
-		export interface NonEmptyVariant<T>
-			extends Collection.Advanced.NonEmptyVariant<T> {
+		export interface NonEmptyKind<T>
+			extends Collection.Advanced.NonEmptyKind<T> {
 			_NEW_TYPES: this['_NEW_FAMILY'] &
-				ValuedCollection.Advanced.NonEmptyVariant<this['_NEW_E']>;
+				ValuedCollection.Advanced.NonEmptyKind<this['_NEW_E']>;
 		}
 
 		export type Types<T> = ValuedCollection.Advanced.Family<T> &
-			ValuedCollection.Advanced.NormalVariant<T>;
+			ValuedCollection.Advanced.NormalKind<T>;
 
 		export type TypesNonEmpty<T> = ValuedCollection.Advanced.Family<T> &
-			ValuedCollection.Advanced.NonEmptyVariant<T>;
+			ValuedCollection.Advanced.NonEmptyKind<T>;
 	}
 }

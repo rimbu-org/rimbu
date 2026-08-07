@@ -63,34 +63,31 @@ export declare namespace KeyedCollection {
 			>;
 		}
 
-		export interface NormalVariant<K, V>
-			extends Collection.Advanced.NormalVariant<readonly [K, V]>,
+		export interface NormalKind<K, V>
+			extends Collection.Advanced.NormalKind<readonly [K, V]>,
 				KeyedCollection.Advanced.FamilyBase<K, V> {
 			_streamKeys: () => Stream<K>;
 			_streamValues: () => Stream<V>;
 
 			_NEW_TYPES: this['_NEW_FAMILY'] &
-				KeyedCollection.Advanced.NormalVariant<this['_NEW_K'], this['_NEW_V']>;
+				KeyedCollection.Advanced.NormalKind<this['_NEW_K'], this['_NEW_V']>;
 		}
 
-		export interface NonEmptyVariant<K, V>
-			extends Collection.Advanced.NonEmptyVariant<readonly [K, V]>,
+		export interface NonEmptyKind<K, V>
+			extends Collection.Advanced.NonEmptyKind<readonly [K, V]>,
 				KeyedCollection.Advanced.FamilyBase<K, V> {
 			_streamKeys: () => Stream.NonEmpty<K>;
 			_streamValues: () => Stream.NonEmpty<V>;
 
 			_NEW_TYPES: this['_NEW_FAMILY'] &
-				KeyedCollection.Advanced.NonEmptyVariant<
-					this['_NEW_K'],
-					this['_NEW_V']
-				>;
+				KeyedCollection.Advanced.NonEmptyKind<this['_NEW_K'], this['_NEW_V']>;
 		}
 
 		export type Types<K, V> = KeyedCollection.Advanced.Family<K, V> &
-			KeyedCollection.Advanced.NormalVariant<K, V>;
+			KeyedCollection.Advanced.NormalKind<K, V>;
 
 		export type TypesNonEmpty<K, V> = KeyedCollection.Advanced.Family<K, V> &
-			KeyedCollection.Advanced.NonEmptyVariant<K, V>;
+			KeyedCollection.Advanced.NonEmptyKind<K, V>;
 	}
 
 	export namespace Capability {

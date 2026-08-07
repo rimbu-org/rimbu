@@ -59,7 +59,7 @@ export abstract class EmptyBase {
 	}
 
 	/**
-	 * Returns `false`, keeping the type narrowed to the empty variant.
+	 * Returns `false`, keeping the type narrowed to the empty kind.
 	 */
 	nonEmpty(): this is this['_NonEmptyType'] {
 		return false;

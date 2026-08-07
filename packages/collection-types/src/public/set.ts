@@ -20,7 +20,7 @@ export namespace SetCollection {
 	> extends ValuedCollection.Builder<T, Tp> {}
 
 	export namespace Advanced {
-		// The package declares its family ONCE; both variants are derived.
+		// The package declares its family ONCE; both kinds are derived.
 		export interface Family<T> extends ValuedCollection.Advanced.Family<T> {
 			_NORMAL: SetCollection<T>;
 			_NON_EMPTY: SetCollection.NonEmpty<T>;
@@ -29,9 +29,9 @@ export namespace SetCollection {
 		}
 
 		export type Types<T> = SetCollection.Advanced.Family<T> &
-			ValuedCollection.Advanced.NormalVariant<T>;
+			ValuedCollection.Advanced.NormalKind<T>;
 
 		export type TypesNonEmpty<T> = SetCollection.Advanced.Family<T> &
-			ValuedCollection.Advanced.NonEmptyVariant<T>;
+			ValuedCollection.Advanced.NonEmptyKind<T>;
 	}
 }

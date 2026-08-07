@@ -37,7 +37,7 @@ export declare namespace IndexedValuedCollection {
 	export namespace Advanced {
 		// Combining two family axes still requires restating the narrowed
 		// slots to resolve TS2320 -- but now only once, in the family, rather
-		// than once per variant.
+		// than once per kind.
 		export interface Family<T>
 			extends IndexedCollection.Advanced.Family<T>,
 				ValuedCollection.Advanced.Family<T> {
@@ -48,28 +48,28 @@ export declare namespace IndexedValuedCollection {
 			_NEW_FAMILY: IndexedValuedCollection.Advanced.Family<this['_NEW_E']>;
 		}
 
-		export interface NormalVariant<T>
-			extends IndexedCollection.Advanced.NormalVariant<T>,
-				ValuedCollection.Advanced.NormalVariant<T> {
-			_stream: IndexedCollection.Advanced.NormalVariant<T>['_stream'];
+		export interface NormalKind<T>
+			extends IndexedCollection.Advanced.NormalKind<T>,
+				ValuedCollection.Advanced.NormalKind<T> {
+			_stream: IndexedCollection.Advanced.NormalKind<T>['_stream'];
 
 			_NEW_TYPES: this['_NEW_FAMILY'] &
-				IndexedValuedCollection.Advanced.NormalVariant<this['_NEW_E']>;
+				IndexedValuedCollection.Advanced.NormalKind<this['_NEW_E']>;
 		}
 
-		export interface NonEmptyVariant<T>
-			extends IndexedCollection.Advanced.NonEmptyVariant<T>,
-				ValuedCollection.Advanced.NonEmptyVariant<T> {
-			_stream: IndexedCollection.Advanced.NonEmptyVariant<T>['_stream'];
+		export interface NonEmptyKind<T>
+			extends IndexedCollection.Advanced.NonEmptyKind<T>,
+				ValuedCollection.Advanced.NonEmptyKind<T> {
+			_stream: IndexedCollection.Advanced.NonEmptyKind<T>['_stream'];
 
 			_NEW_TYPES: this['_NEW_FAMILY'] &
-				IndexedValuedCollection.Advanced.NonEmptyVariant<this['_NEW_E']>;
+				IndexedValuedCollection.Advanced.NonEmptyKind<this['_NEW_E']>;
 		}
 
 		export type Types<T> = IndexedValuedCollection.Advanced.Family<T> &
-			IndexedValuedCollection.Advanced.NormalVariant<T>;
+			IndexedValuedCollection.Advanced.NormalKind<T>;
 
 		export type TypesNonEmpty<T> = IndexedValuedCollection.Advanced.Family<T> &
-			IndexedValuedCollection.Advanced.NonEmptyVariant<T>;
+			IndexedValuedCollection.Advanced.NonEmptyKind<T>;
 	}
 }

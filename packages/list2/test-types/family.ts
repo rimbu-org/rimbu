@@ -1,4 +1,4 @@
-import type { Collection } from '@rimbu/collection-types/capabilities';
+import type { Collection } from '@rimbu/collection-types/collection';
 import type { List } from '@rimbu/list';
 
 /**

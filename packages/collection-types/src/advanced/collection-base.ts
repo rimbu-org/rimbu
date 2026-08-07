@@ -247,19 +247,43 @@ export abstract class CollectionBuilderBase<T>
 	}
 }
 
-export interface CollectionWithConcatTypes<E>
-	extends Collection.Advanced.Types<E> {
-	_NORMAL: Collection<E, CollectionWithConcatTypes<E>> &
-		Collection.Capability.WithConcat<E>;
+/**
+ * A collection whose *whole family* carries the `concat` capability: both the
+ * possibly-empty and non-empty kinds, and every re-typed result.
+ *
+ * A capability bundle is structurally just another package — it declares one
+ * family and derives both type records from it. Because `_NORMAL`,
+ * `_NON_EMPTY` and `_NEW_FAMILY` all point back at this bundle, `concat`
+ * self-propagates: the result of `concat` can be concatenated again, and so
+ * can the result of re-typing via `map`/`collect`/`context.empty<E2>()`. That
+ * is what lets the `default*` helpers below be written without an F-bounded
+ * `{ [TypesKey]: { _SELF: C } }` constraint and without casts.
+ */
+export interface CollectionWithConcat<E>
+	extends Collection<E, CollectionWithConcat.Types<E>>,
+		Collection.Capability.WithConcat<E, CollectionWithConcat.Types<E>> {}
 
-	_NEW_TYPES: CollectionWithConcatTypes<this['_NEW_E']>;
+export declare namespace CollectionWithConcat {
+	export interface NonEmpty<E>
+		extends Collection.NonEmpty<E, CollectionWithConcat.TypesNonEmpty<E>>,
+			Collection.Capability.WithConcat<
+				E,
+				CollectionWithConcat.TypesNonEmpty<E>
+			> {}
+
+	export interface Family<E> extends Collection.Advanced.Family<E> {
+		_NORMAL: CollectionWithConcat<E>;
+		_NON_EMPTY: CollectionWithConcat.NonEmpty<E>;
+
+		_NEW_FAMILY: CollectionWithConcat.Family<this['_NEW_E']>;
+	}
+
+	export type Types<E> = CollectionWithConcat.Family<E> &
+		Collection.Advanced.NormalKind<E>;
+
+	export type TypesNonEmpty<E> = CollectionWithConcat.Family<E> &
+		Collection.Advanced.NonEmptyKind<E>;
 }
-
-export type CollectionWithConcat<E> = Collection<
-	E,
-	CollectionWithConcatTypes<E>
-> &
-	Collection.Capability.WithConcat<E>;
 
 export function defaultFlatMap<E, E2, C extends CollectionWithConcat<E>>(
 	col: C,

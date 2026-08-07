@@ -43,9 +43,9 @@ export declare namespace MapCollection {
 		}
 
 		export type Types<K, V> = MapCollection.Advanced.Family<K, V> &
-			KeyedCollection.Advanced.NormalVariant<K, V>;
+			KeyedCollection.Advanced.NormalKind<K, V>;
 
 		export type TypesNonEmpty<K, V> = MapCollection.Advanced.Family<K, V> &
-			KeyedCollection.Advanced.NonEmptyVariant<K, V>;
+			KeyedCollection.Advanced.NonEmptyKind<K, V>;
 	}
 }

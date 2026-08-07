@@ -106,27 +106,24 @@ export declare namespace SortedCollection {
 			>;
 		}
 
-		export interface NormalVariant<S, E>
-			extends Collection.Advanced.NormalVariant<E>,
+		export interface NormalKind<S, E>
+			extends Collection.Advanced.NormalKind<E>,
 				SortedCollection.Advanced.FamilyBase<S, E> {
 			_NEW_TYPES: this['_NEW_FAMILY'] &
-				SortedCollection.Advanced.NormalVariant<this['_NEW_S'], this['_NEW_E']>;
+				SortedCollection.Advanced.NormalKind<this['_NEW_S'], this['_NEW_E']>;
 		}
 
-		export interface NonEmptyVariant<S, E>
-			extends Collection.Advanced.NonEmptyVariant<E>,
+		export interface NonEmptyKind<S, E>
+			extends Collection.Advanced.NonEmptyKind<E>,
 				SortedCollection.Advanced.FamilyBase<S, E> {
 			_NEW_TYPES: this['_NEW_FAMILY'] &
-				SortedCollection.Advanced.NonEmptyVariant<
-					this['_NEW_S'],
-					this['_NEW_E']
-				>;
+				SortedCollection.Advanced.NonEmptyKind<this['_NEW_S'], this['_NEW_E']>;
 		}
 
 		export type Types<S, E> = SortedCollection.Advanced.Family<S, E> &
-			SortedCollection.Advanced.NormalVariant<S, E>;
+			SortedCollection.Advanced.NormalKind<S, E>;
 
 		export type TypesNonEmpty<S, E> = SortedCollection.Advanced.Family<S, E> &
-			SortedCollection.Advanced.NonEmptyVariant<S, E>;
+			SortedCollection.Advanced.NonEmptyKind<S, E>;
 	}
 }
