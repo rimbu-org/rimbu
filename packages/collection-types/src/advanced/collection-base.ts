@@ -13,12 +13,12 @@ import { Stream, type StreamSource } from '@rimbu/stream';
 export abstract class CollectionEmptyBase<T>
 	implements
 		Collection<T>,
-		Collection.Capability.WithCollect<T>,
+		Collection.Capability.WithCollect.API<T>,
 		Collection.Capability.WithConcat.API<T>,
-		Collection.Capability.WithFilter<T>,
-		Collection.Capability.WithMap<T>,
-		Collection.Capability.WithMutate<T>,
-		Collection.Capability.WithRecompose<T>
+		Collection.Capability.WithFilter.API<T>,
+		Collection.Capability.WithMap.API<T>,
+		Collection.Capability.WithMutate.API<T>,
+		Collection.Capability.WithRecompose.API<T>
 {
 	declare readonly [TypesKey]: Collection.Advanced.Types<T>;
 
@@ -109,8 +109,8 @@ export abstract class CollectionEmptyBase<T>
 export abstract class CollectionNonEmptyBase<T>
 	implements
 		Collection.NonEmpty<T>,
-		Collection.Capability.WithMutate<T>,
-		Collection.Capability.WithRecompose<T>
+		Collection.Capability.WithMutate.API<T>,
+		Collection.Capability.WithRecompose.API<T>
 {
 	declare readonly [TypesKey]: Collection.Advanced.TypesNonEmpty<T>;
 
