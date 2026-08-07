@@ -89,6 +89,15 @@ export declare namespace Collection {
 			readonly context: Collection.Advanced.ContextBase<Tp>;
 		}
 
+		export type WithSelf<
+			E,
+			C extends Collection<E>,
+		> = Collection.Advanced.Trait<E> & {
+			readonly [TypesKey]: Collection.Advanced.Family<E> & {
+				_SELF: C;
+			};
+		};
+
 		export interface ContextBase<Tp extends Collection.Advanced.Types<any>> {
 			empty<E extends Tp['_UPPER_E']>(): (Tp & {
 				_NEW_E: E;

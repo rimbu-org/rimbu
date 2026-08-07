@@ -247,17 +247,28 @@ export abstract class CollectionBuilderBase<T>
 	}
 }
 
-export function defaultFlatMap<
+export interface CollectionWithConcatTypes<E>
+	extends Collection.Advanced.Types<E> {
+	_NORMAL: Collection<E, CollectionWithConcatTypes<E>> &
+		Collection.Capability.WithConcat<E>;
+
+	_NEW_TYPES: CollectionWithConcatTypes<this['_NEW_E']>;
+}
+
+export type CollectionWithConcat<E> = Collection<
 	E,
-	C extends Collection<E> &
-		Collection.Capability.WithConcat<E> & {
-			[TypesKey]: { _SELF: C };
-		},
->(col: C, f: (element: E) => StreamSource<E>): C[TypesKey]['_NORMAL'] {
+	CollectionWithConcatTypes<E>
+> &
+	Collection.Capability.WithConcat<E>;
+
+export function defaultFlatMap<E, E2, C extends CollectionWithConcat<E>>(
+	col: C,
+	f: (element: E) => StreamSource<E2>,
+): (C[TypesKey] & { _NEW_E: E2 })['_NEW_TYPES']['_NORMAL'] {
 	const token = Symbol();
 	const iterator = col[Symbol.iterator]();
 
-	let result = col.context.empty<E>() as C;
+	let result = col.context.empty<E2>();
 	let element: E | typeof token;
 
 	while (token !== (element = iterator.fastNext(token))) {
@@ -267,13 +278,10 @@ export function defaultFlatMap<
 	return result;
 }
 
-export function defaultRepeat<
-	E,
-	C extends Collection<E> &
-		Collection.Capability.WithConcat<E> & {
-			[TypesKey]: { _SELF: C };
-		},
->(col: C, amount: number): C[TypesKey]['_NORMAL'] {
+export function defaultRepeat<E, C extends CollectionWithConcat<E>>(
+	col: C,
+	amount: number,
+): C[TypesKey]['_NORMAL'] {
 	Int.checkAtLeastZero(amount);
 
 	if (amount === 0) {
