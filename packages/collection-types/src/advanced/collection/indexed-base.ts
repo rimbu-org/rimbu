@@ -6,7 +6,6 @@ import { Int, throwInvalidStateError } from '@rimbu/base';
 import {
 	CollectionEmptyBase,
 	CollectionNonEmptyBase,
-	type CollectionWithConcat,
 	defaultFlatMap,
 } from '@rimbu/collection-types/advanced/collection-base';
 import { CollectFun, Err, IndexRange, OptLazy } from '@rimbu/common';
@@ -282,7 +281,11 @@ export function defaultCollectIndexed<
 	);
 }
 
-export function defaultFlatMapIndexed<E, E2, C extends CollectionWithConcat<E>>(
+export function defaultFlatMapIndexed<
+	E,
+	E2,
+	C extends Collection.Capability.WithConcat<E>,
+>(
 	col: C,
 	f: (element: E, index: number) => StreamSource<E2>,
 	options: { indexOffset?: number | undefined } = {},

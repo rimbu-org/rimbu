@@ -14,7 +14,7 @@ export abstract class CollectionEmptyBase<T>
 	implements
 		Collection<T>,
 		Collection.Capability.WithCollect<T>,
-		Collection.Capability.WithConcat<T>,
+		Collection.Capability.WithConcat.API<T>,
 		Collection.Capability.WithFilter<T>,
 		Collection.Capability.WithMap<T>,
 		Collection.Capability.WithMutate<T>,
@@ -259,33 +259,12 @@ export abstract class CollectionBuilderBase<T>
  * is what lets the `default*` helpers below be written without an F-bounded
  * `{ [TypesKey]: { _SELF: C } }` constraint and without casts.
  */
-export interface CollectionWithConcat<E>
-	extends Collection<E, CollectionWithConcat.Types<E>>,
-		Collection.Capability.WithConcat<E, CollectionWithConcat.Types<E>> {}
 
-export declare namespace CollectionWithConcat {
-	export interface NonEmpty<E>
-		extends Collection.NonEmpty<E, CollectionWithConcat.TypesNonEmpty<E>>,
-			Collection.Capability.WithConcat<
-				E,
-				CollectionWithConcat.TypesNonEmpty<E>
-			> {}
-
-	export interface Family<E> extends Collection.Advanced.Family<E> {
-		_NORMAL: CollectionWithConcat<E>;
-		_NON_EMPTY: CollectionWithConcat.NonEmpty<E>;
-
-		_NEW_FAMILY: CollectionWithConcat.Family<this['_NEW_E']>;
-	}
-
-	export type Types<E> = CollectionWithConcat.Family<E> &
-		Collection.Advanced.NormalKind<E>;
-
-	export type TypesNonEmpty<E> = CollectionWithConcat.Family<E> &
-		Collection.Advanced.NonEmptyKind<E>;
-}
-
-export function defaultFlatMap<E, E2, C extends CollectionWithConcat<E>>(
+export function defaultFlatMap<
+	E,
+	E2,
+	C extends Collection.Capability.WithConcat<E>,
+>(
 	col: C,
 	f: (element: E) => StreamSource<E2>,
 ): (C[TypesKey] & { _NEW_E: E2 })['_NEW_TYPES']['_NORMAL'] {
@@ -302,7 +281,7 @@ export function defaultFlatMap<E, E2, C extends CollectionWithConcat<E>>(
 	return result;
 }
 
-export function defaultRepeat<E, C extends CollectionWithConcat<E>>(
+export function defaultRepeat<E, C extends Collection.Capability.WithConcat<E>>(
 	col: C,
 	amount: number,
 ): C[TypesKey]['_NORMAL'] {

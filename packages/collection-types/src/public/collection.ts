@@ -190,23 +190,56 @@ export declare namespace Collection {
 			): (this[TypesKey] & { _NEW_E: E2 })['_NEW_TYPES']['_NORMAL'];
 		}
 
-		export interface WithConcat<
-			E,
-			Tp extends Collection.Advanced.Types<E> = Collection.Advanced.Types<E>,
-		> extends Collection.Advanced.Trait<E, Tp> {
-			concat(
-				...sources: ArrayNonEmpty<StreamSource.NonEmpty<E>>
-			): this[TypesKey]['_NON_EMPTY'];
-			concat(
-				...sources: ArrayNonEmpty<StreamSource<E>>
-			): this[TypesKey]['_SELF'];
+		export interface WithConcat<E>
+			extends Collection<E, Collection.Capability.WithConcat.Types<E>>,
+				Collection.Capability.WithConcat.API<
+					E,
+					Collection.Capability.WithConcat.Types<E>
+				> {}
 
-			flatMap<E2 extends this[TypesKey]['_UPPER_E']>(
-				f: (element: E) => StreamSource.NonEmpty<E2>,
-			): (this[TypesKey] & { _NEW_E: E2 })['_NEW_TYPES']['_SELF'];
-			flatMap<E2 extends this[TypesKey]['_UPPER_E']>(
-				f: (element: E) => StreamSource<E2>,
-			): (this[TypesKey] & { _NEW_E: E2 })['_NEW_TYPES']['_NORMAL'];
+		export namespace WithConcat {
+			export interface API<
+				E,
+				Tp extends Collection.Advanced.Types<E> = Collection.Advanced.Types<E>,
+			> extends Collection.Advanced.Trait<E, Tp> {
+				concat(
+					...sources: ArrayNonEmpty<StreamSource.NonEmpty<E>>
+				): this[TypesKey]['_NON_EMPTY'];
+				concat(
+					...sources: ArrayNonEmpty<StreamSource<E>>
+				): this[TypesKey]['_SELF'];
+
+				flatMap<E2 extends this[TypesKey]['_UPPER_E']>(
+					f: (element: E) => StreamSource.NonEmpty<E2>,
+				): (this[TypesKey] & { _NEW_E: E2 })['_NEW_TYPES']['_SELF'];
+				flatMap<E2 extends this[TypesKey]['_UPPER_E']>(
+					f: (element: E) => StreamSource<E2>,
+				): (this[TypesKey] & { _NEW_E: E2 })['_NEW_TYPES']['_NORMAL'];
+			}
+
+			export interface NonEmpty<E>
+				extends Collection.NonEmpty<
+						E,
+						Collection.Capability.WithConcat.TypesNonEmpty<E>
+					>,
+					Collection.Capability.WithConcat.API<
+						E,
+						Collection.Capability.WithConcat.TypesNonEmpty<E>
+					> {}
+
+			export interface Family<E> extends Collection.Advanced.Family<E> {
+				_NORMAL: Collection.Capability.WithConcat<E>;
+				_NON_EMPTY: Collection.Capability.WithConcat.NonEmpty<E>;
+
+				_NEW_FAMILY: Collection.Capability.WithConcat.Family<this['_NEW_E']>;
+			}
+
+			export type Types<E> = Collection.Capability.WithConcat.Family<E> &
+				Collection.Advanced.NormalKind<E>;
+
+			export type TypesNonEmpty<E> =
+				Collection.Capability.WithConcat.Family<E> &
+					Collection.Advanced.NonEmptyKind<E>;
 		}
 
 		export interface WithFilter<E> extends Collection.Advanced.Trait<E> {
