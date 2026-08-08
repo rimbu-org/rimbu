@@ -51,7 +51,9 @@ describe('IndexedKeyedCollection', () => {
 		expectTypeOf(c.get(1)).toEqualTypeOf<string | undefined>();
 		expectTypeOf(c.has(1)).toEqualTypeOf<boolean>();
 
-		expectTypeOf(c.first()).toEqualTypeOf<readonly [number, string]>();
+		expectTypeOf(c.first()).toEqualTypeOf<
+			readonly [number, string] | undefined
+		>();
 		expectTypeOf(c.last()).toEqualTypeOf<readonly [number, string]>();
 
 		expectTypeOf(c.take(0)).toEqualTypeOf<

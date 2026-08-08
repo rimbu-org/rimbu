@@ -103,30 +103,33 @@ describe('KeyedCollection.WithMap', () => {
 		const c: WithMapNonEmpty<number, string> = 0 as any;
 
 		expectTypeOf(c.mapValues((v) => v.length)).toEqualTypeOf<
-			WithMapNonEmpty<number, number>
+			KeyedCollection.NonEmpty<unknown, number> &
+				KeyedCollection<unknown, number>
 		>();
 	});
 
-	it('mapIndexed normal preserves type', () => {
-		const c: KeyedCollection.WithMapValues<number, string> = 0 as any;
+	it('mapValues normal preserves type', () => {
+		const c: KeyedCollection.Capability.WithMapValues<number, string> =
+			0 as any;
 
-		expectTypeOf(c.mapIndexed((v, k, i) => v.length)).toEqualTypeOf<
+		expectTypeOf(c.mapValues((v, k, i) => v.length)).toEqualTypeOf<
 			KeyedCollection<unknown, number>
 		>();
 	});
 
-	it('mapIndexed NonEmpty preserves NonEmpty', () => {
+	it('mapValues NonEmpty preserves NonEmpty', () => {
 		const c: WithMapNonEmpty<number, string> = 0 as any;
 
-		expectTypeOf(c.mapIndexed((v, k, i) => v.length)).toEqualTypeOf<
-			KeyedCollection.NonEmpty<unknown, number>
+		expectTypeOf(c.mapValues((v, k, i) => v.length)).toEqualTypeOf<
+			KeyedCollection.NonEmpty<unknown, number> &
+				KeyedCollection<unknown, number>
 		>();
 	});
 
 	it('extends KeyedCollection', () => {
-		expectTypeOf<KeyedCollection.WithMapValues<number, string>>().toExtend<
-			KeyedCollection<number, string>
-		>();
+		expectTypeOf<
+			KeyedCollection.Capability.WithMapValues<number, string>
+		>().toExtend<KeyedCollection<number, string>>();
 	});
 });
 

@@ -7,8 +7,7 @@ import type { Stream } from '@rimbu/stream';
 import { TypesKey } from '@rimbu/collection-types/types';
 
 type WithFilter<E> = Collection.Capability.WithFilter<E>;
-type WithFilterNonEmpty<E> = Collection.NonEmpty<E> &
-	Collection.Capability.WithFilter<E>;
+type WithFilterNonEmpty<E> = Collection.Capability.WithFilter.NonEmpty<E>;
 
 describe('Collection', () => {
 	it('normal interface is correct', () => {
