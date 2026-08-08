@@ -16,7 +16,7 @@ export interface IndexedCollection<
 	at(index: number): E | undefined;
 	at<O>(index: number, otherwise: OptLazy<O>): E | O;
 
-	first(): E | undefined;
+	first: this[TypesKey]['_firstLast'];
 	last: this[TypesKey]['_firstLast'];
 
 	take: this[TypesKey]['_take'];

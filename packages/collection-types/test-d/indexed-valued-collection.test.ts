@@ -18,6 +18,7 @@ describe('IndexedValuedCollection', () => {
 		expectTypeOf(c.at(3, 'a')).toEqualTypeOf<number | string>();
 
 		expectTypeOf(c.first()).toEqualTypeOf<number | undefined>();
+		expectTypeOf(c.first('a')).toEqualTypeOf<number | string>();
 		expectTypeOf(c.last()).toEqualTypeOf<number | undefined>();
 		expectTypeOf(c.last('a')).toEqualTypeOf<number | string>();
 
@@ -39,7 +40,8 @@ describe('IndexedValuedCollection', () => {
 		expectTypeOf(c.at(3)).toEqualTypeOf<number | undefined>();
 		expectTypeOf(c.at(3, 'a')).toEqualTypeOf<number | string>();
 
-		expectTypeOf(c.first()).toEqualTypeOf<number | undefined>();
+		expectTypeOf(c.first()).toEqualTypeOf<number>();
+		expectTypeOf(c.first('a')).toEqualTypeOf<number>();
 		expectTypeOf(c.last()).toEqualTypeOf<number>();
 		expectTypeOf(c.last('a')).toEqualTypeOf<number>();
 
