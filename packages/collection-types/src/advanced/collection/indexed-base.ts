@@ -234,7 +234,7 @@ export function defaultCollect<
 		skip: CollectFun.Skip,
 		halt: () => void,
 	) => E2 | CollectFun.Skip,
-): (C[TypesKey] & { _NEW_E: E2 })['_NEW_TYPES']['_NORMAL'] {
+): Collection.Advanced.Retyped<C[TypesKey], E2>['_NORMAL'] {
 	const builder = col.context.builder<E2>();
 
 	const token = Symbol();
@@ -272,7 +272,7 @@ export function defaultCollectIndexed<
 		halt: () => void,
 	) => E2 | CollectFun.Skip,
 	options: { indexOffset?: number | undefined } = {},
-): (C[TypesKey] & { _NEW_E: E2 })['_NEW_TYPES']['_NORMAL'] {
+): Collection.Advanced.Retyped<C[TypesKey], E2>['_NORMAL'] {
 	const { indexOffset = 0 } = options;
 	let index = indexOffset;
 
@@ -289,7 +289,7 @@ export function defaultFlatMapIndexed<
 	col: C,
 	f: (element: E, index: number) => StreamSource<E2>,
 	options: { indexOffset?: number | undefined } = {},
-): (C[TypesKey] & { _NEW_E: E2 })['_NEW_TYPES']['_NORMAL'] {
+): Collection.Advanced.Retyped<C[TypesKey], E2>['_NORMAL'] {
 	const { indexOffset = 0 } = options;
 	let index = indexOffset;
 
@@ -304,7 +304,7 @@ export function defaultMapIndexed<
 	col: C,
 	mapFun: (element: E, index: number) => E2,
 	options: { indexOffset?: number | undefined } = {},
-): (C[TypesKey] & { _NEW_E: E2 })['_NEW_TYPES']['_NORMAL'] {
+): Collection.Advanced.Retyped<C[TypesKey], E2>['_NORMAL'] {
 	const { indexOffset = 0 } = options;
 	let index = indexOffset;
 

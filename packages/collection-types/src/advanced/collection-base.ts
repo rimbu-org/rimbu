@@ -79,7 +79,7 @@ export abstract class CollectionEmptyBase<T>
 
 	recompose<E2>(
 		f: (stream: Stream<T>) => StreamSource<E2>,
-	): (this[TypesKey] & { _NEW_E: E2 })['_NEW_TYPES']['_NORMAL'] {
+	): Collection.Advanced.Retyped<this[TypesKey], E2>['_NORMAL'] {
 		return this.context.from(f(Stream.empty()));
 	}
 
@@ -171,10 +171,10 @@ export abstract class CollectionNonEmptyBase<T>
 
 	recompose<T2 extends this[TypesKey]['_UPPER_E']>(
 		f: (stream: Stream.NonEmpty<T>) => StreamSource.NonEmpty<T2>,
-	): (this[TypesKey] & { _NEW_E: T2 })['_NEW_TYPES']['_NON_EMPTY'];
+	): Collection.Advanced.Retyped<this[TypesKey], T2>['_NON_EMPTY'];
 	recompose<T2 extends this[TypesKey]['_UPPER_E']>(
 		f: (stream: Stream.NonEmpty<T>) => StreamSource<T2>,
-	): (this[TypesKey] & { _NEW_E: T2 })['_NEW_TYPES']['_NON_EMPTY'] {
+	): Collection.Advanced.Retyped<this[TypesKey], T2>['_NON_EMPTY'] {
 		return this.context.from(f(this.stream())) as any;
 	}
 
@@ -290,7 +290,7 @@ export abstract class CollectionBuilderBase<T>
  * 3. **Return type** — express it purely through slots of `C[TypesKey]`:
  *    `_NORMAL` (may be empty), `_NON_EMPTY` (guaranteed non-empty), `_SELF`
  *    (preserves the emptiness kind), and for element-changing operations
- *    `(C[TypesKey] & { _NEW_E: E2 })['_NEW_TYPES'][...]`. At the call site the
+ *    `Collection.Advanced.Retyped<C[TypesKey], E2>[...]`. At the call site the
  *    caller's concrete type substitutes for `C`, so the result is the
  *    caller's own collection type.
  * 4. **No casts** — if the body needs a cast, the constraint is wrong. The
@@ -310,7 +310,7 @@ export function defaultFlatMap<
 >(
 	col: C,
 	f: (element: E) => StreamSource<E2>,
-): (C[TypesKey] & { _NEW_E: E2 })['_NEW_TYPES']['_NORMAL'] {
+): Collection.Advanced.Retyped<C[TypesKey], E2>['_NORMAL'] {
 	const token = Symbol();
 	const iterator = col[Symbol.iterator]();
 

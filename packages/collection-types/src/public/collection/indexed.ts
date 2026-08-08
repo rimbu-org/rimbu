@@ -154,7 +154,7 @@ export declare namespace IndexedCollection {
 						halt: () => void,
 					) => E2 | CollectFun.Skip,
 					options?: { indexOffset?: number | undefined } | undefined,
-				): (this[TypesKey] & { _NEW_E: E2 })['_NEW_TYPES']['_NORMAL'];
+				): Collection.Advanced.Retyped<this[TypesKey], E2>['_NORMAL'];
 			}
 
 			export interface NonEmpty<E>
@@ -203,10 +203,10 @@ export declare namespace IndexedCollection {
 			> extends IndexedCollection.Advanced.Trait<E, Tp> {
 				flatMapIndexed<E2 extends this[TypesKey]['_UPPER_E']>(
 					f: (element: E, index: number) => StreamSource.NonEmpty<E2>,
-				): (this[TypesKey] & { _NEW_E: E2 })['_NEW_TYPES']['_SELF'];
+				): Collection.Advanced.Retyped<this[TypesKey], E2>['_SELF'];
 				flatMapIndexed<E2 extends this[TypesKey]['_UPPER_E']>(
 					f: (element: E, index: number) => StreamSource<E2>,
-				): (this[TypesKey] & { _NEW_E: E2 })['_NEW_TYPES']['_NORMAL'];
+				): Collection.Advanced.Retyped<this[TypesKey], E2>['_NORMAL'];
 			}
 
 			export interface NonEmpty<E>
@@ -256,15 +256,13 @@ export declare namespace IndexedCollection {
 				filterIndexed<E2 extends E, NE2 = Exclude<E, E2>>(
 					pred: (element: E, index: number) => element is E2,
 					options: { negate: true; indexOffset?: number | undefined },
-				): (this[TypesKey] & {
-					_NEW_E: NE2;
-				})['_NEW_TYPES']['_NORMAL'];
+				): Collection.Advanced.Retyped<this[TypesKey], NE2>['_NORMAL'];
 				filterIndexed<E2 extends E>(
 					pred: (element: E, index: number) => element is E2,
 					options?:
 						| { negate?: false | undefined; indexOffset?: number | undefined }
 						| undefined,
-				): (this[TypesKey] & { _NEW_E: E2 })['_NEW_TYPES']['_NORMAL'];
+				): Collection.Advanced.Retyped<this[TypesKey], E2>['_NORMAL'];
 				filterIndexed(
 					pred: (element: E, index: number) => boolean,
 					options?:
@@ -319,7 +317,7 @@ export declare namespace IndexedCollection {
 			> extends IndexedCollection.Advanced.Trait<E, Tp> {
 				mapIndexed<E2 extends this[TypesKey]['_UPPER_E']>(
 					f: (element: E, index: number) => E2,
-				): (this[TypesKey] & { _NEW_E: E2 })['_NEW_TYPES']['_SELF'];
+				): Collection.Advanced.Retyped<this[TypesKey], E2>['_SELF'];
 			}
 
 			export interface NonEmpty<E>

@@ -90,23 +90,23 @@ export declare namespace Collection {
 		}
 
 		export interface ContextBase<Tp extends Collection.Advanced.Types<any>> {
-			empty<E extends Tp['_UPPER_E']>(): (Tp & {
-				_NEW_E: E;
-			})['_NEW_TYPES']['_NORMAL'];
+			empty<E extends Tp['_UPPER_E']>(): Collection.Advanced.Retyped<
+				Tp,
+				E
+			>['_NORMAL'];
 			of<E extends Tp['_UPPER_E']>(
 				...elements: ArrayNonEmpty<E>
-			): (Tp & {
-				_NEW_E: E;
-			})['_NEW_TYPES']['_NON_EMPTY'];
+			): Collection.Advanced.Retyped<Tp, E>['_NON_EMPTY'];
 			from<T extends Tp['_UPPER_E']>(
 				...sources: ArrayNonEmpty<StreamSource.NonEmpty<T>>
-			): (Tp & { _NEW_E: T })['_NEW_TYPES']['_NON_EMPTY'];
+			): Collection.Advanced.Retyped<Tp, T>['_NON_EMPTY'];
 			from<T extends Tp['_UPPER_E']>(
 				...sources: ArrayNonEmpty<StreamSource<T>>
-			): (Tp & { _NEW_E: T })['_NEW_TYPES']['_NORMAL'];
-			builder<T extends Tp['_UPPER_E']>(): (Tp & {
-				_NEW_E: T;
-			})['_NEW_TYPES']['_BUILDER'];
+			): Collection.Advanced.Retyped<Tp, T>['_NORMAL'];
+			builder<T extends Tp['_UPPER_E']>(): Collection.Advanced.Retyped<
+				Tp,
+				T
+			>['_BUILDER'];
 		}
 
 		/**
@@ -136,8 +136,6 @@ export declare namespace Collection {
 			_UPPER_E: unknown;
 			_NEW_E: this['_UPPER_E'];
 			_NEW_FAMILY: Collection.Advanced.FamilyBase<this['_NEW_E']>;
-
-			__e?: E;
 		}
 
 		export interface Family<E> extends Collection.Advanced.FamilyBase<E> {
@@ -177,6 +175,18 @@ export declare namespace Collection {
 
 		export type TypesNonEmpty<E> = Collection.Advanced.Family<E> &
 			Collection.Advanced.NonEmptyKind<E>;
+
+		/**
+		 * The types record of the same collection family as `Tp`, but with
+		 * element type `E2` in place of `Tp`'s element type. The family slots
+		 * (`_NORMAL`, `_NON_EMPTY`, `_BUILDER`, ...) are carried over unchanged,
+		 * while the kind slots (`_SELF`, `_stream`, ...) are re-instantiated for
+		 * `E2` — so every capability of the original record survives re-typing.
+		 */
+		export type Retyped<
+			Tp extends Collection.Advanced.Types<any>,
+			E2 extends Tp['_UPPER_E'],
+		> = (Tp & { _NEW_E: E2 })['_NEW_TYPES'];
 	}
 
 	export namespace Capability {
@@ -198,7 +208,7 @@ export declare namespace Collection {
 						skip: CollectFun.Skip,
 						halt: () => void,
 					) => E2 | CollectFun.Skip,
-				): (this[TypesKey] & { _NEW_E: E2 })['_NEW_TYPES']['_NORMAL'];
+				): Collection.Advanced.Retyped<this[TypesKey], E2>['_NORMAL'];
 			}
 
 			export interface NonEmpty<E>
@@ -247,10 +257,10 @@ export declare namespace Collection {
 
 				flatMap<E2 extends this[TypesKey]['_UPPER_E']>(
 					f: (element: E) => StreamSource.NonEmpty<E2>,
-				): (this[TypesKey] & { _NEW_E: E2 })['_NEW_TYPES']['_SELF'];
+				): Collection.Advanced.Retyped<this[TypesKey], E2>['_SELF'];
 				flatMap<E2 extends this[TypesKey]['_UPPER_E']>(
 					f: (element: E) => StreamSource<E2>,
-				): (this[TypesKey] & { _NEW_E: E2 })['_NEW_TYPES']['_NORMAL'];
+				): Collection.Advanced.Retyped<this[TypesKey], E2>['_NORMAL'];
 			}
 
 			export interface NonEmpty<E>
@@ -293,13 +303,11 @@ export declare namespace Collection {
 				filter<E2 extends E, NE2 = Exclude<E, E2>>(
 					pred: (element: E) => element is E2,
 					options: { negate: true },
-				): (this[TypesKey] & {
-					_NEW_E: NE2;
-				})['_NEW_TYPES']['_NORMAL'];
+				): Collection.Advanced.Retyped<this[TypesKey], NE2>['_NORMAL'];
 				filter<E2 extends E>(
 					pred: (element: E) => element is E2,
 					options?: { negate?: false | undefined } | undefined,
-				): (this[TypesKey] & { _NEW_E: E2 })['_NEW_TYPES']['_NORMAL'];
+				): Collection.Advanced.Retyped<this[TypesKey], E2>['_NORMAL'];
 				filter(
 					pred: (element: E) => boolean,
 					options?: { negate?: boolean | undefined } | undefined,
@@ -345,7 +353,7 @@ export declare namespace Collection {
 			> extends Collection.Advanced.Trait<E, Tp> {
 				map<E2 extends this[TypesKey]['_UPPER_E']>(
 					f: (element: E) => E2,
-				): (this[TypesKey] & { _NEW_E: E2 })['_NEW_TYPES']['_SELF'];
+				): Collection.Advanced.Retyped<this[TypesKey], E2>['_SELF'];
 			}
 
 			export interface NonEmpty<E>
@@ -430,10 +438,10 @@ export declare namespace Collection {
 					f: (
 						stream: this[TypesKey]['_AS_STREAM'],
 					) => StreamSource.NonEmpty<E2>,
-				): (this[TypesKey] & { _NEW_E: E2 })['_NEW_TYPES']['_SELF'];
+				): Collection.Advanced.Retyped<this[TypesKey], E2>['_SELF'];
 				recompose<E2 extends this[TypesKey]['_UPPER_E']>(
 					f: (stream: this[TypesKey]['_AS_STREAM']) => StreamSource<E2>,
-				): (this[TypesKey] & { _NEW_E: E2 })['_NEW_TYPES']['_NORMAL'];
+				): Collection.Advanced.Retyped<this[TypesKey], E2>['_NORMAL'];
 			}
 
 			export interface NonEmpty<E>
