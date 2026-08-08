@@ -1,11 +1,10 @@
 import { describe, expectTypeOf, it } from 'bun:test';
 
-import type {
-	Collection,
-	SortedCollection,
-} from '@rimbu/collection-types/collection/sorted';
+import type { Collection } from '@rimbu/collection-types/collection';
+import type { SortedCollection } from '@rimbu/collection-types/collection/sorted';
 import type { Comp } from '@rimbu/common';
 import type { Stream } from '@rimbu/stream';
+
 describe('SortedCollection', () => {
 	it('normal interface is correct', () => {
 		const c: SortedCollection<number, string> = 0 as any;
@@ -131,31 +130,31 @@ describe('SortedCollection.Builder', () => {
 describe('SortedCollection.Types', () => {
 	it('_NORMAL is SortedCollection', () => {
 		expectTypeOf<
-			SortedCollection.Types<number, string>['_NORMAL']
+			SortedCollection.Advanced.Types<number, string>['_NORMAL']
 		>().toEqualTypeOf<SortedCollection<number, string>>();
 	});
 
 	it('_NON_EMPTY is SortedCollection.NonEmpty', () => {
 		expectTypeOf<
-			SortedCollection.Types<number, string>['_NON_EMPTY']
+			SortedCollection.Advanced.Types<number, string>['_NON_EMPTY']
 		>().toEqualTypeOf<SortedCollection.NonEmpty<number, string>>();
 	});
 
 	it('_NEW_S defaults to unknown', () => {
 		expectTypeOf<
-			SortedCollection.Types<number, string>['_NEW_S']
+			SortedCollection.Advanced.Types<number, string>['_NEW_S']
 		>().toEqualTypeOf<unknown>();
 	});
 
 	it('_NEW_TYPES._NORMAL resolves', () => {
 		expectTypeOf<
-			SortedCollection.Types<number, string>['_NEW_TYPES']['_NORMAL']
+			SortedCollection.Advanced.Types<number, string>['_NEW_TYPES']['_NORMAL']
 		>().toEqualTypeOf<SortedCollection<unknown, unknown>>();
 	});
 
 	it('NonEmpty._NEW_TYPES preserves NonEmpty', () => {
 		expectTypeOf<
-			SortedCollection.Types.NonEmpty<
+			SortedCollection.Advanced.TypesNonEmpty<
 				number,
 				string
 			>['_NEW_TYPES']['_NON_EMPTY']
@@ -163,14 +162,14 @@ describe('SortedCollection.Types', () => {
 	});
 
 	it('extends Collection.Types', () => {
-		expectTypeOf<SortedCollection.Types<number, string>>().toExtend<
-			Collection.Types<string>
+		expectTypeOf<SortedCollection.Advanced.Types<number, string>>().toExtend<
+			Collection.Advanced.Types<string>
 		>();
 	});
 
 	it('NonEmpty extends Collection.Types.NonEmpty', () => {
-		expectTypeOf<SortedCollection.Types.NonEmpty<number, string>>().toExtend<
-			Collection.Types.NonEmpty<string>
-		>();
+		expectTypeOf<
+			SortedCollection.Advanced.TypesNonEmpty<number, string>
+		>().toExtend<Collection.Advanced.TypesNonEmpty<string>>();
 	});
 });

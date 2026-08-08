@@ -15,17 +15,17 @@ export abstract class IndexedCollectionEmptyBase<T>
 	extends CollectionEmptyBase<T>
 	implements
 		IndexedCollection<T>,
-		IndexedCollection.Capability.WithCollectIndexed<T>,
-		IndexedCollection.Capability.WithFlatMapIndexed<T>,
-		IndexedCollection.Capability.WithFilterIndexed<T>,
-		IndexedCollection.Capability.WithMapIndexed<T>,
-		IndexedCollection.Capability.WithPrependAppend<T>,
-		IndexedCollection.Capability.WithRepeat<T>,
-		IndexedCollection.Capability.WithRemoveAt<T>,
-		IndexedCollection.Capability.WithReversed<T>,
-		IndexedCollection.Capability.WithRotate<T>,
-		IndexedCollection.Capability.WithSwapAt<T>,
-		IndexedCollection.Capability.WithUpdateAt<T>
+		IndexedCollection.Capability.WithCollectIndexed.API<T>,
+		IndexedCollection.Capability.WithFlatMapIndexed.API<T>,
+		IndexedCollection.Capability.WithFilterIndexed.API<T>,
+		IndexedCollection.Capability.WithMapIndexed.API<T>,
+		IndexedCollection.Capability.WithPrependAppend.API<T>,
+		IndexedCollection.Capability.WithRepeat.API<T>,
+		IndexedCollection.Capability.WithRemoveAt.API<T>,
+		IndexedCollection.Capability.WithReversed.API<T>,
+		IndexedCollection.Capability.WithRotate.API<T>,
+		IndexedCollection.Capability.WithSwapAt.API<T>,
+		IndexedCollection.Capability.WithUpdateAt.API<T>
 {
 	declare readonly [TypesKey]: IndexedCollection.Advanced.Types<T>;
 
@@ -489,18 +489,13 @@ export function defaultSwapAtAndReturn<
 	throwInvalidStateError();
 }
 
-export interface DefaultPadToTypes<E>
-	extends IndexedCollection.Advanced.TypesNonEmpty<E> {
-	_NON_EMPTY: IndexedCollection.NonEmpty<E> &
-		IndexedCollection.Capability.WithRepeat<E>;
-
-	_NEW_TYPES: DefaultPadToTypes<this['_NEW_E']>;
-}
-
 export function defaultPadTo<
 	E,
-	C extends IndexedCollection.NonEmpty<E, DefaultPadToTypes<E>> &
-		IndexedCollection.Capability.WithSpliceAt<E>,
+	C extends IndexedCollection.NonEmpty<
+		E,
+		IndexedCollection.Capability.WithRepeat.TypesNonEmpty<E> &
+			IndexedCollection.Capability.WithSpliceAt.TypesNonEmpty<E>
+	>,
 >(
 	col: C,
 	size: number,
@@ -517,7 +512,7 @@ export function defaultPadTo<
 
 	const frac = Math.max(0, Math.min(1.0, paddingLeftBias));
 	const frontSize = Math.round(diff * frac);
-	const pad = col.context.of(fill).repeat(diff) as C;
+	const pad = col.context.of(fill).repeat(diff);
 
 	return pad.spliceAt(frontSize, { insert: col });
 }

@@ -1,9 +1,7 @@
 import { describe, expectTypeOf, it } from 'bun:test';
 
-import type {
-	Collection,
-	ValuedCollection,
-} from '@rimbu/collection-types/collection/sorted';
+import type { Collection } from '@rimbu/collection-types/collection';
+import type { ValuedCollection } from '@rimbu/collection-types/collection/valued';
 import type { Stream } from '@rimbu/stream';
 
 describe('ValuedCollection', () => {
@@ -83,44 +81,44 @@ describe('ValuedCollection.Builder', () => {
 
 describe('ValuedCollection.Types', () => {
 	it('_NORMAL is ValuedCollection', () => {
-		expectTypeOf<ValuedCollection.Types<number>['_NORMAL']>().toEqualTypeOf<
-			ValuedCollection<number>
-		>();
+		expectTypeOf<
+			ValuedCollection.Advanced.Types<number>['_NORMAL']
+		>().toEqualTypeOf<ValuedCollection<number>>();
 	});
 
 	it('_NON_EMPTY is ValuedCollection.NonEmpty', () => {
-		expectTypeOf<ValuedCollection.Types<number>['_NON_EMPTY']>().toEqualTypeOf<
-			ValuedCollection.NonEmpty<number>
-		>();
+		expectTypeOf<
+			ValuedCollection.Advanced.Types<number>['_NON_EMPTY']
+		>().toEqualTypeOf<ValuedCollection.NonEmpty<number>>();
 	});
 
 	it('_NEW_TYPES._NORMAL resolves', () => {
 		expectTypeOf<
-			ValuedCollection.Types<number>['_NEW_TYPES']['_NORMAL']
+			ValuedCollection.Advanced.Types<number>['_NEW_TYPES']['_NORMAL']
 		>().toEqualTypeOf<ValuedCollection<unknown>>();
 	});
 
 	it('_NEW_TYPES._NON_EMPTY resolves', () => {
 		expectTypeOf<
-			ValuedCollection.Types<number>['_NEW_TYPES']['_NON_EMPTY']
+			ValuedCollection.Advanced.Types<number>['_NEW_TYPES']['_NON_EMPTY']
 		>().toEqualTypeOf<ValuedCollection.NonEmpty<unknown>>();
 	});
 
 	it('NonEmpty._NEW_TYPES preserves NonEmpty', () => {
 		expectTypeOf<
-			ValuedCollection.Types.NonEmpty<number>['_NEW_TYPES']['_NON_EMPTY']
+			ValuedCollection.Advanced.TypesNonEmpty<number>['_NEW_TYPES']['_NON_EMPTY']
 		>().toEqualTypeOf<ValuedCollection.NonEmpty<unknown>>();
 	});
 
 	it('extends Collection.Types', () => {
-		expectTypeOf<ValuedCollection.Types<number>>().toExtend<
-			Collection.Types<number>
+		expectTypeOf<ValuedCollection.Advanced.Types<number>>().toExtend<
+			Collection.Advanced.Types<number>
 		>();
 	});
 
 	it('NonEmpty extends Collection.Types.NonEmpty', () => {
-		expectTypeOf<ValuedCollection.Types.NonEmpty<number>>().toExtend<
-			Collection.Types.NonEmpty<number>
+		expectTypeOf<ValuedCollection.Advanced.TypesNonEmpty<number>>().toExtend<
+			Collection.Advanced.TypesNonEmpty<number>
 		>();
 	});
 });

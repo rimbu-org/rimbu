@@ -1,10 +1,8 @@
 import { describe, expectTypeOf, it } from 'bun:test';
 
-import type {
-	IndexedCollection,
-	IndexedValuedCollection,
-	ValuedCollection,
-} from '@rimbu/collection-types/collection/sorted';
+import type { IndexedCollection } from '@rimbu/collection-types/collection/indexed';
+import type { IndexedValuedCollection } from '@rimbu/collection-types/collection/indexed-valued';
+import type { ValuedCollection } from '@rimbu/collection-types/collection/valued';
 import type { Stream } from '@rimbu/stream';
 
 describe('IndexedValuedCollection', () => {
@@ -138,31 +136,33 @@ describe('IndexedValuedCollection.Builder', () => {
 describe('IndexedValuedCollection.Types', () => {
 	it('_NORMAL is IndexedValuedCollection', () => {
 		expectTypeOf<
-			IndexedValuedCollection.Types<number>['_NORMAL']
+			IndexedValuedCollection.Advanced.Types<number>['_NORMAL']
 		>().toEqualTypeOf<IndexedValuedCollection<number>>();
 	});
 
 	it('_NON_EMPTY is IndexedValuedCollection.NonEmpty', () => {
 		expectTypeOf<
-			IndexedValuedCollection.Types<number>['_NON_EMPTY']
+			IndexedValuedCollection.Advanced.Types<number>['_NON_EMPTY']
 		>().toEqualTypeOf<IndexedValuedCollection.NonEmpty<number>>();
 	});
 
 	it('_stream has indexed signature with reversed option', () => {
-		const fn: IndexedValuedCollection.Types<number>['_stream'] = 0 as any;
+		const fn: IndexedValuedCollection.Advanced.Types<number>['_stream'] =
+			0 as any;
 
 		expectTypeOf(fn()).toEqualTypeOf<Stream<number>>();
 		expectTypeOf(fn({ reversed: true })).toEqualTypeOf<Stream<number>>();
 	});
 
 	it('_firstLast resolves to element type', () => {
-		const fl: IndexedValuedCollection.Types<number>['_firstLast'] = 0 as any;
+		const fl: IndexedValuedCollection.Advanced.Types<number>['_firstLast'] =
+			0 as any;
 
 		expectTypeOf(fl()).toEqualTypeOf<number | undefined>();
 	});
 
 	it('NonEmpty._firstLast returns element without fallback', () => {
-		const fl: IndexedValuedCollection.Types.TypesNonEmpty<number>['_firstLast'] =
+		const fl: IndexedValuedCollection.Advanced.TypesNonEmpty<number>['_firstLast'] =
 			0 as any;
 
 		expectTypeOf(fl()).toEqualTypeOf<number>();
@@ -170,31 +170,31 @@ describe('IndexedValuedCollection.Types', () => {
 
 	it('_NEW_TYPES._NORMAL resolves', () => {
 		expectTypeOf<
-			IndexedValuedCollection.Types<number>['_NEW_TYPES']['_NORMAL']
+			IndexedValuedCollection.Advanced.Types<number>['_NEW_TYPES']['_NORMAL']
 		>().toEqualTypeOf<IndexedValuedCollection<unknown>>();
 	});
 
 	it('NonEmpty._NEW_TYPES preserves NonEmpty', () => {
 		expectTypeOf<
-			IndexedValuedCollection.Types.TypesNonEmpty<number>['_NEW_TYPES']['_NON_EMPTY']
+			IndexedValuedCollection.Advanced.TypesNonEmpty<number>['_NEW_TYPES']['_NON_EMPTY']
 		>().toEqualTypeOf<IndexedValuedCollection.NonEmpty<unknown>>();
 	});
 
 	it('extends IndexedCollection.Types', () => {
-		expectTypeOf<IndexedValuedCollection.Types<number>>().toExtend<
-			IndexedCollection.Types<number>
+		expectTypeOf<IndexedValuedCollection.Advanced.Types<number>>().toExtend<
+			IndexedCollection.Advanced.Types<number>
 		>();
 	});
 
 	it('extends ValuedCollection.Types', () => {
-		expectTypeOf<IndexedValuedCollection.Types<number>>().toExtend<
-			ValuedCollection.Types<number>
+		expectTypeOf<IndexedValuedCollection.Advanced.Types<number>>().toExtend<
+			ValuedCollection.Advanced.Types<number>
 		>();
 	});
 
 	it('NonEmpty extends IndexedCollection.Types.NonEmpty', () => {
 		expectTypeOf<
-			IndexedValuedCollection.Types.TypesNonEmpty<number>
-		>().toExtend<IndexedCollection.Types.NonEmpty<number>>();
+			IndexedValuedCollection.Advanced.TypesNonEmpty<number>
+		>().toExtend<IndexedCollection.Advanced.TypesNonEmpty<number>>();
 	});
 });

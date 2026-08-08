@@ -1,8 +1,10 @@
 import { describe, expectTypeOf, it } from 'bun:test';
 
-import type { Collection } from '@rimbu/collection-types/collection/sorted';
+import type { Collection } from '@rimbu/collection-types/collection';
 import type { ArrayNonEmpty } from '@rimbu/common';
 import type { Stream } from '@rimbu/stream';
+
+import { TypesKey } from '@rimbu/collection-types/types';
 
 interface WithFilterNonEmpty<E> extends Collection.Capability.WithFilter<E> {}
 
@@ -91,7 +93,7 @@ describe('Collection.Builder', () => {
 
 	it('NonEmpty context still returns normal from build', () => {
 		interface B extends Collection.Builder<number> {
-			// readonly context: { __types: Collection.Types.NonEmpty<number> };
+			// readonly context: { __types: Collection.Advanced.TypesNonEmpty<number> };
 		}
 		const b: B = 0 as any;
 
@@ -125,9 +127,9 @@ describe('Collection.Capability.WithFilter', () => {
 	it('boolean predicate returns _NORMAL', () => {
 		const c: Collection.Capability.WithFilter<number> = 0 as any;
 
-		expectTypeOf(c.filter((v) => v > 0)).toEqualTypeOf<Collection<number>>();
+		expectTypeOf(c.filter((v) => v > 0)).toEqualTypeOf<typeof c>();
 		expectTypeOf(c.filter((v) => v > 0, { negate: true })).toEqualTypeOf<
-			Collection<number>
+			typeof c
 		>();
 	});
 
@@ -202,57 +204,63 @@ describe('Collection.Capability.WithFilter', () => {
 
 describe('Collection.Types', () => {
 	it('_SELF equals _NORMAL', () => {
-		expectTypeOf<Collection.Types<number>['_SELF']>().toEqualTypeOf<
-			Collection.Types<number>['_NORMAL']
+		expectTypeOf<Collection.Advanced.Types<number>['_SELF']>().toEqualTypeOf<
+			Collection.Advanced.Types<number>['_NORMAL']
 		>();
 	});
 
 	it('NonEmpty._SELF equals NonEmpty._NON_EMPTY', () => {
-		expectTypeOf<Collection.Types.NonEmpty<number>['_SELF']>().toEqualTypeOf<
-			Collection.Types.NonEmpty<number>['_NON_EMPTY']
+		expectTypeOf<
+			Collection.Advanced.TypesNonEmpty<number>['_SELF']
+		>().toEqualTypeOf<
+			Collection.Advanced.TypesNonEmpty<number>['_NON_EMPTY']
 		>();
 	});
 
 	it('_UPPER_E is unknown', () => {
 		expectTypeOf<
-			Collection.Types<number>['_UPPER_E']
+			Collection.Advanced.Types<number>['_UPPER_E']
 		>().toEqualTypeOf<unknown>();
 	});
 
 	it('_NEW_E defaults to _UPPER_E (unknown)', () => {
-		expectTypeOf<Collection.Types<number>['_NEW_E']>().toEqualTypeOf<unknown>();
+		expectTypeOf<
+			Collection.Advanced.Types<number>['_NEW_E']
+		>().toEqualTypeOf<unknown>();
 	});
 
 	it('_NEW_TYPES._NORMAL resolves to Collection<unknown>', () => {
 		expectTypeOf<
-			Collection.Types<number>['_NEW_TYPES']['_NORMAL']
+			Collection.Advanced.Types<number>['_NEW_TYPES']['_NORMAL']
 		>().toEqualTypeOf<Collection<unknown>>();
 	});
 
 	it('_NEW_TYPES._NON_EMPTY resolves to Collection.NonEmpty<unknown>', () => {
 		expectTypeOf<
-			Collection.Types<number>['_NEW_TYPES']['_NON_EMPTY']
+			Collection.Advanced.Types<number>['_NEW_TYPES']['_NON_EMPTY']
 		>().toEqualTypeOf<Collection.NonEmpty<unknown>>();
 	});
 
 	it('NonEmpty._NEW_TYPES preserves NonEmpty structure', () => {
 		expectTypeOf<
-			Collection.Types.NonEmpty<number>['_NEW_TYPES']['_NORMAL']
+			Collection.Advanced.TypesNonEmpty<number>['_NEW_TYPES']['_NORMAL']
 		>().toEqualTypeOf<Collection<unknown>>();
 		expectTypeOf<
-			Collection.Types.NonEmpty<number>['_NEW_TYPES']['_NON_EMPTY']
+			Collection.Advanced.TypesNonEmpty<number>['_NEW_TYPES']['_NON_EMPTY']
 		>().toEqualTypeOf<Collection.NonEmpty<unknown>>();
 	});
 
 	it('_NEW_TYPES._SELF equals _NEW_TYPES._NORMAL', () => {
 		expectTypeOf<
-			Collection.Types<number>['_NEW_TYPES']['_SELF']
-		>().toEqualTypeOf<Collection.Types<number>['_NEW_TYPES']['_NORMAL']>();
+			Collection.Advanced.Types<number>['_NEW_TYPES']['_SELF']
+		>().toEqualTypeOf<
+			Collection.Advanced.Types<number>['_NEW_TYPES']['_NORMAL']
+		>();
 	});
 
 	it('NonEmpty extends normal Types', () => {
-		expectTypeOf<Collection.Types.NonEmpty<number>>().toExtend<
-			Collection.Types<number>
+		expectTypeOf<Collection.Advanced.TypesNonEmpty<number>>().toExtend<
+			Collection.Advanced.Types<number>
 		>();
 	});
 });
@@ -261,14 +269,16 @@ describe('Collection context', () => {
 	it('context.__types is Types', () => {
 		const c: Collection<number> = 0 as any;
 
-		expectTypeOf(c.context.__types).toEqualTypeOf<Collection.Types<number>>();
+		expectTypeOf(c[TypesKey]).toEqualTypeOf<
+			Collection.Advanced.Types<number>
+		>();
 	});
 
 	it('NonEmpty context.__types is Types.NonEmpty', () => {
 		const c: Collection.NonEmpty<number> = 0 as any;
 
-		expectTypeOf(c.context.__types).toEqualTypeOf<
-			Collection.Types.NonEmpty<number>
+		expectTypeOf(c[TypesKey]).toEqualTypeOf<
+			Collection.Advanced.TypesNonEmpty<number>
 		>();
 	});
 });

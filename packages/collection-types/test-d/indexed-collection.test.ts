@@ -1,14 +1,10 @@
 import { describe, expectTypeOf, it } from 'bun:test';
 
-import type {
-	Collection,
-	IndexedCollection,
-} from '@rimbu/collection-types/collection/sorted';
+import type { Collection } from '@rimbu/collection-types/collection';
+import type { IndexedCollection } from '@rimbu/collection-types/collection/indexed';
 import type { Stream } from '@rimbu/stream';
 
-interface WithMapNonEmpty<E> extends IndexedCollection.Capability.WithMap<E> {
-	context: { __types: IndexedCollection.Advanced.TypesNonEmpty<E> };
-}
+interface WithMapNonEmpty<E> extends IndexedCollection.Capability.WithMap<E> {}
 
 describe('IndexedCollection', () => {
 	it('normal interface is correct', () => {

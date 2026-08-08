@@ -1,14 +1,11 @@
 import { describe, expectTypeOf, it } from 'bun:test';
 
-import type {
-	Collection,
-	KeyedCollection,
-} from '@rimbu/collection-types/collection/sorted';
+import type { Collection } from '@rimbu/collection-types/collection';
+import type { KeyedCollection } from '@rimbu/collection-types/collection/keyed';
 import type { Stream } from '@rimbu/stream';
 
-interface WithMapNonEmpty<K, V> extends KeyedCollection.WithMapValues<K, V> {
-	readonly context: { __types: KeyedCollection.Advanced.TypesNonEmpty<K, V> };
-}
+type WithMapNonEmpty<K, V> = KeyedCollection.NonEmpty<K, V> &
+	KeyedCollection.Capability.WithMapValues<K, V>;
 
 describe('KeyedCollection', () => {
 	it('normal interface is correct', () => {
@@ -94,7 +91,8 @@ describe('KeyedCollection.Builder', () => {
 
 describe('KeyedCollection.WithMap', () => {
 	it('normal maps values using _NEW_V slot', () => {
-		const c: KeyedCollection.WithMapValues<number, string> = 0 as any;
+		const c: KeyedCollection.Capability.WithMapValues<number, string> =
+			0 as any;
 
 		expectTypeOf(c.mapValues((v) => v.length)).toEqualTypeOf<
 			KeyedCollection<unknown, number>
@@ -105,7 +103,7 @@ describe('KeyedCollection.WithMap', () => {
 		const c: WithMapNonEmpty<number, string> = 0 as any;
 
 		expectTypeOf(c.mapValues((v) => v.length)).toEqualTypeOf<
-			KeyedCollection.NonEmpty<unknown, number>
+			KeyedCollection.NonEmpty<number, number>
 		>();
 	});
 

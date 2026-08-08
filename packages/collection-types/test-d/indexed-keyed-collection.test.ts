@@ -1,10 +1,8 @@
 import { describe, expectTypeOf, it } from 'bun:test';
 
-import type {
-	IndexedCollection,
-	IndexedKeyedCollection,
-	KeyedCollection,
-} from '@rimbu/collection-types/collection/sorted';
+import type { IndexedCollection } from '@rimbu/collection-types/collection/indexed';
+import type { IndexedKeyedCollection } from '@rimbu/collection-types/collection/indexed-keyed';
+import type { KeyedCollection } from '@rimbu/collection-types/collection/keyed';
 import type { Stream } from '@rimbu/stream';
 
 describe('IndexedKeyedCollection', () => {
@@ -153,18 +151,18 @@ describe('IndexedKeyedCollection.Builder', () => {
 describe('IndexedKeyedCollection.Types', () => {
 	it('_NORMAL is IndexedKeyedCollection', () => {
 		expectTypeOf<
-			IndexedKeyedCollection.Types<number, string>['_NORMAL']
+			IndexedKeyedCollection.Advanced.Types<number, string>['_NORMAL']
 		>().toEqualTypeOf<IndexedKeyedCollection<number, string>>();
 	});
 
 	it('_NON_EMPTY is IndexedKeyedCollection.NonEmpty', () => {
 		expectTypeOf<
-			IndexedKeyedCollection.Types<number, string>['_NON_EMPTY']
+			IndexedKeyedCollection.Advanced.Types<number, string>['_NON_EMPTY']
 		>().toEqualTypeOf<IndexedKeyedCollection.NonEmpty<number, string>>();
 	});
 
 	it('_stream has indexed signature with reversed option', () => {
-		const fn: IndexedKeyedCollection.Types<number, string>['_stream'] =
+		const fn: IndexedKeyedCollection.Advanced.Types<number, string>['_stream'] =
 			0 as any;
 
 		expectTypeOf(fn()).toEqualTypeOf<Stream<readonly [number, string]>>();
@@ -174,23 +172,27 @@ describe('IndexedKeyedCollection.Types', () => {
 	});
 
 	it('_streamKeys has indexed signature with reversed option', () => {
-		const fn: IndexedKeyedCollection.Types<number, string>['_streamKeys'] =
-			0 as any;
+		const fn: IndexedKeyedCollection.Advanced.Types<
+			number,
+			string
+		>['_streamKeys'] = 0 as any;
 
 		expectTypeOf(fn()).toEqualTypeOf<Stream<number>>();
 		expectTypeOf(fn({ reversed: true })).toEqualTypeOf<Stream<number>>();
 	});
 
 	it('_streamValues has indexed signature with reversed option', () => {
-		const fn: IndexedKeyedCollection.Types<number, string>['_streamValues'] =
-			0 as any;
+		const fn: IndexedKeyedCollection.Advanced.Types<
+			number,
+			string
+		>['_streamValues'] = 0 as any;
 
 		expectTypeOf(fn()).toEqualTypeOf<Stream<string>>();
 		expectTypeOf(fn({ reversed: true })).toEqualTypeOf<Stream<string>>();
 	});
 
 	it('NonEmpty._streamKeys returns Stream.NonEmpty', () => {
-		const fn: IndexedKeyedCollection.Types.NonEmpty<
+		const fn: IndexedKeyedCollection.Advanced.TypesNonEmpty<
 			number,
 			string
 		>['_streamKeys'] = 0 as any;
@@ -199,7 +201,7 @@ describe('IndexedKeyedCollection.Types', () => {
 	});
 
 	it('NonEmpty._streamValues returns Stream.NonEmpty', () => {
-		const fn: IndexedKeyedCollection.Types.NonEmpty<
+		const fn: IndexedKeyedCollection.Advanced.TypesNonEmpty<
 			number,
 			string
 		>['_streamValues'] = 0 as any;
@@ -208,7 +210,7 @@ describe('IndexedKeyedCollection.Types', () => {
 	});
 
 	it('NonEmpty._firstLast returns element without fallback', () => {
-		const fl: IndexedKeyedCollection.Types.NonEmpty<
+		const fl: IndexedKeyedCollection.Advanced.TypesNonEmpty<
 			number,
 			string
 		>['_firstLast'] = 0 as any;
@@ -218,13 +220,16 @@ describe('IndexedKeyedCollection.Types', () => {
 
 	it('_NEW_TYPES._NORMAL resolves', () => {
 		expectTypeOf<
-			IndexedKeyedCollection.Types<number, string>['_NEW_TYPES']['_NORMAL']
+			IndexedKeyedCollection.Advanced.Types<
+				number,
+				string
+			>['_NEW_TYPES']['_NORMAL']
 		>().toEqualTypeOf<IndexedKeyedCollection<unknown, unknown>>();
 	});
 
 	it('NonEmpty._NEW_TYPES preserves NonEmpty', () => {
 		expectTypeOf<
-			IndexedKeyedCollection.Types.NonEmpty<
+			IndexedKeyedCollection.Advanced.TypesNonEmpty<
 				number,
 				string
 			>['_NEW_TYPES']['_NON_EMPTY']
@@ -232,26 +237,28 @@ describe('IndexedKeyedCollection.Types', () => {
 	});
 
 	it('extends IndexedCollection.Types', () => {
-		expectTypeOf<IndexedKeyedCollection.Types<number, string>>().toExtend<
-			IndexedCollection.Types<readonly [number, string]>
-		>();
+		expectTypeOf<
+			IndexedKeyedCollection.Advanced.Types<number, string>
+		>().toExtend<IndexedCollection.Advanced.Types<readonly [number, string]>>();
 	});
 
 	it('extends KeyedCollection.Types', () => {
-		expectTypeOf<IndexedKeyedCollection.Types<number, string>>().toExtend<
-			KeyedCollection.Types<number, string>
+		expectTypeOf<
+			IndexedKeyedCollection.Advanced.Types<number, string>
+		>().toExtend<KeyedCollection.Advanced.Types<number, string>>();
+	});
+
+	it('NonEmpty extends IndexedCollection.Advanced.TypesNonEmpty', () => {
+		expectTypeOf<
+			IndexedKeyedCollection.Advanced.TypesNonEmpty<number, string>
+		>().toExtend<
+			IndexedCollection.Advanced.TypesNonEmpty<readonly [number, string]>
 		>();
 	});
 
-	it('NonEmpty extends IndexedCollection.Types.NonEmpty', () => {
+	it('NonEmpty extends KeyedCollection.Advanced.TypesNonEmpty', () => {
 		expectTypeOf<
-			IndexedKeyedCollection.Types.NonEmpty<number, string>
-		>().toExtend<IndexedCollection.Types.NonEmpty<readonly [number, string]>>();
-	});
-
-	it('NonEmpty extends KeyedCollection.Types.NonEmpty', () => {
-		expectTypeOf<
-			IndexedKeyedCollection.Types.NonEmpty<number, string>
-		>().toExtend<KeyedCollection.Types.NonEmpty<number, string>>();
+			IndexedKeyedCollection.Advanced.TypesNonEmpty<number, string>
+		>().toExtend<KeyedCollection.Advanced.TypesNonEmpty<number, string>>();
 	});
 });
