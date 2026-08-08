@@ -336,6 +336,13 @@ export function defaultSpliceAtAndReturn<
 
 	const insertList = col.context.from(insert);
 
+	if (index < 0) {
+		index = col.size + index;
+		if (index < 0) {
+			index = 0;
+		}
+	}
+
 	if (index >= col.size) {
 		return {
 			collection: col.concat(insertList),
