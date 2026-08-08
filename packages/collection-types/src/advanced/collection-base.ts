@@ -258,6 +258,49 @@ export abstract class CollectionBuilderBase<T>
  * can the result of re-typing via `map`/`collect`/`context.empty<E2>()`. That
  * is what lets the `default*` helpers below be written without an F-bounded
  * `{ [TypesKey]: { _SELF: C } }` constraint and without casts.
+ *
+ * ## Writing a `default*` method
+ *
+ * This is the recipe used by every `default*` helper in this package, and the
+ * one end users should adopt for their own default methods:
+ *
+ * 1. **Constraint** — pick the base collection type (or its `.NonEmpty`
+ *    variant) whose methods you need, and instantiate it with the intersection
+ *    of the `Types` / `TypesNonEmpty` records of every *capability* you need:
+ *
+ *    ```ts
+ *    C extends IndexedCollection.NonEmpty<
+ *        E,
+ *        IndexedCollection.Capability.WithSpliceAt.TypesNonEmpty<E> &
+ *            Collection.Capability.WithConcat.TypesNonEmpty<E>
+ *    >
+ *    ```
+ *
+ *    This single instantiation makes `col.context` one `ContextBase` over the
+ *    full record, so `context.of` / `from` / `empty` / `builder` resolve
+ *    through *all* capabilities at once. Do **not** intersect the capability
+ *    interfaces themselves (`WithSpliceAt.NonEmpty<E> & WithConcat<E>`):
+ *    `col.context` then becomes an intersection of `ContextBase`s and method
+ *    calls resolve through the first one only, losing capabilities.
+ * 2. **Mixins for method signatures** — capabilities only contribute their
+ *    *records* to the constraint, not their methods. Intersect the plain
+ *    bundle interfaces for every method you call directly on `col` (e.g.
+ *    `& Collection.Capability.WithConcat<E>` for `concat`), and for `return
+ *    col` early-returns so the input satisfies the return slot.
+ * 3. **Return type** — express it purely through slots of `C[TypesKey]`:
+ *    `_NORMAL` (may be empty), `_NON_EMPTY` (guaranteed non-empty), `_SELF`
+ *    (preserves the emptiness kind), and for element-changing operations
+ *    `(C[TypesKey] & { _NEW_E: E2 })['_NEW_TYPES'][...]`. At the call site the
+ *    caller's concrete type substitutes for `C`, so the result is the
+ *    caller's own collection type.
+ * 4. **No casts** — if the body needs a cast, the constraint is wrong. The
+ *    only exceptions are methods that need *builder* capabilities, which the
+ *    collection bundles do not narrow; those must add a constraint-only
+ *    record over the `_BUILDER` slot (see
+ *    `IndexedCollection.Capability.WithBuilderWithAppendPrepend`), and
+ *    capabilities without their own `Types` record (e.g.
+ *    `KeyedCollection.Capability.WithMapValues`) cannot be used as
+ *    constraints at all.
  */
 
 export function defaultFlatMap<

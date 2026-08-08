@@ -313,7 +313,11 @@ export function defaultMapIndexed<
 
 export function defaultSpliceAtAndReturn<
 	E,
-	C extends IndexedCollection.Capability.WithSpliceAt.NonEmpty<E> &
+	C extends IndexedCollection.NonEmpty<
+		E,
+		IndexedCollection.Capability.WithSpliceAt.TypesNonEmpty<E> &
+			Collection.Capability.WithConcat.TypesNonEmpty<E>
+	> &
 		Collection.Capability.WithConcat<E>,
 >(
 	col: C,
@@ -347,7 +351,7 @@ export function defaultSpliceAtAndReturn<
 		return {
 			collection: col.concat(insertList),
 			hasResult: insertList.nonEmpty(),
-			result: [col.context.empty() as C, insertList as C],
+			result: [col.context.empty(), insertList],
 			hasChanged: insertList.nonEmpty(),
 		};
 	}
@@ -355,13 +359,13 @@ export function defaultSpliceAtAndReturn<
 	const [left, remain] = col.splitAt(index);
 	const [removed, right] = remain.splitAt(removeAmount);
 
-	const collection = left.concat(insertList, right) as C;
+	const collection = left.concat(insertList, right);
 
 	if (removed.nonEmpty() || insertList.nonEmpty()) {
 		return {
 			collection,
 			hasResult: true,
-			result: [removed as C, insertList as C],
+			result: [removed, insertList],
 			hasChanged: true,
 		};
 	}
@@ -370,7 +374,7 @@ export function defaultSpliceAtAndReturn<
 		return {
 			collection: collection,
 			hasResult: false,
-			result: [removed as C, insertList as C],
+			result: [removed, insertList],
 			hasChanged: false,
 		};
 	}
@@ -380,7 +384,10 @@ export function defaultSpliceAtAndReturn<
 
 export function defaultRemoveAtAndReturn<
 	E,
-	C extends IndexedCollection.NonEmpty<E> &
+	C extends IndexedCollection.NonEmpty<
+		E,
+		IndexedCollection.Capability.WithSpliceAt.TypesNonEmpty<E>
+	> &
 		IndexedCollection.Capability.WithSpliceAt<E>,
 >(
 	col: C,
@@ -394,7 +401,7 @@ export function defaultRemoveAtAndReturn<
 > {
 	const outcome = col.spliceAtAndReturn(index, {
 		removeAmount: amount,
-	} as any);
+	});
 
 	const [removed] = outcome.result;
 
@@ -415,16 +422,13 @@ export function defaultRemoveAtAndReturn<
 	};
 }
 
-export interface DefaultSwapAtAndReturnTypes<E>
-	extends IndexedCollection.Advanced.TypesNonEmpty<E> {
-	_NON_EMPTY: IndexedCollection.NonEmpty<E> &
-		IndexedCollection.Capability.WithUpdateAt<E> &
-		IndexedCollection.Capability.WithSwapAt<E>;
-}
-
 export function defaultSwapAtAndReturn<
 	E,
-	C extends IndexedCollection.NonEmpty<E, DefaultSwapAtAndReturnTypes<E>> &
+	C extends IndexedCollection.NonEmpty<
+		E,
+		IndexedCollection.Capability.WithSwapAt.TypesNonEmpty<E> &
+			IndexedCollection.Capability.WithUpdateAt.TypesNonEmpty<E>
+	> &
 		IndexedCollection.Capability.WithUpdateAt<E> &
 		IndexedCollection.Capability.WithSwapAt<E>,
 >(
@@ -475,10 +479,7 @@ export function defaultSwapAtAndReturn<
 		const isSame = Object.is(previousA, previousB);
 		const withSwapped = isSame
 			? withNewA.collection
-			: (withNewA.collection.setAt(
-					index2,
-					previousA,
-				) as C[TypesKey]['_NON_EMPTY']);
+			: withNewA.collection.setAt(index2, previousA);
 
 		return {
 			collection: withSwapped,
