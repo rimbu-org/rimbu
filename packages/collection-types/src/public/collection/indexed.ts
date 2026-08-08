@@ -517,14 +517,16 @@ export declare namespace IndexedCollection {
 				): 0 extends N ? this[TypesKey]['_NORMAL'] : this[TypesKey]['_SELF'];
 			}
 
-			export interface NonEmpty<E>
-				extends IndexedCollection.NonEmpty<
+			export interface NonEmpty<
+				E,
+				Tp extends Collection.Advanced.Types<E> = Collection.Advanced.Types<E>,
+			> extends IndexedCollection.NonEmpty<
 						E,
-						IndexedCollection.Capability.WithRepeat.TypesNonEmpty<E>
+						Tp & IndexedCollection.Capability.WithRepeat.TypesNonEmpty<E>
 					>,
 					IndexedCollection.Capability.WithRepeat.API<
 						E,
-						IndexedCollection.Capability.WithRepeat.TypesNonEmpty<E>
+						Tp & IndexedCollection.Capability.WithRepeat.TypesNonEmpty<E>
 					> {}
 
 			export interface Family<E> extends IndexedCollection.Advanced.Family<E> {

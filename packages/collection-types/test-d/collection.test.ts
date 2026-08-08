@@ -6,7 +6,9 @@ import type { Stream } from '@rimbu/stream';
 
 import { TypesKey } from '@rimbu/collection-types/types';
 
-interface WithFilterNonEmpty<E> extends Collection.Capability.WithFilter<E> {}
+type WithFilter<E> = Collection.Capability.WithFilter<E>;
+type WithFilterNonEmpty<E> = Collection.NonEmpty<E> &
+	Collection.Capability.WithFilter<E>;
 
 describe('Collection', () => {
 	it('normal interface is correct', () => {
@@ -138,11 +140,11 @@ describe('Collection.Capability.WithFilter', () => {
 
 		expectTypeOf(
 			c.filter((v): v is string => typeof v === 'string'),
-		).toEqualTypeOf<Collection<string>>();
+		).toEqualTypeOf<Collection.Capability.WithFilter<string>>();
 
 		expectTypeOf(
 			c.filter((v): v is number => typeof v === 'number'),
-		).toEqualTypeOf<Collection<number>>();
+		).toEqualTypeOf<Collection.Capability.WithFilter<number>>();
 	});
 
 	it('NonEmpty context still returns normal after filter', () => {
@@ -150,10 +152,10 @@ describe('Collection.Capability.WithFilter', () => {
 
 		expectTypeOf(
 			c.filter((v): v is string => typeof v === 'string'),
-		).toEqualTypeOf<Collection<string>>();
+		).toEqualTypeOf<WithFilter<string>>();
 
 		expectTypeOf(c.filter((v) => (v as number) > 0)).toEqualTypeOf<
-			Collection<string | number>
+			WithFilter<string | number>
 		>();
 	});
 
@@ -168,11 +170,11 @@ describe('Collection.Capability.WithFilter', () => {
 
 		expectTypeOf(
 			c.filter((v): v is string => typeof v === 'string', { negate: true }),
-		).toEqualTypeOf<Collection<number>>();
+		).toEqualTypeOf<Collection.Capability.WithFilter<number>>();
 
 		expectTypeOf(
 			c.filter((v): v is number => typeof v === 'number', { negate: true }),
-		).toEqualTypeOf<Collection<string>>();
+		).toEqualTypeOf<Collection.Capability.WithFilter<string>>();
 	});
 
 	it('negate with type guard on three-member union', () => {
@@ -181,7 +183,7 @@ describe('Collection.Capability.WithFilter', () => {
 
 		expectTypeOf(
 			c.filter((v): v is string => typeof v === 'string', { negate: true }),
-		).toEqualTypeOf<Collection<number | boolean>>();
+		).toEqualTypeOf<Collection.Capability.WithFilter<number | boolean>>();
 	});
 
 	it('negate on NonEmpty context returns complement as normal', () => {
@@ -189,7 +191,7 @@ describe('Collection.Capability.WithFilter', () => {
 
 		expectTypeOf(
 			c.filter((v): v is string => typeof v === 'string', { negate: true }),
-		).toEqualTypeOf<Collection<number>>();
+		).toEqualTypeOf<WithFilter<number>>();
 	});
 
 	it('is covariant in E', () => {

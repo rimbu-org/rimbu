@@ -103,7 +103,7 @@ describe('KeyedCollection.WithMap', () => {
 		const c: WithMapNonEmpty<number, string> = 0 as any;
 
 		expectTypeOf(c.mapValues((v) => v.length)).toEqualTypeOf<
-			KeyedCollection.NonEmpty<number, number>
+			WithMapNonEmpty<number, number>
 		>();
 	});
 
@@ -130,78 +130,89 @@ describe('KeyedCollection.WithMap', () => {
 	});
 });
 
-describe('KeyedCollection.Types', () => {
+describe('KeyedCollection.Advanced.Types', () => {
 	it('_NORMAL is KeyedCollection', () => {
 		expectTypeOf<
-			KeyedCollection.Types<number, string>['_NORMAL']
+			KeyedCollection.Advanced.Types<number, string>['_NORMAL']
 		>().toEqualTypeOf<KeyedCollection<number, string>>();
 	});
 
 	it('_NON_EMPTY is KeyedCollection.NonEmpty', () => {
 		expectTypeOf<
-			KeyedCollection.Types<number, string>['_NON_EMPTY']
+			KeyedCollection.Advanced.Types<number, string>['_NON_EMPTY']
 		>().toEqualTypeOf<KeyedCollection.NonEmpty<number, string>>();
 	});
 
 	it('_streamKeys resolves', () => {
-		const fn: KeyedCollection.Types<number, string>['_streamKeys'] = 0 as any;
+		const fn: KeyedCollection.Advanced.Types<number, string>['_streamKeys'] =
+			0 as any;
 
 		expectTypeOf(fn()).toEqualTypeOf<Stream<number>>();
 	});
 
 	it('_streamValues resolves', () => {
-		const fn: KeyedCollection.Types<number, string>['_streamValues'] = 0 as any;
+		const fn: KeyedCollection.Advanced.Types<number, string>['_streamValues'] =
+			0 as any;
 
 		expectTypeOf(fn()).toEqualTypeOf<Stream<string>>();
 	});
 
 	it('NonEmpty._streamKeys returns Stream.NonEmpty', () => {
-		const fn: KeyedCollection.Types.NonEmpty<number, string>['_streamKeys'] =
-			0 as any;
+		const fn: KeyedCollection.Advanced.TypesNonEmpty<
+			number,
+			string
+		>['_streamKeys'] = 0 as any;
 
 		expectTypeOf(fn()).toEqualTypeOf<Stream.NonEmpty<number>>();
 	});
 
 	it('NonEmpty._streamValues returns Stream.NonEmpty', () => {
-		const fn: KeyedCollection.Types.NonEmpty<number, string>['_streamValues'] =
-			0 as any;
+		const fn: KeyedCollection.Advanced.TypesNonEmpty<
+			number,
+			string
+		>['_streamValues'] = 0 as any;
 
 		expectTypeOf(fn()).toEqualTypeOf<Stream.NonEmpty<string>>();
 	});
 
 	it('_NEW_K defaults to unknown', () => {
 		expectTypeOf<
-			KeyedCollection.Types<number, string>['_NEW_K']
+			KeyedCollection.Advanced.Types<number, string>['_NEW_K']
 		>().toEqualTypeOf<unknown>();
 	});
 
 	it('_NEW_V defaults to unknown', () => {
 		expectTypeOf<
-			KeyedCollection.Types<number, string>['_NEW_V']
+			KeyedCollection.Advanced.Types<number, string>['_NEW_V']
 		>().toEqualTypeOf<unknown>();
 	});
 
 	it('_NEW_TYPES._NORMAL resolves', () => {
 		expectTypeOf<
-			KeyedCollection.Types<number, string>['_NEW_TYPES']['_NORMAL']
+			KeyedCollection.Advanced.Types<number, string>['_NEW_TYPES']['_NORMAL']
 		>().toEqualTypeOf<KeyedCollection<unknown, unknown>>();
 	});
 
 	it('NonEmpty._NEW_TYPES preserves NonEmpty', () => {
 		expectTypeOf<
-			KeyedCollection.Types.NonEmpty<number, string>['_NEW_TYPES']['_NON_EMPTY']
+			KeyedCollection.Advanced.TypesNonEmpty<
+				number,
+				string
+			>['_NEW_TYPES']['_NON_EMPTY']
 		>().toEqualTypeOf<KeyedCollection.NonEmpty<unknown, unknown>>();
 	});
 
-	it('extends Collection.Types', () => {
-		expectTypeOf<KeyedCollection.Types<number, string>>().toExtend<
-			Collection.Types<readonly [number, string]>
+	it('extends Collection.Advanced.Types', () => {
+		expectTypeOf<KeyedCollection.Advanced.Types<number, string>>().toExtend<
+			Collection.Advanced.Types<readonly [number, string]>
 		>();
 	});
 
-	it('NonEmpty extends Collection.Types.NonEmpty', () => {
-		expectTypeOf<KeyedCollection.Types.NonEmpty<number, string>>().toExtend<
-			Collection.Types.NonEmpty<readonly [number, string]>
+	it('NonEmpty extends Collection.Advanced.TypesNonEmpty', () => {
+		expectTypeOf<
+			KeyedCollection.Advanced.TypesNonEmpty<number, string>
+		>().toExtend<
+			Collection.Advanced.TypesNonEmpty<readonly [number, string]>
 		>();
 	});
 });

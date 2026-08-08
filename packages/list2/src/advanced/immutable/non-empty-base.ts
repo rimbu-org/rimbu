@@ -8,6 +8,7 @@ import type { OuterTree } from '#list/immutable/outer-tree';
 import type { OuterBuilder } from '#list/mutable/common';
 
 import { Int } from '@rimbu/base';
+import { defaultRepeat } from '@rimbu/collection-types/advanced/collection-base';
 import {
 	defaultCollect,
 	defaultFilterIndexed,
@@ -17,7 +18,6 @@ import {
 	defaultSwapAtAndReturn,
 	IndexedCollectionNonEmptyBase,
 } from '@rimbu/collection-types/advanced/collection/indexed-base';
-import { defaultRepeat } from '@rimbu/collection-types/advanced/collection-base';
 import { type ArrayNonEmpty, type CollectFun, IndexRange } from '@rimbu/common';
 import { Stream, type StreamSource } from '@rimbu/stream';
 

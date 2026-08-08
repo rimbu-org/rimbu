@@ -311,14 +311,9 @@ export function defaultMapIndexed<
 	return col.map((element) => mapFun(element, index++));
 }
 
-export interface DefaultSpliceAtAndReturnTypes<E>
-	extends IndexedCollection.Advanced.TypesNonEmpty<E> {
-	_NORMAL: IndexedCollection<E> & Collection.Capability.WithConcat<E>;
-}
-
 export function defaultSpliceAtAndReturn<
 	E,
-	C extends IndexedCollection.NonEmpty<E, DefaultSpliceAtAndReturnTypes<E>> &
+	C extends IndexedCollection.Capability.WithSpliceAt.NonEmpty<E> &
 		Collection.Capability.WithConcat<E>,
 >(
 	col: C,
@@ -495,13 +490,15 @@ export function defaultPadTo<
 		E,
 		IndexedCollection.Capability.WithRepeat.TypesNonEmpty<E> &
 			IndexedCollection.Capability.WithSpliceAt.TypesNonEmpty<E>
-	>,
+	> &
+		IndexedCollection.Capability.WithRepeat<E> &
+		IndexedCollection.Capability.WithSpliceAt<E>,
 >(
 	col: C,
 	size: number,
 	fill: E,
 	options: { paddingLeftBias?: number | undefined } = {},
-) {
+): C[TypesKey]['_SELF'] {
 	Int.checkAtLeastZero(size);
 
 	if (col.size >= size) return col;
