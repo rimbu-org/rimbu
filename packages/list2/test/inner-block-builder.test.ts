@@ -749,9 +749,12 @@ describe('InnerBlockBuilder.insert/remove.level-2', () => {
 
 	it('level-2 insert: overflow inside a child keeps tables consistent', () => {
 		const a = ib(ctx, [ob(ctx, [1, 2, 3, 4]), ob(ctx, [5, 6])]);
-		const b = ib2(ctx, [a, ib(ctx, [ob(ctx, [7, 8])])]);
+		const b = ib2(ctx, [
+			a,
+			ib(ctx, [ob(ctx, [7, 8]), ob(ctx, [9, 10])]),
+		]);
 		b.insert(1 as Int.AtLeastZero, 99);
-		checkBuilder(b, [1, 99, 2, 3, 4, 5, 6, 7, 8], 'level2 overflow in child');
+		checkBuilder(b, [1, 99, 2, 3, 4, 5, 6, 7, 8, 9, 10], 'level2 overflow in child');
 	});
 
 	it('remove merging a level-1 child into its sibling keeps tables consistent', () => {
@@ -768,10 +771,15 @@ describe('InnerBlockBuilder.insert/remove.level-2', () => {
 
 	it('remove rebalancing a level-1 child does not throw', () => {
 		const a = cachedLevel1([[1, 2]]);
-		const b = cachedLevel1([[3], [4], [5], [6]]);
-		const outer = ctx.innerBlockBuilder<number, IB>([a, b], 6, 2);
+		const b = cachedLevel1([
+			[3, 4],
+			[5, 6],
+			[7, 8],
+			[9, 10],
+		]);
+		const outer = ctx.innerBlockBuilder<number, IB>([a, b], 10, 2);
 		expect(() => outer.remove(0 as Int.AtLeastZero)).not.toThrow();
-		checkBuilder(outer, [2, 3, 4, 5, 6], 'level2 rebalance');
+		checkBuilder(outer, [2, 3, 4, 5, 6, 7, 8, 9, 10], 'level2 rebalance');
 	});
 });
 
@@ -818,12 +826,19 @@ describe('InnerBlockBuilder.splitRight.size-accounting', () => {
 	});
 
 	it('splitRight with negative index (rebalance pattern) keeps correct sizes', () => {
-		const b = cachedLevel1([[1], [2], [3], [4]]);
+		const b = cachedLevel1([
+			[1, 2],
+			[3, 4],
+			[5, 6],
+			[7, 8],
+		]);
 		const moved = b.splitRight(-2);
-		expect(b.size).toBe(2);
-		expect(moved.size).toBe(2);
+		expect(b.size).toBe(4);
+		expect(moved.size).toBe(4);
 		expect(b._verifyStructure()).toEqual([]);
 		expect(moved._verifyStructure()).toEqual([]);
+		expect(collectForEach(b)).toEqual([1, 2, 3, 4]);
+		expect(collectForEach(moved)).toEqual([5, 6, 7, 8]);
 	});
 
 	it('normalized() creates a tree with correct half sizes', () => {

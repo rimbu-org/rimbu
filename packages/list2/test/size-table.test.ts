@@ -463,6 +463,165 @@ describe('SizeTable.dropChildren', () => {
 	});
 });
 
+describe('SizeTable.split', () => {
+	it('splits irregular table at middle index', () => {
+		const table = SizeTable.fromSizes([20, 30, 20], 32);
+		const [left, right] = table.split(2);
+
+		expect(left.nrChildren).toBe(2);
+		expect(left.totalSize).toBe(50);
+		expect(left.sizeChildAt(0)).toBe(20);
+		expect(left.sizeChildAt(1)).toBe(30);
+		expect(left.offset).toBe(0);
+
+		expect(right.nrChildren).toBe(1);
+		expect(right.totalSize).toBe(20);
+		expect(right.sizeChildAt(0)).toBe(20);
+		expect(right.offset).toBe(50);
+	});
+
+	it('split at every index preserves child sizes', () => {
+		const sizes = [3, 5, 2, 4, 6];
+		const table = SizeTable.fromSizes(sizes, 8);
+
+		for (
+			let splitChildIndex = 0;
+			splitChildIndex <= sizes.length;
+			splitChildIndex++
+		) {
+			const [left, right] = table.split(splitChildIndex);
+
+			expect(left.nrChildren).toBe(splitChildIndex);
+			expect(right.nrChildren).toBe(sizes.length - splitChildIndex);
+			expect(left.totalSize + right.totalSize).toBe(table.totalSize);
+
+			for (let i = 0; i < splitChildIndex; i++) {
+				expect(left.sizeChildAt(i)).toBe(sizes[i]);
+			}
+
+			for (let i = 0; i < sizes.length - splitChildIndex; i++) {
+				expect(right.sizeChildAt(i)).toBe(sizes[splitChildIndex + i]);
+			}
+		}
+	});
+
+	it('right side coordinates stay correct after split', () => {
+		const table = SizeTable.fromSizes([20, 30, 20], 32);
+		const [left, right] = table.split(1);
+
+		expect(left.getCoordinates(19) as [number, number]).toEqual([0, 19]);
+
+		expect(right.getCoordinates(0) as [number, number]).toEqual([0, 0]);
+		expect(right.getCoordinates(29) as [number, number]).toEqual([0, 29]);
+		expect(right.getCoordinates(30) as [number, number]).toEqual([1, 0]);
+		expect(right.getCoordinates(49) as [number, number]).toEqual([1, 19]);
+	});
+
+	it('splits regular table and both sides stay regular', () => {
+		const table = SizeTable.fromSizes([32, 32, 32], 32);
+		const [left, right] = table.split(2);
+
+		expect(left.isRegular).toBe(true);
+		expect(right.isRegular).toBe(true);
+		expect(right.sizeChildAt(0)).toBe(32);
+	});
+
+	it('split with under-full last child keeps both sides regular', () => {
+		const table = SizeTable.fromSizes([32, 32, 16], 32, 80);
+		const [left, right] = table.split(2);
+
+		expect(left.isRegular).toBe(true);
+		expect(right.isRegular).toBe(true);
+		expect(right.totalSize).toBe(16);
+	});
+
+	it('split with irregular prefix: left regular, right conservative', () => {
+		const table = SizeTable.fromSizes([16, 32, 32], 32, 80);
+		const [left, right] = table.split(1);
+
+		expect(left.nrChildren).toBe(1);
+		expect(left.totalSize).toBe(16);
+		expect(left.isRegular).toBe(true);
+
+		expect(right.nrChildren).toBe(2);
+		expect(right.sizeChildAt(0)).toBe(32);
+		expect(right.sizeChildAt(1)).toBe(32);
+		expect(right.isRegular).toBe(false);
+	});
+
+	it('split on table with negative offset', () => {
+		const table = SizeTable.fromSizes([3, 5, 2], 8)
+			.appendChildSize(4)
+			.prependChildSize(5)
+			.prependChildSize(8);
+
+		const [left, right] = table.split(2);
+
+		expect(left.cumulativeTable).toEqual([-5, 0]);
+		expect(left.offset).toBe(-13);
+		expect(left.totalSize).toBe(13);
+		expect(left.sizeChildAt(0)).toBe(8);
+		expect(left.sizeChildAt(1)).toBe(5);
+
+		expect(right.cumulativeTable).toEqual([3, 8, 10, 14]);
+		expect(right.offset).toBe(0);
+		expect(right.totalSize).toBe(14);
+		expect(right.sizeChildAt(0)).toBe(3);
+		expect(right.sizeChildAt(1)).toBe(5);
+		expect(right.sizeChildAt(-1)).toBe(4);
+	});
+
+	it('negative index counts from the end', () => {
+		const table = SizeTable.fromSizes([20, 30, 20], 32);
+		const [left, right] = table.split(-1);
+
+		expect(left.nrChildren).toBe(2);
+		expect(right.nrChildren).toBe(1);
+		expect(right.sizeChildAt(0)).toBe(20);
+		expect(left.sizeChildAt(-1)).toBe(30);
+
+		const [left2, right2] = table.split(-2);
+
+		expect(left2.nrChildren).toBe(1);
+		expect(right2.nrChildren).toBe(2);
+		expect(right2.sizeChildAt(0)).toBe(30);
+	});
+
+	it('split at 0 returns empty left and same right', () => {
+		const table = SizeTable.fromSizes([20, 30], 32);
+		const [left, right] = table.split(0);
+
+		expect(left.nrChildren).toBe(0);
+		expect(left.totalSize).toBe(0);
+		expect(right).toBe(table);
+	});
+
+	it('split at nrChildren returns same left and empty right', () => {
+		const table = SizeTable.fromSizes([20, 30], 32);
+		const [left, right] = table.split(2);
+
+		expect(left).toBe(table);
+		expect(right.nrChildren).toBe(0);
+		expect(right.totalSize).toBe(0);
+	});
+
+	it('split results are independent from source arrays', () => {
+		const table = SizeTable.fromSizes([20, 30, 20], 32);
+		const [left, right] = table.split(1);
+
+		expect(left.cumulativeTable).not.toBe(table.cumulativeTable);
+		expect(right.cumulativeTable).not.toBe(table.cumulativeTable);
+		expect(left.cumulativeTable).not.toBe(right.cumulativeTable);
+	});
+
+	it('throws when split index is out of bounds', () => {
+		const table = SizeTable.fromSizes([20, 30], 32);
+
+		expect(() => table.split(3)).toThrow();
+		expect(() => table.split(-3)).toThrow();
+	});
+});
+
 describe('SizeTable.getCoordinates', () => {
 	function table(sizes: number[], maxChildSize: number, totalSize?: number) {
 		return SizeTable.fromSizes(sizes, maxChildSize, totalSize);

@@ -209,6 +209,28 @@ export class SizeTable {
 		return this.#copy(newCumulativeTable, newOffset, knownIsRegular);
 	}
 
+	split(splitChildIndex: number): [left: SizeTable, right: SizeTable] {
+		if (splitChildIndex < 0) {
+			splitChildIndex = this.nrChildren + splitChildIndex;
+		}
+
+		if (splitChildIndex < 0 || splitChildIndex > this.nrChildren) {
+			throwInvalidStateError();
+		}
+
+		const left =
+			splitChildIndex === 0
+				? SizeTable.fromChildren([], this.maxChildSize)
+				: this.takeChildren(splitChildIndex);
+
+		const right =
+			splitChildIndex === this.nrChildren
+				? SizeTable.fromChildren([], this.maxChildSize)
+				: this.dropChildren(splitChildIndex);
+
+		return [left, right];
+	}
+
 	getCoordinates(
 		index: number,
 	): [childIndex: Int.AtLeastZero, positionWithinChild: Int.AtLeastZero] {

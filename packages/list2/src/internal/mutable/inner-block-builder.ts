@@ -122,7 +122,13 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 
 	insert(index: Int.AtLeastZero, element: T): void {
 		this.#prepareMutate();
-		const [childIndex, inChildIndex] = this.#sizeTable.getCoordinates(index);
+		let [childIndex, inChildIndex] = this.#sizeTable.getCoordinates(index);
+
+		if (childIndex >= this.nrChildren) {
+			// insert at the end of the block: append to the last child
+			childIndex = (this.nrChildren - 1) as Int.AtLeastZero;
+			inChildIndex = this.#children[childIndex].size as Int.AtLeastZero;
+		}
 
 		this.#size++;
 
@@ -144,11 +150,12 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 			const shiftChild = child.dropFirstChild();
 			leftChild.appendChild(shiftChild);
 
-			// Two children changed: childIndex-1 and childIndex
+			// Two children changed: childIndex-1 gains shiftChildSize,
+			// childIndex changes by +1 (inserted) - shiftChildSize (dropped).
 			const shiftChildSize = child.getChildSize(shiftChild);
 			this.#_sizeTable = this.#sizeTable
 				.addChildSize(childIndex - 1, shiftChildSize)
-				.addChildSize(childIndex, -shiftChildSize);
+				.addChildSize(childIndex, 1 - shiftChildSize);
 			return;
 		}
 
@@ -160,7 +167,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 
 			const shiftChildSize = child.getChildSize(shiftChild);
 			this.#_sizeTable = this.#sizeTable
-				.addChildSize(childIndex, -shiftChildSize)
+				.addChildSize(childIndex, 1 - shiftChildSize)
 				.addChildSize(childIndex + 1, shiftChildSize);
 			return;
 		}
@@ -429,17 +436,18 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 	splitRight(index = this.nrChildren >>> 1): InnerBlockBuilder<T, C> {
 		this.#prepareMutate();
 
+		const [newThisSizeTable, rightSizeTable] = this.#sizeTable.split(index);
+		this.#_sizeTable = newThisSizeTable;
+		this.#size = newThisSizeTable.totalSize;
+
 		const rightChildren = this.#children.splice(index);
 
-		this.#_sizeTable =
-			this.#_sizeTable?.dropChildren(index) ??
-			SizeTable.fromChildren(this.#children, this.context.maxBlockSize);
-
-		const newThisSize = this.#sizeTable.totalSize;
-		const rightSize = this.size - newThisSize;
-		this.#size = newThisSize;
-
-		return this.context.innerBlockBuilder(rightChildren, rightSize, this.level);
+		return this.context.innerBlockBuilder(
+			rightChildren,
+			rightSizeTable.totalSize,
+			this.level,
+			rightSizeTable,
+		);
 	}
 
 	prependFrom(other: InnerBlockBuilder<T, C>): void {
@@ -449,6 +457,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 
 		if (this.nrChildren === 0) {
 			this.#_children = other.#children.slice();
+			this.#_sizeTable = other.#_sizeTable;
 			return;
 		}
 
@@ -476,6 +485,8 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		if (toPrepend.length > 0) {
 			this.#children.splice(0, 0, ...toPrepend);
 		}
+
+		this.#_sizeTable = undefined;
 	}
 
 	appendFrom(other: InnerBlockBuilder<T, C>): void {
@@ -485,6 +496,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 
 		if (this.nrChildren === 0) {
 			this.#_children = other.#children.slice();
+			this.#_sizeTable = other.#_sizeTable;
 			return;
 		}
 
@@ -506,5 +518,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 				this.#children.push(child);
 			}
 		}
+
+		this.#_sizeTable = undefined;
 	}
 }

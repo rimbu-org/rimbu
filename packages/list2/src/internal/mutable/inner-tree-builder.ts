@@ -204,6 +204,42 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 	normalized(): InnerBuilder<T, C> | undefined {
 		if (this.#size <= 0) return undefined;
 
+		if (this.left.nrChildren === 0) {
+			// left block is empty: refill it from the middle, then the right
+			if (undefined !== this.middle) {
+				const middle = this.middle.normalized();
+				this.middle = middle;
+				if (undefined !== middle) {
+					const firstMiddle = middle.firstChild();
+					if (undefined !== firstMiddle) {
+						this.left.appendFrom(middle.dropFirstChild());
+						this.middle = middle.normalized();
+					}
+				}
+			}
+			if (this.left.nrChildren === 0 && this.right.canRemoveChild) {
+				this.left.appendChild(this.right.dropFirstChild());
+			}
+		}
+
+		if (this.right.nrChildren === 0) {
+			// right block is empty: refill it from the middle, then the left
+			if (undefined !== this.middle) {
+				const middle = this.middle.normalized();
+				this.middle = middle;
+				if (undefined !== middle) {
+					const lastMiddle = middle.lastChild();
+					if (undefined !== lastMiddle) {
+						this.right.appendFrom(middle.dropLastChild());
+						this.middle = middle.normalized();
+					}
+				}
+			}
+			if (this.right.nrChildren === 0 && this.left.canRemoveChild) {
+				this.right.appendChild(this.left.dropLastChild());
+			}
+		}
+
 		if (undefined === this.middle) {
 			const totalChildren = this.left.nrChildren + this.right.nrChildren;
 
