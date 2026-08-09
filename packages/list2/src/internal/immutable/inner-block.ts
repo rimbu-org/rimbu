@@ -240,7 +240,15 @@ export class InnerBlock<T, C extends Self<Block<T>, C>>
 	withChild(index: number, child: C): InnerBlock<T, C> {
 		const oldChild = this.childAt(index);
 		const newChildren = this.#children.with(index, child);
-		return this.#copy(newChildren, this.size - oldChild.size + child.size);
+		const newSizeTable = this.#_sizeTable?.addChildSize(
+			index,
+			child.size - oldChild.size,
+		);
+		return this.#copy(
+			newChildren,
+			this.size - oldChild.size + child.size,
+			newSizeTable,
+		);
 	}
 
 	prependChild(child: C): Inner<T, C> {

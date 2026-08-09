@@ -19,16 +19,18 @@ export interface BuilderCommon<T, C> {
 }
 
 export interface BlockBuilder<T, C = unknown> extends BuilderCommon<T, C> {
+	_self: BlockBuilder<T, C>;
 	get nrChildren(): number;
 	get canAddChild(): boolean;
 	get canRemoveChild(): boolean;
 	get hasEnoughChildren(): boolean;
 	get notTooManyChildren(): boolean;
+	getChildSize(child: C): number;
 	prependFrom(other: BlockBuilder<T, C>): void;
 	appendFrom(other: BlockBuilder<T, C>): void;
 	dropFirstChild(): C;
 	dropLastChild(): C;
-	splitRight(index?: number): BlockBuilder<T, C>;
+	splitRight(index?: number): this['_self'];
 	build(): Block<T>;
 	buildMap<T2>(f: (element: T) => T2, cacheMap: CacheMap): Block<T2>;
 }

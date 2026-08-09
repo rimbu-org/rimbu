@@ -32,6 +32,8 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		this.#_sizeTable = source?.cachedSizeTable;
 	}
 
+	declare _self: InnerBlockBuilder<T, C>;
+
 	#source?: InnerBlock<T, any> | undefined;
 	#_children?: C[] | undefined;
 	#size: number;
@@ -104,6 +106,10 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		return this.#children[childIndex].update(inChildIndex, f);
 	}
 
+	getChildSize(child: C): number {
+		return child.size;
+	}
+
 	forEach(f: (element: T) => void): void {
 		if (undefined !== this.#source) {
 			this.#source.forEach(f);
@@ -114,10 +120,147 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		}
 	}
 
-	insert(index: Int.AtLeastZero, element: T): void {}
+	insert(index: Int.AtLeastZero, element: T): void {
+		this.#prepareMutate();
+		const [childIndex, inChildIndex] = this.#sizeTable.getCoordinates(index);
+
+		this.#size++;
+
+		// insert into child
+		const child = this.#children[childIndex];
+
+		child.insert(inChildIndex, element);
+
+		if (child.notTooManyChildren) {
+			// child is still valid — update size table from childIndex onward
+			this.#_sizeTable = this.#sizeTable.addChildSize(childIndex, 1);
+			return;
+		}
+
+		// child is too large
+		const leftChild = this.#children[childIndex - 1];
+		if (leftChild?.canAddChild) {
+			// shift to leftChild
+			const shiftChild = child.dropFirstChild();
+			leftChild.appendChild(shiftChild);
+
+			// Two children changed: childIndex-1 and childIndex
+			const shiftChildSize = child.getChildSize(shiftChild);
+			this.#_sizeTable = this.#sizeTable
+				.addChildSize(childIndex - 1, shiftChildSize)
+				.addChildSize(childIndex, -shiftChildSize);
+			return;
+		}
+
+		const rightChild = this.#children[childIndex + 1];
+		if (rightChild?.canAddChild) {
+			// shift to rightChild
+			const shiftChild = child.dropLastChild();
+			rightChild.prependChild(shiftChild);
+
+			const shiftChildSize = child.getChildSize(shiftChild);
+			this.#_sizeTable = this.#sizeTable
+				.addChildSize(childIndex, -shiftChildSize)
+				.addChildSize(childIndex + 1, shiftChildSize);
+			return;
+		}
+
+		// cannot shift, split child
+		const newRightChild = child.splitRight();
+		this.#children.splice(childIndex + 1, 0, newRightChild as C);
+
+		this.#_sizeTable = this.#sizeTable.recomputeFromChildren(
+			this.#children,
+			childIndex,
+		);
+	}
 
 	remove(index: Int.AtLeastZero): T {
-		return 0 as any;
+		this.#prepareMutate();
+		const [childIndex, inChildIndex] = this.#sizeTable.getCoordinates(index);
+
+		this.#size--;
+
+		// remove from child
+		const child = this.#children[childIndex];
+		const oldValue = child.remove(inChildIndex);
+
+		if (child.canRemoveChild || this.nrChildren <= 1) {
+			// no need to normalize
+			this.#_sizeTable = this.#sizeTable.addChildSize(childIndex, -1);
+			return oldValue;
+		}
+
+		const leftChild = this.#children[childIndex - 1];
+		if (undefined !== leftChild) {
+			if (
+				child.nrChildren + leftChild.nrChildren <=
+				this.context.maxBlockSize
+			) {
+				// merge with left: remove child at childIndex, leftChild grows
+				leftChild.appendFrom(child);
+				this.#children.splice(childIndex, 1);
+				this.#_sizeTable = this.#sizeTable.recomputeFromChildren(
+					this.#children,
+					childIndex - 1,
+				);
+				return oldValue;
+			}
+		}
+
+		const rightChild = this.#children[childIndex + 1];
+		if (undefined !== rightChild) {
+			if (
+				child.nrChildren + rightChild.nrChildren <=
+				this.context.maxBlockSize
+			) {
+				// merge with right: remove child at childIndex, rightChild grows
+				rightChild.prependFrom(child);
+				this.#children.splice(childIndex, 1);
+
+				this.#_sizeTable = this.#sizeTable.recomputeFromChildren(
+					this.#children,
+					childIndex,
+				);
+				return oldValue;
+			}
+		}
+
+		if (child.hasEnoughChildren) {
+			// child has enough children, and left and right more than min, so all good
+			this.#_sizeTable = this.#sizeTable.addChildSize(childIndex, -1);
+			return oldValue;
+		}
+
+		// find sibling with most children (most surplus to redistribute)
+		const maxChildren =
+			undefined === leftChild
+				? rightChild
+				: undefined === rightChild
+					? leftChild
+					: leftChild.nrChildren >= rightChild.nrChildren
+						? leftChild
+						: rightChild;
+
+		if (maxChildren === leftChild) {
+			// rebalance with left: childIndex-1 and childIndex both change
+			leftChild.appendFrom(child);
+			this.#children[childIndex] = leftChild.splitRight(
+				(leftChild.nrChildren + 1) >>> 1,
+			) as C;
+		} else {
+			// rebalance with right: childIndex and childIndex+1 both change
+			child.appendFrom(rightChild);
+			this.#children[childIndex + 1] = child.splitRight(
+				child.nrChildren >>> 1,
+			) as C;
+		}
+
+		this.#_sizeTable = this.#sizeTable.recomputeFromChildren(
+			this.#children,
+			maxChildren === leftChild ? childIndex - 1 : childIndex,
+		);
+		return oldValue;
 	}
 
 	prependChild(child: C): void {

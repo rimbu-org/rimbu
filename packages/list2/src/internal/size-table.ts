@@ -102,6 +102,78 @@ export class SizeTable {
 		);
 	}
 
+	addChildSize(childIndex: number, delta: number): SizeTable {
+		if (delta === 0) {
+			return this;
+		}
+
+		if (childIndex < 0) {
+			childIndex = this.nrChildren + childIndex;
+		}
+
+		if (childIndex < 0 || childIndex >= this.nrChildren) {
+			throwInvalidStateError();
+		}
+
+		const newCumulativeTable = this.cumulativeTable.slice();
+
+		let knownIsRegular = this.#_knownIsRegular;
+		if (knownIsRegular === true && childIndex < this.nrChildren - 1) {
+			knownIsRegular = false;
+		}
+
+		for (let i = childIndex; i < newCumulativeTable.length; i++) {
+			newCumulativeTable[i] += delta;
+		}
+
+		return this.#copy(newCumulativeTable, this.offset, knownIsRegular);
+	}
+
+	recomputeFromChildren(
+		children: readonly { readonly size: number }[],
+		startIndex: number,
+	): SizeTable {
+		if (startIndex < 0 || startIndex > children.length) {
+			throwInvalidStateError();
+		}
+
+		if (startIndex > this.nrChildren) {
+			throwInvalidStateError();
+		}
+
+		if (startIndex === children.length) {
+			if (children.length !== this.nrChildren) {
+				throwInvalidStateError();
+			}
+			return this;
+		}
+
+		if (startIndex === 0) {
+			return SizeTable.fromChildren(children, this.maxChildSize);
+		}
+
+		const newCumulativeTable = this.cumulativeTable.slice(0, startIndex);
+
+		let previousCumulative = newCumulativeTable.at(-1) ?? this.offset;
+
+		let knownIsRegular = this.#_knownIsRegular;
+		if (knownIsRegular === true) {
+			for (let i = startIndex; i < children.length - 1; i++) {
+				if (children[i].size !== this.maxChildSize) {
+					knownIsRegular = false;
+					break;
+				}
+			}
+		}
+
+		for (let i = startIndex; i < children.length; i++) {
+			previousCumulative += children[i].size;
+			newCumulativeTable.push(previousCumulative);
+		}
+
+		return this.#copy(newCumulativeTable, this.offset, knownIsRegular);
+	}
+
 	takeChildren(childAmount: number): SizeTable {
 		if (childAmount <= 0) {
 			throwInvalidStateError();

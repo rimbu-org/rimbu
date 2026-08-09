@@ -28,6 +28,8 @@ export class OuterBlockBuilder<T>
 		this.#_children = children;
 	}
 
+	declare _self: OuterBlockBuilder<T>;
+
 	#source: OuterBlock<T> | undefined;
 	#_children: OuterChildren<T> | undefined;
 
@@ -96,6 +98,10 @@ export class OuterBlockBuilder<T>
 		this.#children = newChildren;
 
 		return [previous, current];
+	}
+
+	getChildSize(): number {
+		return 1;
 	}
 
 	prepend(element: T): void {
