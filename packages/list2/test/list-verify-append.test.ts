@@ -207,7 +207,7 @@ for (const blockSizeBits of blockSizeBitsValues) {
 		});
 
 		describe('removeAt', () => {
-			it.only('maintains structure and order at representative boundaries', () => {
+			it('maintains structure and order at representative boundaries', () => {
 				const ctx = List.createContext({ blockSizeBits });
 				let list = buildList(ctx, totalElements, 'append');
 				const expected = [...values];

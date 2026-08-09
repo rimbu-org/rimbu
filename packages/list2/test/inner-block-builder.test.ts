@@ -749,12 +749,13 @@ describe('InnerBlockBuilder.insert/remove.level-2', () => {
 
 	it('level-2 insert: overflow inside a child keeps tables consistent', () => {
 		const a = ib(ctx, [ob(ctx, [1, 2, 3, 4]), ob(ctx, [5, 6])]);
-		const b = ib2(ctx, [
-			a,
-			ib(ctx, [ob(ctx, [7, 8]), ob(ctx, [9, 10])]),
-		]);
+		const b = ib2(ctx, [a, ib(ctx, [ob(ctx, [7, 8]), ob(ctx, [9, 10])])]);
 		b.insert(1 as Int.AtLeastZero, 99);
-		checkBuilder(b, [1, 99, 2, 3, 4, 5, 6, 7, 8, 9, 10], 'level2 overflow in child');
+		checkBuilder(
+			b,
+			[1, 99, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+			'level2 overflow in child',
+		);
 	});
 
 	it('remove merging a level-1 child into its sibling keeps tables consistent', () => {

@@ -271,33 +271,32 @@ export abstract class TreeBuilderBase<T, C> {
 			if (!this.left.hasEnoughChildren) {
 				if (undefined !== this.middle) {
 					const firstBlock = this.middle.firstChild();
-					if (firstBlock.canRemoveChild) {
-						// balance: move enough elements to equalize left and donor
-						const total = this.left.nrChildren + firstBlock.nrChildren;
-						const toMove = (total >>> 1) - this.left.nrChildren;
-						this.middle.modifyFirstChild((fb) => {
-							const preMoveSize = fb.size;
 
-							const moved = fb.splitRight(-toMove);
-							this.left.appendFrom(moved);
-
-							const fbSizeDelta = preMoveSize - fb.size;
-							return -fbSizeDelta;
-						});
-					} else {
-						// merge entire first block into left
-						const dropped = this.middle.dropFirstChild();
-						this.left.appendFrom(dropped);
+					if (
+						this.left.nrChildren + firstBlock.nrChildren <=
+						this.context.maxBlockSize
+					) {
+						this.middle.dropFirstChild();
+						this.left.appendFrom(firstBlock);
+						this.middle = this.middle.normalized();
+						return previous;
 					}
 
-					this.middle = this.middle.normalized();
-				} else if (this.right.canRemoveChild) {
-					// no middle — balance left and right
-					const total = this.left.nrChildren + this.right.nrChildren;
-					const toMove = (total >>> 1) - this.left.nrChildren;
-					// const moved = this.right.dropFirstChildren(toMove);
-					const moved = this.right.splitRight(-toMove);
-					this.left.appendFrom(moved);
+					this.middle.modifyFirstChild((firstChild) => {
+						const firstGrandChild = firstChild.dropFirstChild();
+						this.left.appendChild(firstGrandChild);
+						return -this.getChildSize(firstGrandChild);
+					});
+				} else {
+					const totalNrChildren = this.left.nrChildren + this.right.nrChildren;
+
+					if (totalNrChildren > this.context.maxBlockSize) {
+						// no middle — balance left and right
+						const toMove = (totalNrChildren >>> 1) - this.left.nrChildren;
+						// const moved = this.right.dropFirstChildren(toMove);
+						const moved = this.right.splitRight(-toMove);
+						this.left.appendFrom(moved);
+					}
 				}
 			}
 
