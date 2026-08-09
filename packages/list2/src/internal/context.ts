@@ -81,6 +81,7 @@ export interface ListContext<T> extends List.Context<T> {
 	innerTreeBuilderSource<T, C extends BlockBuilder<T>>(
 		source: InnerTree<T, any>,
 	): InnerTreeBuilder<T, C>;
+	isBlockBuilder<T>(source: unknown): source is BlockBuilder<T>;
 	builderFrom(outerBuilder: OuterBuilder<T>): List.Builder<T>;
 }
 
@@ -220,6 +221,12 @@ export function createListContextModule<UT>(options: {
 				source.level,
 				source,
 			),
+		isBlockBuilder: <T, C extends BlockBuilder<T>>(
+			source: unknown,
+		): source is C =>
+			mod.isInContext<T>(source) &&
+			(source instanceof OuterBlockBuilder ||
+				source instanceof InnerBlockBuilder),
 		builderFrom: <T>(outerBuilder: OuterBuilder<T>) =>
 			new ListBuilder<T>(mod as unknown as ListContext<T>, outerBuilder),
 		empty: Module.lazy(

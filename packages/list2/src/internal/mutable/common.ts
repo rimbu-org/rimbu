@@ -16,10 +16,7 @@ export interface BuilderCommon<T, C> {
 	remove(index: Int.AtLeastZero): T;
 	prependChild(child: C): void;
 	appendChild(child: C): void;
-	_verifyStructure(
-		errors?: string[],
-		enforceMinChildren?: boolean,
-	): string[];
+	_verifyStructure(errors?: string[], enforceMinChildren?: boolean): string[];
 }
 
 export interface BlockBuilder<T, C = unknown> extends BuilderCommon<T, C> {

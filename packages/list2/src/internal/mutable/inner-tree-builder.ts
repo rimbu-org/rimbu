@@ -146,6 +146,22 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 		this.prepareMutate();
 		const child = this.left.dropFirstChild();
 		this.#size -= child.size;
+
+		if (this.left.nrChildren === 0) {
+			// left block is now empty: replace it with the first child of the
+			// middle, or steal a child from the right block when there is no
+			// middle
+			if (undefined === this.middle) {
+				if (this.right.canRemoveChild) {
+					this.left.appendChild(this.right.dropFirstChild());
+				}
+			} else {
+				const firstMiddleBlock = this.middle.dropFirstChild();
+				this.middle = this.middle.normalized();
+				this.left = firstMiddleBlock;
+			}
+		}
+
 		return child;
 	}
 
@@ -153,6 +169,22 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 		this.prepareMutate();
 		const child = this.right.dropLastChild();
 		this.#size -= child.size;
+
+		if (this.right.nrChildren === 0) {
+			// right block is now empty: replace it with the last child of the
+			// middle, or steal a child from the left block when there is no
+			// middle
+			if (undefined === this.middle) {
+				if (this.left.canRemoveChild) {
+					this.right.prependChild(this.left.dropLastChild());
+				}
+			} else {
+				const lastMiddleBlock = this.middle.dropLastChild();
+				this.middle = this.middle.normalized();
+				this.right = lastMiddleBlock;
+			}
+		}
+
 		return child;
 	}
 

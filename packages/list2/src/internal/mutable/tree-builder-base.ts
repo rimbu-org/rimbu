@@ -267,7 +267,6 @@ export abstract class TreeBuilderBase<T, C> {
 		if (!Int.isAtLeastZero(middleIndex)) {
 			// index is in left
 			const previous = this.left.remove(index);
-
 			if (!this.left.hasEnoughChildren) {
 				if (undefined !== this.middle) {
 					const firstBlock = this.middle.firstChild();
@@ -293,7 +292,7 @@ export abstract class TreeBuilderBase<T, C> {
 					if (totalNrChildren > this.context.maxBlockSize) {
 						// no middle — balance left and right
 						const toMove = (totalNrChildren >>> 1) - this.left.nrChildren;
-						const newRight = this.right.splitRight(-toMove);
+						const newRight = this.right.splitRight(toMove);
 						this.left.appendFrom(this.right);
 						this.right = newRight;
 					}
@@ -309,7 +308,6 @@ export abstract class TreeBuilderBase<T, C> {
 		if (Int.isAtLeastZero(rightIndex)) {
 			// index is in right
 			const previous = this.right.remove(rightIndex);
-
 			if (!this.right.hasEnoughChildren) {
 				if (undefined !== this.middle) {
 					const lastBlock = this.middle.lastChild();
@@ -351,8 +349,58 @@ export abstract class TreeBuilderBase<T, C> {
 		const oldValue = this.middle.remove(middleIndex);
 		this.middle = this.middle.normalized();
 
+		this.#repairSingleChildMiddle();
+
 		// this._normalizeMiddle();
 		return oldValue;
+	}
+
+	/**
+	 * A middle with a single child cannot repair an underflow internally:
+	 * `InnerBlockBuilder.remove` early-exits when `nrChildren <= 1`, and with
+	 * only one child there is no sibling to rebalance against. Repair the
+	 * underflow here at the tree level, using the spine blocks:
+	 *
+	 * - merge the child into a spine block when it fits, or
+	 * - move elements from the left spine block into the child to bring it
+	 *   back up to `minBlockSize`.
+	 */
+	#repairSingleChildMiddle(): void {
+		if (
+			undefined === this.middle ||
+			!this.context.isBlockBuilder<T>(this.middle) ||
+			1 !== this.middle.nrChildren
+		)
+			return;
+
+		const singleChild = this.middle.firstChild();
+		const childNrChildren = singleChild.nrChildren;
+
+		if (childNrChildren >= this.context.minBlockSize) return;
+
+		if (this.left.nrChildren + childNrChildren <= this.context.maxBlockSize) {
+			// merge the middle child into the left spine block
+			this.left.appendFrom(this.middle.dropFirstChild());
+			this.middle = this.middle.normalized();
+			return;
+		}
+
+		if (this.right.nrChildren + childNrChildren <= this.context.maxBlockSize) {
+			// merge the middle child into the right spine block
+			this.right.prependFrom(this.middle.dropFirstChild());
+			this.middle = this.middle.normalized();
+			return;
+		}
+
+		// the child does not fit into either spine block: top it up from the
+		// left spine block. This is always possible: since neither merge fits,
+		// left has more than maxBlockSize - childNrChildren >= minBlockSize
+		// children, which is more than the shortage below minBlockSize.
+		this.middle.modifyFirstChild((child) => {
+			const moved = this.left.dropLastChild();
+			child.prependChild(moved);
+			return this.getChildSize(moved);
+		});
 	}
 
 	appendMiddle(child: BlockBuilder<T, C>): void {
