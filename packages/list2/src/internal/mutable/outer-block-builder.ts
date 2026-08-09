@@ -187,6 +187,28 @@ export class OuterBlockBuilder<T>
 		);
 	}
 
+	_verifyStructure(
+		errors: string[] = [],
+		enforceMinChildren = false,
+	): string[] {
+		if (undefined !== this.#source) {
+			return this.#source._verifyStructure(errors, enforceMinChildren);
+		}
+
+		if (enforceMinChildren && !this.hasEnoughChildren) {
+			errors.push(
+				`OuterBlockBuilder has fewer children than allowed: ${this.nrChildren} < ${this.context.minBlockSize}`,
+			);
+		}
+		if (!this.notTooManyChildren) {
+			errors.push(
+				`OuterBlockBuilder has more children than allowed: ${this.nrChildren} > ${this.context.maxBlockSize}`,
+			);
+		}
+
+		return errors;
+	}
+
 	normalized(): OuterBuilder<T> | undefined {
 		const length = this.size;
 

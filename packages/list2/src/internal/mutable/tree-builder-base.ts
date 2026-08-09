@@ -386,4 +386,48 @@ export abstract class TreeBuilderBase<T, C> {
 			this.middle = this.middle.normalized();
 		}
 	}
+
+	_verifyStructure(errors: string[] = []): string[] {
+		const leftSize = this.left.size;
+		const rightSize = this.right.size;
+		const middleSize = this.middle?.size ?? 0;
+
+		if (leftSize + middleSize + rightSize !== this.size) {
+			errors.push(
+				`Tree of level ${this.level} has size ${this.size} but left + middle + right = ${
+					leftSize + middleSize + rightSize
+				}.`,
+			);
+		}
+
+		if (this.left.nrChildren < 1) {
+			errors.push(
+				`Tree of level ${this.level} has left block with too few children: ${this.left.nrChildren} < 1`,
+			);
+		}
+		if (this.right.nrChildren < 1) {
+			errors.push(
+				`Tree of level ${this.level} has right block with too few children: ${this.right.nrChildren} < 1`,
+			);
+		}
+		if (undefined === this.middle) {
+			const totalChildren = this.left.nrChildren + this.right.nrChildren;
+
+			if (totalChildren <= this.context.maxBlockSize) {
+				errors.push(
+					`Tree of level ${this.level} can merge left and right, they have too few children: ${totalChildren} <= ${this.context.maxBlockSize}`,
+				);
+			} else if (totalChildren > this.context.maxBlockSize * 2) {
+				errors.push(
+					`Tree of level ${this.level} without middle has too many children for left+right: ${totalChildren} > ${this.context.maxBlockSize * 2}`,
+				);
+			}
+		}
+
+		this.left._verifyStructure(errors, false);
+		this.middle?._verifyStructure(errors, false);
+		this.right._verifyStructure(errors, false);
+
+		return errors;
+	}
 }

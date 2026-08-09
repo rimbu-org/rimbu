@@ -215,4 +215,28 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 
 		return this;
 	}
+
+	_verifyStructure(errors: string[] = []): string[] {
+		if (undefined !== this.#source) {
+			return this.#source._verifyStructure(errors);
+		}
+
+		if (this.left.level !== this.level) {
+			errors.push(
+				`InnerTreeBuilder has left block with wrong level: ${this.left.level} != ${this.level}`,
+			);
+		}
+		if (this.right.level !== this.level) {
+			errors.push(
+				`InnerTreeBuilder has right block with wrong level: ${this.right.level} != ${this.level}`,
+			);
+		}
+		if (this.middle && this.middle.level !== this.level + 1) {
+			errors.push(
+				`InnerTreeBuilder has middle with wrong level: ${this.middle.level} != ${this.level + 1}`,
+			);
+		}
+
+		return super._verifyStructure(errors);
+	}
 }

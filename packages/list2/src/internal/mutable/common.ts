@@ -16,6 +16,10 @@ export interface BuilderCommon<T, C> {
 	remove(index: Int.AtLeastZero): T;
 	prependChild(child: C): void;
 	appendChild(child: C): void;
+	_verifyStructure(
+		errors?: string[],
+		enforceMinChildren?: boolean,
+	): string[];
 }
 
 export interface BlockBuilder<T, C = unknown> extends BuilderCommon<T, C> {
@@ -45,6 +49,7 @@ export interface OuterBuilder<T> extends BuilderCommon<T, T> {
 
 export interface InnerBuilder<T, C extends BlockBuilder<T>>
 	extends BuilderCommon<T, C> {
+	readonly level: number;
 	firstChild(): C;
 	lastChild(): C;
 	modifyFirstChild(f: (child: C) => number | undefined): number | undefined;

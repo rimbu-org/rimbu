@@ -173,4 +173,31 @@ export class OuterTreeBuilder<T>
 
 		return this;
 	}
+
+	_verifyStructure(errors: string[] = []): string[] {
+		if (undefined !== this.#source) {
+			return this.#source._verifyStructure(errors);
+		}
+
+		if (this.size <= this.context.maxBlockSize) {
+			errors.push(
+				`OuterTreeBuilder size ${this.size} is less than or equal to maxBlockSize ${this.context.maxBlockSize}, should be an OuterBlockBuilder`,
+			);
+		}
+
+		if (this.middle) {
+			if (this.middle.level !== 1) {
+				errors.push(
+					`OuterTreeBuilder has middle with wrong level: ${this.middle.level} != 1`,
+				);
+			}
+			if (this.size <= this.context.maxBlockSize * 2) {
+				errors.push(
+					`OuterTreeBuilder size ${this.size} is less than or equal to 2 * maxBlockSize ${this.context.maxBlockSize * 2} but has a middle.`,
+				);
+			}
+		}
+
+		return super._verifyStructure(errors);
+	}
 }

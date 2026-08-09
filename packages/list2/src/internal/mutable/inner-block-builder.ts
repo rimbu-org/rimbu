@@ -350,6 +350,63 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		);
 	}
 
+	_verifyStructure(
+		errors: string[] = [],
+		enforceMinChildren = false,
+	): string[] {
+		if (undefined !== this.#source) {
+			return this.#source._verifyStructure(errors, enforceMinChildren);
+		}
+
+		if (enforceMinChildren && !this.hasEnoughChildren) {
+			errors.push(
+				`InnerBlockBuilder of level ${this.level} has fewer children than allowed: ${this.nrChildren} < ${this.context.minBlockSize}`,
+			);
+		}
+		if (!this.notTooManyChildren) {
+			errors.push(
+				`InnerBlockBuilder of level ${this.level} has more children than allowed: ${this.nrChildren} > ${this.context.maxBlockSize}`,
+			);
+		}
+
+		let length = 0;
+		for (const child of this.#children) {
+			length += child.size;
+			child._verifyStructure(errors, true);
+		}
+		if (length !== this.size) {
+			errors.push(
+				`InnerBlockBuilder of level ${this.level} has size ${this.size} but sum of child lengths is ${length}.`,
+			);
+		}
+
+		if (undefined !== this.#_sizeTable) {
+			const sizeTable = SizeTable.fromChildren(
+				this.#children,
+				1 << (this.level * this.context.blockSizeBits),
+				this.size,
+			);
+
+			if (sizeTable.nrChildren !== this.#_sizeTable.nrChildren) {
+				errors.push(
+					`InnerBlockBuilder of level ${this.level} has inconsistent size table length: expected ${sizeTable.nrChildren} but found ${this.#_sizeTable.nrChildren}.`,
+				);
+			}
+
+			for (let i = 0; i < sizeTable.nrChildren; i++) {
+				if (sizeTable.sizeChildAt(i) !== this.#_sizeTable.sizeChildAt(i)) {
+					errors.push(
+						`InnerBlockBuilder of level ${this.level} has inconsistent size table entry ${i}: expected ${sizeTable.sizeChildAt(
+							i,
+						)} but found ${this.#_sizeTable.sizeChildAt(i)}.`,
+					);
+				}
+			}
+		}
+
+		return errors;
+	}
+
 	normalized(): InnerBuilder<T, C> | undefined {
 		if (this.nrChildren === 0) return undefined;
 
