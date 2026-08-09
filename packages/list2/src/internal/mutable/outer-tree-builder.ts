@@ -172,8 +172,12 @@ export class OuterTreeBuilder<T>
 		} else if (this.#size <= this.context.maxBlockSize * 2) {
 			// tree is small enough to fit in a single block — rebuild it to
 			// drop the middle
-			// ASSUMPTION: middle has exactly 1 child
+			const firstMiddleChild = this.middle.firstChild();
+			const lastMiddleChild = this.middle.lastChild();
 			this.left.appendFrom(this.middle.firstChild());
+			if (firstMiddleChild !== lastMiddleChild) {
+				this.left.appendFrom(this.middle.lastChild());
+			}
 			this.left.appendFrom(this.right);
 
 			return this.left.normalized();

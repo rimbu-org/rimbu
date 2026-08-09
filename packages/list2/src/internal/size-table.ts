@@ -175,8 +175,12 @@ export class SizeTable {
 	}
 
 	takeChildren(childAmount: number): SizeTable {
-		if (childAmount <= 0) {
+		if (childAmount < 0) {
 			throwInvalidStateError();
+		}
+
+		if (childAmount === 0) {
+			return SizeTable.fromChildren([], this.maxChildSize);
 		}
 
 		if (childAmount >= this.nrChildren) {
