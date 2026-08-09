@@ -57,6 +57,46 @@ function makeRng(seed: number): () => number {
 
 const blockSizeBitsValues = [2, 3, 4, 5] as const;
 
+describe('regression: single-child middle underflow (blockSizeBits=5)', () => {
+	// Minimal deterministic repro of the failure in "a long mixed sequence"
+	// below (op 29, removeAt(-28)): a tree L(32) R(32) that gets a single
+	// minBlockSize (16) block in its middle, followed by a remove from that
+	// middle block which drops it to 15 < minBlockSize. Nothing repairs it,
+	// see `list-builder-middle-underflow.test.ts` for the root cause.
+	it('remove from a single-child middle keeps the child at minBlockSize', () => {
+		const b = makeBuilder(5);
+		const expected: number[] = [];
+
+		for (let i = 0; i < 64; i++) {
+			b.append(i);
+			expected.push(i);
+		}
+
+		const insert = (index: number, value: number) => {
+			b.insertAt(index, value);
+			expected.splice(normalizeInsertIndex(index, expected.length), 0, value);
+			expectValid(b, expected, `insertAt(${index})`);
+		};
+
+		const remove = (index: number) => {
+			const normalized = normalizeRemoveIndex(index, expected.length);
+			const removed = b.removeAt(index, undefined);
+			expect(removed, `removeAt(${index})`).toBe(expected[normalized]);
+			expected.splice(normalized, 1);
+			expectValid(b, expected, `removeAt(${index})`);
+		};
+
+		// tree layout after these ops: L(31) M([16]) R(19), size 66
+		insert(42, 64);
+		insert(50, 65);
+		insert(49, 66);
+		remove(11);
+
+		// index 38 lands in the middle's single child (16 -> 15 elements)
+		remove(-28);
+	});
+});
+
 for (const blockSizeBits of blockSizeBitsValues) {
 	const maxBlockSize = 1 << blockSizeBits;
 	const totalElements = maxBlockSize * maxBlockSize * 2;

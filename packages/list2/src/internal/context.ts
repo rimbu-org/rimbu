@@ -224,9 +224,9 @@ export function createListContextModule<UT>(options: {
 		isBlockBuilder: <T, C extends BlockBuilder<T>>(
 			source: unknown,
 		): source is C =>
-			mod.isInContext<T>(source) &&
 			(source instanceof OuterBlockBuilder ||
-				source instanceof InnerBlockBuilder),
+				source instanceof InnerBlockBuilder) &&
+			source.context === mod,
 		builderFrom: <T>(outerBuilder: OuterBuilder<T>) =>
 			new ListBuilder<T>(mod as unknown as ListContext<T>, outerBuilder),
 		empty: Module.lazy(

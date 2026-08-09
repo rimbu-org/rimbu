@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 
+import type { ListContext } from '#list/context';
 import type { ListBuilder } from '#list/mutable/builder';
 
 import { List } from '@rimbu/list';
@@ -23,6 +24,14 @@ function verifyStructure(list: List<number>): string[] {
  *   `InnerBlockBuilder.remove` (src/internal/mutable/inner-block-builder.ts)
  *   early-exits when `this.nrChildren <= 1`, so a single-child middle never
  *   rebalances its child.
+ * - A repair for exactly this case exists — `#repairSingleChildMiddle` in
+ *   tree-builder-base.ts — but it is dead code: its guard
+ *   `this.context.isBlockBuilder(this.middle)` never passes, because
+ *   `ListContext.isBlockBuilder` (src/internal/context.ts) first requires
+ *   `isInContext(source)`, and `isInContext` only accepts immutable List
+ *   instances (`ListEmptyBase` / `OuterBlock` / `OuterTree`), never the
+ *   `OuterBlockBuilder` / `InnerBlockBuilder` instances passed to it. The
+ *   `isBlockBuilder` predicate test below pins this defect.
  * - `OuterTreeBuilder.normalized()` only collapses a tree with middle when
  *   `size <= 2 * maxBlockSize` (src/internal/mutable/outer-tree-builder.ts),
  *   so once the tree is above that threshold the underflow survives.
@@ -109,5 +118,27 @@ describe('list builder middle underflow (known issue)', () => {
 				minBlockSize,
 			);
 		}
+	});
+
+	it('isBlockBuilder recognizes genuine block builders (repair guard)', () => {
+		const context = List.createContext({
+			blockSizeBits: 5,
+		}) as unknown as ListContext<number>;
+
+		const outerBuilder = context.outerBlockBuilder(
+			context.childrenOps.of([1, 2]),
+		);
+		const innerBuilder = context.innerBlockBuilder(
+			[outerBuilder],
+			outerBuilder.size,
+			1,
+		);
+
+		// `#repairSingleChildMiddle` (tree-builder-base.ts) guards on
+		// `isBlockBuilder(this.middle)`; this predicate must accept the very
+		// builders it is called with. Currently it returns false because it
+		// requires `isInContext`, which only accepts immutable List instances.
+		expect(context.isBlockBuilder(outerBuilder)).toBe(true);
+		expect(context.isBlockBuilder(innerBuilder)).toBe(true);
 	});
 });
