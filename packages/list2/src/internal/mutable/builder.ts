@@ -249,4 +249,15 @@ export class ListBuilder<T>
 
 		return this.#outerBuilder.buildMap(f, new CacheMap());
 	};
+
+	_verifyStructure(
+		errors: string[] = [],
+		enforceMinChildren = false,
+	): string[] {
+		if (undefined !== this.#outerBuilder) {
+			return this.#outerBuilder._verifyStructure(errors, enforceMinChildren);
+		}
+
+		return errors;
+	}
 }
