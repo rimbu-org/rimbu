@@ -293,9 +293,9 @@ export abstract class TreeBuilderBase<T, C> {
 					if (totalNrChildren > this.context.maxBlockSize) {
 						// no middle — balance left and right
 						const toMove = (totalNrChildren >>> 1) - this.left.nrChildren;
-						// const moved = this.right.dropFirstChildren(toMove);
-						const moved = this.right.splitRight(-toMove);
-						this.left.appendFrom(moved);
+						const newRight = this.right.splitRight(-toMove);
+						this.left.appendFrom(this.right);
+						this.right = newRight;
 					}
 				}
 			}
@@ -317,12 +317,11 @@ export abstract class TreeBuilderBase<T, C> {
 						// balance: move enough elements to equalize right and donor
 						const total = this.right.nrChildren + lastBlock.nrChildren;
 						const toMove = (total >>> 1) - this.right.nrChildren;
-						this.middle.modifyLastChild((lb) => {
-							// const moved = lb.dropLastChildren(toMove);
-							const preMoveSize = lb.size;
-							const moved = lb.splitRight(toMove);
-							this.right.appendFrom(moved);
-							const lbSizeDelta = preMoveSize - lb.size;
+						this.middle.modifyLastChild((lastBlock) => {
+							const preMoveSize = lastBlock.size;
+							const moved = lastBlock.splitRight(-toMove);
+							this.right.prependFrom(moved);
+							const lbSizeDelta = preMoveSize - lastBlock.size;
 							return -lbSizeDelta;
 						});
 					} else {
@@ -335,7 +334,7 @@ export abstract class TreeBuilderBase<T, C> {
 					// no middle — balance left and right
 					const total = this.left.nrChildren + this.right.nrChildren;
 					const toMove = (total >>> 1) - this.right.nrChildren;
-					const moved = this.left.splitRight(toMove);
+					const moved = this.left.splitRight(-toMove);
 					this.right.prependFrom(moved);
 				}
 			}

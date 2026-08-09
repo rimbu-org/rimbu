@@ -306,7 +306,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		this.#prepareMutate();
 		const child = this.#children.pop()!;
 		this.#size -= child.size;
-		this.#_sizeTable = this.#_sizeTable?.dropChildren(-1);
+		this.#_sizeTable = this.#_sizeTable?.takeChildren(this.nrChildren);
 		return child;
 	}
 

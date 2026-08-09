@@ -193,8 +193,12 @@ export class SizeTable {
 			return this;
 		}
 
-		if (childAmount >= this.nrChildren) {
+		if (childAmount > this.nrChildren) {
 			throwInvalidStateError();
+		}
+
+		if (childAmount === this.nrChildren) {
+			return SizeTable.fromChildren([], this.maxChildSize);
 		}
 
 		const newCumulativeTable = this.cumulativeTable.slice(childAmount);

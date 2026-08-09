@@ -27,7 +27,7 @@ function normalizeInsertIndex(index: number, size: number): number {
 }
 
 function normalizeRemoveIndex(index: number, size: number): number {
-	if (size === 0 || index >= size || index <= -size) return -1;
+	if (size === 0 || index >= size || index < -size) return -1;
 	return index < 0 ? size + index : index;
 }
 
@@ -172,18 +172,18 @@ for (const blockSizeBits of blockSizeBitsValues) {
 					[-totalElements, 1],
 					[-(totalElements + 1), 2],
 				] as const) {
-					const normalized = normalizeRemoveIndex(index, expected.length);
 					for (let k = 0; k < amount; k++) {
+						const normalized = normalizeRemoveIndex(index, expected.length);
 						const removed = b.removeAt(index, undefined);
 						if (normalized >= 0) {
 							expect(removed, `removeAt(${index}, x${amount})`).toBe(
-								expected[normalized + k],
+								expected[normalized],
 							);
+							expected.splice(normalized, 1);
 						} else {
 							expect(removed, `removeAt(${index}, x${amount})`).toBeUndefined();
 						}
 					}
-					if (normalized >= 0) expected.splice(normalized, amount);
 					expectValid(b, expected, `removeAt(${index}, x${amount})`);
 				}
 			});
