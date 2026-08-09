@@ -42,7 +42,7 @@ function verifyStructure(list: List<number>): string[] {
 describe('list builder middle underflow (known issue)', () => {
 	const blockSizeBitsValues = [2, 3, 4, 5] as const;
 
-	it.todo('a middle block that drops below minBlockSize stays invalid (repro)', () => {
+	it('a middle block that drops below minBlockSize stays invalid (repro)', () => {
 		for (const blockSizeBits of blockSizeBitsValues) {
 			const maxBlockSize = 1 << blockSizeBits;
 			const minBlockSize = maxBlockSize >>> 1;
