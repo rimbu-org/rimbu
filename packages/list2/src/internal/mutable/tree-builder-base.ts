@@ -271,67 +271,23 @@ export abstract class TreeBuilderBase<T, C> {
 			if (!this.left.hasEnoughChildren) {
 				if (undefined !== this.middle) {
 					const firstBlock = this.middle.firstChild();
-					if (undefined !== firstBlock) {
-						// only inner trees have block-typed boundary children; the
-						// runtime guard skips leaf boundaries
-						const boundaryBlock = this.left as unknown as InnerBuilder<
-							T,
-							any
-						> & { nrChildren: number };
-						if (
-							boundaryBlock.nrChildren === 1 &&
-							boundaryBlock.firstChild().nrChildren <
-								this.context.minBlockSize
-						) {
-							// the boundary block has a single underfull child:
-							// merge it with the middle's adjacent child, splitting
-							// if needed
-							const boundaryChild = boundaryBlock.firstChild();
-							const boundaryChildSize = boundaryChild.size;
-							this.middle.modifyFirstChild((fb) => {
-								const donorChild = (
-									fb as unknown as InnerBuilder<T, any>
-								).firstChild();
-								boundaryChild.appendFrom(donorChild);
-								fb.dropFirstChild();
-								if (!boundaryChild.notTooManyChildren) {
-									// merged exceeds max: split and return the back
-									// part to the middle
-									const back = boundaryChild.splitRight(
-										(boundaryChild.nrChildren + 1) >>> 1,
-									);
-									fb.prependChild(back);
-									return back.size - donorChild.size;
-								}
-								return -donorChild.size;
-							});
-							boundaryBlock.modifyFirstChild(
-								() => boundaryChild.size - boundaryChildSize,
-							);
-						}
+					if (firstBlock.canRemoveChild) {
+						// balance: move enough elements to equalize left and donor
+						const total = this.left.nrChildren + firstBlock.nrChildren;
+						const toMove = (total >>> 1) - this.left.nrChildren;
+						this.middle.modifyFirstChild((fb) => {
+							const preMoveSize = fb.size;
 
-						if (!this.left.hasEnoughChildren) {
-							if (firstBlock.canRemoveChild) {
-								// balance: move enough elements to equalize left and donor
-								const total =
-									this.left.nrChildren + firstBlock.nrChildren;
-								const toMove =
-									(total >>> 1) - this.left.nrChildren;
-								this.middle.modifyFirstChild((fb) => {
-									const preMoveSize = fb.size;
+							const moved = fb.splitRight(-toMove);
+							this.left.appendFrom(moved);
 
-									const moved = fb.splitRight(-toMove);
-									this.left.appendFrom(moved);
-
-									const fbSizeDelta = preMoveSize - fb.size;
-									return -fbSizeDelta;
-								});
-							} else {
-								// merge entire first block into left
-								const dropped = this.middle.dropFirstChild();
-								this.left.appendFrom(dropped);
-							}
-						}
+							const fbSizeDelta = preMoveSize - fb.size;
+							return -fbSizeDelta;
+						});
+					} else {
+						// merge entire first block into left
+						const dropped = this.middle.dropFirstChild();
+						this.left.appendFrom(dropped);
 					}
 
 					this.middle = this.middle.normalized();
@@ -358,77 +314,29 @@ export abstract class TreeBuilderBase<T, C> {
 			if (!this.right.hasEnoughChildren) {
 				if (undefined !== this.middle) {
 					const lastBlock = this.middle.lastChild();
-					if (undefined !== lastBlock) {
-						// only inner trees have block-typed boundary children; the
-						// runtime guard skips leaf boundaries
-						const boundaryBlock = this.right as unknown as InnerBuilder<
-							T,
-							any
-						> & { nrChildren: number };
-						if (
-							boundaryBlock.nrChildren === 1 &&
-							boundaryBlock.lastChild().nrChildren <
-								this.context.minBlockSize
-						) {
-							// the boundary block has a single underfull child:
-							// merge it with the middle's adjacent child, splitting
-							// if needed
-							const boundaryChild = boundaryBlock.lastChild();
-							const boundaryChildSize = boundaryChild.size;
-							let backSize = 0;
-							this.middle.modifyLastChild((lb) => {
-								const donorChild = (
-									lb as unknown as InnerBuilder<T, any>
-								).lastChild();
-								boundaryChild.prependFrom(donorChild);
-								lb.dropLastChild();
-								if (!boundaryChild.notTooManyChildren) {
-									// merged exceeds max: split and keep the back
-									// part in the boundary block
-									const back = boundaryChild.splitRight(
-										(boundaryChild.nrChildren + 1) >>> 1,
-									);
-									boundaryBlock.appendChild(back);
-									backSize = back.size;
-								}
-								return -donorChild.size;
-							});
-							boundaryBlock.modifyLastChild(
-								() =>
-									boundaryChild.size +
-									backSize -
-									boundaryChildSize,
-							);
-						}
-
-						if (!this.right.hasEnoughChildren) {
-							if (lastBlock.canRemoveChild) {
-								// balance: move enough elements to equalize right and donor
-								const total =
-									this.right.nrChildren + lastBlock.nrChildren;
-								const toMove =
-									(total >>> 1) - this.right.nrChildren;
-								this.middle.modifyLastChild((lb) => {
-									// const moved = lb.dropLastChildren(toMove);
-									const preMoveSize = lb.size;
-									const moved = lb.splitRight(-toMove);
-									this.right.prependFrom(moved);
-									const lbSizeDelta = preMoveSize - lb.size;
-									return -lbSizeDelta;
-								});
-							} else {
-								// merge entire last block into right
-								const dropped = this.middle.dropLastChild();
-								this.right.prependFrom(dropped);
-							}
-						}
+					if (lastBlock.canRemoveChild) {
+						// balance: move enough elements to equalize right and donor
+						const total = this.right.nrChildren + lastBlock.nrChildren;
+						const toMove = (total >>> 1) - this.right.nrChildren;
+						this.middle.modifyLastChild((lb) => {
+							// const moved = lb.dropLastChildren(toMove);
+							const preMoveSize = lb.size;
+							const moved = lb.splitRight(toMove);
+							this.right.appendFrom(moved);
+							const lbSizeDelta = preMoveSize - lb.size;
+							return -lbSizeDelta;
+						});
+					} else {
+						// merge entire last block into right
+						const dropped = this.middle.dropLastChild();
+						this.right.prependFrom(dropped);
 					}
 					this.middle = this.middle.normalized();
 				} else if (this.left.canRemoveChild) {
 					// no middle — balance left and right
 					const total = this.left.nrChildren + this.right.nrChildren;
 					const toMove = (total >>> 1) - this.right.nrChildren;
-					const moved = this.left.splitRight(-toMove);
+					const moved = this.left.splitRight(toMove);
 					this.right.prependFrom(moved);
 				}
 			}
