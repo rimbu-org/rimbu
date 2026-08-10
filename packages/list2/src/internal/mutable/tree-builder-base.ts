@@ -323,9 +323,12 @@ export abstract class TreeBuilderBase<T, C> {
 			if (!this.right.hasEnoughChildren) {
 				if (undefined !== this.middle) {
 					const lastBlock = this.middle.lastChild();
-					if (lastBlock.canRemoveChild) {
-						// balance: move enough elements to equalize right and donor
-						const total = this.right.nrChildren + lastBlock.nrChildren;
+					const total = this.right.nrChildren + lastBlock.nrChildren;
+					if (
+						lastBlock.canRemoveChild &&
+						total >= 2 * this.context.minBlockSize - 1
+					) {
+						// The donor stays at minBlockSize; the spine may be one below it.
 						const toMove = (total >>> 1) - this.right.nrChildren;
 						this.middle.modifyLastChild((lastBlock) => {
 							const preMoveSize = lastBlock.size;
