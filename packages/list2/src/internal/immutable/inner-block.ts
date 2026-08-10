@@ -459,7 +459,7 @@ export class InnerBlock<T, C extends Self<Block<T>, C>>
 				this,
 				newLeftMiddle,
 				newSize,
-				this.level + 1,
+				this.level,
 			);
 		}
 

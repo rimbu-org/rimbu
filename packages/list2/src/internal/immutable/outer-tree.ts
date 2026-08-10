@@ -509,7 +509,7 @@ export class OuterTree<T>
 				null === newThisMiddle
 					? leftTree._appendMiddle(jointLeft).appendChild(jointRight)
 					: null === leftTree.middle
-						? newThisMiddle.appendChild(jointLeft).appendChild(jointRight)
+						? newThisMiddle.prependChild(jointRight).prependChild(jointLeft)
 						: leftTree
 								._appendMiddle(jointLeft)
 								.appendChild(jointRight)
@@ -573,12 +573,11 @@ export class OuterTree<T>
 
 		const jointLeft = this.context.outerBlockLeftRight(jointLeftChildren);
 		const jointRight = this.context.outerBlockLeftRight(jointRightChildren);
-
-		const newThisMiddle = this._appendMiddle(jointLeft).appendChild(jointRight);
+		const newLeftMiddle = leftTree
+			._appendMiddle(jointLeft)
+			.appendChild(jointRight);
 		const newMiddle =
-			null === leftTree.middle
-				? newThisMiddle
-				: leftTree.middle.concat(newThisMiddle);
+			null === this.middle ? newLeftMiddle : newLeftMiddle.concat(this.middle);
 
 		return this.context.outerTree(
 			leftTree.left,
