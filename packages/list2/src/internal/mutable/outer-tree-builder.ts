@@ -2,8 +2,14 @@ import type { Int } from '@rimbu/base';
 
 import type { ListContext } from '#list/context';
 import type { OuterTree } from '#list/immutable/outer-tree';
-import type { InnerBuilder, OuterBuilder } from '#list/mutable/common';
+import type {
+	BlockBuilder,
+	InnerBuilder,
+	OuterBuilder,
+} from '#list/mutable/common';
 import type { OuterBlockBuilder } from '#list/mutable/outer-block-builder';
+
+import { throwInvalidStateError } from '@rimbu/base';
 
 import { CacheMap } from '#list/immutable/cache-map';
 import { TreeBuilderBase } from '#list/mutable/tree-builder-base';
@@ -110,6 +116,28 @@ export class OuterTreeBuilder<T>
 
 	dropBlockLastChild(block: OuterBlockBuilder<T>): T {
 		return block.dropLastChild();
+	}
+
+	protected firstBlockChild(_block: BlockBuilder<T, T>): T {
+		throwInvalidStateError();
+	}
+
+	protected lastBlockChild(_block: BlockBuilder<T, T>): T {
+		throwInvalidStateError();
+	}
+
+	protected modifyBlockFirstChild(
+		_block: BlockBuilder<T, T>,
+		_f: (child: T) => number | undefined,
+	): number | undefined {
+		throwInvalidStateError();
+	}
+
+	protected modifyBlockLastChild(
+		_block: BlockBuilder<T, T>,
+		_f: (child: T) => number | undefined,
+	): number | undefined {
+		throwInvalidStateError();
 	}
 
 	createBlockBuilder(child: T): OuterBlockBuilder<T> {

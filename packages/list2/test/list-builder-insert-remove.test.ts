@@ -4,6 +4,7 @@ import type { Int } from '@rimbu/base';
 
 import type { ListContext } from '#list/context';
 import type { ListBuilder } from '#list/mutable/builder';
+import type { InnerBlockBuilder } from '#list/mutable/inner-block-builder';
 import type { OuterBlockBuilder } from '#list/mutable/outer-block-builder';
 
 import { List } from '@rimbu/list';
@@ -21,6 +22,9 @@ import { List } from '@rimbu/list';
  */
 
 type Node = List<number>;
+type OuterBlockNode = OuterBlockBuilder<number>;
+type InnerBlockNode = InnerBlockBuilder<number, OuterBlockNode>;
+type InnerBlockNode2 = InnerBlockBuilder<number, InnerBlockNode>;
 
 function verifyBuilder(b: ListBuilder<number>, label: string): void {
 	const errors = b._verifyStructure();
@@ -96,14 +100,17 @@ function makeDeepSpineCase(
 	}) as unknown as ListContext<number>;
 	let nextValue = 0;
 
-	const makeOuterBlock = (size: number): OuterBlockBuilder<number> =>
-		ctx.outerBlockBuilder(
+	const makeOuterBlock = (size: number): OuterBlockNode =>
+		ctx.outerBlockBuilder<number>(
 			ctx.childrenOps.of(Array.from({ length: size }, () => nextValue++)),
 		);
 
-	const makeInnerBlock = (sizes: readonly number[], level = 1) => {
+	const makeInnerBlock = (
+		sizes: readonly number[],
+		level = 1,
+	): InnerBlockNode => {
 		const children = sizes.map(makeOuterBlock);
-		return ctx.innerBlockBuilder(
+		return ctx.innerBlockBuilder<number, OuterBlockNode>(
 			children,
 			children.reduce((size, child) => size + child.size, 0),
 			level,
@@ -113,17 +120,21 @@ function makeDeepSpineCase(
 	const outerLeft = makeOuterBlock(2);
 	const innerLeft = makeInnerBlock([spineChildSize]);
 	const donor = makeInnerBlock(donorSizes);
-	const middle = ctx.innerBlockBuilder([donor], donor.size, 2);
+	const middle = ctx.innerBlockBuilder<number, InnerBlockNode>(
+		[donor],
+		donor.size,
+		2,
+	);
 	const innerRight = makeInnerBlock([spineChildSize]);
 	const outerRight = makeOuterBlock(2);
-	const innerTree = ctx.innerTreeBuilder(
+	const innerTree = ctx.innerTreeBuilder<number, OuterBlockNode>(
 		1,
 		innerLeft,
 		innerRight,
 		middle,
 		innerLeft.size + middle.size + innerRight.size,
 	);
-	const outerTree = ctx.outerTreeBuilder(
+	const outerTree = ctx.outerTreeBuilder<number>(
 		outerLeft,
 		outerRight,
 		innerTree,
@@ -398,14 +409,20 @@ describe('single-child spine repair fixtures', () => {
 			blockSizeBits: 3,
 		}) as unknown as ListContext<number>;
 		const ops = ctx.childrenOps;
-		const left = ctx.outerBlockBuilder(ops.of([0, 1, 2, 3]));
-		const firstMiddle = ctx.outerBlockBuilder(
+		const left = ctx.outerBlockBuilder<number>(ops.of([0, 1, 2, 3]));
+		const firstMiddle = ctx.outerBlockBuilder<number>(
 			ops.of([4, 5, 6, 7, 8, 9, 10, 11]),
 		);
-		const lastMiddle = ctx.outerBlockBuilder(ops.of([12, 13, 14, 15, 16, 17]));
-		const middle = ctx.innerBlockBuilder([firstMiddle, lastMiddle], 14, 1);
-		const right = ctx.outerBlockBuilder(ops.of([18]));
-		const tree = ctx.outerTreeBuilder(left, right, middle, 19);
+		const lastMiddle = ctx.outerBlockBuilder<number>(
+			ops.of([12, 13, 14, 15, 16, 17]),
+		);
+		const middle = ctx.innerBlockBuilder<number, OuterBlockNode>(
+			[firstMiddle, lastMiddle],
+			14,
+			1,
+		);
+		const right = ctx.outerBlockBuilder<number>(ops.of([18]));
+		const tree = ctx.outerTreeBuilder<number>(left, right, middle, 19);
 		const builder = ctx.builderFrom(tree) as ListBuilder<number>;
 		const expected = Array.from({ length: 19 }, (_, index) => index);
 		expected.pop();
@@ -422,22 +439,20 @@ describe('single-child spine repair fixtures', () => {
 		}) as unknown as ListContext<number>;
 		let nextValue = 0;
 
-		const makeOuterBlock = (size: number): OuterBlockBuilder<number> =>
-			ctx.outerBlockBuilder(
+		const makeOuterBlock = (size: number): OuterBlockNode =>
+			ctx.outerBlockBuilder<number>(
 				ctx.childrenOps.of(Array.from({ length: size }, () => nextValue++)),
 			);
-		const makeLevelOneBlock = (sizes: readonly number[]) => {
+		const makeLevelOneBlock = (sizes: readonly number[]): InnerBlockNode => {
 			const children = sizes.map(makeOuterBlock);
-			return ctx.innerBlockBuilder(
+			return ctx.innerBlockBuilder<number, OuterBlockNode>(
 				children,
 				children.reduce((size, child) => size + child.size, 0),
 				1,
 			);
 		};
-		const makeLevelTwoBlock = (
-			children: ReturnType<typeof makeLevelOneBlock>[],
-		) =>
-			ctx.innerBlockBuilder(
+		const makeLevelTwoBlock = (children: InnerBlockNode[]): InnerBlockNode2 =>
+			ctx.innerBlockBuilder<number, InnerBlockNode>(
 				children,
 				children.reduce((size, child) => size + child.size, 0),
 				2,
@@ -448,10 +463,14 @@ describe('single-child spine repair fixtures', () => {
 		const donorSecond = makeLevelOneBlock([2, 2]);
 		const donorBoundary = makeLevelOneBlock([2, 2, 2, 2]);
 		const donor = makeLevelTwoBlock([donorFirst, donorSecond, donorBoundary]);
-		const middle = ctx.innerBlockBuilder([donor], donor.size, 3);
+		const middle = ctx.innerBlockBuilder<number, InnerBlockNode2>(
+			[donor],
+			donor.size,
+			3,
+		);
 		const rightChild = makeLevelOneBlock([2, 2]);
 		const right = makeLevelTwoBlock([rightChild]);
-		const tree = ctx.innerTreeBuilder(
+		const tree = ctx.innerTreeBuilder<number, InnerBlockNode>(
 			2,
 			left,
 			right,

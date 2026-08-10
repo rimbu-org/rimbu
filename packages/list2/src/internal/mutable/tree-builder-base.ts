@@ -15,6 +15,16 @@ export abstract class TreeBuilderBase<T, C> {
 	abstract appendBlockChild(block: BlockBuilder<T, C>, child: C): void;
 	abstract dropBlockFirstChild(block: BlockBuilder<T, C>): C;
 	abstract dropBlockLastChild(block: BlockBuilder<T, C>): C;
+	protected abstract firstBlockChild(block: BlockBuilder<T, C>): C;
+	protected abstract lastBlockChild(block: BlockBuilder<T, C>): C;
+	protected abstract modifyBlockFirstChild(
+		block: BlockBuilder<T, C>,
+		f: (child: C) => number | undefined,
+	): number | undefined;
+	protected abstract modifyBlockLastChild(
+		block: BlockBuilder<T, C>,
+		f: (child: C) => number | undefined,
+	): number | undefined;
 	abstract prepareMutate(): void;
 	abstract createBlockBuilder(child: C): BlockBuilder<T, C>;
 

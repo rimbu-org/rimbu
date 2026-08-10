@@ -36,6 +36,17 @@ export interface BlockBuilder<T, C = unknown> extends BuilderCommon<T, C> {
 	buildMap<T2>(f: (element: T) => T2, cacheMap: CacheMap): Block<T2>;
 }
 
+/**
+ * A block builder whose children can be inspected or modified at either
+ * boundary without exposing those operations on leaf block builders.
+ */
+export interface NestedBlockBuilder<T, C> extends BlockBuilder<T, C> {
+	firstChild(): C;
+	lastChild(): C;
+	modifyFirstChild(f: (child: C) => number | undefined): number | undefined;
+	modifyLastChild(f: (child: C) => number | undefined): number | undefined;
+}
+
 export interface OuterBuilder<T> extends BuilderCommon<T, T> {
 	prepend(element: T): void;
 	append(element: T): void;

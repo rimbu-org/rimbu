@@ -3,7 +3,11 @@ import type { Int } from '@rimbu/base';
 import type { ListContext } from '#list/context';
 import type { Inner } from '#list/immutable/common';
 import type { InnerTree } from '#list/immutable/inner-tree';
-import type { BlockBuilder, InnerBuilder } from '#list/mutable/common';
+import type {
+	BlockBuilder,
+	InnerBuilder,
+	NestedBlockBuilder,
+} from '#list/mutable/common';
 import type { InnerBlockBuilder } from '#list/mutable/inner-block-builder';
 
 import { CacheMap } from '#list/immutable/cache-map';
@@ -99,6 +103,28 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 
 	dropBlockLastChild(block: InnerBlockBuilder<T, C>): C {
 		return block.dropLastChild();
+	}
+
+	protected firstBlockChild(block: BlockBuilder<T, C>): C {
+		return (block as NestedBlockBuilder<T, C>).firstChild();
+	}
+
+	protected lastBlockChild(block: BlockBuilder<T, C>): C {
+		return (block as NestedBlockBuilder<T, C>).lastChild();
+	}
+
+	protected modifyBlockFirstChild(
+		block: BlockBuilder<T, C>,
+		f: (child: C) => number | undefined,
+	): number | undefined {
+		return (block as NestedBlockBuilder<T, C>).modifyFirstChild(f);
+	}
+
+	protected modifyBlockLastChild(
+		block: BlockBuilder<T, C>,
+		f: (child: C) => number | undefined,
+	): number | undefined {
+		return (block as NestedBlockBuilder<T, C>).modifyLastChild(f);
 	}
 
 	createBlockBuilder(child: C): InnerBlockBuilder<T, C> {
