@@ -277,6 +277,7 @@ export abstract class TreeBuilderBase<T, C> {
 		if (!Int.isAtLeastZero(middleIndex)) {
 			// index is in left
 			const previous = this.left.remove(index);
+			this.#repairSingleChildLeftSpine();
 			if (!this.left.hasEnoughChildren) {
 				if (undefined !== this.middle) {
 					const firstBlock = this.middle.firstChild();
@@ -318,6 +319,7 @@ export abstract class TreeBuilderBase<T, C> {
 		if (Int.isAtLeastZero(rightIndex)) {
 			// index is in right
 			const previous = this.right.remove(rightIndex);
+			this.#repairSingleChildRightSpine();
 			if (!this.right.hasEnoughChildren) {
 				if (undefined !== this.middle) {
 					const lastBlock = this.middle.lastChild();
@@ -363,6 +365,116 @@ export abstract class TreeBuilderBase<T, C> {
 
 		// this._normalizeMiddle();
 		return oldValue;
+	}
+
+	#repairSingleChildLeftSpine(): void {
+		const middle = this.middle;
+		if (this.level === 0 || undefined === middle || this.left.nrChildren !== 1)
+			return;
+
+		const child = this.firstBlockChild(this.left);
+		if (!this.context.isBlockBuilder<T>(child) || child.hasEnoughChildren)
+			return;
+
+		const donor = middle.firstChild();
+		const donorBlock = this.firstBlockChild(donor);
+		if (!this.context.isBlockBuilder<T>(donorBlock)) return;
+
+		const childNeeds = this.context.minBlockSize - child.nrChildren;
+		if (
+			donorBlock.nrChildren >=
+			2 * this.context.minBlockSize - child.nrChildren
+		) {
+			this.modifyBlockFirstChild(this.left, (leftChild) => {
+				if (!this.context.isBlockBuilder<T>(leftChild)) return;
+
+				let movedSize = 0;
+				middle.modifyFirstChild((firstBlock) =>
+					this.modifyBlockFirstChild(firstBlock, (boundaryBlock) => {
+						if (!this.context.isBlockBuilder<T>(boundaryBlock)) return;
+
+						for (let i = 0; i < childNeeds; i++) {
+							const moved = boundaryBlock.dropFirstChild();
+							leftChild.appendChild(moved);
+							movedSize += boundaryBlock.getChildSize(moved);
+						}
+
+						return -movedSize;
+					}),
+				);
+
+				return movedSize;
+			});
+			return;
+		}
+
+		const absorbed = this.dropBlockFirstChild(this.left);
+		if (!this.context.isBlockBuilder<T>(absorbed)) return;
+
+		middle.modifyFirstChild((firstBlock) =>
+			this.modifyBlockFirstChild(firstBlock, (boundaryBlock) => {
+				if (!this.context.isBlockBuilder<T>(boundaryBlock)) return;
+
+				const previousSize = boundaryBlock.size;
+				boundaryBlock.prependFrom(absorbed);
+				return boundaryBlock.size - previousSize;
+			}),
+		);
+	}
+
+	#repairSingleChildRightSpine(): void {
+		const middle = this.middle;
+		if (this.level === 0 || undefined === middle || this.right.nrChildren !== 1)
+			return;
+
+		const child = this.firstBlockChild(this.right);
+		if (!this.context.isBlockBuilder<T>(child) || child.hasEnoughChildren)
+			return;
+
+		const donor = middle.lastChild();
+		const donorBlock = this.lastBlockChild(donor);
+		if (!this.context.isBlockBuilder<T>(donorBlock)) return;
+
+		const childNeeds = this.context.minBlockSize - child.nrChildren;
+		if (
+			donorBlock.nrChildren >=
+			2 * this.context.minBlockSize - child.nrChildren
+		) {
+			this.modifyBlockFirstChild(this.right, (rightChild) => {
+				if (!this.context.isBlockBuilder<T>(rightChild)) return;
+
+				let movedSize = 0;
+				middle.modifyLastChild((lastBlock) =>
+					this.modifyBlockLastChild(lastBlock, (boundaryBlock) => {
+						if (!this.context.isBlockBuilder<T>(boundaryBlock)) return;
+
+						for (let i = 0; i < childNeeds; i++) {
+							const moved = boundaryBlock.dropLastChild();
+							rightChild.prependChild(moved);
+							movedSize += boundaryBlock.getChildSize(moved);
+						}
+
+						return -movedSize;
+					}),
+				);
+
+				return movedSize;
+			});
+			return;
+		}
+
+		const absorbed = this.dropBlockLastChild(this.right);
+		if (!this.context.isBlockBuilder<T>(absorbed)) return;
+
+		middle.modifyLastChild((lastBlock) =>
+			this.modifyBlockLastChild(lastBlock, (boundaryBlock) => {
+				if (!this.context.isBlockBuilder<T>(boundaryBlock)) return;
+
+				const previousSize = boundaryBlock.size;
+				boundaryBlock.appendFrom(absorbed);
+				return boundaryBlock.size - previousSize;
+			}),
+		);
 	}
 
 	/**
