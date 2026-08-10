@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'bun:test';
 
+import type { Int } from '@rimbu/base';
+
 import type { ListContext } from '#list/context';
 import type { ListBuilder } from '#list/mutable/builder';
 import type { OuterBlockBuilder } from '#list/mutable/outer-block-builder';
@@ -75,6 +77,71 @@ function shapeOf(n: Node): string {
 	}
 
 	return `B(${tree.size})`;
+}
+
+type DeepSpineCase = {
+	builder: ListBuilder<number>;
+	removedIndex: number;
+	expected: number[];
+};
+
+function makeDeepSpineCase(
+	blockSizeBits: number,
+	side: 'left' | 'right',
+	spineChildSize: number,
+	donorSizes: readonly number[],
+): DeepSpineCase {
+	const ctx = List.createContext({
+		blockSizeBits,
+	}) as unknown as ListContext<number>;
+	let nextValue = 0;
+
+	const makeOuterBlock = (size: number): OuterBlockBuilder<number> =>
+		ctx.outerBlockBuilder(
+			ctx.childrenOps.of(Array.from({ length: size }, () => nextValue++)),
+		);
+
+	const makeInnerBlock = (sizes: readonly number[], level = 1) => {
+		const children = sizes.map(makeOuterBlock);
+		return ctx.innerBlockBuilder(
+			children,
+			children.reduce((size, child) => size + child.size, 0),
+			level,
+		);
+	};
+
+	const outerLeft = makeOuterBlock(2);
+	const innerLeft = makeInnerBlock([spineChildSize]);
+	const donor = makeInnerBlock(donorSizes);
+	const middle = ctx.innerBlockBuilder([donor], donor.size, 2);
+	const innerRight = makeInnerBlock([spineChildSize]);
+	const outerRight = makeOuterBlock(2);
+	const innerTree = ctx.innerTreeBuilder(
+		1,
+		innerLeft,
+		innerRight,
+		middle,
+		innerLeft.size + middle.size + innerRight.size,
+	);
+	const outerTree = ctx.outerTreeBuilder(
+		outerLeft,
+		outerRight,
+		innerTree,
+		outerLeft.size + innerTree.size + outerRight.size,
+	);
+
+	const removedIndex =
+		side === 'left'
+			? outerLeft.size
+			: outerLeft.size + innerLeft.size + middle.size;
+	const expected = Array.from({ length: outerTree.size }, (_, index) => index);
+	expected.splice(removedIndex, 1);
+
+	return {
+		builder: ctx.builderFrom(outerTree) as ListBuilder<number>,
+		removedIndex,
+		expected,
+	};
 }
 
 function makeRng(seed: number): () => number {
@@ -255,6 +322,166 @@ describe('single-child middle repair branches', () => {
 			}
 		});
 	}
+});
+
+describe('single-child spine repair fixtures', () => {
+	it('tops up the right spine child before count rebalancing', () => {
+		const { builder, removedIndex, expected } = makeDeepSpineCase(
+			2,
+			'right',
+			2,
+			[3, 4, 3, 4],
+		);
+		verifyBuilder(builder, 'right top-up before remove');
+
+		const removed = builder.removeAt(removedIndex, undefined);
+		expect(removed).toBe(removedIndex);
+		expectContent(builder, expected, 'right top-up');
+		expect(shapeOf(builder.build())).toBe(
+			'T(B(2),T(I(B(2)),I(I(B(3),B(4),B(3))),I(B(3),B(2))),B(2))',
+		);
+	});
+
+	it('tops up the left spine child before count rebalancing', () => {
+		const { builder, removedIndex, expected } = makeDeepSpineCase(
+			2,
+			'left',
+			2,
+			[4, 3, 4, 3],
+		);
+		verifyBuilder(builder, 'left top-up before remove');
+
+		const removed = builder.removeAt(removedIndex, undefined);
+		expect(removed).toBe(removedIndex);
+		expectContent(builder, expected, 'left top-up');
+		expect(shapeOf(builder.build())).toBe(
+			'T(B(2),T(I(B(2),B(3)),I(I(B(3),B(4),B(3))),I(B(2))),B(2))',
+		);
+	});
+
+	it('absorbs an underfull right spine child when the donor boundary is at min', () => {
+		const { builder, removedIndex, expected } = makeDeepSpineCase(
+			3,
+			'right',
+			4,
+			[4, 4, 4, 4, 4],
+		);
+		verifyBuilder(builder, 'right absorb before remove');
+
+		const removed = builder.removeAt(removedIndex, undefined);
+		expect(removed).toBe(removedIndex);
+		expectContent(builder, expected, 'right absorb');
+		expect(shapeOf(builder.build())).toBe(
+			'T(B(2),I(B(8),B(4),B(4),B(4),B(7)),B(2))',
+		);
+	});
+
+	it('absorbs an underfull left spine child in list order', () => {
+		const { builder, removedIndex, expected } = makeDeepSpineCase(
+			2,
+			'left',
+			2,
+			[2, 4, 3, 4],
+		);
+		verifyBuilder(builder, 'left absorb before remove');
+
+		const removed = builder.removeAt(removedIndex, undefined);
+		expect(removed).toBe(removedIndex);
+		expectContent(builder, expected, 'left absorb');
+		expect(shapeOf(builder.build())).toBe(
+			'T(B(2),T(I(B(3),B(4),B(3),B(4)),-,I(B(2))),B(2))',
+		);
+	});
+
+	it('merges instead of splitting when the donor would shrink below min', () => {
+		const ctx = List.createContext({
+			blockSizeBits: 3,
+		}) as unknown as ListContext<number>;
+		const ops = ctx.childrenOps;
+		const left = ctx.outerBlockBuilder(ops.of([0, 1, 2, 3]));
+		const firstMiddle = ctx.outerBlockBuilder(
+			ops.of([4, 5, 6, 7, 8, 9, 10, 11]),
+		);
+		const lastMiddle = ctx.outerBlockBuilder(ops.of([12, 13, 14, 15, 16, 17]));
+		const middle = ctx.innerBlockBuilder([firstMiddle, lastMiddle], 14, 1);
+		const right = ctx.outerBlockBuilder(ops.of([18]));
+		const tree = ctx.outerTreeBuilder(left, right, middle, 19);
+		const builder = ctx.builderFrom(tree) as ListBuilder<number>;
+		const expected = Array.from({ length: 19 }, (_, index) => index);
+		expected.pop();
+
+		verifyBuilder(builder, 'donor gate before remove');
+		expect(builder.removeAt(18, undefined)).toBe(18);
+		expectContent(builder, expected, 'donor gate');
+		expect(shapeOf(builder.build())).toBe('T(B(4),I(B(8)),B(6))');
+	});
+
+	it('repairs direct-child underflow at level 2 without using total size', () => {
+		const ctx = List.createContext({
+			blockSizeBits: 2,
+		}) as unknown as ListContext<number>;
+		let nextValue = 0;
+
+		const makeOuterBlock = (size: number): OuterBlockBuilder<number> =>
+			ctx.outerBlockBuilder(
+				ctx.childrenOps.of(Array.from({ length: size }, () => nextValue++)),
+			);
+		const makeLevelOneBlock = (sizes: readonly number[]) => {
+			const children = sizes.map(makeOuterBlock);
+			return ctx.innerBlockBuilder(
+				children,
+				children.reduce((size, child) => size + child.size, 0),
+				1,
+			);
+		};
+		const makeLevelTwoBlock = (
+			children: ReturnType<typeof makeLevelOneBlock>[],
+		) =>
+			ctx.innerBlockBuilder(
+				children,
+				children.reduce((size, child) => size + child.size, 0),
+				2,
+			);
+
+		const left = makeLevelTwoBlock([makeLevelOneBlock([2, 2])]);
+		const donorFirst = makeLevelOneBlock([2, 2]);
+		const donorSecond = makeLevelOneBlock([2, 2]);
+		const donorBoundary = makeLevelOneBlock([2, 2, 2, 2]);
+		const donor = makeLevelTwoBlock([donorFirst, donorSecond, donorBoundary]);
+		const middle = ctx.innerBlockBuilder([donor], donor.size, 3);
+		const rightChild = makeLevelOneBlock([2, 2]);
+		const right = makeLevelTwoBlock([rightChild]);
+		const tree = ctx.innerTreeBuilder(
+			2,
+			left,
+			right,
+			middle,
+			left.size + middle.size + right.size,
+		);
+		const removedIndex = left.size + middle.size;
+		const expected = Array.from({ length: tree.size }, (_, index) => index);
+		expected.splice(removedIndex, 1);
+
+		expect(tree._verifyStructure(), 'level-2 fixture before remove').toEqual(
+			[],
+		);
+		expect(tree.remove(removedIndex as Int.AtLeastZero)).toBe(removedIndex);
+
+		const actual: number[] = [];
+		tree.forEach((value) => {
+			actual.push(value);
+		});
+		expect(actual, 'level-2 content').toEqual(expected);
+		expect(tree.size, 'level-2 size').toBe(expected.length);
+		expect(tree._verifyStructure(), 'level-2 builder structure').toEqual([]);
+
+		const built = tree.build();
+		expect(built.toArray(), 'level-2 built content').toEqual(expected);
+		expect(built._verifyStructure(), 'level-2 built structure').toEqual([]);
+		expect(shapeOf(built as unknown as Node)).toBe(
+			'T(I(I(B(2),B(2))),I(I(I(B(2),B(2)),I(B(2),B(2)))),I(I(B(2),B(2),B(2)),I(B(2),B(3))))',
+		);
+	});
 });
 
 describe('builder deep tree random (level >= 2)', () => {
