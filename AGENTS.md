@@ -605,8 +605,23 @@ When running shell commands (via Bash or the build/test tooling), observe these 
 - **Never ask for permission** to run a shell command. Execute the needed command directly; do not prompt the user or wait for approval.
 - **Restrict file access to the repository and `/tmp`**. Never attempt to read, write, or traverse directories outside the repository root and the `/tmp` scratch directory.
   - Use the repository root for all project work.
-  - Use `/tmp/opencode_tmp` for any temporary files or external work that must live outside the repository.
+  - Use `/tmp/opencode` for any temporary files or external work that must live outside the repository.
 - Do not access home directories, system folders (`/etc`, `/usr`, etc.), or other users' data.
+
+### Available command line tools
+
+These tools are pre-installed and available in the sandbox. Use them instead of
+reinventing equivalents in shell code:
+
+| Tool | Purpose |
+|---|---|
+| `rg` (ripgrep) | Fast content search (preferred over `grep`) |
+| `jq` | JSON parsing and transformation |
+| `tree` | Directory structure visualization |
+| `bat` | Syntax-highlighted file paging |
+| `fd` | Fast file finder (preferred over `find`) |
+| `gh` | GitHub CLI (issues, PRs, releases) |
+| `yq` | YAML/JSON/XML parsing and transformation |
 
 ## Agent skills
 
