@@ -51,27 +51,25 @@ export declare namespace Collection {
 		build(): this[TypesKey]['_NORMAL'];
 	}
 
-	export namespace Builder {
-		/**
-		 * Optional capabilities a concrete `Collection.Builder` can mix in.
-		 *
-		 * Like `Collection.Capability.*`, these are plain interface mixins: they
-		 * may *read* slots from the types record but must never *override* one.
-		 * A capability that overrides a slot can only be composed with `&` on the
-		 * types record, and `&` intersects every slot rather than overriding the
-		 * single intended one — which leaks intersections such as
-		 * `List<T> & IndexedCollection<T>` into `build()`'s return type.
-		 * Composing read-only mixins with `extends` keeps concrete types exact.
-		 */
-		export namespace Capability {
-			export interface WithAppendPrepend<E> {
-				prepend(element: E): void;
-				append(element: E): void;
-			}
-		}
-	}
-
 	export namespace Advanced {
+		/**
+		 * Combines a collection shape with the capabilities a default method needs.
+		 *
+		 * Intersecting collection interfaces directly also intersects their `context`
+		 * properties. This type replaces that intersection with one context over the
+		 * merged types record, so all capability methods and context factories remain
+		 * available to the implementation.
+		 */
+		export type WithCapabilities<
+			Base extends Collection<any>,
+			Capabilities extends Collection<any>,
+		> = Omit<Base & Capabilities, 'context' | TypesKey> & {
+			readonly [TypesKey]: Base[TypesKey] & Capabilities[TypesKey];
+			readonly context: Collection.Advanced.ContextBase<
+				Base[TypesKey] & Capabilities[TypesKey]
+			>;
+		};
+
 		/**
 		 * Carrier of the HKT types record.
 		 *

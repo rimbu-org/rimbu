@@ -26,7 +26,7 @@ export declare namespace List {
 
 	export interface Builder<T>
 		extends IndexedCollection.Builder<T, List.Advanced.Types<T>>,
-			Collection.Builder.Capability.WithAppendPrepend<T> {
+			IndexedCollection.Capability.WithPrependAppend.Builder<T> {
 		readonly [TypesKey]: List.Advanced.Types<T>;
 		readonly context: List.Context<T>;
 

@@ -109,27 +109,6 @@ export declare namespace IndexedCollection {
 	}
 
 	export namespace Capability {
-		/**
-		 * A types record describing "any collection whose builder supports
-		 * `append`/`prepend`".
-		 *
-		 * This exists purely as a *constraint* for generic helpers such as
-		 * `defaultCollect`. Concrete collections must never intersect it into
-		 * their own `Builder` declaration — they simply mix in
-		 * `Collection.Builder.Capability.WithAppendPrepend` via `extends`, and
-		 * their own types record then satisfies this constraint structurally.
-		 */
-		export interface BuilderWithAppendPrependTypes<E>
-			extends IndexedCollection.Advanced.Types<E> {
-			_BUILDER: IndexedCollection.Builder<E, BuilderWithAppendPrependTypes<E>> &
-				Collection.Builder.Capability.WithAppendPrepend<E>;
-
-			_NEW_TYPES: BuilderWithAppendPrependTypes<this['_NEW_E']>;
-		}
-
-		export interface WithBuilderWithAppendPrepend<E>
-			extends IndexedCollection<E, BuilderWithAppendPrependTypes<E>> {}
-
 		export interface WithCollectIndexed<E>
 			extends IndexedCollection<
 					E,
@@ -476,9 +455,22 @@ export declare namespace IndexedCollection {
 						IndexedCollection.Capability.WithPrependAppend.TypesNonEmpty<E>
 					> {}
 
+			export interface Builder<
+				E,
+				Tp extends
+					IndexedCollection.Advanced.Types<E> = IndexedCollection.Advanced.Types<E>,
+			> extends IndexedCollection.Builder<E, Tp> {
+				prepend(element: E): void;
+				append(element: E): void;
+			}
+
 			export interface Family<E> extends IndexedCollection.Advanced.Family<E> {
 				_NORMAL: IndexedCollection.Capability.WithPrependAppend<E>;
 				_NON_EMPTY: IndexedCollection.Capability.WithPrependAppend.NonEmpty<E>;
+				_BUILDER: IndexedCollection.Capability.WithPrependAppend.Builder<
+					E,
+					IndexedCollection.Capability.WithPrependAppend.Types<E>
+				>;
 
 				_NEW_FAMILY: IndexedCollection.Capability.WithPrependAppend.Family<
 					this['_NEW_E']

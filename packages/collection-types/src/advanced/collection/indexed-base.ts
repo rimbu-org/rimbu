@@ -207,7 +207,10 @@ export abstract class IndexedCollectionNonEmptyBase<T>
 
 export function defaultFilterIndexed<
 	E,
-	C extends Collection.Capability.WithFilter<E>,
+	C extends Collection.Advanced.WithCapabilities<
+		Collection<E>,
+		Collection.Capability.WithFilter<E>
+	>,
 >(
 	col: C,
 	pred: (element: E, index: number) => boolean,
@@ -226,7 +229,10 @@ export function defaultFilterIndexed<
 export function defaultCollect<
 	E,
 	E2,
-	C extends IndexedCollection.Capability.WithBuilderWithAppendPrepend<E>,
+	C extends Collection.Advanced.WithCapabilities<
+		Collection<E>,
+		IndexedCollection.Capability.WithPrependAppend<E>
+	>,
 >(
 	col: C,
 	collectFun: (
@@ -262,7 +268,10 @@ export function defaultCollect<
 export function defaultCollectIndexed<
 	E,
 	E2,
-	C extends Collection.Capability.WithCollect<E>,
+	C extends Collection.Advanced.WithCapabilities<
+		Collection<E>,
+		Collection.Capability.WithCollect<E>
+	>,
 >(
 	col: C,
 	collectFun: (
@@ -284,7 +293,10 @@ export function defaultCollectIndexed<
 export function defaultFlatMapIndexed<
 	E,
 	E2,
-	C extends Collection.Capability.WithConcat<E>,
+	C extends Collection.Advanced.WithCapabilities<
+		Collection<E>,
+		Collection.Capability.WithConcat<E>
+	>,
 >(
 	col: C,
 	f: (element: E, index: number) => StreamSource<E2>,
@@ -299,7 +311,10 @@ export function defaultFlatMapIndexed<
 export function defaultMapIndexed<
 	E,
 	E2,
-	C extends Collection.Capability.WithMap<E>,
+	C extends Collection.Advanced.WithCapabilities<
+		Collection<E>,
+		Collection.Capability.WithMap<E>
+	>,
 >(
 	col: C,
 	mapFun: (element: E, index: number) => E2,
@@ -313,12 +328,11 @@ export function defaultMapIndexed<
 
 export function defaultSpliceAtAndReturn<
 	E,
-	C extends IndexedCollection.NonEmpty<
-		E,
-		IndexedCollection.Capability.WithSpliceAt.TypesNonEmpty<E> &
-			Collection.Capability.WithConcat.TypesNonEmpty<E>
-	> &
-		Collection.Capability.WithConcat<E>,
+	C extends Collection.Advanced.WithCapabilities<
+		IndexedCollection.NonEmpty<E>,
+		IndexedCollection.Capability.WithSpliceAt.NonEmpty<E> &
+			Collection.Capability.WithConcat<E>
+	>,
 >(
 	col: C,
 	index: number,
@@ -384,11 +398,10 @@ export function defaultSpliceAtAndReturn<
 
 export function defaultRemoveAtAndReturn<
 	E,
-	C extends IndexedCollection.NonEmpty<
-		E,
-		IndexedCollection.Capability.WithSpliceAt.TypesNonEmpty<E>
-	> &
-		IndexedCollection.Capability.WithSpliceAt<E>,
+	C extends Collection.Advanced.WithCapabilities<
+		IndexedCollection.NonEmpty<E>,
+		IndexedCollection.Capability.WithSpliceAt<E>
+	>,
 >(
 	col: C,
 	index: number,
@@ -424,13 +437,11 @@ export function defaultRemoveAtAndReturn<
 
 export function defaultSwapAtAndReturn<
 	E,
-	C extends IndexedCollection.NonEmpty<
-		E,
-		IndexedCollection.Capability.WithSwapAt.TypesNonEmpty<E> &
-			IndexedCollection.Capability.WithUpdateAt.TypesNonEmpty<E>
-	> &
-		IndexedCollection.Capability.WithUpdateAt<E> &
-		IndexedCollection.Capability.WithSwapAt<E>,
+	C extends Collection.Advanced.WithCapabilities<
+		IndexedCollection.NonEmpty<E>,
+		IndexedCollection.Capability.WithSwapAt<E> &
+			IndexedCollection.Capability.WithUpdateAt<E>
+	>,
 >(
 	col: C,
 	index1: number,
@@ -494,13 +505,11 @@ export function defaultSwapAtAndReturn<
 
 export function defaultPadTo<
 	E,
-	C extends IndexedCollection.NonEmpty<
-		E,
-		IndexedCollection.Capability.WithRepeat.TypesNonEmpty<E> &
-			IndexedCollection.Capability.WithSpliceAt.TypesNonEmpty<E>
-	> &
+	C extends Collection.Advanced.WithCapabilities<
+		IndexedCollection.NonEmpty<E>,
 		IndexedCollection.Capability.WithRepeat<E> &
-		IndexedCollection.Capability.WithSpliceAt<E>,
+			IndexedCollection.Capability.WithSpliceAt<E>
+	>,
 >(
 	col: C,
 	size: number,

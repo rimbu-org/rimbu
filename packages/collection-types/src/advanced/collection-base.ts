@@ -264,29 +264,22 @@ export abstract class CollectionBuilderBase<T>
  * This is the recipe used by every `default*` helper in this package, and the
  * one end users should adopt for their own default methods:
  *
- * 1. **Constraint** — pick the base collection type (or its `.NonEmpty`
- *    variant) whose methods you need, and instantiate it with the intersection
- *    of the `Types` / `TypesNonEmpty` records of every *capability* you need:
+ * 1. **Constraint** — use `Collection.Advanced.WithCapabilities` with the base collection
+ *    type (or its `.NonEmpty` variant) whose methods you need and the capability
+ *    interfaces whose methods are called:
  *
  *    ```ts
- *    C extends IndexedCollection.NonEmpty<
+ *    C extends Collection.Advanced.WithCapabilities<
  *        E,
- *        IndexedCollection.Capability.WithSpliceAt.TypesNonEmpty<E> &
- *            Collection.Capability.WithConcat.TypesNonEmpty<E>
+ *        IndexedCollection.NonEmpty<E>,
+ *        IndexedCollection.Capability.WithSpliceAt.NonEmpty<E> &
+ *            Collection.Capability.WithConcat<E>
  *    >
  *    ```
  *
- *    This single instantiation makes `col.context` one `ContextBase` over the
- *    full record, so `context.of` / `from` / `empty` / `builder` resolve
- *    through *all* capabilities at once. Do **not** intersect the capability
- *    interfaces themselves (`WithSpliceAt.NonEmpty<E> & WithConcat<E>`):
- *    `col.context` then becomes an intersection of `ContextBase`s and method
- *    calls resolve through the first one only, losing capabilities.
- * 2. **Mixins for method signatures** — capabilities only contribute their
- *    *records* to the constraint, not their methods. Intersect the plain
- *    bundle interfaces for every method you call directly on `col` (e.g.
- *    `& Collection.Capability.WithConcat<E>` for `concat`), and for `return
- *    col` early-returns so the input satisfies the return slot.
+ *    The utility makes `col.context` one `ContextBase` over the merged record,
+ *    so `context.of` / `from` / `empty` / `builder` resolve through all
+ *    capabilities at once.
  * 3. **Return type** — express it purely through slots of `C[TypesKey]`:
  *    `_NORMAL` (may be empty), `_NON_EMPTY` (guaranteed non-empty), `_SELF`
  *    (preserves the emptiness kind), and for element-changing operations
@@ -306,7 +299,10 @@ export abstract class CollectionBuilderBase<T>
 export function defaultFlatMap<
 	E,
 	E2,
-	C extends Collection.Capability.WithConcat<E>,
+	C extends Collection.Advanced.WithCapabilities<
+		Collection<E>,
+		Collection.Capability.WithConcat<E>
+	>,
 >(
 	col: C,
 	f: (element: E) => StreamSource<E2>,
@@ -324,10 +320,13 @@ export function defaultFlatMap<
 	return result;
 }
 
-export function defaultRepeat<E, C extends Collection.Capability.WithConcat<E>>(
-	col: C,
-	amount: number,
-): C[TypesKey]['_NORMAL'] {
+export function defaultRepeat<
+	E,
+	C extends Collection.Advanced.WithCapabilities<
+		Collection<E>,
+		Collection.Capability.WithConcat<E>
+	>,
+>(col: C, amount: number): C[TypesKey]['_NORMAL'] {
 	Int.checkAtLeastZero(amount);
 
 	if (amount === 0) {
