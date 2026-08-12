@@ -8,7 +8,6 @@ import type { OuterTree } from '#list/immutable/outer-tree';
 import type { OuterBuilder } from '#list/mutable/common';
 
 import { Int } from '@rimbu/base';
-import { defaultMapIndexed } from '@rimbu/collection-types/advanced/collection-base';
 import {
 	defaultFlatMapByConcat,
 	defaultFlatMapIndexed,
@@ -19,6 +18,7 @@ import {
 	defaultSwapAtAndReturn,
 	IndexedCollectionNonEmptyBase,
 } from '@rimbu/collection-types/advanced/collection/indexed-base';
+import { defaultMapIndexed } from '@rimbu/collection-types/advanced/collection-base';
 import { type ArrayNonEmpty, IndexRange } from '@rimbu/common';
 import { Stream, type StreamSource } from '@rimbu/stream';
 

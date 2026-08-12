@@ -67,6 +67,8 @@ export declare namespace List {
 			_NON_EMPTY: List.NonEmpty<T>;
 			_BUILDER: List.Builder<T>;
 
+			// _UPPER_E: any;
+
 			_NEW_FAMILY: List.Advanced.Family<this['_NEW_E']>;
 		}
 
