@@ -11,8 +11,13 @@ function dump(node: any, indent = ''): void {
 		dump(node.left, indent + '  [L] ');
 		dump(node.middle, indent + '  [M] ');
 		dump(node.right, indent + '  [R] ');
-	} else if (typeof node._nrChildren === 'number' && typeof node.childAt === 'function') {
-		console.log(`${indent}${name} level=${level} size=${node.size} childSizes=[${Array.from({ length: node._nrChildren }, (_, i) => node.childAt(i)?.size ?? -1)}]`);
+	} else if (
+		typeof node._nrChildren === 'number' &&
+		typeof node.childAt === 'function'
+	) {
+		console.log(
+			`${indent}${name} level=${level} size=${node.size} childSizes=[${Array.from({ length: node._nrChildren }, (_, i) => node.childAt(i)?.size ?? -1)}]`,
+		);
 		for (let i = 0; i < node._nrChildren; i++) {
 			dump(node.childAt(i), indent + '  ');
 		}

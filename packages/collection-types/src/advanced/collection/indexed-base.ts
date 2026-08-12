@@ -6,35 +6,30 @@ import { Int, throwInvalidStateError } from '@rimbu/base';
 import {
 	CollectionEmptyBase,
 	CollectionNonEmptyBase,
-	defaultFlatMap,
 } from '@rimbu/collection-types/advanced/collection-base';
-import { CollectFun, Err, IndexRange, OptLazy } from '@rimbu/common';
+import { Err, IndexRange, OptLazy } from '@rimbu/common';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
-export abstract class IndexedCollectionEmptyBase<T>
-	extends CollectionEmptyBase<T>
+export abstract class IndexedCollectionEmptyBase<E>
+	extends CollectionEmptyBase<E>
 	implements
-		IndexedCollection<T>,
-		IndexedCollection.Capability.WithCollectIndexed.API<T>,
-		IndexedCollection.Capability.WithFlatMapIndexed.API<T>,
-		IndexedCollection.Capability.WithFilterIndexed.API<T>,
-		IndexedCollection.Capability.WithMapIndexed.API<T>,
-		IndexedCollection.Capability.WithPrependAppend.API<T>,
-		IndexedCollection.Capability.WithRepeat.API<T>,
-		IndexedCollection.Capability.WithRemoveAt.API<T>,
-		IndexedCollection.Capability.WithReversed.API<T>,
-		IndexedCollection.Capability.WithRotate.API<T>,
-		IndexedCollection.Capability.WithSwapAt.API<T>,
-		IndexedCollection.Capability.WithUpdateAt.API<T>
+		IndexedCollection<E>,
+		IndexedCollection.Capability.WithPrependAppend.API<E>,
+		IndexedCollection.Capability.WithRepeat.API<E>,
+		IndexedCollection.Capability.WithRemoveAt.API<E>,
+		IndexedCollection.Capability.WithReversed.API<E>,
+		IndexedCollection.Capability.WithRotate.API<E>,
+		IndexedCollection.Capability.WithSwapAt.API<E>,
+		IndexedCollection.Capability.WithUpdateAt.API<E>
 {
-	declare readonly [TypesKey]: IndexedCollection.Advanced.Types<T>;
+	declare readonly [TypesKey]: IndexedCollection.Advanced.Types<E>;
 
 	abstract readonly context: Collection.Advanced.ContextBase<
-		IndexedCollection.Advanced.Types<T>
+		IndexedCollection.Advanced.Types<E>
 	>;
 
-	streamSlice(): Stream<T> {
-		return Stream.empty<T>();
+	streamSlice(): Stream<E> {
+		return Stream.empty<E>();
 	}
 
 	at<O>(otherwise?: OptLazy<O>): O {
@@ -57,11 +52,11 @@ export abstract class IndexedCollectionEmptyBase<T>
 		return this;
 	}
 
-	prepend(element: T): this[TypesKey]['_NON_EMPTY'] {
+	prepend(element: E): this[TypesKey]['_NON_EMPTY'] {
 		return this.context.of(element);
 	}
 
-	append(element: T): this[TypesKey]['_NON_EMPTY'] {
+	append(element: E): this[TypesKey]['_NON_EMPTY'] {
 		return this.context.of(element);
 	}
 
@@ -70,28 +65,6 @@ export abstract class IndexedCollectionEmptyBase<T>
 	}
 
 	slice(): this[TypesKey]['_NORMAL'] {
-		return this;
-	}
-
-	mapIndexed<T2>(): (this[TypesKey] & {
-		_NEW_E: T2;
-	})['_NEW_TYPES']['_NORMAL'] {
-		return this;
-	}
-
-	flatMapIndexed<T2>(): (this[TypesKey] & {
-		_NEW_E: T2;
-	})['_NEW_TYPES']['_NORMAL'] {
-		return this;
-	}
-
-	filterIndexed(): this[TypesKey]['_NORMAL'] {
-		return this;
-	}
-
-	collectIndexed<E2>(): (this[TypesKey] & {
-		_NEW_E: E2;
-	})['_NEW_TYPES']['_NORMAL'] {
 		return this;
 	}
 
@@ -159,23 +132,23 @@ export abstract class IndexedCollectionEmptyBase<T>
 	}
 }
 
-export abstract class IndexedCollectionNonEmptyBase<T>
-	extends CollectionNonEmptyBase<T>
-	implements IndexedCollection.NonEmpty<T>
+export abstract class IndexedCollectionNonEmptyBase<E>
+	extends CollectionNonEmptyBase<E>
+	implements IndexedCollection.NonEmpty<E>
 {
-	declare readonly [TypesKey]: IndexedCollection.Advanced.TypesNonEmpty<T>;
+	declare readonly [TypesKey]: IndexedCollection.Advanced.TypesNonEmpty<E>;
 
 	abstract readonly context: Collection.Advanced.ContextBase<
-		IndexedCollection.Advanced.TypesNonEmpty<T>
+		IndexedCollection.Advanced.TypesNonEmpty<E>
 	>;
 
 	abstract streamSlice(
 		range: IndexRange,
 		options?: { reversed?: boolean },
-	): Stream<T>;
-	abstract at<O>(index: number, otherwise?: OptLazy<O>): T | O;
-	abstract first<O>(otherwise?: OptLazy<O>): T | O;
-	abstract last<O>(otherwise?: OptLazy<O>): T | O;
+	): Stream<E>;
+	abstract at<O>(index: number, otherwise?: OptLazy<O>): E | O;
+	abstract first<O>(otherwise?: OptLazy<O>): E | O;
+	abstract last<O>(otherwise?: OptLazy<O>): E | O;
 
 	abstract take(count: number): this[TypesKey]['_NORMAL'];
 	abstract drop(count: number): this[TypesKey]['_NORMAL'];
@@ -205,97 +178,36 @@ export abstract class IndexedCollectionNonEmptyBase<T>
 	}
 }
 
-export function defaultFilterIndexed<
-	E,
-	C extends Collection.Advanced.WithCapabilities<
-		Collection<E>,
-		Collection.Capability.WithFilter<E>
-	>,
->(
-	col: C,
-	pred: (element: E, index: number) => boolean,
-	options: {
-		negate?: boolean | undefined;
-		indexOffset?: number | undefined;
-	} = {},
-): C[TypesKey]['_NORMAL'] {
-	const { negate = false, indexOffset = 0 } = options;
-	let index = indexOffset;
-	return negate
-		? col.filter((element) => !pred(element, index++))
-		: col.filter((element) => pred(element, index++));
-}
-
-export function defaultCollect<
+export function defaultFlatMapByConcat<
 	E,
 	E2,
 	C extends Collection.Advanced.WithCapabilities<
-		Collection<E>,
-		IndexedCollection.Capability.WithPrependAppend<E>
+		IndexedCollection<E>,
+		IndexedCollection.Capability.WithConcat<E>
 	>,
 >(
 	col: C,
-	collectFun: (
-		element: E,
-		skip: CollectFun.Skip,
-		halt: () => void,
-	) => E2 | CollectFun.Skip,
+	f: (element: E) => StreamSource<E2>,
 ): Collection.Advanced.Retyped<C[TypesKey], E2>['_NORMAL'] {
-	const builder = col.context.builder<E2>();
-
 	const token = Symbol();
 	const iterator = col[Symbol.iterator]();
 
+	let result = col.context.empty<E2>();
 	let element: E | typeof token;
-	let halted = false;
-
-	function halt() {
-		halted = true;
-	}
 
 	while (token !== (element = iterator.fastNext(token))) {
-		const nextValue = collectFun(element, CollectFun.Skip, halt);
-		if (CollectFun.Skip !== nextValue) {
-			builder.append(nextValue);
-		}
-
-		if (halted) break;
+		result = result.concat(f(element));
 	}
 
-	return builder.build();
-}
-
-export function defaultCollectIndexed<
-	E,
-	E2,
-	C extends Collection.Advanced.WithCapabilities<
-		Collection<E>,
-		Collection.Capability.WithCollect<E>
-	>,
->(
-	col: C,
-	collectFun: (
-		element: E,
-		index: number,
-		skip: CollectFun.Skip,
-		halt: () => void,
-	) => E2 | CollectFun.Skip,
-	options: { indexOffset?: number | undefined } = {},
-): Collection.Advanced.Retyped<C[TypesKey], E2>['_NORMAL'] {
-	const { indexOffset = 0 } = options;
-	let index = indexOffset;
-
-	return col.collect((element, skip, halt) =>
-		collectFun(element, index++, skip, halt),
-	);
+	return result;
 }
 
 export function defaultFlatMapIndexed<
 	E,
 	E2,
 	C extends Collection.Advanced.WithCapabilities<
-		Collection<E>,
-		Collection.Capability.WithConcat<E>
+		IndexedCollection<E>,
+		IndexedCollection.Capability.WithConcat<E>
 	>,
 >(
 	col: C,
@@ -305,25 +217,9 @@ export function defaultFlatMapIndexed<
 	const { indexOffset = 0 } = options;
 	let index = indexOffset;
 
-	return defaultFlatMap<E, E2, C>(col, (element) => f(element, index++));
-}
-
-export function defaultMapIndexed<
-	E,
-	E2,
-	C extends Collection.Advanced.WithCapabilities<
-		Collection<E>,
-		Collection.Capability.WithMap<E>
-	>,
->(
-	col: C,
-	mapFun: (element: E, index: number) => E2,
-	options: { indexOffset?: number | undefined } = {},
-): Collection.Advanced.Retyped<C[TypesKey], E2>['_NORMAL'] {
-	const { indexOffset = 0 } = options;
-	let index = indexOffset;
-
-	return col.map((element) => mapFun(element, index++));
+	return defaultFlatMapByConcat<E, E2, C>(col, (element) =>
+		f(element, index++),
+	);
 }
 
 export function defaultSpliceAtAndReturn<
@@ -331,7 +227,7 @@ export function defaultSpliceAtAndReturn<
 	C extends Collection.Advanced.WithCapabilities<
 		IndexedCollection.NonEmpty<E>,
 		IndexedCollection.Capability.WithSpliceAt.NonEmpty<E> &
-			Collection.Capability.WithConcat<E>
+			IndexedCollection.Capability.WithConcat<E>
 	>,
 >(
 	col: C,
@@ -529,4 +425,26 @@ export function defaultPadTo<
 	const pad = col.context.of(fill).repeat(diff);
 
 	return pad.spliceAt(frontSize, { insert: col });
+}
+
+export function defaultRepeat<
+	E,
+	C extends Collection.Advanced.WithCapabilities<
+		IndexedCollection<E>,
+		IndexedCollection.Capability.WithConcat<E>
+	>,
+>(col: C, amount: number): C[TypesKey]['_NORMAL'] {
+	Int.checkAtLeastZero(amount);
+
+	if (amount === 0) {
+		return col.context.empty();
+	}
+	if (amount === 1) {
+		return col;
+	}
+
+	// repeat by doubling: `half` holds 2 * (amount >>> 1) copies
+	const half = defaultRepeat(col.concat(col), amount >>> 1);
+
+	return amount % 2 === 0 ? half : col.concat(half);
 }

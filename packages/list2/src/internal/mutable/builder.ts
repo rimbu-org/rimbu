@@ -196,7 +196,7 @@ export class ListBuilder<T>
 		this.#outerBuilder = this.#outerBuilder.normalized();
 	};
 
-	removeAt = <O>(index: number, otherwise: OptLazy<O>): T | O => {
+	removeAt = <O>(index: number, otherwise?: OptLazy<O>): T | O => {
 		this.checkLock();
 
 		if (
@@ -215,6 +215,20 @@ export class ListBuilder<T>
 		this.#outerBuilder = this.#outerBuilder.normalized();
 
 		return result;
+	};
+
+	removeAmountAt = (index: number, amount: number): T[] => {
+		const symbol = Symbol();
+
+		const removed: T[] = [];
+
+		for (let i = 0; i < amount; i++) {
+			const value = this.removeAt(index, symbol);
+			if (symbol === value) break;
+			removed.push(value as T);
+		}
+
+		return removed;
 	};
 
 	clear = (): void => {

@@ -1,12 +1,12 @@
 import type { TypesKey } from '@rimbu/collection-types/types';
-import type { ArrayNonEmpty, CollectFun, TraverseState } from '@rimbu/common';
+import type { ArrayNonEmpty, TraverseState } from '@rimbu/common';
 import type { FastIterable, Stream, StreamSource } from '@rimbu/stream';
 
 export interface Collection<
 	E,
 	Tp extends Collection.Advanced.Types<E> = Collection.Advanced.Types<E>,
 > extends FastIterable<E>,
-		Collection.Advanced.Trait<E, Tp> {
+		Collection.Advanced.Trait<Tp> {
 	readonly isEmpty: this[TypesKey]['_isEmpty'];
 	readonly size: number;
 
@@ -20,6 +20,36 @@ export interface Collection<
 		f: (element: E, index: number, halt: () => void) => void,
 		options?: { state?: TraverseState | undefined } | undefined,
 	): void;
+
+	filter<E2 extends E, NE2 = Exclude<E, E2>>(
+		pred: (element: E) => element is E2,
+		options: { negate: true },
+	): Collection.Advanced.Retyped<this[TypesKey], NE2>['_NORMAL'];
+	filter<E2 extends E>(
+		pred: (element: E) => element is E2,
+		options?: { negate?: false | undefined } | undefined,
+	): Collection.Advanced.Retyped<this[TypesKey], E2>['_NORMAL'];
+	filter(
+		pred: (element: E) => boolean,
+		options?: { negate?: boolean | undefined } | undefined,
+	): this[TypesKey]['_NORMAL'];
+
+	filterIndexed<E2 extends E, NE2 = Exclude<E, E2>>(
+		pred: (element: E, index: number) => element is E2,
+		options: { negate: true; indexOffset?: number | undefined },
+	): Collection.Advanced.Retyped<this[TypesKey], NE2>['_NORMAL'];
+	filterIndexed<E2 extends E>(
+		pred: (element: E, index: number) => element is E2,
+		options?:
+			| { negate?: false | undefined; indexOffset?: number | undefined }
+			| undefined,
+	): Collection.Advanced.Retyped<this[TypesKey], E2>['_NORMAL'];
+	filterIndexed(
+		pred: (element: E, index: number) => boolean,
+		options?:
+			| { negate?: boolean | undefined; indexOffset?: number | undefined }
+			| undefined,
+	): this[TypesKey]['_NORMAL'];
 
 	toArray: this[TypesKey]['_toArray'];
 	toBuilder(): this[TypesKey]['_BUILDER'];
@@ -37,7 +67,7 @@ export declare namespace Collection {
 	export interface Builder<
 		E,
 		Tp extends Collection.Advanced.Types<E> = Collection.Advanced.Types<E>,
-	> extends Collection.Advanced.Trait<E, Tp> {
+	> extends Collection.Advanced.Trait<Tp> {
 		get isEmpty(): boolean;
 		get size(): number;
 
@@ -80,8 +110,8 @@ export declare namespace Collection {
 		 * by whether its holder is empty or non-empty.
 		 */
 		export interface Trait<
-			E,
-			Tp extends Collection.Advanced.Types<E> = Collection.Advanced.Types<E>,
+			Tp extends
+				Collection.Advanced.Types<any> = Collection.Advanced.Types<any>,
 		> {
 			readonly [TypesKey]: Tp;
 			readonly context: Collection.Advanced.ContextBase<Tp>;
@@ -188,155 +218,6 @@ export declare namespace Collection {
 	}
 
 	export namespace Capability {
-		export interface WithCollect<E>
-			extends Collection<E, Collection.Capability.WithCollect.Types<E>>,
-				Collection.Capability.WithCollect.API<
-					E,
-					Collection.Capability.WithCollect.Types<E>
-				> {}
-
-		export namespace WithCollect {
-			export interface API<
-				E,
-				Tp extends Collection.Advanced.Types<E> = Collection.Advanced.Types<E>,
-			> extends Collection.Advanced.Trait<E, Tp> {
-				collect<E2 extends this[TypesKey]['_UPPER_E']>(
-					collectFun: (
-						element: E,
-						skip: CollectFun.Skip,
-						halt: () => void,
-					) => E2 | CollectFun.Skip,
-				): Collection.Advanced.Retyped<this[TypesKey], E2>['_NORMAL'];
-			}
-
-			export interface NonEmpty<E>
-				extends Collection.NonEmpty<
-						E,
-						Collection.Capability.WithCollect.TypesNonEmpty<E>
-					>,
-					Collection.Capability.WithCollect.API<
-						E,
-						Collection.Capability.WithCollect.TypesNonEmpty<E>
-					> {}
-
-			export interface Family<E> extends Collection.Advanced.Family<E> {
-				_NORMAL: Collection.Capability.WithCollect<E>;
-				_NON_EMPTY: Collection.Capability.WithCollect.NonEmpty<E>;
-
-				_NEW_FAMILY: Collection.Capability.WithCollect.Family<this['_NEW_E']>;
-			}
-
-			export type Types<E> = Collection.Capability.WithCollect.Family<E> &
-				Collection.Advanced.NormalKind<E>;
-
-			export type TypesNonEmpty<E> =
-				Collection.Capability.WithCollect.Family<E> &
-					Collection.Advanced.NonEmptyKind<E>;
-		}
-
-		export interface WithConcat<E>
-			extends Collection<E, Collection.Capability.WithConcat.Types<E>>,
-				Collection.Capability.WithConcat.API<
-					E,
-					Collection.Capability.WithConcat.Types<E>
-				> {}
-
-		export namespace WithConcat {
-			export interface API<
-				E,
-				Tp extends Collection.Advanced.Types<E> = Collection.Advanced.Types<E>,
-			> extends Collection.Advanced.Trait<E, Tp> {
-				concat(
-					...sources: ArrayNonEmpty<StreamSource.NonEmpty<E>>
-				): this[TypesKey]['_NON_EMPTY'];
-				concat(
-					...sources: ArrayNonEmpty<StreamSource<E>>
-				): this[TypesKey]['_SELF'];
-
-				flatMap<E2 extends this[TypesKey]['_UPPER_E']>(
-					f: (element: E) => StreamSource.NonEmpty<E2>,
-				): Collection.Advanced.Retyped<this[TypesKey], E2>['_SELF'];
-				flatMap<E2 extends this[TypesKey]['_UPPER_E']>(
-					f: (element: E) => StreamSource<E2>,
-				): Collection.Advanced.Retyped<this[TypesKey], E2>['_NORMAL'];
-			}
-
-			export interface NonEmpty<E>
-				extends Collection.NonEmpty<
-						E,
-						Collection.Capability.WithConcat.TypesNonEmpty<E>
-					>,
-					Collection.Capability.WithConcat.API<
-						E,
-						Collection.Capability.WithConcat.TypesNonEmpty<E>
-					> {}
-
-			export interface Family<E> extends Collection.Advanced.Family<E> {
-				_NORMAL: Collection.Capability.WithConcat<E>;
-				_NON_EMPTY: Collection.Capability.WithConcat.NonEmpty<E>;
-
-				_NEW_FAMILY: Collection.Capability.WithConcat.Family<this['_NEW_E']>;
-			}
-
-			export type Types<E> = Collection.Capability.WithConcat.Family<E> &
-				Collection.Advanced.NormalKind<E>;
-
-			export type TypesNonEmpty<E> =
-				Collection.Capability.WithConcat.Family<E> &
-					Collection.Advanced.NonEmptyKind<E>;
-		}
-
-		export interface WithFilter<E>
-			extends Collection<E, Collection.Capability.WithFilter.Types<E>>,
-				Collection.Capability.WithFilter.API<
-					E,
-					Collection.Capability.WithFilter.Types<E>
-				> {}
-
-		export namespace WithFilter {
-			export interface API<
-				E,
-				Tp extends Collection.Advanced.Types<E> = Collection.Advanced.Types<E>,
-			> extends Collection.Advanced.Trait<E, Tp> {
-				filter<E2 extends E, NE2 = Exclude<E, E2>>(
-					pred: (element: E) => element is E2,
-					options: { negate: true },
-				): Collection.Advanced.Retyped<this[TypesKey], NE2>['_NORMAL'];
-				filter<E2 extends E>(
-					pred: (element: E) => element is E2,
-					options?: { negate?: false | undefined } | undefined,
-				): Collection.Advanced.Retyped<this[TypesKey], E2>['_NORMAL'];
-				filter(
-					pred: (element: E) => boolean,
-					options?: { negate?: boolean | undefined } | undefined,
-				): this[TypesKey]['_NORMAL'];
-			}
-
-			export interface NonEmpty<E>
-				extends Collection.NonEmpty<
-						E,
-						Collection.Capability.WithFilter.TypesNonEmpty<E>
-					>,
-					Collection.Capability.WithFilter.API<
-						E,
-						Collection.Capability.WithFilter.TypesNonEmpty<E>
-					> {}
-
-			export interface Family<E> extends Collection.Advanced.Family<E> {
-				_NORMAL: Collection.Capability.WithFilter<E>;
-				_NON_EMPTY: Collection.Capability.WithFilter.NonEmpty<E>;
-
-				_NEW_FAMILY: Collection.Capability.WithFilter.Family<this['_NEW_E']>;
-			}
-
-			export type Types<E> = Collection.Capability.WithFilter.Family<E> &
-				Collection.Advanced.NormalKind<E>;
-
-			export type TypesNonEmpty<E> =
-				Collection.Capability.WithFilter.Family<E> &
-					Collection.Advanced.NonEmptyKind<E>;
-		}
-
 		export interface WithMap<E>
 			extends Collection<E, Collection.Capability.WithMap.Types<E>>,
 				Collection.Capability.WithMap.API<
@@ -348,9 +229,13 @@ export declare namespace Collection {
 			export interface API<
 				E,
 				Tp extends Collection.Advanced.Types<E> = Collection.Advanced.Types<E>,
-			> extends Collection.Advanced.Trait<E, Tp> {
+			> extends Collection.Advanced.Trait<Tp> {
 				map<E2 extends this[TypesKey]['_UPPER_E']>(
 					f: (element: E) => E2,
+				): Collection.Advanced.Retyped<this[TypesKey], E2>['_SELF'];
+
+				mapIndexed<E2 extends this[TypesKey]['_UPPER_E']>(
+					f: (element: E, index: number) => E2,
 				): Collection.Advanced.Retyped<this[TypesKey], E2>['_SELF'];
 			}
 
@@ -389,7 +274,7 @@ export declare namespace Collection {
 			export interface API<
 				E,
 				Tp extends Collection.Advanced.Types<E> = Collection.Advanced.Types<E>,
-			> extends Collection.Advanced.Trait<E, Tp> {
+			> extends Collection.Advanced.Trait<Tp> {
 				mutate(
 					f: (builder: this[TypesKey]['_BUILDER']) => void,
 				): this[TypesKey]['_NORMAL'];
@@ -431,7 +316,7 @@ export declare namespace Collection {
 			export interface API<
 				E,
 				Tp extends Collection.Advanced.Types<E> = Collection.Advanced.Types<E>,
-			> extends Collection.Advanced.Trait<E, Tp> {
+			> extends Collection.Advanced.Trait<Tp> {
 				recompose<E2 extends this[TypesKey]['_UPPER_E']>(
 					f: (
 						stream: this[TypesKey]['_AS_STREAM'],

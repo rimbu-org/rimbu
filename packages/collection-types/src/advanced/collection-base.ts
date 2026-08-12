@@ -4,30 +4,26 @@ import type { FastIterator } from '@rimbu/stream/stream-types';
 
 import {
 	EmptyCollectionAssumedNonEmptyError,
-	Int,
 	throwModifiedBuilderWhileLoopingOverItError,
 } from '@rimbu/base';
 import { type ArrayNonEmpty, TraverseState } from '@rimbu/common';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
-export abstract class CollectionEmptyBase<T>
+export abstract class CollectionEmptyBase<E>
 	implements
-		Collection<T>,
-		Collection.Capability.WithCollect.API<T>,
-		Collection.Capability.WithConcat.API<T>,
-		Collection.Capability.WithFilter.API<T>,
-		Collection.Capability.WithMap.API<T>,
-		Collection.Capability.WithMutate.API<T>,
-		Collection.Capability.WithRecompose.API<T>
+		Collection<E>,
+		Collection.Capability.WithMap.API<E>,
+		Collection.Capability.WithMutate.API<E>,
+		Collection.Capability.WithRecompose.API<E>
 {
-	declare readonly [TypesKey]: Collection.Advanced.Types<T>;
+	declare readonly [TypesKey]: Collection.Advanced.Types<E>;
 
 	abstract readonly context: Collection.Advanced.ContextBase<
-		Collection.Advanced.Types<T>
+		Collection.Advanced.Types<E>
 	>;
 
-	[Symbol.iterator](): FastIterator<T> {
-		return Stream.empty<T>()[Symbol.iterator]();
+	[Symbol.iterator](): FastIterator<E> {
+		return Stream.empty<E>()[Symbol.iterator]();
 	}
 
 	get isEmpty(): true {
@@ -47,10 +43,10 @@ export abstract class CollectionEmptyBase<T>
 	}
 
 	concat(
-		...sources: ArrayNonEmpty<StreamSource.NonEmpty<T>>
+		...sources: ArrayNonEmpty<StreamSource.NonEmpty<E>>
 	): this[TypesKey]['_NON_EMPTY'];
 	concat(
-		...sources: ArrayNonEmpty<StreamSource<T>>
+		...sources: ArrayNonEmpty<StreamSource<E>>
 	): this[TypesKey]['_NORMAL'] {
 		return this.context.from(...sources) as this[TypesKey]['_NON_EMPTY'];
 	}
@@ -59,8 +55,12 @@ export abstract class CollectionEmptyBase<T>
 		return this;
 	}
 
-	stream(): Stream<T> {
-		return Stream.empty<T>();
+	flatMapIndexed(): this[TypesKey]['_NORMAL'] {
+		return this;
+	}
+
+	stream(): Stream<E> {
+		return Stream.empty<E>();
 	}
 
 	forEach(): void {}
@@ -71,14 +71,12 @@ export abstract class CollectionEmptyBase<T>
 		return this;
 	}
 
-	collect<E2>(): (this[TypesKey] & {
-		_NEW_E: E2;
-	})['_NEW_TYPES']['_NORMAL'] {
+	filterIndexed(): this[TypesKey]['_NORMAL'] {
 		return this;
 	}
 
 	recompose<E2>(
-		f: (stream: Stream<T>) => StreamSource<E2>,
+		f: (stream: Stream<E>) => StreamSource<E2>,
 	): Collection.Advanced.Retyped<this[TypesKey], E2>['_NORMAL'] {
 		return this.context.from(f(Stream.empty()));
 	}
@@ -86,14 +84,16 @@ export abstract class CollectionEmptyBase<T>
 	mutate(
 		f: (builder: this[TypesKey]['_BUILDER']) => void,
 	): this[TypesKey]['_NORMAL'] {
-		const builder = this.context.builder<T>();
+		const builder = this.context.builder<E>();
 		f(builder);
 		return builder.build();
 	}
 
-	map<T2>(): (this[TypesKey] & {
-		_NEW_E: T2;
-	})['_NEW_TYPES']['_NORMAL'] {
+	map<E2>(): Collection.Advanced.Retyped<this[TypesKey], E2>['_NORMAL'] {
+		return this;
+	}
+
+	mapIndexed<E2>(): Collection.Advanced.Retyped<this[TypesKey], E2>['_NORMAL'] {
 		return this;
 	}
 
@@ -106,25 +106,26 @@ export abstract class CollectionEmptyBase<T>
 	}
 }
 
-export abstract class CollectionNonEmptyBase<T>
+export abstract class CollectionNonEmptyBase<E>
 	implements
-		Collection.NonEmpty<T>,
-		Collection.Capability.WithMutate.API<T>,
-		Collection.Capability.WithRecompose.API<T>
+		Collection.NonEmpty<E>,
+		Collection.Capability.WithMutate.API<E>,
+		Collection.Capability.WithRecompose.API<E>
 {
-	declare readonly [TypesKey]: Collection.Advanced.TypesNonEmpty<T>;
+	declare readonly [TypesKey]: Collection.Advanced.TypesNonEmpty<E>;
 
 	abstract readonly context: Collection.Advanced.ContextBase<
-		Collection.Advanced.TypesNonEmpty<T>
+		Collection.Advanced.TypesNonEmpty<E>
 	>;
 
 	abstract get size(): number;
-	abstract stream(): Stream.NonEmpty<T>;
-	abstract forEach(f: (value: T) => void): void;
-	abstract toArray(): ArrayNonEmpty<T>;
+	abstract stream(): Stream.NonEmpty<E>;
+	abstract forEach(f: (value: E) => void): void;
+	abstract filter(pred: (element: E) => boolean): this[TypesKey]['_NORMAL'];
+	abstract toArray(): ArrayNonEmpty<E>;
 	abstract toBuilder(): this[TypesKey]['_BUILDER'];
 
-	[Symbol.iterator](): FastIterator<T> {
+	[Symbol.iterator](): FastIterator<E> {
 		return this.stream()[Symbol.iterator]();
 	}
 
@@ -145,7 +146,7 @@ export abstract class CollectionNonEmptyBase<T>
 	}
 
 	forEachIndexed(
-		f: (value: T, index: number, halt: () => void) => void,
+		f: (value: E, index: number, halt: () => void) => void,
 		options: { state?: TraverseState } = {},
 	): void {
 		const { state = TraverseState() } = options;
@@ -169,12 +170,26 @@ export abstract class CollectionNonEmptyBase<T>
 		}
 	}
 
-	recompose<T2 extends this[TypesKey]['_UPPER_E']>(
-		f: (stream: Stream.NonEmpty<T>) => StreamSource.NonEmpty<T2>,
-	): Collection.Advanced.Retyped<this[TypesKey], T2>['_NON_EMPTY'];
-	recompose<T2 extends this[TypesKey]['_UPPER_E']>(
-		f: (stream: Stream.NonEmpty<T>) => StreamSource<T2>,
-	): Collection.Advanced.Retyped<this[TypesKey], T2>['_NON_EMPTY'] {
+	filterIndexed(
+		pred: (element: E, index: number) => boolean,
+		options: {
+			negate?: boolean | undefined;
+			indexOffset?: number | undefined;
+		} = {},
+	): this[TypesKey]['_NORMAL'] {
+		const { negate = false, indexOffset = 0 } = options;
+		let index = indexOffset;
+		return negate
+			? this.filter((element) => !pred(element, index++))
+			: this.filter((element) => pred(element, index++));
+	}
+
+	recompose<E2 extends this[TypesKey]['_UPPER_E']>(
+		f: (stream: Stream.NonEmpty<E>) => StreamSource.NonEmpty<E2>,
+	): Collection.Advanced.Retyped<this[TypesKey], E2>['_NON_EMPTY'];
+	recompose<E2 extends this[TypesKey]['_UPPER_E']>(
+		f: (stream: Stream.NonEmpty<E>) => StreamSource<E2>,
+	): Collection.Advanced.Retyped<this[TypesKey], E2>['_NON_EMPTY'] {
 		return this.context.from(f(this.stream())) as any;
 	}
 
@@ -187,18 +202,18 @@ export abstract class CollectionNonEmptyBase<T>
 	}
 }
 
-export abstract class CollectionBuilderBase<T>
-	implements Collection.Builder<T>
+export abstract class CollectionBuilderBase<E>
+	implements Collection.Builder<E>
 {
-	declare readonly [TypesKey]: Collection.Advanced.Types<T>;
+	declare readonly [TypesKey]: Collection.Advanced.Types<E>;
 
 	abstract readonly context: Collection.Advanced.ContextBase<
-		Collection.Advanced.Types<T>
+		Collection.Advanced.Types<E>
 	>;
 
 	abstract get size(): number;
 	abstract clear(): void;
-	abstract forEach(f: (value: T) => void): void;
+	abstract forEach(f: (value: E) => void): void;
 	abstract build(): this[TypesKey]['_NORMAL'];
 
 	#iterationDepth = 0;
@@ -222,7 +237,7 @@ export abstract class CollectionBuilderBase<T>
 	}
 
 	forEachIndexed(
-		f: (value: T, index: number, halt: () => void) => void,
+		f: (value: E, index: number, halt: () => void) => void,
 		options: { state?: TraverseState } = {},
 	): void {
 		const { state = TraverseState() } = options;
@@ -247,97 +262,20 @@ export abstract class CollectionBuilderBase<T>
 	}
 }
 
-/**
- * A collection whose *whole family* carries the `concat` capability: both the
- * possibly-empty and non-empty kinds, and every re-typed result.
- *
- * A capability bundle is structurally just another package — it declares one
- * family and derives both type records from it. Because `_NORMAL`,
- * `_NON_EMPTY` and `_NEW_FAMILY` all point back at this bundle, `concat`
- * self-propagates: the result of `concat` can be concatenated again, and so
- * can the result of re-typing via `map`/`collect`/`context.empty<E2>()`. That
- * is what lets the `default*` helpers below be written without an F-bounded
- * `{ [TypesKey]: { _SELF: C } }` constraint and without casts.
- *
- * ## Writing a `default*` method
- *
- * This is the recipe used by every `default*` helper in this package, and the
- * one end users should adopt for their own default methods:
- *
- * 1. **Constraint** — use `Collection.Advanced.WithCapabilities` with the base collection
- *    type (or its `.NonEmpty` variant) whose methods you need and the capability
- *    interfaces whose methods are called:
- *
- *    ```ts
- *    C extends Collection.Advanced.WithCapabilities<
- *        E,
- *        IndexedCollection.NonEmpty<E>,
- *        IndexedCollection.Capability.WithSpliceAt.NonEmpty<E> &
- *            Collection.Capability.WithConcat<E>
- *    >
- *    ```
- *
- *    The utility makes `col.context` one `ContextBase` over the merged record,
- *    so `context.of` / `from` / `empty` / `builder` resolve through all
- *    capabilities at once.
- * 3. **Return type** — express it purely through slots of `C[TypesKey]`:
- *    `_NORMAL` (may be empty), `_NON_EMPTY` (guaranteed non-empty), `_SELF`
- *    (preserves the emptiness kind), and for element-changing operations
- *    `Collection.Advanced.Retyped<C[TypesKey], E2>[...]`. At the call site the
- *    caller's concrete type substitutes for `C`, so the result is the
- *    caller's own collection type.
- * 4. **No casts** — if the body needs a cast, the constraint is wrong. The
- *    only exceptions are methods that need *builder* capabilities, which the
- *    collection bundles do not narrow; those must add a constraint-only
- *    record over the `_BUILDER` slot (see
- *    `IndexedCollection.Capability.WithBuilderWithAppendPrepend`), and
- *    capabilities without their own `Types` record (e.g.
- *    `KeyedCollection.Capability.WithMapValues`) cannot be used as
- *    constraints at all.
- */
-
-export function defaultFlatMap<
+export function defaultMapIndexed<
 	E,
 	E2,
 	C extends Collection.Advanced.WithCapabilities<
 		Collection<E>,
-		Collection.Capability.WithConcat<E>
+		Collection.Capability.WithMap<E>
 	>,
 >(
 	col: C,
-	f: (element: E) => StreamSource<E2>,
-): Collection.Advanced.Retyped<C[TypesKey], E2>['_NORMAL'] {
-	const token = Symbol();
-	const iterator = col[Symbol.iterator]();
+	mapFun: (element: E, index: number) => E2,
+	options: { indexOffset?: number | undefined } = {},
+): Collection.Advanced.Retyped<C[TypesKey], E2>['_SELF'] {
+	const { indexOffset = 0 } = options;
+	let index = indexOffset;
 
-	let result = col.context.empty<E2>();
-	let element: E | typeof token;
-
-	while (token !== (element = iterator.fastNext(token))) {
-		result = result.concat(f(element));
-	}
-
-	return result;
-}
-
-export function defaultRepeat<
-	E,
-	C extends Collection.Advanced.WithCapabilities<
-		Collection<E>,
-		Collection.Capability.WithConcat<E>
-	>,
->(col: C, amount: number): C[TypesKey]['_NORMAL'] {
-	Int.checkAtLeastZero(amount);
-
-	if (amount === 0) {
-		return col.context.empty();
-	}
-	if (amount === 1) {
-		return col;
-	}
-
-	// repeat by doubling: `half` holds 2 * (amount >>> 1) copies
-	const half = defaultRepeat(col.concat(col), amount >>> 1);
-
-	return amount % 2 === 0 ? half : col.concat(half);
+	return col.map((element) => mapFun(element, index++));
 }

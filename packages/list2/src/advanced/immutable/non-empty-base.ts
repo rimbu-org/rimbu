@@ -8,17 +8,18 @@ import type { OuterTree } from '#list/immutable/outer-tree';
 import type { OuterBuilder } from '#list/mutable/common';
 
 import { Int } from '@rimbu/base';
-import { defaultRepeat } from '@rimbu/collection-types/advanced/collection-base';
+import { defaultMapIndexed } from '@rimbu/collection-types/advanced/collection-base';
 import {
-	defaultCollect,
-	defaultFilterIndexed,
+	defaultFlatMapByConcat,
+	defaultFlatMapIndexed,
 	defaultPadTo,
 	defaultRemoveAtAndReturn,
+	defaultRepeat,
 	defaultSpliceAtAndReturn,
 	defaultSwapAtAndReturn,
 	IndexedCollectionNonEmptyBase,
 } from '@rimbu/collection-types/advanced/collection/indexed-base';
-import { type ArrayNonEmpty, type CollectFun, IndexRange } from '@rimbu/common';
+import { type ArrayNonEmpty, IndexRange } from '@rimbu/common';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
 export abstract class ListNonEmptyBase<T>
@@ -162,43 +163,6 @@ export abstract class ListNonEmptyBase<T>
 		return result;
 	}
 
-	filterIndexed(
-		pred: (element: T, index: number) => boolean,
-		options: {
-			negate?: boolean | undefined;
-			indexOffset?: number | undefined;
-		} = {},
-	): List<T> {
-		return defaultFilterIndexed(this, pred, options);
-	}
-
-	collect<T2>(
-		collectFun: (
-			element: T,
-			skip: CollectFun.Skip,
-			halt: () => void,
-		) => T2 | CollectFun.Skip,
-	): List<T2> {
-		return defaultCollect<T, T2, List<T>>(this, collectFun);
-	}
-
-	collectIndexed<T2>(
-		collectFun: (
-			element: T,
-			index: number,
-			skip: CollectFun.Skip,
-			halt: () => void,
-		) => T2 | CollectFun.Skip,
-		options: { indexOffset?: number | undefined } = {},
-	): List<T2> {
-		const { indexOffset = 0 } = options;
-		let index = indexOffset;
-
-		return this.collect((element, skip, halt) =>
-			collectFun(element, index++, skip, halt),
-		);
-	}
-
 	insertAt(index: number, values: StreamSource.NonEmpty<T>): List.NonEmpty<T>;
 	insertAt(index: number, values: StreamSource<T>): List<T> {
 		return this.spliceAt(index, { insert: values as StreamSource.NonEmpty<T> });
@@ -233,31 +197,19 @@ export abstract class ListNonEmptyBase<T>
 		f: (element: T, index: number) => T2,
 		options: { indexOffset?: number } = {},
 	): List.NonEmpty<T2> {
-		const { indexOffset = 0 } = options;
-
-		let index = indexOffset;
-		return this.map((e) => f(e, index++));
+		return defaultMapIndexed<T, T2, List.NonEmpty<T>>(this, f, options);
 	}
 
 	flatMap<T2>(f: (element: T) => StreamSource.NonEmpty<T2>): List.NonEmpty<T2>;
 	flatMap<T2>(f: (element: T) => StreamSource<T2>): List<T2> {
-		let result = this.context.empty<T2>();
-
-		this.forEach((e) => {
-			result = result.concat(f(e));
-		});
-
-		return result;
+		return defaultFlatMapByConcat(this, f) as List.NonEmpty<T2>;
 	}
 
 	flatMapIndexed<T2>(
 		f: (element: T, index: number) => StreamSource<T2>,
 		options: { indexOffset?: number } = {},
 	): List.NonEmpty<T2> {
-		const { indexOffset = 0 } = options;
-
-		let index = indexOffset;
-		return this.flatMap((e) => f(e, index++) as StreamSource.NonEmpty<T2>);
+		return defaultFlatMapIndexed(this, f, options) as List.NonEmpty<T2>;
 	}
 
 	padTo(

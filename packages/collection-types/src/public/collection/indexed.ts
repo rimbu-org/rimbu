@@ -1,6 +1,6 @@
 import type { Collection } from '@rimbu/collection-types/collection';
 import type { Op, TypesKey } from '@rimbu/collection-types/types';
-import type { CollectFun, IndexRange, OptLazy } from '@rimbu/common';
+import type { ArrayNonEmpty, IndexRange, OptLazy } from '@rimbu/common';
 import type { Stream, StreamSource } from '@rimbu/stream';
 
 export interface IndexedCollection<
@@ -47,10 +47,9 @@ export declare namespace IndexedCollection {
 
 	export namespace Advanced {
 		export interface Trait<
-			E,
 			Tp extends
-				IndexedCollection.Advanced.Types<E> = IndexedCollection.Advanced.Types<E>,
-		> extends Collection.Advanced.Trait<E, Tp> {}
+				IndexedCollection.Advanced.Types<any> = IndexedCollection.Advanced.Types<any>,
+		> extends Collection.Advanced.Trait<Tp> {}
 
 		export interface FirstLast<R, IsNonEmpty extends boolean = boolean> {
 			(): IsNonEmpty extends true ? R : R | undefined;
@@ -109,77 +108,36 @@ export declare namespace IndexedCollection {
 	}
 
 	export namespace Capability {
-		export interface WithCollectIndexed<E>
+		export interface WithConcat<E>
 			extends IndexedCollection<
 					E,
-					IndexedCollection.Capability.WithCollectIndexed.Types<E>
+					IndexedCollection.Capability.WithConcat.Types<E>
 				>,
-				IndexedCollection.Capability.WithCollectIndexed.API<
+				IndexedCollection.Capability.WithConcat.API<
 					E,
-					IndexedCollection.Capability.WithCollectIndexed.Types<E>
+					IndexedCollection.Capability.WithConcat.Types<E>
 				> {}
 
-		export namespace WithCollectIndexed {
+		export namespace WithConcat {
 			export interface API<
 				E,
 				Tp extends
 					IndexedCollection.Advanced.Types<E> = IndexedCollection.Advanced.Types<E>,
-			> extends IndexedCollection.Advanced.Trait<E, Tp> {
-				collectIndexed<E2 extends this[TypesKey]['_UPPER_E']>(
-					collectFun: (
-						element: E,
-						index: number,
-						skip: CollectFun.Skip,
-						halt: () => void,
-					) => E2 | CollectFun.Skip,
-					options?: { indexOffset?: number | undefined } | undefined,
+			> extends IndexedCollection.Advanced.Trait<Tp> {
+				concat(
+					...sources: ArrayNonEmpty<StreamSource.NonEmpty<E>>
+				): this[TypesKey]['_NON_EMPTY'];
+				concat(
+					...sources: ArrayNonEmpty<StreamSource<E>>
+				): this[TypesKey]['_SELF'];
+
+				flatMap<E2 extends this[TypesKey]['_UPPER_E']>(
+					f: (element: E) => StreamSource.NonEmpty<E2>,
+				): Collection.Advanced.Retyped<this[TypesKey], E2>['_SELF'];
+				flatMap<E2 extends this[TypesKey]['_UPPER_E']>(
+					f: (element: E) => StreamSource<E2>,
 				): Collection.Advanced.Retyped<this[TypesKey], E2>['_NORMAL'];
-			}
 
-			export interface NonEmpty<E>
-				extends IndexedCollection.NonEmpty<
-						E,
-						IndexedCollection.Capability.WithCollectIndexed.TypesNonEmpty<E>
-					>,
-					IndexedCollection.Capability.WithCollectIndexed.API<
-						E,
-						IndexedCollection.Capability.WithCollectIndexed.TypesNonEmpty<E>
-					> {}
-
-			export interface Family<E> extends IndexedCollection.Advanced.Family<E> {
-				_NORMAL: IndexedCollection.Capability.WithCollectIndexed<E>;
-				_NON_EMPTY: IndexedCollection.Capability.WithCollectIndexed.NonEmpty<E>;
-
-				_NEW_FAMILY: IndexedCollection.Capability.WithCollectIndexed.Family<
-					this['_NEW_E']
-				>;
-			}
-
-			export type Types<E> =
-				IndexedCollection.Capability.WithCollectIndexed.Family<E> &
-					IndexedCollection.Advanced.NormalKind<E>;
-
-			export type TypesNonEmpty<E> =
-				IndexedCollection.Capability.WithCollectIndexed.Family<E> &
-					IndexedCollection.Advanced.NonEmptyKind<E>;
-		}
-
-		export interface WithFlatMapIndexed<E>
-			extends IndexedCollection<
-					E,
-					IndexedCollection.Capability.WithFlatMapIndexed.Types<E>
-				>,
-				IndexedCollection.Capability.WithFlatMapIndexed.API<
-					E,
-					IndexedCollection.Capability.WithFlatMapIndexed.Types<E>
-				> {}
-
-		export namespace WithFlatMapIndexed {
-			export interface API<
-				E,
-				Tp extends
-					IndexedCollection.Advanced.Types<E> = IndexedCollection.Advanced.Types<E>,
-			> extends IndexedCollection.Advanced.Trait<E, Tp> {
 				flatMapIndexed<E2 extends this[TypesKey]['_UPPER_E']>(
 					f: (element: E, index: number) => StreamSource.NonEmpty<E2>,
 				): Collection.Advanced.Retyped<this[TypesKey], E2>['_SELF'];
@@ -191,139 +149,27 @@ export declare namespace IndexedCollection {
 			export interface NonEmpty<E>
 				extends IndexedCollection.NonEmpty<
 						E,
-						IndexedCollection.Capability.WithFlatMapIndexed.TypesNonEmpty<E>
+						IndexedCollection.Capability.WithConcat.TypesNonEmpty<E>
 					>,
-					IndexedCollection.Capability.WithFlatMapIndexed.API<
+					IndexedCollection.Capability.WithConcat.API<
 						E,
-						IndexedCollection.Capability.WithFlatMapIndexed.TypesNonEmpty<E>
+						IndexedCollection.Capability.WithConcat.TypesNonEmpty<E>
 					> {}
 
 			export interface Family<E> extends IndexedCollection.Advanced.Family<E> {
-				_NORMAL: IndexedCollection.Capability.WithFlatMapIndexed<E>;
-				_NON_EMPTY: IndexedCollection.Capability.WithFlatMapIndexed.NonEmpty<E>;
+				_NORMAL: IndexedCollection.Capability.WithConcat<E>;
+				_NON_EMPTY: IndexedCollection.Capability.WithConcat.NonEmpty<E>;
 
-				_NEW_FAMILY: IndexedCollection.Capability.WithFlatMapIndexed.Family<
+				_NEW_FAMILY: IndexedCollection.Capability.WithConcat.Family<
 					this['_NEW_E']
 				>;
 			}
 
-			export type Types<E> =
-				IndexedCollection.Capability.WithFlatMapIndexed.Family<E> &
-					IndexedCollection.Advanced.NormalKind<E>;
+			export type Types<E> = IndexedCollection.Capability.WithConcat.Family<E> &
+				IndexedCollection.Advanced.NormalKind<E>;
 
 			export type TypesNonEmpty<E> =
-				IndexedCollection.Capability.WithFlatMapIndexed.Family<E> &
-					IndexedCollection.Advanced.NonEmptyKind<E>;
-		}
-
-		export interface WithFilterIndexed<E>
-			extends IndexedCollection<
-					E,
-					IndexedCollection.Capability.WithFilterIndexed.Types<E>
-				>,
-				IndexedCollection.Capability.WithFilterIndexed.API<
-					E,
-					IndexedCollection.Capability.WithFilterIndexed.Types<E>
-				> {}
-
-		export namespace WithFilterIndexed {
-			export interface API<
-				E,
-				Tp extends
-					IndexedCollection.Advanced.Types<E> = IndexedCollection.Advanced.Types<E>,
-			> extends IndexedCollection.Advanced.Trait<E, Tp> {
-				filterIndexed<E2 extends E, NE2 = Exclude<E, E2>>(
-					pred: (element: E, index: number) => element is E2,
-					options: { negate: true; indexOffset?: number | undefined },
-				): Collection.Advanced.Retyped<this[TypesKey], NE2>['_NORMAL'];
-				filterIndexed<E2 extends E>(
-					pred: (element: E, index: number) => element is E2,
-					options?:
-						| { negate?: false | undefined; indexOffset?: number | undefined }
-						| undefined,
-				): Collection.Advanced.Retyped<this[TypesKey], E2>['_NORMAL'];
-				filterIndexed(
-					pred: (element: E, index: number) => boolean,
-					options?:
-						| { negate?: boolean | undefined; indexOffset?: number | undefined }
-						| undefined,
-				): this[TypesKey]['_NORMAL'];
-			}
-
-			export interface NonEmpty<E>
-				extends IndexedCollection.NonEmpty<
-						E,
-						IndexedCollection.Capability.WithFilterIndexed.TypesNonEmpty<E>
-					>,
-					IndexedCollection.Capability.WithFilterIndexed.API<
-						E,
-						IndexedCollection.Capability.WithFilterIndexed.TypesNonEmpty<E>
-					> {}
-
-			export interface Family<E> extends IndexedCollection.Advanced.Family<E> {
-				_NORMAL: IndexedCollection.Capability.WithFilterIndexed<E>;
-				_NON_EMPTY: IndexedCollection.Capability.WithFilterIndexed.NonEmpty<E>;
-
-				_NEW_FAMILY: IndexedCollection.Capability.WithFilterIndexed.Family<
-					this['_NEW_E']
-				>;
-			}
-
-			export type Types<E> =
-				IndexedCollection.Capability.WithFilterIndexed.Family<E> &
-					IndexedCollection.Advanced.NormalKind<E>;
-
-			export type TypesNonEmpty<E> =
-				IndexedCollection.Capability.WithFilterIndexed.Family<E> &
-					IndexedCollection.Advanced.NonEmptyKind<E>;
-		}
-
-		export interface WithMapIndexed<E>
-			extends IndexedCollection<
-					E,
-					IndexedCollection.Capability.WithMapIndexed.Types<E>
-				>,
-				IndexedCollection.Capability.WithMapIndexed.API<
-					E,
-					IndexedCollection.Capability.WithMapIndexed.Types<E>
-				> {}
-
-		export namespace WithMapIndexed {
-			export interface API<
-				E,
-				Tp extends
-					IndexedCollection.Advanced.Types<E> = IndexedCollection.Advanced.Types<E>,
-			> extends IndexedCollection.Advanced.Trait<E, Tp> {
-				mapIndexed<E2 extends this[TypesKey]['_UPPER_E']>(
-					f: (element: E, index: number) => E2,
-				): Collection.Advanced.Retyped<this[TypesKey], E2>['_SELF'];
-			}
-
-			export interface NonEmpty<E>
-				extends IndexedCollection.NonEmpty<
-						E,
-						IndexedCollection.Capability.WithMapIndexed.TypesNonEmpty<E>
-					>,
-					IndexedCollection.Capability.WithMapIndexed.API<
-						E,
-						IndexedCollection.Capability.WithMapIndexed.TypesNonEmpty<E>
-					> {}
-
-			export interface Family<E> extends IndexedCollection.Advanced.Family<E> {
-				_NORMAL: IndexedCollection.Capability.WithMapIndexed<E>;
-				_NON_EMPTY: IndexedCollection.Capability.WithMapIndexed.NonEmpty<E>;
-
-				_NEW_FAMILY: IndexedCollection.Capability.WithMapIndexed.Family<
-					this['_NEW_E']
-				>;
-			}
-
-			export type Types<E> =
-				IndexedCollection.Capability.WithMapIndexed.Family<E> &
-					IndexedCollection.Advanced.NormalKind<E>;
-
-			export type TypesNonEmpty<E> =
-				IndexedCollection.Capability.WithMapIndexed.Family<E> &
+				IndexedCollection.Capability.WithConcat.Family<E> &
 					IndexedCollection.Advanced.NonEmptyKind<E>;
 		}
 
@@ -342,7 +188,7 @@ export declare namespace IndexedCollection {
 				E,
 				Tp extends
 					IndexedCollection.Advanced.Types<E> = IndexedCollection.Advanced.Types<E>,
-			> extends IndexedCollection.Advanced.Trait<E, Tp> {
+			> extends IndexedCollection.Advanced.Trait<Tp> {
 				placeAt(index: number, element: E): this[TypesKey]['_NON_EMPTY'];
 				moveTo(index: number, element: E): this[TypesKey]['_SELF'];
 			}
@@ -390,7 +236,7 @@ export declare namespace IndexedCollection {
 				E,
 				Tp extends
 					IndexedCollection.Advanced.Types<E> = IndexedCollection.Advanced.Types<E>,
-			> extends IndexedCollection.Advanced.Trait<E, Tp> {
+			> extends IndexedCollection.Advanced.Trait<Tp> {
 				padTo(
 					size: number,
 					fill: E,
@@ -440,7 +286,7 @@ export declare namespace IndexedCollection {
 				E,
 				Tp extends
 					IndexedCollection.Advanced.Types<E> = IndexedCollection.Advanced.Types<E>,
-			> extends IndexedCollection.Advanced.Trait<E, Tp> {
+			> extends IndexedCollection.Advanced.Trait<Tp> {
 				prepend(element: E): this[TypesKey]['_NON_EMPTY'];
 				append(element: E): this[TypesKey]['_NON_EMPTY'];
 			}
@@ -455,22 +301,18 @@ export declare namespace IndexedCollection {
 						IndexedCollection.Capability.WithPrependAppend.TypesNonEmpty<E>
 					> {}
 
-			export interface Builder<
-				E,
-				Tp extends
-					IndexedCollection.Advanced.Types<E> = IndexedCollection.Advanced.Types<E>,
-			> extends IndexedCollection.Builder<E, Tp> {
+			export interface Builder<E> extends IndexedCollection.Builder<E> {
 				prepend(element: E): void;
 				append(element: E): void;
+
+				prependAll(elements: StreamSource<E>): void;
+				appendAll(elements: StreamSource<E>): void;
 			}
 
 			export interface Family<E> extends IndexedCollection.Advanced.Family<E> {
 				_NORMAL: IndexedCollection.Capability.WithPrependAppend<E>;
 				_NON_EMPTY: IndexedCollection.Capability.WithPrependAppend.NonEmpty<E>;
-				_BUILDER: IndexedCollection.Capability.WithPrependAppend.Builder<
-					E,
-					IndexedCollection.Capability.WithPrependAppend.Types<E>
-				>;
+				_BUILDER: IndexedCollection.Capability.WithPrependAppend.Builder<E>;
 
 				_NEW_FAMILY: IndexedCollection.Capability.WithPrependAppend.Family<
 					this['_NEW_E']
@@ -501,7 +343,7 @@ export declare namespace IndexedCollection {
 				E,
 				Tp extends
 					IndexedCollection.Advanced.Types<E> = IndexedCollection.Advanced.Types<E>,
-			> extends IndexedCollection.Advanced.Trait<E, Tp> {
+			> extends IndexedCollection.Advanced.Trait<Tp> {
 				repeat<N extends number>(
 					amount: N,
 				): 0 extends N ? this[TypesKey]['_NORMAL'] : this[TypesKey]['_SELF'];
@@ -551,7 +393,7 @@ export declare namespace IndexedCollection {
 				E,
 				Tp extends
 					IndexedCollection.Advanced.Types<E> = IndexedCollection.Advanced.Types<E>,
-			> extends IndexedCollection.Advanced.Trait<E, Tp> {
+			> extends IndexedCollection.Advanced.Trait<Tp> {
 				removeAt(index: number): this[TypesKey]['_NORMAL'];
 			}
 
@@ -598,7 +440,7 @@ export declare namespace IndexedCollection {
 				E,
 				Tp extends
 					IndexedCollection.Advanced.Types<E> = IndexedCollection.Advanced.Types<E>,
-			> extends IndexedCollection.Advanced.Trait<E, Tp> {
+			> extends IndexedCollection.Advanced.Trait<Tp> {
 				reversed(): this[TypesKey]['_SELF'];
 			}
 
@@ -645,7 +487,7 @@ export declare namespace IndexedCollection {
 				E,
 				Tp extends
 					IndexedCollection.Advanced.Types<E> = IndexedCollection.Advanced.Types<E>,
-			> extends IndexedCollection.Advanced.Trait<E, Tp> {
+			> extends IndexedCollection.Advanced.Trait<Tp> {
 				rotateLeft(amount: number): this[TypesKey]['_SELF'];
 			}
 
@@ -691,7 +533,7 @@ export declare namespace IndexedCollection {
 				E,
 				Tp extends
 					IndexedCollection.Advanced.Types<E> = IndexedCollection.Advanced.Types<E>,
-			> extends IndexedCollection.Advanced.Trait<E, Tp> {
+			> extends IndexedCollection.Advanced.Trait<Tp> {
 				spliceAt(
 					index: number,
 					options: {
@@ -768,6 +610,13 @@ export declare namespace IndexedCollection {
 				>;
 			}
 
+			export interface Builder<E> extends IndexedCollection.Builder<E> {
+				insertAt(index: number, element: E): void;
+				removeAt(index: number): E | undefined;
+				removeAt<O>(index: number, otherwise: OptLazy<O>): E | O;
+				removeAmountAt(index: number, amount: number): E[];
+			}
+
 			export interface NonEmpty<E>
 				extends IndexedCollection.NonEmpty<
 						E,
@@ -781,6 +630,7 @@ export declare namespace IndexedCollection {
 			export interface Family<E> extends IndexedCollection.Advanced.Family<E> {
 				_NORMAL: IndexedCollection.Capability.WithSpliceAt<E>;
 				_NON_EMPTY: IndexedCollection.Capability.WithSpliceAt.NonEmpty<E>;
+				_BUILDER: IndexedCollection.Capability.WithSpliceAt.Builder<E>;
 
 				_NEW_FAMILY: IndexedCollection.Capability.WithSpliceAt.Family<
 					this['_NEW_E']
@@ -811,7 +661,7 @@ export declare namespace IndexedCollection {
 				E,
 				Tp extends
 					IndexedCollection.Advanced.Types<E> = IndexedCollection.Advanced.Types<E>,
-			> extends IndexedCollection.Advanced.Trait<E, Tp> {
+			> extends IndexedCollection.Advanced.Trait<Tp> {
 				swapAt(index1: number, index2: number): this[TypesKey]['_SELF'];
 				swapAtAndReturn(
 					index1: number,
@@ -834,9 +684,14 @@ export declare namespace IndexedCollection {
 						IndexedCollection.Capability.WithSwapAt.TypesNonEmpty<E>
 					> {}
 
+			export interface Builder<E> extends IndexedCollection.Builder<E> {
+				swapAt(index1: number, index2: number): void;
+			}
+
 			export interface Family<E> extends IndexedCollection.Advanced.Family<E> {
 				_NORMAL: IndexedCollection.Capability.WithSwapAt<E>;
 				_NON_EMPTY: IndexedCollection.Capability.WithSwapAt.NonEmpty<E>;
+				_BUILDER: IndexedCollection.Capability.WithSwapAt.Builder<E>;
 
 				_NEW_FAMILY: IndexedCollection.Capability.WithSwapAt.Family<
 					this['_NEW_E']
@@ -866,7 +721,7 @@ export declare namespace IndexedCollection {
 				E,
 				Tp extends
 					IndexedCollection.Advanced.Types<E> = IndexedCollection.Advanced.Types<E>,
-			> extends IndexedCollection.Advanced.Trait<E, Tp> {
+			> extends IndexedCollection.Advanced.Trait<Tp> {
 				setAt(index: number, element: E): this[TypesKey]['_SELF'];
 				setAtAndReturn(
 					index: number,
@@ -889,6 +744,15 @@ export declare namespace IndexedCollection {
 				>;
 			}
 
+			export interface Builder<E> extends IndexedCollection.Builder<E> {
+				setAt(index: number, element: E): E | undefined;
+				setAt<O>(index: number, element: E, otherwise: OptLazy<O>): E | O;
+				updateAt(
+					index: number,
+					f: (element: E) => E,
+				): [previous: E, current: E] | undefined;
+			}
+
 			export interface NonEmpty<E>
 				extends IndexedCollection.NonEmpty<
 						E,
@@ -902,6 +766,7 @@ export declare namespace IndexedCollection {
 			export interface Family<E> extends IndexedCollection.Advanced.Family<E> {
 				_NORMAL: IndexedCollection.Capability.WithUpdateAt<E>;
 				_NON_EMPTY: IndexedCollection.Capability.WithUpdateAt.NonEmpty<E>;
+				_BUILDER: IndexedCollection.Capability.WithUpdateAt.Builder<E>;
 
 				_NEW_FAMILY: IndexedCollection.Capability.WithUpdateAt.Family<
 					this['_NEW_E']

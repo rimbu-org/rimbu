@@ -1,8 +1,6 @@
 import type { Collection } from '@rimbu/collection-types/collection';
 import type { IndexedCollection } from '@rimbu/collection-types/collection/indexed';
 import type { TypesKey } from '@rimbu/collection-types/types';
-import type { OptLazy } from '@rimbu/common';
-import type { StreamSource } from '@rimbu/stream';
 
 import type { ChildrenOps } from '#advanced/children-ops';
 
@@ -26,19 +24,12 @@ export declare namespace List {
 
 	export interface Builder<T>
 		extends IndexedCollection.Builder<T, List.Advanced.Types<T>>,
-			IndexedCollection.Capability.WithPrependAppend.Builder<T> {
+			IndexedCollection.Capability.WithPrependAppend.Builder<T>,
+			IndexedCollection.Capability.WithSpliceAt.Builder<T>,
+			IndexedCollection.Capability.WithSwapAt.Builder<T>,
+			IndexedCollection.Capability.WithUpdateAt.Builder<T> {
 		readonly [TypesKey]: List.Advanced.Types<T>;
 		readonly context: List.Context<T>;
-
-		setAt(index: number, element: T): T | undefined;
-		setAt<O>(index: number, element: T, otherwise: OptLazy<O>): T | O;
-		updateAt(
-			index: number,
-			f: (element: T) => T,
-		): [previous: T, current: T] | undefined;
-		swapAt(index1: number, index2: number): void;
-		prependAll(elements: StreamSource<T>): void;
-		appendAll(elements: StreamSource<T>): void;
 	}
 
 	export interface Context<T>
@@ -48,16 +39,10 @@ export declare namespace List {
 
 	export namespace Advanced {
 		export interface Capabilities<T>
-			extends Collection.Capability.WithFilter<T>,
-				Collection.Capability.WithCollect<T>,
-				Collection.Capability.WithConcat<T>,
-				Collection.Capability.WithMap<T>,
+			extends Collection.Capability.WithMap<T>,
 				Collection.Capability.WithMutate<T>,
 				Collection.Capability.WithRecompose<T>,
-				IndexedCollection.Capability.WithCollectIndexed<T>,
-				IndexedCollection.Capability.WithFlatMapIndexed<T>,
-				IndexedCollection.Capability.WithFilterIndexed<T>,
-				IndexedCollection.Capability.WithMapIndexed<T>,
+				IndexedCollection.Capability.WithConcat<T>,
 				IndexedCollection.Capability.WithPadTo<T>,
 				IndexedCollection.Capability.WithPrependAppend<T>,
 				IndexedCollection.Capability.WithRepeat<T>,
@@ -77,11 +62,6 @@ export declare namespace List {
 
 		export type DefaultFactory = Factory<any, List.Advanced.Types<any>>;
 
-		/**
-		 * The family — *which* collection this is. Declared once; both the
-		 * possibly-empty and non-empty type records are derived from it, so
-		 * there is no second place that can disagree.
-		 */
 		export interface Family<T> extends IndexedCollection.Advanced.Family<T> {
 			_NORMAL: List<T>;
 			_NON_EMPTY: List.NonEmpty<T>;
