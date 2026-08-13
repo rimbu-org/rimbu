@@ -62,12 +62,17 @@ export declare namespace List {
 
 		export type DefaultFactory = Factory<any, List.Advanced.Types<any>>;
 
-		export interface Family<T> extends IndexedCollection.Advanced.Family<T> {
+		export interface FamilyBase<T>
+			extends IndexedCollection.Advanced.Family<T> {
 			_NORMAL: List<T>;
 			_NON_EMPTY: List.NonEmpty<T>;
 			_BUILDER: List.Builder<T>;
 
-			// _UPPER_E: any;
+			_NEW_FAMILY: List.Advanced.FamilyBase<this['_NEW_E']>;
+		}
+
+		export interface Family<T> extends List.Advanced.FamilyBase<T> {
+			_UPPER_E: any;
 
 			_NEW_FAMILY: List.Advanced.Family<this['_NEW_E']>;
 		}

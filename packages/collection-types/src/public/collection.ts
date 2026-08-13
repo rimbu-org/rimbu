@@ -162,7 +162,7 @@ export declare namespace Collection {
 			_BUILDER: unknown;
 
 			_UPPER_E: unknown;
-			_NEW_E: this['_UPPER_E'];
+			_NEW_E: unknown;
 			_NEW_FAMILY: Collection.Advanced.FamilyBase<this['_NEW_E']>;
 		}
 
@@ -230,11 +230,11 @@ export declare namespace Collection {
 				E,
 				Tp extends Collection.Advanced.Types<E> = Collection.Advanced.Types<E>,
 			> extends Collection.Advanced.Trait<Tp> {
-				map<E2 extends this[TypesKey]['_UPPER_E']>(
+				map<E2 extends E & this[TypesKey]['_UPPER_E']>(
 					f: (element: E) => E2,
 				): Collection.Advanced.Retyped<this[TypesKey], E2>['_SELF'];
 
-				mapIndexed<E2 extends this[TypesKey]['_UPPER_E']>(
+				mapIndexed<E2 extends E & this[TypesKey]['_UPPER_E']>(
 					f: (element: E, index: number) => E2,
 				): Collection.Advanced.Retyped<this[TypesKey], E2>['_SELF'];
 			}
@@ -317,12 +317,12 @@ export declare namespace Collection {
 				E,
 				Tp extends Collection.Advanced.Types<E> = Collection.Advanced.Types<E>,
 			> extends Collection.Advanced.Trait<Tp> {
-				recompose<E2 extends this[TypesKey]['_UPPER_E']>(
+				recompose<E2 extends E & this[TypesKey]['_UPPER_E']>(
 					f: (
 						stream: this[TypesKey]['_AS_STREAM'],
 					) => StreamSource.NonEmpty<E2>,
 				): Collection.Advanced.Retyped<this[TypesKey], E2>['_SELF'];
-				recompose<E2 extends this[TypesKey]['_UPPER_E']>(
+				recompose<E2 extends E & this[TypesKey]['_UPPER_E']>(
 					f: (stream: this[TypesKey]['_AS_STREAM']) => StreamSource<E2>,
 				): Collection.Advanced.Retyped<this[TypesKey], E2>['_NORMAL'];
 			}
