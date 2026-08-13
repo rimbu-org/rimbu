@@ -230,7 +230,7 @@ export declare namespace Collection {
 
 		export namespace WithMap {
 			export interface API<
-				in out E,
+				E,
 				Tp extends Collection.Advanced.Types<E> = Collection.Advanced.Types<E>,
 			> extends Collection.Advanced.Trait<Tp> {
 				map<E2 extends this[TypesKey]['_UPPER_E']>(
