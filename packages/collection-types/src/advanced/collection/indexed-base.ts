@@ -180,7 +180,7 @@ export abstract class IndexedCollectionNonEmptyBase<E>
 
 export function defaultFlatMapByConcat<
 	E,
-	E2,
+	E2 extends C[TypesKey]['_UPPER_E'],
 	C extends Collection.Advanced.WithCapabilities<
 		IndexedCollection<E>,
 		IndexedCollection.Capability.WithConcat<E>
@@ -204,7 +204,7 @@ export function defaultFlatMapByConcat<
 
 export function defaultFlatMapIndexed<
 	E,
-	E2,
+	E2 extends C[TypesKey]['_UPPER_E'],
 	C extends Collection.Advanced.WithCapabilities<
 		IndexedCollection<E>,
 		IndexedCollection.Capability.WithConcat<E>

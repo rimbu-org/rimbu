@@ -21,7 +21,7 @@ export interface Collection<
 		options?: { state?: TraverseState | undefined } | undefined,
 	): void;
 
-	filter<E2 extends E, NE2 = Exclude<E, E2>>(
+	filter<E2 extends E, NE2 extends this[TypesKey]['_UPPER_E'] = Exclude<E, E2>>(
 		pred: (element: E) => element is E2,
 		options: { negate: true },
 	): Collection.Advanced.Retyped<this[TypesKey], NE2>['_NORMAL'];
@@ -34,7 +34,10 @@ export interface Collection<
 		options?: { negate?: boolean | undefined } | undefined,
 	): this[TypesKey]['_NORMAL'];
 
-	filterIndexed<E2 extends E, NE2 = Exclude<E, E2>>(
+	filterIndexed<
+		E2 extends E,
+		NE2 extends this[TypesKey]['_UPPER_E'] = Exclude<E, E2>,
+	>(
 		pred: (element: E, index: number) => element is E2,
 		options: { negate: true; indexOffset?: number | undefined },
 	): Collection.Advanced.Retyped<this[TypesKey], NE2>['_NORMAL'];
@@ -227,14 +230,14 @@ export declare namespace Collection {
 
 		export namespace WithMap {
 			export interface API<
-				E,
+				in out E,
 				Tp extends Collection.Advanced.Types<E> = Collection.Advanced.Types<E>,
 			> extends Collection.Advanced.Trait<Tp> {
-				map<E2 extends E & this[TypesKey]['_UPPER_E']>(
+				map<E2 extends this[TypesKey]['_UPPER_E']>(
 					f: (element: E) => E2,
 				): Collection.Advanced.Retyped<this[TypesKey], E2>['_SELF'];
 
-				mapIndexed<E2 extends E & this[TypesKey]['_UPPER_E']>(
+				mapIndexed<E2 extends this[TypesKey]['_UPPER_E']>(
 					f: (element: E, index: number) => E2,
 				): Collection.Advanced.Retyped<this[TypesKey], E2>['_SELF'];
 			}
@@ -317,12 +320,12 @@ export declare namespace Collection {
 				E,
 				Tp extends Collection.Advanced.Types<E> = Collection.Advanced.Types<E>,
 			> extends Collection.Advanced.Trait<Tp> {
-				recompose<E2 extends E & this[TypesKey]['_UPPER_E']>(
+				recompose<E2 extends this[TypesKey]['_UPPER_E']>(
 					f: (
 						stream: this[TypesKey]['_AS_STREAM'],
 					) => StreamSource.NonEmpty<E2>,
 				): Collection.Advanced.Retyped<this[TypesKey], E2>['_SELF'];
-				recompose<E2 extends E & this[TypesKey]['_UPPER_E']>(
+				recompose<E2 extends this[TypesKey]['_UPPER_E']>(
 					f: (stream: this[TypesKey]['_AS_STREAM']) => StreamSource<E2>,
 				): Collection.Advanced.Retyped<this[TypesKey], E2>['_NORMAL'];
 			}

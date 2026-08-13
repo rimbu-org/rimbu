@@ -75,7 +75,7 @@ export abstract class CollectionEmptyBase<E>
 		return this;
 	}
 
-	recompose<E2>(
+	recompose<E2 extends this[TypesKey]['_UPPER_E']>(
 		f: (stream: Stream<E>) => StreamSource<E2>,
 	): Collection.Advanced.Retyped<this[TypesKey], E2>['_NORMAL'] {
 		return this.context.from(f(Stream.empty()));
@@ -89,11 +89,16 @@ export abstract class CollectionEmptyBase<E>
 		return builder.build();
 	}
 
-	map<E2>(): Collection.Advanced.Retyped<this[TypesKey], E2>['_NORMAL'] {
+	map<E2 extends this[TypesKey]['_UPPER_E']>(): Collection.Advanced.Retyped<
+		this[TypesKey],
+		E2
+	>['_NORMAL'] {
 		return this;
 	}
 
-	mapIndexed<E2>(): Collection.Advanced.Retyped<this[TypesKey], E2>['_NORMAL'] {
+	mapIndexed<
+		E2 extends this[TypesKey]['_UPPER_E'],
+	>(): Collection.Advanced.Retyped<this[TypesKey], E2>['_NORMAL'] {
 		return this;
 	}
 
@@ -264,7 +269,7 @@ export abstract class CollectionBuilderBase<E>
 
 export function defaultMapIndexed<
 	E,
-	E2,
+	E2 extends E & C[TypesKey]['_UPPER_E'],
 	C extends Collection.Advanced.WithCapabilities<
 		Collection<E>,
 		Collection.Capability.WithMap<E>
