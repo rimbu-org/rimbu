@@ -10,7 +10,8 @@
  * the noisier `this[typeof TypesKey]`, mirroring the `Token` idiom in
  * `@rimbu/base`.
  */
-export const TypesKey = Symbol('Rimbu.TypesKey');
+export declare const TypesKey: unique symbol;
+
 /**
  * Type alias representing the {@link TypesKey} symbol.
  */

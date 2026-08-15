@@ -97,11 +97,10 @@ export declare namespace Collection {
 			_NEW_TYPES: TypesNonEmpty<this['_NEW_FAMILY'], this['_NEW_E']>;
 		}
 
-		export type ReTyped<Tp extends TypesBase, E2> = Tp extends {
-			_isEmpty: false;
-		}
-			? TypesNonEmpty<(Tp & { _NEW_E: E2 })['_NEW_FAMILY'], E2>
-			: Types<(Tp & { _NEW_E: E2 })['_NEW_FAMILY'], E2>;
+		export type ReTyped<Tp extends TypesBase, E2> =
+			Tp extends NonEmptyKind<any>
+				? TypesNonEmpty<(Tp & { _NEW_E: E2 })['_NEW_FAMILY'], E2>
+				: Types<(Tp & { _NEW_E: E2 })['_NEW_FAMILY'], E2>;
 
 		export type InvariantTypes<Tp extends TypesBase, E> = Tp & {
 			readonly _INVARIANT: (e: E) => E;

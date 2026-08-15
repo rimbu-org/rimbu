@@ -2,25 +2,28 @@ import type { Collection } from '@rimbu/collection-types/collection2';
 import type { TypesKey } from '@rimbu/collection-types/types';
 import type { FastIterator } from '@rimbu/stream/stream-types';
 
-import { EmptyCollectionAssumedNonEmptyError } from '@rimbu/base';
-import { type ArrayNonEmpty } from '@rimbu/common';
+import {
+	EmptyCollectionAssumedNonEmptyError,
+	throwModifiedBuilderWhileLoopingOverItError,
+} from '@rimbu/base';
+import { TraverseState, type ArrayNonEmpty } from '@rimbu/common';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
-type Capabilities<E> = Collection.Capability.WithToBuilder<E> &
+type EmptyBaseCapabilities<E> = Collection.Capability.WithToBuilder<E> &
 	Collection.Capability.WithMap<E> &
 	Collection.Capability.WithMutate<E> &
 	Collection.Capability.WithRecompose<E>;
 
 export abstract class CollectionEmptyBase<E>
-	implements Collection<E, Capabilities<E>>
+	implements Collection<E, EmptyBaseCapabilities<E>>
 {
 	declare readonly [TypesKey]: Collection.Advanced.InvariantTypes<
-		Collection.Advanced.Types<Capabilities<E>, E>,
+		Collection.Advanced.Types<EmptyBaseCapabilities<E>, E>,
 		E
 	>;
 
 	abstract readonly context: Collection.Context<
-		Collection.Advanced.Types<Capabilities<E>, E>
+		Collection.Advanced.Types<EmptyBaseCapabilities<E>, E>
 	>;
 
 	[Symbol.iterator](): FastIterator<E> {
@@ -97,7 +100,7 @@ export abstract class CollectionEmptyBase<E>
 	map<E2 extends this[TypesKey]['_UPPER_E']>(
 		_f: (element: E) => E2,
 	): Collection.Advanced.ReTyped<this[TypesKey], E2>['_SELF'] {
-		return this.context.empty<E2>();
+		return this as any;
 	}
 
 	mapIndexed(): this {
@@ -113,173 +116,180 @@ export abstract class CollectionEmptyBase<E>
 	}
 }
 
-// export abstract class CollectionNonEmptyBase<E>
-// 	implements
-// 		Collection.NonEmpty<E>,
-// 		Collection.Capability.WithMutate.API<E>,
-// 		Collection.Capability.WithRecompose.API<E>
-// {
-// 	declare readonly [TypesKey]: Collection.Advanced.TypesNonEmpty<E>;
+type NonEmptyBaseCapabilities<E> = Collection.Capability.WithToBuilder<E> &
+	Collection.Capability.WithMutate<E> &
+	Collection.Capability.WithRecompose<E>;
 
-// 	abstract readonly context: Collection.Advanced.ContextBase<
-// 		Collection.Advanced.TypesNonEmpty<E>
-// 	>;
+export abstract class CollectionNonEmptyBase<E>
+	implements Collection.NonEmpty<E, NonEmptyBaseCapabilities<E>>
+{
+	declare readonly [TypesKey]: Collection.Advanced.InvariantTypes<
+		Collection.Advanced.TypesNonEmpty<NonEmptyBaseCapabilities<E>, E>,
+		E
+	>;
 
-// 	abstract get size(): number;
-// 	abstract stream(): Stream.NonEmpty<E>;
-// 	abstract forEach(f: (value: E) => void): void;
-// 	abstract filter(pred: (element: E) => boolean): this[TypesKey]['_NORMAL'];
-// 	abstract toArray(): ArrayNonEmpty<E>;
-// 	abstract toBuilder(): this[TypesKey]['_BUILDER'];
+	abstract readonly context: Collection.Context<
+		Collection.Advanced.TypesNonEmpty<NonEmptyBaseCapabilities<E>, E>
+	>;
 
-// 	[Symbol.iterator](): FastIterator<E> {
-// 		return this.stream()[Symbol.iterator]();
-// 	}
+	abstract get size(): number;
+	abstract stream(): Stream.NonEmpty<E>;
+	abstract forEach(f: (value: E) => void): void;
+	abstract filter(pred: (element: E) => boolean): this[TypesKey]['_NORMAL'];
+	abstract toArray(): ArrayNonEmpty<E>;
+	abstract toBuilder(): this[TypesKey]['_BUILDER'];
 
-// 	get isEmpty(): false {
-// 		return false;
-// 	}
+	[Symbol.iterator](): FastIterator<E> {
+		return this.stream()[Symbol.iterator]();
+	}
 
-// 	nonEmpty(): this is this[TypesKey]['_NON_EMPTY'] {
-// 		return true;
-// 	}
+	get isEmpty(): false {
+		return false;
+	}
 
-// 	assumeNonEmpty(): this[TypesKey]['_NON_EMPTY'] {
-// 		return this;
-// 	}
+	nonEmpty(): this is this[TypesKey]['_NON_EMPTY'] {
+		return true;
+	}
 
-// 	asNormal(): this[TypesKey]['_NORMAL'] {
-// 		return this;
-// 	}
+	assumeNonEmpty(): this[TypesKey]['_NON_EMPTY'] {
+		return this;
+	}
 
-// 	forEachIndexed(
-// 		f: (value: E, index: number, halt: () => void) => void,
-// 		options: { state?: TraverseState } = {},
-// 	): void {
-// 		const { state = TraverseState() } = options;
+	asNormal(): this[TypesKey]['_NORMAL'] {
+		return this;
+	}
 
-// 		if (state.halted) return;
+	forEachIndexed(
+		f: (value: E, index: number, halt: () => void) => void,
+		options: { state?: TraverseState } = {},
+	): void {
+		const { state = TraverseState() } = options;
 
-// 		const haltSymbol = Symbol();
+		if (state.halted) return;
 
-// 		try {
-// 			this.forEach((value) => {
-// 				f(value, state.nextIndex(), state.halt);
+		const haltSymbol = Symbol();
 
-// 				if (state.halted) {
-// 					throw haltSymbol;
-// 				}
-// 			});
-// 		} catch (err) {
-// 			if (haltSymbol !== err) {
-// 				throw err;
-// 			}
-// 		}
-// 	}
+		try {
+			this.forEach((value) => {
+				f(value, state.nextIndex(), state.halt);
 
-// 	filterIndexed(
-// 		pred: (element: E, index: number) => boolean,
-// 		options: {
-// 			negate?: boolean | undefined;
-// 			indexOffset?: number | undefined;
-// 		} = {},
-// 	): this[TypesKey]['_NORMAL'] {
-// 		const { negate = false, indexOffset = 0 } = options;
-// 		let index = indexOffset;
-// 		return negate
-// 			? this.filter((element) => !pred(element, index++))
-// 			: this.filter((element) => pred(element, index++));
-// 	}
+				if (state.halted) {
+					throw haltSymbol;
+				}
+			});
+		} catch (err) {
+			if (haltSymbol !== err) {
+				throw err;
+			}
+		}
+	}
 
-// 	recompose<E2 extends this[TypesKey]['_UPPER_E']>(
-// 		f: (stream: Stream.NonEmpty<E>) => StreamSource.NonEmpty<E2>,
-// 	): Collection.Advanced.Retyped<this[TypesKey], E2>['_NON_EMPTY'];
-// 	recompose<E2 extends this[TypesKey]['_UPPER_E']>(
-// 		f: (stream: Stream.NonEmpty<E>) => StreamSource<E2>,
-// 	): Collection.Advanced.Retyped<this[TypesKey], E2>['_NON_EMPTY'] {
-// 		return this.context.from(f(this.stream())) as any;
-// 	}
+	filterIndexed(
+		pred: (element: E, index: number) => boolean,
+		options: {
+			negate?: boolean | undefined;
+			indexOffset?: number | undefined;
+		} = {},
+	): this[TypesKey]['_NORMAL'] {
+		const { negate = false, indexOffset = 0 } = options;
+		let index = indexOffset;
+		return negate
+			? this.filter((element) => !pred(element, index++))
+			: this.filter((element) => pred(element, index++));
+	}
 
-// 	mutate(
-// 		f: (builder: this[TypesKey]['_BUILDER']) => void,
-// 	): this[TypesKey]['_NORMAL'] {
-// 		const builder = this.toBuilder();
-// 		f(builder);
-// 		return builder.build();
-// 	}
-// }
+	recompose<E2 extends this[TypesKey]['_UPPER_E']>(
+		f: (stream: Stream.NonEmpty<E>) => StreamSource.NonEmpty<E2>,
+	): Collection.Advanced.ReTyped<this[TypesKey], E2>['_NON_EMPTY'];
+	recompose<E2 extends this[TypesKey]['_UPPER_E']>(
+		f: (stream: Stream.NonEmpty<E>) => StreamSource<E2>,
+	): Collection.Advanced.ReTyped<this[TypesKey], E2>['_NON_EMPTY'] {
+		return this.context.from(f(this.stream())) as any;
+	}
 
-// export abstract class CollectionBuilderBase<E>
-// 	implements Collection.Builder<E>
-// {
-// 	declare readonly [TypesKey]: Collection.Advanced.Types<E>;
+	mutate(
+		f: (builder: this[TypesKey]['_BUILDER']) => void,
+	): this[TypesKey]['_NORMAL'] {
+		const builder = this.toBuilder();
+		f(builder);
+		return builder.build();
+	}
+}
 
-// 	abstract readonly context: Collection.Advanced.ContextBase<
-// 		Collection.Advanced.Types<E>
-// 	>;
+export abstract class CollectionBuilderBase<E>
+	implements Collection.Builder<E>
+{
+	declare readonly [TypesKey]: Collection.Advanced.InvariantTypes<
+		Collection.Advanced.Types<EmptyBaseCapabilities<E>, E>,
+		E
+	>;
 
-// 	abstract get size(): number;
-// 	abstract clear(): void;
-// 	abstract forEach(f: (value: E) => void): void;
-// 	abstract build(): this[TypesKey]['_NORMAL'];
+	abstract readonly context: Collection.Context<
+		Collection.Advanced.Types<EmptyBaseCapabilities<E>, E>
+	>;
 
-// 	#iterationDepth = 0;
+	abstract get size(): number;
+	abstract clear(): void;
+	abstract forEach(f: (value: E) => void): void;
+	abstract build(): this[TypesKey]['_NORMAL'];
 
-// 	checkLock(): void {
-// 		if (this.#iterationDepth) {
-// 			throwModifiedBuilderWhileLoopingOverItError();
-// 		}
-// 	}
+	#iterationDepth = 0;
 
-// 	startIteration(): void {
-// 		this.#iterationDepth++;
-// 	}
+	checkLock(): void {
+		if (this.#iterationDepth) {
+			throwModifiedBuilderWhileLoopingOverItError();
+		}
+	}
 
-// 	endIteration(): void {
-// 		this.#iterationDepth--;
-// 	}
+	startIteration(): void {
+		this.#iterationDepth++;
+	}
 
-// 	get isEmpty(): boolean {
-// 		return 0 === this.size;
-// 	}
+	endIteration(): void {
+		this.#iterationDepth--;
+	}
 
-// 	forEachIndexed(
-// 		f: (value: E, index: number, halt: () => void) => void,
-// 		options: { state?: TraverseState } = {},
-// 	): void {
-// 		const { state = TraverseState() } = options;
+	get isEmpty(): boolean {
+		return 0 === this.size;
+	}
 
-// 		if (state.halted) return;
+	forEachIndexed(
+		f: (value: E, index: number, halt: () => void) => void,
+		options: { state?: TraverseState } = {},
+	): void {
+		const { state = TraverseState() } = options;
 
-// 		const haltSymbol = Symbol();
+		if (state.halted) return;
 
-// 		try {
-// 			this.forEach((value) => {
-// 				f(value, state.nextIndex(), state.halt);
+		const haltSymbol = Symbol();
 
-// 				if (state.halted) {
-// 					throw haltSymbol;
-// 				}
-// 			});
-// 		} catch (err) {
-// 			if (haltSymbol !== err) {
-// 				throw err;
-// 			}
-// 		}
-// 	}
-// }
+		try {
+			this.forEach((value) => {
+				f(value, state.nextIndex(), state.halt);
 
-// export function defaultMapIndexed<
-// 	E,
-// 	E2 extends C[TypesKey]['_UPPER_E'],
-// 	C extends Collection<E, Collection.Capability.WithMap<E>>,
-// >(
-// 	col: C,
-// 	mapFun: (element: E, index: number) => E2,
-// 	options: { indexOffset?: number | undefined } = {},
-// ): Collection.Advanced.ReTyped<C[TypesKey], E2>['_SELF'] {
-// 	const { indexOffset = 0 } = options;
-// 	let index = indexOffset;
+				if (state.halted) {
+					throw haltSymbol;
+				}
+			});
+		} catch (err) {
+			if (haltSymbol !== err) {
+				throw err;
+			}
+		}
+	}
+}
 
-// 	return col.map((element) => mapFun(element, index++));
-// }
+export function defaultMapIndexed<
+	E,
+	E2 extends C[TypesKey]['_UPPER_E'],
+	C extends Collection<E, Collection.Capability.WithMap<E>>,
+>(
+	col: C,
+	mapFun: (element: E, index: number) => E2,
+	options: { indexOffset?: number | undefined } = {},
+): Collection.Advanced.ReTyped<C[TypesKey], E2>['_SELF'] {
+	const { indexOffset = 0 } = options;
+	let index = indexOffset;
+
+	return col.map((element) => mapFun(element, index++));
+}
