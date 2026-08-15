@@ -54,6 +54,7 @@ export declare namespace Collection {
 			_NORMAL: unknown;
 			_NON_EMPTY: unknown;
 			_BUILDER: unknown;
+			_CONTEXT: unknown;
 
 			_AS_ARRAY: unknown;
 			_AS_STREAM: unknown;
@@ -109,7 +110,7 @@ export declare namespace Collection {
 		export interface Api<E, Tp extends TypesBase> {
 			/** phantom carrier of the types record; keeps `E` and the family invariant */
 			readonly [TypesKey]: Tp;
-			readonly context: Context<Tp>;
+			readonly context: Tp['_CONTEXT'];
 
 			readonly isEmpty: Tp['_isEmpty'];
 			readonly size: number;
@@ -118,7 +119,7 @@ export declare namespace Collection {
 			nonEmpty(): this is Tp['_NON_EMPTY'];
 			assumeNonEmpty(): Tp['_NON_EMPTY'];
 
-			stream: this[TypesKey]['_stream'];
+			stream: Tp['_stream'];
 
 			forEach(f: (element: E) => void): void;
 			forEachIndexed(
@@ -179,6 +180,7 @@ export declare namespace Collection {
 			_NORMAL: Api<E, Types<this['_FAM'], E>>;
 			_NON_EMPTY: Api<E, TypesNonEmpty<this['_FAM'], E>>;
 			_BUILDER: BuilderApi<E, Types<this['_FAM'], E>>;
+			_CONTEXT: Context<Types<this['_FAM'], E>>;
 
 			_FAM: Family<E>;
 			_NEW_FAMILY: Family<this['_NEW_E']>;

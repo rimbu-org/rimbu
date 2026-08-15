@@ -1,91 +1,60 @@
-import type { Collection } from '@rimbu/collection-types/collection';
-import type { IndexedCollection } from '@rimbu/collection-types/collection/indexed';
-import type { TypesKey } from '@rimbu/collection-types/types';
-
-import type { ChildrenOps } from '#advanced/children-ops';
-
-import { ArrayOuterChildrenOps } from '#list/children-ops/array';
-import { createListContextModule } from '#list/context';
+import type { IndexedCollection } from '@rimbu/collection-types/collection/indexed3';
+import type { Collection } from '@rimbu/collection-types/collection2';
 
 export interface List<T>
-	extends IndexedCollection<T, List.Advanced.Types<T>>,
-		List.Advanced.Capabilities<T> {
-	readonly [TypesKey]: List.Advanced.Types<T>;
-	readonly context: List.Context<T>;
-}
+	extends List.Advanced.Api<
+		T,
+		Collection.Advanced.Types<List.Advanced.Family<T>, T> &
+			Collection.Advanced.Types<List.Advanced.Family<T>, T>
+	> {}
 
 export declare namespace List {
 	export interface NonEmpty<T>
-		extends List<T>,
-			IndexedCollection.NonEmpty<T, List.Advanced.TypesNonEmpty<T>> {
-		readonly [TypesKey]: List.Advanced.TypesNonEmpty<T>;
-		readonly context: List.Context<T>;
-	}
+		extends List.Advanced.Api<
+			T,
+			Collection.Advanced.TypesNonEmpty<List.Advanced.Family<T>, T>
+		> {}
 
 	export interface Builder<T>
-		extends IndexedCollection.Builder<T, List.Advanced.Types<T>>,
-			IndexedCollection.Capability.WithPrependAppend.Builder<T>,
-			IndexedCollection.Capability.WithSpliceAt.Builder<T>,
-			IndexedCollection.Capability.WithSwapAt.Builder<T>,
-			IndexedCollection.Capability.WithUpdateAt.Builder<T> {
-		readonly [TypesKey]: List.Advanced.Types<T>;
-		readonly context: List.Context<T>;
-	}
+		extends IndexedCollection.Advanced.BuilderApi<
+			T,
+			Collection.Advanced.Types<List.Advanced.Family<T>, T>
+		> {}
 
 	export interface Context<T>
-		extends List.Advanced.Factory<T, List.Advanced.Types<T>> {
+		extends Collection.Context<
+			Collection.Advanced.Types<List.Advanced.Family<T>, T>
+		> {
 		readonly blockSizeBits: number;
 	}
 
 	export namespace Advanced {
-		export interface Capabilities<T>
-			extends Collection.Capability.WithMap<T>,
-				Collection.Capability.WithMutate<T>,
-				Collection.Capability.WithRecompose<T>,
-				IndexedCollection.Capability.WithConcat<T>,
-				IndexedCollection.Capability.WithPadTo<T>,
-				IndexedCollection.Capability.WithPrependAppend<T>,
-				IndexedCollection.Capability.WithRepeat<T>,
-				IndexedCollection.Capability.WithReversed<T>,
-				IndexedCollection.Capability.WithRotate<T>,
-				IndexedCollection.Capability.WithSpliceAt<T>,
-				IndexedCollection.Capability.WithSwapAt<T>,
-				IndexedCollection.Capability.WithUpdateAt<T> {
-			readonly [TypesKey]: List.Advanced.Types<T>;
-			readonly context: List.Context<T>;
-		}
+		export type Api<
+			T,
+			Tp extends Collection.Advanced.TypesBase,
+		> = IndexedCollection.Advanced.Api<T, Tp> &
+			Collection.Capability.WithMap.Api<T, Tp>;
 
-		export interface Factory<T, Tp extends List.Advanced.Types<T>>
-			extends Collection.Advanced.ContextBase<Tp> {
-			createContext(options: { blockSizeBits?: number }): List.Context<T>;
-		}
+		// export interface Factory<T, Tp extends List.Advanced.Types<T>>
+		// 	extends Collection.Advanced.ContextBase<Tp> {
+		// 	createContext(options: { blockSizeBits?: number }): List.Context<T>;
+		// }
 
-		export type DefaultFactory = Factory<any, List.Advanced.Types<any>>;
+		// export type DefaultFactory = Factory<any, List.Advanced.Types<any>>;
 
-		export interface FamilyBase<T>
-			extends IndexedCollection.Advanced.Family<T> {
+		export interface Family<T> extends IndexedCollection.Advanced.Family<T> {
 			_NORMAL: List<T>;
 			_NON_EMPTY: List.NonEmpty<T>;
 			_BUILDER: List.Builder<T>;
+			_CONTEXT: List.Context<T>;
 
-			_NEW_FAMILY: List.Advanced.FamilyBase<this['_NEW_E']>;
+			// _UPPER_E: any;
+
+			_FAM: Family<T>;
+			_NEW_FAMILY: Family<this['_NEW_E']>;
 		}
-
-		export interface Family<T> extends List.Advanced.FamilyBase<T> {
-			_UPPER_E: any;
-
-			_NEW_FAMILY: List.Advanced.Family<this['_NEW_E']>;
-		}
-
-		export type Types<T> = List.Advanced.Family<T> &
-			IndexedCollection.Advanced.NormalKind<T>;
-
-		export type TypesNonEmpty<T> = List.Advanced.Family<T> &
-			IndexedCollection.Advanced.NonEmptyKind<T>;
 	}
 }
-
-export const List: List.Advanced.DefaultFactory = createListContextModule({
-	blockSizeBits: 5,
-	childrenOps: new ArrayOuterChildrenOps() as ChildrenOps,
-});
+const l: List<number> = 0 as any;
+const c = l.context;
+c.of(1, 2, 3);
