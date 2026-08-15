@@ -1,6 +1,11 @@
 import type { IndexedCollection } from '@rimbu/collection-types/collection/indexed3';
 import type { Collection } from '@rimbu/collection-types/collection2';
 
+import type { ChildrenOps } from '#advanced/children-ops';
+
+import { ArrayOuterChildrenOps } from '#list/children-ops/array';
+import { createListContextModule } from '#list/context';
+
 export interface List<T>
 	extends List.Advanced.Api<
 		T,
@@ -33,14 +38,17 @@ export declare namespace List {
 			T,
 			Tp extends Collection.Advanced.TypesBase,
 		> = IndexedCollection.Advanced.Api<T, Tp> &
-			Collection.Capability.WithMap.Api<T, Tp>;
+			Collection.Capability.WithMap.Api<T, Tp> &
+			Collection.Capability.WithMutate.Api<T, Tp> &
+			Collection.Capability.WithRecompose.Api<T, Tp> &
+			Collection.Capability.WithToBuilder.Api<T, Tp>;
 
 		// export interface Factory<T, Tp extends List.Advanced.Types<T>>
 		// 	extends Collection.Advanced.ContextBase<Tp> {
 		// 	createContext(options: { blockSizeBits?: number }): List.Context<T>;
 		// }
 
-		// export type DefaultFactory = Factory<any, List.Advanced.Types<any>>;
+		export type DefaultFactory = Context<any>;
 
 		export interface Family<T> extends IndexedCollection.Advanced.Family<T> {
 			_NORMAL: List<T>;
@@ -55,6 +63,8 @@ export declare namespace List {
 		}
 	}
 }
-const l: List<number> = 0 as any;
-const c = l.context;
-c.of(1, 2, 3);
+
+export const List: List.Advanced.DefaultFactory = createListContextModule<any>({
+	blockSizeBits: 5,
+	childrenOps: new ArrayOuterChildrenOps() as ChildrenOps,
+});
