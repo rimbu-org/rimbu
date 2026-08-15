@@ -94,11 +94,10 @@ export abstract class CollectionEmptyBase<E>
 		return builder.build();
 	}
 
-	map<E2 extends this[TypesKey]['_UPPER_E']>(): Collection.Advanced.ReTyped<
-		this[TypesKey],
-		E2
-	>['_NORMAL'] {
-		return this;
+	map<E2 extends this[TypesKey]['_UPPER_E']>(
+		_f: (element: E) => E2,
+	): Collection.Advanced.ReTyped<this[TypesKey], E2>['_SELF'] {
+		return this.context.empty<E2>();
 	}
 
 	mapIndexed(): this {
