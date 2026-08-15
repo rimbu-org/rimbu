@@ -1,4 +1,4 @@
-import type { Collection } from '@rimbu/collection-types/collection';
+import type { Collection } from '@rimbu/collection-types/collection2';
 import type { TypesKey } from '@rimbu/collection-types/types';
 import type { FastIterator } from '@rimbu/stream/stream-types';
 
@@ -9,17 +9,21 @@ import {
 import { type ArrayNonEmpty, TraverseState } from '@rimbu/common';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
-export abstract class CollectionEmptyBase<E>
-	implements
-		Collection<E>,
-		Collection.Capability.WithMap.API<E>,
-		Collection.Capability.WithMutate.API<E>,
-		Collection.Capability.WithRecompose.API<E>
-{
-	declare readonly [TypesKey]: Collection.Advanced.Types<E>;
+type Capabilities<E> = Collection.Capability.WithToBuilder<E> &
+	Collection.Capability.WithMap<E> &
+	Collection.Capability.WithMutate<E> &
+	Collection.Capability.WithRecompose<E>;
 
-	abstract readonly context: Collection.Advanced.ContextBase<
-		Collection.Advanced.Types<E>
+export abstract class CollectionEmptyBase<E>
+	implements Collection<E, Capabilities<E>>
+{
+	declare readonly [TypesKey]: Collection.Advanced.InvariantTypes<
+		Collection.Advanced.Types<Capabilities<E>, E>,
+		E
+	>;
+
+	abstract readonly context: Collection.Context<
+		Collection.Advanced.Types<Capabilities<E>, E>
 	>;
 
 	[Symbol.iterator](): FastIterator<E> {
@@ -32,6 +36,10 @@ export abstract class CollectionEmptyBase<E>
 
 	get size(): 0 {
 		return 0;
+	}
+
+	asNormal(): this[TypesKey]['_NORMAL'] {
+		return this;
 	}
 
 	nonEmpty(): this is this[TypesKey]['_NON_EMPTY'] {
@@ -77,7 +85,7 @@ export abstract class CollectionEmptyBase<E>
 
 	recompose<E2 extends this[TypesKey]['_UPPER_E']>(
 		f: (stream: Stream<E>) => StreamSource<E2>,
-	): Collection.Advanced.Retyped<this[TypesKey], E2>['_NORMAL'] {
+	): Collection.Advanced.ReTyped<this[TypesKey], E2>['_NORMAL'] {
 		return this.context.from(f(Stream.empty()));
 	}
 
@@ -89,16 +97,14 @@ export abstract class CollectionEmptyBase<E>
 		return builder.build();
 	}
 
-	map<E2 extends this[TypesKey]['_UPPER_E']>(): Collection.Advanced.Retyped<
+	map<E2 extends this[TypesKey]['_UPPER_E']>(): Collection.Advanced.ReTyped<
 		this[TypesKey],
 		E2
 	>['_NORMAL'] {
 		return this;
 	}
 
-	mapIndexed<
-		E2 extends this[TypesKey]['_UPPER_E'],
-	>(): Collection.Advanced.Retyped<this[TypesKey], E2>['_NORMAL'] {
+	mapIndexed(): this {
 		return this;
 	}
 
@@ -269,16 +275,13 @@ export abstract class CollectionBuilderBase<E>
 
 export function defaultMapIndexed<
 	E,
-	E2 extends E & C[TypesKey]['_UPPER_E'],
-	C extends Collection.Advanced.WithCapabilities<
-		Collection<E>,
-		Collection.Capability.WithMap<E>
-	>,
+	E2 extends C[TypesKey]['_UPPER_E'],
+	C extends Collection<E, Collection.Capability.WithMap<E>>,
 >(
 	col: C,
 	mapFun: (element: E, index: number) => E2,
 	options: { indexOffset?: number | undefined } = {},
-): Collection.Advanced.Retyped<C[TypesKey], E2>['_SELF'] {
+): Collection.Advanced.ReTyped<C[TypesKey], E2>['_SELF'] {
 	const { indexOffset = 0 } = options;
 	let index = indexOffset;
 
