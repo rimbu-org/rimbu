@@ -1,5 +1,5 @@
-import type { IndexedCollection } from '@rimbu/collection-types/collection/indexed3';
-import type { Collection } from '@rimbu/collection-types/collection2';
+import type { Collection } from '@rimbu/collection-types/collection';
+import type { IndexedCollection } from '@rimbu/collection-types/collection/indexed';
 
 import type { ChildrenOps } from '#advanced/children-ops';
 

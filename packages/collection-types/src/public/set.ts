@@ -1,37 +1,34 @@
+import type { Collection } from '@rimbu/collection-types/collection';
 import type { ValuedCollection } from '@rimbu/collection-types/collection/valued';
 
-export interface SetCollection<
-	T,
-	Tp extends SetCollection.Advanced.Types<T> = SetCollection.Advanced.Types<T>,
-> extends ValuedCollection<T, Tp> {}
+export type SetCollection<
+	E,
+	F extends Collection.Advanced.FamilyBase<E> = Collection.Advanced.Family<E>,
+> = Collection.Advanced.Types<
+	F & SetCollection.Advanced.Family<E>,
+	E
+>['_NORMAL'];
 
 export namespace SetCollection {
-	export interface NonEmpty<
-		T,
-		Tp extends
-			SetCollection.Advanced.TypesNonEmpty<T> = SetCollection.Advanced.TypesNonEmpty<T>,
-	> extends SetCollection<T, Tp>,
-			ValuedCollection.NonEmpty<T, Tp> {}
-
-	export interface Builder<
-		T,
-		Tp extends
-			SetCollection.Advanced.Types<T> = SetCollection.Advanced.Types<T>,
-	> extends ValuedCollection.Builder<T, Tp> {}
+	export type NonEmpty<
+		E,
+		F extends Collection.Advanced.FamilyBase<E> = Collection.Advanced.Family<E>,
+	> = Collection.Advanced.TypesNonEmpty<F, E>['_NON_EMPTY'];
 
 	export namespace Advanced {
-		// The package declares its family ONCE; both kinds are derived.
-		export interface Family<T> extends ValuedCollection.Advanced.Family<T> {
-			_NORMAL: SetCollection<T>;
-			_NON_EMPTY: SetCollection.NonEmpty<T>;
+		export interface Api<E, Tp extends Collection.Advanced.TypesBase>
+			extends ValuedCollection.Advanced.Api<E, Tp> {}
 
-			_NEW_FAMILY: SetCollection.Advanced.Family<this['_NEW_E']>;
+		export interface BuilderApi<E, Tp extends Collection.Advanced.TypesBase>
+			extends ValuedCollection.Advanced.BuilderApi<E, Tp> {}
+
+		export interface Family<E> extends ValuedCollection.Advanced.Family<E> {
+			_NORMAL: Api<E, Collection.Advanced.Types<this['_FAM'], E>>;
+			_NON_EMPTY: Api<E, Collection.Advanced.TypesNonEmpty<this['_FAM'], E>>;
+			_BUILDER: BuilderApi<E, Collection.Advanced.Types<this['_FAM'], E>>;
+
+			_FAM: Family<E>;
+			_NEW_FAMILY: Family<this['_NEW_E']>;
 		}
-
-		export type Types<T> = SetCollection.Advanced.Family<T> &
-			ValuedCollection.Advanced.NormalKind<T>;
-
-		export type TypesNonEmpty<T> = SetCollection.Advanced.Family<T> &
-			ValuedCollection.Advanced.NonEmptyKind<T>;
 	}
 }

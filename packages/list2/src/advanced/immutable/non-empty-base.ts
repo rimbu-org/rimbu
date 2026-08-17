@@ -1,4 +1,4 @@
-import type { Collection } from '@rimbu/collection-types/collection2';
+import type { Collection } from '@rimbu/collection-types/collection';
 // biome-ignore lint/correctness/noUnusedImports: TypesKey is used as a computed property key, which Biome does not detect
 import type { Op, TypesKey } from '@rimbu/collection-types/types';
 import type { List } from '@rimbu/list';

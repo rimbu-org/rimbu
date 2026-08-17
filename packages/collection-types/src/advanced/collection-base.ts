@@ -1,4 +1,4 @@
-import type { Collection } from '@rimbu/collection-types/collection2';
+import type { Collection } from '@rimbu/collection-types/collection';
 import type { TypesKey } from '@rimbu/collection-types/types';
 import type { FastIterator } from '@rimbu/stream/stream-types';
 
