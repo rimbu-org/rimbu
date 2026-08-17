@@ -18,12 +18,12 @@ export declare namespace ValuedCollection {
 	export namespace Advanced {
 		export interface Api<E, Tp extends Collection.Advanced.TypesBase>
 			extends Collection.Advanced.Api<E, Tp> {
-			has<UE = E>(value: RelatedTo<E, UE>): boolean;
+			has<E2 = E>(value: RelatedTo<E2, E>): boolean;
 		}
 
 		export interface BuilderApi<E, Tp extends Collection.Advanced.TypesBase>
 			extends Collection.Advanced.BuilderApi<E, Tp> {
-			has<UE = E>(value: RelatedTo<E, UE>): boolean;
+			has<E2 = E>(value: RelatedTo<E2, E>): boolean;
 		}
 
 		export interface Family<E> extends Collection.Advanced.Family<E> {

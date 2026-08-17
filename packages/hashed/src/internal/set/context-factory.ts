@@ -45,9 +45,8 @@ interface BuilderFactory<UT> {
 
 export interface ContextImpl<UT>
 	extends HashSet.Context<UT>,
-		RSetContextBaseModule.ModuleAbstract<UT, HashSet.Types>,
 		ImmutableFactory<UT>,
-		BuilderFactory<UT>,
+		// BuilderFactory<UT>,
 		Omit<HashSetCreators, keyof HashSet.Context<any>> {
 	readonly maxDepth: number;
 	readonly listContext: List.Context;

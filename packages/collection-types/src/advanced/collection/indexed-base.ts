@@ -14,11 +14,12 @@ import { Stream, type StreamSource } from '@rimbu/stream';
 
 export type IndexedCollectionEmptyBaseCapabilities<E> =
 	CollectionEmptyBaseCapabilities<E> &
+		IndexedCollection.Advanced.Family<E> &
 		IndexedCollection.Capability.WithConcat<E>;
 
 export abstract class IndexedCollectionEmptyBase<E>
 	extends CollectionEmptyBase<E>
-	implements Collection<E, IndexedCollectionEmptyBaseCapabilities<E>>
+	implements IndexedCollection<E, IndexedCollectionEmptyBaseCapabilities<E>>
 {
 	declare readonly [TypesKey]: Collection.Advanced.InvariantTypes<
 		Collection.Advanced.Types<IndexedCollectionEmptyBaseCapabilities<E>, E>,
@@ -134,7 +135,7 @@ export abstract class IndexedCollectionEmptyBase<E>
 }
 
 export type IndexedCollectionNonEmptyBaseCapabilities<E> =
-	IndexedCollection.Advanced.Family<E> & CollectionNonEmptyBaseCapabilities<E>;
+	CollectionNonEmptyBaseCapabilities<E> & IndexedCollection.Advanced.Family<E>;
 
 export abstract class IndexedCollectionNonEmptyBase<E>
 	extends CollectionNonEmptyBase<E>

@@ -255,9 +255,11 @@ export declare namespace Collection {
 
 				flatMapIndexed<E2 extends Tp['_UPPER_E']>(
 					f: (element: E, index: number) => StreamSource.NonEmpty<E2>,
+					options: { indexOffset?: number | undefined } | undefined,
 				): Collection.Advanced.ReTyped<Tp, E2>['_SELF'];
 				flatMapIndexed<E2 extends Tp['_UPPER_E']>(
 					f: (element: E, index: number) => StreamSource<E2>,
+					options: { indexOffset?: number | undefined } | undefined,
 				): Collection.Advanced.ReTyped<Tp, E2>['_NORMAL'];
 			}
 		}

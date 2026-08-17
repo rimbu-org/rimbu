@@ -1,0 +1,164 @@
+import type { Collection } from '@rimbu/collection-types/collection';
+import type { SetCollection } from '@rimbu/collection-types/set';
+import type { TypesKey } from '@rimbu/collection-types/types';
+import type { RelatedTo } from '@rimbu/common';
+
+import { Stream, type StreamSource } from '@rimbu/stream';
+import {
+	ValuedCollectionEmptyBase,
+	type ValuedCollectionEmptyBaseCapabilities,
+	ValuedCollectionNonEmptyBase,
+	type ValuedCollectionNonEmptyBaseCapabilities,
+} from './collection/valued-base';
+
+export type SetCollectionEmptyBaseCapabilities<E> =
+	ValuedCollectionEmptyBaseCapabilities<E> &
+		SetCollection.Advanced.Family<E> &
+		SetCollection.Capability.WithAdd<E> &
+		SetCollection.Capability.WithDifferenceAndIntersection<E> &
+		SetCollection.Capability.WithRemove<E> &
+		SetCollection.Capability.WithSymmetricDifferenceAndUnion<E>;
+
+export abstract class SetCollectionEmptyBase<E>
+	extends ValuedCollectionEmptyBase<E>
+	implements SetCollection<E, SetCollectionEmptyBaseCapabilities<E>>
+{
+	declare readonly [TypesKey]: Collection.Advanced.InvariantTypes<
+		Collection.Advanced.Types<SetCollectionEmptyBaseCapabilities<E>, E>,
+		E
+	>;
+
+	abstract readonly context: Collection.Context<
+		Collection.Advanced.Types<SetCollectionEmptyBaseCapabilities<E>, E>
+	>;
+
+	add(element: E): this[TypesKey]['_NON_EMPTY'] {
+		return this.context.of(element);
+	}
+
+	addAll(elements: StreamSource<E>): this[TypesKey]['_NON_EMPTY'] {
+		return this.context.from(elements) as this[TypesKey]['_NON_EMPTY'];
+	}
+
+	remove(): this {
+		return this;
+	}
+
+	removeAll(): this {
+		return this;
+	}
+
+	difference(): this {
+		return this;
+	}
+
+	intersection(): this {
+		return this;
+	}
+
+	symmetricDifference(other: StreamSource<E>): this[TypesKey]['_NORMAL'] {
+		return this.context.from(other);
+	}
+
+	union(other: StreamSource<E>): this[TypesKey]['_NON_EMPTY'] {
+		return this.context.from(other) as this[TypesKey]['_NON_EMPTY'];
+	}
+}
+
+export type SetCollectionNonEmptyBaseCapabilities<E> =
+	ValuedCollectionNonEmptyBaseCapabilities<E> &
+		SetCollection.Advanced.Family<E>;
+
+export abstract class SetCollectionNonEmptyBase<E>
+	extends ValuedCollectionNonEmptyBase<E>
+	implements SetCollection.NonEmpty<E, SetCollectionNonEmptyBaseCapabilities<E>>
+{
+	declare readonly [TypesKey]: Collection.Advanced.InvariantTypes<
+		Collection.Advanced.TypesNonEmpty<
+			SetCollectionNonEmptyBaseCapabilities<E>,
+			E
+		>,
+		E
+	>;
+}
+
+export function defaultFlatMapByUnion<
+	E,
+	E2,
+	C extends SetCollection.NonEmpty<
+		E,
+		SetCollection.Capability.WithSymmetricDifferenceAndUnion<E>
+	>,
+>(
+	col: C,
+	f: (element: E) => StreamSource<E2>,
+): Collection.Advanced.ReTyped<C[TypesKey], E2>['_NORMAL'] {
+	const iter = col[Symbol.iterator]();
+	let result = col.context.empty<E2>();
+	const done = Symbol();
+	let elem: E | typeof done;
+
+	while (done !== (elem = iter.fastNext(done))) {
+		result = result.union(f(elem));
+	}
+
+	return result;
+}
+
+export function defaultUnionByAdd<
+	E,
+	C extends SetCollection.NonEmpty<E, SetCollection.Capability.WithAdd<E>>,
+>(col: C, other: StreamSource<E>): C[TypesKey]['_NORMAL'] {
+	if (other === col) return col;
+	if (Stream.isEmptyStreamSourceInstance(other)) return col;
+
+	return col.addAll(other);
+}
+
+export function defaultDifferenceByRemove<
+	E,
+	E2,
+	C extends SetCollection.NonEmpty<E, SetCollection.Capability.WithRemove<E>>,
+>(col: C, other: StreamSource<RelatedTo<E2, E>>): C[TypesKey]['_NORMAL'] {
+	if (other === col) return col.context.empty();
+	if (Stream.isEmptyStreamSourceInstance(other)) return col;
+
+	return col.removeAll(other);
+}
+
+export function defaultIntersectByAdd<
+	E,
+	E2,
+	C extends SetCollection.NonEmpty<E, SetCollection.Capability.WithAdd<E>>,
+>(col: C, other: StreamSource<RelatedTo<E2, E>>): C[TypesKey]['_NORMAL'] {
+	if (other === col) return col;
+	if (Stream.isEmptyStreamSourceInstance(other)) return col.context.empty();
+
+	const result = col.context.from(
+		Stream.from(other).filterPure({ pred: col.has }),
+	) as C;
+
+	if (result.size === col.size) return col;
+	return result;
+}
+
+export function defaultSymDifferenceByRemove<
+	E,
+	C extends SetCollection.NonEmpty<
+		E,
+		Collection.Capability.WithToBuilder<E> &
+			SetCollection.Capability.WithAdd<E> &
+			SetCollection.Capability.WithRemove<E>
+	>,
+>(col: C, other: StreamSource<E>): C[TypesKey]['_NORMAL'] {
+	if (other === col) return col.context.empty();
+	if (Stream.isEmptyStreamSourceInstance(other)) return col;
+
+	const builder = col.toBuilder();
+
+	Stream.from(other)
+		.filterPure({ pred: builder.remove, negate: true })
+		.forEachPure(builder.add);
+
+	return builder.build();
+}
