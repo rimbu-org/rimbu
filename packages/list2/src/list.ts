@@ -45,6 +45,8 @@ export declare namespace List {
 			Collection.Capability.WithToBuilder.Api<T, Tp> &
 			IndexedCollection.Capability.WithConcat.Api<T, Tp> &
 			IndexedCollection.Capability.WithPadTo.Api<T, Tp> &
+			IndexedCollection.Capability.WithPrependAppend.Api<T, Tp> &
+			IndexedCollection.Capability.WithRemoveAt.Api<T, Tp> &
 			IndexedCollection.Capability.WithSpliceAt.Api<T, Tp> &
 			IndexedCollection.Capability.WithSwapAt.Api<T, Tp> &
 			IndexedCollection.Capability.WithUpdateAt.Api<T, Tp>;
@@ -62,7 +64,7 @@ export declare namespace List {
 			_BUILDER: List.Builder<T>;
 			_CONTEXT: List.Context<T>;
 
-			// _UPPER_E: any;
+			_INVARIANT: any;
 
 			_FAM: Family<T>;
 			_NEW_FAMILY: Family<this['_NEW_E']>;
