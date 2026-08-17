@@ -1,3 +1,4 @@
+import type { Collection } from '@rimbu/collection-types/collection2';
 // biome-ignore lint/correctness/noUnusedImports: TypesKey is used as a computed property key, which Biome does not detect
 import type { Op, TypesKey } from '@rimbu/collection-types/types';
 import type { List } from '@rimbu/list';
@@ -10,7 +11,6 @@ import type { OuterBuilder } from '#list/mutable/common';
 import { Int } from '@rimbu/base';
 import {
 	defaultFlatMapByConcat,
-	defaultFlatMapIndexed,
 	defaultPadTo,
 	defaultRemoveAtAndReturn,
 	defaultRepeat,
@@ -18,7 +18,10 @@ import {
 	defaultSwapAtAndReturn,
 	IndexedCollectionNonEmptyBase,
 } from '@rimbu/collection-types/advanced/collection/indexed-base';
-import { defaultMapIndexed } from '@rimbu/collection-types/advanced/collection-base';
+import {
+	defaultFlatMapIndexed,
+	defaultMapIndexed,
+} from '@rimbu/collection-types/advanced/collection-base';
 import { type ArrayNonEmpty, IndexRange } from '@rimbu/common';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
@@ -26,7 +29,11 @@ export abstract class ListNonEmptyBase<T>
 	extends IndexedCollectionNonEmptyBase<T>
 	implements List.NonEmpty<T>
 {
-	declare readonly [TypesKey]: List.Advanced.TypesNonEmpty<T>;
+	declare readonly [TypesKey]: Collection.Advanced.InvariantTypes<
+		Collection.Advanced.TypesNonEmpty<List.Advanced.Family<T>, T>,
+		T
+	>;
+
 	declare _self: ListNonEmptyBase<T>;
 
 	constructor(readonly context: ListContext<T>) {
@@ -190,7 +197,7 @@ export abstract class ListNonEmptyBase<T>
 	}
 
 	repeat(amount: number): List.NonEmpty<T> {
-		return defaultRepeat<T, List<T>>(this, amount) as List.NonEmpty<T>;
+		return defaultRepeat<T, List.NonEmpty<T>>(this, amount) as List.NonEmpty<T>;
 	}
 
 	mapIndexed<T2>(

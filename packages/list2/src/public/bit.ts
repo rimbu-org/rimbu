@@ -1,35 +1,49 @@
-import type { IndexedCollection } from '@rimbu/collection-types/collection/indexed';
-import type { TypesKey } from '@rimbu/collection-types/types';
+import type { IndexedCollection } from '@rimbu/collection-types/collection/indexed3';
+import type { Collection } from '@rimbu/collection-types/collection2';
 import type { List } from '@rimbu/list';
 
-export interface BitList extends List<boolean> {
-	readonly [TypesKey]: BitList.Advanced.Types;
-	readonly context: BitList.Context;
-}
+export interface BitList
+	extends BitList.Advanced.Api<
+		Collection.Advanced.Types<BitList.Advanced.Family, boolean>
+	> {}
 
 export declare namespace BitList {
-	export interface NonEmpty extends BitList, List.NonEmpty<boolean> {
-		readonly [TypesKey]: BitList.Advanced.TypesNonEmpty;
-	}
+	export interface NonEmpty
+		extends BitList.Advanced.Api<
+			Collection.Advanced.TypesNonEmpty<BitList.Advanced.Family, boolean>
+		> {}
 
-	export interface Builder extends List.Builder<boolean> {
-		readonly [TypesKey]: BitList.Advanced.Types;
+	export interface Builder
+		extends IndexedCollection.Advanced.BuilderApi<
+			boolean,
+			Collection.Advanced.Types<BitList.Advanced.Family, boolean>
+		> {
 		readonly context: BitList.Context;
 	}
 
-	export interface Context extends List.Context<boolean> {}
+	export interface Context
+		extends Collection.Context<
+			Collection.Advanced.Types<BitList.Advanced.Family, boolean>
+		> {
+		readonly blockSizeBits: number;
+
+		createContext(options: { blockSizeBits?: number }): BitList.Context;
+	}
 
 	export namespace Advanced {
-		export interface Family extends List.Advanced.FamilyBase<boolean> {
+		export type Api<Tp extends Collection.Advanced.TypesBase> =
+			List.Advanced.Api<boolean, Tp>;
+
+		export interface Family extends IndexedCollection.Advanced.Family<boolean> {
+			_NORMAL: BitList;
+			_NON_EMPTY: BitList.NonEmpty;
+			_BUILDER: BitList.Builder;
+			_CONTEXT: BitList.Context;
+
 			_UPPER_E: boolean;
 
-			_NEW_FAMILY: BitList.Advanced.Family;
+			_FAM: Family;
+			_NEW_FAMILY: Family;
 		}
-
-		export type Types = BitList.Advanced.Family &
-			IndexedCollection.Advanced.NormalKind<boolean>;
-
-		export type TypesNonEmpty = BitList.Advanced.Family &
-			IndexedCollection.Advanced.NonEmptyKind<boolean>;
 	}
 }

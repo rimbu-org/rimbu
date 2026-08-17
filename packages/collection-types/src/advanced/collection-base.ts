@@ -6,24 +6,26 @@ import {
 	EmptyCollectionAssumedNonEmptyError,
 	throwModifiedBuilderWhileLoopingOverItError,
 } from '@rimbu/base';
-import { TraverseState, type ArrayNonEmpty } from '@rimbu/common';
+import { type ArrayNonEmpty, TraverseState } from '@rimbu/common';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
-type EmptyBaseCapabilities<E> = Collection.Capability.WithToBuilder<E> &
-	Collection.Capability.WithMap<E> &
-	Collection.Capability.WithMutate<E> &
-	Collection.Capability.WithRecompose<E>;
+export type CollectionEmptyBaseCapabilities<E> =
+	Collection.Capability.WithToBuilder<E> &
+		Collection.Capability.WithFlatMap<E> &
+		Collection.Capability.WithMap<E> &
+		Collection.Capability.WithMutate<E> &
+		Collection.Capability.WithRecompose<E>;
 
 export abstract class CollectionEmptyBase<E>
-	implements Collection<E, EmptyBaseCapabilities<E>>
+	implements Collection<E, CollectionEmptyBaseCapabilities<E>>
 {
 	declare readonly [TypesKey]: Collection.Advanced.InvariantTypes<
-		Collection.Advanced.Types<EmptyBaseCapabilities<E>, E>,
+		Collection.Advanced.Types<CollectionEmptyBaseCapabilities<E>, E>,
 		E
 	>;
 
 	abstract readonly context: Collection.Context<
-		Collection.Advanced.Types<EmptyBaseCapabilities<E>, E>
+		Collection.Advanced.Types<CollectionEmptyBaseCapabilities<E>, E>
 	>;
 
 	[Symbol.iterator](): FastIterator<E> {
@@ -38,7 +40,7 @@ export abstract class CollectionEmptyBase<E>
 		return 0;
 	}
 
-	asNormal(): this[TypesKey]['_NORMAL'] {
+	asNormal(): this {
 		return this;
 	}
 
@@ -59,11 +61,11 @@ export abstract class CollectionEmptyBase<E>
 		return this.context.from(...sources) as this[TypesKey]['_NON_EMPTY'];
 	}
 
-	flatMap(): this[TypesKey]['_NORMAL'] {
+	flatMap(): this {
 		return this;
 	}
 
-	flatMapIndexed(): this[TypesKey]['_NORMAL'] {
+	flatMapIndexed(): this {
 		return this;
 	}
 
@@ -75,11 +77,11 @@ export abstract class CollectionEmptyBase<E>
 
 	forEachIndexed(): void {}
 
-	filter(): this[TypesKey]['_NORMAL'] {
+	filter(): this {
 		return this;
 	}
 
-	filterIndexed(): this[TypesKey]['_NORMAL'] {
+	filterIndexed(): this {
 		return this;
 	}
 
@@ -103,8 +105,10 @@ export abstract class CollectionEmptyBase<E>
 		return this as any;
 	}
 
-	mapIndexed(): this {
-		return this;
+	mapIndexed<E2 extends this[TypesKey]['_UPPER_E']>(
+		_f: (element: E, index: number) => E2,
+	): Collection.Advanced.ReTyped<this[TypesKey], E2>['_SELF'] {
+		return this as any;
 	}
 
 	toArray(): [] {
@@ -116,20 +120,21 @@ export abstract class CollectionEmptyBase<E>
 	}
 }
 
-type NonEmptyBaseCapabilities<E> = Collection.Capability.WithToBuilder<E> &
-	Collection.Capability.WithMutate<E> &
-	Collection.Capability.WithRecompose<E>;
+export type CollectionNonEmptyBaseCapabilities<E> =
+	Collection.Capability.WithToBuilder<E> &
+		Collection.Capability.WithMutate<E> &
+		Collection.Capability.WithRecompose<E>;
 
 export abstract class CollectionNonEmptyBase<E>
-	implements Collection.NonEmpty<E, NonEmptyBaseCapabilities<E>>
+	implements Collection.NonEmpty<E, CollectionNonEmptyBaseCapabilities<E>>
 {
 	declare readonly [TypesKey]: Collection.Advanced.InvariantTypes<
-		Collection.Advanced.TypesNonEmpty<NonEmptyBaseCapabilities<E>, E>,
+		Collection.Advanced.TypesNonEmpty<CollectionNonEmptyBaseCapabilities<E>, E>,
 		E
 	>;
 
 	abstract readonly context: Collection.Context<
-		Collection.Advanced.TypesNonEmpty<NonEmptyBaseCapabilities<E>, E>
+		Collection.Advanced.TypesNonEmpty<CollectionNonEmptyBaseCapabilities<E>, E>
 	>;
 
 	abstract get size(): number;
@@ -220,12 +225,12 @@ export abstract class CollectionBuilderBase<E>
 	implements Collection.Builder<E>
 {
 	declare readonly [TypesKey]: Collection.Advanced.InvariantTypes<
-		Collection.Advanced.Types<EmptyBaseCapabilities<E>, E>,
+		Collection.Advanced.Types<CollectionEmptyBaseCapabilities<E>, E>,
 		E
 	>;
 
 	abstract readonly context: Collection.Context<
-		Collection.Advanced.Types<EmptyBaseCapabilities<E>, E>
+		Collection.Advanced.Types<CollectionEmptyBaseCapabilities<E>, E>
 	>;
 
 	abstract get size(): number;
@@ -292,4 +297,19 @@ export function defaultMapIndexed<
 	let index = indexOffset;
 
 	return col.map((element) => mapFun(element, index++));
+}
+
+export function defaultFlatMapIndexed<
+	E,
+	E2 extends C[TypesKey]['_UPPER_E'],
+	C extends Collection.NonEmpty<E, Collection.Capability.WithFlatMap<E>>,
+>(
+	col: C,
+	f: (element: E, index: number) => StreamSource<E2>,
+	options: { indexOffset?: number | undefined } = {},
+): Collection.Advanced.ReTyped<C[TypesKey], E2>['_NORMAL'] {
+	const { indexOffset = 0 } = options;
+	let index = indexOffset;
+
+	return col.flatMap((element) => f(element, index++));
 }

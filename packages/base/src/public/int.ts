@@ -38,6 +38,12 @@ export namespace Int {
 		}
 	}
 
+	export function isZero(value: number): value is 0 {
+		return value === 0;
+	}
+
+	export function checkIsZero(value: number): asserts value is 0 {}
+
 	export function isInt(value: number): value is Int {
 		return Number.isSafeInteger(value);
 	}

@@ -9,8 +9,7 @@ import { createListContextModule } from '#list/context';
 export interface List<T>
 	extends List.Advanced.Api<
 		T,
-		Collection.Advanced.Types<List.Advanced.Family<T>, T> &
-			Collection.Advanced.Types<List.Advanced.Family<T>, T>
+		Collection.Advanced.Types<List.Advanced.Family<T>, T>
 	> {}
 
 export declare namespace List {
@@ -21,7 +20,7 @@ export declare namespace List {
 		> {}
 
 	export interface Builder<T>
-		extends IndexedCollection.Advanced.BuilderApi<
+		extends List.Advanced.BuilderApi<
 			T,
 			Collection.Advanced.Types<List.Advanced.Family<T>, T>
 		> {}
@@ -31,24 +30,31 @@ export declare namespace List {
 			Collection.Advanced.Types<List.Advanced.Family<T>, T>
 		> {
 		readonly blockSizeBits: number;
+
+		createContext(options: { blockSizeBits?: number }): List.Context<T>;
 	}
 
 	export namespace Advanced {
 		export type Api<
 			T,
 			Tp extends Collection.Advanced.TypesBase,
-		> = IndexedCollection.Advanced.Api<T, Tp> &
+		> = Collection.Capability.WithFlatMap.Api<T, Tp> &
 			Collection.Capability.WithMap.Api<T, Tp> &
 			Collection.Capability.WithMutate.Api<T, Tp> &
 			Collection.Capability.WithRecompose.Api<T, Tp> &
-			Collection.Capability.WithToBuilder.Api<T, Tp>;
+			Collection.Capability.WithToBuilder.Api<T, Tp> &
+			IndexedCollection.Capability.WithConcat.Api<T, Tp> &
+			IndexedCollection.Capability.WithPadTo.Api<T, Tp> &
+			IndexedCollection.Capability.WithSpliceAt.Api<T, Tp> &
+			IndexedCollection.Capability.WithSwapAt.Api<T, Tp> &
+			IndexedCollection.Capability.WithUpdateAt.Api<T, Tp>;
 
-		// export interface Factory<T, Tp extends List.Advanced.Types<T>>
-		// 	extends Collection.Advanced.ContextBase<Tp> {
-		// 	createContext(options: { blockSizeBits?: number }): List.Context<T>;
-		// }
+		export type BuilderApi<
+			T,
+			Tp extends Collection.Advanced.TypesBase,
+		> = IndexedCollection.Capability.WithPrependAppend.BuilderApi<T, Tp>;
 
-		export type DefaultFactory = Context<any>;
+		export type DefaultFactory = Omit<Context<any>, 'blockSizeBits'>;
 
 		export interface Family<T> extends IndexedCollection.Advanced.Family<T> {
 			_NORMAL: List<T>;

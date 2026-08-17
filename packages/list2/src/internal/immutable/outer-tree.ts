@@ -276,12 +276,14 @@ export class OuterTree<T>
 		);
 	}
 
-	take(count: number): List<T> {
-		if (count === 0) return this.context.empty();
+	take<N extends number>(count: N): 0 extends N ? List<T> : List.NonEmpty<T> {
+		if (count === 0) {
+			return this.context.empty() as List.NonEmpty<T>;
+		}
 		if (count >= this.size || -count >= this.size) return this;
 
 		if (count < 0) {
-			return this.drop(this.size + count);
+			return this.drop(this.size + count).assumeNonEmpty();
 		}
 
 		Int.checkAtLeastOne(count);
@@ -289,7 +291,7 @@ export class OuterTree<T>
 		const middleCount = count - this.left.size;
 
 		if (!Int.isAtLeastOne(middleCount)) {
-			return this.left.take(count);
+			return this.left.take(count) as List.NonEmpty<T>;
 		}
 
 		if (null === this.middle) {
@@ -299,7 +301,6 @@ export class OuterTree<T>
 				undefined,
 				count,
 			);
-			//._normalize();
 		}
 
 		const rightCount = middleCount - this.middle.size;
@@ -307,7 +308,6 @@ export class OuterTree<T>
 		if (Int.isAtLeastOne(rightCount)) {
 			const newRight = this.right._takeChildren(rightCount);
 			return this.#createNormalized(undefined, newRight, undefined, count);
-			//._normalize();
 		}
 
 		const [newMiddle, upRight, inUpRight] =
@@ -316,7 +316,6 @@ export class OuterTree<T>
 		const newRight = upRight._takeChildren(inUpRight as Int.AtLeastOne);
 
 		return this.#createNormalized(undefined, newRight, newMiddle, count);
-		//._normalize();
 	}
 
 	drop(count: number): List<T> {
@@ -353,7 +352,6 @@ export class OuterTree<T>
 			: upLeft;
 
 		return this.#createNormalized(newLeft, undefined, newMiddle, newSize);
-		//._normalize();
 	}
 
 	forEach(f: (element: T) => void): void {

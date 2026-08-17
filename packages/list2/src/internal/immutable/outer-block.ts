@@ -135,8 +135,8 @@ export abstract class OuterBlock<T>
 		return this._update(index, f);
 	}
 
-	take(count: number): List<T> {
-		if (count === 0) return this.context.empty();
+	take<N extends number>(count: N): 0 extends N ? List<T> : List.NonEmpty<T> {
+		if (count === 0) return this.context.empty() as List.NonEmpty<T>;
 		if (count >= this.size || -count >= this.size) {
 			Int.check(count);
 			return this;

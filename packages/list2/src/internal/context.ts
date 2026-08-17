@@ -223,14 +223,14 @@ export function createListContextModule<UT>(options: {
 			),
 		isBlockBuilder: <T, C extends BlockBuilder<T>>(
 			source: unknown,
-		): source is C =>
+		): source is BlockBuilder<T> & C =>
 			(source instanceof OuterBlockBuilder ||
 				source instanceof InnerBlockBuilder) &&
 			source.context === mod,
 		builderFrom: <T>(outerBuilder: OuterBuilder<T>) =>
 			new ListBuilder<T>(mod as unknown as ListContext<T>, outerBuilder),
 		empty: Module.lazy(
-			<T>() => new ListEmptyBase<T>(mod as unknown as ListContext<T>),
+			<T>(): List<T> => new ListEmptyBase(mod as unknown as ListContext<T>),
 		),
 		of: <T>(...elements: ArrayNonEmpty<T>): List.NonEmpty<T> => {
 			if (elements.length <= mod.maxBlockSize) {

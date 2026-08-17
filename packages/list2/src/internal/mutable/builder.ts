@@ -1,3 +1,4 @@
+import type { Collection } from '@rimbu/collection-types/collection2';
 // biome-ignore lint/correctness/noUnusedImports: TypesKey is used as a computed property key, which Biome does not detect
 import type { TypesKey } from '@rimbu/collection-types/types';
 import type { List } from '@rimbu/list';
@@ -17,7 +18,10 @@ export class ListBuilder<T>
 	extends CollectionBuilderBase<T>
 	implements List.Builder<T>
 {
-	declare readonly [TypesKey]: List.Advanced.Types<T>;
+	declare readonly [TypesKey]: Collection.Advanced.InvariantTypes<
+		Collection.Advanced.Types<List.Advanced.Family<T>, T>,
+		T
+	>;
 
 	constructor(
 		readonly context: ListContext<T>,

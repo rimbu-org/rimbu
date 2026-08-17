@@ -1,6 +1,6 @@
 import type { TypesKey } from '@rimbu/collection-types/types';
 import type { ArrayNonEmpty, TraverseState } from '@rimbu/common';
-import type { Stream, StreamSource } from '@rimbu/stream';
+import type { FastIterable, Stream, StreamSource } from '@rimbu/stream';
 
 export type Collection<
 	E,
@@ -107,7 +107,7 @@ export declare namespace Collection {
 			readonly _INVARIANT: (e: E) => E;
 		};
 
-		export interface Api<E, Tp extends TypesBase> {
+		export interface Api<E, Tp extends TypesBase> extends FastIterable<E> {
 			/** phantom carrier of the types record; keeps `E` and the family invariant */
 			readonly [TypesKey]: Tp;
 			readonly context: Tp['_CONTEXT'];
@@ -226,6 +226,39 @@ export declare namespace Collection {
 				map<E2 extends Tp['_UPPER_E']>(
 					f: (element: E) => E2,
 				): Advanced.ReTyped<Tp, E2>['_SELF'];
+
+				mapIndexed<E2 extends this[TypesKey]['_UPPER_E']>(
+					f: (element: E, index: number) => E2,
+				): Collection.Advanced.ReTyped<Tp, E2>['_SELF'];
+			}
+		}
+
+		export interface WithFlatMap<E> extends Advanced.Family<E> {
+			_NORMAL: WithFlatMap.Api<E, Advanced.Types<this['_FAM'], E>>;
+			_NON_EMPTY: WithFlatMap.Api<E, Advanced.TypesNonEmpty<this['_FAM'], E>>;
+
+			_FAM: WithFlatMap<E>;
+			_NEW_FAMILY: WithFlatMap<this['_NEW_E']>;
+		}
+
+		export namespace WithFlatMap {
+			export interface Api<E, Tp extends Advanced.TypesBase>
+				extends Advanced.Api<E, Tp> {
+				[TypesKey]: Advanced.InvariantTypes<Tp, E>;
+
+				flatMap<E2 extends Tp['_UPPER_E']>(
+					f: (element: E) => StreamSource.NonEmpty<E2>,
+				): Collection.Advanced.ReTyped<Tp, E2>['_SELF'];
+				flatMap<E2 extends Tp['_UPPER_E']>(
+					f: (element: E) => StreamSource<E2>,
+				): Collection.Advanced.ReTyped<Tp, E2>['_NORMAL'];
+
+				flatMapIndexed<E2 extends Tp['_UPPER_E']>(
+					f: (element: E, index: number) => StreamSource.NonEmpty<E2>,
+				): Collection.Advanced.ReTyped<Tp, E2>['_SELF'];
+				flatMapIndexed<E2 extends Tp['_UPPER_E']>(
+					f: (element: E, index: number) => StreamSource<E2>,
+				): Collection.Advanced.ReTyped<Tp, E2>['_NORMAL'];
 			}
 		}
 
