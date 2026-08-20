@@ -23,9 +23,8 @@ export namespace HashSet {
 			Collection.Advanced.Types<Advanced.Family<E>, E>
 		> {}
 
-	export interface Context<
-		F extends Advanced.Family<any> = Advanced.Family<any>,
-	> extends Advanced.ContextApi<F> {}
+	export interface Context
+		extends Advanced.ContextApi<HashSet.Advanced.Family<any>> {}
 
 	export namespace Advanced {
 		export type Api<
@@ -69,13 +68,14 @@ export namespace HashSet {
 			_BUILDER: HashSet.Builder<E>;
 			_CONTEXT: HashSet.Context;
 
+			_UPPER_E: any;
 			_INVARIANT: (element: E) => E;
 
 			_FAM: Family<E>;
 			_NEW_FAMILY: Family<this['_NEW_E']>;
 		}
 
-		export type DefaultFactory = Context<Advanced.Family<any>>;
+		export type DefaultFactory = Context;
 	}
 }
 
