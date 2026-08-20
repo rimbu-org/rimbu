@@ -4,7 +4,8 @@ import type { TypesKey } from '@rimbu/collection-types/types';
 import type { ArrayNonEmpty } from '@rimbu/common/types';
 import type { HashSet } from '@rimbu/hashed/set';
 import type { List } from '@rimbu/list';
-import type { HashSetContext } from './context';
+
+import type { HashSetContext } from '#set/context';
 
 import * as Arr from '@rimbu/base/arr';
 import * as RimbuError from '@rimbu/base/rimbu-error';

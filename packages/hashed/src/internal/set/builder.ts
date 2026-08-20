@@ -2,8 +2,8 @@ import type { Collection } from '@rimbu/collection-types/collection';
 // biome-ignore lint/correctness/noUnusedImports: TypesKey is used as a computed property key, which Biome does not detect
 import type { TypesKey } from '@rimbu/collection-types/types';
 import type { HashSet } from '@rimbu/hashed/set';
-import type { HashSetContext } from './context';
 
+import type { HashSetContext } from '#set/context';
 import type { HashSetBlock, HashSetCollision } from '#set/immutable';
 
 import * as Arr from '@rimbu/base/arr';

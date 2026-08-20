@@ -4,14 +4,15 @@ import { type ArrayNonEmpty, Eq } from '@rimbu/common';
 import { Hasher } from '@rimbu/hashed';
 import { List } from '@rimbu/list';
 import { Stream, type StreamSource } from '@rimbu/stream';
-import { HashSetBlockBuilder, type SetBlockBuilderEntry } from './builder';
+
+import { HashSetBlockBuilder, type SetBlockBuilderEntry } from '#set/builder';
 import {
 	HashSetBlock,
 	HashSetCollision,
 	HashSetEmpty,
 	HashSetNonEmptyBase,
 	type SetEntrySet,
-} from './immutable';
+} from '#set/immutable';
 
 export class HashSetContext
 	implements HashSet.Advanced.ContextApi<HashSet.Advanced.Family<any>>
@@ -130,7 +131,17 @@ export class HashSetContext
 		return this.from(elements) as HashSet.NonEmpty<T>;
 	};
 
-	createContext = (options: any) => {
-		return new HashSetContext();
+	createContext = <UT>(options: {
+		hasher?: Hasher<UT> | undefined;
+		eq?: Eq<UT> | undefined;
+		blockSizeBits?: number | undefined;
+		listContext?: List.Context | undefined;
+	}): HashSetContext => {
+		return new HashSetContext(
+			options.hasher,
+			options.eq,
+			options.blockSizeBits,
+			options.listContext,
+		);
 	};
 }
