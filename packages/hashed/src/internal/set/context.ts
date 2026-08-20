@@ -5,12 +5,18 @@ import { Hasher } from '@rimbu/hashed';
 import { List } from '@rimbu/list';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
-import { HashSetBlockBuilder, type SetBlockBuilderEntry } from '#set/builder';
+import {
+	HashSetBlockBuilder,
+	type HashSetBuilderContext,
+	type SetBlockBuilderEntry,
+} from '#set/builder';
 import {
 	HashSetBlock,
 	HashSetCollision,
 	HashSetEmpty,
+	type HashSetEmptyContext,
 	HashSetNonEmptyBase,
+	type HashSetNonEmptyContext,
 	type SetEntrySet,
 } from '#set/immutable';
 
@@ -18,8 +24,8 @@ export class HashSetContext<UE>
 	implements HashSet.Advanced.ContextApi<UE, HashSet.Advanced.Family<UE>>
 {
 	constructor(
-		readonly hasher: Hasher<any> = Hasher.defaultInstance,
-		readonly eq: Eq<any> = Eq.defaultInstance,
+		readonly hasher: Hasher<UE> = Hasher.defaultInstance,
+		readonly eq: Eq<UE> = Eq.defaultInstance,
 		readonly blockSizeBits: number = 5,
 		readonly listContext = List.defaultContext,
 	) {
@@ -34,56 +40,78 @@ export class HashSetContext<UE>
 	readonly blockMask: number;
 	readonly maxDepth: number;
 
-	readonly hash: (value: any) => number;
+	readonly hash: (value: UE) => number;
 
-	#emptyBlock: HashSetBlock<any> | undefined;
+	#emptyBlock: HashSetBlock<UE> | undefined;
 
-	emptyBlock<T>(): HashSetBlock<T> {
+	emptyBlock<T extends UE>(): HashSetBlock<T> {
 		if (undefined === this.#emptyBlock) {
 			this.#emptyBlock = Object.freeze(
-				new HashSetBlock<any>(this, null, null, 0, 0),
+				new HashSetBlock<UE>(
+					this as unknown as HashSetNonEmptyContext<UE>,
+					null,
+					null,
+					0,
+					0,
+				),
 			);
 		}
 
-		return this.#emptyBlock as any;
+		return this.#emptyBlock as HashSetBlock<any>;
 	}
 
-	block<T>(
+	block<T extends UE>(
 		entries: readonly T[] | null,
 		entrySets: SetEntrySet<T>[] | null,
 		size: number,
 		level: number,
 	): HashSetBlock<T> {
-		return new HashSetBlock(this, entries, entrySets, size, level);
+		return new HashSetBlock<T>(
+			this as unknown as HashSetNonEmptyContext<T>,
+			entries,
+			entrySets,
+			size,
+			level,
+		);
 	}
 
-	collision<T>(entries: List.NonEmpty<T>): HashSetCollision<T> {
-		return new HashSetCollision<T>(this, entries);
+	collision<T extends UE>(entries: List.NonEmpty<T>): HashSetCollision<T> {
+		return new HashSetCollision<T>(
+			this as unknown as HashSetNonEmptyContext<T>,
+			entries,
+		);
 	}
 
-	isHashSetBlock<T>(
+	isHashSetBlock<T extends UE>(
 		obj: SetEntrySet<T> | StreamSource<T>,
 	): obj is HashSetBlock<T> {
 		return obj instanceof HashSetBlock;
 	}
 
-	isHashSetCollision<T>(
+	isHashSetCollision<T extends UE>(
 		obj: SetEntrySet<T> | StreamSource<T>,
 	): obj is HashSetCollision<T> {
 		return obj instanceof HashSetCollision;
 	}
 
-	createBuilder<T>(source?: HashSet.NonEmpty<T>): HashSet.Builder<T> {
-		return new HashSetBlockBuilder<T>(this, source as HashSetBlock<T>);
+	createBuilder<T extends UE>(
+		source?: HashSet.NonEmpty<T>,
+	): HashSet.Builder<T> {
+		return new HashSetBlockBuilder<T>(
+			this as unknown as HashSetBuilderContext<T>,
+			source as unknown as HashSetBlock<T>,
+		);
 	}
 
-	isHashSetBlockBuilder<T>(
+	isHashSetBlockBuilder<T extends UE>(
 		obj: SetBlockBuilderEntry<T>,
 	): obj is HashSetBlockBuilder<T> {
 		return obj instanceof HashSetBlockBuilder;
 	}
 
-	isNonEmptyInstance<T>(source: unknown): source is HashSet.NonEmpty<T> {
+	isNonEmptyInstance<T extends UE>(
+		source: unknown,
+	): source is HashSet.NonEmpty<T> {
 		return source instanceof HashSetNonEmptyBase;
 	}
 
@@ -92,19 +120,21 @@ export class HashSetContext<UE>
 		return (hash >>> shift) & this.blockMask;
 	}
 
-	empty = <T>(): HashSet<T> => {
-		return new HashSetEmpty<T>(this);
+	empty = <T extends UE>(): HashSet<T> => {
+		return new HashSetEmpty<T>(this as unknown as HashSetEmptyContext<T>);
 	};
 
-	builder = <T>(): HashSet.Builder<T> => {
-		return new HashSetBlockBuilder<T>(this);
+	builder = <T extends UE>(): HashSet.Builder<T> => {
+		return new HashSetBlockBuilder<T>(
+			this as unknown as HashSetBuilderContext<T>,
+		);
 	};
 
-	from<T>(
+	from<T extends UE>(
 		...sources: ArrayNonEmpty<StreamSource.NonEmpty<T>>
 	): HashSet.NonEmpty<T>;
-	from<T>(...sources: ArrayNonEmpty<StreamSource<T>>): HashSet<T>;
-	from<T>(...sources: StreamSource<T>[]): HashSet<T> {
+	from<T extends UE>(...sources: ArrayNonEmpty<StreamSource<T>>): HashSet<T>;
+	from<T extends UE>(...sources: StreamSource<T>[]): HashSet<T> {
 		let builder: HashSet.Builder<T> = this.builder<T>();
 
 		let i = -1;
@@ -115,7 +145,7 @@ export class HashSetContext<UE>
 			if (
 				builder.isEmpty &&
 				this.isNonEmptyInstance<T>(source) &&
-				source.context === this
+				source.context === (this as unknown as HashSet.Context<T>)
 			) {
 				if (i === length - 1) return source;
 				builder = source.toBuilder();
@@ -127,17 +157,17 @@ export class HashSetContext<UE>
 		return builder.build();
 	}
 
-	of = <T>(...elements: ArrayNonEmpty<T>): HashSet.NonEmpty<T> => {
+	of = <T extends UE>(...elements: ArrayNonEmpty<T>): HashSet.NonEmpty<T> => {
 		return this.from(elements) as HashSet.NonEmpty<T>;
 	};
 
-	createContext = <UT>(options: {
-		hasher?: Hasher<UT> | undefined;
-		eq?: Eq<UT> | undefined;
+	createContext = <T extends UE>(options: {
+		hasher?: Hasher<T> | undefined;
+		eq?: Eq<T> | undefined;
 		blockSizeBits?: number | undefined;
 		listContext?: List.Context | undefined;
-	}): HashSetContext<UT> => {
-		return new HashSetContext(
+	}): HashSetContext<T> => {
+		return new HashSetContext<T>(
 			options.hasher,
 			options.eq,
 			options.blockSizeBits,

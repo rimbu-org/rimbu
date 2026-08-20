@@ -25,6 +25,12 @@ import {
 import { TraverseState } from '@rimbu/common/traverse-state';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
+export type HashSetEmptyContext<E> = HashSetContext<E> &
+	SetCollectionEmptyBase<E>['context'];
+
+export type HashSetNonEmptyContext<T> = HashSetContext<T> &
+	SetCollectionNonEmptyBase<T>['context'];
+
 export class HashSetEmpty<E = any>
 	extends SetCollectionEmptyBase<E>
 	implements HashSet<E>
@@ -34,7 +40,7 @@ export class HashSetEmpty<E = any>
 		E
 	>;
 
-	constructor(readonly context: HashSetContext<E>) {
+	constructor(readonly context: HashSetEmptyContext<E>) {
 		super();
 
 		this.addAll = context.from;
@@ -54,7 +60,7 @@ export abstract class HashSetNonEmptyBase<T>
 		T
 	>;
 
-	constructor(readonly context: HashSetContext<T>) {
+	constructor(readonly context: HashSetNonEmptyContext<T>) {
 		super();
 	}
 
@@ -137,7 +143,7 @@ export type SetEntrySet<T> = HashSetBlock<T> | HashSetCollision<T>;
 
 export class HashSetBlock<T> extends HashSetNonEmptyBase<T> {
 	constructor(
-		context: HashSetContext<T>,
+		context: HashSetNonEmptyContext<T>,
 		readonly entries: readonly T[] | null,
 		readonly entrySets: readonly SetEntrySet<T>[] | null,
 		readonly size: number,
@@ -381,7 +387,7 @@ export class HashSetBlock<T> extends HashSetNonEmptyBase<T> {
 
 export class HashSetCollision<T> extends HashSetNonEmptyBase<T> {
 	constructor(
-		context: HashSetContext<T>,
+		context: HashSetNonEmptyContext<T>,
 		readonly entries: List.NonEmpty<T>,
 	) {
 		super(context);

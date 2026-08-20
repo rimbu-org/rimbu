@@ -1,9 +1,8 @@
 import type { Collection } from '@rimbu/collection-types/collection';
 import type { SetCollection } from '@rimbu/collection-types/set';
 import type { Eq } from '@rimbu/common';
+import type { Hasher } from '@rimbu/hashed';
 import type { List } from '@rimbu/list';
-
-import { Hasher } from '@rimbu/hashed';
 
 import { HashSetContext } from '#set/context';
 
