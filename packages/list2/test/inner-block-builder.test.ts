@@ -12,24 +12,20 @@ import { List } from '@rimbu/list';
 type OB = OuterBlockBuilder<number>;
 type IB = InnerBlockBuilder<number, OB>;
 
-function makeContext<T>(blockSizeBits: number): ListContext<T> {
-	return List.createContext({ blockSizeBits }) as ListContext<T>;
+function makeContext(blockSizeBits: number): ListContext {
+	return List.createContext({ blockSizeBits }) as ListContext;
 }
 
-function ob(ctx: ListContext<number>, vals: number[]): OB {
+function ob(ctx: ListContext, vals: number[]): OB {
 	return ctx.outerBlockBuilder(ctx.childrenOps.of(vals));
 }
 
-function ib(ctx: ListContext<number>, children: OB[], level = 1): IB {
+function ib(ctx: ListContext, children: OB[], level = 1): IB {
 	const size = children.reduce((s, c) => s + c.size, 0);
 	return ctx.innerBlockBuilder(children, size, level);
 }
 
-function ibFromSource(
-	ctx: ListContext<number>,
-	vals: number[],
-	groupSize = 2,
-): IB {
+function ibFromSource(ctx: ListContext, vals: number[], groupSize = 2): IB {
 	const groups: number[][] = [];
 	for (let i = 0; i < vals.length; i += groupSize) {
 		groups.push(vals.slice(i, i + groupSize));
@@ -52,7 +48,7 @@ function collectForEach(b: {
 
 type IB2 = InnerBlockBuilder<number, IB>;
 
-function ib2(ctx: ListContext<number>, children: IB[], level = 2): IB2 {
+function ib2(ctx: ListContext, children: IB[], level = 2): IB2 {
 	const size = children.reduce((s, c) => s + c.size, 0);
 	return ctx.innerBlockBuilder(children, size, level);
 }
@@ -92,7 +88,7 @@ function checkBuilder(
 }
 
 describe('InnerBlockBuilder.properties', () => {
-	const ctx = makeContext<number>(3); // max=8, min=4
+	const ctx = makeContext(3); // max=8, min=4
 
 	it('size equals sum of child sizes', () => {
 		const b = ib(ctx, [ob(ctx, [1, 2, 3]), ob(ctx, [4, 5])]);
@@ -139,26 +135,26 @@ describe('InnerBlockBuilder.properties', () => {
 
 describe('InnerBlockBuilder.from-source', () => {
 	it('size matches source', () => {
-		const ctx = makeContext<number>(3);
+		const ctx = makeContext(3);
 		const b = ibFromSource(ctx, [1, 2, 3, 4]);
 		expect(b.size).toBe(4);
 	});
 
 	it('get reads from source', () => {
-		const ctx = makeContext<number>(3);
+		const ctx = makeContext(3);
 		const b = ibFromSource(ctx, [10, 20, 30, 40], 2);
 		expect(b.get(0 as Int.AtLeastZero)).toBe(10);
 		expect(b.get(3 as Int.AtLeastZero)).toBe(40);
 	});
 
 	it('forEach reads from source', () => {
-		const ctx = makeContext<number>(3);
+		const ctx = makeContext(3);
 		const b = ibFromSource(ctx, [1, 2, 3, 4], 2);
 		expect(collectForEach(b)).toEqual([1, 2, 3, 4]);
 	});
 
 	it('source is discarded on mutation', () => {
-		const ctx = makeContext<number>(3);
+		const ctx = makeContext(3);
 		const b = ibFromSource(ctx, [10, 20, 30, 40], 2);
 		b.prependChild(ob(ctx, [0]));
 		expect(b.get(0 as Int.AtLeastZero)).toBe(0);
@@ -166,7 +162,7 @@ describe('InnerBlockBuilder.from-source', () => {
 });
 
 describe('InnerBlockBuilder.read', () => {
-	const ctx = makeContext<number>(4); // max=16, min=8
+	const ctx = makeContext(4); // max=16, min=8
 
 	describe('get', () => {
 		it('from first child', () => {
@@ -211,7 +207,7 @@ describe('InnerBlockBuilder.read', () => {
 });
 
 describe('InnerBlockBuilder.prependChild / appendChild', () => {
-	const ctx = makeContext<number>(4);
+	const ctx = makeContext(4);
 
 	it('prependChild adds child at front', () => {
 		const b = ib(ctx, [ob(ctx, [2, 3])]);
@@ -239,7 +235,7 @@ describe('InnerBlockBuilder.prependChild / appendChild', () => {
 });
 
 describe('InnerBlockBuilder.firstChild / lastChild', () => {
-	const ctx = makeContext<number>(4);
+	const ctx = makeContext(4);
 
 	it('firstChild returns first child', () => {
 		const b = ib(ctx, [ob(ctx, [10, 20]), ob(ctx, [30])]);
@@ -253,7 +249,7 @@ describe('InnerBlockBuilder.firstChild / lastChild', () => {
 });
 
 describe('InnerBlockBuilder.dropFirstChild / dropLastChild', () => {
-	const ctx = makeContext<number>(4);
+	const ctx = makeContext(4);
 
 	it('dropFirstChild removes and returns first', () => {
 		const b = ib(ctx, [ob(ctx, [10, 20]), ob(ctx, [30]), ob(ctx, [40])]);
@@ -274,7 +270,7 @@ describe('InnerBlockBuilder.dropFirstChild / dropLastChild', () => {
 });
 
 describe('InnerBlockBuilder.modifyFirstChild / modifyLastChild', () => {
-	const ctx = makeContext<number>(4);
+	const ctx = makeContext(4);
 
 	it('modifyFirstChild applies callback and returns delta', () => {
 		const b = ib(ctx, [ob(ctx, [1]), ob(ctx, [2, 3])]);
@@ -313,7 +309,7 @@ describe('InnerBlockBuilder.modifyFirstChild / modifyLastChild', () => {
 });
 
 describe('InnerBlockBuilder.build', () => {
-	const ctx = makeContext<number>(3);
+	const ctx = makeContext(3);
 
 	it('returns immutable inner block', () => {
 		const b = ib(ctx, [ob(ctx, [1, 2]), ob(ctx, [3])]);
@@ -337,7 +333,7 @@ describe('InnerBlockBuilder.build', () => {
 });
 
 describe('InnerBlockBuilder.buildMap', () => {
-	const ctx = makeContext<number>(3);
+	const ctx = makeContext(3);
 
 	it('transforms elements', () => {
 		const b = ib(ctx, [ob(ctx, [1, 2]), ob(ctx, [3])]);
@@ -353,7 +349,7 @@ describe('InnerBlockBuilder.buildMap', () => {
 });
 
 describe('InnerBlockBuilder.normalized', () => {
-	const ctx = makeContext<number>(2); // max=4, min=2
+	const ctx = makeContext(2); // max=4, min=2
 
 	it('empty returns undefined', () => {
 		const b = ib(ctx, []);
@@ -384,7 +380,7 @@ describe('InnerBlockBuilder.normalized', () => {
 });
 
 describe('InnerBlockBuilder.splitRight', () => {
-	const ctx = makeContext<number>(4);
+	const ctx = makeContext(4);
 
 	it('splits at midpoint', () => {
 		const b = ib(ctx, [ob(ctx, [1]), ob(ctx, [2]), ob(ctx, [3]), ob(ctx, [4])]);
@@ -421,7 +417,7 @@ describe('InnerBlockBuilder.splitRight', () => {
 });
 
 describe('InnerBlockBuilder.prependItems', () => {
-	const ctx = makeContext<number>(3);
+	const ctx = makeContext(3);
 
 	it('prepends children from other builder', () => {
 		const b = ib(ctx, [ob(ctx, [3, 4])]);
@@ -444,7 +440,7 @@ describe('InnerBlockBuilder.prependItems', () => {
 	});
 
 	it('merges boundary children when fit', () => {
-		const ctx2 = makeContext<number>(2); // max=4
+		const ctx2 = makeContext(2); // max=4
 		const b = ib(ctx2, [ob(ctx2, [3])]); // one child with 1 elem
 		const other = ib(ctx2, [ob(ctx2, [1, 2])]);
 
@@ -455,7 +451,7 @@ describe('InnerBlockBuilder.prependItems', () => {
 	});
 
 	it('does not merge when boundary exceeds max', () => {
-		const ctx2 = makeContext<number>(2); // max=4
+		const ctx2 = makeContext(2); // max=4
 		const b = ib(ctx2, [ob(ctx2, [1, 2, 3])]); // 3 elements (nrChildren=3)
 		const other = ib(ctx2, [ob(ctx2, [10, 20, 30])]); // 3 elements
 		b.prependFrom(other);
@@ -466,7 +462,7 @@ describe('InnerBlockBuilder.prependItems', () => {
 });
 
 describe('InnerBlockBuilder.appendItems', () => {
-	const ctx = makeContext<number>(3);
+	const ctx = makeContext(3);
 
 	it('appends children from other builder', () => {
 		const b = ib(ctx, [ob(ctx, [1, 2])]);
@@ -482,7 +478,7 @@ describe('InnerBlockBuilder.appendItems', () => {
 	});
 
 	it('merges boundary children when fit', () => {
-		const ctx2 = makeContext<number>(2); // max=4
+		const ctx2 = makeContext(2); // max=4
 		const b = ib(ctx2, [ob(ctx2, [1, 2])]);
 		const other = ib(ctx2, [ob(ctx2, [3])]);
 
@@ -494,7 +490,7 @@ describe('InnerBlockBuilder.appendItems', () => {
 });
 
 describe('InnerBlockBuilder.edge-cases', () => {
-	const ctx = makeContext<number>(2);
+	const ctx = makeContext(2);
 
 	describe('source unaffected after mutation', () => {
 		it('source block not mutated', () => {
@@ -538,7 +534,7 @@ describe('InnerBlockBuilder.edge-cases', () => {
 });
 
 describe('InnerBlockBuilder.insert', () => {
-	const ctx = makeContext<number>(2); // max=4, min=2
+	const ctx = makeContext(2); // max=4, min=2
 
 	it('insert at index 0 (start of block)', () => {
 		const b = ib(ctx, [ob(ctx, [1, 2]), ob(ctx, [3, 4])]);
@@ -631,7 +627,7 @@ describe('InnerBlockBuilder.insert', () => {
 });
 
 describe('InnerBlockBuilder.remove', () => {
-	const ctx = makeContext<number>(2); // max=4, min=2
+	const ctx = makeContext(2); // max=4, min=2
 
 	it('remove first element (index 0) returns it', () => {
 		const b = ib(ctx, [ob(ctx, [1, 2, 3, 4]), ob(ctx, [5, 6])]);
@@ -722,7 +718,7 @@ describe('InnerBlockBuilder.remove', () => {
 });
 
 describe('InnerBlockBuilder.insert/remove.level-2', () => {
-	const ctx = makeContext<number>(2); // max=4, min=2
+	const ctx = makeContext(2); // max=4, min=2
 
 	function cachedLevel1(groups: number[][]): IB {
 		const children = groups.map((g) =>
@@ -785,7 +781,7 @@ describe('InnerBlockBuilder.insert/remove.level-2', () => {
 });
 
 describe('InnerBlockBuilder.splitRight.size-accounting', () => {
-	const ctx = makeContext<number>(2); // max=4, min=2
+	const ctx = makeContext(2); // max=4, min=2
 
 	function cachedLevel1(groups: number[][]): IB {
 		const children = groups.map((g) =>
@@ -864,7 +860,7 @@ describe('InnerBlockBuilder.splitRight.size-accounting', () => {
 });
 
 describe('InnerBlockBuilder.insert/remove.ListBuilder-integration', () => {
-	const ctx = List.createContext({ blockSizeBits: 2 }) as ListContext<number>;
+	const ctx = List.createContext({ blockSizeBits: 2 }) as ListContext;
 
 	function makeBuilder(): ListBuilder<number> {
 		return ctx.builder<number>() as ListBuilder<number>;

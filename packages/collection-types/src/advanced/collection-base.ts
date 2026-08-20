@@ -9,12 +9,12 @@ import {
 import { type ArrayNonEmpty, TraverseState } from '@rimbu/common';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
-export type CollectionEmptyBaseCapabilities<E> =
+export type CollectionEmptyBaseCapabilities<E> = Collection.Advanced.Family<E> &
 	Collection.Capability.WithToBuilder<E> &
-		Collection.Capability.WithFlatMap<E> &
-		Collection.Capability.WithMap<E> &
-		Collection.Capability.WithMutate<E> &
-		Collection.Capability.WithRecompose<E>;
+	Collection.Capability.WithFlatMap<E> &
+	Collection.Capability.WithMap<E> &
+	Collection.Capability.WithMutate<E> &
+	Collection.Capability.WithRecompose<E>;
 
 export abstract class CollectionEmptyBase<E>
 	implements Collection<E, CollectionEmptyBaseCapabilities<E>>
@@ -121,7 +121,8 @@ export abstract class CollectionEmptyBase<E>
 }
 
 export type CollectionNonEmptyBaseCapabilities<E> =
-	Collection.Capability.WithToBuilder<E> &
+	Collection.Advanced.Family<E> &
+		Collection.Capability.WithToBuilder<E> &
 		Collection.Capability.WithMutate<E> &
 		Collection.Capability.WithRecompose<E>;
 
@@ -222,7 +223,7 @@ export abstract class CollectionNonEmptyBase<E>
 }
 
 export abstract class CollectionBuilderBase<E>
-	implements Collection.Builder<E>
+	implements Collection.Builder<E, CollectionEmptyBaseCapabilities<E>>
 {
 	declare readonly [TypesKey]: Collection.Advanced.InvariantTypes<
 		Collection.Advanced.Types<CollectionEmptyBaseCapabilities<E>, E>,

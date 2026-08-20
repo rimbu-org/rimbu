@@ -11,16 +11,16 @@ import { List } from '@rimbu/list';
 
 type OB = import('#list/immutable/outer-block').OuterBlock<number>;
 
-function makeContext<T>(blockSizeBits: number): ListContext<T> {
-	return List.createContext({ blockSizeBits }) as ListContext<T>;
+function makeContext(blockSizeBits: number): ListContext {
+	return List.createContext({ blockSizeBits }) as ListContext;
 }
 
-function ob(ctx: ListContext<number>, vals: number[]): OB {
+function ob(ctx: ListContext, vals: number[]): OB {
 	return ctx.outerBlockLeftRight(ctx.childrenOps.of(vals));
 }
 
 function ib(
-	ctx: ListContext<number>,
+	ctx: ListContext,
 	children: OB[],
 	level = 1,
 ): InnerBlock<number, OB> {
@@ -34,7 +34,7 @@ function simpleInnerTree(
 	bits = 3,
 	level = 1,
 ): InnerTree<number, OB> {
-	const ctx = makeContext<number>(bits);
+	const ctx = makeContext(bits);
 	const left = ib(ctx, leftChildren, level);
 	const right = ib(ctx, rightChildren, level);
 	const size = left.size + right.size;
@@ -48,7 +48,7 @@ function innerTreeWithMiddle(
 	bits = 3,
 	level = 1,
 ): InnerTree<number, OB> {
-	const ctx = makeContext<number>(bits);
+	const ctx = makeContext(bits);
 	const left = ib(ctx, leftChildren, level);
 	const right = ib(ctx, rightChildren, level);
 
@@ -93,13 +93,13 @@ describe('InnerTree.structure', () => {
 	});
 
 	it('context is the list context', () => {
-		const ctx = makeContext<number>(3);
+		const ctx = makeContext(3);
 		const t = simpleInnerTree([ob(ctx, [1])], [ob(ctx, [2])]);
 		expect(t.context.blockSizeBits).toBe(3);
 	});
 
 	it('tree with middle', () => {
-		const ctx = makeContext<number>(3);
+		const ctx = makeContext(3);
 		const t = innerTreeWithMiddle(
 			[ob(ctx, [1, 2])],
 			[[ob(ctx, [3, 4])]],
@@ -111,7 +111,7 @@ describe('InnerTree.structure', () => {
 });
 
 describe('InnerTree.read', () => {
-	const ctx = makeContext<number>(3);
+	const ctx = makeContext(3);
 
 	describe('get', () => {
 		it('reads from left inner block', () => {
@@ -198,7 +198,7 @@ describe('InnerTree.read', () => {
 });
 
 describe('InnerTree.prependChild', () => {
-	const ctx = makeContext<number>(2); // max=4, min=2
+	const ctx = makeContext(2); // max=4, min=2
 	const bits = 2;
 
 	it('adds to left when left has room', () => {
@@ -272,7 +272,7 @@ describe('InnerTree.prependChild', () => {
 });
 
 describe('InnerTree.appendChild', () => {
-	const ctx = makeContext<number>(2); // max=4, min=2
+	const ctx = makeContext(2); // max=4, min=2
 	const bits = 2;
 
 	it('adds to right when right has room', () => {
@@ -345,7 +345,7 @@ describe('InnerTree.appendChild', () => {
 });
 
 describe('InnerTree.modifyFirstChild', () => {
-	const ctx = makeContext<number>(3);
+	const ctx = makeContext(3);
 
 	it('modifies first child of left block', () => {
 		const t = simpleInnerTree([ob(ctx, [1]), ob(ctx, [2])], [ob(ctx, [3])]);
@@ -368,7 +368,7 @@ describe('InnerTree.modifyFirstChild', () => {
 });
 
 describe('InnerTree.modifyLastChild', () => {
-	const ctx = makeContext<number>(3);
+	const ctx = makeContext(3);
 
 	it('modifies last child of right block', () => {
 		const t = simpleInnerTree([ob(ctx, [1])], [ob(ctx, [2]), ob(ctx, [3])]);
@@ -391,7 +391,7 @@ describe('InnerTree.modifyLastChild', () => {
 });
 
 describe('InnerTree.filter', () => {
-	const ctx = makeContext<number>(3);
+	const ctx = makeContext(3);
 
 	it('keeps matching elements across left and right', () => {
 		const t = simpleInnerTree(
@@ -426,7 +426,7 @@ describe('InnerTree.filter', () => {
 });
 
 describe('InnerTree.dropFirstChild', () => {
-	const ctx = makeContext<number>(2); // max=4, min=2
+	const ctx = makeContext(2); // max=4, min=2
 
 	it('reduces left and returns first child', () => {
 		const t = simpleInnerTree(
@@ -461,7 +461,7 @@ describe('InnerTree.dropFirstChild', () => {
 });
 
 describe('InnerTree.dropLastChild', () => {
-	const ctx = makeContext<number>(2); // max=4, min=2
+	const ctx = makeContext(2); // max=4, min=2
 
 	it('reduces right and returns last child', () => {
 		const t = simpleInnerTree(
@@ -496,7 +496,7 @@ describe('InnerTree.dropLastChild', () => {
 });
 
 describe('InnerTree.map', () => {
-	const ctx = makeContext<number>(3);
+	const ctx = makeContext(3);
 
 	it('transforms all elements across tree', () => {
 		const t = simpleInnerTree([ob(ctx, [1, 2])], [ob(ctx, [3, 4])]);
@@ -523,7 +523,7 @@ describe('InnerTree.map', () => {
 });
 
 describe('InnerTree.concat', () => {
-	const ctx = makeContext<number>(2); // max=4, min=2
+	const ctx = makeContext(2); // max=4, min=2
 
 	it('innerBlock.concat(innerTree) at same level triggers prependBlock — Case 1 merge', () => {
 		const left = ib(ctx, [ob(ctx, [3])], 1);
@@ -571,7 +571,7 @@ describe('InnerTree.concat', () => {
 });
 
 describe('InnerTree.reversed', () => {
-	const ctx = makeContext<number>(3);
+	const ctx = makeContext(3);
 
 	it('preserves size', () => {
 		const t = simpleInnerTree([ob(ctx, [1, 2])], [ob(ctx, [3, 4])]);
@@ -628,7 +628,7 @@ describe('InnerTree.reversed', () => {
 });
 
 describe('InnerTree.immutability', () => {
-	const ctx = makeContext<number>(3);
+	const ctx = makeContext(3);
 
 	it('prependChild returns new instance', () => {
 		const t = simpleInnerTree([ob(ctx, [1])], [ob(ctx, [2])]);
@@ -647,7 +647,7 @@ describe('InnerTree.immutability', () => {
 });
 
 describe('InnerTree.edge-cases', () => {
-	const ctx = makeContext<number>(2); // max=4, min=2
+	const ctx = makeContext(2); // max=4, min=2
 	const bits = 2;
 
 	it('deep level tree', () => {
@@ -699,7 +699,7 @@ describe('InnerTree.edge-cases', () => {
 	});
 
 	it('null/undefined elements', () => {
-		const nctx = makeContext<number | null>(3) as any;
+		const nctx = makeContext(3) as any;
 		const t = simpleInnerTree(
 			[ob(nctx, [1, null as any])],
 			[ob(nctx, [null as any, 3])],

@@ -11,7 +11,7 @@ export class OuterBlockBuilder<T>
 	implements OuterBuilder<T>, BlockBuilder<T, T>
 {
 	constructor(
-		readonly context: ListContext<T>,
+		readonly context: ListContext,
 		source?: OuterBlock<T>,
 		children?: OuterChildren<T>,
 	) {

@@ -1,163 +1,162 @@
-import type { HashSet } from '@rimbu/hashed/set';
-import type { StreamSource } from '@rimbu/stream';
+// import type { HashSet } from '@rimbu/hashed/set';
+// import type { StreamSource } from '@rimbu/stream';
 
-import type { HashSetCreators } from '#set/creators';
+// import type { HashSetCreators } from '#set/creators';
 
-import { RSetContextBaseModule } from '@rimbu/collection-types/advanced/set/base-module';
-import { Eq } from '@rimbu/common/eq';
-import { Module } from '@rimbu/common/module';
-import { Hasher } from '@rimbu/hashed';
-import { List } from '@rimbu/list';
+// import { Eq } from '@rimbu/common/eq';
+// import { Module } from '@rimbu/common/module';
+// import { Hasher } from '@rimbu/hashed';
+// import { List } from '@rimbu/list';
 
-import { HashSetBlockBuilder, type SetBlockBuilderEntry } from '#set/builder';
-import {
-	HashSetBlock,
-	HashSetCollision,
-	HashSetEmpty,
-	HashSetNonEmptyBase,
-	type SetEntrySet,
-} from '#set/immutable';
+// import { HashSetBlockBuilder, type SetBlockBuilderEntry } from '#set/builder';
+// import {
+// 	HashSetBlock,
+// 	HashSetCollision,
+// 	HashSetEmpty,
+// 	HashSetNonEmptyBase,
+// 	type SetEntrySet,
+// } from '#set/immutable';
 
-interface ImmutableFactory<UT> {
-	emptyBlock: HashSetBlock<UT>;
-	block(
-		entries: readonly UT[] | null,
-		entrySets: SetEntrySet<UT>[] | null,
-		size: number,
-		level: number,
-	): HashSetBlock<UT>;
-	collision(entries: List.NonEmpty<UT>): HashSetCollision<UT>;
-	isHashSetBlock<T>(
-		obj: SetEntrySet<T> | StreamSource<T>,
-	): obj is HashSetBlock<T>;
-	isHashSetCollision<T>(
-		obj: SetEntrySet<T> | StreamSource<T>,
-	): obj is HashSetCollision<T>;
-}
+// interface ImmutableFactory<UT> {
+// 	emptyBlock: HashSetBlock<UT>;
+// 	block(
+// 		entries: readonly UT[] | null,
+// 		entrySets: SetEntrySet<UT>[] | null,
+// 		size: number,
+// 		level: number,
+// 	): HashSetBlock<UT>;
+// 	collision(entries: List.NonEmpty<UT>): HashSetCollision<UT>;
+// 	isHashSetBlock<T>(
+// 		obj: SetEntrySet<T> | StreamSource<T>,
+// 	): obj is HashSetBlock<T>;
+// 	isHashSetCollision<T>(
+// 		obj: SetEntrySet<T> | StreamSource<T>,
+// 	): obj is HashSetCollision<T>;
+// }
 
-interface BuilderFactory<UT> {
-	builder<T extends UT>(): HashSet.Builder<T>;
-	createBuilder<T extends UT>(source?: HashSet.NonEmpty<T>): HashSet.Builder<T>;
-	isHashSetBlockBuilder<T>(
-		obj: SetBlockBuilderEntry<T>,
-	): obj is HashSetBlockBuilder<T>;
-}
+// interface BuilderFactory<UT> {
+// 	builder<T extends UT>(): HashSet.Builder<T>;
+// 	createBuilder<T extends UT>(source?: HashSet.NonEmpty<T>): HashSet.Builder<T>;
+// 	isHashSetBlockBuilder<T>(
+// 		obj: SetBlockBuilderEntry<T>,
+// 	): obj is HashSetBlockBuilder<T>;
+// }
 
-export interface ContextImpl<UT>
-	extends HashSet.Context<UT>,
-		ImmutableFactory<UT>,
-		// BuilderFactory<UT>,
-		Omit<HashSetCreators, keyof HashSet.Context<any>> {
-	readonly maxDepth: number;
-	readonly listContext: List.Context;
-	hash(value: UT): number;
-	getKeyIndex(level: number, hash: number): number;
-}
+// export interface ContextImpl<F extends HashSet.Advanced.Family<any>>
+// 	extends HashSet.Context<F>,
+// 		ImmutableFactory<F['_UPPER_E']>,
+// 		BuilderFactory<F['_UPPER_E']>,
+// 		Omit<HashSetCreators, keyof HashSet.Context<any>> {
+// 	readonly maxDepth: number;
+// 	readonly listContext: List.Context;
+// 	hash(value: F['_UPPER_E']): number;
+// 	getKeyIndex(level: number, hash: number): number;
+// }
 
-export function createHashSetContextModule<UT>(
-	options: {
-		hasher?: Hasher<UT>;
-		eq?: Eq<UT>;
-		blockSizeBits?: number;
-		listContext?: List.Context;
-	} = {},
-	_defaultContext?: HashSet.Context<UT> | undefined,
-): Module<ContextImpl<UT>> {
-	const baseModule = RSetContextBaseModule.createContextModuleBase<
-		UT,
-		HashSet.Types
-	>();
+// export function createHashSetContextModule<UT>(
+// 	options: {
+// 		hasher?: Hasher<UT>;
+// 		eq?: Eq<UT>;
+// 		blockSizeBits?: number;
+// 		listContext?: List.Context;
+// 	} = {},
+// 	_defaultContext?: HashSet.Context<UT> | undefined,
+// ): Module<ContextImpl<UT>> {
+// 	// const baseModule = RSetContextBaseModule.createContextModuleBase<
+// 	// 	UT,
+// 	// 	HashSet.Types
+// 	// >();
 
-	const immutableModule = Module.createPartial<{
-		defines: ImmutableFactory<UT>;
-		requires: ContextImpl<UT>;
-	}>((mod) => ({
-		listContext: Module.lazyGetter(
-			() => options.listContext ?? List.defaultContext,
-		),
-		emptyBlock: Module.lazyGetter(() =>
-			Object.freeze(new HashSetBlock<UT>(mod, null, null, 0, 0)),
-		),
-		block(
-			entries: readonly UT[] | null,
-			entrySets: SetEntrySet<UT>[] | null,
-			size: number,
-			level: number,
-		): HashSetBlock<UT> {
-			return new HashSetBlock(mod, entries, entrySets, size, level);
-		},
-		collision(entries: List.NonEmpty<UT>): HashSetCollision<UT> {
-			return new HashSetCollision(mod, entries);
-		},
-		isHashSetBlock: <T>(
-			obj: SetEntrySet<T> | StreamSource<T>,
-		): obj is HashSetBlock<T> => {
-			return obj instanceof HashSetBlock;
-		},
-		isHashSetCollision: <T>(
-			obj: SetEntrySet<T> | StreamSource<T>,
-		): obj is HashSetCollision<T> => {
-			return obj instanceof HashSetCollision;
-		},
-	}));
+// 	const immutableModule = Module.createPartial<{
+// 		defines: ImmutableFactory<UT>;
+// 		requires: ContextImpl<UT>;
+// 	}>((mod) => ({
+// 		listContext: Module.lazyGetter(
+// 			() => options.listContext ?? List.defaultContext,
+// 		),
+// 		emptyBlock: Module.lazyGetter(() =>
+// 			Object.freeze(new HashSetBlock<UT>(mod, null, null, 0, 0)),
+// 		),
+// 		block(
+// 			entries: readonly UT[] | null,
+// 			entrySets: SetEntrySet<UT>[] | null,
+// 			size: number,
+// 			level: number,
+// 		): HashSetBlock<UT> {
+// 			return new HashSetBlock(mod, entries, entrySets, size, level);
+// 		},
+// 		collision(entries: List.NonEmpty<UT>): HashSetCollision<UT> {
+// 			return new HashSetCollision(mod, entries);
+// 		},
+// 		isHashSetBlock: <T>(
+// 			obj: SetEntrySet<T> | StreamSource<T>,
+// 		): obj is HashSetBlock<T> => {
+// 			return obj instanceof HashSetBlock;
+// 		},
+// 		isHashSetCollision: <T>(
+// 			obj: SetEntrySet<T> | StreamSource<T>,
+// 		): obj is HashSetCollision<T> => {
+// 			return obj instanceof HashSetCollision;
+// 		},
+// 	}));
 
-	const builderModule = Module.createPartial<{
-		defines: BuilderFactory<UT>;
-		requires: ContextImpl<UT>;
-	}>((mod) => ({
-		builder<T extends UT>(): HashSet.Builder<T> {
-			return new HashSetBlockBuilder<any>(mod);
-		},
-		createBuilder<T extends UT>(
-			source?: HashSet.NonEmpty<T>,
-		): HashSet.Builder<T> {
-			return new HashSetBlockBuilder<any>(mod, source as any);
-		},
-		isHashSetBlockBuilder<T>(
-			obj: SetBlockBuilderEntry<T>,
-		): obj is HashSetBlockBuilder<T> {
-			return obj instanceof HashSetBlockBuilder;
-		},
-	}));
+// 	const builderModule = Module.createPartial<{
+// 		defines: BuilderFactory<UT>;
+// 		requires: ContextImpl<UT>;
+// 	}>((mod) => ({
+// 		builder<T extends UT>(): HashSet.Builder<T> {
+// 			return new HashSetBlockBuilder<any>(mod);
+// 		},
+// 		createBuilder<T extends UT>(
+// 			source?: HashSet.NonEmpty<T>,
+// 		): HashSet.Builder<T> {
+// 			return new HashSetBlockBuilder<any>(mod, source as any);
+// 		},
+// 		isHashSetBlockBuilder<T>(
+// 			obj: SetBlockBuilderEntry<T>,
+// 		): obj is HashSetBlockBuilder<T> {
+// 			return obj instanceof HashSetBlockBuilder;
+// 		},
+// 	}));
 
-	const { blockSizeBits = 5 } = options;
+// 	const { blockSizeBits = 5 } = options;
 
-	const blockCapacity = 1 << blockSizeBits;
-	const blockMask = blockCapacity - 1;
+// 	const blockCapacity = 1 << blockSizeBits;
+// 	const blockMask = blockCapacity - 1;
 
-	return Module.create<ContextImpl<UT>>((mod) => ({
-		...baseModule(mod),
-		...immutableModule(mod),
-		...builderModule(mod),
+// 	return Module.create<ContextImpl<UT>>((mod) => ({
+// 		...baseModule(mod),
+// 		...immutableModule(mod),
+// 		...builderModule(mod),
 
-		createContext: (options) =>
-			createHashSetContextModule(options, mod as ContextImpl<any>).build(),
-		defaultContext: Module.lazy<any>(() => _defaultContext ?? mod),
+// 		createContext: (options) =>
+// 			createHashSetContextModule(options, mod as ContextImpl<any>).build(),
+// 		defaultContext: Module.lazy<any>(() => _defaultContext ?? mod),
 
-		typeTag: 'HashSet',
+// 		typeTag: 'HashSet',
 
-		hasher: Module.lazyGetter(() => options.hasher ?? Hasher.defaultInstance),
-		eq: Module.lazyGetter(() => options.eq ?? Eq.defaultInstance),
-		listContext: Module.lazyGetter(
-			() => options.listContext ?? List.defaultContext,
-		),
+// 		hasher: Module.lazyGetter(() => options.hasher ?? Hasher.defaultInstance),
+// 		eq: Module.lazyGetter(() => options.eq ?? Eq.defaultInstance),
+// 		listContext: Module.lazyGetter(
+// 			() => options.listContext ?? List.defaultContext,
+// 		),
 
-		maxDepth: Math.ceil(32 / blockSizeBits),
+// 		maxDepth: Math.ceil(32 / blockSizeBits),
 
-		hash: (value: UT): number => {
-			return mod.hasher.hash(value);
-		},
-		getKeyIndex: (level: number, hash: number): number => {
-			const shift = blockSizeBits * level;
-			return (hash >>> shift) & blockMask;
-		},
-		empty: Module.lazy(() => new HashSetEmpty<any>(mod)),
-		builder: () => new HashSetBlockBuilder<any>(mod),
-		isValidValue: (value: unknown): value is UT => {
-			return mod.hasher.isValid(value);
-		},
-		isNonEmptyInstance: (source: any): source is any => {
-			return source instanceof HashSetNonEmptyBase;
-		},
-	}));
-}
+// 		hash: (value: UT): number => {
+// 			return mod.hasher.hash(value);
+// 		},
+// 		getKeyIndex: (level: number, hash: number): number => {
+// 			const shift = blockSizeBits * level;
+// 			return (hash >>> shift) & blockMask;
+// 		},
+// 		empty: Module.lazy(() => new HashSetEmpty<any>(mod)),
+// 		builder: () => new HashSetBlockBuilder<any>(mod),
+// 		isValidValue: (value: unknown): value is UT => {
+// 			return mod.hasher.isValid(value);
+// 		},
+// 		isNonEmptyInstance: (source: any): source is any => {
+// 			return source instanceof HashSetNonEmptyBase;
+// 		},
+// 	}));
+// }

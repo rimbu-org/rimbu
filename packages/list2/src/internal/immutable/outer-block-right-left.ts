@@ -11,10 +11,7 @@ import type { CacheMap } from '#list/immutable/cache-map';
 import { OuterBlock } from '#list/immutable/outer-block';
 
 export class OuterBlockRightLeft<T> extends OuterBlock<T> {
-	constructor(
-		readonly context: ListContext<T>,
-		children: OuterChildren<T>,
-	) {
+	constructor(context: ListContext, children: OuterChildren<T>) {
 		super(context);
 		this.#children = this.#ops.guard(children);
 	}

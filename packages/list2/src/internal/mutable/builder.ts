@@ -18,13 +18,13 @@ export class ListBuilder<T>
 	extends CollectionBuilderBase<T>
 	implements List.Builder<T>
 {
-	declare readonly [TypesKey]: Collection.Advanced.InvariantTypes<
-		Collection.Advanced.Types<List.Advanced.Family<T>, T>,
+	declare readonly [TypesKey]: Collection.Advanced.Types<
+		List.Advanced.Family<T>,
 		T
 	>;
 
 	constructor(
-		readonly context: ListContext<T>,
+		readonly context: ListContext,
 		outerBuilder?: OuterBuilder<T>,
 	) {
 		super();

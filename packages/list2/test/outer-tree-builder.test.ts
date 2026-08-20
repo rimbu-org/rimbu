@@ -7,19 +7,15 @@ import type { OuterBlockBuilder } from '#list/mutable/outer-block-builder';
 
 import { List } from '@rimbu/list';
 
-function makeContext<T>(blockSizeBits: number): ListContext<T> {
-	return List.createContext({ blockSizeBits }) as ListContext<T>;
+function makeContext(blockSizeBits: number): ListContext {
+	return List.createContext({ blockSizeBits }) as ListContext;
 }
 
-function ob<T>(ctx: ListContext<T>, vals: T[]): OuterBlockBuilder<T> {
+function ob<T>(ctx: ListContext, vals: T[]): OuterBlockBuilder<T> {
 	return ctx.outerBlockBuilder(ctx.childrenOps.of(vals));
 }
 
-function treeBuilder<T>(
-	ctx: ListContext<T>,
-	leftVals: T[],
-	rightVals: T[],
-): any {
+function treeBuilder<T>(ctx: ListContext, leftVals: T[], rightVals: T[]): any {
 	const left = ob(ctx, leftVals);
 	const right = ob(ctx, rightVals);
 	return ctx.outerTreeBuilder(
@@ -32,19 +28,19 @@ function treeBuilder<T>(
 
 describe('OuterTreeBuilder.properties', () => {
 	it('level is 0', () => {
-		const ctx = makeContext<number>(2);
+		const ctx = makeContext(2);
 		const t = treeBuilder(ctx, [1, 2], [3, 4]);
 		expect(t.level).toBe(0);
 	});
 
 	it('size equals sum of left + right', () => {
-		const ctx = makeContext<number>(3);
+		const ctx = makeContext(3);
 		const t = treeBuilder(ctx, [1, 2, 3], [4, 5]);
 		expect(t.size).toBe(5);
 	});
 
 	it('has left, right, middle', () => {
-		const ctx = makeContext<number>(2);
+		const ctx = makeContext(2);
 		const t = treeBuilder(ctx, [1], [2]);
 		expect(t.left).toBeDefined();
 		expect(t.right).toBeDefined();
@@ -52,7 +48,7 @@ describe('OuterTreeBuilder.properties', () => {
 	});
 
 	it('context is the list context', () => {
-		const ctx = makeContext<number>(3);
+		const ctx = makeContext(3);
 		const t = treeBuilder(ctx, [1], [2]);
 		expect(t.context.blockSizeBits).toBe(3);
 	});
@@ -61,21 +57,21 @@ describe('OuterTreeBuilder.properties', () => {
 describe('OuterTreeBuilder.read', () => {
 	describe('get', () => {
 		it('from left block', () => {
-			const ctx = makeContext<number>(2);
+			const ctx = makeContext(2);
 			const t = treeBuilder(ctx, [10, 20, 30], [40, 50]);
 			expect(t.get(0 as Int.AtLeastZero)).toBe(10);
 			expect(t.get(2 as Int.AtLeastZero)).toBe(30);
 		});
 
 		it('from right block', () => {
-			const ctx = makeContext<number>(2);
+			const ctx = makeContext(2);
 			const t = treeBuilder(ctx, [10, 20, 30], [40, 50]);
 			expect(t.get(3 as Int.AtLeastZero)).toBe(40);
 			expect(t.get(4 as Int.AtLeastZero)).toBe(50);
 		});
 
 		it('last elements via positive index', () => {
-			const ctx = makeContext<number>(2);
+			const ctx = makeContext(2);
 			const t = treeBuilder(ctx, [10, 20, 30], [40, 50]);
 			expect(t.get(4 as Int.AtLeastZero)).toBe(50);
 			expect(t.get(3 as Int.AtLeastZero)).toBe(40);
@@ -85,7 +81,7 @@ describe('OuterTreeBuilder.read', () => {
 
 	describe('get', () => {
 		it('returns element at index', () => {
-			const ctx = makeContext<number>(2);
+			const ctx = makeContext(2);
 			const t = treeBuilder(ctx, [10, 20], [30, 40]);
 			expect(t.get(0 as Int.AtLeastZero)).toBe(10);
 			expect(t.get(1 as Int.AtLeastZero)).toBe(20);
@@ -96,7 +92,7 @@ describe('OuterTreeBuilder.read', () => {
 
 	describe('forEach', () => {
 		it('visits left then right in order', () => {
-			const ctx = makeContext<number>(2);
+			const ctx = makeContext(2);
 			const t = treeBuilder(ctx, [1, 2], [3, 4]);
 			const result: number[] = [];
 			t.forEach((v: number) => result.push(v));
@@ -109,7 +105,7 @@ describe('OuterTreeBuilder.prepend', () => {
 	const bits = 2; // max=4
 
 	it('prepends to left when left has room', () => {
-		const ctx = makeContext<number>(bits);
+		const ctx = makeContext(bits);
 		const t = treeBuilder(ctx, [2, 3], [5, 6]);
 		t.prepend(1);
 		expect(t.size).toBe(5);
@@ -117,7 +113,7 @@ describe('OuterTreeBuilder.prepend', () => {
 	});
 
 	it('shifts left→right when left full and right has room', () => {
-		const ctx = makeContext<number>(bits);
+		const ctx = makeContext(bits);
 		const t = treeBuilder(ctx, [1, 2, 3, 4], [5]);
 		t.prepend(0);
 		expect(t.size).toBe(6);
@@ -125,7 +121,7 @@ describe('OuterTreeBuilder.prepend', () => {
 	});
 
 	it('promotes left to middle when both are full', () => {
-		const ctx = makeContext<number>(bits);
+		const ctx = makeContext(bits);
 		const t = treeBuilder(ctx, [1, 2, 3, 4], [5, 6, 7, 8]);
 		t.prepend(0);
 		expect(t.size).toBe(9);
@@ -134,7 +130,7 @@ describe('OuterTreeBuilder.prepend', () => {
 	});
 
 	it('multiple prepends build correct tree', () => {
-		const ctx = makeContext<number>(bits);
+		const ctx = makeContext(bits);
 		const t = treeBuilder(ctx, [5], [6]);
 		t.prepend(4);
 		t.prepend(3);
@@ -149,7 +145,7 @@ describe('OuterTreeBuilder.append', () => {
 	const bits = 2; // max=4
 
 	it('appends to right when right has room', () => {
-		const ctx = makeContext<number>(bits);
+		const ctx = makeContext(bits);
 		const t = treeBuilder(ctx, [1, 2], [4, 5]);
 		t.append(6);
 		expect(t.size).toBe(5);
@@ -157,7 +153,7 @@ describe('OuterTreeBuilder.append', () => {
 	});
 
 	it('shifts right→left when right full and left has room', () => {
-		const ctx = makeContext<number>(bits);
+		const ctx = makeContext(bits);
 		const t = treeBuilder(ctx, [1], [2, 3, 4, 5]);
 		t.append(6);
 		expect(t.size).toBe(6);
@@ -165,7 +161,7 @@ describe('OuterTreeBuilder.append', () => {
 	});
 
 	it('promotes right to middle when both are full', () => {
-		const ctx = makeContext<number>(bits);
+		const ctx = makeContext(bits);
 		const t = treeBuilder(ctx, [1, 2, 3, 4], [5, 6, 7, 8]);
 		t.append(9);
 		expect(t.size).toBe(9);
@@ -174,7 +170,7 @@ describe('OuterTreeBuilder.append', () => {
 	});
 
 	it('multiple appends build correct tree', () => {
-		const ctx = makeContext<number>(bits);
+		const ctx = makeContext(bits);
 		const t = treeBuilder(ctx, [0], [1]);
 		t.append(2);
 		t.append(3);
@@ -188,7 +184,7 @@ describe('OuterTreeBuilder.build', () => {
 	const bits = 2;
 
 	it('returns tree with correct elements', () => {
-		const ctx = makeContext<number>(bits);
+		const ctx = makeContext(bits);
 		const t = treeBuilder(ctx, [1, 2], [3, 4]);
 		const result = t.build();
 		expect(result.size).toBe(4);
@@ -196,13 +192,13 @@ describe('OuterTreeBuilder.build', () => {
 	});
 
 	it('returns outer tree type', () => {
-		const ctx = makeContext<number>(bits);
+		const ctx = makeContext(bits);
 		const t = treeBuilder(ctx, [1], [2]);
 		expect(t.build()).toHaveProperty('left');
 	});
 
 	it('build after append reflects changes', () => {
-		const ctx = makeContext<number>(bits);
+		const ctx = makeContext(bits);
 		const t = treeBuilder(ctx, [1, 2], [3]);
 		t.append(4);
 		expect(t.build().toArray()).toEqual([1, 2, 3, 4]);
@@ -211,14 +207,14 @@ describe('OuterTreeBuilder.build', () => {
 
 describe('OuterTreeBuilder.buildMap', () => {
 	it('transforms elements', () => {
-		const ctx = makeContext<number>(2);
+		const ctx = makeContext(2);
 		const t = treeBuilder(ctx, [1, 2], [3, 4]);
 		const mapped = t.buildMap((x: number) => x * 10);
 		expect(mapped.toArray()).toEqual([10, 20, 30, 40]);
 	});
 
 	it('drops middle in result', () => {
-		const ctx = makeContext<number>(2);
+		const ctx = makeContext(2);
 		const t = treeBuilder(ctx, [1, 2], [3, 4]);
 		const mapped = t.buildMap((x: number) => x);
 		expect(mapped).toHaveProperty('left');
@@ -230,13 +226,13 @@ describe('OuterTreeBuilder.normalized', () => {
 	const bits = 2;
 
 	it('empty returns undefined', () => {
-		const ctx = makeContext<number>(bits);
+		const ctx = makeContext(bits);
 		const t = ctx.outerTreeBuilder(ob(ctx, []), ob(ctx, []), undefined, 0);
 		expect(t.normalized()).toBeUndefined();
 	});
 
 	it('collapses to single block when total children fit in one block', () => {
-		const ctx = makeContext<number>(bits);
+		const ctx = makeContext(bits);
 		const t = treeBuilder(ctx, [1], [2, 3]);
 		const result = t.normalized();
 		expect(result).toBeDefined();
@@ -244,7 +240,7 @@ describe('OuterTreeBuilder.normalized', () => {
 	});
 
 	it('keeps tree when children exceed maxBlockSize', () => {
-		const ctx = makeContext<number>(bits);
+		const ctx = makeContext(bits);
 		const t = treeBuilder(ctx, [1, 2, 3], [4, 5]);
 		const result = t.normalized();
 		expect(result).toBeDefined();
@@ -252,7 +248,7 @@ describe('OuterTreeBuilder.normalized', () => {
 	});
 
 	it('keeps tree when middle exists', () => {
-		const ctx = makeContext<number>(bits);
+		const ctx = makeContext(bits);
 		const t = treeBuilder(ctx, [1, 2, 3, 4], [5, 6, 7, 8]);
 		t.append(9); // creates middle
 		const result = t.normalized();
@@ -264,7 +260,7 @@ describe('OuterTreeBuilder.mixed-prepend-append', () => {
 	const bits = 2;
 
 	it('alternating order produces correct result', () => {
-		const ctx = makeContext<number>(bits);
+		const ctx = makeContext(bits);
 		const t = treeBuilder(ctx, [3], [5]);
 		t.prepend(1);
 		t.append(7);
@@ -274,7 +270,7 @@ describe('OuterTreeBuilder.mixed-prepend-append', () => {
 	});
 
 	it('large alternating sequence', () => {
-		const ctx = makeContext<number>(bits);
+		const ctx = makeContext(bits);
 		const t = treeBuilder(ctx, [5], [6]);
 		for (let i = 4; i >= 0; i--) {
 			t.prepend(i);
@@ -293,7 +289,7 @@ describe('OuterTreeBuilder.edge-cases', () => {
 
 	describe('deep tree building', () => {
 		it('50 appends with small block size', () => {
-			const ctx = makeContext<number>(bits);
+			const ctx = makeContext(bits);
 			const t = treeBuilder(ctx, [0], [1]);
 			for (let i = 2; i < 50; i++) {
 				t.append(i);
@@ -304,7 +300,7 @@ describe('OuterTreeBuilder.edge-cases', () => {
 		});
 
 		it('50 prepends with small block size', () => {
-			const ctx = makeContext<number>(bits);
+			const ctx = makeContext(bits);
 			const t = treeBuilder(ctx, [47], [48, 49]);
 			for (let i = 46; i >= 0; i--) {
 				t.prepend(i);
@@ -341,7 +337,7 @@ describe('OuterTreeBuilder.edge-cases', () => {
 
 	describe('null / undefined elements', () => {
 		it('null elements', () => {
-			const ctx = makeContext<number | null>(bits);
+			const ctx = makeContext(bits);
 			const t = treeBuilder(ctx, [1], [null, 3]);
 			t.append(null);
 			expect(t.get(1 as Int.AtLeastZero)).toBeNull();
@@ -349,7 +345,7 @@ describe('OuterTreeBuilder.edge-cases', () => {
 		});
 
 		it('undefined elements', () => {
-			const ctx = makeContext<number | undefined>(bits);
+			const ctx = makeContext(bits);
 			const t = treeBuilder(ctx, [1], [undefined, 3]);
 			expect(t.get(1 as Int.AtLeastZero)).toBeUndefined();
 			expect(t.build().toArray()).toEqual([1, undefined, 3]);
@@ -358,7 +354,7 @@ describe('OuterTreeBuilder.edge-cases', () => {
 
 	describe('get returns elements correctly after mutation', () => {
 		it('get works after multiple prepends', () => {
-			const ctx = makeContext<number>(bits);
+			const ctx = makeContext(bits);
 			const t = treeBuilder(ctx, [4], [6]);
 			t.prepend(2);
 			t.append(8);

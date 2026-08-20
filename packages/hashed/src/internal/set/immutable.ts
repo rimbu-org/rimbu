@@ -1,10 +1,10 @@
 import type { Collection } from '@rimbu/collection-types/collection';
+// biome-ignore lint/correctness/noUnusedImports: TypesKey is used as a computed property key, which Biome does not detect
 import type { TypesKey } from '@rimbu/collection-types/types';
 import type { ArrayNonEmpty, RelatedTo } from '@rimbu/common/types';
 import type { HashSet } from '@rimbu/hashed/set';
 import type { List } from '@rimbu/list';
-
-import type { ContextImpl } from '#set/context-factory';
+import type { HashSetContext } from './context';
 
 import * as Arr from '@rimbu/base/arr';
 import * as RimbuError from '@rimbu/base/rimbu-error';
@@ -24,16 +24,16 @@ import {
 import { TraverseState } from '@rimbu/common/traverse-state';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
-export class HashSetEmpty<T = any>
-	extends SetCollectionEmptyBase<T>
-	implements HashSet<T>
+export class HashSetEmpty<E = any>
+	extends SetCollectionEmptyBase<E>
+	implements HashSet<E>
 {
-	declare readonly [TypesKey]: Collection.Advanced.InvariantTypes<
-		Collection.Advanced.Types<HashSet.Advanced.Family<T>, T>,
-		T
+	declare readonly [TypesKey]: Collection.Advanced.Types<
+		HashSet.Advanced.Family<E>,
+		E
 	>;
 
-	constructor(readonly context: ContextImpl<T>) {
+	constructor(readonly context: HashSetContext) {
 		super();
 
 		this.addAll = context.from;
@@ -48,18 +48,21 @@ export abstract class HashSetNonEmptyBase<T>
 	extends SetCollectionNonEmptyBase<T>
 	implements HashSet.NonEmpty<T>
 {
-	declare readonly [TypesKey]: Collection.Advanced.InvariantTypes<
-		Collection.Advanced.TypesNonEmpty<HashSet.Advanced.Family<T>, T>,
+	declare readonly [TypesKey]: Collection.Advanced.TypesNonEmpty<
+		HashSet.Advanced.Family<T>,
 		T
 	>;
 
-	constructor(readonly context: ContextImpl<T>) {
+	constructor(readonly context: HashSetContext) {
 		super();
 	}
 
 	abstract add(element: T): HashSet.NonEmpty<T>;
-	abstract remove<T2 = T>(element: RelatedTo<T2, T>): HashSet<T>;
-	abstract map<T2>(f: (element: T) => T2): HashSet.NonEmpty<T2>;
+	abstract remove(element: T): HashSet<T>;
+
+	map<T2>(f: (element: T) => T2): HashSet.NonEmpty<T2> {
+		return this.context.from(this.stream().mapPure(f)) as HashSet.NonEmpty<T2>;
+	}
 
 	mapIndexed<T2>(
 		f: (element: T, index: number) => T2,
@@ -68,9 +71,11 @@ export abstract class HashSetNonEmptyBase<T>
 		return defaultMapIndexed(this, f, options);
 	}
 
-	removeAll<T2 = T>(elements: StreamSource<RelatedTo<T2, T>>): HashSet<T> {
-		// TODO
-		return 0 as any;
+	removeAll(elements: StreamSource<T>): HashSet<T> {
+		const builder = this.toBuilder();
+		// TODO: builder.removeAll(elements);
+		if (builder.size === this.size) return this;
+		return builder.build();
 	}
 
 	flatMap<T2>(f: (element: T) => StreamSource<T2>): HashSet.NonEmpty<T2> {
@@ -88,11 +93,11 @@ export abstract class HashSetNonEmptyBase<T>
 		return defaultUnionByAdd(this, other) as HashSet.NonEmpty<T>;
 	}
 
-	difference<T2 = T>(other: StreamSource<RelatedTo<T2, T>>): HashSet<T> {
+	difference(other: StreamSource<T>): HashSet<T> {
 		return defaultDifferenceByRemove(this, other);
 	}
 
-	intersection<T2 = T>(other: StreamSource<RelatedTo<T2, T>>): HashSet<T> {
+	intersection(other: StreamSource<T>): HashSet<T> {
 		return defaultIntersectByAdd(this, other);
 	}
 
@@ -104,92 +109,36 @@ export abstract class HashSetNonEmptyBase<T>
 		return this.union(values);
 	}
 
-	// 	if (Stream.isEmptyStreamSourceInstance(values)) return this;
-	// 	const builder = this.toBuilder();
-	// 	builder.addAll(values);
-	// 	return builder.build() as HashSet.NonEmpty<T>;
-	// }
-	// removeAll(values: StreamSource<T>): HashSet<T> {
-	// 	if (Stream.isEmptyStreamSourceInstance(values)) return this;
-	// 	const builder = this.toBuilder();
-	// 	builder.removeAll(values);
-	// 	return builder.build();
-	// }
-	// filter(
-	// 	pred: (value: T, index: number, halt: () => void) => boolean,
-	// 	options: { negate?: boolean | undefined } = {},
-	// ): any {
-	// 	const builder = this.context.builder();
-	// 	builder.addAll(this.stream().filter(pred, options));
-	// 	if (builder.size === this.size) return this;
-	// 	return builder.build();
-	// }
-	// transform<T2 extends T>(
-	// 	transformFun: (stream: Stream.NonEmpty<T>) => StreamSource<T2>,
-	// ): any {
-	// 	return this.context.from(transformFun(this.stream()));
-	// }
-	// union(other: StreamSource<T>): HashSet.NonEmpty<T> {
-	// 	if (other === this) return this;
-	// 	if (Stream.isEmptyStreamSourceInstance(other)) return this;
-	// 	const builder = this.toBuilder();
-	// 	builder.addAll(other);
-	// 	return builder.build().assumeNonEmpty();
-	// }
-	// difference(other: StreamSource<T>): HashSet<T> {
-	// 	if (other === this) return this.context.empty();
-	// 	if (Stream.isEmptyStreamSourceInstance(other)) return this;
-	// 	const builder = this.toBuilder();
-	// 	builder.removeAll(other);
-	// 	return builder.build();
-	// }
-	// intersect(other: StreamSource<T>): HashSet<T> {
-	// 	if (other === this) return this;
-	// 	if (Stream.isEmptyStreamSourceInstance(other)) return this.context.empty();
-	// 	const builder = this.context.builder();
-	// 	const it = Stream.from(other)[Symbol.iterator]();
-	// 	const done = Symbol('Done');
-	// 	let value: T | typeof done;
-	// 	while (done !== (value = it.fastNext(done))) {
-	// 		if (this.has(value)) builder.add(value);
-	// 	}
-	// 	if (builder.size === this.size) return this;
-	// 	return builder.build();
-	// }
-	// symDifference(other: StreamSource<T>): HashSet<T> {
-	// 	if (other === this) return this.context.empty();
-	// 	if (Stream.isEmptyStreamSourceInstance(other)) return this;
-	// 	const builder = this.toBuilder();
-	// 	Stream.from(other)
-	// 		.filterPure({ pred: builder.remove, negate: true })
-	// 		.forEach(builder.add);
-	// 	return builder.build();
-	// }
-	// toBuilder(): HashSet.Builder<T> {
-	// 	return this.context.createBuilder(this);
-	// }
-	// toString(): string {
-	// 	return this.stream().join({ start: 'HashSet(', sep: ', ', end: ')' });
-	// }
-	// toJSON(): ToJSON<T[]> {
-	// 	return {
-	// 		dataType: this.context.typeTag,
-	// 		value: [],
-	// 	};
-	// }
+	filter(
+		pred: (value: T, index: number, halt: () => void) => boolean,
+		options: { negate?: boolean | undefined } = {},
+	): HashSet<T> {
+		const builder = this.context.builder<T>();
+		builder.addAll(this.stream().filter(pred, options));
+		if (builder.size === this.size) return this;
+		return builder.build();
+	}
+
+	toBuilder(): HashSet.Builder<T> {
+		return this.context.createBuilder(this);
+	}
+
+	toString(): string {
+		return this.stream().join({ start: 'HashSet(', sep: ', ', end: ')' });
+	}
 }
 
 export type SetEntrySet<T> = HashSetBlock<T> | HashSetCollision<T>;
 
 export class HashSetBlock<T> extends HashSetNonEmptyBase<T> {
 	constructor(
-		readonly context: ContextImpl<T>,
+		context: HashSetContext,
 		readonly entries: readonly T[] | null,
 		readonly entrySets: readonly SetEntrySet<T>[] | null,
 		readonly size: number,
 		readonly level: number,
 	) {
-		super();
+		super(context);
 	}
 
 	copy(
@@ -229,7 +178,7 @@ export class HashSetBlock<T> extends HashSetNonEmptyBase<T> {
 		) as Stream.NonEmpty<T>;
 	}
 
-	has<U>(value: RelatedTo<T, U>, inHash?: number): boolean {
+	has<UT>(value: RelatedTo<T, UT>, inHash?: number): boolean {
 		if (!this.context.hasher.isValid(value)) return false;
 
 		const hash = inHash ?? this.context.hash(value);
@@ -242,7 +191,7 @@ export class HashSetBlock<T> extends HashSetNonEmptyBase<T> {
 
 		if (null !== this.entrySets && atKeyIndex in this.entrySets) {
 			const entrySet = this.entrySets[atKeyIndex];
-			return entrySet.has<U>(value, hash);
+			return entrySet.has<UT>(value, hash);
 		}
 
 		return false;
@@ -311,7 +260,7 @@ export class HashSetBlock<T> extends HashSetNonEmptyBase<T> {
 		return this.copy(newEntries, undefined, this.size + 1);
 	}
 
-	remove<U>(value: RelatedTo<T, U>, hash?: number): HashSet<T> {
+	remove(value: T, hash?: number): HashSet<T> {
 		if (!this.context.hasher.isValid(value)) return this;
 
 		const valueHash = hash ?? this.context.hash(value);
@@ -339,10 +288,7 @@ export class HashSetBlock<T> extends HashSetNonEmptyBase<T> {
 		if (null !== this.entrySets && atKeyIndex in this.entrySets) {
 			// key is in entrySet
 			const currentEntrySet = this.entrySets[atKeyIndex];
-			const newEntrySet = currentEntrySet.remove<U>(
-				value,
-				hash,
-			) as SetEntrySet<T>;
+			const newEntrySet = currentEntrySet.remove(value, hash) as SetEntrySet<T>;
 
 			if (newEntrySet === currentEntrySet) return this;
 
@@ -406,29 +352,34 @@ export class HashSetBlock<T> extends HashSetNonEmptyBase<T> {
 	}
 
 	toArray(): ArrayNonEmpty<T> {
-		let result: T[] = [];
+		const result = new Array(this.size) as ArrayNonEmpty<T>;
+
+		let index = 0;
 
 		if (null !== this.entries) {
 			for (const key in this.entries) {
-				result.push(this.entries[key]);
-			}
-		}
-		if (null !== this.entrySets) {
-			for (const key in this.entrySets) {
-				result = result.concat(this.entrySets[key].toArray());
+				result[index++] = this.entries[key];
 			}
 		}
 
-		return result as ArrayNonEmpty<T>;
+		if (null !== this.entrySets) {
+			for (const key in this.entrySets) {
+				const entrySetArray = this.entrySets[key].toArray();
+				result.copyWithin(index, 0, entrySetArray.length);
+				index += entrySetArray.length;
+			}
+		}
+
+		return result;
 	}
 }
 
 export class HashSetCollision<T> extends HashSetNonEmptyBase<T> {
 	constructor(
-		readonly context: ContextImpl<T>,
+		context: HashSetContext,
 		readonly entries: List.NonEmpty<T>,
 	) {
-		super();
+		super(context);
 	}
 
 	get size(): number {
@@ -459,7 +410,7 @@ export class HashSetCollision<T> extends HashSetNonEmptyBase<T> {
 		return this.copy(this.entries.with(currentIndex, value));
 	}
 
-	remove<U>(value: RelatedTo<T, U>, hash?: number): HashSet<T> {
+	remove(value: T, _hash?: number): HashSet<T> {
 		if (!this.context.hasher.isValid(value)) return this;
 
 		const currentIndex = this.stream().indexOf(value, { eq: this.context.eq });

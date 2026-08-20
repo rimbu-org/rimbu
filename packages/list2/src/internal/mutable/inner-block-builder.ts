@@ -11,7 +11,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 	implements InnerBuilder<T, C>, BlockBuilder<T, C>
 {
 	constructor(
-		readonly context: ListContext<T>,
+		readonly context: ListContext,
 		readonly level: number,
 		source?: InnerBlock<T, any>,
 		children?: C[],

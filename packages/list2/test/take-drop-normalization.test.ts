@@ -14,15 +14,15 @@ import { List } from '@rimbu/list';
 // Helpers
 // ---------------------------------------------------------------------------
 
-function makeContext<T>(blockSizeBits: number): ListContext<T> {
-	return List.createContext({ blockSizeBits }) as ListContext<T>;
+function makeContext(blockSizeBits: number): ListContext {
+	return List.createContext({ blockSizeBits }) as ListContext;
 }
 
-function ob<T>(ctx: ListContext<T>, vals: T[]): OuterBlock<T> {
+function ob<T>(ctx: ListContext, vals: T[]): OuterBlock<T> {
 	return ctx.outerBlockLeftRight(ctx.childrenOps.of(vals as [T, ...T[]]));
 }
 
-function obRev<T>(ctx: ListContext<T>, vals: T[]): OuterBlock<T> {
+function obRev<T>(ctx: ListContext, vals: T[]): OuterBlock<T> {
 	return ctx.outerBlockRightLeft(
 		ctx.childrenOps.of(vals.toReversed() as [T, ...T[]]),
 	);
@@ -31,7 +31,7 @@ function obRev<T>(ctx: ListContext<T>, vals: T[]): OuterBlock<T> {
 function ib<
 	T,
 	C extends import('#list/immutable/common').Block<T> & { _self: C },
->(ctx: ListContext<T>, children: C[], level: number): InnerBlock<T, C> {
+>(ctx: ListContext, children: C[], level: number): InnerBlock<T, C> {
 	const size = children.reduce((s, c) => s + c.size, 0);
 	return ctx.innerBlock(children, size, level);
 }
@@ -70,7 +70,7 @@ for (const bits of blockSizeBitsValues) {
 	// =========================================================================
 
 	describe(`OuterBlock take/drop (bits=${bits}, max=${max}, min=${min})`, () => {
-		const ctx = makeContext<number>(bits);
+		const ctx = makeContext(bits);
 
 		describe('LeftRight', () => {
 			describe('take', () => {
@@ -337,7 +337,7 @@ for (const bits of blockSizeBitsValues) {
 	// =========================================================================
 
 	describe(`OuterTree take/drop NO middle (bits=${bits}, max=${max}, min=${min})`, () => {
-		const ctx = makeContext<number>(bits);
+		const ctx = makeContext(bits);
 		const leftSize = max;
 		const rightSize = max;
 		const totalSize = leftSize + rightSize;
@@ -581,7 +581,7 @@ for (const bits of blockSizeBitsValues) {
 	// =========================================================================
 
 	describe(`OuterTree take/drop WITH middle (bits=${bits}, max=${max}, min=${min})`, () => {
-		const ctx = makeContext<number>(bits);
+		const ctx = makeContext(bits);
 		// Build a tree with middle: left + middle + right
 		// middle contains outer blocks totaling enough to justify being a tree
 		const leftSize = max;
@@ -935,7 +935,7 @@ for (const bits of blockSizeBitsValues) {
 	// =========================================================================
 
 	describe(`InnerBlock takeInternal/dropInternal (bits=${bits}, max=${max}, min=${min})`, () => {
-		const ctx = makeContext<number>(bits);
+		const ctx = makeContext(bits);
 
 		function makeInnerBlock(
 			childSizes: number[],
@@ -1146,7 +1146,7 @@ for (const bits of blockSizeBitsValues) {
 	// =========================================================================
 
 	describe(`InnerTree takeInternal/dropInternal (bits=${bits}, max=${max}, min=${min})`, () => {
-		const ctx = makeContext<number>(bits);
+		const ctx = makeContext(bits);
 		const level = 1;
 
 		function obx(vals: number[]): OuterBlock<number> {

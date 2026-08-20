@@ -29,14 +29,14 @@ export abstract class ListNonEmptyBase<T>
 	extends IndexedCollectionNonEmptyBase<T>
 	implements List.NonEmpty<T>
 {
-	declare readonly [TypesKey]: Collection.Advanced.InvariantTypes<
-		Collection.Advanced.TypesNonEmpty<List.Advanced.Family<T>, T>,
+	declare readonly [TypesKey]: Collection.Advanced.TypesNonEmpty<
+		List.Advanced.Family<T>,
 		T
 	>;
 
 	declare _self: ListNonEmptyBase<T>;
 
-	constructor(readonly context: ListContext<T>) {
+	constructor(readonly context: ListContext) {
 		super();
 	}
 

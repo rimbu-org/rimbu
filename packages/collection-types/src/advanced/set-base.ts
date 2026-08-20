@@ -1,10 +1,11 @@
 import type { Collection } from '@rimbu/collection-types/collection';
 import type { SetCollection } from '@rimbu/collection-types/set';
 import type { TypesKey } from '@rimbu/collection-types/types';
-import type { RelatedTo } from '@rimbu/common';
+import type { ArrayNonEmpty, RelatedTo } from '@rimbu/common';
 
 import { Stream, type StreamSource } from '@rimbu/stream';
 import {
+	ValuedCollectionBuilderBase,
 	ValuedCollectionEmptyBase,
 	type ValuedCollectionEmptyBaseCapabilities,
 	ValuedCollectionNonEmptyBase,
@@ -82,6 +83,63 @@ export abstract class SetCollectionNonEmptyBase<E>
 	>;
 }
 
+export abstract class SetCollectionContextBase<
+	Tp extends Collection.Advanced.Types<
+		SetCollection.Advanced.Family<any> &
+			SetCollection.Capability.WithAdd<any> &
+			Collection.Capability.WithToBuilder<any>,
+		any
+	>,
+> implements SetCollection.Advanced.ContextApi<Tp>
+{
+	abstract isNonEmptyInstance<E extends Tp['_UPPER_E']>(
+		source: unknown,
+	): source is Tp['_NON_EMPTY'];
+	abstract empty<E extends Tp['_UPPER_E']>(): Collection.Advanced.ReTyped<
+		Tp,
+		E
+	>['_NORMAL'];
+	abstract builder<E extends Tp['_UPPER_E']>(): Collection.Advanced.ReTyped<
+		Tp,
+		E
+	>['_BUILDER'];
+
+	of = <E extends Tp['_UPPER_E']>(
+		...elements: ArrayNonEmpty<E>
+	): Collection.Advanced.ReTyped<Tp, E>['_NON_EMPTY'] => {
+		return this.from(elements);
+	};
+
+	from = <E extends Tp['_UPPER_E']>(
+		...sources: ArrayNonEmpty<StreamSource<E>>
+	): Collection.Advanced.ReTyped<Tp, E>['_NON_EMPTY'] => {
+		let builder = this.builder<E>();
+		let i = -1;
+		const length = sources.length;
+		while (++i < length) {
+			const source = sources[i];
+			if (Stream.isEmptyStreamSourceInstance(source)) continue;
+			if (
+				builder.isEmpty &&
+				this.isNonEmptyInstance<E>(source) &&
+				source.context === this
+			) {
+				if (i === length - 1) return source;
+				builder = source.toBuilder();
+				continue;
+			}
+			builder.addAll(source);
+		}
+
+		return builder.build() as any;
+	};
+}
+
+export abstract class SetCollectionBuilderBase<E>
+	extends ValuedCollectionBuilderBase<E>
+	implements
+		SetCollection.Builder<E, SetCollectionNonEmptyBaseCapabilities<E>> {}
+
 export function defaultFlatMapByUnion<
 	E,
 	E2,
@@ -117,9 +175,9 @@ export function defaultUnionByAdd<
 
 export function defaultDifferenceByRemove<
 	E,
-	E2,
+	UE,
 	C extends SetCollection.NonEmpty<E, SetCollection.Capability.WithRemove<E>>,
->(col: C, other: StreamSource<RelatedTo<E2, E>>): C[TypesKey]['_NORMAL'] {
+>(col: C, other: StreamSource<RelatedTo<E, UE>>): C[TypesKey]['_NORMAL'] {
 	if (other === col) return col.context.empty();
 	if (Stream.isEmptyStreamSourceInstance(other)) return col;
 
@@ -128,9 +186,9 @@ export function defaultDifferenceByRemove<
 
 export function defaultIntersectByAdd<
 	E,
-	E2,
+	UE,
 	C extends SetCollection.NonEmpty<E, SetCollection.Capability.WithAdd<E>>,
->(col: C, other: StreamSource<RelatedTo<E2, E>>): C[TypesKey]['_NORMAL'] {
+>(col: C, other: StreamSource<RelatedTo<E, UE>>): C[TypesKey]['_NORMAL'] {
 	if (other === col) return col;
 	if (Stream.isEmptyStreamSourceInstance(other)) return col.context.empty();
 

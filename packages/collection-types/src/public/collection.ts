@@ -18,27 +18,16 @@ export declare namespace Collection {
 		F extends Advanced.FamilyBase<E> = Advanced.Family<E>,
 	> = Advanced.Types<F, E>['_BUILDER'];
 
-	export interface Context<Tp extends Advanced.TypesBase> {
-		empty<E extends Tp['_UPPER_E']>(): Collection.Advanced.ReTyped<
-			Tp,
-			E
-		>['_NORMAL'];
-		of<E extends Tp['_UPPER_E']>(
-			...elements: ArrayNonEmpty<E>
-		): Collection.Advanced.ReTyped<Tp, E>['_NON_EMPTY'];
-		from<T extends Tp['_UPPER_E']>(
-			...sources: ArrayNonEmpty<StreamSource.NonEmpty<T>>
-		): Collection.Advanced.ReTyped<Tp, T>['_NON_EMPTY'];
-		from<T extends Tp['_UPPER_E']>(
-			...sources: ArrayNonEmpty<StreamSource<T>>
-		): Collection.Advanced.ReTyped<Tp, T>['_NORMAL'];
-		builder<T extends Tp['_UPPER_E']>(): Collection.Advanced.ReTyped<
-			Tp,
-			T
-		>['_BUILDER'];
-	}
+	export type Context<
+		F extends Advanced.FamilyBase<any> = Advanced.Family<any>,
+	> = Advanced.Types<F, any>['_CONTEXT'];
 
 	export namespace Advanced {
+		export interface TypesBase extends FamilyBase<any> {
+			_SELF: unknown;
+			_NEW_TYPES: TypesBase;
+		}
+
 		export type Types<F extends FamilyBase<any>, E> = F & {
 			_FAM: F;
 		} & NormalKind<E>;
@@ -46,6 +35,15 @@ export declare namespace Collection {
 		export type TypesNonEmpty<F extends FamilyBase<any>, E> = F & {
 			_FAM: F;
 		} & NonEmptyKind<E>;
+
+		export type ReTyped<Tp extends TypesBase, E2> =
+			Tp extends NonEmptyKind<any>
+				? TypesNonEmpty<(Tp & { _NEW_E: E2 })['_NEW_FAMILY'], E2>
+				: Types<(Tp & { _NEW_E: E2 })['_NEW_FAMILY'], E2>;
+
+		export type InvariantTypes<Tp extends TypesBase, E> = Tp & {
+			readonly _INVARIANT: (e: E) => E;
+		};
 
 		export interface FamilyBase<E> {
 			/** the kind-free family this record was built from */
@@ -70,11 +68,6 @@ export declare namespace Collection {
 			_COVARIANT: E;
 		}
 
-		export interface TypesBase extends FamilyBase<any> {
-			_SELF: unknown;
-			_NEW_TYPES: TypesBase;
-		}
-
 		export interface NormalKind<E> extends FamilyBase<E> {
 			_SELF: this['_NORMAL'];
 			_AS_ARRAY: E[];
@@ -97,15 +90,6 @@ export declare namespace Collection {
 
 			_NEW_TYPES: TypesNonEmpty<this['_NEW_FAMILY'], this['_NEW_E']>;
 		}
-
-		export type ReTyped<Tp extends TypesBase, E2> =
-			Tp extends NonEmptyKind<any>
-				? TypesNonEmpty<(Tp & { _NEW_E: E2 })['_NEW_FAMILY'], E2>
-				: Types<(Tp & { _NEW_E: E2 })['_NEW_FAMILY'], E2>;
-
-		export type InvariantTypes<Tp extends TypesBase, E> = Tp & {
-			readonly _INVARIANT: (e: E) => E;
-		};
 
 		export interface Api<E, Tp extends TypesBase> extends FastIterable<E> {
 			/** phantom carrier of the types record; keeps `E` and the family invariant */
@@ -176,11 +160,40 @@ export declare namespace Collection {
 			build(): Tp['_NORMAL'];
 		}
 
+		export interface ContextApi<F extends FamilyBase<any>> {
+			empty<E extends F['_UPPER_E']>(): Collection.Advanced.ReTyped<
+				Collection.Advanced.Types<F, E>,
+				E
+			>['_NORMAL'];
+			of<E extends F['_UPPER_E']>(
+				...elements: ArrayNonEmpty<E>
+			): Collection.Advanced.ReTyped<
+				Collection.Advanced.Types<F, E>,
+				E
+			>['_NON_EMPTY'];
+			from<E extends F['_UPPER_E']>(
+				...sources: ArrayNonEmpty<StreamSource.NonEmpty<E>>
+			): Collection.Advanced.ReTyped<
+				Collection.Advanced.Types<F, E>,
+				E
+			>['_NON_EMPTY'];
+			from<E extends F['_UPPER_E']>(
+				...sources: ArrayNonEmpty<StreamSource<E>>
+			): Collection.Advanced.ReTyped<
+				Collection.Advanced.Types<F, E>,
+				E
+			>['_NORMAL'];
+			builder<E extends F['_UPPER_E']>(): Collection.Advanced.ReTyped<
+				Collection.Advanced.Types<F, E>,
+				E
+			>['_BUILDER'];
+		}
+
 		export interface Family<E> extends FamilyBase<E> {
 			_NORMAL: Api<E, Types<this['_FAM'], E>>;
 			_NON_EMPTY: Api<E, TypesNonEmpty<this['_FAM'], E>>;
 			_BUILDER: BuilderApi<E, Types<this['_FAM'], E>>;
-			_CONTEXT: Context<Types<this['_FAM'], E>>;
+			_CONTEXT: ContextApi<this['_FAM']>;
 
 			_FAM: Family<E>;
 			_NEW_FAMILY: Family<this['_NEW_E']>;

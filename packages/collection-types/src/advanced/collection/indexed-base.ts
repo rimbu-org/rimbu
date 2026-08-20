@@ -26,9 +26,7 @@ export abstract class IndexedCollectionEmptyBase<E>
 		E
 	>;
 
-	abstract readonly context: Collection.Context<
-		Collection.Advanced.Types<IndexedCollectionEmptyBaseCapabilities<E>, E>
-	>;
+	abstract readonly context: IndexedCollection.Context<this[TypesKey]>;
 
 	streamSlice(): Stream<E> {
 		return Stream.empty<E>();
@@ -150,12 +148,7 @@ export abstract class IndexedCollectionNonEmptyBase<E>
 		E
 	>;
 
-	abstract readonly context: Collection.Context<
-		Collection.Advanced.TypesNonEmpty<
-			IndexedCollectionNonEmptyBaseCapabilities<E>,
-			E
-		>
-	>;
+	abstract readonly context: IndexedCollection.Context<this[TypesKey]>;
 
 	abstract streamSlice(
 		range: IndexRange,

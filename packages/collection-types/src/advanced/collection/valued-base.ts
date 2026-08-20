@@ -5,6 +5,7 @@ import type { TypesKey } from '@rimbu/collection-types/types';
 import type { RelatedTo } from '@rimbu/common';
 
 import {
+	CollectionBuilderBase,
 	CollectionEmptyBase,
 	type CollectionEmptyBaseCapabilities,
 	CollectionNonEmptyBase,
@@ -22,6 +23,8 @@ export abstract class ValuedCollectionEmptyBase<E>
 		Collection.Advanced.Types<ValuedCollectionEmptyBaseCapabilities<E>, E>,
 		E
 	>;
+
+	abstract readonly context: ValuedCollection.Context<this[TypesKey]>;
 
 	has(): false {
 		return false;
@@ -44,5 +47,21 @@ export abstract class ValuedCollectionNonEmptyBase<E>
 		E
 	>;
 
-	abstract has<E2 = E>(value: RelatedTo<E2, E>): boolean;
+	abstract readonly context: ValuedCollection.Context<this[TypesKey]>;
+
+	abstract has<UE = E>(value: RelatedTo<E, UE>): boolean;
+}
+
+export abstract class ValuedCollectionBuilderBase<E>
+	extends CollectionBuilderBase<E>
+	implements ValuedCollection.Builder<E>
+{
+	declare readonly [TypesKey]: Collection.Advanced.InvariantTypes<
+		Collection.Advanced.Types<ValuedCollectionEmptyBaseCapabilities<E>, E>,
+		E
+	>;
+
+	abstract readonly context: ValuedCollection.Context<this[TypesKey]>;
+
+	abstract has<UE = E>(value: RelatedTo<E, UE>): boolean;
 }

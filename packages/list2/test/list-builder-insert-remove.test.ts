@@ -97,7 +97,7 @@ function makeDeepSpineCase(
 ): DeepSpineCase {
 	const ctx = List.createContext({
 		blockSizeBits,
-	}) as unknown as ListContext<number>;
+	}) as unknown as ListContext;
 	let nextValue = 0;
 
 	const makeOuterBlock = (size: number): OuterBlockNode =>
@@ -235,7 +235,7 @@ describe('single-child middle repair branches', () => {
 	): ListBuilder<number> {
 		const ctx = List.createContext({
 			blockSizeBits,
-		}) as unknown as ListContext<number>;
+		}) as unknown as ListContext;
 		const ops = ctx.childrenOps;
 
 		const left = ctx.outerBlockBuilder<number>(
@@ -407,7 +407,7 @@ describe('single-child spine repair fixtures', () => {
 	it('merges instead of splitting when the donor would shrink below min', () => {
 		const ctx = List.createContext({
 			blockSizeBits: 3,
-		}) as unknown as ListContext<number>;
+		}) as unknown as ListContext;
 		const ops = ctx.childrenOps;
 		const left = ctx.outerBlockBuilder<number>(ops.of([0, 1, 2, 3]));
 		const firstMiddle = ctx.outerBlockBuilder<number>(
@@ -436,7 +436,7 @@ describe('single-child spine repair fixtures', () => {
 	it('repairs direct-child underflow at level 2 without using total size', () => {
 		const ctx = List.createContext({
 			blockSizeBits: 2,
-		}) as unknown as ListContext<number>;
+		}) as unknown as ListContext;
 		let nextValue = 0;
 
 		const makeOuterBlock = (size: number): OuterBlockNode =>

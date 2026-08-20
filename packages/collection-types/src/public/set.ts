@@ -7,31 +7,45 @@ import type { StreamSource } from '@rimbu/stream';
 export type SetCollection<
 	E,
 	F extends Collection.Advanced.FamilyBase<E> = Collection.Advanced.Family<E>,
-> = Collection.Advanced.Types<
-	F & SetCollection.Advanced.Family<E>,
-	E
->['_NORMAL'];
+> = SetCollection.Advanced.ExtendFamily<E, F>['_NORMAL'];
 
 export namespace SetCollection {
 	export type NonEmpty<
 		E,
 		F extends Collection.Advanced.FamilyBase<E> = Collection.Advanced.Family<E>,
-	> = Collection.Advanced.TypesNonEmpty<
-		F & SetCollection.Advanced.Family<E>,
-		E
-	>['_NON_EMPTY'];
+	> = Advanced.ExtendFamily<E, F>['_NON_EMPTY'];
+
+	export type Context<
+		F extends
+			Collection.Advanced.FamilyBase<any> = Collection.Advanced.Family<any>,
+	> = Advanced.ExtendFamily<any, F>['_CONTEXT'];
+
+	export type Builder<
+		E,
+		F extends Collection.Advanced.FamilyBase<E> = Collection.Advanced.Family<E>,
+	> = Advanced.ExtendFamily<E, F>['_BUILDER'];
 
 	export namespace Advanced {
+		export type ExtendFamily<
+			E,
+			F extends
+				Collection.Advanced.FamilyBase<E> = Collection.Advanced.Family<E>,
+		> = F & Family<E>;
+
 		export interface Api<E, Tp extends Collection.Advanced.TypesBase>
 			extends ValuedCollection.Advanced.Api<E, Tp> {}
 
 		export interface BuilderApi<E, Tp extends Collection.Advanced.TypesBase>
 			extends ValuedCollection.Advanced.BuilderApi<E, Tp> {}
 
+		export interface ContextApi<F extends Collection.Advanced.FamilyBase<any>>
+			extends ValuedCollection.Advanced.ContextApi<F> {}
+
 		export interface Family<E> extends ValuedCollection.Advanced.Family<E> {
 			_NORMAL: Api<E, Collection.Advanced.Types<this['_FAM'], E>>;
 			_NON_EMPTY: Api<E, Collection.Advanced.TypesNonEmpty<this['_FAM'], E>>;
 			_BUILDER: BuilderApi<E, Collection.Advanced.Types<this['_FAM'], E>>;
+			_CONTEXT: ContextApi<this['_FAM']>;
 
 			_FAM: Family<E>;
 			_NEW_FAMILY: Family<this['_NEW_E']>;
@@ -91,12 +105,12 @@ export namespace SetCollection {
 		export namespace WithDifferenceAndIntersection {
 			export interface Api<E, Tp extends Collection.Advanced.TypesBase>
 				extends Advanced.Api<E, Tp> {
-				difference<E2 = E>(
-					other: StreamSource<RelatedTo<E2, E>>,
+				difference<UE = E>(
+					other: StreamSource<RelatedTo<E, UE>>,
 				): Tp['_NORMAL'];
 
-				intersection<E2 = E>(
-					other: StreamSource<RelatedTo<E2, E>>,
+				intersection<UE = E>(
+					other: StreamSource<RelatedTo<E, UE>>,
 				): Tp['_NORMAL'];
 			}
 		}
@@ -119,18 +133,18 @@ export namespace SetCollection {
 		export namespace WithRemove {
 			export interface Api<E, Tp extends Collection.Advanced.TypesBase>
 				extends Advanced.Api<E, Tp> {
-				remove<E2 = E>(element: RelatedTo<E2, E>): Tp['_NORMAL'];
+				remove<UE = E>(element: RelatedTo<E, UE>): Tp['_NORMAL'];
 
-				removeAll<E2 = E>(
-					elements: StreamSource<RelatedTo<E2, E>>,
+				removeAll<UE = E>(
+					elements: StreamSource<RelatedTo<E, UE>>,
 				): Tp['_NORMAL'];
 			}
 
 			export interface BuilderApi<E, Tp extends Collection.Advanced.TypesBase>
 				extends Advanced.BuilderApi<E, Tp> {
-				remove<E2 = E>(element: RelatedTo<E2, E>): boolean;
+				remove<UE = E>(element: RelatedTo<E, UE>): boolean;
 
-				removeall<E2 = E>(elements: StreamSource<RelatedTo<E2, E>>): boolean;
+				removeAll<UE = E>(elements: StreamSource<RelatedTo<E, UE>>): boolean;
 			}
 		}
 

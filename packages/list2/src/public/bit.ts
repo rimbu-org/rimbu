@@ -2,6 +2,10 @@ import type { Collection } from '@rimbu/collection-types/collection';
 import type { IndexedCollection } from '@rimbu/collection-types/collection/indexed';
 import type { List } from '@rimbu/list';
 
+import type { ChildrenOps } from '#advanced/children-ops';
+
+import { ListContext } from '#list/context';
+
 export interface BitList
 	extends BitList.Advanced.Api<
 		Collection.Advanced.Types<BitList.Advanced.Family, boolean>
@@ -14,25 +18,26 @@ export declare namespace BitList {
 		> {}
 
 	export interface Builder
-		extends IndexedCollection.Advanced.BuilderApi<
-			boolean,
+		extends BitList.Advanced.BuilderApi<
 			Collection.Advanced.Types<BitList.Advanced.Family, boolean>
 		> {
 		readonly context: BitList.Context;
 	}
 
 	export interface Context
-		extends Collection.Context<
-			Collection.Advanced.Types<BitList.Advanced.Family, boolean>
-		> {
-		readonly blockSizeBits: number;
-
-		createContext(options: { blockSizeBits?: number }): BitList.Context;
-	}
+		extends BitList.Advanced.ContextApi<BitList.Advanced.Family> {}
 
 	export namespace Advanced {
 		export type Api<Tp extends Collection.Advanced.TypesBase> =
 			List.Advanced.Api<boolean, Tp>;
+
+		export type BuilderApi<Tp extends Collection.Advanced.TypesBase> =
+			List.Advanced.BuilderApi<boolean, Tp>;
+
+		export interface ContextApi<F extends Collection.Advanced.FamilyBase<any>>
+			extends List.Advanced.ContextApi<F> {
+			readonly blockSizeBits: number;
+		}
 
 		export interface Family extends IndexedCollection.Advanced.Family<boolean> {
 			_NORMAL: BitList;
@@ -41,9 +46,15 @@ export declare namespace BitList {
 			_CONTEXT: BitList.Context;
 
 			_UPPER_E: boolean;
+			_INVARIANT: (element: boolean) => boolean;
 
 			_FAM: Family;
 			_NEW_FAMILY: Family;
 		}
+
+		export type DefaultFactory = Omit<Context, 'blockSizeBits'>;
 	}
 }
+
+export const BitList: BitList.Advanced.DefaultFactory =
+	new ListContext<BitList.Advanced.Family>(5, 0 as unknown as ChildrenOps);

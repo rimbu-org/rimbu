@@ -19,7 +19,7 @@ function expectValid(list: List<number>): void {
 }
 
 function buildList(
-	ctx: List.Context<number>,
+	ctx: List.Context,
 	size: number,
 	direction: 'append' | 'prepend',
 ): List<number> {

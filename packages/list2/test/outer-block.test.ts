@@ -7,12 +7,12 @@ import type { OuterBlock } from '#list/immutable/outer-block';
 
 import { List } from '@rimbu/list2';
 
-type BlockFactory = <T>(ctx: ListContext<T>, values: T[]) => OuterBlock<T>;
+type BlockFactory = <T>(ctx: ListContext, values: T[]) => OuterBlock<T>;
 
 type MakeBlock = <T>(values: T[], blockSizeBits?: number) => OuterBlock<T>;
 
-function makeContext<T>(blockSizeBits: number): ListContext<T> {
-	return List.createContext({ blockSizeBits }) as ListContext<T>;
+function makeContext(blockSizeBits: number): ListContext {
+	return List.createContext({ blockSizeBits }) as ListContext;
 }
 
 function runOuterBlockTests(
@@ -395,7 +395,7 @@ function runOuterBlockTests(
 				});
 
 				it('inserts in the middle of a full block', () => {
-					const ctx = makeContext<number>(2);
+					const ctx = makeContext(2);
 					const b = factory(ctx, [1, 2, 3, 4]);
 					const result = b.insertAt(2, ctx.of(9, 10));
 
@@ -426,7 +426,7 @@ function runOuterBlockTests(
 				});
 
 				it('removes multiple elements from the middle of a full block', () => {
-					const ctx = makeContext<number>(2);
+					const ctx = makeContext(2);
 					const b = factory(ctx, [1, 2, 3, 4]);
 					const result = b.removeAt(1, 2);
 
@@ -1042,14 +1042,14 @@ function runOuterBlockTests(
 
 			it('concatenating empty source returns self', () => {
 				const b = makeBlock([1, 2, 3]);
-				const ctx2 = makeContext<number>(bits);
+				const ctx2 = makeContext(bits);
 				const empty = ctx2.empty<number>();
 				const r = b.concat(empty);
 				expect(r).toBe(b);
 			});
 
 			it('concatenating two blocks that fit merges into single block', () => {
-				const ctx2 = makeContext<number>(bits);
+				const ctx2 = makeContext(bits);
 				const a = factory(ctx2, [1, 2]);
 				const b = factory(ctx2, [3]);
 				const r = a.concat(b);
@@ -1058,7 +1058,7 @@ function runOuterBlockTests(
 			});
 
 			it('concatenating two blocks that overflow creates tree', () => {
-				const ctx2 = makeContext<number>(bits);
+				const ctx2 = makeContext(bits);
 				const a = factory(ctx2, [1, 2, 3]);
 				const b = factory(ctx2, [4, 5, 6]);
 				const r = a.concat(b);
@@ -1069,7 +1069,7 @@ function runOuterBlockTests(
 			});
 
 			it('self-concat creates tree when size exceeds minBlockSize', () => {
-				const ctx2 = makeContext<number>(bits);
+				const ctx2 = makeContext(bits);
 				const a = factory(ctx2, [1, 2, 3]); // size=3 > minBlockSize=2
 				const r = a.concat(a);
 				expect(r.toArray()).toEqual([1, 2, 3, 1, 2, 3]);
@@ -1085,7 +1085,7 @@ function runOuterBlockTests(
 
 		describe('OuterBlock._prependBlock', () => {
 			const bits = 2; // maxBlockSize=4
-			const ctx2 = makeContext<number>(bits);
+			const ctx2 = makeContext(bits);
 
 			it('merges into single block when combined size fits', () => {
 				const b = factory(ctx2, [3, 4]);
@@ -1117,7 +1117,7 @@ function runOuterBlockTests(
 
 		describe('OuterBlock._prependTree', () => {
 			const bits = 2; // maxBlockSize=4, minBlockSize=2
-			const ctx2 = makeContext<number>(bits);
+			const ctx2 = makeContext(bits);
 
 			it('merges joint into single block when it fits maxBlockSize', () => {
 				const right = factory(ctx2, [5, 6]);
@@ -1356,7 +1356,7 @@ function runOuterBlockTests(
 runOuterBlockTests(
 	(ctx, values) => ctx.outerBlockLeftRight(ctx.childrenOps.of(values)),
 	<T>(values: T[], blockSizeBits = 5) => {
-		const ctx = makeContext<T>(blockSizeBits);
+		const ctx = makeContext(blockSizeBits);
 		return ctx.outerBlockLeftRight(ctx.childrenOps.of(values));
 	},
 	'OuterBlockLeftRight',
@@ -1366,7 +1366,7 @@ runOuterBlockTests(
 	(ctx, values) =>
 		ctx.outerBlockRightLeft(ctx.childrenOps.of(values.toReversed())),
 	<T>(values: T[], blockSizeBits = 5) => {
-		const ctx = makeContext<T>(blockSizeBits);
+		const ctx = makeContext(blockSizeBits);
 		return ctx.outerBlockRightLeft(ctx.childrenOps.of(values.toReversed()));
 	},
 	'OuterBlockRightLeft',

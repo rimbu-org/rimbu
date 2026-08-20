@@ -13,7 +13,7 @@ export class OuterTreeBuilder<T>
 	implements OuterBuilder<T>
 {
 	constructor(
-		readonly context: ListContext<T>,
+		readonly context: ListContext,
 		source?: OuterTree<T>,
 		_left?: OuterBlockBuilder<T>,
 		_right?: OuterBlockBuilder<T>,

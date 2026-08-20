@@ -3,7 +3,6 @@ import type { List } from '@rimbu/list';
 import type { Stream } from '@rimbu/stream';
 
 import type { ChildrenOps, OuterChildren } from '#advanced/children-ops';
-import type { ListContext } from '#list/context';
 import type { CacheMap } from '#list/immutable/cache-map';
 import type { Block } from '#list/immutable/common';
 import type { OuterTree } from '#list/immutable/outer-tree';
@@ -19,10 +18,6 @@ export abstract class OuterBlock<T>
 	implements Block<T>
 {
 	declare _self: this;
-
-	constructor(readonly context: ListContext<T>) {
-		super(context);
-	}
 
 	abstract get size(): number;
 	abstract stream(options?: {

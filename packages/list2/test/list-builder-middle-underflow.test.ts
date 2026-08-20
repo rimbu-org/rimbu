@@ -123,7 +123,7 @@ describe('list builder middle underflow (known issue)', () => {
 	it('isBlockBuilder recognizes genuine block builders (repair guard)', () => {
 		const context = List.createContext({
 			blockSizeBits: 5,
-		}) as unknown as ListContext<number>;
+		}) as unknown as ListContext;
 
 		const outerBuilder = context.outerBlockBuilder(
 			context.childrenOps.of([1, 2]),

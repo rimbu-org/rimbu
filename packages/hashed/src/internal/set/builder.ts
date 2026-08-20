@@ -1,27 +1,32 @@
-import type { RelatedTo } from '@rimbu/common/types';
+import type { Collection } from '@rimbu/collection-types/collection';
+// biome-ignore lint/correctness/noUnusedImports: TypesKey is used as a computed property key, which Biome does not detect
+import type { TypesKey } from '@rimbu/collection-types/types';
 import type { HashSet } from '@rimbu/hashed/set';
+import type { HashSetContext } from './context';
 
-import type { ContextImpl } from '#set/context-factory';
 import type { HashSetBlock, HashSetCollision } from '#set/immutable';
 
 import * as Arr from '@rimbu/base/arr';
 import * as RimbuError from '@rimbu/base/rimbu-error';
-import { TraverseState } from '@rimbu/common/traverse-state';
+import { SetCollectionBuilderBase } from '@rimbu/collection-types/advanced/set-base';
 import { List } from '@rimbu/list';
 import { Stream, type StreamSource } from '@rimbu/stream';
-
-import { BlockBuilderBase, CollisionBuilderBase } from '#hashed/base';
 
 export type SetBlockBuilderEntry<T> =
 	| HashSetBlockBuilder<T>
 	| HashSetCollisionBuilder<T>;
 
 export class HashSetBlockBuilder<T>
-	extends BlockBuilderBase<T>
+	extends SetCollectionBuilderBase<T>
 	implements HashSet.Builder<T>
 {
+	declare readonly [TypesKey]: Collection.Advanced.Types<
+		HashSet.Advanced.Family<T>,
+		T
+	>;
+
 	constructor(
-		readonly context: ContextImpl<T>,
+		readonly context: HashSetContext,
 		public source?: undefined | HashSetBlock<T>,
 		public _entries?: undefined | T[],
 		public _entrySets?: undefined | SetBlockBuilderEntry<T>[],
@@ -78,7 +83,7 @@ export class HashSetBlockBuilder<T>
 		return this._entrySets!;
 	}
 
-	has = <U>(value: RelatedTo<T, U>): boolean => {
+	has = (value: T): boolean => {
 		if (undefined !== this.source) return this.source.has(value);
 
 		if (!this.context.hasher.isValid(value)) return false;
@@ -107,6 +112,15 @@ export class HashSetBlockBuilder<T>
 		this.checkLock();
 
 		return this.addInternal(value);
+	};
+
+	clear = (): void => {
+		this.checkLock();
+
+		this.source = undefined;
+		this._entries = undefined;
+		this._entrySets = undefined;
+		this.size = 0;
 	};
 
 	addAll = (source: StreamSource<T>): boolean => {
@@ -176,7 +190,7 @@ export class HashSetBlockBuilder<T>
 		return true;
 	}
 
-	remove = <ST>(value: ST): boolean => {
+	remove = (value: T): boolean => {
 		this.checkLock();
 
 		if (!this.context.hasher.isValid(value)) return false;
@@ -184,10 +198,12 @@ export class HashSetBlockBuilder<T>
 		return this.removeInternal(value);
 	};
 
-	removeAll = <ST>(values: StreamSource<ST>): boolean => {
+	removeAll = (values: StreamSource<T>): boolean => {
 		this.checkLock();
 
-		return Stream.from(values).filterPure({ pred: this.remove }).count() > 0;
+		return (
+			Stream.from(values).filterPure({ pred: this.removeInternal }).count() > 0
+		);
 	};
 
 	removeInternal(value: T, hash = this.context.hash(value)): boolean {
@@ -255,19 +271,26 @@ export class HashSetBlockBuilder<T>
 		return false;
 	}
 
-	forEach = (
-		f: (value: T, index: number, halt: () => void) => void,
-		options: { state?: TraverseState } = {},
-	): void => {
-		const { state = TraverseState() } = options;
-
+	forEach = (f: (value: T) => void): void => {
 		this._lock++;
-		super.forEach(f, { state });
+
+		if (undefined !== this.source) {
+			this.source.forEach(f);
+		} else {
+			this._entries?.forEach(f);
+
+			if (undefined !== this._entrySets) {
+				for (const entrySet of this._entrySets) {
+					entrySet.forEach(f);
+				}
+			}
+		}
+
 		this._lock--;
 	};
 
 	build = (): HashSet<T> => {
-		if (this.size === 0) return this.context.empty();
+		if (this.size === 0) return this.context.empty<T>();
 
 		return this.buildNE();
 	};
@@ -287,13 +310,31 @@ export class HashSetBlockBuilder<T>
 	}
 }
 
-export class HashSetCollisionBuilder<T> extends CollisionBuilderBase<T> {
+export class HashSetCollisionBuilder<T> {
 	constructor(
-		readonly context: ContextImpl<T>,
+		readonly context: HashSetContext,
 		public source?: undefined | HashSetCollision<T>,
 		public _entries?: undefined | List.Builder<T>,
 	) {
-		super();
+		// super();
+	}
+
+	get entries(): List.Builder<T> {
+		if (undefined === this._entries) {
+			if (undefined !== this.source) {
+				this._entries = this.source.entries.toBuilder();
+			} else {
+				this._entries = this.context.listContext.builder();
+			}
+		}
+
+		return this._entries!;
+	}
+
+	get size(): number {
+		if (undefined !== this.source) return this.source.size;
+
+		return this.entries.length;
 	}
 
 	hasInternal(value: T, hash?: number): boolean {
@@ -351,6 +392,10 @@ export class HashSetCollisionBuilder<T> extends CollisionBuilderBase<T> {
 
 		this.entries.remove(index);
 		return true;
+	}
+
+	forEach(f: (value: T) => void): void {
+		this.entries.forEach(f);
 	}
 
 	buildNE(): HashSetCollision<T> {

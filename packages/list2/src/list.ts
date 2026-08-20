@@ -4,7 +4,7 @@ import type { IndexedCollection } from '@rimbu/collection-types/collection/index
 import type { ChildrenOps } from '#advanced/children-ops';
 
 import { ArrayOuterChildrenOps } from '#list/children-ops/array';
-import { createListContextModule } from '#list/context';
+import { ListContext } from '#list/context';
 
 export interface List<T>
 	extends List.Advanced.Api<
@@ -25,14 +25,8 @@ export declare namespace List {
 			Collection.Advanced.Types<List.Advanced.Family<T>, T>
 		> {}
 
-	export interface Context<T>
-		extends Collection.Context<
-			Collection.Advanced.Types<List.Advanced.Family<T>, T>
-		> {
-		readonly blockSizeBits: number;
-
-		createContext(options: { blockSizeBits?: number }): List.Context<T>;
-	}
+	export interface Context
+		extends List.Advanced.ContextApi<List.Advanced.Family<any>> {}
 
 	export namespace Advanced {
 		export type Api<
@@ -56,15 +50,22 @@ export declare namespace List {
 			Tp extends Collection.Advanced.TypesBase,
 		> = IndexedCollection.Capability.WithPrependAppend.BuilderApi<T, Tp>;
 
-		export type DefaultFactory = Omit<Context<any>, 'blockSizeBits'>;
+		export interface ContextApi<F extends Collection.Advanced.FamilyBase<any>>
+			extends IndexedCollection.Advanced.ContextApi<F> {
+			readonly blockSizeBits: number;
+
+			createContext(options: { blockSizeBits?: number }): F['_CONTEXT'];
+		}
+
+		export type DefaultFactory = Omit<Context, 'blockSizeBits'>;
 
 		export interface Family<T> extends IndexedCollection.Advanced.Family<T> {
 			_NORMAL: List<T>;
 			_NON_EMPTY: List.NonEmpty<T>;
 			_BUILDER: List.Builder<T>;
-			_CONTEXT: List.Context<T>;
+			_CONTEXT: List.Context;
 
-			_INVARIANT: any;
+			_INVARIANT: (value: any) => any;
 
 			_FAM: Family<T>;
 			_NEW_FAMILY: Family<this['_NEW_E']>;
@@ -72,7 +73,6 @@ export declare namespace List {
 	}
 }
 
-export const List: List.Advanced.DefaultFactory = createListContextModule<any>({
-	blockSizeBits: 5,
-	childrenOps: new ArrayOuterChildrenOps() as ChildrenOps,
-});
+export const List: List.Advanced.DefaultFactory = new ListContext<
+	Collection.Advanced.Types<List.Advanced.Family<any>, any>
+>(5, new ArrayOuterChildrenOps() as ChildrenOps);

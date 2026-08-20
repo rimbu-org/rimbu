@@ -13,12 +13,12 @@ import type { InnerBlockBuilder } from '#list/mutable/inner-block-builder';
 import { CacheMap } from '#list/immutable/cache-map';
 import { TreeBuilderBase } from '#list/mutable/tree-builder-base';
 
-export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
+export class InnerTreeBuilder<T, C extends BlockBuilder<any>>
 	extends TreeBuilderBase<T, C>
 	implements InnerBuilder<T, C>
 {
 	constructor(
-		readonly context: ListContext<T>,
+		readonly context: ListContext,
 		readonly level: number,
 		source?: InnerTree<T, any>,
 		_left?: InnerBlockBuilder<T, C>,

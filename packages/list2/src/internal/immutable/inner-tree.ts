@@ -22,7 +22,7 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 	declare _self: InnerTree<T, C>;
 
 	constructor(
-		readonly context: ListContext<T>,
+		readonly context: ListContext,
 		readonly left: InnerBlock<T, C>,
 		readonly right: InnerBlock<T, C>,
 		readonly middle: Inner<T, InnerBlock<T, C>> | null,

@@ -1,7 +1,8 @@
 import type { Collection } from '@rimbu/collection-types/collection';
 import type { SetCollection } from '@rimbu/collection-types/set';
-
-import { createHashSetContextModule } from '#set/context-factory';
+import type { Eq } from '@rimbu/common';
+import type { Hasher } from '@rimbu/hashed';
+import type { List } from '@rimbu/list';
 
 export interface HashSet<E>
 	extends HashSet.Advanced.Api<
@@ -11,23 +12,20 @@ export interface HashSet<E>
 
 export namespace HashSet {
 	export interface NonEmpty<E>
-		extends HashSet.Advanced.Api<
+		extends Advanced.Api<
 			E,
-			Collection.Advanced.TypesNonEmpty<HashSet.Advanced.Family<E>, E>
+			Collection.Advanced.TypesNonEmpty<Advanced.Family<E>, E>
 		> {}
 
 	export interface Builder<E>
-		extends HashSet.Advanced.BuilderApi<
+		extends Advanced.BuilderApi<
 			E,
-			Collection.Advanced.Types<HashSet.Advanced.Family<E>, E>
+			Collection.Advanced.Types<Advanced.Family<E>, E>
 		> {}
 
-	export interface Context<E>
-		extends Collection.Context<
-			Collection.Advanced.Types<HashSet.Advanced.Family<E>, E>
-		> {
-		createContext(options: {}): HashSet.Context<E>;
-	}
+	export interface Context<
+		F extends Advanced.Family<any> = Advanced.Family<any>,
+	> extends Advanced.ContextApi<F> {}
 
 	export namespace Advanced {
 		export type Api<
@@ -51,22 +49,37 @@ export namespace HashSet {
 			SetCollection.Capability.WithAdd.BuilderApi<E, Tp> &
 			SetCollection.Capability.WithRemove.BuilderApi<E, Tp>;
 
+		export interface ContextApi<F extends Collection.Advanced.FamilyBase<any>>
+			extends SetCollection.Advanced.ContextApi<F> {
+			readonly blockSizeBits: number;
+			readonly hasher: Hasher<F['_UPPER_E']>;
+			readonly eq: Eq<F['_UPPER_E']>;
+
+			createContext<UE extends F['_UPPER_E']>(options: {
+				hasher?: Hasher<UE> | undefined;
+				eq?: Eq<UE> | undefined;
+				blockSizeBits?: number | undefined;
+				listContext?: List.Context | undefined;
+			}): F['_CONTEXT'];
+		}
+
 		export interface Family<E> extends SetCollection.Advanced.Family<E> {
 			_NORMAL: HashSet<E>;
 			_NON_EMPTY: HashSet.NonEmpty<E>;
 			_BUILDER: HashSet.Builder<E>;
-			_CONTEXT: HashSet.Context<E>;
+			_CONTEXT: HashSet.Context;
+
+			_INVARIANT: (element: E) => E;
 
 			_FAM: Family<E>;
 			_NEW_FAMILY: Family<this['_NEW_E']>;
 		}
 
-		export type DefaultFactory = Context<any>;
+		export type DefaultFactory = Context<Advanced.Family<any>>;
 	}
 }
 
-export const HashSet: HashSet.Advanced.DefaultFactory =
-	createHashSetContextModule().build();
+export const HashSet: HashSet.Advanced.DefaultFactory = 0 as any;
 
 // /**
 //  * A type-invariant immutable Set of value type T.

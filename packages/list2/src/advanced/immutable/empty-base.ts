@@ -13,12 +13,12 @@ export class ListEmptyBase<T>
 	extends IndexedCollectionEmptyBase<T>
 	implements List<T>
 {
-	declare readonly [TypesKey]: Collection.Advanced.InvariantTypes<
-		Collection.Advanced.Types<List.Advanced.Family<T>, T>,
+	declare readonly [TypesKey]: Collection.Advanced.Types<
+		List.Advanced.Family<T>,
 		T
 	>;
 
-	constructor(readonly context: ListContext<T>) {
+	constructor(readonly context: ListContext) {
 		super();
 	}
 
@@ -28,7 +28,7 @@ export class ListEmptyBase<T>
 	): List.NonEmpty<T> {
 		const { insert } = options;
 
-		return this.context.from(insert) as List.NonEmpty<T>;
+		return this.context.from(insert);
 	}
 
 	spliceAtAndReturn(
