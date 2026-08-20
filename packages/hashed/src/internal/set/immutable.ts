@@ -1,7 +1,7 @@
 import type { Collection } from '@rimbu/collection-types/collection';
 // biome-ignore lint/correctness/noUnusedImports: TypesKey is used as a computed property key, which Biome does not detect
 import type { TypesKey } from '@rimbu/collection-types/types';
-import type { ArrayNonEmpty, RelatedTo } from '@rimbu/common/types';
+import type { ArrayNonEmpty } from '@rimbu/common/types';
 import type { HashSet } from '@rimbu/hashed/set';
 import type { List } from '@rimbu/list';
 import type { HashSetContext } from './context';
@@ -178,7 +178,7 @@ export class HashSetBlock<T> extends HashSetNonEmptyBase<T> {
 		) as Stream.NonEmpty<T>;
 	}
 
-	has<UT>(value: RelatedTo<T, UT>, inHash?: number): boolean {
+	has(value: T, inHash?: number): boolean {
 		if (!this.context.hasher.isValid(value)) return false;
 
 		const hash = inHash ?? this.context.hash(value);
@@ -191,7 +191,7 @@ export class HashSetBlock<T> extends HashSetNonEmptyBase<T> {
 
 		if (null !== this.entrySets && atKeyIndex in this.entrySets) {
 			const entrySet = this.entrySets[atKeyIndex];
-			return entrySet.has<UT>(value, hash);
+			return entrySet.has(value, hash);
 		}
 
 		return false;
@@ -217,7 +217,7 @@ export class HashSetBlock<T> extends HashSetNonEmptyBase<T> {
 
 			if (this.level < this.context.maxDepth) {
 				const newEntrySet = this.context
-					.block(null, null, 0, this.level + 1)
+					.block<T>(null, null, 0, this.level + 1)
 					.add(currentValue)
 					.add(value, hash);
 
@@ -395,7 +395,7 @@ export class HashSetCollision<T> extends HashSetNonEmptyBase<T> {
 		return this.entries.stream();
 	}
 
-	has<U>(value: RelatedTo<T, U>, inHash?: number): boolean {
+	has(value: T, inHash?: number): boolean {
 		if (!this.context.hasher.isValid(value)) return false;
 		return this.stream().contains(value, { eq: this.context.eq });
 	}

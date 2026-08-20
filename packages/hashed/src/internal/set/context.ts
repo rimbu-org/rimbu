@@ -1,4 +1,3 @@
-import type { Collection } from '@rimbu/collection-types/collection';
 import type { HashSet } from '@rimbu/hashed';
 
 import { type ArrayNonEmpty, Eq } from '@rimbu/common';
@@ -14,30 +13,41 @@ import {
 	type SetEntrySet,
 } from './immutable';
 
-export class HashSetContext<
-	F extends HashSet.Advanced.Family<any> = HashSet.Advanced.Family<any>,
-> implements HashSet.Advanced.ContextApi<F>
+export class HashSetContext
+	implements HashSet.Advanced.ContextApi<HashSet.Advanced.Family<any>>
 {
 	constructor(
-		readonly hasher: Hasher<F['_UPPER_E']> = Hasher.defaultInstance,
-		readonly eq: Eq<F['_UPPER_E']> = Eq.defaultInstance,
+		readonly hasher: Hasher<any> = Hasher.defaultInstance,
+		readonly eq: Eq<any> = Eq.defaultInstance,
 		readonly blockSizeBits: number = 5,
 		readonly listContext = List.defaultContext,
-	) {}
+	) {
+		this.blockCapacity = 1 << blockSizeBits;
+		this.blockMask = this.blockCapacity - 1;
+		this.maxDepth = Math.ceil(32 / blockSizeBits);
 
-	#emptyBlock: HashSetBlock<F['_UPPER_E']> | undefined;
+		this.hash = hasher.hash;
+	}
 
-	emptyBlock<T extends F['_UPPER_E']>(): HashSetBlock<T> {
+	readonly blockCapacity: number;
+	readonly blockMask: number;
+	readonly maxDepth: number;
+
+	readonly hash: (value: any) => number;
+
+	#emptyBlock: HashSetBlock<any> | undefined;
+
+	emptyBlock<T>(): HashSetBlock<T> {
 		if (undefined === this.#emptyBlock) {
 			this.#emptyBlock = Object.freeze(
-				new HashSetBlock<F['_UPPER_E']>(this, null, null, 0, 0),
+				new HashSetBlock<any>(this, null, null, 0, 0),
 			);
 		}
 
 		return this.#emptyBlock as any;
 	}
 
-	block<T extends F['_UPPER_E']>(
+	block<T>(
 		entries: readonly T[] | null,
 		entrySets: SetEntrySet<T>[] | null,
 		size: number,
@@ -46,9 +56,7 @@ export class HashSetContext<
 		return new HashSetBlock(this, entries, entrySets, size, level);
 	}
 
-	collision<T extends F['_UPPER_E']>(
-		entries: List.NonEmpty<T>,
-	): HashSetCollision<T> {
+	collision<T>(entries: List.NonEmpty<T>): HashSetCollision<T> {
 		return new HashSetCollision(this, entries);
 	}
 
@@ -64,10 +72,8 @@ export class HashSetContext<
 		return obj instanceof HashSetCollision;
 	}
 
-	createBuilder<T extends F['_UPPER_E']>(
-		source?: HashSet.NonEmpty<T>,
-	): HashSet.Builder<T> {
-		return new HashSetBlockBuilder<T>(this, source);
+	createBuilder<T>(source?: HashSet.NonEmpty<T>): HashSet.Builder<T> {
+		return new HashSetBlockBuilder<T>(this, source as HashSetBlock<T>);
 	}
 
 	isHashSetBlockBuilder<T>(
@@ -80,14 +86,25 @@ export class HashSetContext<
 		return source instanceof HashSetNonEmptyBase;
 	}
 
-	empty = <T extends F['_UPPER_E']>() => new HashSetEmpty<T>(this);
+	getKeyIndex(level: number, hash: number): number {
+		const shift = this.blockSizeBits * level;
+		return (hash >>> shift) & this.blockMask;
+	}
 
-	builder = <T extends F['_UPPER_E']>() => new HashSetBlockBuilder<T>(this);
+	empty = <T>(): HashSet<T> => {
+		return new HashSetEmpty<T>(this);
+	};
 
-	from = <T extends F['_UPPER_E']>(
-		...sources: StreamSource<T>[]
-	): Collection.Advanced.Types<F, T>['_NON_EMPTY'] => {
-		let builder = this.builder<T>();
+	builder = <T>(): HashSet.Builder<T> => {
+		return new HashSetBlockBuilder<T>(this);
+	};
+
+	from<T>(
+		...sources: ArrayNonEmpty<StreamSource.NonEmpty<T>>
+	): HashSet.NonEmpty<T>;
+	from<T>(...sources: ArrayNonEmpty<StreamSource<T>>): HashSet<T>;
+	from<T>(...sources: StreamSource<T>[]): HashSet<T> {
+		let builder: HashSet.Builder<T> = this.builder<T>();
 
 		let i = -1;
 		const length = sources.length;
@@ -107,11 +124,11 @@ export class HashSetContext<
 		}
 
 		return builder.build();
-	};
+	}
 
-	of = <T extends F['_UPPER_E']>(
-		...elements: ArrayNonEmpty<T>
-	): Collection.Advanced.Types<F, T>['_NON_EMPTY'] => this.from(elements);
+	of = <T>(...elements: ArrayNonEmpty<T>): HashSet.NonEmpty<T> => {
+		return this.from(elements) as HashSet.NonEmpty<T>;
+	};
 
 	createContext = (options: any) => {
 		return new HashSetContext();
