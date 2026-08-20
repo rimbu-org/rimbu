@@ -13,7 +13,12 @@ const arr6 = [1, 3, 2, 4, 6, 5];
 
 export function runSetTestsWith(
 	name: string,
-	context: SetCollection.Context<SetCollection.Capability.WithAdd<any>>,
+	context: SetCollection.Context<
+		SetCollection.Capability.WithAdd<any> &
+			SetCollection.Capability.WithDifferenceAndIntersection<any> &
+			SetCollection.Capability.WithRemove<any> &
+			SetCollection.Capability.WithSymmetricDifferenceAndUnion<any>
+	>,
 	foreignContext: SetCollection.Context,
 ): void {
 	const S = context;
@@ -111,7 +116,7 @@ export function runSetTestsWith(
 			expect(set6_1.context).toBe(S);
 		});
 
-		it.skip('difference', () => {
+		it('difference', () => {
 			expect(setEmpty.difference(setEmpty)).toBe(setEmpty);
 			expect(setEmpty.difference([2, 5, 10])).toBe(setEmpty);
 
@@ -171,7 +176,7 @@ export function runSetTestsWith(
 			expect(set6_1.context).toBe(S);
 		});
 
-		it.skip('difference', () => {
+		it('difference', () => {
 			expect(setEmpty.difference(setEmpty)).toBe(setEmpty);
 			expect(setEmpty.difference([2, 5, 10])).toBe(setEmpty);
 
@@ -184,7 +189,7 @@ export function runSetTestsWith(
 			expectEqual(set6_1.difference(arr6), []);
 		});
 
-		it.skip('filterIndexed', () => {
+		it.skip('filter', () => {
 			function isEven(value: number): boolean {
 				return value % 2 === 0;
 			}
@@ -233,13 +238,13 @@ export function runSetTestsWith(
 			expect(set6_1.has(10)).toBe(false);
 		});
 
-		it.skip('intersect', () => {
-			expect(setEmpty.intersect(setEmpty)).toBe(setEmpty);
-			expectEqual(set3_1.intersect([]), []);
-			expectEqual(set3_1.intersect(arr3), arr3);
-			expectEqual(set6_1.intersect([]), []);
-			expectEqual(set6_1.intersect(arr3), arr3);
-			expectEqual(set6_1.intersect(arr6), arr6);
+		it.skip('intersection', () => {
+			expect(setEmpty.intersection(setEmpty)).toBe(setEmpty);
+			expectEqual(set3_1.intersection([]), []);
+			expectEqual(set3_1.intersection(arr3), arr3);
+			expectEqual(set6_1.intersection([]), []);
+			expectEqual(set6_1.intersection(arr3), arr3);
+			expectEqual(set6_1.intersection(arr6), arr6);
 		});
 
 		it('isEmpty', () => {
@@ -255,7 +260,7 @@ export function runSetTestsWith(
 			expect(set6_1.nonEmpty()).toBe(true);
 		});
 
-		it.skip('remove', () => {
+		it('remove', () => {
 			expect(setEmpty.remove(10)).toBe(setEmpty);
 			expect(set3_1.remove(10)).toBe(set3_1);
 			expect(set6_1.remove(10)).toBe(set6_1);
@@ -264,7 +269,7 @@ export function runSetTestsWith(
 			expectEqual(set6_1.remove(2), [1, 3, 4, 5, 6]);
 		});
 
-		it.skip('removeAll', () => {
+		it('removeAll', () => {
 			expect(setEmpty.removeAll([10])).toBe(setEmpty);
 			expect(set3_1.removeAll([10])).toBe(set3_1);
 			expect(set6_1.removeAll([10])).toBe(set6_1);
@@ -285,18 +290,18 @@ export function runSetTestsWith(
 			expect(new Set(set6_1.stream())).toEqual(new Set(arr6));
 		});
 
-		it.skip('symDifference', () => {
-			expect(setEmpty.symDifference([])).toBe(setEmpty);
-			expectEqual(setEmpty.symDifference(arr3), arr3);
-			expectEqual(setEmpty.symDifference(arr6), arr6);
+		it('symmetricDifference', () => {
+			expect(setEmpty.symmetricDifference([])).toBe(setEmpty);
+			expectEqual(setEmpty.symmetricDifference(arr3), arr3);
+			expectEqual(setEmpty.symmetricDifference(arr6), arr6);
 
-			expectEqual(set3_1.symDifference([]), arr3);
-			expectEqual(set3_1.symDifference(arr3), []);
-			expectEqual(set3_1.symDifference(arr6), [4, 5, 6]);
+			expectEqual(set3_1.symmetricDifference([]), arr3);
+			expectEqual(set3_1.symmetricDifference(arr3), []);
+			expectEqual(set3_1.symmetricDifference(arr6), [4, 5, 6]);
 
-			expectEqual(set6_1.symDifference([]), arr6);
-			expectEqual(set6_1.symDifference(arr3), [4, 5, 6]);
-			expectEqual(set6_1.symDifference(arr6), []);
+			expectEqual(set6_1.symmetricDifference([]), arr6);
+			expectEqual(set6_1.symmetricDifference(arr3), [4, 5, 6]);
+			expectEqual(set6_1.symmetricDifference(arr6), []);
 		});
 
 		it.skip('toArray', () => {
@@ -333,7 +338,7 @@ export function runSetTestsWith(
 			expect(set3_1.toString()).toBe(`${S.typeTag}(1, 2, 3)`);
 		});
 
-		it.skip('union', () => {
+		it('union', () => {
 			expect(setEmpty.union([])).toBe(setEmpty);
 			expect(setEmpty.union(set3_1)).toBe(set3_1);
 			expectEqual(setEmpty.union(arr3), arr3);

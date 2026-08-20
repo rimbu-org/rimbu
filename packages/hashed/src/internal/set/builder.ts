@@ -202,11 +202,7 @@ export class HashSetBlockBuilder<T>
 	};
 
 	removeAll = (values: StreamSource<T>): boolean => {
-		this.checkLock();
-
-		return (
-			Stream.from(values).filterPure({ pred: this.removeInternal }).count() > 0
-		);
+		return Stream.from(values).filterPure({ pred: this.remove }).count() > 0;
 	};
 
 	removeInternal(value: T, hash = this.context.hash(value)): boolean {

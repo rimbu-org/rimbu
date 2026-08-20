@@ -82,7 +82,7 @@ export abstract class HashSetNonEmptyBase<T>
 
 	removeAll(elements: StreamSource<T>): HashSet<T> {
 		const builder = this.toBuilder();
-		// TODO: builder.removeAll(elements);
+		builder.removeAll(elements);
 		if (builder.size === this.size) return this;
 		return builder.build();
 	}
