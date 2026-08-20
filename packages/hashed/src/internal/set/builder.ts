@@ -26,7 +26,7 @@ export class HashSetBlockBuilder<T>
 	>;
 
 	constructor(
-		readonly context: HashSetContext,
+		readonly context: HashSetContext<T>,
 		public source?: undefined | HashSetBlock<T>,
 		public _entries?: undefined | T[],
 		public _entrySets?: undefined | SetBlockBuilderEntry<T>[],
@@ -312,7 +312,7 @@ export class HashSetBlockBuilder<T>
 
 export class HashSetCollisionBuilder<T> {
 	constructor(
-		readonly context: HashSetContext,
+		readonly context: HashSetContext<T>,
 		public source?: undefined | HashSetCollision<T>,
 		public _entries?: undefined | List.Builder<T>,
 	) {

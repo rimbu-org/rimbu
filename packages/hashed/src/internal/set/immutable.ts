@@ -34,7 +34,7 @@ export class HashSetEmpty<E = any>
 		E
 	>;
 
-	constructor(readonly context: HashSetContext) {
+	constructor(readonly context: HashSetContext<E>) {
 		super();
 
 		this.addAll = context.from;
@@ -54,22 +54,24 @@ export abstract class HashSetNonEmptyBase<T>
 		T
 	>;
 
-	constructor(readonly context: HashSetContext) {
+	constructor(readonly context: HashSetContext<T>) {
 		super();
 	}
 
 	abstract add(element: T): HashSet.NonEmpty<T>;
 	abstract remove(element: T): HashSet<T>;
 
-	map<T2>(f: (element: T) => T2): HashSet.NonEmpty<T2> {
+	map<T2 extends this[TypesKey]['_UPPER_E']>(
+		f: (element: T) => T2,
+	): HashSet.NonEmpty<T2> {
 		return this.context.from(this.stream().mapPure(f)) as HashSet.NonEmpty<T2>;
 	}
 
-	mapIndexed<T2>(
+	mapIndexed<T2 extends this[TypesKey]['_UPPER_E']>(
 		f: (element: T, index: number) => T2,
 		options?: { indexOffset?: number },
 	): HashSet.NonEmpty<T2> {
-		return defaultMapIndexed(this, f, options);
+		return defaultMapIndexed<T, T2, HashSet.NonEmpty<T>>(this, f, options);
 	}
 
 	removeAll(elements: StreamSource<T>): HashSet<T> {
@@ -79,11 +81,13 @@ export abstract class HashSetNonEmptyBase<T>
 		return builder.build();
 	}
 
-	flatMap<T2>(f: (element: T) => StreamSource<T2>): HashSet.NonEmpty<T2> {
+	flatMap<T2 extends this[TypesKey]['_UPPER_E']>(
+		f: (element: T) => StreamSource<T2>,
+	): HashSet.NonEmpty<T2> {
 		return defaultFlatMapByUnion(this, f) as HashSet.NonEmpty<T2>;
 	}
 
-	flatMapIndexed<T2>(
+	flatMapIndexed<T2 extends this[TypesKey]['_UPPER_E']>(
 		f: (element: T, index: number) => StreamSource<T2>,
 		options: { indexOffset?: number | undefined } | undefined,
 	): HashSet.NonEmpty<T2> {
@@ -133,7 +137,7 @@ export type SetEntrySet<T> = HashSetBlock<T> | HashSetCollision<T>;
 
 export class HashSetBlock<T> extends HashSetNonEmptyBase<T> {
 	constructor(
-		context: HashSetContext,
+		context: HashSetContext<T>,
 		readonly entries: readonly T[] | null,
 		readonly entrySets: readonly SetEntrySet<T>[] | null,
 		readonly size: number,
@@ -377,7 +381,7 @@ export class HashSetBlock<T> extends HashSetNonEmptyBase<T> {
 
 export class HashSetCollision<T> extends HashSetNonEmptyBase<T> {
 	constructor(
-		context: HashSetContext,
+		context: HashSetContext<T>,
 		readonly entries: List.NonEmpty<T>,
 	) {
 		super(context);

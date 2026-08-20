@@ -14,8 +14,8 @@ import {
 	type SetEntrySet,
 } from '#set/immutable';
 
-export class HashSetContext
-	implements HashSet.Advanced.ContextApi<HashSet.Advanced.Family<any>>
+export class HashSetContext<UE>
+	implements HashSet.Advanced.ContextApi<UE, HashSet.Advanced.Family<UE>>
 {
 	constructor(
 		readonly hasher: Hasher<any> = Hasher.defaultInstance,
@@ -58,7 +58,7 @@ export class HashSetContext
 	}
 
 	collision<T>(entries: List.NonEmpty<T>): HashSetCollision<T> {
-		return new HashSetCollision(this, entries);
+		return new HashSetCollision<T>(this, entries);
 	}
 
 	isHashSetBlock<T>(
@@ -136,7 +136,7 @@ export class HashSetContext
 		eq?: Eq<UT> | undefined;
 		blockSizeBits?: number | undefined;
 		listContext?: List.Context | undefined;
-	}): HashSetContext => {
+	}): HashSetContext<UT> => {
 		return new HashSetContext(
 			options.hasher,
 			options.eq,
