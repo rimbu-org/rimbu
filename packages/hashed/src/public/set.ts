@@ -79,7 +79,10 @@ export namespace HashSet {
 			_NEW_FAMILY: Family<this['_NEW_E']>;
 		}
 
-		export type DefaultFactory = Context<any>;
+		export type DefaultFactory = Pick<
+			Context<any>,
+			'builder' | 'createContext' | 'empty' | 'from' | 'of'
+		>;
 	}
 }
 

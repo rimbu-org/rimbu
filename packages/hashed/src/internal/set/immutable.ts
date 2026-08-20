@@ -117,7 +117,9 @@ export abstract class HashSetNonEmptyBase<T>
 	}
 
 	addAll(values: StreamSource<T>): HashSet.NonEmpty<T> {
-		return this.union(values);
+		const builder = this.toBuilder();
+		builder.addAll(values);
+		return builder.build() as HashSet.NonEmpty<T>;
 	}
 
 	filter(

@@ -1,5 +1,6 @@
-import { runSetTestsWith } from '@rimbu/collection-types/test-utils/set/set-standard';
 import type { Hasher } from '@rimbu/hashed';
+
+import { runSetTestsWith } from '@rimbu/collection-types/test-utils/set/set-collection-standard';
 import { HashSet } from '@rimbu/hashed/set';
 
 runSetTestsWith(
@@ -18,5 +19,5 @@ const collisionHasher: Hasher<any> = {
 runSetTestsWith(
 	'HashSet collision hasher',
 	HashSet.createContext({ hasher: collisionHasher, blockSizeBits: 2 }),
-		HashSet.createContext({ blockSizeBits: 3 }),
+	HashSet.createContext({ blockSizeBits: 3 }),
 );

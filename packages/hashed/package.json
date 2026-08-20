@@ -70,6 +70,7 @@
 		"format:check": "biome format src",
 		"lint:check": "biome lint src",
 		"test": "bun test test/* --tsconfig-override tsconfig.common.json",
+		"test:single": "bun test --tsconfig-override tsconfig.common.json",
 		"test:random": "bun test test-random",
 		"typecheck": "tsc -p tsconfig.json --noEmit"
 	},

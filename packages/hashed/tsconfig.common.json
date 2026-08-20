@@ -4,10 +4,9 @@
 			"@rimbu/hashed": ["./src/hashed.ts"],
 			"@rimbu/hashed/map": ["./src/public/map.ts"],
 			"@rimbu/hashed/set": ["./src/public/set.ts"],
-			"@rimbu/hashed/*": ["./src/public/*.ts", "./src/public/*"],
+			"@rimbu/hashed/*": ["./src/public/*.ts"],
 			"@rimbu/collection-types/*": [
-				"../collection-types/*.ts",
-				"../collection-types/*"
+				"../collection-types/*.ts"
 			],
 			"#hashed/*": ["./src/internal/hashed/*.ts"],
 			"#map/*": ["./src/internal/map/*.ts"],

@@ -120,8 +120,16 @@ export class HashSetContext<UE>
 		return (hash >>> shift) & this.blockMask;
 	}
 
+	#empty: HashSet<UE> | undefined;
+
 	empty = <T extends UE>(): HashSet<T> => {
-		return new HashSetEmpty<T>(this as unknown as HashSetEmptyContext<T>);
+		if (undefined === this.#empty) {
+			this.#empty = Object.freeze(
+				new HashSetEmpty<UE>(this as unknown as HashSetEmptyContext<UE>),
+			);
+		}
+
+		return this.#empty as unknown as HashSet<T>;
 	};
 
 	builder = <T extends UE>(): HashSet.Builder<T> => {
@@ -130,15 +138,12 @@ export class HashSetContext<UE>
 		);
 	};
 
-	from<T extends UE>(
-		...sources: ArrayNonEmpty<StreamSource.NonEmpty<T>>
-	): HashSet.NonEmpty<T>;
-	from<T extends UE>(...sources: ArrayNonEmpty<StreamSource<T>>): HashSet<T>;
-	from<T extends UE>(...sources: StreamSource<T>[]): HashSet<T> {
+	from = <T extends UE>(...sources: StreamSource<T>[]): HashSet.NonEmpty<T> => {
 		let builder: HashSet.Builder<T> = this.builder<T>();
 
-		let i = -1;
 		const length = sources.length;
+		let i = -1;
+
 		while (++i < length) {
 			const source = sources[i];
 			if (Stream.isEmptyStreamSourceInstance(source)) continue;
@@ -154,8 +159,8 @@ export class HashSetContext<UE>
 			builder.addAll(source);
 		}
 
-		return builder.build();
-	}
+		return builder.build() as HashSet.NonEmpty<T>;
+	};
 
 	of = <T extends UE>(...elements: ArrayNonEmpty<T>): HashSet.NonEmpty<T> => {
 		return this.from(elements) as HashSet.NonEmpty<T>;
