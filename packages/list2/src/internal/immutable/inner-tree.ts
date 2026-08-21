@@ -771,22 +771,32 @@ export class InnerTree<T, C extends Self<Block<T>, C>> implements Inner<T, C> {
 		);
 	}
 
-	reversed(): InnerTree<T, C> {
-		return this.copy(
-			this.right.reversed(),
-			this.left.reversed(),
-			this.middle?.reversed() ?? null,
+	reversed(cacheMap?: CacheMap): InnerTree<T, C> {
+		const cached = cacheMap?.get<InnerTree<T, C>>(this);
+		if (cached) return cached;
+
+		const result = this.copy(
+			this.right.reversed(cacheMap),
+			this.left.reversed(cacheMap),
+			this.middle?.reversed(cacheMap) ?? null,
 			this.size,
 			this.level,
 		);
+
+		return cacheMap?.setAndReturn(this, result) ?? result;
 	}
 
-	toArray(): T[] {
-		return ([] as T[]).concat(
-			this.left.toArray(),
-			this.middle?.toArray() ?? [],
-			this.right.toArray(),
+	toArray(cacheMap?: CacheMap): T[] {
+		const cached = cacheMap?.get<T[]>(this);
+		if (cached) return cached;
+
+		const result = ([] as T[]).concat(
+			this.left.toArray(cacheMap),
+			this.middle?.toArray(cacheMap) ?? [],
+			this.right.toArray(cacheMap),
 		);
+
+		return cacheMap?.setAndReturn(this, result) ?? result;
 	}
 
 	toNodeBuilder(): InnerTreeBuilder<T, any> {

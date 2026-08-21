@@ -499,23 +499,32 @@ export class InnerBlock<T, C extends Self<Block<T>, C>>
 		);
 	}
 
-	reversed(): InnerBlock<T, C> {
+	reversed(cacheMap?: CacheMap): InnerBlock<T, C> {
+		const cached = cacheMap?.get<InnerBlock<T, C>>(this);
+		if (cached) return cached;
+
 		const newChildren = new Array(this._nrChildren);
 		let newChildrenIndex = newChildren.length - 1;
 
 		for (const child of this.#children) {
-			newChildren[newChildrenIndex--] = child.reversed();
+			newChildren[newChildrenIndex--] = child.reversed(cacheMap);
 		}
 
-		return this.#copy(newChildren, this.size);
+		const result = this.#copy(newChildren, this.size);
+
+		return cacheMap?.setAndReturn(this, result) ?? result;
 	}
 
 	toNodeBuilder(): InnerBlockBuilder<T, any> {
 		return this.context.innerBlockBuilderSource(this);
 	}
 
-	toArray(): T[] {
-		return this.#children.flatMap((child) => child.toArray());
+	toArray(cacheMap?: CacheMap): T[] {
+		const cached = cacheMap?.get<T[]>(this);
+		if (cached) return cached;
+
+		const result = this.#children.flatMap((child) => child.toArray(cacheMap));
+		return cacheMap?.setAndReturn(this, result) ?? result;
 	}
 
 	_verifyStructure(

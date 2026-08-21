@@ -31,8 +31,8 @@ interface ListNode<T> {
 		options?: { negate?: boolean | undefined },
 		cacheMap?: CacheMap,
 	): List<T>;
-	reversed(): this['_self'];
-	toArray(): T[];
+	reversed(cacheMap?: CacheMap): this['_self'];
+	toArray(cacheMap?: CacheMap): T[];
 
 	/** Returns the element at `index`. Caller must ensure 0 ≤ index < size. */
 	_get(index: Int.AtLeastZero): T;

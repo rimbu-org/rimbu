@@ -83,11 +83,7 @@ export class OuterBlockLeftRight<T> extends OuterBlock<T> {
 					? this.context.empty()
 					: this.#copy(newChildren);
 
-		if (cacheMap) {
-			return cacheMap.setAndReturn(this, result);
-		}
-
-		return result;
+		return cacheMap?.setAndReturn(this, result) ?? result;
 	}
 
 	map<T2>(f: (element: T) => T2, cacheMap?: CacheMap): OuterBlock<T2> {
@@ -96,19 +92,24 @@ export class OuterBlockLeftRight<T> extends OuterBlock<T> {
 
 		const newBlock = this.#copyAsType(this.#ops.map(this.#children, f));
 
-		if (cacheMap) {
-			return cacheMap.setAndReturn(this, newBlock);
-		}
-
-		return newBlock;
+		return cacheMap?.setAndReturn(this, newBlock) ?? newBlock;
 	}
 
-	reversed(): OuterBlock<T> {
-		return this.context.outerBlockRightLeft(this.#children);
+	reversed(cacheMap?: CacheMap): OuterBlock<T> {
+		const cached = cacheMap?.get<OuterBlock<T>>(this);
+		if (cached) return cached;
+
+		const result = this.context.outerBlockRightLeft(this.#children);
+
+		return cacheMap?.setAndReturn(this, result) ?? result;
 	}
 
-	toArray(): ArrayNonEmpty<T> {
-		return this.#ops.toArray(this.#children);
+	toArray(cacheMap?: CacheMap): ArrayNonEmpty<T> {
+		const cached = cacheMap?.get<ArrayNonEmpty<T>>(this);
+		if (cached) return cached;
+
+		const result = this.#ops.toArray(this.#children);
+		return cacheMap?.setAndReturn(this, result) ?? result;
 	}
 
 	_get(index: number): T {

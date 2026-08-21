@@ -117,12 +117,21 @@ export class OuterBlockRightLeft<T> extends OuterBlock<T> {
 		return newBlock;
 	}
 
-	reversed(): OuterBlock<T> {
-		return this.context.outerBlockLeftRight(this.#children);
+	reversed(cacheMap?: CacheMap): OuterBlock<T> {
+		const cached = cacheMap?.get<OuterBlock<T>>(this);
+		if (cached) return cached;
+
+		const result = this.context.outerBlockLeftRight(this.#children);
+
+		return cacheMap?.setAndReturn(this, result) ?? result;
 	}
 
-	toArray(): ArrayNonEmpty<T> {
-		return this.#ops.toArray(this.#children, true);
+	toArray(cacheMap?: CacheMap): ArrayNonEmpty<T> {
+		const cached = cacheMap?.get<ArrayNonEmpty<T>>(this);
+		if (cached) return cached;
+
+		const result = this.#ops.toArray(this.#children, true);
+		return cacheMap?.setAndReturn(this, result) ?? result;
 	}
 
 	_get(index: number): T {

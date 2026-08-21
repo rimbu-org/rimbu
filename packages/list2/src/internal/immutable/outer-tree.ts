@@ -392,10 +392,12 @@ export class OuterTree<T>
 	}
 
 	reversed(): OuterTree<T> {
+		const cacheMap = new CacheMap();
+
 		return this.copy(
-			this.right.reversed(),
-			this.left.reversed(),
-			this.middle?.reversed() ?? null,
+			this.right.reversed(cacheMap),
+			this.left.reversed(cacheMap),
+			this.middle?.reversed(cacheMap) ?? null,
 			this.size,
 		);
 	}
@@ -405,10 +407,12 @@ export class OuterTree<T>
 	}
 
 	toArray(): ArrayNonEmpty<T> {
+		const cacheMap = new CacheMap();
+
 		return ([] as T[]).concat(
-			this.left.toArray(),
-			this.middle?.toArray() ?? [],
-			this.right.toArray(),
+			this.left.toArray(cacheMap),
+			this.middle?.toArray(cacheMap) ?? [],
+			this.right.toArray(cacheMap),
 		) as ArrayNonEmpty<T>;
 	}
 

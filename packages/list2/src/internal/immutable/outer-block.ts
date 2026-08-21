@@ -33,8 +33,8 @@ export abstract class OuterBlock<T>
 		options?: { negate?: boolean | undefined },
 		cacheMap?: CacheMap,
 	): List<T>;
-	abstract reversed(): OuterBlock<T>;
-	abstract toArray(): ArrayNonEmpty<T>;
+	abstract reversed(cacheMap?: CacheMap): OuterBlock<T>;
+	abstract toArray(cacheMap?: CacheMap): ArrayNonEmpty<T>;
 	abstract map<T2>(f: (element: T) => T2, cacheMap?: CacheMap): OuterBlock<T2>;
 
 	abstract _get(index: Int.AtLeastZero): T;
