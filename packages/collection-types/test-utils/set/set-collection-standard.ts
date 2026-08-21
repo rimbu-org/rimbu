@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 
+import type { Collection } from '@rimbu/collection-types/collection';
 import type { SetCollection } from '@rimbu/collection-types/set';
 
 import { Stream } from '@rimbu/stream';
@@ -14,7 +15,8 @@ const arr6 = [1, 3, 2, 4, 6, 5];
 export function runSetTestsWith(
 	name: string,
 	context: SetCollection.Context<
-		SetCollection.Capability.WithAdd<any> &
+		Collection.Capability.WithToBuilder<any> &
+			SetCollection.Capability.WithAdd<any> &
 			SetCollection.Capability.WithDifferenceAndIntersection<any> &
 			SetCollection.Capability.WithRemove<any> &
 			SetCollection.Capability.WithSymmetricDifferenceAndUnion<any>
@@ -238,7 +240,7 @@ export function runSetTestsWith(
 			expect(set6_1.has(10)).toBe(false);
 		});
 
-		it.skip('intersection', () => {
+		it('intersection', () => {
 			expect(setEmpty.intersection(setEmpty)).toBe(setEmpty);
 			expectEqual(set3_1.intersection([]), []);
 			expectEqual(set3_1.intersection(arr3), arr3);
@@ -310,7 +312,7 @@ export function runSetTestsWith(
 			expect(new Set(set6_1.toArray())).toEqual(new Set(arr6));
 		});
 
-		it.skip('toBuilder', () => {
+		it('toBuilder', () => {
 			expect(setEmpty.toBuilder().build()).toBe(setEmpty);
 			expect(set3_1.toBuilder().build()).toBe(set3_1);
 			expect(set6_1.toBuilder().build()).toBe(set6_1);

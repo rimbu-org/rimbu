@@ -64,8 +64,17 @@ export abstract class HashSetNonEmptyBase<T>
 		super();
 	}
 
+	abstract hasInternal(element: T, hash: number): boolean;
 	abstract add(element: T): HashSet.NonEmpty<T>;
 	abstract remove(element: T): HashSet<T>;
+
+	has = (value: T, inHash?: number): boolean => {
+		if (!this.context.hasher.isValid(value)) return false;
+
+		const hash = inHash ?? this.context.hash(value);
+
+		return this.hasInternal(value, hash);
+	};
 
 	map<T2 extends this[TypesKey]['_UPPER_E']>(
 		f: (element: T) => T2,
@@ -191,10 +200,7 @@ export class HashSetBlock<T> extends HashSetNonEmptyBase<T> {
 		) as Stream.NonEmpty<T>;
 	}
 
-	has(value: T, inHash?: number): boolean {
-		if (!this.context.hasher.isValid(value)) return false;
-
-		const hash = inHash ?? this.context.hash(value);
+	hasInternal(value: T, hash: number): boolean {
 		const atKeyIndex = this.context.getKeyIndex(this.level, hash);
 
 		if (null !== this.entries && atKeyIndex in this.entries) {
@@ -204,7 +210,7 @@ export class HashSetBlock<T> extends HashSetNonEmptyBase<T> {
 
 		if (null !== this.entrySets && atKeyIndex in this.entrySets) {
 			const entrySet = this.entrySets[atKeyIndex];
-			return entrySet.has(value, hash);
+			return entrySet.hasInternal(value, hash);
 		}
 
 		return false;
@@ -408,7 +414,7 @@ export class HashSetCollision<T> extends HashSetNonEmptyBase<T> {
 		return this.entries.stream();
 	}
 
-	has(value: T, inHash?: number): boolean {
+	hasInternal(value: T, _hash: number): boolean {
 		if (!this.context.hasher.isValid(value)) return false;
 		return this.stream().contains(value, { eq: this.context.eq });
 	}

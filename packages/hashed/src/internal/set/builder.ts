@@ -95,7 +95,7 @@ export class HashSetBlockBuilder<T>
 	};
 
 	hasInternal(value: T, hash = this.context.hash(value)): boolean {
-		if (undefined !== this.source) return this.source.has(value, hash);
+		if (undefined !== this.source) return this.source.hasInternal(value, hash);
 
 		const keyIndex = this.context.getKeyIndex(this.level, hash);
 
