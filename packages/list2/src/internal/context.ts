@@ -1,6 +1,7 @@
 import type { Collection } from '@rimbu/collection-types/collection';
 import type { ArrayNonEmpty } from '@rimbu/common';
 import type { List } from '@rimbu/list';
+import type { Reducer } from '@rimbu/stream/reducer';
 
 import type { ChildrenOps, OuterChildren } from '#advanced/children-ops';
 import type { ListNonEmptyBase } from '#advanced/immutable/non-empty-base';
@@ -12,6 +13,7 @@ import type {
 } from '#list/mutable/common';
 import type { SizeTable } from '#list/size-table';
 
+import { defaultReducerByAppend } from '@rimbu/collection-types/advanced/collection/indexed-base';
 import { Stream, type StreamSource } from '@rimbu/stream';
 import { OuterBlockLeftRight } from './immutable/outer-block-left-right';
 import { OuterBlockRightLeft } from './immutable/outer-block-right-left';
@@ -196,14 +198,20 @@ export class ListContext<
 		...elements: ArrayNonEmpty<T>
 	): Collection.Advanced.Types<F, T>['_NON_EMPTY'] => this.from(elements);
 
+	builder = <T extends F['_UPPER_E']>(): Collection.Advanced.Types<
+		F,
+		T
+	>['_BUILDER'] => new ListBuilder<T>(this);
+
+	reducer = <T extends F['_UPPER_E']>(
+		source?: StreamSource<T>,
+	): Reducer<T, Collection.Advanced.Types<F, T>['_NORMAL']> => {
+		return defaultReducerByAppend<T, List.Advanced.Family<T>>(this, source);
+	};
+
 	createContext = (options: { blockSizeBits?: number }): ListContext<F> =>
 		new ListContext<F>(
 			options.blockSizeBits ?? this.blockSizeBits,
 			this.childrenOps,
 		);
-
-	builder = <T extends F['_UPPER_E']>(): Collection.Advanced.Types<
-		F,
-		T
-	>['_BUILDER'] => new ListBuilder<T>(this);
 }

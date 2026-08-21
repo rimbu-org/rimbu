@@ -11,6 +11,7 @@ import {
 } from '@rimbu/collection-types/advanced/collection-base';
 import { Err, IndexRange, OptLazy } from '@rimbu/common';
 import { Stream, type StreamSource } from '@rimbu/stream';
+import { Reducer } from '@rimbu/stream/reducer';
 
 export type IndexedCollectionEmptyBaseCapabilities<E> =
 	CollectionEmptyBaseCapabilities<E> &
@@ -436,4 +437,25 @@ export function defaultRepeat<
 	const half = defaultRepeat(col.concat(col), amount >>> 1);
 
 	return amount % 2 === 0 ? half : col.concat(half);
+}
+
+export function defaultReducerByAppend<
+	E,
+	F extends Collection.Capability.WithToBuilder<E> &
+		IndexedCollection.Capability.WithPrependAppend<E>,
+>(
+	context: IndexedCollection.Context<F>,
+	source?: StreamSource<E>,
+): Reducer<E, F['_NORMAL']> {
+	return Reducer.create(
+		() =>
+			undefined === source
+				? context.builder<E>()
+				: context.from(source).toBuilder(),
+		(builder, element) => {
+			builder.append(element);
+			return builder;
+		},
+		(builder) => builder.build(),
+	);
 }

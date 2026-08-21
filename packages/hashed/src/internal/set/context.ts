@@ -25,23 +25,31 @@ export class HashSetContext<UE>
 	implements HashSet.Advanced.ContextApi<UE, HashSet.Advanced.Family<UE>>
 {
 	constructor(
-		readonly hasher: Hasher<UE> = Hasher.defaultInstance,
-		readonly eq: Eq<UE> = Eq.defaultInstance,
+		readonly _hasher: Hasher<UE> | undefined = undefined,
+		readonly _eq: Eq<UE> | undefined = undefined,
 		readonly blockSizeBits: number = 5,
 		readonly listContext = List.defaultContext,
 	) {
 		this.blockCapacity = 1 << blockSizeBits;
 		this.blockMask = this.blockCapacity - 1;
 		this.maxDepth = Math.ceil(32 / blockSizeBits);
-
-		this.hash = hasher.hash;
 	}
 
 	readonly blockCapacity: number;
 	readonly blockMask: number;
 	readonly maxDepth: number;
 
-	readonly hash: (value: UE) => number;
+	get hasher(): Hasher<UE> {
+		return this._hasher ?? Hasher.defaultInstance;
+	}
+
+	get eq(): Eq<UE> {
+		return this._eq ?? Eq.defaultInstance;
+	}
+
+	hash(value: UE) {
+		return this.hasher.hash(value);
+	}
 
 	#emptyBlock: HashSetBlock<UE> | undefined;
 
@@ -183,12 +191,12 @@ export class HashSetContext<UE>
 		);
 	};
 
-	createContext = <T extends UE>(options: {
+	createContext = <T>(options: {
 		hasher?: Hasher<T> | undefined;
 		eq?: Eq<T> | undefined;
 		blockSizeBits?: number | undefined;
 		listContext?: List.Context | undefined;
-	}): HashSetContext<T> => {
+	}): HashSet.Context<T> => {
 		return new HashSetContext<T>(
 			options.hasher,
 			options.eq,

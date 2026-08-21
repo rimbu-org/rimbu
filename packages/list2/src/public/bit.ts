@@ -52,7 +52,9 @@ export declare namespace BitList {
 			_NEW_FAMILY: Family;
 		}
 
-		export type DefaultFactory = Omit<Context, 'blockSizeBits'>;
+		export type DefaultFactory = Omit<Context, 'blockSizeBits'> & {
+			createContext(options: { blockSizeBits?: number }): BitList.Context;
+		};
 	}
 }
 

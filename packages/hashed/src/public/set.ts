@@ -58,13 +58,6 @@ export namespace HashSet {
 			readonly blockSizeBits: number;
 			readonly hasher: Hasher<UE>;
 			readonly eq: Eq<UE>;
-
-			createContext<E extends UE>(options: {
-				hasher?: Hasher<E> | undefined;
-				eq?: Eq<E> | undefined;
-				blockSizeBits?: number | undefined;
-				listContext?: List.Context | undefined;
-			}): (F & { _NEW_E: E })['_NEW_FAMILY']['_CONTEXT'];
 		}
 
 		export interface Family<E> extends SetCollection.Advanced.Family<E> {
@@ -82,8 +75,15 @@ export namespace HashSet {
 
 		export type DefaultFactory = Pick<
 			Context<any>,
-			'builder' | 'createContext' | 'empty' | 'from' | 'of'
-		>;
+			'builder' | 'empty' | 'from' | 'of' | 'reducer'
+		> & {
+			createContext<E>(options: {
+				hasher?: Hasher<E> | undefined;
+				eq?: Eq<E> | undefined;
+				blockSizeBits?: number | undefined;
+				listContext?: List.Context | undefined;
+			}): Context<E>;
+		};
 	}
 }
 

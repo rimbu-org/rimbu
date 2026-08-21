@@ -51,13 +51,14 @@ export declare namespace List {
 		> = IndexedCollection.Capability.WithPrependAppend.BuilderApi<T, Tp>;
 
 		export interface ContextApi<F extends Collection.Advanced.FamilyBase<any>>
-			extends IndexedCollection.Advanced.ContextApi<F> {
+			extends IndexedCollection.Advanced.ContextApi<F>,
+				Collection.Capability.WithReducer.ContextApi<F> {
 			readonly blockSizeBits: number;
-
-			createContext(options: { blockSizeBits?: number }): F['_CONTEXT'];
 		}
 
-		export type DefaultFactory = Omit<Context, 'blockSizeBits'>;
+		export type DefaultFactory = Omit<Context, 'blockSizeBits'> & {
+			createContext(options: { blockSizeBits?: number }): List.Context;
+		};
 
 		export interface Family<T> extends IndexedCollection.Advanced.Family<T> {
 			_NORMAL: List<T>;

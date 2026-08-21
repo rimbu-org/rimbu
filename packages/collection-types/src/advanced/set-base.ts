@@ -4,6 +4,7 @@ import type { TypesKey } from '@rimbu/collection-types/types';
 import type { ArrayNonEmpty, RelatedTo } from '@rimbu/common';
 
 import { Stream, type StreamSource } from '@rimbu/stream';
+import { Reducer } from '@rimbu/stream/reducer';
 import {
 	ValuedCollectionBuilderBase,
 	ValuedCollectionEmptyBase,
@@ -92,6 +93,8 @@ export abstract class SetCollectionContextBase<
 	>,
 > implements SetCollection.Advanced.ContextApi<Tp>
 {
+	declare readonly [TypesKey]: Collection.Advanced.Types<Tp, any>;
+
 	abstract isNonEmptyInstance<E extends Tp['_UPPER_E']>(
 		source: unknown,
 	): source is Tp['_NON_EMPTY'];
@@ -219,4 +222,25 @@ export function defaultSymDifferenceByRemove<
 		.forEachPure(builder.add);
 
 	return builder.build();
+}
+
+export function defaultReducerByAdd<
+	E,
+	F extends Collection.Capability.WithToBuilder<E> &
+		SetCollection.Capability.WithAdd<E>,
+>(
+	context: SetCollection.Context<F>,
+	source?: StreamSource<E>,
+): Reducer<E, F['_NORMAL']> {
+	return Reducer.create(
+		() =>
+			undefined === source
+				? context.builder<E>()
+				: context.from(source).toBuilder(),
+		(builder, element) => {
+			builder.add(element);
+			return builder;
+		},
+		(builder) => builder.build(),
+	);
 }
