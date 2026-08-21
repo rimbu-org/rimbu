@@ -1,5 +1,8 @@
 import type { Collection } from '@rimbu/collection-types/collection';
 import type { KeyedCollection } from '@rimbu/collection-types/collection/keyed';
+import type { Op, TypesKey } from '@rimbu/collection-types/types';
+import type { RelatedTo } from '@rimbu/common';
+import type { StreamSource } from '@rimbu/stream';
 
 export type MapCollection<
 	K,
@@ -71,6 +74,191 @@ export declare namespace MapCollection {
 
 			_FAM: Family<K, V>;
 			_NEW_FAMILY: Family<this['_NEW_K'], this['_NEW_V']>;
+		}
+	}
+
+	export namespace Capability {
+		export interface WithSet<K, V> extends Advanced.Family<K, V> {
+			_NORMAL: WithSet.Api<
+				K,
+				V,
+				Collection.Advanced.Types<this['_FAM'], readonly [K, V]>
+			>;
+			_NON_EMPTY: WithSet.Api<
+				K,
+				V,
+				Collection.Advanced.TypesNonEmpty<this['_FAM'], readonly [K, V]>
+			>;
+			_BUILDER: WithSet.BuilderApi<
+				K,
+				V,
+				Collection.Advanced.Types<this['_FAM'], readonly [K, V]>
+			>;
+
+			_FAM: WithSet<K, V>;
+			_NEW_FAMILY: WithSet<this['_NEW_K'], this['_NEW_V']>;
+		}
+
+		export namespace WithSet {
+			export interface Api<K, V, Tp extends Collection.Advanced.TypesBase>
+				extends Advanced.Api<K, V, Tp> {
+				[TypesKey]: Collection.Advanced.InvariantTypes<Tp, V>;
+
+				set(key: K, value: V): Tp['_NON_EMPTY'];
+
+				setEntry(entry: readonly [K, V]): Tp['_NON_EMPTY'];
+
+				setAll(
+					entries: StreamSource.NonEmpty<readonly [K, V]>,
+				): Tp['_NON_EMPTY'];
+				setAll(entries: StreamSource<readonly [K, V]>): Tp['_NORMAL'];
+			}
+
+			export interface BuilderApi<
+				K,
+				V,
+				Tp extends Collection.Advanced.TypesBase,
+			> extends Advanced.BuilderApi<K, V, Tp> {
+				[TypesKey]: Collection.Advanced.InvariantTypes<Tp, V>;
+
+				set(key: K, value: V): boolean;
+
+				setAll(entries: StreamSource<readonly [K, V]>): boolean;
+			}
+		}
+
+		export interface WithUpdateAt<K, V> extends Advanced.Family<K, V> {
+			_NORMAL: WithUpdateAt.Api<
+				K,
+				V,
+				Collection.Advanced.Types<this['_FAM'], readonly [K, V]>
+			>;
+			_NON_EMPTY: WithUpdateAt.Api<
+				K,
+				V,
+				Collection.Advanced.TypesNonEmpty<this['_FAM'], readonly [K, V]>
+			>;
+			_BUILDER: WithUpdateAt.BuilderApi<
+				K,
+				V,
+				Collection.Advanced.Types<this['_FAM'], readonly [K, V]>
+			>;
+
+			_FAM: WithUpdateAt<K, V>;
+			_NEW_FAMILY: WithUpdateAt<this['_NEW_K'], this['_NEW_V']>;
+		}
+
+		export namespace WithUpdateAt {
+			export interface Api<K, V, Tp extends Collection.Advanced.TypesBase>
+				extends Advanced.Api<K, V, Tp> {
+				[TypesKey]: Collection.Advanced.InvariantTypes<Tp, V>;
+
+				updateAt<UK = K>(
+					key: RelatedTo<K, UK>,
+					update: (value: V) => V,
+				): Tp['_SELF'];
+
+				updateAtAndReturn<UK = K>(
+					key: RelatedTo<K, UK>,
+					update: (value: V) => V,
+				): Op.DynamicResult<
+					Tp['_SELF'],
+					[previous: undefined, current: undefined],
+					[previous: V, current: V],
+					Tp['_NON_EMPTY']
+				>;
+			}
+
+			export interface BuilderApi<
+				K,
+				V,
+				Tp extends Collection.Advanced.TypesBase,
+			> extends Advanced.BuilderApi<K, V, Tp> {
+				[TypesKey]: Collection.Advanced.InvariantTypes<Tp, V>;
+
+				updateAt<UK = K>(
+					key: RelatedTo<K, UK>,
+					update: (value: V) => V,
+				): boolean;
+			}
+		}
+
+		export interface WithModifyAt<K, V> extends Advanced.Family<K, V> {
+			_NORMAL: WithModifyAt.Api<
+				K,
+				V,
+				Collection.Advanced.Types<this['_FAM'], readonly [K, V]>
+			>;
+			_NON_EMPTY: WithModifyAt.Api<
+				K,
+				V,
+				Collection.Advanced.TypesNonEmpty<this['_FAM'], readonly [K, V]>
+			>;
+			_BUILDER: WithModifyAt.BuilderApi<
+				K,
+				V,
+				Collection.Advanced.Types<this['_FAM'], readonly [K, V]>
+			>;
+
+			_FAM: WithModifyAt<K, V>;
+			_NEW_FAMILY: WithModifyAt<this['_NEW_K'], this['_NEW_V']>;
+		}
+
+		export namespace WithModifyAt {
+			export interface Api<K, V, Tp extends Collection.Advanced.TypesBase>
+				extends Advanced.Api<K, V, Tp> {
+				[TypesKey]: Collection.Advanced.InvariantTypes<Tp, V>;
+
+				modifyAt(
+					atKey: K,
+					options: {
+						ifNew?:
+							| { set: V; create?: never }
+							| {
+									set?: never;
+									create: <SKIP extends symbol>(skip: SKIP) => V | typeof skip;
+							  };
+						ifExists?:
+							| { set: V; update?: never }
+							| {
+									set?: never;
+									update: <REMOVE extends symbol>(
+										current: V,
+										remove: REMOVE,
+									) => V | REMOVE;
+							  };
+					},
+				): Tp['_NORMAL'];
+			}
+
+			export interface BuilderApi<
+				K,
+				V,
+				Tp extends Collection.Advanced.TypesBase,
+			> extends Advanced.BuilderApi<K, V, Tp> {
+				[TypesKey]: Collection.Advanced.InvariantTypes<Tp, V>;
+
+				modifyAt(
+					atKey: K,
+					options: {
+						ifNew?:
+							| { set: V; create?: never }
+							| {
+									set?: never;
+									create: <SKIP extends symbol>(skip: SKIP) => V | typeof skip;
+							  };
+						ifExists?:
+							| { set: V; update?: never }
+							| {
+									set?: never;
+									update: <REMOVE extends symbol>(
+										current: V,
+										remove: REMOVE,
+									) => V | REMOVE;
+							  };
+					},
+				): boolean;
+			}
 		}
 	}
 }

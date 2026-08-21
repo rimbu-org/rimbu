@@ -1,6 +1,7 @@
 import type { Collection } from '@rimbu/collection-types/collection';
+import type { Op, TypesKey } from '@rimbu/collection-types/types';
 import type { OptLazy, RelatedTo } from '@rimbu/common';
-import type { Stream } from '@rimbu/stream';
+import type { Stream, StreamSource } from '@rimbu/stream';
 
 export type KeyedCollection<
 	K,
@@ -76,12 +77,128 @@ export namespace KeyedCollection {
 			>;
 			_CONTEXT: ContextApi<this['_FAM']>;
 
+			_UPPER_K: unknown;
+			_UPPER_V: unknown;
+
 			_NEW_K: unknown;
 			_NEW_V: unknown;
+
+			// _UPPER_E: readonly [this['_UPPER_K'], this['_UPPER_V']];
 			_NEW_E: readonly [this['_NEW_K'], this['_NEW_V']];
 
 			_FAM: Family<K, V>;
 			_NEW_FAMILY: Family<this['_NEW_K'], this['_NEW_V']>;
+		}
+
+		export type ReTyped<
+			F extends KeyedCollection.Advanced.Family<any, any>,
+			K,
+			V,
+		> = (F & { _NEW_K: K; _NEW_V: V })['_NEW_FAMILY'];
+	}
+
+	export namespace Capability {
+		export interface WithRemove<K, V> extends Advanced.Family<K, V> {
+			_NORMAL: WithRemove.Api<
+				K,
+				V,
+				Collection.Advanced.Types<this['_FAM'], readonly [K, V]>
+			>;
+			_NON_EMPTY: WithRemove.Api<
+				K,
+				V,
+				Collection.Advanced.TypesNonEmpty<this['_FAM'], readonly [K, V]>
+			>;
+			_BUILDER: WithRemove.BuilderApi<
+				K,
+				V,
+				Collection.Advanced.Types<this['_FAM'], readonly [K, V]>
+			>;
+
+			_FAM: WithRemove<K, V>;
+			_NEW_FAMILY: WithRemove<this['_NEW_K'], this['_NEW_V']>;
+		}
+
+		export namespace WithRemove {
+			export interface Api<K, V, Tp extends Collection.Advanced.TypesBase>
+				extends Advanced.Api<K, V, Tp> {
+				removeKey<UK = K>(key: RelatedTo<K, UK>): Tp['_NORMAL'];
+
+				removeKeys<UK = K>(keys: StreamSource<RelatedTo<K, UK>>): Tp['_NORMAL'];
+
+				removeKeyAndReturn<UK = K>(
+					key: RelatedTo<K, UK>,
+				): Op.DynamicResult<Tp['_SELF'], undefined, V, Tp['_NORMAL']>;
+			}
+
+			export interface BuilderApi<
+				K,
+				V,
+				Tp extends Collection.Advanced.TypesBase,
+			> extends Advanced.BuilderApi<K, V, Tp> {
+				removeKey<UK = K>(key: RelatedTo<K, UK>): boolean;
+
+				removeKeys<UK = K>(keys: StreamSource<RelatedTo<K, UK>>): boolean;
+			}
+		}
+
+		export interface WithMapValues<K, V> extends Advanced.Family<K, V> {
+			_NORMAL: WithMapValues.Api<
+				K,
+				V,
+				Collection.Advanced.Types<this['_FAM'], readonly [K, V]>
+			>;
+			_NON_EMPTY: WithMapValues.Api<
+				K,
+				V,
+				Collection.Advanced.TypesNonEmpty<this['_FAM'], readonly [K, V]>
+			>;
+
+			_FAM: WithMapValues<K, V>;
+			_NEW_FAMILY: WithMapValues<this['_NEW_K'], this['_NEW_V']>;
+		}
+
+		export namespace WithMapValues {
+			export interface Api<K, V, Tp extends Collection.Advanced.TypesBase>
+				extends Advanced.Api<K, V, Tp> {
+				[TypesKey]: Collection.Advanced.InvariantTypes<Tp, V>;
+
+				mapValues<V2>(
+					mapFun: (value: V, key: K) => V2,
+				): Collection.Advanced.ReTyped<Tp, readonly [K, V2]>['_SELF'];
+			}
+		}
+
+		export interface WithRecompose<K, V> extends Advanced.Family<K, V> {
+			_NORMAL: WithRecompose.Api<
+				K,
+				V,
+				Collection.Advanced.Types<this['_FAM'], readonly [K, V]>
+			>;
+			_NON_EMPTY: WithRecompose.Api<
+				K,
+				V,
+				Collection.Advanced.TypesNonEmpty<this['_FAM'], readonly [K, V]>
+			>;
+
+			_FAM: WithRecompose<K, V>;
+			_NEW_FAMILY: WithRecompose<this['_NEW_K'], this['_NEW_V']>;
+		}
+
+		export namespace WithRecompose {
+			export interface Api<K, V, Tp extends Collection.Advanced.TypesBase>
+				extends Advanced.Api<K, V, Tp> {
+				[TypesKey]: Collection.Advanced.InvariantTypes<Tp, readonly [K, V]>;
+
+				recompose<K2 extends K, V2>(
+					f: (
+						stream: Tp['_AS_STREAM'],
+					) => StreamSource.NonEmpty<readonly [K2, V2]>,
+				): Collection.Advanced.ReTyped<Tp, readonly [K2, V2]>['_SELF'];
+				recompose<K2 extends K, V2>(
+					f: (stream: Tp['_AS_STREAM']) => StreamSource<readonly [K2, V2]>,
+				): Collection.Advanced.ReTyped<Tp, readonly [K2, V2]>['_NORMAL'];
+			}
 		}
 	}
 }
