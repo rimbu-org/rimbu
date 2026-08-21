@@ -234,39 +234,3 @@ export function tail<T>(arr: readonly T[]): T[] {
 export function init<T>(arr: readonly T[]): T[] {
 	return arr.slice(0, arr.length - 1);
 }
-
-/**
- * Returns a copy of a (potentially) sparse array preserving sparsity (skips holes).
- * @typeparam T - element type
- * @param arr - the source sparse array
- * @returns a new array with the same length where present elements are copied and holes are preserved
- */
-export function copySparse<T>(arr: readonly T[]): T[] {
-	const clone: T[] = [];
-	for (const key in arr) {
-		clone[key] = arr[key];
-	}
-	return clone;
-}
-
-/**
- * Returns a copy of a sparse array applying the given function to each present element, preserving holes.
- * @typeparam T - source element type
- * @typeparam T2 - result element type
- * @param arr - the source sparse array
- * @param f - mapping function receiving `(value, index)` where `index` is the element key
- * (the numeric index in string form) for present elements; holes are preserved
- * @returns a new sparse array with mapped values for present indices
- */
-export function mapSparse<T, T2>(
-	arr: readonly T[],
-	f: (value: T, index: number) => T2,
-): T2[] {
-	const result: T2[] = Array(arr.length);
-
-	for (const key in arr) {
-		result[key] = f(arr[key], key as any);
-	}
-
-	return result;
-}

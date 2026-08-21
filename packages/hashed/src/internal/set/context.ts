@@ -4,6 +4,7 @@ import { type ArrayNonEmpty, Eq } from '@rimbu/common';
 import { Hasher } from '@rimbu/hashed';
 import { List } from '@rimbu/list';
 import { Stream, type StreamSource } from '@rimbu/stream';
+import { Reducer } from '@rimbu/stream/reducer';
 
 import {
 	HashSetBlockBuilder,
@@ -164,6 +165,22 @@ export class HashSetContext<UE>
 
 	of = <T extends UE>(...elements: ArrayNonEmpty<T>): HashSet.NonEmpty<T> => {
 		return this.from(elements) as HashSet.NonEmpty<T>;
+	};
+
+	reducer = <E extends UE>(
+		source?: StreamSource<E>,
+	): Reducer<E, HashSet<E>> => {
+		return Reducer.create(
+			() =>
+				undefined === source
+					? this.builder<E>()
+					: this.from(source).toBuilder(),
+			(builder, element) => {
+				builder.add(element);
+				return builder;
+			},
+			(builder) => builder.build(),
+		);
 	};
 
 	createContext = <T extends UE>(options: {

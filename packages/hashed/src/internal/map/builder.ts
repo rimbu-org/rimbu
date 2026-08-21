@@ -8,7 +8,6 @@ import type {
 	MapEntrySet,
 } from '#map/immutable';
 
-import * as Arr from '@rimbu/base/arr';
 import * as RimbuError from '@rimbu/base/rimbu-error';
 import {
 	checkEmptyModifyOptions,
@@ -50,9 +49,7 @@ export class HashMapBlockBuilder<K, V>
 		if (undefined === this._entries) {
 			if (undefined !== this.source) {
 				this._entries =
-					null === this.source.entries
-						? []
-						: Arr.copySparse(this.source.entries);
+					null === this.source.entries ? [] : this.source.entries.slice();
 			} else {
 				this._entries = [];
 			}
@@ -63,8 +60,7 @@ export class HashMapBlockBuilder<K, V>
 				this._entrySets =
 					null === this.source.entrySets
 						? []
-						: (Arr.mapSparse(
-								this.source.entrySets,
+						: (this.source.entrySets.map(
 								(entrySet): MapBlockBuilderEntry<K, V> => {
 									if (this.context.isHashMapBlock(entrySet)) {
 										return new HashMapBlockBuilder(this.context, entrySet);
@@ -420,12 +416,11 @@ export class HashMapBlockBuilder<K, V>
 	buildNE(): HashMapBlock<K, V> {
 		if (undefined !== this.source) return this.source;
 
-		const entries =
-			this.entries.length === 0 ? null : Arr.copySparse(this.entries);
+		const entries = this.entries.length === 0 ? null : this.entries.slice();
 		const entrySets =
 			this.entrySets.length === 0
 				? null
-				: Arr.mapSparse(this.entrySets, (entrySet) => entrySet.buildNE());
+				: this.entrySets.map((entrySet) => entrySet.buildNE());
 
 		return this.context.block(entries, entrySets, this.size, this.level);
 	}
@@ -439,16 +434,12 @@ export class HashMapBlockBuilder<K, V>
 		const entries =
 			this.entries.length === 0
 				? null
-				: Arr.mapSparse(this.entries, (e): readonly [K, V2] => [
-						e[0],
-						f(e[1], e[0]),
-					]);
+				: this.entries.map((e): readonly [K, V2] => [e[0], f(e[1], e[0])]);
 
 		const entrySets =
 			this.entrySets.length === 0
 				? null
-				: Arr.mapSparse(
-						this.entrySets,
+				: this.entrySets.map(
 						(entrySet): MapEntrySet<K, V2> =>
 							entrySet.buildMapValues(f) as MapEntrySet<K, V2>,
 					);

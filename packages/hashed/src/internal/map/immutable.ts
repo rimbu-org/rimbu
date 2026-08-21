@@ -9,7 +9,6 @@ import type { List } from '@rimbu/list';
 
 import type { ContextImpl } from '#map/context-factory';
 
-import * as Arr from '@rimbu/base/arr';
 import * as Entry from '@rimbu/base/entry';
 import * as RimbuError from '@rimbu/base/rimbu-error';
 import {
@@ -367,12 +366,12 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 			if (this.context.eq(entry[0], currentEntry[0])) {
 				if (Object.is(entry[1], currentEntry[1])) return this;
 
-				const newEntries = Arr.copySparse(this.entries);
+				const newEntries = this.entries.slice();
 				newEntries[atKeyIndex] = entry;
 				return this.copy(newEntries);
 			}
 
-			let newEntries: (readonly [K, V])[] | null = Arr.copySparse(this.entries);
+			let newEntries: (readonly [K, V])[] | null = this.entries.slice();
 			delete newEntries[atKeyIndex];
 
 			let isEmpty = true;
@@ -389,7 +388,7 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 					.addEntry(entry, hash);
 
 				const newEntrySets =
-					null === this.entrySets ? [] : Arr.copySparse(this.entrySets);
+					null === this.entrySets ? [] : this.entrySets.slice();
 				newEntrySets[atKeyIndex] = newEntrySet as MapEntrySet<K, V>;
 
 				return this.copy(newEntries, newEntrySets, this.size + 1);
@@ -399,7 +398,7 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 				this.context.listContext.of(currentEntry, entry),
 			);
 			const newEntrySets =
-				null === this.entrySets ? [] : Arr.copySparse(this.entrySets);
+				null === this.entrySets ? [] : this.entrySets.slice();
 			newEntrySets[atKeyIndex] = newEntrySet;
 
 			return this.copy(newEntries, newEntrySets, this.size + 1);
@@ -413,7 +412,7 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 			>;
 			if (newEntrySet === currentEntrySet) return this;
 
-			const newEntrySets = Arr.copySparse(this.entrySets);
+			const newEntrySets = this.entrySets.slice();
 			newEntrySets[atKeyIndex] = newEntrySet;
 
 			return this.copy(
@@ -423,8 +422,7 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 			);
 		}
 
-		const newEntries =
-			null === this.entries ? [] : Arr.copySparse(this.entries);
+		const newEntries = null === this.entries ? [] : this.entries.slice();
 		newEntries[atKeyIndex] = entry;
 
 		return this.copy(newEntries, undefined, this.size + 1);
@@ -454,7 +452,7 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 
 				if (Object.is(newValue, currentValue)) return this;
 
-				const newEntries = Arr.copySparse(this.entries);
+				const newEntries = this.entries.slice();
 
 				if (token === newValue) {
 					delete newEntries[atKeyIndex];
@@ -481,7 +479,7 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 
 			if (token === newValue) return this;
 
-			let newEntries: (readonly [K, V])[] | null = Arr.copySparse(this.entries);
+			let newEntries: (readonly [K, V])[] | null = this.entries.slice();
 			delete newEntries[atKeyIndex];
 
 			let isEmpty = true;
@@ -499,7 +497,7 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 					.set(atKey, newValue) as MapEntrySet<K, V>;
 
 				const newEntrySets =
-					null === this.entrySets ? [] : Arr.copySparse(this.entrySets);
+					null === this.entrySets ? [] : this.entrySets.slice();
 				newEntrySets[atKeyIndex] = newEntrySet;
 
 				return this.copy(newEntries, newEntrySets, this.size + 1);
@@ -511,7 +509,7 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 				this.context.listContext.of(currentEntry, newEntry),
 			);
 			const newEntrySets =
-				null === this.entrySets ? [] : Arr.copySparse(this.entrySets);
+				null === this.entrySets ? [] : this.entrySets.slice();
 			newEntrySets[atKeyIndex] = newEntrySet;
 
 			return this.copy(newEntries, newEntrySets, this.size + 1);
@@ -540,17 +538,16 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 					firstEntry = newEntrySet.entries.first();
 				}
 
-				const newEntries =
-					null === this.entries ? [] : Arr.copySparse(this.entries);
+				const newEntries = null === this.entries ? [] : this.entries.slice();
 				newEntries[atKeyIndex] = firstEntry!;
 
-				const newEntrySets = Arr.copySparse(this.entrySets);
+				const newEntrySets = this.entrySets.slice();
 				delete newEntrySets[atKeyIndex];
 
 				return this.copy(newEntries, newEntrySets, this.size - 1);
 			}
 
-			const newEntrySets = Arr.copySparse(this.entrySets);
+			const newEntrySets = this.entrySets.slice();
 			newEntrySets[atKeyIndex] = newEntrySet;
 
 			return this.copy(
@@ -569,8 +566,7 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 		if (token === newValue) return this;
 
 		const newEntry: [K, V] = [atKey, newValue];
-		const newEntries =
-			null === this.entries ? [] : Arr.copySparse(this.entries);
+		const newEntries = null === this.entries ? [] : this.entries.slice();
 		newEntries[atKeyIndex] = newEntry;
 
 		return this.copy(newEntries, undefined, this.size + 1);
@@ -604,15 +600,11 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 		const newEntries =
 			null === this.entries
 				? null
-				: Arr.mapSparse(this.entries, (e): [K, V2] => [
-						e[0],
-						mapFun(e[1], e[0]),
-					]);
+				: this.entries.map((e): [K, V2] => [e[0], mapFun(e[1], e[0])]);
 		const newEntrySets =
 			null === this.entrySets
 				? null
-				: Arr.mapSparse(
-						this.entrySets,
+				: this.entrySets.map(
 						(es: MapEntrySet<K, V>): MapEntrySet<K, V2> =>
 							es.mapValues(mapFun) as MapEntrySet<K, V2>,
 					);

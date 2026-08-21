@@ -6,7 +6,6 @@ import type { HashSet } from '@rimbu/hashed/set';
 import type { HashSetContext } from '#set/context';
 import type { HashSetBlock, HashSetCollision } from '#set/immutable';
 
-import * as Arr from '@rimbu/base/arr';
 import * as RimbuError from '@rimbu/base/rimbu-error';
 import { SetCollectionBuilderBase } from '@rimbu/collection-types/advanced/set-base';
 import { List } from '@rimbu/list';
@@ -49,9 +48,7 @@ export class HashSetBlockBuilder<T>
 		if (undefined === this._entries) {
 			if (undefined !== this.source) {
 				this._entries =
-					null === this.source.entries
-						? []
-						: Arr.copySparse(this.source.entries);
+					null === this.source.entries ? [] : this.source.entries.slice();
 			} else {
 				this._entries = [];
 			}
@@ -59,8 +56,7 @@ export class HashSetBlockBuilder<T>
 
 		if (undefined === this._entrySets) {
 			if (undefined !== this.source && null !== this.source.entrySets) {
-				this._entrySets = Arr.mapSparse(
-					this.source.entrySets,
+				this._entrySets = this.source.entrySets.map(
 					(entrySet): SetBlockBuilderEntry<T> => {
 						if (this.context.isHashSetBlock(entrySet)) {
 							return new HashSetBlockBuilder(this.context, entrySet);
@@ -297,13 +293,12 @@ export class HashSetBlockBuilder<T>
 	buildNE(): HashSetBlock<T> {
 		if (undefined !== this.source) return this.source;
 
-		const entries =
-			this.entries.length === 0 ? null : Arr.copySparse(this.entries);
+		const entries = this.entries.length === 0 ? null : this.entries.slice();
 
 		const entrySets =
 			this.entrySets.length === 0
 				? null
-				: Arr.mapSparse(this.entrySets, (entrySet) => entrySet.buildNE());
+				: this.entrySets.map((entrySet) => entrySet.buildNE());
 
 		return this.context.block(entries, entrySets, this.size, this.level);
 	}

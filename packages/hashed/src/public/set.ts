@@ -53,7 +53,8 @@ export namespace HashSet {
 		export interface ContextApi<
 			UE,
 			F extends Collection.Advanced.FamilyBase<UE>,
-		> extends SetCollection.Advanced.ContextApi<F> {
+		> extends SetCollection.Advanced.ContextApi<F>,
+				Collection.Capability.WithReducer.ContextApi<F> {
 			readonly blockSizeBits: number;
 			readonly hasher: Hasher<UE>;
 			readonly eq: Eq<UE>;

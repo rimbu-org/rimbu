@@ -7,7 +7,6 @@ import type { List } from '@rimbu/list';
 
 import type { HashSetContext } from '#set/context';
 
-import * as Arr from '@rimbu/base/arr';
 import * as RimbuError from '@rimbu/base/rimbu-error';
 import {
 	defaultFlatMapIndexed,
@@ -223,7 +222,7 @@ export class HashSetBlock<T> extends HashSetNonEmptyBase<T> {
 			const currentValue = this.entries[atKeyIndex];
 			if (this.context.eq(value, currentValue)) return this;
 
-			let newEntries: T[] | null = Arr.copySparse(this.entries);
+			let newEntries: T[] | null = this.entries.slice();
 			delete newEntries[atKeyIndex];
 
 			let isEmpty = true;
@@ -241,7 +240,7 @@ export class HashSetBlock<T> extends HashSetNonEmptyBase<T> {
 					.add(value, hash);
 
 				const newEntrySets =
-					null === this.entrySets ? [] : Arr.copySparse(this.entrySets);
+					null === this.entrySets ? [] : this.entrySets.slice();
 				newEntrySets[atKeyIndex] = newEntrySet;
 
 				return this.copy(newEntries, newEntrySets, this.size + 1);
@@ -251,7 +250,7 @@ export class HashSetBlock<T> extends HashSetNonEmptyBase<T> {
 				this.context.listContext.of(currentValue, value),
 			);
 			const newEntrySets =
-				null === this.entrySets ? [] : Arr.copySparse(this.entrySets);
+				null === this.entrySets ? [] : this.entrySets.slice();
 			newEntrySets[atKeyIndex] = newEntrySet;
 
 			return this.copy(newEntries, newEntrySets, this.size + 1);
@@ -262,7 +261,7 @@ export class HashSetBlock<T> extends HashSetNonEmptyBase<T> {
 			const newEntrySet = currentEntrySet.add(value, hash);
 			if (newEntrySet === currentEntrySet) return this;
 
-			const newEntrySets = Arr.copySparse(this.entrySets);
+			const newEntrySets = this.entrySets.slice();
 			newEntrySets[atKeyIndex] = newEntrySet;
 
 			return this.copy(
@@ -272,8 +271,7 @@ export class HashSetBlock<T> extends HashSetNonEmptyBase<T> {
 			);
 		}
 
-		const newEntries =
-			null === this.entries ? [] : Arr.copySparse(this.entries);
+		const newEntries = null === this.entries ? [] : this.entries.slice();
 		newEntries[atKeyIndex] = value;
 
 		return this.copy(newEntries, undefined, this.size + 1);
@@ -293,7 +291,7 @@ export class HashSetBlock<T> extends HashSetNonEmptyBase<T> {
 
 			if (this.size === 1) return this.context.empty();
 
-			const newEntries = Arr.copySparse(this.entries);
+			const newEntries = this.entries.slice();
 
 			delete newEntries[atKeyIndex];
 
@@ -323,17 +321,16 @@ export class HashSetBlock<T> extends HashSetNonEmptyBase<T> {
 					firstValue = newEntrySet.entries.first();
 				}
 
-				const newEntries =
-					null === this.entries ? [] : Arr.copySparse(this.entries);
+				const newEntries = null === this.entries ? [] : this.entries.slice();
 				newEntries[atKeyIndex] = firstValue;
 
-				const newEntrySets = Arr.copySparse(this.entrySets);
+				const newEntrySets = this.entrySets.slice();
 				delete newEntrySets[atKeyIndex];
 
 				return this.copy(newEntries, newEntrySets, this.size - 1);
 			}
 
-			const newEntrySets = Arr.copySparse(this.entrySets);
+			const newEntrySets = this.entrySets.slice();
 			newEntrySets[atKeyIndex] = newEntrySet;
 
 			return this.copy(
@@ -371,25 +368,16 @@ export class HashSetBlock<T> extends HashSetNonEmptyBase<T> {
 	}
 
 	toArray(): ArrayNonEmpty<T> {
-		const result = new Array(this.size) as ArrayNonEmpty<T>;
-
-		let index = 0;
-
-		if (null !== this.entries) {
-			for (const key in this.entries) {
-				result[index++] = this.entries[key];
-			}
-		}
+		let result = this.entries?.filter(() => true) ?? [];
 
 		if (null !== this.entrySets) {
 			for (const key in this.entrySets) {
 				const entrySetArray = this.entrySets[key].toArray();
-				result.copyWithin(index, 0, entrySetArray.length);
-				index += entrySetArray.length;
+				result = result.concat(entrySetArray);
 			}
 		}
 
-		return result;
+		return result as ArrayNonEmpty<T>;
 	}
 }
 

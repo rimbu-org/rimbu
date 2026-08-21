@@ -16,6 +16,7 @@ export function runSetTestsWith(
 	name: string,
 	context: SetCollection.Context<
 		Collection.Capability.WithToBuilder<any> &
+			Collection.Capability.WithReducer<any> &
 			SetCollection.Capability.WithAdd<any> &
 			SetCollection.Capability.WithDifferenceAndIntersection<any> &
 			SetCollection.Capability.WithRemove<any> &
@@ -58,7 +59,7 @@ export function runSetTestsWith(
 			expect(b.size).toBe(2);
 		});
 
-		it.skip('reducer', () => {
+		it('reducer', () => {
 			const source = Stream.range({ start: 5, amount: 15 });
 			{
 				const result = source.reduce(S.reducer());
@@ -306,7 +307,7 @@ export function runSetTestsWith(
 			expectEqual(set6_1.symmetricDifference(arr6), []);
 		});
 
-		it.skip('toArray', () => {
+		it('toArray', () => {
 			expect(setEmpty.toArray()).toEqual([]);
 			expect(new Set(set3_1.toArray())).toEqual(new Set(arr3));
 			expect(new Set(set6_1.toArray())).toEqual(new Set(arr6));

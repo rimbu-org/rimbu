@@ -1,6 +1,7 @@
 import type { TypesKey } from '@rimbu/collection-types/types';
 import type { ArrayNonEmpty, TraverseState } from '@rimbu/common';
 import type { FastIterable, Stream, StreamSource } from '@rimbu/stream';
+import type { Reducer } from '@rimbu/stream/reducer';
 
 export type Collection<
 	E,
@@ -291,6 +292,28 @@ export declare namespace Collection {
 				[TypesKey]: Advanced.InvariantTypes<Tp, E>;
 
 				mutate(f: (builder: Tp['_BUILDER']) => void): Tp['_NORMAL'];
+			}
+		}
+
+		export interface WithReducer<E> extends Advanced.Family<E> {
+			_CONTEXT: WithReducer.ContextApi<this['_FAM']>;
+
+			_FAM: WithReducer<E>;
+			_NEW_FAMILY: WithReducer<this['_NEW_E']>;
+		}
+
+		export namespace WithReducer {
+			export interface ContextApi<F extends Collection.Advanced.FamilyBase<any>>
+				extends Collection.Advanced.ContextApi<F> {
+				reducer<E extends F['_UPPER_E']>(
+					source?: StreamSource<E>,
+				): Reducer<
+					E,
+					Collection.Advanced.ReTyped<
+						Collection.Advanced.Types<F, E>,
+						E
+					>['_NORMAL']
+				>;
 			}
 		}
 
