@@ -59,6 +59,23 @@ export declare namespace Collection {
 			_AS_STREAM: unknown;
 			_UPPER_E: unknown;
 
+			/**
+			 * Discriminates the Kind a types record was built with: `boolean` in
+			 * the normal kind, `true` in the non-empty kind.
+			 *
+			 * Descendant packages use it to type members whose *signature* differs
+			 * per kind, without needing a second `Api` interface or a member-level
+			 * conditional. Declare the member as a named generic interface keyed on
+			 * this slot, e.g. `first: FirstLast<E, Tp['_IS_NON_EMPTY']>`, so the
+			 * member type stays a plain interface reference and remains
+			 * implementable by classes that are generic over the family.
+			 *
+			 * Only the Kinds may narrow this slot. A family must never declare it
+			 * `false`, since the Kind is mixed in by intersection and `false & true`
+			 * would collapse to `never`.
+			 */
+			_IS_NON_EMPTY: boolean;
+
 			_isEmpty: unknown;
 			_stream: unknown;
 
@@ -71,6 +88,8 @@ export declare namespace Collection {
 
 		export interface NormalKind<E> extends FamilyBase<E> {
 			_SELF: this['_NORMAL'];
+			_IS_NON_EMPTY: boolean;
+
 			_AS_ARRAY: E[];
 			_AS_STREAM: Stream<E>;
 
@@ -82,6 +101,7 @@ export declare namespace Collection {
 
 		export interface NonEmptyKind<E> extends FamilyBase<E> {
 			_SELF: this['_NON_EMPTY'];
+			_IS_NON_EMPTY: true;
 
 			_AS_ARRAY: ArrayNonEmpty<E>;
 			_AS_STREAM: Stream.NonEmpty<E>;

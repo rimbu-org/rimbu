@@ -31,6 +31,20 @@ export declare namespace IndexedCollection {
 				Collection.Advanced.FamilyBase<E> = Collection.Advanced.Family<E>,
 		> = F & Family<E>;
 
+		/**
+		 * The signature of `first` and `last`, which yield `E` on a non-empty
+		 * collection and `E | undefined` on a possibly empty one.
+		 *
+		 * Keyed on the `_IS_NON_EMPTY` Kind discriminant rather than declared as
+		 * a member-level conditional, so the member type stays a plain interface
+		 * reference and remains implementable by classes that are generic over
+		 * the family.
+		 */
+		export interface FirstLast<E, IsNonEmpty extends boolean = boolean> {
+			(): IsNonEmpty extends true ? E : E | undefined;
+			<O>(otherwise: OptLazy<O>): IsNonEmpty extends true ? E : E | O;
+		}
+
 		export interface Api<E, Tp extends Collection.Advanced.TypesBase>
 			extends Collection.Advanced.Api<E, Tp> {
 			streamSlice(
@@ -41,18 +55,8 @@ export declare namespace IndexedCollection {
 			at(index: number): E | undefined;
 			at<O>(index: number, otherwise: OptLazy<O>): E | O;
 
-			first: Tp extends Collection.Advanced.NonEmptyKind<any>
-				? (otherwise?: never) => E
-				: {
-						(): E | undefined;
-						<O>(otherwise: OptLazy<O>): E | O;
-					};
-			last: Tp extends Collection.Advanced.NonEmptyKind<any>
-				? (otherwise?: never) => E
-				: {
-						(): E | undefined;
-						<O>(otherwise: OptLazy<O>): E | O;
-					};
+			first: FirstLast<E, Tp['_IS_NON_EMPTY']>;
+			last: FirstLast<E, Tp['_IS_NON_EMPTY']>;
 
 			take<const N extends number>(
 				amount: N,
