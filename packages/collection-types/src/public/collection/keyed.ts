@@ -1,6 +1,6 @@
+import type { Collection } from '@rimbu/collection-types/collection';
 import type { OptLazy, RelatedTo } from '@rimbu/common';
 import type { Stream } from '@rimbu/stream';
-import type { Collection } from '../collection';
 
 export type KeyedCollection<
 	K,
