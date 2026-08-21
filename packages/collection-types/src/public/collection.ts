@@ -112,6 +112,10 @@ export declare namespace Collection {
 			_NEW_TYPES: TypesNonEmpty<this['_NEW_FAMILY'], this['_NEW_E']>;
 		}
 
+		export interface ToStream<E, IsNonEmpty extends boolean = boolean> {
+			(): IsNonEmpty extends true ? Stream.NonEmpty<E> : Stream<E>;
+		}
+
 		export interface Api<E, Tp extends TypesBase> extends FastIterable<E> {
 			/** phantom carrier of the types record; keeps `E` and the family invariant */
 			readonly [TypesKey]: Tp;

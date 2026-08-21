@@ -52,7 +52,7 @@ export declare namespace ValuedCollection {
 			_CONTEXT: ContextApi<this['_FAM']>;
 
 			_FAM: Family<E>;
-			_NEW_FAMILY: ValuedCollection.Advanced.Family<this['_NEW_E']>;
+			_NEW_FAMILY: Family<this['_NEW_E']>;
 		}
 	}
 }
