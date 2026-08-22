@@ -1,5 +1,5 @@
 import type { Collection } from '@rimbu/collection-types/collection';
-import type { Op, TypesKey } from '@rimbu/collection-types/types';
+import type { Op } from '@rimbu/collection-types/types';
 import type { OptLazy, RelatedTo } from '@rimbu/common';
 import type { Stream, StreamSource } from '@rimbu/stream';
 
@@ -142,6 +142,10 @@ export namespace KeyedCollection {
 				removeKeyAndReturn<UK = K>(
 					key: RelatedTo<K, UK>,
 				): Op.DynamicResult<Tp['_SELF'], undefined, V, Tp['_NORMAL']>;
+				removeKeyAndReturn<UK, O>(
+					key: RelatedTo<K, UK>,
+					otherwise: OptLazy<O>,
+				): Op.DynamicResult<Tp['_SELF'], O, V, Tp['_NORMAL']>;
 			}
 
 			export interface BuilderApi<
@@ -149,9 +153,13 @@ export namespace KeyedCollection {
 				V,
 				Tp extends Collection.Advanced.TypesBase,
 			> extends Advanced.BuilderApi<K, V, Tp> {
-				removeKey<UK = K>(key: RelatedTo<K, UK>): boolean;
-
+				removeKey<UK = K>(key: RelatedTo<K, UK>): V | undefined;
+				removeKey<UK, O>(key: RelatedTo<K, UK>, otherwise: O): V | O;
 				removeKeys<UK = K>(keys: StreamSource<RelatedTo<K, UK>>): boolean;
+				// removeKeys<UK, R>(
+				// 	keys: StreamSource<RelatedTo<K, UK>>,
+				// 	collector: Reducer<[UK, V], R>,
+				// ): R;
 			}
 		}
 
@@ -174,7 +182,7 @@ export namespace KeyedCollection {
 		export namespace WithMapValues {
 			export interface Api<K, V, Tp extends Collection.Advanced.TypesBase>
 				extends Advanced.Api<K, V, Tp> {
-				[TypesKey]: Collection.Advanced.InvariantTypes<Tp, V>;
+				// [TypesKey]: Collection.Advanced.InvariantTypes<Tp, V>;
 
 				mapValues<V2 extends V>(
 					mapFun: (value: V, key: K) => V2,

@@ -301,7 +301,7 @@ export declare namespace IndexedCollection {
 			export interface BuilderApi<E, Tp extends Collection.Advanced.TypesBase>
 				extends Advanced.BuilderApi<E, Tp> {
 				removeAt(index: number): E | undefined;
-				removeAt<O>(index: number, otherwise?: OptLazy<O>): E | O;
+				removeAt<O>(index: number, otherwise: OptLazy<O>): E | O;
 
 				removeAmountAt(index: number, amount: number): boolean;
 				removeAmountAt<R>(

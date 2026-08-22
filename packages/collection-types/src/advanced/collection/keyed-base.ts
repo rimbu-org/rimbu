@@ -16,8 +16,8 @@ import { Stream, type StreamSource } from '@rimbu/stream';
 export type KeyedCollectionEmptyBaseCapabilities<K, V> =
 	CollectionEmptyBaseCapabilities<readonly [K, V]> &
 		KeyedCollection.Advanced.Family<K, V> &
-		KeyedCollection.Capability.WithRemove<K, V>;
-// KeyedCollection.Capability.WithMapValues<K, V>;
+		KeyedCollection.Capability.WithRemove<K, V> &
+		KeyedCollection.Capability.WithMapValues<K, V>;
 
 export abstract class KeyedCollectionEmptyBase<K, V>
 	extends CollectionEmptyBase<readonly [K, V]>
@@ -57,18 +57,19 @@ export abstract class KeyedCollectionEmptyBase<K, V>
 		return this;
 	}
 
-	removeKeyAndReturn<UK>(
+	removeKeyAndReturn<UK, O>(
 		_: RelatedTo<K, UK>,
-	): Op.WithResult<this, undefined, false> {
+		otherwise?: OptLazy<O>,
+	): Op.WithResult<this, O, false> {
 		return {
 			collection: this,
 			hasResult: false,
-			result: undefined,
+			result: OptLazy(otherwise) as O,
 			hasChanged: false,
 		};
 	}
 
-	mapValues<V2>(): any {
+	mapValues(): any {
 		return this as any;
 	}
 }
@@ -112,10 +113,14 @@ export abstract class KeyedCollectionNonEmptyBase<K, V>
 	}
 }
 
+export type KeyedCollectionBuilderBaseCapabilities<K, V> =
+	CollectionEmptyBaseCapabilities<readonly [K, V]> &
+		KeyedCollection.Advanced.Family<K, V>;
+
 export abstract class KeyedCollectionBuilderBase<K, V>
 	extends CollectionBuilderBase<readonly [K, V]>
 	implements
-		KeyedCollection.Builder<K, V, KeyedCollectionEmptyBaseCapabilities<K, V>>
+		KeyedCollection.Builder<K, V, KeyedCollectionBuilderBaseCapabilities<K, V>>
 {
 	declare readonly [TypesKey]: Collection.Advanced.InvariantTypes<
 		Collection.Advanced.Types<
@@ -133,8 +138,4 @@ export abstract class KeyedCollectionBuilderBase<K, V>
 		const token = Symbol();
 		return token !== this.get(key, token as any);
 	}
-
-	abstract removeKey<UK>(key: RelatedTo<K, UK>): boolean;
-
-	abstract removeKeys<UK>(keys: StreamSource<RelatedTo<K, UK>>): boolean;
 }

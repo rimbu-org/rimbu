@@ -6,6 +6,7 @@ import type { StreamSource } from '@rimbu/stream';
 
 import {
 	KeyedCollectionBuilderBase,
+	type KeyedCollectionBuilderBaseCapabilities,
 	KeyedCollectionEmptyBase,
 	type KeyedCollectionEmptyBaseCapabilities,
 	KeyedCollectionNonEmptyBase,
@@ -188,10 +189,14 @@ export abstract class MapCollectionNonEmptyBase<K, V>
 	): Collection.Advanced.ReTyped<this[TypesKey], readonly [K2, V2]>['_NORMAL'];
 }
 
+export type MapCollectionBuilderBaseCapabilities<K, V> =
+	KeyedCollectionBuilderBaseCapabilities<K, V> &
+		MapCollection.Advanced.Family<K, V>;
+
 export abstract class MapCollectionBuilderBase<K, V>
 	extends KeyedCollectionBuilderBase<K, V>
 	implements
-		MapCollection.Builder<K, V, MapCollectionEmptyBaseCapabilities<K, V>>
+		MapCollection.Builder<K, V, MapCollectionBuilderBaseCapabilities<K, V>>
 {
 	// biome-ignore lint/suspicious/noExplicitAny: see KeyedCollectionEmptyBase
 	declare readonly [TypesKey]: any;
