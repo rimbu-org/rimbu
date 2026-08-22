@@ -53,40 +53,6 @@ export declare namespace SetCollection {
 	}
 
 	export namespace Capability {
-		export interface WithAdd<E> extends Advanced.Family<E> {
-			_NORMAL: WithAdd.Api<E, Collection.Advanced.Types<this['_FAM'], E>>;
-			_NON_EMPTY: WithAdd.Api<
-				E,
-				Collection.Advanced.TypesNonEmpty<this['_FAM'], E>
-			>;
-			_BUILDER: WithAdd.BuilderApi<
-				E,
-				Collection.Advanced.Types<this['_FAM'], E>
-			>;
-
-			_FAM: WithAdd<E>;
-			_NEW_FAMILY: WithAdd<this['_NEW_E']>;
-		}
-
-		export namespace WithAdd {
-			export interface Api<E, Tp extends Collection.Advanced.TypesBase>
-				extends Advanced.Api<E, Tp> {
-				[TypesKey]: Collection.Advanced.InvariantTypes<Tp, E>;
-
-				add(element: E): Tp['_NON_EMPTY'];
-
-				addAll(elements: StreamSource.NonEmpty<E>): Tp['_NON_EMPTY'];
-				addAll(elements: StreamSource<E>): Tp['_SELF'];
-			}
-
-			export interface BuilderApi<E, Tp extends Collection.Advanced.TypesBase>
-				extends Advanced.BuilderApi<E, Tp> {
-				add(element: E): boolean;
-
-				addAll(elements: StreamSource<E>): boolean;
-			}
-		}
-
 		export interface WithDifferenceAndIntersection<E>
 			extends Advanced.Family<E> {
 			_NORMAL: WithDifferenceAndIntersection.Api<

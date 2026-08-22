@@ -15,8 +15,8 @@ import {
 
 export type SetCollectionEmptyBaseCapabilities<E> =
 	ValuedCollectionEmptyBaseCapabilities<E> &
+		Collection.Capability.WithAdd<E> &
 		SetCollection.Advanced.Family<E> &
-		SetCollection.Capability.WithAdd<E> &
 		SetCollection.Capability.WithDifferenceAndIntersection<E> &
 		SetCollection.Capability.WithRemove<E> &
 		SetCollection.Capability.WithSymmetricDifferenceAndUnion<E>;
@@ -87,7 +87,7 @@ export abstract class SetCollectionNonEmptyBase<E>
 export abstract class SetCollectionContextBase<
 	Tp extends Collection.Advanced.Types<
 		SetCollection.Advanced.Family<any> &
-			SetCollection.Capability.WithAdd<any> &
+			Collection.Capability.WithAdd<any> &
 			Collection.Capability.WithToBuilder<any>,
 		any
 	>,
@@ -168,7 +168,7 @@ export function defaultFlatMapByUnion<
 
 export function defaultUnionByAdd<
 	E,
-	C extends SetCollection.NonEmpty<E, SetCollection.Capability.WithAdd<E>>,
+	C extends SetCollection.NonEmpty<E, Collection.Capability.WithAdd<E>>,
 >(col: C, other: StreamSource<E>): C[TypesKey]['_NORMAL'] {
 	if (other === col) return col;
 	if (Stream.isEmptyStreamSourceInstance(other)) return col;
@@ -190,7 +190,7 @@ export function defaultDifferenceByRemove<
 export function defaultIntersectByAdd<
 	E,
 	UE,
-	C extends SetCollection.NonEmpty<E, SetCollection.Capability.WithAdd<E>>,
+	C extends SetCollection.NonEmpty<E, Collection.Capability.WithAdd<E>>,
 >(col: C, other: StreamSource<RelatedTo<E, UE>>): C[TypesKey]['_NORMAL'] {
 	if (other === col) return col;
 	if (Stream.isEmptyStreamSourceInstance(other)) return col.context.empty();
@@ -208,7 +208,7 @@ export function defaultSymDifferenceByRemove<
 	C extends SetCollection.NonEmpty<
 		E,
 		Collection.Capability.WithToBuilder<E> &
-			SetCollection.Capability.WithAdd<E> &
+			Collection.Capability.WithAdd<E> &
 			SetCollection.Capability.WithRemove<E>
 	>,
 >(col: C, other: StreamSource<E>): C[TypesKey]['_NORMAL'] {
@@ -227,7 +227,7 @@ export function defaultSymDifferenceByRemove<
 export function defaultReducerByAdd<
 	E,
 	F extends Collection.Capability.WithToBuilder<E> &
-		SetCollection.Capability.WithAdd<E>,
+		Collection.Capability.WithAdd<E>,
 >(
 	context: SetCollection.Context<F>,
 	source?: StreamSource<E>,

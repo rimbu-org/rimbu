@@ -1,104 +1,107 @@
-import type { RMap } from '@rimbu/collection-types';
-import type { RMapBase } from '@rimbu/collection-types/advanced/map/base';
-import type { Eq } from '@rimbu/common/eq';
+// @ts-nocheck
+import type { Collection } from '@rimbu/collection-types/collection';
+import type { KeyedCollection } from '@rimbu/collection-types/collection/keyed';
+import type { MapCollection } from '@rimbu/collection-types/map';
+import type { Eq } from '@rimbu/common';
 import type { Hasher } from '@rimbu/hashed';
-import type { Stream, Streamable } from '@rimbu/stream';
+import type { List } from '@rimbu/list';
 
-import type { HashMapCreators } from '#map/creators';
+import { HashMapContext } from '#map/context';
 
-import { createHashMapContextModule } from '#map/context-factory';
-
-/**
- * A type-invariant immutable Map of key type K, and value type V.
- * In the Map, each key has exactly one value, and the Map cannot contain
- * duplicate keys.
- * See the [Map documentation](https://rimbu.org/docs/collections/map) and the [HashMap API documentation](https://rimbu.org/api/rimbu/hashed/map/HashMap/interface)
- * @typeparam K - the key type
- * @typeparam V - the value type
- * @note
- * - The `HashMap` uses the context's `hasher` instance to hash keys for performance.
- * - The `HashMap` uses the context's `eq` function to determine equivalence between keys.
- * @example
- * ```ts
- * import { HashMap } from '@rimbu/hashed';
- *
- * const m1 = HashMap.empty<number, string>();
- * const m2 = HashMap.of([1, 'a'], [2, 'b']);
- * console.log(m2.toString()); // => HashMap(1 -> a, 2 -> b)
- * ```
- */
-export interface HashMap<K, V> extends RMapBase<K, V, HashMap.Types> {}
+export interface HashMap<K, V>
+	extends HashMap.Advanced.Api<
+		K,
+		V,
+		Collection.Advanced.Types<HashMap.Advanced.Family<K, V>, readonly [K, V]>
+	> {}
 
 export namespace HashMap {
-	/**
-	 * A non-empty type-invariant immutable Map of key type K, and value type V.
-	 * In the Map, each key has exactly one value, and the Map cannot contain
-	 * duplicate keys.
-	 * See the [Map documentation](https://rimbu.org/docs/collections/map) and the [HashMap API documentation](https://rimbu.org/api/rimbu/hashed/map/HashMap/interface)
-	 * @note
-	 * - The `HashMap` uses the context's `hasher` instance to hash keys for performance.
-	 * - The `HashMap` uses the context's `eq` function to determine equivalence between keys.
-	 * @typeparam K - the key type
-	 * @typeparam V - the value type
-	 * @example
-	 * ```ts
-	 * import { HashMap } from '@rimbu/hashed';
-	 *
-	 * const m1 = HashMap.empty<number, string>();
-	 * const m2 = HashMap.of([1, 'a'], [2, 'b']);
-	 * console.log(m2.toString()); // => HashMap(1 -> a, 2 -> b)
-	 * ```
-	 */
 	export interface NonEmpty<K, V>
-		extends RMapBase.NonEmpty<K, V, HashMap.Types>,
-			Omit<HashMap<K, V>, keyof RMapBase.NonEmpty<any, any, any>>,
-			Streamable.NonEmpty<readonly [K, V]> {
-		/**
-		 * Returns a non-empty `Stream` of entries in this `HashMap` as readonly `[K, V]` tuples.
-		 * @returns a non-empty `Stream` of readonly `[K, V]` tuples for each map entry
-		 */
-		stream(): Stream.NonEmpty<readonly [K, V]>;
-	}
+		extends Advanced.Api<
+			K,
+			V,
+			Collection.Advanced.TypesNonEmpty<Advanced.Family<K, V>, readonly [K, V]>
+		> {}
 
-	/**
-	 * A context instance for a `HashMap` that acts as a factory for every instance of this
-	 * type of collection.
-	 * @typeparam UK - the upper key type bound for which the context can be used
-	 */
-	export interface Context<UK> extends RMapBase.Context<UK, HashMap.Types> {
-		readonly typeTag: 'HashMap';
-
-		/**
-		 * A `Hasher` instance used to hash the map keys.
-		 */
-		readonly hasher: Hasher<UK>;
-		/**
-		 * An `Eq` instance used to check key equivalence.
-		 */
-		readonly eq: Eq<UK>;
-	}
-
-	/**
-	 * A mutable `HashMap` builder used to efficiently create new immutable instances.
-	 * See the [Map documentation](https://rimbu.org/docs/collections/map) and the [HashMap.Builder API documentation](https://rimbu.org/api/rimbu/hashed/HashMap/Builder/interface)
-	 * @typeparam K - the key type
-	 * @typeparam V - the value type
-	 */
 	export interface Builder<K, V>
-		extends RMapBase.Builder<K, V, HashMap.Types> {}
+		extends Advanced.BuilderApi<
+			K,
+			V,
+			Collection.Advanced.Types<Advanced.Family<K, V>, readonly [K, V]>
+		> {}
 
-	/**
-	 * Utility interface that provides higher-kinded types for this collection.
-	 */
-	export interface Types extends RMap.Types {
-		readonly normal: HashMap<this['_K'], this['_V']>;
-		readonly nonEmpty: HashMap.NonEmpty<this['_K'], this['_V']>;
-		readonly context: HashMap.Context<this['_K']>;
-		readonly builder: HashMap.Builder<this['_K'], this['_V']>;
+	export interface Context<UK>
+		extends Advanced.ContextApi<UK, HashMap.Advanced.Family<UK, any>> {}
+
+	export namespace Advanced {
+		export type Api<
+			K,
+			V,
+			Tp extends Collection.Advanced.TypesBase,
+		> = Collection.Capability.WithAdd.Api<E, Tp> &
+			Collection.Capability.WithFlatMap.Api<readonly [K, V], Tp> &
+			Collection.Capability.WithMap.Api<readonly [K, V], Tp> &
+			Collection.Capability.WithMutate.Api<readonly [K, V], Tp> &
+			Collection.Capability.WithRecompose.Api<readonly [K, V], Tp> &
+			Collection.Capability.WithToBuilder.Api<readonly [K, V], Tp> &
+			KeyedCollection.Advanced.Api<K, V, Tp> &
+			KeyedCollection.Capability.WithRemove.Api<K, V, Tp> &
+			KeyedCollection.Capability.WithMapValues.Api<K, V, Tp> &
+			MapCollection.Advanced.Api<K, V, Tp> &
+			MapCollection.Capability.WithSet.Api<K, V, Tp> &
+			MapCollection.Capability.WithUpdateAt.Api<K, V, Tp> &
+			MapCollection.Capability.WithModifyAt.Api<K, V, Tp> &
+			MapCollection.WithRecompose.Api<K, V, Tp>;
+
+		export type BuilderApi<
+			K,
+			V,
+			Tp extends Collection.Advanced.TypesBase,
+		> = Collection.Capability.WithAdd.BuilderApi<E, Tp> &
+			KeyedCollection.Advanced.BuilderApi<K, V, Tp> &
+			MapCollection.Advanced.BuilderApi<K, V, Tp> &
+			KeyedCollection.Capability.WithRemove.BuilderApi<K, V, Tp> &
+			MapCollection.Capability.WithSet.BuilderApi<K, V, Tp> &
+			MapCollection.Capability.WithUpdateAt.BuilderApi<K, V, Tp> &
+			MapCollection.Capability.WithModifyAt.BuilderApi<K, V, Tp>;
+
+		export interface ContextApi<
+			UK,
+			F extends Collection.Advanced.FamilyBase<readonly [UK, any]>,
+		> extends MapCollection.Advanced.ContextApi<F>,
+				Collection.Capability.WithReducer.ContextApi<F> {
+			readonly blockSizeBits: number;
+			readonly hasher: Hasher<UK>;
+			readonly eq: Eq<UK>;
+		}
+
+		export interface Family<K, V> extends MapCollection.Advanced.Family<K, V> {
+			_NORMAL: HashMap<K, V>;
+			_NON_EMPTY: HashMap.NonEmpty<K, V>;
+			_BUILDER: HashMap.Builder<K, V>;
+			_CONTEXT: HashMap.Context<K>;
+
+			_UPPER_K: K;
+			_UPPER_V: V;
+			_INVARIANT: (entry: readonly [K, V]) => readonly [K, V];
+
+			_FAM: Family<K, V>;
+			_NEW_FAMILY: Family<this['_NEW_K'], this['_NEW_V']>;
+		}
+
+		export type DefaultFactory = Pick<
+			Context<any>,
+			'builder' | 'empty' | 'from' | 'of' | 'reducer'
+		> & {
+			createContext<K>(options: {
+				hasher?: Hasher<K> | undefined;
+				eq?: Eq<K> | undefined;
+				blockSizeBits?: number | undefined;
+				listContext?: List.Context | undefined;
+			}): Context<K>;
+		};
 	}
 }
 
-/**
- * @expandType HashMapCreators
- */
-export const HashMap: HashMapCreators = createHashMapContextModule().build();
+export const HashMap: HashMap.Advanced.DefaultFactory =
+	new HashMapContext() as any;

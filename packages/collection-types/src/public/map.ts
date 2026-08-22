@@ -102,16 +102,7 @@ export declare namespace MapCollection {
 		export namespace WithSet {
 			export interface Api<K, V, Tp extends Collection.Advanced.TypesBase>
 				extends Advanced.Api<K, V, Tp> {
-				[TypesKey]: Collection.Advanced.InvariantTypes<Tp, V>;
-
 				set(key: K, value: V): Tp['_NON_EMPTY'];
-
-				setEntry(entry: readonly [K, V]): Tp['_NON_EMPTY'];
-
-				setAll(
-					entries: StreamSource.NonEmpty<readonly [K, V]>,
-				): Tp['_NON_EMPTY'];
-				setAll(entries: StreamSource<readonly [K, V]>): Tp['_NORMAL'];
 			}
 
 			export interface BuilderApi<
@@ -119,11 +110,7 @@ export declare namespace MapCollection {
 				V,
 				Tp extends Collection.Advanced.TypesBase,
 			> extends Advanced.BuilderApi<K, V, Tp> {
-				[TypesKey]: Collection.Advanced.InvariantTypes<Tp, V>;
-
 				set(key: K, value: V): boolean;
-
-				setAll(entries: StreamSource<readonly [K, V]>): boolean;
 			}
 		}
 
@@ -151,8 +138,6 @@ export declare namespace MapCollection {
 		export namespace WithUpdateAt {
 			export interface Api<K, V, Tp extends Collection.Advanced.TypesBase>
 				extends Advanced.Api<K, V, Tp> {
-				[TypesKey]: Collection.Advanced.InvariantTypes<Tp, V>;
-
 				updateAt<UK = K>(
 					key: RelatedTo<K, UK>,
 					update: (value: V) => V,
@@ -174,8 +159,6 @@ export declare namespace MapCollection {
 				V,
 				Tp extends Collection.Advanced.TypesBase,
 			> extends Advanced.BuilderApi<K, V, Tp> {
-				[TypesKey]: Collection.Advanced.InvariantTypes<Tp, V>;
-
 				updateAt<UK = K>(
 					key: RelatedTo<K, UK>,
 					update: (value: V) => V,
@@ -207,26 +190,26 @@ export declare namespace MapCollection {
 		export namespace WithModifyAt {
 			export interface Api<K, V, Tp extends Collection.Advanced.TypesBase>
 				extends Advanced.Api<K, V, Tp> {
-				[TypesKey]: Collection.Advanced.InvariantTypes<Tp, V>;
-
 				modifyAt(
 					atKey: K,
 					options: {
 						ifNew?:
-							| { set: V; create?: never }
+							| { set: V; create?: undefined }
 							| {
-									set?: never;
+									set?: undefined;
 									create: <SKIP extends symbol>(skip: SKIP) => V | typeof skip;
-							  };
+							  }
+							| undefined;
 						ifExists?:
-							| { set: V; update?: never }
+							| { set: V; update?: undefined }
 							| {
 									set?: never;
 									update: <REMOVE extends symbol>(
 										current: V,
 										remove: REMOVE,
 									) => V | REMOVE;
-							  };
+							  }
+							| undefined;
 					},
 				): Tp['_NORMAL'];
 			}
@@ -236,26 +219,26 @@ export declare namespace MapCollection {
 				V,
 				Tp extends Collection.Advanced.TypesBase,
 			> extends Advanced.BuilderApi<K, V, Tp> {
-				[TypesKey]: Collection.Advanced.InvariantTypes<Tp, V>;
-
 				modifyAt(
 					atKey: K,
 					options: {
 						ifNew?:
-							| { set: V; create?: never }
+							| { set: V; create?: undefined }
 							| {
-									set?: never;
+									set?: undefined;
 									create: <SKIP extends symbol>(skip: SKIP) => V | typeof skip;
-							  };
+							  }
+							| undefined;
 						ifExists?:
-							| { set: V; update?: never }
+							| { set: V; update?: undefined }
 							| {
-									set?: never;
+									set?: undefined;
 									update: <REMOVE extends symbol>(
 										current: V,
 										remove: REMOVE,
 									) => V | REMOVE;
-							  };
+							  }
+							| undefined;
 					},
 				): boolean;
 			}
