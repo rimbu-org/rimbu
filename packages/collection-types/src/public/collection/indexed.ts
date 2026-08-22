@@ -2,6 +2,7 @@ import type { Collection } from '@rimbu/collection-types/collection';
 import type { Op, TypesKey } from '@rimbu/collection-types/types';
 import type { ArrayNonEmpty, IndexRange, OptLazy } from '@rimbu/common';
 import type { Stream, StreamSource } from '@rimbu/stream';
+import type { Reducer } from '@rimbu/stream/reducer';
 
 export type IndexedCollection<
 	E,
@@ -254,6 +255,10 @@ export declare namespace IndexedCollection {
 				E,
 				Collection.Advanced.TypesNonEmpty<this['_FAM'], E>
 			>;
+			_BUILDER: WithRemoveAt.BuilderApi<
+				E,
+				Collection.Advanced.Types<this['_FAM'], E>
+			>;
 
 			_FAM: WithRemoveAt<E>;
 			_NEW_FAMILY: WithRemoveAt<this['_NEW_E']>;
@@ -273,6 +278,25 @@ export declare namespace IndexedCollection {
 					Tp['_NON_EMPTY'],
 					Tp['_NORMAL']
 				>;
+			}
+
+			export interface BuilderApi<E, Tp extends Collection.Advanced.TypesBase>
+				extends Advanced.BuilderApi<E, Tp> {
+				removeAt(index: number): E | undefined;
+				removeAt<O>(index: number, otherwise?: OptLazy<O>): E | O;
+
+				removeAmountAt(index: number, amount: number): boolean;
+				removeAmountAt<R>(
+					index: number,
+					amount: number,
+					collector: Reducer<E, R>,
+				): R;
+
+				removeAllAt(indices: StreamSource<number>): boolean;
+				removeAllAt<R>(
+					indices: StreamSource<number>,
+					collector: Reducer<E, R>,
+				): R;
 			}
 		}
 

@@ -23,6 +23,19 @@ export namespace KeyedCollection {
 		> = Collection.Advanced.Family<readonly [K, V]>,
 	> = Advanced.ExtendFamily<K, V, F>['_NON_EMPTY'];
 
+	export type Builder<
+		K,
+		V,
+		F extends Collection.Advanced.FamilyBase<
+			readonly [K, V]
+		> = Collection.Advanced.Family<readonly [K, V]>,
+	> = Advanced.ExtendFamily<K, V, F>['_BUILDER'];
+
+	export type Context<
+		F extends
+			Collection.Advanced.FamilyBase<any> = Collection.Advanced.Family<any>,
+	> = Advanced.ExtendFamily<any, any, F>['_CONTEXT'];
+
 	export namespace Advanced {
 		export type ExtendFamily<
 			K,
@@ -163,7 +176,7 @@ export namespace KeyedCollection {
 				extends Advanced.Api<K, V, Tp> {
 				[TypesKey]: Collection.Advanced.InvariantTypes<Tp, V>;
 
-				mapValues<V2>(
+				mapValues<V2 extends V>(
 					mapFun: (value: V, key: K) => V2,
 				): Collection.Advanced.ReTyped<Tp, readonly [K, V2]>['_SELF'];
 			}

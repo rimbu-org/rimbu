@@ -11,6 +11,7 @@ import { Int } from '@rimbu/base';
 import { CollectionBuilderBase } from '@rimbu/collection-types/advanced/collection-base';
 import { OptLazy } from '@rimbu/common';
 import { Stream } from '@rimbu/stream';
+import { Reducer } from '@rimbu/stream/reducer';
 
 import { CacheMap } from '#list/immutable/cache-map';
 
@@ -221,18 +222,42 @@ export class ListBuilder<T>
 		return result;
 	};
 
-	removeAmountAt = (index: number, amount: number): T[] => {
+	removeAmountAt = <R>(
+		index: number,
+		amount: number,
+		collector: Reducer<T, R> = Reducer.nonEmpty as Reducer<T, R>,
+	): R => {
 		const symbol = Symbol();
 
-		const removed: T[] = [];
+		const removed = collector.compile();
 
 		for (let i = 0; i < amount; i++) {
 			const value = this.removeAt(index, symbol);
 			if (symbol === value) break;
-			removed.push(value as T);
+			removed.next(value);
 		}
 
-		return removed;
+		return removed.getOutput();
+	};
+
+	removeAllAt = <R>(
+		indices: StreamSource<number>,
+		collector: Reducer<T, R> = Reducer.nonEmpty as Reducer<T, R>,
+	): R => {
+		const removed = collector.compile();
+
+		const iter = Stream.from(indices)[Symbol.iterator]();
+		let index: number | undefined;
+		const symbol = Symbol();
+
+		while (undefined !== (index = iter.fastNext())) {
+			const value = this.removeAt(index, symbol);
+			if (symbol !== value) {
+				removed.next(value);
+			}
+		}
+
+		return removed.getOutput();
 	};
 
 	clear = (): void => {

@@ -5,7 +5,6 @@ import type { ChildrenOps } from '#advanced/children-ops';
 
 import { ArrayOuterChildrenOps } from '#list/children-ops/array';
 import { ListContext } from '#list/context';
-
 export interface List<T>
 	extends List.Advanced.Api<
 		T,
@@ -48,7 +47,8 @@ export declare namespace List {
 		export type BuilderApi<
 			T,
 			Tp extends Collection.Advanced.TypesBase,
-		> = IndexedCollection.Capability.WithPrependAppend.BuilderApi<T, Tp>;
+		> = IndexedCollection.Capability.WithPrependAppend.BuilderApi<T, Tp> &
+			IndexedCollection.Capability.WithRemoveAt.BuilderApi<T, Tp>;
 
 		export interface ContextApi<F extends Collection.Advanced.FamilyBase<any>>
 			extends IndexedCollection.Advanced.ContextApi<F>,
