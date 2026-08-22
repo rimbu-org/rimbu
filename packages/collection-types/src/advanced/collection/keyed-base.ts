@@ -89,7 +89,7 @@ export abstract class KeyedCollectionNonEmptyBase<K, V>
 {
 	declare readonly [TypesKey]: Collection.Advanced.InvariantTypes<
 		Collection.Advanced.TypesNonEmpty<
-			KeyedCollectionEmptyBaseCapabilities<K, V>,
+			KeyedCollectionNonEmptyBaseCapabilities<K, V>,
 			readonly [K, V]
 		>,
 		readonly [K, V]
@@ -124,7 +124,7 @@ export abstract class KeyedCollectionBuilderBase<K, V>
 {
 	declare readonly [TypesKey]: Collection.Advanced.InvariantTypes<
 		Collection.Advanced.Types<
-			KeyedCollectionEmptyBaseCapabilities<K, V>,
+			KeyedCollectionBuilderBaseCapabilities<K, V>,
 			readonly [K, V]
 		>,
 		readonly [K, V]

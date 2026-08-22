@@ -34,6 +34,8 @@ export abstract class MapCollectionEmptyBase<K, V>
 		readonly [K, V]
 	>;
 
+	abstract readonly context: MapCollection.Context<this[TypesKey]>;
+
 	set(key: K, value: V): this[TypesKey]['_NON_EMPTY'] {
 		return this.context.of([key, value] as readonly [
 			K,
@@ -127,7 +129,18 @@ export type MapCollectionNonEmptyBaseCapabilities<K, V> =
 export abstract class MapCollectionNonEmptyBase<K, V>
 	extends KeyedCollectionNonEmptyBase<K, V>
 	implements
-		MapCollection.NonEmpty<K, V, MapCollectionNonEmptyBaseCapabilities<K, V>> {}
+		MapCollection.NonEmpty<K, V, MapCollectionNonEmptyBaseCapabilities<K, V>>
+{
+	declare readonly [TypesKey]: Collection.Advanced.InvariantTypes<
+		Collection.Advanced.TypesNonEmpty<
+			MapCollectionNonEmptyBaseCapabilities<K, V>,
+			readonly [K, V]
+		>,
+		readonly [K, V]
+	>;
+
+	abstract readonly context: MapCollection.Context<this[TypesKey]>;
+}
 
 export type MapCollectionBuilderBaseCapabilities<K, V> =
 	KeyedCollectionBuilderBaseCapabilities<K, V> &
@@ -136,4 +149,15 @@ export type MapCollectionBuilderBaseCapabilities<K, V> =
 export abstract class MapCollectionBuilderBase<K, V>
 	extends KeyedCollectionBuilderBase<K, V>
 	implements
-		MapCollection.Builder<K, V, MapCollectionBuilderBaseCapabilities<K, V>> {}
+		MapCollection.Builder<K, V, MapCollectionBuilderBaseCapabilities<K, V>>
+{
+	declare readonly [TypesKey]: Collection.Advanced.InvariantTypes<
+		Collection.Advanced.Types<
+			MapCollectionBuilderBaseCapabilities<K, V>,
+			readonly [K, V]
+		>,
+		readonly [K, V]
+	>;
+
+	abstract readonly context: MapCollection.Context<this[TypesKey]>;
+}
