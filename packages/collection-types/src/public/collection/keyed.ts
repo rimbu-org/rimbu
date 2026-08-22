@@ -83,7 +83,7 @@ export namespace KeyedCollection {
 			_NEW_K: unknown;
 			_NEW_V: unknown;
 
-			// _UPPER_E: readonly [this['_UPPER_K'], this['_UPPER_V']];
+			_UPPER_E: readonly [this['_UPPER_K'], this['_UPPER_V']];
 			_NEW_E: readonly [this['_NEW_K'], this['_NEW_V']];
 
 			_FAM: Family<K, V>;
@@ -166,38 +166,6 @@ export namespace KeyedCollection {
 				mapValues<V2>(
 					mapFun: (value: V, key: K) => V2,
 				): Collection.Advanced.ReTyped<Tp, readonly [K, V2]>['_SELF'];
-			}
-		}
-
-		export interface WithRecompose<K, V> extends Advanced.Family<K, V> {
-			_NORMAL: WithRecompose.Api<
-				K,
-				V,
-				Collection.Advanced.Types<this['_FAM'], readonly [K, V]>
-			>;
-			_NON_EMPTY: WithRecompose.Api<
-				K,
-				V,
-				Collection.Advanced.TypesNonEmpty<this['_FAM'], readonly [K, V]>
-			>;
-
-			_FAM: WithRecompose<K, V>;
-			_NEW_FAMILY: WithRecompose<this['_NEW_K'], this['_NEW_V']>;
-		}
-
-		export namespace WithRecompose {
-			export interface Api<K, V, Tp extends Collection.Advanced.TypesBase>
-				extends Advanced.Api<K, V, Tp> {
-				[TypesKey]: Collection.Advanced.InvariantTypes<Tp, readonly [K, V]>;
-
-				recompose<K2 extends K, V2>(
-					f: (
-						stream: Tp['_AS_STREAM'],
-					) => StreamSource.NonEmpty<readonly [K2, V2]>,
-				): Collection.Advanced.ReTyped<Tp, readonly [K2, V2]>['_SELF'];
-				recompose<K2 extends K, V2>(
-					f: (stream: Tp['_AS_STREAM']) => StreamSource<readonly [K2, V2]>,
-				): Collection.Advanced.ReTyped<Tp, readonly [K2, V2]>['_NORMAL'];
 			}
 		}
 	}
