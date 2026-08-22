@@ -201,6 +201,16 @@ export class ListBuilder<T>
 		this.#outerBuilder = this.#outerBuilder.normalized();
 	};
 
+	insertAllAt = (index: number, values: StreamSource<T>): void => {
+		const done = Symbol();
+		const iter = Stream.from(values)[Symbol.iterator]();
+		let next: T | typeof done;
+		while (done !== (next = iter.fastNext(done))) {
+			this.insertAt(index, next);
+			index++;
+		}
+	};
+
 	removeAt = <O>(index: number, otherwise?: OptLazy<O>): T | O => {
 		this.checkLock();
 

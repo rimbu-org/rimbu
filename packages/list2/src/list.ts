@@ -39,6 +39,7 @@ export declare namespace List {
 			IndexedCollection.Capability.WithConcat.Api<T, Tp> &
 			IndexedCollection.Capability.WithPadTo.Api<T, Tp> &
 			IndexedCollection.Capability.WithPrependAppend.Api<T, Tp> &
+			IndexedCollection.Capability.WithInsertAt.Api<T, Tp> &
 			IndexedCollection.Capability.WithRemoveAt.Api<T, Tp> &
 			IndexedCollection.Capability.WithSpliceAt.Api<T, Tp> &
 			IndexedCollection.Capability.WithSwapAt.Api<T, Tp> &
@@ -48,6 +49,7 @@ export declare namespace List {
 			T,
 			Tp extends Collection.Advanced.TypesBase,
 		> = IndexedCollection.Capability.WithPrependAppend.BuilderApi<T, Tp> &
+			IndexedCollection.Capability.WithInsertAt.BuilderApi<T, Tp> &
 			IndexedCollection.Capability.WithRemoveAt.BuilderApi<T, Tp>;
 
 		export interface ContextApi<F extends Collection.Advanced.FamilyBase<any>>

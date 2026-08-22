@@ -240,12 +240,30 @@ export declare namespace IndexedCollection {
 					[removed: Tp['_NORMAL'], inserted: Tp['_NORMAL']],
 					Tp['_NORMAL']
 				>;
+			}
+		}
+
+		export interface WithInsertAt<E> extends Advanced.Family<E> {}
+
+		export namespace WithInsertAt {
+			export interface Api<E, Tp extends Collection.Advanced.TypesBase>
+				extends Advanced.Api<E, Tp> {
+				[TypesKey]: Collection.Advanced.InvariantTypes<Tp, E>;
 
 				insertAt(
 					index: number,
-					values: StreamSource.NonEmpty<E>,
+					elements: StreamSource.NonEmpty<E>,
 				): Tp['_NON_EMPTY'];
-				insertAt(index: number, values: StreamSource<E>): Tp['_SELF'];
+				insertAt(index: number, elements: StreamSource<E>): Tp['_SELF'];
+			}
+
+			export interface BuilderApi<E, Tp extends Collection.Advanced.TypesBase>
+				extends Advanced.BuilderApi<E, Tp> {
+				[TypesKey]: Collection.Advanced.InvariantTypes<Tp, E>;
+
+				insertAt(index: number, element: E): void;
+
+				insertAllAt(index: number, elements: StreamSource<E>): void;
 			}
 		}
 
