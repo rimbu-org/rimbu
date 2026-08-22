@@ -90,24 +90,15 @@ export declare namespace KeyedCollection {
 			>;
 			_CONTEXT: ContextApi<this['_FAM']>;
 
-			_UPPER_K: unknown;
-			_UPPER_V: unknown;
+			_UPPER_E: readonly [unknown, unknown];
+			_NEW_E: readonly [unknown, unknown];
 
-			_NEW_K: unknown;
-			_NEW_V: unknown;
-
-			_UPPER_E: readonly [this['_UPPER_K'], this['_UPPER_V']];
-			_NEW_E: readonly [this['_NEW_K'], this['_NEW_V']];
+			_NEW_K: this['_NEW_E'][0];
+			_NEW_V: this['_NEW_E'][1];
 
 			_FAM: Family<K, V>;
 			_NEW_FAMILY: Family<this['_NEW_K'], this['_NEW_V']>;
 		}
-
-		export type ReTyped<
-			F extends KeyedCollection.Advanced.Family<any, any>,
-			K,
-			V,
-		> = (F & { _NEW_K: K; _NEW_V: V })['_NEW_FAMILY'];
 	}
 
 	export namespace Capability {
