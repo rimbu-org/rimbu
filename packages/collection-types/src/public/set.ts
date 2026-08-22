@@ -9,7 +9,7 @@ export type SetCollection<
 	F extends Collection.Advanced.FamilyBase<E> = Collection.Advanced.Family<E>,
 > = SetCollection.Advanced.ExtendFamily<E, F>['_NORMAL'];
 
-export namespace SetCollection {
+export declare namespace SetCollection {
 	export type NonEmpty<
 		E,
 		F extends Collection.Advanced.FamilyBase<E> = Collection.Advanced.Family<E>,

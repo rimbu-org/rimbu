@@ -14,7 +14,7 @@ export type KeyedCollection<
 	readonly [K, V]
 >['_NORMAL'];
 
-export namespace KeyedCollection {
+export declare namespace KeyedCollection {
 	export type NonEmpty<
 		K,
 		V,
