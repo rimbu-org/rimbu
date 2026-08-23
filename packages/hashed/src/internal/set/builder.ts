@@ -1,7 +1,8 @@
 import type { HashSet } from '@rimbu/hashed/set';
 
 import type { HashSetContext } from '#set/context';
-import type { HashSetBlock, HashSetCollision } from '#set/immutable';
+import type { HashSetBlock } from '#set/immutable/block';
+import type { HashSetCollision } from '#set/immutable/collision';
 
 import * as RimbuError from '@rimbu/base/rimbu-error';
 import { SetCollectionBuilderBase } from '@rimbu/collection-types/advanced/set-base';

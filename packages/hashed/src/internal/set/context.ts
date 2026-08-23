@@ -5,15 +5,12 @@ import { Hasher } from '@rimbu/hashed';
 import { List } from '@rimbu/list';
 import { Stream, type StreamSource } from '@rimbu/stream';
 import { Reducer } from '@rimbu/stream/reducer';
+import { HashSetEmpty } from './immutable/empty';
+import { HashSetNonEmptyBase } from './immutable/non-empty';
 
 import { HashSetBlockBuilder, type SetBlockBuilderEntry } from '#set/builder';
-import {
-	HashSetBlock,
-	HashSetCollision,
-	HashSetEmpty,
-	HashSetNonEmptyBase,
-	type SetEntrySet,
-} from '#set/immutable';
+import { HashSetBlock, type SetEntrySet } from '#set/immutable/block';
+import { HashSetCollision } from '#set/immutable/collision';
 
 export class HashSetContext<UE>
 	implements HashSet.Advanced.ContextApi<UE, HashSet.Advanced.Family<UE>>

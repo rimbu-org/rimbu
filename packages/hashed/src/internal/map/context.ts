@@ -4,16 +4,15 @@ import { type ArrayNonEmpty, Eq } from '@rimbu/common';
 import { Hasher } from '@rimbu/hashed';
 import { List } from '@rimbu/list';
 import { Stream, type StreamSource } from '@rimbu/stream';
-import { Reducer } from '@rimbu/stream/reducer';
 
-import { HashMapBlockBuilder, type MapBlockBuilderEntry } from '#map/builder';
+import { HashMapBlock, type MapEntrySet } from '#map/immutable/block';
+import { HashMapCollision } from '#map/immutable/collision';
+import { HashMapEmpty } from '#map/immutable/empty';
+import { HashMapNonEmptyBase } from '#map/immutable/non-empty';
 import {
-	HashMapBlock,
-	HashMapCollision,
-	HashMapEmpty,
-	HashMapNonEmptyBase,
-	type MapEntrySet,
-} from '#map/immutable';
+	HashMapBlockBuilder,
+	type MapBlockBuilderEntry,
+} from '#map/mutable/block-builder';
 
 export class HashMapContext<UK>
 	implements HashMap.Advanced.ContextApi<UK, HashMap.Advanced.Family<UK, any>>
@@ -124,12 +123,12 @@ export class HashMapContext<UK>
 	};
 
 	builder = <K extends UK, V>(): HashMap.Builder<K, V> => {
-		return new HashMapBlockBuilder<K, V>(this);
+		return new HashMapBlockBuilder<K, V>(this as unknown as HashMapContext<K>);
 	};
 
 	from = <K extends UK, V>(
 		...sources: StreamSource<readonly [K, V]>[]
-	): HashMap<K, V> => {
+	): HashMap.NonEmpty<K, V> => {
 		let builder = this.builder<K, V>();
 
 		const length = sources.length;
@@ -150,7 +149,7 @@ export class HashMapContext<UK>
 			builder.addAll(source);
 		}
 
-		return builder.build();
+		return builder.build() as HashMap.NonEmpty<K, V>;
 	};
 
 	of = <K extends UK, V>(
@@ -159,21 +158,23 @@ export class HashMapContext<UK>
 		return this.from(entries);
 	};
 
-	reducer = <K extends UK, V>(
-		source?: StreamSource<readonly [K, V]>,
-	): Reducer<readonly [K, V], HashMap<K, V>> => {
-		return Reducer.create(
-			() =>
-				undefined === source
-					? this.builder<K, V>()
-					: this.from(source).toBuilder(),
-			(builder, entry) => {
-				builder.add(entry);
-				return builder;
-			},
-			(builder) => builder.build(),
-		);
-	};
+	// reducer = <K extends UK, V>(
+	// 	source?: StreamSource<readonly [K, V]>,
+	// ): Reducer<readonly [K, V], HashMap<K, V>> => {
+	// 	return Reducer.create(
+	// 		() =>
+	// 			undefined === source
+	// 				? this.builder<K, V>()
+	// 				: this.from(source).toBuilder(),
+	// 		(builder, entry) => {
+	// 			builder.add(entry);
+	// 			return builder;
+	// 		},
+	// 		(builder) => builder.build(),
+	// 	);
+	// };
+
+	reducer: any;
 
 	createContext = <K>(options: {
 		hasher?: Hasher<K> | undefined;
