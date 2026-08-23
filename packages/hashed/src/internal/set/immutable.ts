@@ -23,19 +23,11 @@ import {
 import { TraverseState } from '@rimbu/common/traverse-state';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
-export type HashSetEmptyContext<E> = HashSetContext<E> &
-	SetCollectionEmptyBase<E>['context'];
-
-export type HashSetNonEmptyContext<T> = HashSetContext<T> &
-	SetCollectionNonEmptyBase<T>['context'];
-
 export class HashSetEmpty<E = any>
-	extends SetCollectionEmptyBase<E>
+	extends SetCollectionEmptyBase<E, HashSet.Advanced.Family<E>>
 	implements HashSet<E>
 {
-	declare readonly [TypesKey]: HashSet.Advanced.Family<E>;
-
-	constructor(readonly context: HashSetEmptyContext<E>) {
+	constructor(readonly context: HashSetContext<E>) {
 		super();
 
 		this.addAll = context.from;
@@ -47,12 +39,12 @@ export class HashSetEmpty<E = any>
 }
 
 export abstract class HashSetNonEmptyBase<T>
-	extends SetCollectionNonEmptyBase<T>
+	extends SetCollectionNonEmptyBase<T, HashSet.Advanced.Family<T>>
 	implements HashSet.NonEmpty<T>
 {
 	declare readonly [TypesKey]: HashSet.Advanced.Family<T>;
 
-	constructor(readonly context: HashSetNonEmptyContext<T>) {
+	constructor(readonly context: HashSetContext<T>) {
 		super();
 	}
 
@@ -96,18 +88,32 @@ export abstract class HashSetNonEmptyBase<T>
 	flatMap<T2 extends this[TypesKey]['_UPPER_E']>(
 		f: (element: T) => StreamSource<T2>,
 	): HashSet.NonEmpty<T2> {
-		return defaultFlatMapByUnion(this, f) as HashSet.NonEmpty<T2>;
+		return defaultFlatMapByUnion<
+			T,
+			T2,
+			HashSet.NonEmpty<T>,
+			HashSet.Advanced.Family<T>
+		>(this, f) as HashSet.NonEmpty<T2>;
 	}
 
 	flatMapIndexed<T2 extends this[TypesKey]['_UPPER_E']>(
 		f: (element: T, index: number) => StreamSource<T2>,
 		options: { indexOffset?: number | undefined } | undefined,
 	): HashSet.NonEmpty<T2> {
-		return defaultFlatMapIndexed(this, f, options) as HashSet.NonEmpty<T2>;
+		return defaultFlatMapIndexed<
+			T,
+			T2,
+			HashSet.NonEmpty<T>,
+			HashSet.Advanced.Family<T>
+		>(this, f, options) as HashSet.NonEmpty<T2>;
 	}
 
 	union(other: StreamSource<T>): HashSet.NonEmpty<T> {
-		return defaultUnionByAdd(this, other) as HashSet.NonEmpty<T>;
+		return defaultUnionByAdd<
+			T,
+			HashSet.NonEmpty<T>,
+			HashSet.Advanced.Family<T>
+		>(this, other) as HashSet.NonEmpty<T>;
 	}
 
 	difference(other: StreamSource<T>): HashSet<T> {
@@ -150,6 +156,12 @@ export abstract class HashSetNonEmptyBase<T>
 		return builder.build();
 	}
 
+	mutate(f: (builder: HashSet.Builder<T>) => void): HashSet<T> {
+		const builder = this.toBuilder();
+		f(builder);
+		return builder.build();
+	}
+
 	toBuilder(): HashSet.Builder<T> {
 		return this.context.createBuilder(this);
 	}
@@ -163,7 +175,7 @@ export type SetEntrySet<T> = HashSetBlock<T> | HashSetCollision<T>;
 
 export class HashSetBlock<T> extends HashSetNonEmptyBase<T> {
 	constructor(
-		context: HashSetNonEmptyContext<T>,
+		context: HashSetContext<T>,
 		readonly entries: readonly T[] | null,
 		readonly entrySets: readonly SetEntrySet<T>[] | null,
 		readonly size: number,
@@ -393,7 +405,7 @@ export class HashSetBlock<T> extends HashSetNonEmptyBase<T> {
 
 export class HashSetCollision<T> extends HashSetNonEmptyBase<T> {
 	constructor(
-		context: HashSetNonEmptyContext<T>,
+		context: HashSetContext<T>,
 		readonly entries: List.NonEmpty<T>,
 	) {
 		super(context);

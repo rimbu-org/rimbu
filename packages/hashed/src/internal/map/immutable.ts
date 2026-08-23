@@ -1,4 +1,3 @@
-// biome-ignore lint/correctness/noUnusedImports: TypesKey is used as a computed property key, which Biome does not detect
 import type { Op } from '@rimbu/collection-types/types';
 import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
 import type { HashMap } from '@rimbu/hashed/map';
@@ -20,116 +19,13 @@ import { OptLazy } from '@rimbu/common/opt-lazy';
 import { TraverseState } from '@rimbu/common/traverse-state';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
-export type HashMapEmptyContext<K, V> = HashMapContext<K> &
-	MapCollectionEmptyBase<K, V>['context'];
-
-export type HashMapNonEmptyContext<K, V> = HashMapContext<K> &
-	MapCollectionNonEmptyBase<K, V>['context'];
-
-export type HashMapBuilderContext<K, V> = HashMapContext<K> &
-	MapCollectionEmptyBase<K, V>['context'];
-
 export class HashMapEmpty<K = any, V = any>
-	extends MapCollectionEmptyBase<K, V>
+	extends MapCollectionEmptyBase<K, V, HashMap.Advanced.Family<K, V>>
 	implements HashMap<K, V>
 {
-	// declare readonly [TypesKey]: HashMap.Advanced.Family<K, V>;
-
-	constructor(readonly context: HashMapEmptyContext<K, V>) {
+	constructor(readonly context: HashMapContext<K>) {
 		super();
 	}
-
-	set(key: K, value: V): HashMap.NonEmpty<K, V> {
-		return this.context.emptyBlock<V>().set(key, value);
-	}
-
-	add(entry: readonly [K, V]): HashMap.NonEmpty<K, V> {
-		return this.context.emptyBlock<V>().addEntry(entry);
-	}
-
-	addAll(
-		entries: StreamSource.NonEmpty<readonly [K, V]>,
-	): HashMap.NonEmpty<K, V>;
-	addAll(entries: StreamSource<readonly [K, V]>): HashMap<K, V> {
-		return this.context.from(entries) as HashMap.NonEmpty<K, V>;
-	}
-
-	removeKeyAndReturn<UK, O>(
-		_: RelatedTo<K, UK>,
-		otherwise?: OptLazy<O>,
-	): Op.WithResult<this, O, false> {
-		return {
-			collection: this,
-			hasResult: false,
-			result: OptLazy(otherwise) as O,
-			hasChanged: false,
-		};
-	}
-
-	// removeKeyAndGet is legacy, now removeKeyAndReturn
-	// removeKeyAndGet(): WithValueResult<HashMap<K, V>, V> {
-	// 	return [this, undefined, false];
-	// }
-
-	removeKey<UK>(_: RelatedTo<K, UK>): this {
-		return this;
-	}
-
-	removeKeys<UK>(_: StreamSource<RelatedTo<K, UK>>): this {
-		return this;
-	}
-
-	modifyAt(atKey: K, options: ModifyOptions<V>): HashMap<K, V> {
-		if (checkEmptyModifyOptions(options)) return this;
-
-		const { ifNew } = options;
-		if (undefined === ifNew) return this;
-
-		const { set, create } = ifNew;
-		const token = Symbol();
-		const newValue = create !== undefined ? create(token) : set;
-
-		if (token === newValue) return this;
-		return this.set(atKey, newValue);
-	}
-
-	mapValues<V2>(): HashMap<K, V2> {
-		return this;
-	}
-
-	// transform is legacy, now recompose
-	// transform<V2, K2 extends K>(
-	// 	transformFun: (stream: Stream<readonly [K, V]>) => StreamSource<[K2, V2]>,
-	// ): HashMap<K2, V2> {
-	// 	return this.context.from(transformFun(this.stream()));
-	// }
-
-	recompose<K2 extends K, V2>(
-		f: (stream: Stream<readonly [K, V]>) => StreamSource<readonly [K2, V2]>,
-	): HashMap<K2, V2> {
-		return this.context.from(f(this.stream())) as HashMap<K2, V2>;
-	}
-
-	updateAt(): this {
-		return this;
-	}
-
-	updateAtAndReturn<UK>(
-		_: RelatedTo<K, UK>,
-		__: (value: V) => V,
-	): Op.WithResult<this, [previous: undefined, current: undefined], false> {
-		return {
-			collection: this,
-			hasResult: false,
-			result: [undefined, undefined],
-			hasChanged: false,
-		};
-	}
-
-	// updateAtAndGet is legacy, now updateAtAndReturn
-	// updateAtAndGet(): WithValueResult<HashMap.NonEmpty<K, V>, V, HashMap<K, V>> {
-	// 	return [this, undefined, false];
-	// }
 
 	toBuilder(): HashMap.Builder<K, V> {
 		return this.context.builder();
@@ -138,31 +34,13 @@ export class HashMapEmpty<K = any, V = any>
 	toString(): string {
 		return `HashMap()`;
 	}
-
-	toJSON(): ToJSON<(readonly [K, V])[]> {
-		return {
-			dataType: 'HashMap',
-			value: [],
-		};
-	}
-
-	// not used in new base, but keep for stream
-	stream(): Stream<readonly [K, V]> {
-		return Stream.empty();
-	}
-
-	forEach(): void {}
-
-	filter(): this {
-		return this;
-	}
 }
 
 export abstract class HashMapNonEmptyBase<K, V>
-	extends MapCollectionNonEmptyBase<K, V>
+	extends MapCollectionNonEmptyBase<K, V, HashMap.Advanced.Family<K, V>>
 	implements HashMap.NonEmpty<K, V>
 {
-	abstract get context(): HashMapNonEmptyContext<K, V>;
+	abstract get context(): HashMapContext<K>;
 	abstract get size(): number;
 	abstract get<UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O;
 	// at is legacy
@@ -187,9 +65,6 @@ export abstract class HashMapNonEmptyBase<K, V>
 	): HashMap.NonEmpty<K, V2>;
 	abstract toArray(): ArrayNonEmpty<readonly [K, V]>;
 	abstract stream(): Stream.NonEmpty<readonly [K, V]>;
-
-	mapIndexed: any;
-	flatMapIndexed: any;
 
 	asNormal(): this {
 		return this;
@@ -484,7 +359,7 @@ export type MapEntrySet<K, V> = HashMapBlock<K, V> | HashMapCollision<K, V>;
 
 export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 	constructor(
-		readonly context: HashMapNonEmptyContext<K, V>,
+		readonly context: HashMapContext<K>,
 		readonly entries: readonly (readonly [K, V])[] | null,
 		readonly entrySets: readonly MapEntrySet<K, V>[] | null,
 		readonly size: number,
@@ -632,11 +507,6 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 
 		return this.copy(newEntries, undefined, this.size + 1);
 	}
-
-	// addEntry is legacy internal, now setEntry, keep for internal HAMT logic but comment public
-	// addEntry(entry: readonly [K, V], hash = this.context.hash(entry[0])): HashMapBlock<K, V> {
-	// 	return this.setEntry(entry, hash);
-	// }
 
 	// keep addEntry as private helper for block creation (used by context)
 	addEntry(
@@ -859,7 +729,7 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 
 export class HashMapCollision<K, V> extends HashMapNonEmptyBase<K, V> {
 	constructor(
-		readonly context: HashMapNonEmptyContext<K, V>,
+		readonly context: HashMapContext<K>,
 		readonly entries: List.NonEmpty<readonly [K, V]>,
 	) {
 		super();

@@ -12,15 +12,12 @@ export type SetBlockBuilderEntry<T> =
 	| HashSetBlockBuilder<T>
 	| HashSetCollisionBuilder<T>;
 
-export type HashSetBuilderContext<T> = HashSetContext<T> &
-	SetCollectionBuilderBase<T>['context'];
-
 export class HashSetBlockBuilder<T>
-	extends SetCollectionBuilderBase<T>
+	extends SetCollectionBuilderBase<T, HashSet.Advanced.Family<T>>
 	implements HashSet.Builder<T>
 {
 	constructor(
-		readonly context: HashSetBuilderContext<T>,
+		readonly context: HashSetContext<T>,
 		public source?: undefined | HashSetBlock<T>,
 		public _entries?: undefined | T[],
 		public _entrySets?: undefined | SetBlockBuilderEntry<T>[],
@@ -298,7 +295,7 @@ export class HashSetBlockBuilder<T>
 
 export class HashSetCollisionBuilder<T> {
 	constructor(
-		readonly context: HashSetBuilderContext<T>,
+		readonly context: HashSetContext<T>,
 		public source?: undefined | HashSetCollision<T>,
 		public _entries?: undefined | List.Builder<T>,
 	) {

@@ -1,4 +1,3 @@
-// biome-ignore lint/correctness/noUnusedImports: TypesKey is used as a computed property key, which Biome does not detect
 import type { Op } from '@rimbu/collection-types/types';
 import type { List } from '@rimbu/list';
 import type { StreamSource } from '@rimbu/stream';

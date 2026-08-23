@@ -9,11 +9,6 @@ import {
 } from '@rimbu/collection-types/advanced/collection-base';
 import { OptLazy, type RelatedTo } from '@rimbu/common';
 import { Stream, type StreamSource } from '@rimbu/stream';
-// export type KeyedCollectionEmptyBaseCapabilities<K, V> =
-// 	CollectionBaseCapabilities<readonly [K, V]> &
-// 		KeyedCollection.Advanced.Family<K, V> &
-// 		KeyedCollection.Capability.WithRemove<K, V> &
-// 		KeyedCollection.Capability.WithMapValues<K, V>;
 
 export abstract class KeyedCollectionEmptyBase<
 		K,
@@ -28,7 +23,10 @@ export abstract class KeyedCollectionEmptyBase<
 		> = Collection.Advanced.Types<FAM, readonly [K, V]>,
 	>
 	extends CollectionEmptyBase<readonly [K, V], FAM, Tp>
-	implements KeyedCollection.Advanced.Api<K, V, Tp>
+	implements
+		KeyedCollection.Advanced.Api<K, V, Tp>,
+		KeyedCollection.Capability.WithRemove.Api<K, V, Tp>,
+		KeyedCollection.Capability.WithMapValues.Api<K, V, Tp>
 {
 	abstract readonly context: KeyedCollection.Context<FAM>;
 
@@ -73,10 +71,6 @@ export abstract class KeyedCollectionEmptyBase<
 	}
 }
 
-// export type KeyedCollectionNonEmptyBaseCapabilities<K, V> =
-// 	CollectionNonEmptyBaseCapabilities<readonly [K, V]> &
-// 		KeyedCollection.Advanced.Family<K, V>;
-
 export abstract class KeyedCollectionNonEmptyBase<
 		K,
 		V,
@@ -109,10 +103,6 @@ export abstract class KeyedCollectionNonEmptyBase<
 		return this.stream().map(([, v]) => v);
 	}
 }
-
-// export type KeyedCollectionBuilderBaseCapabilities<K, V> =
-// 	CollectionBaseCapabilities<readonly [K, V]> &
-// 		KeyedCollection.Advanced.Family<K, V>;
 
 export abstract class KeyedCollectionBuilderBase<
 		K,

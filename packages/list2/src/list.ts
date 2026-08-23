@@ -14,19 +14,18 @@ export interface List<T>
 
 export declare namespace List {
 	export interface NonEmpty<T>
-		extends List.Advanced.Api<
+		extends Advanced.Api<
 			T,
-			Collection.Advanced.TypesNonEmpty<List.Advanced.Family<T>, T>
+			Collection.Advanced.TypesNonEmpty<Advanced.Family<T>, T>
 		> {}
 
 	export interface Builder<T>
-		extends List.Advanced.BuilderApi<
+		extends Advanced.BuilderApi<
 			T,
-			Collection.Advanced.Types<List.Advanced.Family<T>, T>
+			Collection.Advanced.Types<Advanced.Family<T>, T>
 		> {}
 
-	export interface Context
-		extends List.Advanced.ContextApi<List.Advanced.Family<any>> {}
+	export interface Context extends Advanced.ContextApi<Advanced.Family<any>> {}
 
 	export namespace Advanced {
 		export interface Api<T, Tp extends Collection.Advanced.TypesBase>

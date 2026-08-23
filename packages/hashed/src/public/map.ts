@@ -75,9 +75,8 @@ export namespace HashMap {
 			_BUILDER: HashMap.Builder<K, V>;
 			_CONTEXT: HashMap.Context<K>;
 
-			_UPPER_K: K;
-			_UPPER_V: V;
 			_INVARIANT: (entry: readonly [K, V]) => readonly [K, V];
+			_UPPER_E: readonly [K, V];
 
 			_FAM: Family<K, V>;
 			_NEW_FAMILY: Family<this['_NEW_K'], this['_NEW_V']>;

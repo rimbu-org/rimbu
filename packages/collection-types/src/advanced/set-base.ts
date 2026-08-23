@@ -10,14 +10,6 @@ import {
 	ValuedCollectionNonEmptyBase,
 } from './collection/valued-base';
 
-// export type SetCollectionEmptyBaseCapabilities<E> =
-// 	ValuedCollectionEmptyBaseCapabilities<E> &
-// 		Collection.Capability.WithAdd<E> &
-// 		SetCollection.Advanced.Family<E> &
-// 		SetCollection.Capability.WithDifferenceAndIntersection<E> &
-// 		SetCollection.Capability.WithRemove<E> &
-// 		SetCollection.Capability.WithSymmetricDifferenceAndUnion<E>;
-
 export abstract class SetCollectionEmptyBase<
 		E,
 		FAM extends
@@ -28,7 +20,12 @@ export abstract class SetCollectionEmptyBase<
 		>,
 	>
 	extends ValuedCollectionEmptyBase<E, FAM, Tp>
-	implements SetCollection.Advanced.Api<E, Tp>
+	implements
+		SetCollection.Advanced.Api<E, Tp>,
+		Collection.Capability.WithAdd.Api<E, Tp>,
+		SetCollection.Capability.WithDifferenceAndIntersection.Api<E, Tp>,
+		SetCollection.Capability.WithRemove.Api<E, Tp>,
+		SetCollection.Capability.WithSymmetricDifferenceAndUnion.Api<E, Tp>
 {
 	abstract readonly context: SetCollection.Context<FAM>;
 

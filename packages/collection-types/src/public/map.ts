@@ -1,6 +1,6 @@
 import type { Collection } from '@rimbu/collection-types/collection';
 import type { KeyedCollection } from '@rimbu/collection-types/collection/keyed';
-import type { Op, TypesKey } from '@rimbu/collection-types/types';
+import type { Op } from '@rimbu/collection-types/types';
 import type { RelatedTo } from '@rimbu/common';
 import type { StreamSource } from '@rimbu/stream';
 
@@ -264,8 +264,6 @@ export declare namespace MapCollection {
 	export namespace WithRecompose {
 		export interface Api<K, V, Tp extends Collection.Advanced.TypesBase>
 			extends Advanced.Api<K, V, Tp> {
-			[TypesKey]: Collection.Advanced.InvariantTypes<Tp, readonly [K, V]>;
-
 			recompose<K2 extends K, V2>(
 				f: (
 					stream: Tp['_AS_STREAM'],
