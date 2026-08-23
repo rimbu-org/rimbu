@@ -29,26 +29,22 @@ export namespace HashSet {
 		extends Advanced.ContextApi<UE, HashSet.Advanced.Family<UE>> {}
 
 	export namespace Advanced {
-		export type Api<
-			E,
-			Tp extends Collection.Advanced.TypesBase,
-		> = Collection.Capability.WithAdd.Api<E, Tp> &
-			Collection.Capability.WithFlatMap.Api<E, Tp> &
-			Collection.Capability.WithMap.Api<E, Tp> &
-			Collection.Capability.WithMutate.Api<E, Tp> &
-			Collection.Capability.WithRecompose.Api<E, Tp> &
-			Collection.Capability.WithToBuilder.Api<E, Tp> &
-			SetCollection.Advanced.Api<E, Tp> &
-			SetCollection.Capability.WithDifferenceAndIntersection.Api<E, Tp> &
-			SetCollection.Capability.WithRemove.Api<E, Tp> &
-			SetCollection.Capability.WithSymmetricDifferenceAndUnion.Api<E, Tp>;
+		export interface Api<E, Tp extends Collection.Advanced.TypesBase>
+			extends Collection.Capability.WithAdd.Api<E, Tp>,
+				Collection.Capability.WithFlatMap.Api<E, Tp>,
+				Collection.Capability.WithMap.Api<E, Tp>,
+				Collection.Capability.WithMutate.Api<E, Tp>,
+				Collection.Capability.WithRecompose.Api<E, Tp>,
+				Collection.Capability.WithToBuilder.Api<E, Tp>,
+				SetCollection.Advanced.Api<E, Tp>,
+				SetCollection.Capability.WithDifferenceAndIntersection.Api<E, Tp>,
+				SetCollection.Capability.WithRemove.Api<E, Tp>,
+				SetCollection.Capability.WithSymmetricDifferenceAndUnion.Api<E, Tp> {}
 
-		export type BuilderApi<
-			E,
-			Tp extends Collection.Advanced.TypesBase,
-		> = Collection.Capability.WithAdd.BuilderApi<E, Tp> &
-			SetCollection.Advanced.BuilderApi<E, Tp> &
-			SetCollection.Capability.WithRemove.BuilderApi<E, Tp>;
+		export interface BuilderApi<E, Tp extends Collection.Advanced.TypesBase>
+			extends Collection.Capability.WithAdd.BuilderApi<E, Tp>,
+				SetCollection.Advanced.BuilderApi<E, Tp>,
+				SetCollection.Capability.WithRemove.BuilderApi<E, Tp> {}
 
 		export interface ContextApi<
 			UE,

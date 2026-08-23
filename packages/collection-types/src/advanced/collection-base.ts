@@ -9,24 +9,26 @@ import {
 import { type ArrayNonEmpty, TraverseState } from '@rimbu/common';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
-export type CollectionEmptyBaseCapabilities<E> = Collection.Advanced.Family<E> &
-	Collection.Capability.WithToBuilder<E> &
-	Collection.Capability.WithFlatMap<E> &
-	Collection.Capability.WithMap<E> &
-	Collection.Capability.WithMutate<E> &
-	Collection.Capability.WithRecompose<E>;
+export interface CollectionEmptyBaseCapabilities<E>
+	extends Collection.Advanced.Family<E>,
+		Collection.Capability.WithToBuilder<E>,
+		Collection.Capability.WithFlatMap<E>,
+		Collection.Capability.WithMap<E>,
+		Collection.Capability.WithMutate<E>,
+		Collection.Capability.WithRecompose<E> {
+	_NORMAL: any;
+	_NON_EMPTY: any;
+	_BUILDER: any;
+	_CONTEXT: any;
+	_FAM: CollectionEmptyBaseCapabilities<E>;
+	_NEW_FAMILY: CollectionEmptyBaseCapabilities<this['_NEW_E']>;
+}
 
 export abstract class CollectionEmptyBase<E>
 	implements Collection<E, CollectionEmptyBaseCapabilities<E>>
 {
-	declare readonly [TypesKey]: Collection.Advanced.InvariantTypes<
-		Collection.Advanced.Types<CollectionEmptyBaseCapabilities<E>, E>,
-		E
-	>;
-
-	abstract readonly context: Collection.Context<
-		Collection.Advanced.Types<CollectionEmptyBaseCapabilities<E>, E>
-	>;
+	declare readonly [TypesKey]: CollectionEmptyBaseCapabilities<E>;
+	abstract readonly context: Collection.Context<this[TypesKey]>;
 
 	[Symbol.iterator](): FastIterator<E> {
 		return Stream.empty<E>()[Symbol.iterator]();
@@ -87,7 +89,7 @@ export abstract class CollectionEmptyBase<E>
 
 	recompose<E2 extends this[TypesKey]['_UPPER_E']>(
 		f: (stream: Stream<E>) => StreamSource<E2>,
-	): Collection.Advanced.ReTyped<this[TypesKey], E2>['_NORMAL'] {
+	): Collection.Advanced.ReTypeFam<this[TypesKey], E2>['_NORMAL'] {
 		return this.context.from(f(Stream.empty()));
 	}
 
@@ -101,13 +103,19 @@ export abstract class CollectionEmptyBase<E>
 
 	map<E2 extends this[TypesKey]['_UPPER_E']>(
 		_f: (element: E) => E2,
-	): Collection.Advanced.ReTyped<this[TypesKey], E2>['_SELF'] {
+	): Collection.Advanced.ReTyped<
+		this[TypesKey] & Collection.Advanced.NormalKind<E2>,
+		E2
+	>['_SELF'] {
 		return this as any;
 	}
 
 	mapIndexed<E2 extends this[TypesKey]['_UPPER_E']>(
 		_f: (element: E, index: number) => E2,
-	): Collection.Advanced.ReTyped<this[TypesKey], E2>['_SELF'] {
+	): Collection.Advanced.ReTyped<
+		this[TypesKey] & Collection.Advanced.NormalKind<E2>,
+		E2
+	>['_SELF'] {
 		return this as any;
 	}
 
@@ -129,14 +137,8 @@ export type CollectionNonEmptyBaseCapabilities<E> =
 export abstract class CollectionNonEmptyBase<E>
 	implements Collection.NonEmpty<E, CollectionNonEmptyBaseCapabilities<E>>
 {
-	declare readonly [TypesKey]: Collection.Advanced.InvariantTypes<
-		Collection.Advanced.TypesNonEmpty<CollectionNonEmptyBaseCapabilities<E>, E>,
-		E
-	>;
-
-	abstract readonly context: Collection.Context<
-		Collection.Advanced.TypesNonEmpty<CollectionNonEmptyBaseCapabilities<E>, E>
-	>;
+	declare readonly [TypesKey]: CollectionNonEmptyBaseCapabilities<E>;
+	abstract readonly context: Collection.Context<this[TypesKey]>;
 
 	abstract get size(): number;
 	abstract stream(): Stream.NonEmpty<E>;
@@ -206,10 +208,10 @@ export abstract class CollectionNonEmptyBase<E>
 
 	recompose<E2 extends this[TypesKey]['_UPPER_E']>(
 		f: (stream: Stream.NonEmpty<E>) => StreamSource.NonEmpty<E2>,
-	): Collection.Advanced.ReTyped<this[TypesKey], E2>['_NON_EMPTY'];
+	): Collection.Advanced.ReTypeFam<this[TypesKey], E2>['_NON_EMPTY'];
 	recompose<E2 extends this[TypesKey]['_UPPER_E']>(
 		f: (stream: Stream.NonEmpty<E>) => StreamSource<E2>,
-	): Collection.Advanced.ReTyped<this[TypesKey], E2>['_NON_EMPTY'] {
+	): Collection.Advanced.ReTypeFam<this[TypesKey], E2>['_NON_EMPTY'] {
 		return this.context.from(f(this.stream())) as any;
 	}
 
@@ -225,14 +227,8 @@ export abstract class CollectionNonEmptyBase<E>
 export abstract class CollectionBuilderBase<E>
 	implements Collection.Builder<E, CollectionEmptyBaseCapabilities<E>>
 {
-	declare readonly [TypesKey]: Collection.Advanced.InvariantTypes<
-		Collection.Advanced.Types<CollectionEmptyBaseCapabilities<E>, E>,
-		E
-	>;
-
-	abstract readonly context: Collection.Context<
-		Collection.Advanced.Types<CollectionEmptyBaseCapabilities<E>, E>
-	>;
+	declare readonly [TypesKey]: CollectionEmptyBaseCapabilities<E>;
+	abstract readonly context: Collection.Context<this[TypesKey]>;
 
 	abstract get size(): number;
 	abstract clear(): void;
@@ -287,13 +283,14 @@ export abstract class CollectionBuilderBase<E>
 
 export function defaultMapIndexed<
 	E,
-	E2 extends C[TypesKey]['_UPPER_E'],
-	C extends Collection<E, Collection.Capability.WithMap<E>>,
+	E2 extends FAM['_UPPER_E'],
+	C extends Collection.NonEmpty<E, FAM>,
+	FAM extends Collection.Capability.WithMap<E>,
 >(
 	col: C,
 	mapFun: (element: E, index: number) => E2,
 	options: { indexOffset?: number | undefined } = {},
-): Collection.Advanced.ReTyped<C[TypesKey], E2>['_SELF'] {
+): Collection.Advanced.FamToTypes<FAM, E2>['_NON_EMPTY'] {
 	const { indexOffset = 0 } = options;
 	let index = indexOffset;
 
@@ -302,13 +299,14 @@ export function defaultMapIndexed<
 
 export function defaultFlatMapIndexed<
 	E,
-	E2 extends C[TypesKey]['_UPPER_E'],
-	C extends Collection.NonEmpty<E, Collection.Capability.WithFlatMap<E>>,
+	E2 extends FAM['_UPPER_E'],
+	C extends Collection.NonEmpty<E, FAM>,
+	FAM extends Collection.Capability.WithFlatMap<E>,
 >(
 	col: C,
 	f: (element: E, index: number) => StreamSource<E2>,
 	options: { indexOffset?: number | undefined } = {},
-): Collection.Advanced.ReTyped<C[TypesKey], E2>['_NORMAL'] {
+): Collection.Advanced.ReTypeFam<FAM, E2>['_NORMAL'] {
 	const { indexOffset = 0 } = options;
 	let index = indexOffset;
 

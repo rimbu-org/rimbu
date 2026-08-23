@@ -1,5 +1,5 @@
 import type { Collection } from '@rimbu/collection-types/collection';
-import type { Op, TypesKey } from '@rimbu/collection-types/types';
+import type { Op } from '@rimbu/collection-types/types';
 import type { ArrayNonEmpty, IndexRange, OptLazy } from '@rimbu/common';
 import type { Stream, StreamSource } from '@rimbu/stream';
 import type { Reducer } from '@rimbu/stream/reducer';
@@ -136,8 +136,6 @@ export declare namespace IndexedCollection {
 		export namespace WithPadTo {
 			export interface Api<E, Tp extends Collection.Advanced.TypesBase>
 				extends Advanced.Api<E, Tp> {
-				[TypesKey]: Collection.Advanced.InvariantTypes<Tp, E>;
-
 				padTo(
 					size: number,
 					fill: E,
@@ -167,8 +165,6 @@ export declare namespace IndexedCollection {
 		export namespace WithPrependAppend {
 			export interface Api<E, Tp extends Collection.Advanced.TypesBase>
 				extends Advanced.Api<E, Tp> {
-				[TypesKey]: Collection.Advanced.InvariantTypes<Tp, E>;
-
 				prepend(element: E): Tp['_NON_EMPTY'];
 				append(element: E): Tp['_NON_EMPTY'];
 			}
@@ -197,8 +193,6 @@ export declare namespace IndexedCollection {
 		export namespace WithSpliceAt {
 			export interface Api<E, Tp extends Collection.Advanced.TypesBase>
 				extends Advanced.Api<E, Tp> {
-				[TypesKey]: Collection.Advanced.InvariantTypes<Tp, E>;
-
 				spliceAt(
 					index: number,
 					options: {
@@ -248,8 +242,6 @@ export declare namespace IndexedCollection {
 		export namespace WithInsertAt {
 			export interface Api<E, Tp extends Collection.Advanced.TypesBase>
 				extends Advanced.Api<E, Tp> {
-				[TypesKey]: Collection.Advanced.InvariantTypes<Tp, E>;
-
 				insertAt(
 					index: number,
 					elements: StreamSource.NonEmpty<E>,
@@ -259,8 +251,6 @@ export declare namespace IndexedCollection {
 
 			export interface BuilderApi<E, Tp extends Collection.Advanced.TypesBase>
 				extends Advanced.BuilderApi<E, Tp> {
-				[TypesKey]: Collection.Advanced.InvariantTypes<Tp, E>;
-
 				insertAt(index: number, element: E): void;
 
 				insertAllAt(index: number, elements: StreamSource<E>): void;
@@ -332,8 +322,6 @@ export declare namespace IndexedCollection {
 		export namespace WithUpdateAt {
 			export interface Api<E, Tp extends Collection.Advanced.TypesBase>
 				extends Advanced.Api<E, Tp> {
-				[TypesKey]: Collection.Advanced.InvariantTypes<Tp, E>;
-
 				setAt(index: number, element: E): Tp['_SELF'];
 				setAtAndReturn(
 					index: number,

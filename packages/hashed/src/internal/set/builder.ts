@@ -1,6 +1,3 @@
-import type { Collection } from '@rimbu/collection-types/collection';
-// biome-ignore lint/correctness/noUnusedImports: TypesKey is used as a computed property key, which Biome does not detect
-import type { TypesKey } from '@rimbu/collection-types/types';
 import type { HashSet } from '@rimbu/hashed/set';
 
 import type { HashSetContext } from '#set/context';
@@ -22,11 +19,6 @@ export class HashSetBlockBuilder<T>
 	extends SetCollectionBuilderBase<T>
 	implements HashSet.Builder<T>
 {
-	declare readonly [TypesKey]: Collection.Advanced.Types<
-		HashSet.Advanced.Family<T>,
-		T
-	>;
-
 	constructor(
 		readonly context: HashSetBuilderContext<T>,
 		public source?: undefined | HashSetBlock<T>,

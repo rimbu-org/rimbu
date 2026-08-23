@@ -22,11 +22,7 @@ export abstract class IndexedCollectionEmptyBase<E>
 	extends CollectionEmptyBase<E>
 	implements IndexedCollection<E, IndexedCollectionEmptyBaseCapabilities<E>>
 {
-	declare readonly [TypesKey]: Collection.Advanced.InvariantTypes<
-		Collection.Advanced.Types<IndexedCollectionEmptyBaseCapabilities<E>, E>,
-		E
-	>;
-
+	declare readonly [TypesKey]: IndexedCollectionEmptyBaseCapabilities<E>;
 	abstract readonly context: IndexedCollection.Context<this[TypesKey]>;
 
 	streamSlice(): Stream<E> {
@@ -141,14 +137,7 @@ export abstract class IndexedCollectionNonEmptyBase<E>
 	implements
 		IndexedCollection.NonEmpty<E, IndexedCollectionNonEmptyBaseCapabilities<E>>
 {
-	declare readonly [TypesKey]: Collection.Advanced.InvariantTypes<
-		Collection.Advanced.TypesNonEmpty<
-			IndexedCollectionNonEmptyBaseCapabilities<E>,
-			E
-		>,
-		E
-	>;
-
+	declare readonly [TypesKey]: IndexedCollectionNonEmptyBaseCapabilities<E>;
 	abstract readonly context: IndexedCollection.Context<this[TypesKey]>;
 
 	abstract streamSlice(
@@ -196,12 +185,14 @@ export abstract class IndexedCollectionNonEmptyBase<E>
 
 export function defaultFlatMapByConcat<
 	E,
-	E2 extends C[TypesKey]['_UPPER_E'],
-	C extends Collection.NonEmpty<E, IndexedCollection.Capability.WithConcat<E>>,
+	E2,
+	Tp extends IndexedCollection.Capability.WithConcat<E> &
+		Collection.Advanced.NonEmptyKind<E>,
+	C extends Collection.Advanced.Api<E, Tp>,
 >(
 	col: C,
 	f: (element: E) => StreamSource<E2>,
-): Collection.Advanced.ReTyped<C[TypesKey], E2>['_NORMAL'] {
+): Collection.Advanced.ReTyped<Tp, E2>['_NORMAL'] {
 	const token = Symbol();
 	const iterator = col[Symbol.iterator]();
 
@@ -217,11 +208,9 @@ export function defaultFlatMapByConcat<
 
 export function defaultSpliceAtAndReturn<
 	E,
-	C extends IndexedCollection.NonEmpty<
-		E,
-		IndexedCollection.Capability.WithSpliceAt<E> &
-			IndexedCollection.Capability.WithConcat<E>
-	>,
+	C extends IndexedCollection.NonEmpty<E, FAM>,
+	FAM extends IndexedCollection.Capability.WithSpliceAt<E> &
+		IndexedCollection.Capability.WithConcat<E>,
 >(
 	col: C,
 	index: number,
@@ -232,10 +221,10 @@ export function defaultSpliceAtAndReturn<
 		  }
 		| undefined = {},
 ): Op.DynamicResult<
-	C[TypesKey]['_NON_EMPTY'],
-	[removed: C[TypesKey]['_NORMAL'], inserted: C[TypesKey]['_NORMAL']],
-	[removed: C[TypesKey]['_NORMAL'], inserted: C[TypesKey]['_NORMAL']],
-	C[TypesKey]['_NORMAL']
+	FAM['_NON_EMPTY'],
+	[removed: FAM['_NORMAL'], inserted: FAM['_NORMAL']],
+	[removed: FAM['_NORMAL'], inserted: FAM['_NORMAL']],
+	FAM['_NORMAL']
 > {
 	const { removeAmount = 0, insert } = options;
 
@@ -287,19 +276,17 @@ export function defaultSpliceAtAndReturn<
 
 export function defaultRemoveAtAndReturn<
 	E,
-	C extends IndexedCollection.NonEmpty<
-		E,
-		IndexedCollection.Capability.WithSpliceAt<E>
-	>,
+	C extends IndexedCollection.NonEmpty<E, FAM>,
+	FAM extends IndexedCollection.Capability.WithSpliceAt<E>,
 >(
 	col: C,
 	index: number,
 	amount = 1,
 ): Op.DynamicResult<
-	C[TypesKey]['_NON_EMPTY'],
-	C[TypesKey]['_NORMAL'],
-	C[TypesKey]['_NON_EMPTY'],
-	C[TypesKey]['_NORMAL']
+	FAM['_NON_EMPTY'],
+	FAM['_NORMAL'],
+	FAM['_NON_EMPTY'],
+	FAM['_NORMAL']
 > {
 	const outcome = col.spliceAtAndReturn(index, {
 		removeAmount: amount,
@@ -326,17 +313,15 @@ export function defaultRemoveAtAndReturn<
 
 export function defaultSwapAtAndReturn<
 	E,
-	C extends IndexedCollection.NonEmpty<
-		E,
-		IndexedCollection.Capability.WithSwapAt<E> &
-			IndexedCollection.Capability.WithUpdateAt<E>
-	>,
+	C extends IndexedCollection.NonEmpty<E, FAM>,
+	FAM extends IndexedCollection.Capability.WithSwapAt<E> &
+		IndexedCollection.Capability.WithUpdateAt<E>,
 >(
 	col: C,
 	index1: number,
 	index2: number,
 ): Op.DynamicResult<
-	C[TypesKey]['_NON_EMPTY'],
+	FAM['_NON_EMPTY'],
 	[previous1: undefined, previous2: undefined],
 	[previous1: E, previous2: E]
 > {
@@ -394,17 +379,15 @@ export function defaultSwapAtAndReturn<
 
 export function defaultPadTo<
 	E,
-	C extends IndexedCollection.NonEmpty<
-		E,
-		IndexedCollection.Capability.WithConcat<E> &
-			IndexedCollection.Capability.WithSpliceAt<E>
-	>,
+	C extends IndexedCollection.NonEmpty<E, FAM>,
+	FAM extends IndexedCollection.Capability.WithConcat<E> &
+		IndexedCollection.Capability.WithSpliceAt<E>,
 >(
 	col: C,
 	size: number,
 	fill: E,
 	options: { paddingLeftBias?: number | undefined } = {},
-): C[TypesKey]['_SELF'] {
+): FAM['_NON_EMPTY'] {
 	Int.checkAtLeastZero(size);
 
 	if (col.size >= size) return col;
@@ -422,8 +405,9 @@ export function defaultPadTo<
 
 export function defaultRepeat<
 	E,
-	C extends Collection.NonEmpty<E, IndexedCollection.Capability.WithConcat<E>>,
->(col: C, amount: number): C[TypesKey]['_NORMAL'] {
+	C extends Collection.NonEmpty<E, FAM>,
+	FAM extends IndexedCollection.Capability.WithConcat<E>,
+>(col: C, amount: number): FAM['_NORMAL'] {
 	Int.checkAtLeastZero(amount);
 
 	if (amount === 0) {
@@ -434,19 +418,19 @@ export function defaultRepeat<
 	}
 
 	// repeat by doubling: `half` holds 2 * (amount >>> 1) copies
-	const half = defaultRepeat(col.concat(col), amount >>> 1);
+	const half = defaultRepeat<E, C, FAM>(col.concat(col) as C, amount >>> 1);
 
 	return amount % 2 === 0 ? half : col.concat(half);
 }
 
 export function defaultReducerByAppend<
 	E,
-	F extends Collection.Capability.WithToBuilder<E> &
+	FAM extends Collection.Capability.WithToBuilder<E> &
 		IndexedCollection.Capability.WithPrependAppend<E>,
 >(
-	context: IndexedCollection.Context<F>,
+	context: IndexedCollection.Context<FAM>,
 	source?: StreamSource<E>,
-): Reducer<E, F['_NORMAL']> {
+): Reducer<E, FAM['_NORMAL']> {
 	return Reducer.create(
 		() =>
 			undefined === source

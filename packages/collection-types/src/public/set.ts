@@ -1,6 +1,5 @@
 import type { Collection } from '@rimbu/collection-types/collection';
 import type { ValuedCollection } from '@rimbu/collection-types/collection/valued';
-import type { TypesKey } from '@rimbu/collection-types/types';
 import type { RelatedTo } from '@rimbu/common';
 import type { StreamSource } from '@rimbu/stream';
 
@@ -132,8 +131,6 @@ export declare namespace SetCollection {
 		export namespace WithSymmetricDifferenceAndUnion {
 			export interface Api<E, Tp extends Collection.Advanced.TypesBase>
 				extends Advanced.Api<E, Tp> {
-				[TypesKey]: Collection.Advanced.InvariantTypes<Tp, E>;
-
 				symmetricDifference(other: StreamSource<E>): Tp['_NORMAL'];
 
 				union(other: StreamSource.NonEmpty<E>): Tp['_NON_EMPTY'];

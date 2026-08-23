@@ -1,6 +1,5 @@
-import type { Collection } from '@rimbu/collection-types/collection';
 // biome-ignore lint/correctness/noUnusedImports: TypesKey is used as a computed property key, which Biome does not detect
-import type { Op, TypesKey } from '@rimbu/collection-types/types';
+import type { Op } from '@rimbu/collection-types/types';
 import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
 import type { HashMap } from '@rimbu/hashed/map';
 import type { List } from '@rimbu/list';
@@ -34,10 +33,7 @@ export class HashMapEmpty<K = any, V = any>
 	extends MapCollectionEmptyBase<K, V>
 	implements HashMap<K, V>
 {
-	declare readonly [TypesKey]: Collection.Advanced.Types<
-		HashMap.Advanced.Family<K, V>,
-		readonly [K, V]
-	>;
+	// declare readonly [TypesKey]: HashMap.Advanced.Family<K, V>;
 
 	constructor(readonly context: HashMapEmptyContext<K, V>) {
 		super();
@@ -166,9 +162,6 @@ export abstract class HashMapNonEmptyBase<K, V>
 	extends MapCollectionNonEmptyBase<K, V>
 	implements HashMap.NonEmpty<K, V>
 {
-	// biome-ignore lint/suspicious/noExplicitAny: see MapCollectionNonEmptyBase
-	declare readonly [TypesKey]: any;
-
 	abstract get context(): HashMapNonEmptyContext<K, V>;
 	abstract get size(): number;
 	abstract get<UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O;

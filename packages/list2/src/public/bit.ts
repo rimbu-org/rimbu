@@ -20,9 +20,7 @@ export declare namespace BitList {
 	export interface Builder
 		extends BitList.Advanced.BuilderApi<
 			Collection.Advanced.Types<BitList.Advanced.Family, boolean>
-		> {
-		readonly context: BitList.Context;
-	}
+		> {}
 
 	export interface Context
 		extends BitList.Advanced.ContextApi<BitList.Advanced.Family> {}
@@ -58,5 +56,10 @@ export declare namespace BitList {
 	}
 }
 
-export const BitList: BitList.Advanced.DefaultFactory =
-	new ListContext<BitList.Advanced.Family>(5, 0 as unknown as ChildrenOps);
+// export const BitList: BitList.Advanced.DefaultFactory =
+// 	new ListContext<BitList.Advanced.Family>(5, 0 as unknown as ChildrenOps);
+
+export const BitList: BitList.Advanced.DefaultFactory = new ListContext<any>(
+	5,
+	0 as unknown as ChildrenOps,
+);

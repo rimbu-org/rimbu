@@ -1,4 +1,3 @@
-import type { Collection } from '@rimbu/collection-types/collection';
 import type { KeyedCollection } from '@rimbu/collection-types/collection/keyed';
 // biome-ignore lint/correctness/noUnusedImports: TypesKey is used as a computed property key, which Biome does not detect
 import type { Op, TypesKey } from '@rimbu/collection-types/types';
@@ -23,14 +22,7 @@ export abstract class KeyedCollectionEmptyBase<K, V>
 	extends CollectionEmptyBase<readonly [K, V]>
 	implements KeyedCollection<K, V, KeyedCollectionEmptyBaseCapabilities<K, V>>
 {
-	declare readonly [TypesKey]: Collection.Advanced.InvariantTypes<
-		Collection.Advanced.Types<
-			KeyedCollectionEmptyBaseCapabilities<K, V>,
-			readonly [K, V]
-		>,
-		readonly [K, V]
-	>;
-
+	declare readonly [TypesKey]: KeyedCollectionEmptyBaseCapabilities<K, V>;
 	abstract readonly context: KeyedCollection.Context<this[TypesKey]>;
 
 	get<UK, O>(_: RelatedTo<K, UK>, otherwise?: OptLazy<O>): O {
@@ -87,14 +79,7 @@ export abstract class KeyedCollectionNonEmptyBase<K, V>
 			KeyedCollectionNonEmptyBaseCapabilities<K, V>
 		>
 {
-	declare readonly [TypesKey]: Collection.Advanced.InvariantTypes<
-		Collection.Advanced.TypesNonEmpty<
-			KeyedCollectionNonEmptyBaseCapabilities<K, V>,
-			readonly [K, V]
-		>,
-		readonly [K, V]
-	>;
-
+	declare readonly [TypesKey]: KeyedCollectionNonEmptyBaseCapabilities<K, V>;
 	abstract readonly context: KeyedCollection.Context<this[TypesKey]>;
 
 	abstract get<UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O;
@@ -122,14 +107,7 @@ export abstract class KeyedCollectionBuilderBase<K, V>
 	implements
 		KeyedCollection.Builder<K, V, KeyedCollectionBuilderBaseCapabilities<K, V>>
 {
-	declare readonly [TypesKey]: Collection.Advanced.InvariantTypes<
-		Collection.Advanced.Types<
-			KeyedCollectionBuilderBaseCapabilities<K, V>,
-			readonly [K, V]
-		>,
-		readonly [K, V]
-	>;
-
+	declare readonly [TypesKey]: KeyedCollectionBuilderBaseCapabilities<K, V>;
 	abstract readonly context: KeyedCollection.Context<this[TypesKey]>;
 
 	abstract get<UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O;

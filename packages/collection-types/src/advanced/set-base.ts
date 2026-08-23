@@ -1,7 +1,7 @@
 import type { Collection } from '@rimbu/collection-types/collection';
 import type { SetCollection } from '@rimbu/collection-types/set';
 import type { TypesKey } from '@rimbu/collection-types/types';
-import type { ArrayNonEmpty, RelatedTo } from '@rimbu/common';
+import type { ArrayNonEmpty } from '@rimbu/common';
 
 import { Stream, type StreamSource } from '@rimbu/stream';
 import { Reducer } from '@rimbu/stream/reducer';
@@ -25,14 +25,8 @@ export abstract class SetCollectionEmptyBase<E>
 	extends ValuedCollectionEmptyBase<E>
 	implements SetCollection<E, SetCollectionEmptyBaseCapabilities<E>>
 {
-	declare readonly [TypesKey]: Collection.Advanced.InvariantTypes<
-		Collection.Advanced.Types<SetCollectionEmptyBaseCapabilities<E>, E>,
-		E
-	>;
-
-	abstract readonly context: Collection.Context<
-		Collection.Advanced.Types<SetCollectionEmptyBaseCapabilities<E>, E>
-	>;
+	declare readonly [TypesKey]: SetCollectionEmptyBaseCapabilities<E>;
+	abstract readonly context: SetCollection.Context<this[TypesKey]>;
 
 	add(element: E): this[TypesKey]['_NON_EMPTY'] {
 		return this.context.of(element);
@@ -75,13 +69,8 @@ export abstract class SetCollectionNonEmptyBase<E>
 	extends ValuedCollectionNonEmptyBase<E>
 	implements SetCollection.NonEmpty<E, SetCollectionNonEmptyBaseCapabilities<E>>
 {
-	declare readonly [TypesKey]: Collection.Advanced.InvariantTypes<
-		Collection.Advanced.TypesNonEmpty<
-			SetCollectionNonEmptyBaseCapabilities<E>,
-			E
-		>,
-		E
-	>;
+	declare readonly [TypesKey]: SetCollectionNonEmptyBaseCapabilities<E>;
+	abstract readonly context: SetCollection.Context<this[TypesKey]>;
 }
 
 export abstract class SetCollectionContextBase<
@@ -146,14 +135,12 @@ export abstract class SetCollectionBuilderBase<E>
 export function defaultFlatMapByUnion<
 	E,
 	E2,
-	C extends SetCollection.NonEmpty<
-		E,
-		SetCollection.Capability.WithSymmetricDifferenceAndUnion<E>
-	>,
+	C extends SetCollection.NonEmpty<E, FAM>,
+	FAM extends SetCollection.Capability.WithSymmetricDifferenceAndUnion<E>,
 >(
 	col: C,
 	f: (element: E) => StreamSource<E2>,
-): Collection.Advanced.ReTyped<C[TypesKey], E2>['_NORMAL'] {
+): Collection.Advanced.FamToTypes<FAM, E2>['_NORMAL'] {
 	const iter = col[Symbol.iterator]();
 	let result = col.context.empty<E2>();
 	const done = Symbol();
@@ -168,8 +155,9 @@ export function defaultFlatMapByUnion<
 
 export function defaultUnionByAdd<
 	E,
-	C extends SetCollection.NonEmpty<E, Collection.Capability.WithAdd<E>>,
->(col: C, other: StreamSource<E>): C[TypesKey]['_NORMAL'] {
+	C extends SetCollection.NonEmpty<E, FAM>,
+	FAM extends Collection.Capability.WithAdd<E>,
+>(col: C, other: StreamSource<E>): FAM['_NORMAL'] {
 	if (other === col) return col;
 	if (Stream.isEmptyStreamSourceInstance(other)) return col;
 
@@ -178,9 +166,9 @@ export function defaultUnionByAdd<
 
 export function defaultDifferenceByRemove<
 	E,
-	UE,
-	C extends SetCollection.NonEmpty<E, SetCollection.Capability.WithRemove<E>>,
->(col: C, other: StreamSource<RelatedTo<E, UE>>): C[TypesKey]['_NORMAL'] {
+	C extends SetCollection.NonEmpty<E, FAM>,
+	FAM extends SetCollection.Capability.WithRemove<E>,
+>(col: C, other: StreamSource<E>): FAM['_NORMAL'] {
 	if (other === col) return col.context.empty();
 	if (Stream.isEmptyStreamSourceInstance(other)) return col;
 
@@ -189,9 +177,9 @@ export function defaultDifferenceByRemove<
 
 export function defaultIntersectByAdd<
 	E,
-	UE,
-	C extends SetCollection.NonEmpty<E, Collection.Capability.WithAdd<E>>,
->(col: C, other: StreamSource<RelatedTo<E, UE>>): C[TypesKey]['_NORMAL'] {
+	C extends SetCollection.NonEmpty<E, FAM>,
+	FAM extends Collection.Capability.WithAdd<E>,
+>(col: C, other: StreamSource<E>): FAM['_NORMAL'] {
 	if (other === col) return col;
 	if (Stream.isEmptyStreamSourceInstance(other)) return col.context.empty();
 
@@ -205,13 +193,11 @@ export function defaultIntersectByAdd<
 
 export function defaultSymDifferenceByRemove<
 	E,
-	C extends SetCollection.NonEmpty<
-		E,
-		Collection.Capability.WithToBuilder<E> &
-			Collection.Capability.WithAdd<E> &
-			SetCollection.Capability.WithRemove<E>
-	>,
->(col: C, other: StreamSource<E>): C[TypesKey]['_NORMAL'] {
+	C extends SetCollection.NonEmpty<E, FAM>,
+	FAM extends Collection.Capability.WithToBuilder<E> &
+		Collection.Capability.WithAdd<E> &
+		SetCollection.Capability.WithRemove<E>,
+>(col: C, other: StreamSource<E>): FAM['_NORMAL'] {
 	if (other === col) return col.context.empty();
 	if (Stream.isEmptyStreamSourceInstance(other)) return col;
 

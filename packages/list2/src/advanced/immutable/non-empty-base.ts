@@ -109,7 +109,11 @@ export abstract class ListNonEmptyBase<T>
 		[previous1: undefined, previous2: undefined],
 		[previous1: T, previous2: T]
 	> {
-		return defaultSwapAtAndReturn<T, List.NonEmpty<T>>(this, indexA, indexB);
+		return defaultSwapAtAndReturn<T, List.NonEmpty<T>, List.Advanced.Family<T>>(
+			this,
+			indexA,
+			indexB,
+		);
 	}
 
 	spliceAt(
@@ -153,7 +157,11 @@ export abstract class ListNonEmptyBase<T>
 		[removed: List<T>, inserted: List<T>],
 		List<T>
 	> {
-		return defaultSpliceAtAndReturn<T, List.NonEmpty<T>>(this, index, options);
+		return defaultSpliceAtAndReturn<
+			T,
+			List.NonEmpty<T>,
+			List.Advanced.Family<T>
+		>(this, index, options);
 	}
 
 	concat(...sources: ArrayNonEmpty<StreamSource<T>>): List.NonEmpty<T> {
@@ -183,7 +191,11 @@ export abstract class ListNonEmptyBase<T>
 		index: number,
 		amount = 1,
 	): Op.DynamicResult<List.NonEmpty<T>, List<T>, List.NonEmpty<T>, List<T>> {
-		return defaultRemoveAtAndReturn<T, List.NonEmpty<T>>(this, index, amount);
+		return defaultRemoveAtAndReturn<
+			T,
+			List.NonEmpty<T>,
+			List.Advanced.Family<T>
+		>(this, index, amount);
 	}
 
 	rotateLeft(amount: number): List.NonEmpty<T> {
@@ -197,14 +209,21 @@ export abstract class ListNonEmptyBase<T>
 	}
 
 	repeat(amount: number): List.NonEmpty<T> {
-		return defaultRepeat<T, List.NonEmpty<T>>(this, amount) as List.NonEmpty<T>;
+		return defaultRepeat<T, List.NonEmpty<T>, List.Advanced.Family<T>>(
+			this,
+			amount,
+		) as List.NonEmpty<T>;
 	}
 
 	mapIndexed<T2>(
 		f: (element: T, index: number) => T2,
 		options: { indexOffset?: number } = {},
 	): List.NonEmpty<T2> {
-		return defaultMapIndexed<T, T2, List.NonEmpty<T>>(this, f, options);
+		return defaultMapIndexed<T, T2, List.NonEmpty<T>, List.Advanced.Family<T>>(
+			this,
+			f,
+			options,
+		);
 	}
 
 	flatMap<T2>(f: (element: T) => StreamSource.NonEmpty<T2>): List.NonEmpty<T2>;
@@ -224,7 +243,12 @@ export abstract class ListNonEmptyBase<T>
 		fill: T,
 		options?: { paddingLeftBias?: number | undefined } | undefined,
 	): List.NonEmpty<T> {
-		return defaultPadTo<T, List.NonEmpty<T>>(this, size, fill, options);
+		return defaultPadTo<T, List.NonEmpty<T>, List.Advanced.Family<T>>(
+			this,
+			size,
+			fill,
+			options,
+		);
 	}
 
 	toBuilder(): List.Builder<T> {

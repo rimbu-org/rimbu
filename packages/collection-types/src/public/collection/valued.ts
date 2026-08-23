@@ -4,10 +4,7 @@ import type { RelatedTo } from '@rimbu/common';
 export type ValuedCollection<
 	E,
 	F extends Collection.Advanced.FamilyBase<E> = Collection.Advanced.Family<E>,
-> = Collection.Advanced.Types<
-	F & ValuedCollection.Advanced.Family<E>,
-	E
->['_NORMAL'];
+> = ValuedCollection.Advanced.ExtendFamily<E, F>['_NORMAL'];
 
 export declare namespace ValuedCollection {
 	export type NonEmpty<

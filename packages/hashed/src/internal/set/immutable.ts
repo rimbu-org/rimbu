@@ -1,4 +1,3 @@
-import type { Collection } from '@rimbu/collection-types/collection';
 // biome-ignore lint/correctness/noUnusedImports: TypesKey is used as a computed property key, which Biome does not detect
 import type { TypesKey } from '@rimbu/collection-types/types';
 import type { ArrayNonEmpty } from '@rimbu/common/types';
@@ -34,10 +33,7 @@ export class HashSetEmpty<E = any>
 	extends SetCollectionEmptyBase<E>
 	implements HashSet<E>
 {
-	declare readonly [TypesKey]: Collection.Advanced.Types<
-		HashSet.Advanced.Family<E>,
-		E
-	>;
+	declare readonly [TypesKey]: HashSet.Advanced.Family<E>;
 
 	constructor(readonly context: HashSetEmptyContext<E>) {
 		super();
@@ -54,10 +50,7 @@ export abstract class HashSetNonEmptyBase<T>
 	extends SetCollectionNonEmptyBase<T>
 	implements HashSet.NonEmpty<T>
 {
-	declare readonly [TypesKey]: Collection.Advanced.TypesNonEmpty<
-		HashSet.Advanced.Family<T>,
-		T
-	>;
+	declare readonly [TypesKey]: HashSet.Advanced.Family<T>;
 
 	constructor(readonly context: HashSetNonEmptyContext<T>) {
 		super();
@@ -85,7 +78,12 @@ export abstract class HashSetNonEmptyBase<T>
 		f: (element: T, index: number) => T2,
 		options?: { indexOffset?: number },
 	): HashSet.NonEmpty<T2> {
-		return defaultMapIndexed<T, T2, HashSet.NonEmpty<T>>(this, f, options);
+		return defaultMapIndexed<
+			T,
+			T2,
+			HashSet.NonEmpty<T>,
+			HashSet.Advanced.Family<T>
+		>(this, f, options);
 	}
 
 	removeAll(elements: StreamSource<T>): HashSet<T> {
@@ -113,15 +111,27 @@ export abstract class HashSetNonEmptyBase<T>
 	}
 
 	difference(other: StreamSource<T>): HashSet<T> {
-		return defaultDifferenceByRemove(this, other);
+		return defaultDifferenceByRemove<
+			T,
+			HashSet.NonEmpty<T>,
+			HashSet.Advanced.Family<T>
+		>(this, other);
 	}
 
 	intersection(other: StreamSource<T>): HashSet<T> {
-		return defaultIntersectByAdd(this, other);
+		return defaultIntersectByAdd<
+			T,
+			HashSet.NonEmpty<T>,
+			HashSet.Advanced.Family<T>
+		>(this, other);
 	}
 
 	symmetricDifference(other: StreamSource<T>): HashSet<T> {
-		return defaultSymDifferenceByRemove(this, other);
+		return defaultSymDifferenceByRemove<
+			T,
+			HashSet.NonEmpty<T>,
+			HashSet.Advanced.Family<T>
+		>(this, other);
 	}
 
 	addAll(values: StreamSource<T>): HashSet.NonEmpty<T> {

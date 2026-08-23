@@ -2,6 +2,7 @@ import type { Collection } from '@rimbu/collection-types/collection';
 import type { Op } from '@rimbu/collection-types/types';
 import type { OptLazy, RelatedTo } from '@rimbu/common';
 import type { Stream, StreamSource } from '@rimbu/stream';
+import type { Reducer } from '@rimbu/stream/reducer';
 
 export type KeyedCollection<
 	K,
@@ -9,10 +10,7 @@ export type KeyedCollection<
 	F extends Collection.Advanced.FamilyBase<
 		readonly [K, V]
 	> = Collection.Advanced.Family<readonly [K, V]>,
-> = Collection.Advanced.Types<
-	F & KeyedCollection.Advanced.Family<K, V>,
-	readonly [K, V]
->['_NORMAL'];
+> = KeyedCollection.Advanced.ExtendFamily<K, V, F>['_NORMAL'];
 
 export declare namespace KeyedCollection {
 	export type NonEmpty<
@@ -50,7 +48,7 @@ export declare namespace KeyedCollection {
 			streamKeys(): Tp['_IS_NON_EMPTY'] extends true
 				? Stream.NonEmpty<K>
 				: Stream<K>;
-			streamValues(): Tp['_IS_NON_EMPTY'] extends true
+			streamValues(): Tp['_IS_NON_EMPTY'] extends false
 				? Stream.NonEmpty<V>
 				: Stream<V>;
 
@@ -147,10 +145,10 @@ export declare namespace KeyedCollection {
 				removeKey<UK = K>(key: RelatedTo<K, UK>): V | undefined;
 				removeKey<UK, O>(key: RelatedTo<K, UK>, otherwise: O): V | O;
 				removeKeys<UK = K>(keys: StreamSource<RelatedTo<K, UK>>): boolean;
-				// removeKeys<UK, R>(
-				// 	keys: StreamSource<RelatedTo<K, UK>>,
-				// 	collector: Reducer<[UK, V], R>,
-				// ): R;
+				removeKeys<UK, R>(
+					keys: StreamSource<RelatedTo<K, UK>>,
+					collector: Reducer<[UK, V], R>,
+				): R;
 			}
 		}
 
@@ -173,8 +171,6 @@ export declare namespace KeyedCollection {
 		export namespace WithMapValues {
 			export interface Api<K, V, Tp extends Collection.Advanced.TypesBase>
 				extends Advanced.Api<K, V, Tp> {
-				// [TypesKey]: Collection.Advanced.InvariantTypes<Tp, V>;
-
 				mapValues<V2 extends V>(
 					mapFun: (value: V, key: K) => V2,
 				): Collection.Advanced.ReTyped<Tp, readonly [K, V2]>['_SELF'];

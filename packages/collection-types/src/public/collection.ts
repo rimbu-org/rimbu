@@ -1,4 +1,3 @@
-import type { TypesKey } from '@rimbu/collection-types/types';
 import type { ArrayNonEmpty, TraverseState } from '@rimbu/common';
 import type { FastIterable, Stream, StreamSource } from '@rimbu/stream';
 import type { Reducer } from '@rimbu/stream/reducer';
@@ -24,23 +23,35 @@ export declare namespace Collection {
 	> = Advanced.Types<F, any>['_CONTEXT'];
 
 	export namespace Advanced {
+		export type IfNonEmpty<Tp extends TypesBase, NonEmpty, Normal> =
+			Tp extends Collection.Advanced.NonEmptyKind<any> ? NonEmpty : Normal;
+
 		export interface TypesBase extends FamilyBase<any> {
 			_SELF: unknown;
 			_NEW_TYPES: TypesBase;
 		}
 
-		export type Types<F extends FamilyBase<any>, E> = F & {
-			_FAM: F;
-		} & NormalKind<E>;
+		export type Types<F extends FamilyBase<any>, E> = F & NormalKind<E>;
 
-		export type TypesNonEmpty<F extends FamilyBase<any>, E> = F & {
-			_FAM: F;
-		} & NonEmptyKind<E>;
+		export type TypesNonEmpty<F extends FamilyBase<any>, E> = F &
+			NonEmptyKind<E>;
 
 		export type ReTyped<Tp extends TypesBase, E2> =
 			Tp extends NonEmptyKind<any>
 				? TypesNonEmpty<(Tp & { _NEW_E: E2 })['_NEW_FAMILY'], E2>
 				: Types<(Tp & { _NEW_E: E2 })['_NEW_FAMILY'], E2>;
+
+		export type FamToTypes<
+			F extends FamilyBase<any>,
+			E2,
+			IsNonEmpty extends boolean = boolean,
+		> = IsNonEmpty extends true
+			? TypesNonEmpty<(F & { _NEW_E: E2 })['_NEW_FAMILY'], E2>
+			: Types<(F & { _NEW_E: E2 })['_NEW_FAMILY'], E2>;
+
+		export type ReTypeFam<F extends FamilyBase<any>, E2> = (F & {
+			_NEW_E: E2;
+		})['_NEW_FAMILY'];
 
 		export type InvariantTypes<Tp extends TypesBase, E> = Tp & {
 			readonly _INVARIANT: (e: E) => E;
@@ -58,68 +69,41 @@ export declare namespace Collection {
 			_AS_ARRAY: unknown;
 			_AS_STREAM: unknown;
 			_UPPER_E: unknown;
-
-			/**
-			 * Discriminates the Kind a types record was built with: `boolean` in
-			 * the normal kind, `true` in the non-empty kind.
-			 *
-			 * Descendant packages use it to type members whose *signature* differs
-			 * per kind, without needing a second `Api` interface or a member-level
-			 * conditional. Declare the member as a named generic interface keyed on
-			 * this slot, e.g. `first: FirstLast<E, Tp['_IS_NON_EMPTY']>`, so the
-			 * member type stays a plain interface reference and remains
-			 * implementable by classes that are generic over the family.
-			 *
-			 * Only the Kinds may narrow this slot. A family must never declare it
-			 * `false`, since the Kind is mixed in by intersection and `false & true`
-			 * would collapse to `never`.
-			 */
 			_IS_NON_EMPTY: boolean;
-
-			_isEmpty: unknown;
-			_stream: unknown;
 
 			_NEW_E: unknown;
 			_NEW_FAMILY: FamilyBase<this['_NEW_E']>;
 
 			/** covariant witness, so `Col<number>` is a `Col<number | string>` */
 			_COVARIANT: E;
+
+			_isEmpty: unknown;
 		}
 
 		export interface NormalKind<E> extends FamilyBase<E> {
 			_SELF: this['_NORMAL'];
 			_IS_NON_EMPTY: boolean;
 
+			_NEW_TYPES: Types<this['_NEW_FAMILY'], this['_NEW_E']>;
+
 			_AS_ARRAY: E[];
 			_AS_STREAM: Stream<E>;
 
 			_isEmpty: boolean;
-			_stream: () => Stream<E>;
-
-			_NEW_TYPES: Types<this['_NEW_FAMILY'], this['_NEW_E']>;
 		}
 
 		export interface NonEmptyKind<E> extends FamilyBase<E> {
 			_SELF: this['_NON_EMPTY'];
-			_IS_NON_EMPTY: true;
+
+			_NEW_TYPES: TypesNonEmpty<this['_NEW_FAMILY'], this['_NEW_E']>;
 
 			_AS_ARRAY: ArrayNonEmpty<E>;
 			_AS_STREAM: Stream.NonEmpty<E>;
 
 			_isEmpty: false;
-			_stream: () => Stream.NonEmpty<E>;
-
-			_NEW_TYPES: TypesNonEmpty<this['_NEW_FAMILY'], this['_NEW_E']>;
 		}
 
-		export type ToStream<
-			E,
-			IsNonEmpty extends boolean = boolean,
-		> = () => IsNonEmpty extends true ? Stream.NonEmpty<E> : Stream<E>;
-
 		export interface Api<E, Tp extends TypesBase> extends FastIterable<E> {
-			/** phantom carrier of the types record; keeps `E` and the family invariant */
-			readonly [TypesKey]: Tp;
 			readonly context: Tp['_CONTEXT'];
 
 			readonly isEmpty: Tp['_isEmpty'];
@@ -129,7 +113,7 @@ export declare namespace Collection {
 			nonEmpty(): this is Tp['_NON_EMPTY'];
 			assumeNonEmpty(): Tp['_NON_EMPTY'];
 
-			stream: Tp['_stream'];
+			stream: () => Tp['_AS_STREAM'];
 
 			forEach(f: (element: E) => void): void;
 			forEachIndexed(
@@ -171,8 +155,6 @@ export declare namespace Collection {
 		}
 
 		export interface BuilderApi<E, Tp extends TypesBase> {
-			readonly [TypesKey]: Tp;
-
 			get isEmpty(): boolean;
 			get size(): number;
 
@@ -245,8 +227,6 @@ export declare namespace Collection {
 		export namespace WithAdd {
 			export interface Api<E, Tp extends Collection.Advanced.TypesBase>
 				extends Advanced.Api<E, Tp> {
-				[TypesKey]: Collection.Advanced.InvariantTypes<Tp, E>;
-
 				add(element: E): Tp['_NON_EMPTY'];
 
 				addAll(elements: StreamSource.NonEmpty<E>): Tp['_NON_EMPTY'];
@@ -272,8 +252,6 @@ export declare namespace Collection {
 		export namespace WithToBuilder {
 			export interface Api<E, Tp extends Advanced.TypesBase>
 				extends Advanced.Api<E, Tp> {
-				[TypesKey]: Advanced.InvariantTypes<Tp, E>;
-
 				toBuilder(): Tp['_BUILDER'];
 			}
 		}
@@ -289,18 +267,11 @@ export declare namespace Collection {
 		export namespace WithMap {
 			export interface Api<E, Tp extends Advanced.TypesBase>
 				extends Advanced.Api<E, Tp> {
-				/**
-				 * `map` may only produce elements within `_UPPER_E`, so widening `E`
-				 * would hand out a collection that accepts elements its family cannot
-				 * hold. This capability therefore makes `E` invariant.
-				 */
-				[TypesKey]: Advanced.InvariantTypes<Tp, E>;
-
 				map<E2 extends Tp['_UPPER_E']>(
 					f: (element: E) => E2,
 				): Advanced.ReTyped<Tp, E2>['_SELF'];
 
-				mapIndexed<E2 extends this[TypesKey]['_UPPER_E']>(
+				mapIndexed<E2 extends Tp['_UPPER_E']>(
 					f: (element: E, index: number) => E2,
 				): Collection.Advanced.ReTyped<Tp, E2>['_SELF'];
 			}
@@ -317,8 +288,6 @@ export declare namespace Collection {
 		export namespace WithFlatMap {
 			export interface Api<E, Tp extends Advanced.TypesBase>
 				extends Advanced.Api<E, Tp> {
-				[TypesKey]: Advanced.InvariantTypes<Tp, E>;
-
 				flatMap<E2 extends Tp['_UPPER_E']>(
 					f: (element: E) => StreamSource.NonEmpty<E2>,
 				): Collection.Advanced.ReTyped<Tp, E2>['_SELF'];
@@ -348,8 +317,6 @@ export declare namespace Collection {
 		export namespace WithMutate {
 			export interface Api<E, Tp extends Advanced.TypesBase>
 				extends Advanced.Api<E, Tp> {
-				[TypesKey]: Advanced.InvariantTypes<Tp, E>;
-
 				mutate(f: (builder: Tp['_BUILDER']) => void): Tp['_NORMAL'];
 			}
 		}
@@ -387,13 +354,15 @@ export declare namespace Collection {
 		export namespace WithRecompose {
 			export interface Api<E, Tp extends Advanced.TypesBase>
 				extends Advanced.Api<E, Tp> {
-				[TypesKey]: Advanced.InvariantTypes<Tp, E>;
-
 				recompose<E2 extends Tp['_UPPER_E']>(
-					f: (stream: Tp['_AS_STREAM']) => StreamSource.NonEmpty<E2>,
+					f: (
+						stream: Advanced.IfNonEmpty<Tp, Stream.NonEmpty<E>, Stream<E>>,
+					) => StreamSource.NonEmpty<E2>,
 				): Advanced.ReTyped<Tp, E2>['_SELF'];
 				recompose<E2 extends Tp['_UPPER_E']>(
-					f: (stream: Tp['_AS_STREAM']) => StreamSource<E2>,
+					f: (
+						stream: Advanced.IfNonEmpty<Tp, Stream.NonEmpty<E>, Stream<E>>,
+					) => StreamSource<E2>,
 				): Advanced.ReTyped<Tp, E2>['_NORMAL'];
 			}
 		}
