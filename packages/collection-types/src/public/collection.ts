@@ -169,30 +169,21 @@ export declare namespace Collection {
 		}
 
 		export interface ContextApi<F extends FamilyBase<any>> {
-			empty<E extends F['_UPPER_E']>(): Collection.Advanced.ReTyped<
-				Collection.Advanced.Types<F, E>,
+			empty<E extends F['_UPPER_E']>(): Collection.Advanced.FamToTypes<
+				F,
 				E
 			>['_NORMAL'];
 			of<E extends F['_UPPER_E']>(
 				...elements: ArrayNonEmpty<E>
-			): Collection.Advanced.ReTyped<
-				Collection.Advanced.Types<F, E>,
-				E
-			>['_NON_EMPTY'];
+			): Collection.Advanced.FamToTypes<F, E>['_NON_EMPTY'];
 			from<E extends F['_UPPER_E']>(
 				...sources: ArrayNonEmpty<StreamSource.NonEmpty<E>>
-			): Collection.Advanced.ReTyped<
-				Collection.Advanced.Types<F, E>,
-				E
-			>['_NON_EMPTY'];
+			): Collection.Advanced.FamToTypes<F, E>['_NON_EMPTY'];
 			from<E extends F['_UPPER_E']>(
 				...sources: ArrayNonEmpty<StreamSource<E>>
-			): Collection.Advanced.ReTyped<
-				Collection.Advanced.Types<F, E>,
-				E
-			>['_NORMAL'];
-			builder<E extends F['_UPPER_E']>(): Collection.Advanced.ReTyped<
-				Collection.Advanced.Types<F, E>,
+			): Collection.Advanced.FamToTypes<F, E>['_NORMAL'];
+			builder<E extends F['_UPPER_E']>(): Collection.Advanced.FamToTypes<
+				F,
 				E
 			>['_BUILDER'];
 		}
@@ -355,14 +346,10 @@ export declare namespace Collection {
 			export interface Api<E, Tp extends Advanced.TypesBase>
 				extends Advanced.Api<E, Tp> {
 				recompose<E2 extends Tp['_UPPER_E']>(
-					f: (
-						stream: Advanced.IfNonEmpty<Tp, Stream.NonEmpty<E>, Stream<E>>,
-					) => StreamSource.NonEmpty<E2>,
+					f: (stream: Tp['_AS_STREAM']) => StreamSource.NonEmpty<E2>,
 				): Advanced.ReTyped<Tp, E2>['_SELF'];
 				recompose<E2 extends Tp['_UPPER_E']>(
-					f: (
-						stream: Advanced.IfNonEmpty<Tp, Stream.NonEmpty<E>, Stream<E>>,
-					) => StreamSource<E2>,
+					f: (stream: Tp['_AS_STREAM']) => StreamSource<E2>,
 				): Advanced.ReTyped<Tp, E2>['_NORMAL'];
 			}
 		}

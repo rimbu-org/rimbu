@@ -1,29 +1,36 @@
 import type { Collection } from '@rimbu/collection-types/collection';
 import type { IndexedCollection } from '@rimbu/collection-types/collection/indexed';
-import type { Op, TypesKey } from '@rimbu/collection-types/types';
+import type { Op } from '@rimbu/collection-types/types';
 
 import { Int, throwInvalidStateError } from '@rimbu/base';
 import {
 	CollectionEmptyBase,
-	type CollectionEmptyBaseCapabilities,
 	CollectionNonEmptyBase,
-	type CollectionNonEmptyBaseCapabilities,
 } from '@rimbu/collection-types/advanced/collection-base';
-import { Err, IndexRange, OptLazy } from '@rimbu/common';
+import { type ArrayNonEmpty, Err, IndexRange, OptLazy } from '@rimbu/common';
 import { Stream, type StreamSource } from '@rimbu/stream';
 import { Reducer } from '@rimbu/stream/reducer';
 
-export type IndexedCollectionEmptyBaseCapabilities<E> =
-	CollectionEmptyBaseCapabilities<E> &
-		IndexedCollection.Advanced.Family<E> &
-		IndexedCollection.Capability.WithConcat<E>;
-
-export abstract class IndexedCollectionEmptyBase<E>
-	extends CollectionEmptyBase<E>
-	implements IndexedCollection<E, IndexedCollectionEmptyBaseCapabilities<E>>
+export abstract class IndexedCollectionEmptyBase<
+		E,
+		FAM extends
+			IndexedCollection.Advanced.Family<E> = IndexedCollection.Advanced.Family<E>,
+		Tp extends Collection.Advanced.Types<FAM, E> = Collection.Advanced.Types<
+			FAM,
+			E
+		>,
+	>
+	extends CollectionEmptyBase<E, FAM, Tp>
+	implements
+		IndexedCollection.Advanced.Api<E, Tp>,
+		IndexedCollection.Capability.WithConcat.Api<E, Tp>,
+		IndexedCollection.Capability.WithInsertAt.Api<E, Tp>,
+		IndexedCollection.Capability.WithPrependAppend.Api<E, Tp>,
+		IndexedCollection.Capability.WithRemoveAt.Api<E, Tp>,
+		IndexedCollection.Capability.WithSwapAt.Api<E, Tp>,
+		IndexedCollection.Capability.WithUpdateAt.Api<E, Tp>
 {
-	declare readonly [TypesKey]: IndexedCollectionEmptyBaseCapabilities<E>;
-	abstract readonly context: IndexedCollection.Context<this[TypesKey]>;
+	abstract readonly context: IndexedCollection.Context<FAM>;
 
 	streamSlice(): Stream<E> {
 		return Stream.empty<E>();
@@ -49,12 +56,21 @@ export abstract class IndexedCollectionEmptyBase<E>
 		return this;
 	}
 
-	prepend(element: E): this[TypesKey]['_NON_EMPTY'] {
+	prepend(element: E): FAM['_NON_EMPTY'] {
 		return this.context.of(element);
 	}
 
-	append(element: E): this[TypesKey]['_NON_EMPTY'] {
+	append(element: E): FAM['_NON_EMPTY'] {
 		return this.context.of(element);
+	}
+
+	concat(...sources: ArrayNonEmpty<StreamSource.NonEmpty<E>>): Tp['_NON_EMPTY'];
+	concat(...sources: ArrayNonEmpty<StreamSource<E>>): Tp['_NORMAL'] {
+		return this.context.from(...sources);
+	}
+
+	insertAt(_index: number, elements: StreamSource<E>): Tp['_NON_EMPTY'] {
+		return this.context.from(elements) as Tp['_NON_EMPTY'];
 	}
 
 	splitAt(): [this, this] {
@@ -65,19 +81,28 @@ export abstract class IndexedCollectionEmptyBase<E>
 		return this;
 	}
 
-	removeAt(): this[TypesKey]['_NORMAL'] {
+	removeAt(): this {
 		return this;
 	}
 
-	reversed(): this[TypesKey]['_NORMAL'] {
+	removeAtAndReturn(): Op.WithResult<Tp['_NORMAL'], Tp['_NORMAL'], false> {
+		return {
+			collection: this,
+			hasResult: false,
+			result: this,
+			hasChanged: false,
+		};
+	}
+
+	reversed(): this {
 		return this;
 	}
 
-	setAt(): this[TypesKey]['_NORMAL'] {
+	setAt(): this {
 		return this;
 	}
 
-	setAtAndReturn(): Op.WithResult<this[TypesKey]['_NORMAL'], undefined, false> {
+	setAtAndReturn(): Op.WithResult<Tp['_NORMAL'], undefined, false> {
 		return {
 			collection: this,
 			hasResult: false,
@@ -99,7 +124,7 @@ export abstract class IndexedCollectionEmptyBase<E>
 	}
 
 	updateAtAndReturn(): Op.WithResult<
-		this[TypesKey]['_NORMAL'],
+		Tp['_NORMAL'],
 		[previous: undefined, current: undefined],
 		false
 	> {
@@ -129,16 +154,19 @@ export abstract class IndexedCollectionEmptyBase<E>
 	}
 }
 
-export type IndexedCollectionNonEmptyBaseCapabilities<E> =
-	CollectionNonEmptyBaseCapabilities<E> & IndexedCollection.Advanced.Family<E>;
-
-export abstract class IndexedCollectionNonEmptyBase<E>
-	extends CollectionNonEmptyBase<E>
-	implements
-		IndexedCollection.NonEmpty<E, IndexedCollectionNonEmptyBaseCapabilities<E>>
+export abstract class IndexedCollectionNonEmptyBase<
+		E,
+		FAM extends
+			IndexedCollection.Advanced.Family<E> = IndexedCollection.Advanced.Family<E>,
+		Tp extends Collection.Advanced.TypesNonEmpty<
+			FAM,
+			E
+		> = Collection.Advanced.TypesNonEmpty<FAM, E>,
+	>
+	extends CollectionNonEmptyBase<E, FAM, Tp>
+	implements IndexedCollection.Advanced.Api<E, Tp>
 {
-	declare readonly [TypesKey]: IndexedCollectionNonEmptyBaseCapabilities<E>;
-	abstract readonly context: IndexedCollection.Context<this[TypesKey]>;
+	abstract readonly context: IndexedCollection.Context<FAM>;
 
 	abstract streamSlice(
 		range: IndexRange,
@@ -152,10 +180,10 @@ export abstract class IndexedCollectionNonEmptyBase<E>
 
 	abstract take<const N extends number>(
 		amount: N,
-	): 0 extends N ? this[TypesKey]['_NORMAL'] : this[TypesKey]['_NON_EMPTY'];
-	abstract drop(count: number): this[TypesKey]['_NORMAL'];
+	): 0 extends N ? Tp['_NORMAL'] : Tp['_NON_EMPTY'];
+	abstract drop(count: number): Tp['_NORMAL'];
 
-	slice(range: IndexRange): this[TypesKey]['_NORMAL'] {
+	slice(range: IndexRange): Tp['_NORMAL'] {
 		const result = IndexRange.getIndicesFor(range, this.size);
 
 		if (result === 'all') {
@@ -172,10 +200,7 @@ export abstract class IndexedCollectionNonEmptyBase<E>
 
 	splitAt<const N extends number>(
 		index: N,
-	): [
-		0 extends N ? this[TypesKey]['_NORMAL'] : this[TypesKey]['_NON_EMPTY'],
-		this[TypesKey]['_NORMAL'],
-	] {
+	): [0 extends N ? Tp['_NORMAL'] : Tp['_NON_EMPTY'], Tp['_NORMAL']] {
 		const left = this.take(index);
 		const right = this.drop(index);
 

@@ -1,5 +1,4 @@
 import type { Collection } from '@rimbu/collection-types/collection';
-import type { TypesKey } from '@rimbu/collection-types/types';
 import type { FastIterator } from '@rimbu/stream/stream-types';
 
 import {
@@ -9,26 +8,21 @@ import {
 import { type ArrayNonEmpty, TraverseState } from '@rimbu/common';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
-export interface CollectionEmptyBaseCapabilities<E>
-	extends Collection.Advanced.Family<E>,
-		Collection.Capability.WithToBuilder<E>,
-		Collection.Capability.WithFlatMap<E>,
-		Collection.Capability.WithMap<E>,
-		Collection.Capability.WithMutate<E>,
-		Collection.Capability.WithRecompose<E> {
-	_NORMAL: any;
-	_NON_EMPTY: any;
-	_BUILDER: any;
-	_CONTEXT: any;
-	_FAM: CollectionEmptyBaseCapabilities<E>;
-	_NEW_FAMILY: CollectionEmptyBaseCapabilities<this['_NEW_E']>;
-}
-
-export abstract class CollectionEmptyBase<E>
-	implements Collection<E, CollectionEmptyBaseCapabilities<E>>
+export abstract class CollectionEmptyBase<
+	E,
+	FAM extends Collection.Advanced.Family<E> = Collection.Advanced.Family<E>,
+	Tp extends Collection.Advanced.Types<FAM, E> = Collection.Advanced.Types<
+		FAM,
+		E
+	>,
+> implements
+		Collection.Advanced.Api<E, Tp>,
+		Collection.Capability.WithFlatMap.Api<E, Tp>,
+		Collection.Capability.WithMap.Api<E, Tp>,
+		Collection.Capability.WithMutate.Api<E, Tp>,
+		Collection.Capability.WithRecompose.Api<E, Tp>
 {
-	declare readonly [TypesKey]: CollectionEmptyBaseCapabilities<E>;
-	abstract readonly context: Collection.Context<this[TypesKey]>;
+	abstract readonly context: Collection.Context<FAM>;
 
 	[Symbol.iterator](): FastIterator<E> {
 		return Stream.empty<E>()[Symbol.iterator]();
@@ -46,21 +40,12 @@ export abstract class CollectionEmptyBase<E>
 		return this;
 	}
 
-	nonEmpty(): this is this[TypesKey]['_NON_EMPTY'] {
+	nonEmpty(): this is FAM['_NON_EMPTY'] {
 		return false;
 	}
 
 	assumeNonEmpty(): never {
 		throw new EmptyCollectionAssumedNonEmptyError();
-	}
-
-	concat(
-		...sources: ArrayNonEmpty<StreamSource.NonEmpty<E>>
-	): this[TypesKey]['_NON_EMPTY'];
-	concat(
-		...sources: ArrayNonEmpty<StreamSource<E>>
-	): this[TypesKey]['_NORMAL'] {
-		return this.context.from(...sources) as this[TypesKey]['_NON_EMPTY'];
 	}
 
 	flatMap(): this {
@@ -87,35 +72,30 @@ export abstract class CollectionEmptyBase<E>
 		return this;
 	}
 
-	recompose<E2 extends this[TypesKey]['_UPPER_E']>(
+	recompose<E2 extends FAM['_UPPER_E']>(
 		f: (stream: Stream<E>) => StreamSource<E2>,
-	): Collection.Advanced.ReTypeFam<this[TypesKey], E2>['_NORMAL'] {
+	): Collection.Advanced.ReTypeFam<FAM, E2>['_NORMAL'] {
 		return this.context.from(f(Stream.empty()));
 	}
 
-	mutate(
-		f: (builder: this[TypesKey]['_BUILDER']) => void,
-	): this[TypesKey]['_NORMAL'] {
+	mutate(f: (builder: FAM['_BUILDER']) => void): FAM['_NORMAL'] {
 		const builder = this.context.builder<E>();
 		f(builder);
 		return builder.build();
 	}
 
-	map<E2 extends this[TypesKey]['_UPPER_E']>(
+	map<E2 extends FAM['_UPPER_E']>(
 		_f: (element: E) => E2,
 	): Collection.Advanced.ReTyped<
-		this[TypesKey] & Collection.Advanced.NormalKind<E2>,
+		Tp & Collection.Advanced.NormalKind<E2>,
 		E2
 	>['_SELF'] {
 		return this as any;
 	}
 
-	mapIndexed<E2 extends this[TypesKey]['_UPPER_E']>(
+	mapIndexed<E2 extends FAM['_UPPER_E']>(
 		_f: (element: E, index: number) => E2,
-	): Collection.Advanced.ReTyped<
-		this[TypesKey] & Collection.Advanced.NormalKind<E2>,
-		E2
-	>['_SELF'] {
+	): Collection.Advanced.ReTyped<Tp, E2>['_SELF'] {
 		return this as any;
 	}
 
@@ -123,29 +103,27 @@ export abstract class CollectionEmptyBase<E>
 		return [];
 	}
 
-	toBuilder(): this[TypesKey]['_BUILDER'] {
+	toBuilder(): FAM['_BUILDER'] {
 		return this.context.builder();
 	}
 }
 
-export type CollectionNonEmptyBaseCapabilities<E> =
-	Collection.Advanced.Family<E> &
-		Collection.Capability.WithToBuilder<E> &
-		Collection.Capability.WithMutate<E> &
-		Collection.Capability.WithRecompose<E>;
-
-export abstract class CollectionNonEmptyBase<E>
-	implements Collection.NonEmpty<E, CollectionNonEmptyBaseCapabilities<E>>
+export abstract class CollectionNonEmptyBase<
+	E,
+	FAM extends Collection.Advanced.FamilyBase<E> = Collection.Advanced.Family<E>,
+	Tp extends Collection.Advanced.TypesBase = Collection.Advanced.TypesNonEmpty<
+		FAM,
+		E
+	>,
+> implements Collection.Advanced.Api<E, Tp>
 {
-	declare readonly [TypesKey]: CollectionNonEmptyBaseCapabilities<E>;
-	abstract readonly context: Collection.Context<this[TypesKey]>;
+	abstract readonly context: Collection.Advanced.ContextApi<FAM>;
 
 	abstract get size(): number;
 	abstract stream(): Stream.NonEmpty<E>;
 	abstract forEach(f: (value: E) => void): void;
-	abstract filter(pred: (element: E) => boolean): this[TypesKey]['_NORMAL'];
+	abstract filter(pred: (element: E) => boolean): FAM['_NORMAL'];
 	abstract toArray(): ArrayNonEmpty<E>;
-	abstract toBuilder(): this[TypesKey]['_BUILDER'];
 
 	[Symbol.iterator](): FastIterator<E> {
 		return this.stream()[Symbol.iterator]();
@@ -155,15 +133,15 @@ export abstract class CollectionNonEmptyBase<E>
 		return false;
 	}
 
-	nonEmpty(): this is this[TypesKey]['_NON_EMPTY'] {
+	nonEmpty(): this is FAM['_NON_EMPTY'] {
 		return true;
 	}
 
-	assumeNonEmpty(): this[TypesKey]['_NON_EMPTY'] {
+	assumeNonEmpty(): FAM['_NON_EMPTY'] {
 		return this;
 	}
 
-	asNormal(): this[TypesKey]['_NORMAL'] {
+	asNormal(): FAM['_NORMAL'] {
 		return this;
 	}
 
@@ -198,7 +176,7 @@ export abstract class CollectionNonEmptyBase<E>
 			negate?: boolean | undefined;
 			indexOffset?: number | undefined;
 		} = {},
-	): this[TypesKey]['_NORMAL'] {
+	): FAM['_NORMAL'] {
 		const { negate = false, indexOffset = 0 } = options;
 		let index = indexOffset;
 		return negate
@@ -206,34 +184,26 @@ export abstract class CollectionNonEmptyBase<E>
 			: this.filter((element) => pred(element, index++));
 	}
 
-	recompose<E2 extends this[TypesKey]['_UPPER_E']>(
+	recompose<E2 extends FAM['_UPPER_E']>(
 		f: (stream: Stream.NonEmpty<E>) => StreamSource.NonEmpty<E2>,
-	): Collection.Advanced.ReTypeFam<this[TypesKey], E2>['_NON_EMPTY'];
-	recompose<E2 extends this[TypesKey]['_UPPER_E']>(
+	): Collection.Advanced.ReTypeFam<FAM, E2>['_NON_EMPTY'];
+	recompose<E2 extends FAM['_UPPER_E']>(
 		f: (stream: Stream.NonEmpty<E>) => StreamSource<E2>,
-	): Collection.Advanced.ReTypeFam<this[TypesKey], E2>['_NON_EMPTY'] {
+	): Collection.Advanced.ReTypeFam<FAM, E2>['_NON_EMPTY'] {
 		return this.context.from(f(this.stream())) as any;
-	}
-
-	mutate(
-		f: (builder: this[TypesKey]['_BUILDER']) => void,
-	): this[TypesKey]['_NORMAL'] {
-		const builder = this.toBuilder();
-		f(builder);
-		return builder.build();
 	}
 }
 
-export abstract class CollectionBuilderBase<E>
-	implements Collection.Builder<E, CollectionEmptyBaseCapabilities<E>>
+export abstract class CollectionBuilderBase<
+	E,
+	FAM extends Collection.Advanced.FamilyBase<E> = Collection.Advanced.Family<E>,
+	Tp extends Collection.Advanced.TypesBase = Collection.Advanced.Types<FAM, E>,
+> implements Collection.Advanced.BuilderApi<E, Tp>
 {
-	declare readonly [TypesKey]: CollectionEmptyBaseCapabilities<E>;
-	abstract readonly context: Collection.Context<this[TypesKey]>;
-
 	abstract get size(): number;
 	abstract clear(): void;
 	abstract forEach(f: (value: E) => void): void;
-	abstract build(): this[TypesKey]['_NORMAL'];
+	abstract build(): FAM['_NORMAL'];
 
 	#iterationDepth = 0;
 

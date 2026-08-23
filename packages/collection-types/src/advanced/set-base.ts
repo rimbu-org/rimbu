@@ -1,6 +1,5 @@
 import type { Collection } from '@rimbu/collection-types/collection';
 import type { SetCollection } from '@rimbu/collection-types/set';
-import type { TypesKey } from '@rimbu/collection-types/types';
 import type { ArrayNonEmpty } from '@rimbu/common';
 
 import { Stream, type StreamSource } from '@rimbu/stream';
@@ -8,32 +7,37 @@ import { Reducer } from '@rimbu/stream/reducer';
 import {
 	ValuedCollectionBuilderBase,
 	ValuedCollectionEmptyBase,
-	type ValuedCollectionEmptyBaseCapabilities,
 	ValuedCollectionNonEmptyBase,
-	type ValuedCollectionNonEmptyBaseCapabilities,
 } from './collection/valued-base';
 
-export type SetCollectionEmptyBaseCapabilities<E> =
-	ValuedCollectionEmptyBaseCapabilities<E> &
-		Collection.Capability.WithAdd<E> &
-		SetCollection.Advanced.Family<E> &
-		SetCollection.Capability.WithDifferenceAndIntersection<E> &
-		SetCollection.Capability.WithRemove<E> &
-		SetCollection.Capability.WithSymmetricDifferenceAndUnion<E>;
+// export type SetCollectionEmptyBaseCapabilities<E> =
+// 	ValuedCollectionEmptyBaseCapabilities<E> &
+// 		Collection.Capability.WithAdd<E> &
+// 		SetCollection.Advanced.Family<E> &
+// 		SetCollection.Capability.WithDifferenceAndIntersection<E> &
+// 		SetCollection.Capability.WithRemove<E> &
+// 		SetCollection.Capability.WithSymmetricDifferenceAndUnion<E>;
 
-export abstract class SetCollectionEmptyBase<E>
-	extends ValuedCollectionEmptyBase<E>
-	implements SetCollection<E, SetCollectionEmptyBaseCapabilities<E>>
+export abstract class SetCollectionEmptyBase<
+		E,
+		FAM extends
+			SetCollection.Advanced.Family<E> = SetCollection.Advanced.Family<E>,
+		Tp extends Collection.Advanced.Types<FAM, E> = Collection.Advanced.Types<
+			FAM,
+			E
+		>,
+	>
+	extends ValuedCollectionEmptyBase<E, FAM, Tp>
+	implements SetCollection.Advanced.Api<E, Tp>
 {
-	declare readonly [TypesKey]: SetCollectionEmptyBaseCapabilities<E>;
-	abstract readonly context: SetCollection.Context<this[TypesKey]>;
+	abstract readonly context: SetCollection.Context<FAM>;
 
-	add(element: E): this[TypesKey]['_NON_EMPTY'] {
+	add(element: E): Tp['_NON_EMPTY'] {
 		return this.context.of(element);
 	}
 
-	addAll(elements: StreamSource<E>): this[TypesKey]['_NON_EMPTY'] {
-		return this.context.from(elements) as this[TypesKey]['_NON_EMPTY'];
+	addAll(elements: StreamSource<E>): Tp['_NON_EMPTY'] {
+		return this.context.from(elements) as Tp['_NON_EMPTY'];
 	}
 
 	remove(): this {
@@ -52,59 +56,56 @@ export abstract class SetCollectionEmptyBase<E>
 		return this;
 	}
 
-	symmetricDifference(other: StreamSource<E>): this[TypesKey]['_NORMAL'] {
+	symmetricDifference(other: StreamSource<E>): Tp['_NORMAL'] {
 		return this.context.from(other);
 	}
 
-	union(other: StreamSource<E>): this[TypesKey]['_NON_EMPTY'] {
-		return this.context.from(other) as this[TypesKey]['_NON_EMPTY'];
+	union(other: StreamSource<E>): Tp['_NON_EMPTY'] {
+		return this.context.from(other) as Tp['_NON_EMPTY'];
 	}
 }
 
-export type SetCollectionNonEmptyBaseCapabilities<E> =
-	ValuedCollectionNonEmptyBaseCapabilities<E> &
-		SetCollection.Advanced.Family<E>;
-
-export abstract class SetCollectionNonEmptyBase<E>
-	extends ValuedCollectionNonEmptyBase<E>
-	implements SetCollection.NonEmpty<E, SetCollectionNonEmptyBaseCapabilities<E>>
-{
-	declare readonly [TypesKey]: SetCollectionNonEmptyBaseCapabilities<E>;
-	abstract readonly context: SetCollection.Context<this[TypesKey]>;
-}
+export abstract class SetCollectionNonEmptyBase<
+		E,
+		FAM extends
+			SetCollection.Advanced.Family<E> = SetCollection.Advanced.Family<E>,
+		Tp extends Collection.Advanced.TypesNonEmpty<
+			FAM,
+			E
+		> = Collection.Advanced.TypesNonEmpty<FAM, E>,
+	>
+	extends ValuedCollectionNonEmptyBase<E, FAM, Tp>
+	implements SetCollection.Advanced.Api<E, Tp> {}
 
 export abstract class SetCollectionContextBase<
-	Tp extends Collection.Advanced.Types<
-		SetCollection.Advanced.Family<any> &
-			Collection.Capability.WithAdd<any> &
-			Collection.Capability.WithToBuilder<any>,
-		any
-	>,
-> implements SetCollection.Advanced.ContextApi<Tp>
+	FAM extends SetCollection.Advanced.Family<any> &
+		Collection.Capability.WithToBuilder<any> &
+		Collection.Capability.WithAdd<any> = SetCollection.Advanced.Family<any> &
+		Collection.Capability.WithToBuilder<any> &
+		Collection.Capability.WithAdd<any>,
+> implements SetCollection.Advanced.ContextApi<FAM>
 {
-	declare readonly [TypesKey]: Collection.Advanced.Types<Tp, any>;
-
-	abstract isNonEmptyInstance<E extends Tp['_UPPER_E']>(
+	abstract isNonEmptyInstance<E extends FAM['_UPPER_E']>(
 		source: unknown,
-	): source is Tp['_NON_EMPTY'];
-	abstract empty<E extends Tp['_UPPER_E']>(): Collection.Advanced.ReTyped<
-		Tp,
+	): source is FAM['_NON_EMPTY'];
+	abstract empty<E extends FAM['_UPPER_E']>(): Collection.Advanced.FamToTypes<
+		FAM,
 		E
 	>['_NORMAL'];
-	abstract builder<E extends Tp['_UPPER_E']>(): Collection.Advanced.ReTyped<
-		Tp,
+	abstract builder<E extends FAM['_UPPER_E']>(): Collection.Advanced.FamToTypes<
+		FAM,
 		E
 	>['_BUILDER'];
 
-	of = <E extends Tp['_UPPER_E']>(
+	of = <E extends FAM['_UPPER_E']>(
 		...elements: ArrayNonEmpty<E>
-	): Collection.Advanced.ReTyped<Tp, E>['_NON_EMPTY'] => {
+	): Collection.Advanced.FamToTypes<FAM, E>['_NON_EMPTY'] => {
 		return this.from(elements);
 	};
 
-	from = <E extends Tp['_UPPER_E']>(
+	from = <E extends FAM['_UPPER_E']>(
 		...sources: ArrayNonEmpty<StreamSource<E>>
-	): Collection.Advanced.ReTyped<Tp, E>['_NON_EMPTY'] => {
+	): Collection.Advanced.FamToTypes<FAM, E>['_NON_EMPTY'] => {
 		let builder = this.builder<E>();
 		let i = -1;
 		const length = sources.length;
@@ -127,10 +128,17 @@ export abstract class SetCollectionContextBase<
 	};
 }
 
-export abstract class SetCollectionBuilderBase<E>
-	extends ValuedCollectionBuilderBase<E>
-	implements
-		SetCollection.Builder<E, SetCollectionNonEmptyBaseCapabilities<E>> {}
+export abstract class SetCollectionBuilderBase<
+		E,
+		FAM extends
+			SetCollection.Advanced.Family<E> = SetCollection.Advanced.Family<E>,
+		Tp extends Collection.Advanced.Types<FAM, E> = Collection.Advanced.Types<
+			FAM,
+			E
+		>,
+	>
+	extends ValuedCollectionBuilderBase<E, FAM, Tp>
+	implements SetCollection.Advanced.BuilderApi<E, Tp> {}
 
 export function defaultFlatMapByUnion<
 	E,
