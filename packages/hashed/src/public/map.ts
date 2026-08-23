@@ -1,4 +1,5 @@
 import type { Collection } from '@rimbu/collection-types/collection';
+import type { KeyedCollection } from '@rimbu/collection-types/collection/keyed';
 import type { MapCollection } from '@rimbu/collection-types/map';
 import type { Eq } from '@rimbu/common';
 import type { Hasher } from '@rimbu/hashed';
@@ -33,12 +34,12 @@ export namespace HashMap {
 
 	export namespace Advanced {
 		export interface Api<K, V, Tp extends Collection.Advanced.TypesBase>
-			extends MapCollection.Advanced.Api<K, V, Tp> {}
+			extends MapCollection.Advanced.Api<K, V, Tp>,
+				Collection.Capability.WithToBuilder.Api<readonly [K, V], Tp> {}
 		// Collection.Capability.WithAdd.Api<readonly [K, V], Tp>,
 		// Collection.Capability.WithFlatMap.Api<readonly [K, V], Tp>,
 		// Collection.Capability.WithMap.Api<readonly [K, V], Tp>,
 		// Collection.Capability.WithMutate.Api<readonly [K, V], Tp>,
-		// Collection.Capability.WithToBuilder.Api<readonly [K, V], Tp>,
 		// KeyedCollection.Capability.WithRemove.Api<K, V, Tp>,
 		// KeyedCollection.Capability.WithMapValues.Api<K, V, Tp>,
 		// MapCollection.Capability.WithSet.Api<K, V, Tp>,
@@ -48,8 +49,8 @@ export namespace HashMap {
 
 		export interface BuilderApi<K, V, Tp extends Collection.Advanced.TypesBase>
 			extends MapCollection.Advanced.BuilderApi<K, V, Tp>,
-				Collection.Capability.WithAdd.BuilderApi<readonly [K, V], Tp> {
-			// KeyedCollection.Capability.WithRemove.BuilderApi<K, V, Tp>,
+				Collection.Capability.WithAdd.BuilderApi<readonly [K, V], Tp>,
+				KeyedCollection.Capability.WithRemove.BuilderApi<K, V, Tp> {
 			// MapCollection.Capability.WithSet.BuilderApi<K, V, Tp>,
 			// MapCollection.Capability.WithUpdateAt.BuilderApi<K, V, Tp>,
 			// MapCollection.Capability.WithModifyAt.BuilderApi<K, V, Tp> {}

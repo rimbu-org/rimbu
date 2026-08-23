@@ -116,9 +116,9 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 
 			if (this.level < this.context.maxDepth) {
 				const newEntrySet = this.context
-					.block<V>(null, null, 0, this.level + 1)
+					.block<K, V>(null, null, 0, this.level + 1)
 					.add(currentEntry)
-					.add(entry, hash) as unknown as MapEntrySet<K, V>;
+					.add(entry, hash);
 
 				const newEntrySets =
 					null === this.entrySets ? [] : this.entrySets.slice();
@@ -127,7 +127,7 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 				return this.copy(newEntries, newEntrySets, this.size + 1);
 			}
 
-			const newEntrySet = this.context.collision<V>(
+			const newEntrySet = this.context.collision<K, V>(
 				this.context.listContext.of(currentEntry, entry),
 			);
 			const newEntrySets =
@@ -139,10 +139,7 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 
 		if (null !== this.entrySets && atKeyIndex in this.entrySets) {
 			const currentEntrySet = this.entrySets[atKeyIndex];
-			const newEntrySet = currentEntrySet.setEntry(entry, hash) as MapEntrySet<
-				K,
-				V
-			>;
+			const newEntrySet = currentEntrySet.add(entry, hash);
 			if (newEntrySet === currentEntrySet) return this;
 
 			const newEntrySets = this.entrySets.slice();
@@ -238,7 +235,7 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 
 			// create collision
 			const newEntry: [K, V] = [atKey, newValue as V];
-			const newEntrySet = this.context.collision<V>(
+			const newEntrySet = this.context.collision<K, V>(
 				this.context.listContext.of(currentEntry, newEntry),
 			);
 			const newEntrySets =
@@ -255,7 +252,7 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 				atKey,
 				options,
 				atKeyHash,
-			);
+			) as any;
 
 			if (newEntrySet === currentEntrySet) return this;
 

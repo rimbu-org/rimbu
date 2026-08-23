@@ -140,7 +140,7 @@ export class HashMapContext<UK>
 			if (
 				builder.isEmpty &&
 				this.isNonEmptyInstance<K, V>(source) &&
-				source.context === this
+				source.context === (this as unknown as HashMapContext<K>)
 			) {
 				if (i === length - 1) return source;
 				builder = source.toBuilder();

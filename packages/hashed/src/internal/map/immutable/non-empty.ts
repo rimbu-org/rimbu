@@ -66,7 +66,7 @@ export abstract class HashMapNonEmptyBase<K, V>
 		let oldValue: V | typeof token = token;
 		let newValue: V | undefined;
 
-		const newMap = this.modifyAt(key, {
+		const newMap = this.modifyAt(key as K, {
 			ifExists: {
 				update: (value: V, _remove) => {
 					oldValue = value;

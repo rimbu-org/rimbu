@@ -299,7 +299,7 @@ export class HashMapBlockBuilder<K, V>
 
 			let first: readonly [K, V];
 
-			if (this.context.isHashMapBlock(entrySet)) {
+			if (this.context.isHashMapBlockBuilder<K, V>(entrySet)) {
 				for (const index in entrySet.entries) {
 					first = entrySet.entries[index];
 					break;
@@ -309,7 +309,7 @@ export class HashMapBlockBuilder<K, V>
 			}
 
 			delete this.entrySets[keyIndex];
-			this.entries[keyIndex] = first;
+			this.entries[keyIndex] = first!;
 			return true;
 		}
 
