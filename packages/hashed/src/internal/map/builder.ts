@@ -1,4 +1,3 @@
-// @ts-nocheck
 import type { RelatedTo } from '@rimbu/common/types';
 import type { HashMap } from '@rimbu/hashed/map';
 
@@ -16,7 +15,6 @@ import {
 } from '@rimbu/collection-types/advanced/common';
 import { MapCollectionBuilderBase } from '@rimbu/collection-types/advanced/map-base';
 import { OptLazy } from '@rimbu/common/opt-lazy';
-import { TraverseState } from '@rimbu/common/traverse-state';
 import { List } from '@rimbu/list';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
@@ -26,15 +24,12 @@ export type MapBlockBuilderEntry<K, V> =
 	| HashMapBlockBuilder<K, V>
 	| HashMapCollisionBuilder<K, V>;
 
-export type HashMapBuilderContext<K, V> = HashMapContext<K> &
-	MapCollectionBuilderBase<K, V>['context'];
-
 export class HashMapBlockBuilder<K, V>
 	extends MapCollectionBuilderBase<K, V>
 	implements HashMap.Builder<K, V>
 {
 	constructor(
-		readonly context: HashMapBuilderContext<K, V>,
+		readonly context: HashMapContext<K>,
 		public source?: undefined | HashMapBlock<K, V>,
 		public _entries?: undefined | (readonly [K, V])[],
 		public _entrySets?: undefined | MapBlockBuilderEntry<K, V>[],
@@ -91,8 +86,7 @@ export class HashMapBlockBuilder<K, V>
 		return this._entrySets!;
 	}
 
-	// get is new name for at
-	get<UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O {
+	get = <UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O => {
 		if (undefined !== this.source) return this.source.get(key, otherwise);
 
 		if (!this.context.hasher.isValid(key)) return OptLazy(otherwise) as O;
@@ -114,36 +108,36 @@ export class HashMapBlockBuilder<K, V>
 		}
 
 		return OptLazy(otherwise) as O;
-	}
+	};
 
-	has<UK>(key: RelatedTo<K, UK>): boolean {
+	has = <UK>(key: RelatedTo<K, UK>): boolean => {
 		const token = Symbol();
 		return token !== this.get(key, token);
-	}
+	};
 
-	set(key: K, value: V): boolean {
+	set = (key: K, value: V): boolean => {
+		return this.add([key, value]);
+	};
+
+	add = (entry: readonly [K, V]): boolean => {
 		this.checkLock();
-		return this.addEntryInternal([key, value]);
-	}
 
-	setEntry(entry: readonly [K, V]): boolean {
-		this.checkLock();
-		return this.addEntryInternal(entry);
-	}
+		if (!this.context.hasher.isValid(entry[0])) {
+			return false;
+		}
 
-	setAll(entries: StreamSource<readonly [K, V]>): boolean {
+		return this.addInternal(entry);
+	};
+
+	addAll = (entries: StreamSource<readonly [K, V]>): boolean => {
 		this.checkLock();
 
 		if (Stream.isEmptyStreamSourceInstance(entries)) return false;
 
-		return (
-			Stream.from(entries)
-				.filterPure({ pred: (e) => this.setEntry(e) })
-				.count() > 0
-		);
-	}
+		return Stream.from(entries).filterPure({ pred: this.add }).count() > 0;
+	};
 
-	addEntryInternal(
+	addInternal(
 		entry: readonly [K, V],
 		hash = this.context.hash(entry[0]),
 	): boolean {
@@ -176,8 +170,8 @@ export class HashMapBlockBuilder<K, V>
 					0,
 					this.level + 1,
 				);
-				newEntrySet.addEntryInternal(currentEntry);
-				newEntrySet.addEntryInternal(entry, hash);
+				newEntrySet.addInternal(currentEntry);
+				newEntrySet.addInternal(entry, hash);
 
 				this.entrySets[keyIndex] = newEntrySet;
 				return true;
@@ -199,7 +193,7 @@ export class HashMapBlockBuilder<K, V>
 		if (keyIndex in this.entrySets) {
 			const currentEntrySet = this.entrySets[keyIndex]!;
 			const preSize = currentEntrySet.size;
-			const changed = currentEntrySet.addEntryInternal(entry, hash);
+			const changed = currentEntrySet.addInternal(entry, hash);
 
 			if (changed) this.source = undefined;
 
@@ -214,11 +208,11 @@ export class HashMapBlockBuilder<K, V>
 		return true;
 	}
 
-	modifyAt(
+	modifyAt = (
 		key: K,
 		options: ModifyOptions<V>,
 		keyHash = this.context.hash(key),
-	): boolean {
+	): boolean => {
 		this.checkLock();
 
 		if (checkEmptyModifyOptions(options)) return false;
@@ -286,8 +280,8 @@ export class HashMapBlockBuilder<K, V>
 						)
 					: new HashMapCollisionBuilder(this.context);
 
-			newEntrySet.addEntryInternal(currentEntry);
-			newEntrySet.addEntryInternal([key, newValue], keyHash);
+			newEntrySet.addInternal(currentEntry);
+			newEntrySet.addInternal([key, newValue], keyHash);
 
 			this.entrySets[keyIndex] = newEntrySet;
 			return true;
@@ -337,11 +331,11 @@ export class HashMapBlockBuilder<K, V>
 		this.size++;
 		this.entries[keyIndex] = [key, newValue];
 		return true;
-	}
+	};
 
-	updateAt<UK>(key: RelatedTo<K, UK>, update: (value: V) => V): boolean {
+	updateAt = <UK>(key: RelatedTo<K, UK>, update: (value: V) => V): boolean => {
 		let changed = false;
-		this.modifyAt(key, {
+		this.modifyAt(key as K, {
 			ifExists: {
 				update: (value: V, _remove) => {
 					const newValue = update(value);
@@ -351,9 +345,9 @@ export class HashMapBlockBuilder<K, V>
 			},
 		});
 		return changed;
-	}
+	};
 
-	removeKey<UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O {
+	removeKey = <UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O => {
 		this.checkLock();
 
 		if (!this.context.hasher.isValid(key)) return OptLazy(otherwise) as O;
@@ -374,9 +368,9 @@ export class HashMapBlockBuilder<K, V>
 		if (!found) return OptLazy(otherwise) as O;
 
 		return removedValue!;
-	}
+	};
 
-	removeKeys<UK>(keys: StreamSource<RelatedTo<K, UK>>): boolean {
+	removeKeys = <UK>(keys: StreamSource<RelatedTo<K, UK>>): boolean => {
 		this.checkLock();
 
 		if (Stream.isEmptyStreamSourceInstance(keys)) return false;
@@ -385,48 +379,30 @@ export class HashMapBlockBuilder<K, V>
 
 		return (
 			Stream.from(keys)
-				.mapPure((k) => this.removeKey(k, notFound), notFound)
+				.mapPure(this.removeKey, notFound)
 				.countElement(notFound, { negate: true }) > 0
 		);
-	}
+	};
 
-	forEach(
-		f: (entry: readonly [K, V], index: number, halt: () => void) => void,
-		options: { state?: TraverseState } = {},
-	): void {
-		const { state = TraverseState() } = options;
+	forEach = (f: (entry: readonly [K, V]) => void): void => {
 		this._lock++;
 
-		// use BlockBuilderBase logic via super.forEach if needed, but implement directly
-		if (this.isEmpty || state.halted) {
-			this._lock--;
-			return;
-		}
-		if (undefined !== this.source) {
-			this.source.forEach(f, { state });
-			this._lock--;
-			return;
-		}
-
-		const { halt } = state;
-		if (undefined !== this._entries) {
-			for (const key in this._entries) {
-				f(this._entries[key]!, state.nextIndex(), halt);
-				if (state.halted) break;
+		try {
+			if (this.isEmpty) return;
+			if (undefined !== this.source) {
+				this.source.forEach(f);
+				return;
 			}
-		}
-		if (undefined !== this._entrySets) {
-			for (const key in this._entrySets) {
-				this._entrySets[key]!.forEach(f, { state });
-				if (state.halted) break;
-			}
-		}
 
-		this._lock--;
-	}
+			this._entries?.forEach(f);
 
-	// forEach without index is required by CollectionBuilderBase, delegate to forEach with index
-	forEachIndexed?; // not needed, base has it
+			this._entrySets?.forEach((entrySet) => {
+				entrySet.forEach(f);
+			});
+		} finally {
+			this._lock--;
+		}
+	};
 
 	build = (): HashMap<K, V> => {
 		if (this.size === 0) return this.context.empty();
@@ -476,15 +452,13 @@ export class HashMapBlockBuilder<K, V>
 		this._entrySets = undefined;
 		this.size = 0;
 	}
-
-	// get is required, already implemented above
 }
 
 export class HashMapCollisionBuilder<K, V> extends CollisionBuilderBase<
 	readonly [K, V]
 > {
 	constructor(
-		readonly context: HashMapBuilderContext<K, V>,
+		readonly context: HashMapContext<K>,
 		public source?: undefined | HashMapCollision<K, V>,
 		public _entries?: undefined | List.Builder<readonly [K, V]>,
 	) {
@@ -558,7 +532,7 @@ export class HashMapCollisionBuilder<K, V> extends CollisionBuilderBase<
 		return this.addEntryInternal([key, value]);
 	}
 
-	setEntry(entry: readonly [K, V]): boolean {
+	add(entry: readonly [K, V]): boolean {
 		return this.addEntryInternal(entry);
 	}
 

@@ -3,6 +3,7 @@ import type { MapCollection } from '@rimbu/collection-types/map';
 import type { Op } from '@rimbu/collection-types/types';
 import type { StreamSource } from '@rimbu/stream';
 
+import { first, second } from '@rimbu/base/entry';
 import {
 	KeyedCollectionBuilderBase,
 	KeyedCollectionEmptyBase,
@@ -114,7 +115,16 @@ export abstract class MapCollectionNonEmptyBase<
 		> = Collection.Advanced.TypesNonEmpty<FAM, readonly [K, V]>,
 	>
 	extends KeyedCollectionNonEmptyBase<K, V, FAM, Tp>
-	implements MapCollection.Advanced.Api<K, V, Tp> {}
+	implements MapCollection.Advanced.Api<K, V, Tp>
+{
+	streamKeys(): Stream.NonEmpty<K> {
+		return this.stream().map(first);
+	}
+
+	streamValues(): Stream.NonEmpty<V> {
+		return this.stream().map(second);
+	}
+}
 
 export abstract class MapCollectionBuilderBase<
 		K,

@@ -1,4 +1,3 @@
-import { TraverseState } from '@rimbu/common/traverse-state';
 import { List } from '@rimbu/list';
 
 type GenBlockBuilderEntry<E> = BlockBuilderBase<E> | CollisionBuilderBase<E>;
@@ -17,32 +16,18 @@ export abstract class BlockBuilderBase<E> {
 		return this.size === 0;
 	}
 
-	forEach(
-		f: (entry: E, index: number, halt: () => void) => void,
-		options: { state?: TraverseState } = {},
-	): void {
-		const { state = TraverseState() } = options;
-
-		if (this.isEmpty || state.halted) return;
+	forEach(f: (entry: E) => void): void {
+		if (this.isEmpty) return;
 		if (undefined !== this.source) {
-			this.source.forEach(f, { state });
+			this.source.forEach(f);
 			return;
 		}
 
-		const { halt } = state;
+		this._entries?.forEach(f);
 
-		if (undefined !== this._entries) {
-			for (const key in this._entries) {
-				f(this._entries[key], state.nextIndex(), halt);
-				if (state.halted) break;
-			}
-		}
-		if (undefined !== this._entrySets) {
-			for (const key in this._entrySets) {
-				this._entrySets[key].forEach(f, { state });
-				if (state.halted) break;
-			}
-		}
+		this._entrySets?.forEach((entrySet) => {
+			entrySet.forEach(f);
+		});
 	}
 }
 
@@ -56,10 +41,7 @@ export abstract class CollisionBuilderBase<E> {
 		| {
 				size: number;
 				entries: List.NonEmpty<E>;
-				forEach(
-					f: (entry: E, index: number, halt: () => void) => void,
-					options?: { state?: TraverseState },
-				): void;
+				forEach(f: (entry: E) => void): void;
 		  };
 	abstract _entries?: List.Builder<E> | undefined;
 
@@ -81,20 +63,13 @@ export abstract class CollisionBuilderBase<E> {
 		return this._entries!;
 	}
 
-	forEach(
-		f: (entry: E, index: number, halt: () => void) => void,
-		options: { state?: TraverseState } = {},
-	): void {
-		const { state = TraverseState() } = options;
-
-		if (state.halted) return;
-
+	forEach(f: (entry: E) => void): void {
 		if (undefined !== this.source) {
-			this.source.forEach(f, { state });
+			this.source.forEach(f);
 			return;
 		}
 
-		this.entries.forEach(f, { state });
+		this.entries.forEach(f);
 	}
 }
 
@@ -106,8 +81,5 @@ export abstract class CollisionBuilderBase<E> {
 export interface GenSource<E> {
 	entries: readonly E[] | null;
 	entrySets: readonly GenBlockBuilderEntry<E>[] | null;
-	forEach(
-		f: (entry: E, index: number, halt: () => void) => void,
-		options?: { state?: TraverseState },
-	): void;
+	forEach(f: (entry: E) => void): void;
 }

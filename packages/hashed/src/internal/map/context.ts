@@ -1,4 +1,3 @@
-// @ts-nocheck
 import type { HashMap } from '@rimbu/hashed/map';
 
 import { type ArrayNonEmpty, Eq } from '@rimbu/common';
@@ -7,18 +6,12 @@ import { List } from '@rimbu/list';
 import { Stream, type StreamSource } from '@rimbu/stream';
 import { Reducer } from '@rimbu/stream/reducer';
 
-import {
-	HashMapBlockBuilder,
-	type HashMapBuilderContext,
-	type MapBlockBuilderEntry,
-} from '#map/builder';
+import { HashMapBlockBuilder, type MapBlockBuilderEntry } from '#map/builder';
 import {
 	HashMapBlock,
 	HashMapCollision,
 	HashMapEmpty,
-	type HashMapEmptyContext,
 	HashMapNonEmptyBase,
-	type HashMapNonEmptyContext,
 	type MapEntrySet,
 } from '#map/immutable';
 
@@ -60,14 +53,9 @@ export class HashMapContext<UK>
 
 	emptyBlock<V>(): HashMapBlock<UK, V> {
 		if (undefined === this.#emptyBlock) {
-			this.#emptyBlock = new HashMapBlock<UK, any>(
-				this as unknown as HashMapNonEmptyContext<UK, any>,
-				null,
-				null,
-				0,
-				0,
-			);
+			this.#emptyBlock = new HashMapBlock<UK, any>(this, null, null, 0, 0);
 		}
+
 		return this.#emptyBlock as HashMapBlock<UK, V>;
 	}
 
@@ -78,7 +66,7 @@ export class HashMapContext<UK>
 		level: number,
 	): HashMapBlock<K, V> {
 		return new HashMapBlock<K, V>(
-			this as unknown as HashMapNonEmptyContext<K, V>,
+			this as unknown as HashMapContext<K>,
 			entries,
 			entrySets,
 			size,
@@ -90,7 +78,7 @@ export class HashMapContext<UK>
 		entries: List.NonEmpty<readonly [K, V]>,
 	): HashMapCollision<K, V> {
 		return new HashMapCollision<K, V>(
-			this as unknown as HashMapNonEmptyContext<K, V>,
+			this as unknown as HashMapContext<K>,
 			entries,
 		);
 	}
@@ -103,7 +91,7 @@ export class HashMapContext<UK>
 		source?: HashMap.NonEmpty<K, V>,
 	): HashMap.Builder<K, V> {
 		return new HashMapBlockBuilder<K, V>(
-			this as unknown as HashMapBuilderContext<K, V>,
+			this as unknown as HashMapContext<K>,
 			source as unknown as HashMapBlock<K, V>,
 		);
 	}
@@ -129,17 +117,14 @@ export class HashMapContext<UK>
 
 	empty = <K extends UK, V>(): HashMap<K, V> => {
 		if (undefined === this.#empty) {
-			this.#empty = new HashMapEmpty<K, V>(
-				this as unknown as HashMapEmptyContext<K, V>,
-			);
+			this.#empty = new HashMapEmpty<UK, V>(this);
 		}
-		return this.#empty as unknown as HashMap<K, V>;
+
+		return this.#empty as any;
 	};
 
 	builder = <K extends UK, V>(): HashMap.Builder<K, V> => {
-		return new HashMapBlockBuilder<K, V>(
-			this as unknown as HashMapBuilderContext<K, V>,
-		);
+		return new HashMapBlockBuilder<K, V>(this);
 	};
 
 	from = <K extends UK, V>(
@@ -162,7 +147,7 @@ export class HashMapContext<UK>
 				builder = source.toBuilder();
 				continue;
 			}
-			builder.setAll(source);
+			builder.addAll(source);
 		}
 
 		return builder.build();
@@ -171,7 +156,7 @@ export class HashMapContext<UK>
 	of = <K extends UK, V>(
 		...entries: ArrayNonEmpty<readonly [K, V]>
 	): HashMap.NonEmpty<K, V> => {
-		return this.from(...entries);
+		return this.from(entries);
 	};
 
 	reducer = <K extends UK, V>(
@@ -183,7 +168,7 @@ export class HashMapContext<UK>
 					? this.builder<K, V>()
 					: this.from(source).toBuilder(),
 			(builder, entry) => {
-				builder.setEntry(entry);
+				builder.add(entry);
 				return builder;
 			},
 			(builder) => builder.build(),

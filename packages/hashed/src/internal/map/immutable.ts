@@ -1,11 +1,10 @@
 import type { Op } from '@rimbu/collection-types/types';
-import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
+import type { ArrayNonEmpty, RelatedTo } from '@rimbu/common/types';
 import type { HashMap } from '@rimbu/hashed/map';
 import type { List } from '@rimbu/list';
 
 import type { HashMapContext } from '#map/context';
 
-import * as Entry from '@rimbu/base/entry';
 import * as RimbuError from '@rimbu/base/rimbu-error';
 import {
 	checkEmptyModifyOptions,
@@ -16,7 +15,6 @@ import {
 	MapCollectionNonEmptyBase,
 } from '@rimbu/collection-types/advanced/map-base';
 import { OptLazy } from '@rimbu/common/opt-lazy';
-import { TraverseState } from '@rimbu/common/traverse-state';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
 export class HashMapEmpty<K = any, V = any>
@@ -40,90 +38,31 @@ export abstract class HashMapNonEmptyBase<K, V>
 	extends MapCollectionNonEmptyBase<K, V, HashMap.Advanced.Family<K, V>>
 	implements HashMap.NonEmpty<K, V>
 {
-	abstract get context(): HashMapContext<K>;
-	abstract get size(): number;
-	abstract get<UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O;
-	// at is legacy
-	// abstract at<UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O;
-	abstract setEntry(
-		entry: readonly [K, V],
-		hash?: number,
-	): HashMap.NonEmpty<K, V>;
-	// addEntry is legacy internal helper, keep as alias for setEntry
-	// abstract addEntry(entry: readonly [K, V], hash?: number): HashMap.NonEmpty<K, V>;
-	abstract forEach(
-		f: (entry: readonly [K, V], index: number, halt: () => void) => void,
-		options?: { state?: TraverseState },
-	): void;
+	abstract readonly context: HashMapContext<K>;
+	abstract add(entry: readonly [K, V], hash?: number): HashMap.NonEmpty<K, V>;
 	abstract modifyAt(
 		atKey: K,
 		options: ModifyOptions<V>,
 		atKeyHash?: number,
 	): HashMap<K, V>;
-	abstract mapValues<V2>(
-		mapFun: (value: V, key: K) => V2,
-	): HashMap.NonEmpty<K, V2>;
-	abstract toArray(): ArrayNonEmpty<readonly [K, V]>;
-	abstract stream(): Stream.NonEmpty<readonly [K, V]>;
-
-	asNormal(): this {
-		return this;
-	}
-
-	streamKeys(): Stream.NonEmpty<K> {
-		return this.stream().map(Entry.first);
-	}
-
-	streamValues(): Stream.NonEmpty<V> {
-		return this.stream().map(Entry.second);
-	}
-
-	// hasKey is legacy, now has
-	// hasKey<U>(key: RelatedTo<K, U>): boolean {
-	// 	const token = Symbol();
-	// 	return token !== this.at(key, token);
-	// }
-
-	has<UK>(key: RelatedTo<K, UK>): boolean {
-		const token = Symbol();
-		return token !== this.get(key, token as any);
-	}
-
-	// at legacy
-	// at<U, O>(key: RelatedTo<K, U>, otherwise?: OptLazy<O>): V | O {
-	// 	return this.get(key, otherwise);
-	// }
 
 	set(key: K, value: V): HashMap.NonEmpty<K, V> {
-		return this.setEntry([key, value]);
+		return this.add([key, value]);
 	}
 
-	// addEntry legacy
-	// addEntry(entry: readonly [K, V]): HashMap.NonEmpty<K, V> {
-	// 	return this.setEntry(entry);
-	// }
-
-	setAll(entries: StreamSource<readonly [K, V]>): HashMap.NonEmpty<K, V> {
+	addAll(entries: StreamSource<readonly [K, V]>): HashMap.NonEmpty<K, V> {
 		if (Stream.isEmptyStreamSourceInstance(entries)) return this;
 
 		const builder = this.toBuilder();
-		(builder as any).setAll(entries);
+		builder.addAll(entries);
 		return builder.build().assumeNonEmpty();
 	}
-
-	// addEntries is legacy, now setAll
-	// addEntries(entries: StreamSource<readonly [K, V]>): HashMap.NonEmpty<K, V> {
-	// 	if (Stream.isEmptyStreamSourceInstance(entries)) return this;
-	// 	const builder = this.toBuilder();
-	// 	builder.addEntries(entries);
-	// 	return builder.build().assumeNonEmpty();
-	// }
 
 	removeKeys<UK>(keys: StreamSource<RelatedTo<K, UK>>): HashMap<K, V> {
 		if (Stream.isEmptyStreamSourceInstance(keys)) return this;
 
 		const builder = this.toBuilder();
-		builder.removeKeys(keys as any);
+		builder.removeKeys(keys);
 		return builder.build();
 	}
 
@@ -131,26 +70,11 @@ export abstract class HashMapNonEmptyBase<K, V>
 		key: RelatedTo<K, UK>,
 		update: (value: V) => V,
 	): HashMap.NonEmpty<K, V> {
-		if (!this.context.isValidKey(key as any)) return this;
-		return this.modifyAt(key as any, {
+		if (!this.context.isValidKey(key)) return this;
+		return this.modifyAt(key, {
 			ifExists: { update },
 		}).assumeNonEmpty();
 	}
-
-	// updateAtAndGet is legacy, now updateAtAndReturn
-	// updateAtAndGet<UK>(
-	// 	key: RelatedTo<K, UK>,
-	// 	update: (value: V) => V,
-	// ): WithValueResult<HashMap.NonEmpty<K, V>, V> {
-	// 	const token = Symbol();
-	// 	let oldValue: V | typeof token = token;
-	// 	const newMap = this.updateAt(key, (value) => {
-	// 		oldValue = value;
-	// 		return update(value);
-	// 	});
-	// 	if (token === oldValue) return [this, undefined, false];
-	// 	return [newMap, oldValue, true];
-	// }
 
 	updateAtAndReturn<UK>(
 		key: RelatedTo<K, UK>,
@@ -165,7 +89,7 @@ export abstract class HashMapNonEmptyBase<K, V>
 		let oldValue: V | typeof token = token;
 		let newValue: V | undefined;
 
-		const newMap = this.modifyAt(key as any, {
+		const newMap = this.modifyAt(key, {
 			ifExists: {
 				update: (value: V, _remove) => {
 					oldValue = value;
@@ -195,9 +119,9 @@ export abstract class HashMapNonEmptyBase<K, V>
 	}
 
 	removeKey<UK>(key: RelatedTo<K, UK>): HashMap<K, V> {
-		if (!this.context.hasher.isValid(key as any)) return this;
-		return this.modifyAt(key as any, {
-			ifExists: { update: (_, remove) => remove as any },
+		if (!this.context.hasher.isValid(key)) return this;
+		return this.modifyAt(key, {
+			ifExists: { update: (_, remove) => remove },
 		});
 	}
 
@@ -212,23 +136,23 @@ export abstract class HashMapNonEmptyBase<K, V>
 		key: RelatedTo<K, UK>,
 		otherwise?: OptLazy<O>,
 	): Op.DynamicResult<HashMap.NonEmpty<K, V>, O | undefined, V, HashMap<K, V>> {
-		if (!this.context.hasher.isValid(key as any)) {
+		if (!this.context.hasher.isValid(key)) {
 			return {
 				collection: this,
 				hasResult: false,
 				result: OptLazy(otherwise) as O,
 				hasChanged: false,
-			} as any;
+			};
 		}
 
 		const token = Symbol();
 		let currentValue: V | typeof token = token;
 
-		const newMap = this.modifyAt(key as any, {
+		const newMap = this.modifyAt(key, {
 			ifExists: {
 				update: (value, remove) => {
 					currentValue = value;
-					return remove as any;
+					return remove;
 				},
 			},
 		});
@@ -239,7 +163,7 @@ export abstract class HashMapNonEmptyBase<K, V>
 				hasResult: false,
 				result: OptLazy(otherwise) as O,
 				hasChanged: false,
-			} as any;
+			};
 		}
 
 		return {
@@ -247,27 +171,8 @@ export abstract class HashMapNonEmptyBase<K, V>
 			hasResult: true,
 			result: currentValue as V,
 			hasChanged: true,
-		} as any;
+		};
 	}
-
-	// removeKeyAndGet is legacy, now removeKeyAndReturn
-	// removeKeyAndGet<UK>(
-	// 	key: RelatedTo<K, UK>,
-	// ): WithValueResult<HashMap<K, V>, V, HashMap.NonEmpty<K, V>> {
-	// 	if (!this.context.hasher.isValid(key)) return [this, undefined, false];
-	// 	const token = Symbol();
-	// 	let currentValue: V | typeof token = token;
-	// 	const newMap = this.modifyAt(key, {
-	// 		ifExists: {
-	// 			update: (value, remove) => {
-	// 				currentValue = value;
-	// 				return remove;
-	// 			},
-	// 		},
-	// 	});
-	// 	if (token === currentValue) return [this, undefined, false];
-	// 	return [newMap, currentValue, true];
-	// }
 
 	filter(
 		pred: (entry: readonly [K, V], index: number, halt: () => void) => boolean,
@@ -275,21 +180,12 @@ export abstract class HashMapNonEmptyBase<K, V>
 	): HashMap<K, V> {
 		const builder = this.context.builder<K, V>();
 
-		(builder as any).setAll(this.stream().filter(pred, options));
+		builder.setAll(this.stream().filter(pred, options));
 
 		if (builder.size === this.size) return this;
 
 		return builder.build();
 	}
-
-	// transform is legacy, now recompose
-	// transform<V2, K2 extends K>(
-	// 	transformFun: (
-	// 		stream: Stream.NonEmpty<readonly [K, V]>,
-	// 	) => StreamSource<[K2, V2]>,
-	// ): HashMap.NonEmpty<K2, V2> {
-	// 	return this.context.from(transformFun(this.stream())) as any;
-	// }
 
 	recompose<K2 extends K, V2>(
 		f: (
@@ -306,18 +202,11 @@ export abstract class HashMapNonEmptyBase<K, V>
 			stream: Stream.NonEmpty<readonly [K, V]>,
 		) => StreamSource<readonly [K2, V2]>,
 	): HashMap<K2, V2> {
-		return this.context.from(f(this.stream()) as any) as any;
+		return this.context.from(f(this.stream()));
 	}
 
-	// keep transform as alias for backwards compat, commented
-	// transform<V2, K2 extends K>(
-	// 	transformFun: (stream: Stream.NonEmpty<readonly [K, V]>) => StreamSource<[K2, V2]>,
-	// ): HashMap.NonEmpty<K2, V2> {
-	// 	return this.recompose(transformFun as any) as any;
-	// }
-
 	toBuilder(): HashMap.Builder<K, V> {
-		return this.context.createBuilder<K, V>(this as any);
+		return this.context.createBuilder<K, V>(this);
 	}
 
 	toString(): string {
@@ -329,30 +218,27 @@ export abstract class HashMapNonEmptyBase<K, V>
 		});
 	}
 
-	toJSON(): ToJSON<(readonly [K, V])[]> {
-		return {
-			dataType: 'HashMap',
-			value: this.toArray(),
-		};
-	}
+	map: any;
+	mapIndexed: any;
+	flatMap: any;
+	flatMapIndexed: any;
 
-	// Collection's map/flatMap for entries
-	map<W extends readonly [any, any]>(
-		f: (entry: readonly [K, V]) => W,
-	): HashMap<W[0], W[1]> {
-		return this.context.from(this.stream().map(f as any) as any) as any;
-	}
+	// map<W extends readonly [any, any]>(
+	// 	f: (entry: readonly [K, V]) => W,
+	// ): HashMap<W[0], W[1]> {
+	// 	return this.context.from(this.stream().map(f));
+	// }
 
-	flatMap<W extends readonly [any, any]>(
-		f: (entry: readonly [K, V]) => StreamSource<W>,
-	): HashMap<W[0], W[1]> {
-		const builder = this.context.builder<W[0], W[1]>();
-		this.stream().forEach((entry) => {
-			const result = f(entry);
-			(builder as any).setAll(Stream.from(result as any).map((e) => e as any));
-		});
-		return builder.build() as any;
-	}
+	// flatMap<W extends readonly [any, any]>(
+	// 	f: (entry: readonly [K, V]) => StreamSource<W>,
+	// ): HashMap<W[0], W[1]> {
+	// 	const builder = this.context.builder<W[0], W[1]>();
+	// 	this.stream().forEach((entry) => {
+	// 		const result = f(entry);
+	// 		builder.setAll(Stream.from(result).map((e) => e));
+	// 	});
+	// 	return builder.build();
+	// }
 }
 
 export type MapEntrySet<K, V> = HashMapBlock<K, V> | HashMapCollision<K, V>;
@@ -409,21 +295,20 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 		otherwise?: OptLazy<O>,
 		hash?: number,
 	): V | O {
-		if (!this.context.hasher.isValid(key as any))
-			return OptLazy(otherwise) as O;
-		const keyHash = hash ?? this.context.hash(key as any);
+		if (!this.context.hasher.isValid(key)) return OptLazy(otherwise) as O;
+		const keyHash = hash ?? this.context.hash(key);
 
 		const atKeyIndex = this.context.getKeyIndex(this.level, keyHash);
 
 		if (null !== this.entries && atKeyIndex in this.entries) {
 			const entry = this.entries[atKeyIndex];
-			if (this.context.eq(entry[0], key as any)) return entry[1];
+			if (this.context.eq(entry[0], key)) return entry[1];
 			return OptLazy(otherwise) as O;
 		}
 
 		if (null !== this.entrySets && atKeyIndex in this.entrySets) {
 			const entrySet = this.entrySets[atKeyIndex];
-			return entrySet.get(key as any, otherwise as any, keyHash) as any;
+			return entrySet.get(key, otherwise, keyHash);
 		}
 
 		return OptLazy(otherwise) as O;
@@ -431,12 +316,12 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 
 	// at is legacy, now get
 	// at<UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>, hash?: number): V | O {
-	// 	return this.get(key as any, otherwise as any, hash as any) as any;
+	// 	return this.get(key , otherwise , hash ) ;
 	// }
 
 	setEntry(
 		entry: readonly [K, V],
-		hash = this.context.hash(entry[0] as any),
+		hash = this.context.hash(entry[0]),
 	): HashMapBlock<K, V> {
 		const atKeyIndex = this.context.getKeyIndex(this.level, hash);
 
@@ -464,8 +349,8 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 			if (this.level < this.context.maxDepth) {
 				const newEntrySet = this.context
 					.block<V>(null, null, 0, this.level + 1)
-					.setEntry(currentEntry as any)
-					.setEntry(entry as any, hash) as unknown as MapEntrySet<K, V>;
+					.setEntry(currentEntry)
+					.setEntry(entry, hash) as unknown as MapEntrySet<K, V>;
 
 				const newEntrySets =
 					null === this.entrySets ? [] : this.entrySets.slice();
@@ -475,21 +360,21 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 			}
 
 			const newEntrySet = this.context.collision<V>(
-				this.context.listContext.of(currentEntry as any, entry as any) as any,
+				this.context.listContext.of(currentEntry, entry),
 			);
 			const newEntrySets =
 				null === this.entrySets ? [] : this.entrySets.slice();
-			newEntrySets[atKeyIndex] = newEntrySet as any;
+			newEntrySets[atKeyIndex] = newEntrySet;
 
 			return this.copy(newEntries, newEntrySets, this.size + 1);
 		}
 
 		if (null !== this.entrySets && atKeyIndex in this.entrySets) {
 			const currentEntrySet = this.entrySets[atKeyIndex];
-			const newEntrySet = (currentEntrySet as any).setEntry(
-				entry,
-				hash,
-			) as MapEntrySet<K, V>;
+			const newEntrySet = currentEntrySet.setEntry(entry, hash) as MapEntrySet<
+				K,
+				V
+			>;
 			if (newEntrySet === currentEntrySet) return this;
 
 			const newEntrySets = this.entrySets.slice();
@@ -511,7 +396,7 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 	// keep addEntry as private helper for block creation (used by context)
 	addEntry(
 		entry: readonly [K, V],
-		hash = this.context.hash(entry[0] as any),
+		hash = this.context.hash(entry[0]),
 	): HashMapBlock<K, V> {
 		return this.setEntry(entry, hash);
 	}
@@ -519,7 +404,7 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 	modifyAt(
 		atKey: K,
 		options: ModifyOptions<V>,
-		atKeyHash = this.context.hash(atKey as any),
+		atKeyHash = this.context.hash(atKey),
 	): HashMap<K, V> {
 		if (checkEmptyModifyOptions(options)) return this;
 
@@ -536,9 +421,9 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 				const currentValue = currentEntry[1];
 				const token = Symbol();
 				const newValue =
-					update !== undefined ? update(currentValue, token as any) : set;
+					update !== undefined ? update(currentValue, token) : set;
 
-				if (Object.is(newValue, currentValue as any)) return this;
+				if (Object.is(newValue, currentValue)) return this;
 
 				const newEntries = this.entries.slice();
 
@@ -551,7 +436,7 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 
 					if (this.size === 1) return this.context.empty();
 
-					return this.copy(null as any, undefined, this.size - 1);
+					return this.copy(null, undefined, this.size - 1);
 				}
 
 				newEntries[atKeyIndex] = [atKey, newValue as V];
@@ -563,7 +448,7 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 
 			const { set, create } = ifNew;
 			const token = Symbol();
-			const newValue = create !== undefined ? create(token as any) : set;
+			const newValue = create !== undefined ? create(token) : set;
 
 			if (token === newValue) return this;
 
@@ -581,8 +466,8 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 				// create next level block
 				const newEntrySet = this.context
 					.block(null, null, 0, this.level + 1)
-					.setEntry(currentEntry as any)
-					.set(atKey as any, newValue as any) as unknown as MapEntrySet<K, V>;
+					.setEntry(currentEntry)
+					.set(atKey, newValue) as unknown as MapEntrySet<K, V>;
 
 				const newEntrySets =
 					null === this.entrySets ? [] : this.entrySets.slice();
@@ -594,14 +479,11 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 			// create collision
 			const newEntry: [K, V] = [atKey, newValue as V];
 			const newEntrySet = this.context.collision<V>(
-				this.context.listContext.of(
-					currentEntry as any,
-					newEntry as any,
-				) as any,
+				this.context.listContext.of(currentEntry, newEntry),
 			);
 			const newEntrySets =
 				null === this.entrySets ? [] : this.entrySets.slice();
-			newEntrySets[atKeyIndex] = newEntrySet as any;
+			newEntrySets[atKeyIndex] = newEntrySet;
 
 			return this.copy(newEntries, newEntrySets, this.size + 1);
 		}
@@ -609,24 +491,24 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 		if (null !== this.entrySets && atKeyIndex in this.entrySets) {
 			// key is in entrySet
 			const currentEntrySet = this.entrySets[atKeyIndex];
-			const newEntrySet: MapEntrySet<K, V> = (currentEntrySet as any).modifyAt(
+			const newEntrySet: MapEntrySet<K, V> = currentEntrySet.modifyAt(
 				atKey,
-				options as any,
+				options,
 				atKeyHash,
-			) as any;
+			);
 
 			if (newEntrySet === currentEntrySet) return this;
 
 			if (newEntrySet.size === 1) {
 				let firstEntry: readonly [K, V] | undefined;
 
-				if (this.context.isHashMapBlock<K, V>(newEntrySet as any)) {
-					for (const key in (newEntrySet as any).entries!) {
-						firstEntry = (newEntrySet as any).entries![key];
+				if (this.context.isHashMapBlock<K, V>(newEntrySet)) {
+					for (const key in newEntrySet.entries!) {
+						firstEntry = newEntrySet.entries![key];
 						break;
 					}
 				} else {
-					firstEntry = (newEntrySet as any).entries.first();
+					firstEntry = newEntrySet.entries.first();
 				}
 
 				const newEntries = null === this.entries ? [] : this.entries.slice();
@@ -652,7 +534,7 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 
 		const { set, create } = ifNew;
 		const token = Symbol();
-		const newValue = create !== undefined ? create(token as any) : set;
+		const newValue = create !== undefined ? create(token) : set;
 
 		if (token === newValue) return this;
 
@@ -663,28 +545,12 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 		return this.copy(newEntries, undefined, this.size + 1);
 	}
 
-	forEach(
-		f: (entry: readonly [K, V], index: number, halt: () => void) => void,
-		options: { state?: TraverseState } = {},
-	): void {
-		const { state = TraverseState() } = options;
+	forEach(f: (entry: readonly [K, V]) => void): void {
+		this.entries?.forEach(f);
 
-		if (state.halted) return;
-
-		const { halt } = state;
-
-		if (null !== this.entries) {
-			for (const key in this.entries) {
-				f(this.entries[key]!, state.nextIndex(), halt);
-				if (state.halted) return;
-			}
-		}
-		if (null !== this.entrySets) {
-			for (const key in this.entrySets) {
-				this.entrySets[key]!.forEach(f, { state });
-				if (state.halted) return;
-			}
-		}
+		this.entrySets?.forEach((entrySet) => {
+			entrySet.forEach(f);
+		});
 	}
 
 	mapValues<V2>(mapFun: (value: V, key: K) => V2): HashMap.NonEmpty<K, V2> {
@@ -697,13 +563,13 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 				? null
 				: this.entrySets.map(
 						(es: MapEntrySet<K, V>): MapEntrySet<K, V2> =>
-							(es as any).mapValues(mapFun) as MapEntrySet<K, V2>,
+							es.mapValues(mapFun) as MapEntrySet<K, V2>,
 					);
 
 		return new HashMapBlock<K, V2>(
-			this.context as any,
-			newEntries as any,
-			newEntrySets as any,
+			this.context,
+			newEntries,
+			newEntrySets,
 			this.size,
 			this.level,
 		);
@@ -713,14 +579,12 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 		let result: (readonly [K, V])[] = [];
 
 		if (null !== this.entries) {
-			result = Stream.fromObjectValues(this.entries as any).toArray() as any;
+			result = this.entries.filter(() => true);
 		}
 		if (null !== this.entrySets) {
-			Stream.fromObjectValues(this.entrySets as any).forEach(
-				(entrySet: MapEntrySet<K, V>): void => {
-					result = result.concat(entrySet.toArray() as any);
-				},
-			);
+			this.entrySets.forEach((entrySet) => {
+				result = result.concat(entrySet.toArray());
+			});
 		}
 
 		return result as ArrayNonEmpty<[K, V]>;
@@ -751,15 +615,14 @@ export class HashMapCollision<K, V> extends HashMapNonEmptyBase<K, V> {
 	get<UK, O>(
 		key: RelatedTo<K, UK>,
 		otherwise?: OptLazy<O>,
-		keyHash?: number,
+		_keyHash?: number,
 	): V | O {
-		if (!this.context.hasher.isValid(key as any))
-			return OptLazy(otherwise) as O;
+		if (!this.context.hasher.isValid(key)) return OptLazy(otherwise) as O;
 
 		const token = Symbol();
 		const stream = this.stream();
 		const foundEntry = stream.find(
-			(entry): boolean => this.context.eq(entry[0], key as any),
+			(entry): boolean => this.context.eq(entry[0], key),
 			{
 				otherwise: token,
 			} as const,
@@ -767,39 +630,31 @@ export class HashMapCollision<K, V> extends HashMapNonEmptyBase<K, V> {
 
 		if (token === foundEntry) return OptLazy(otherwise) as O;
 
-		return (foundEntry as any)[1];
+		return foundEntry[1];
 	}
 
-	// at is legacy, now get
-	// at<UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>, keyHash?: number): V | O {
-	// 	return this.get(key as any, otherwise as any, keyHash as any) as any;
-	// }
-
-	setEntry(entry: readonly [K, V], _hash?: number): HashMapCollision<K, V> {
+	addInternal(entry: readonly [K, V], _hash?: number): HashMapCollision<K, V> {
 		const currentIndex = this.stream().indexWhere((currentEntry): boolean =>
 			this.context.eq(currentEntry[0], entry[0]),
 		);
 
 		if (undefined === currentIndex) {
-			return this.copy(this.entries.append(entry as any) as any);
+			return this.copy(this.entries.append(entry));
 		}
 
 		return this.copy(
 			this.entries.updateAt(currentIndex, (currentEntry): readonly [K, V] => {
 				if (Object.is(currentEntry[1], entry[1])) return currentEntry;
 				return entry;
-			}) as any,
+			}),
 		);
 	}
 
-	// addEntry is legacy, now setEntry
-	// addEntry(entry: readonly [K, V], hash?: number): HashMapCollision<K, V> {
-	// 	return this.setEntry(entry, hash);
-	// }
-
-	addEntry(entry: readonly [K, V], hash?: number): HashMapCollision<K, V> {
-		return this.setEntry(entry, hash);
+	add(entry: readonly [K, V], hash?: number): HashMapCollision<K, V> {
+		return this.addInternal(entry, hash);
 	}
+
+	mutate: any;
 
 	modifyAt(
 		atKey: K,
@@ -819,12 +674,12 @@ export class HashMapCollision<K, V> extends HashMapNonEmptyBase<K, V> {
 
 			const { set, create } = ifNew;
 			const token = Symbol();
-			const newValue = create !== undefined ? create(token as any) : set;
+			const newValue = create !== undefined ? create(token) : set;
 
 			if (token === newValue) return this;
 
-			const newEntries = this.entries.append([atKey, newValue as V] as any);
-			return this.copy(newEntries as any);
+			const newEntries = this.entries.append([atKey, newValue as V]);
+			return this.copy(newEntries);
 		}
 
 		if (undefined === ifExists) return this;
@@ -836,36 +691,26 @@ export class HashMapCollision<K, V> extends HashMapNonEmptyBase<K, V> {
 		);
 		const currentValue = currentEntry[1];
 		const token = Symbol();
-		const newValue =
-			update !== undefined ? update(currentValue, token as any) : set;
+		const newValue = update !== undefined ? update(currentValue, token) : set;
 
 		if (token === newValue) {
-			const newEntries = this.entries
-				.remove(currentIndex)
-				.assumeNonEmpty() as any;
+			const newEntries = this.entries.remove(currentIndex).assumeNonEmpty();
 			// if last entry removed, this collision would be empty, but collision is always non-empty; caller will handle collapsing
 			// For consistency with block logic, if size would become 0, we need to return empty? But collision size 1 removal handled by caller.
 			// Here we just return copy; if newEntries is empty, it would throw, but that case is handled by block's collapse logic.
-			if ((newEntries as any).length === 0) return this.context.empty() as any;
-			return this.copy(newEntries as any);
+			if (newEntries.length === 0) return this.context.empty();
+			return this.copy(newEntries);
 		}
 
 		if (Object.is(newValue, currentValue)) return this;
 
 		const newEntry: [K, V] = [atKey, newValue as V];
-		const newEntries = this.entries.with(currentIndex, newEntry as any);
-		return this.copy(newEntries as any);
+		const newEntries = this.entries.with(currentIndex, newEntry);
+		return this.copy(newEntries);
 	}
 
-	forEach(
-		f: (entry: readonly [K, V], index: number, halt: () => void) => void,
-		options: { state?: TraverseState } = {},
-	): void {
-		const { state = TraverseState() } = options;
-
-		if (state.halted) return;
-
-		this.entries.forEach(f as any, { state });
+	forEach(f: (entry: readonly [K, V]) => void): void {
+		this.entries.forEach(f);
 	}
 
 	mapValues<V2>(mapFun: (value: V, key: K) => V2): HashMap.NonEmpty<K, V2> {
@@ -873,10 +718,10 @@ export class HashMapCollision<K, V> extends HashMapNonEmptyBase<K, V> {
 			e[0],
 			mapFun(e[1], e[0]),
 		]);
-		return new HashMapCollision(this.context as any, newEntries as any);
+		return new HashMapCollision(this.context, newEntries);
 	}
 
 	toArray(): ArrayNonEmpty<readonly [K, V]> {
-		return this.entries.toArray() as any;
+		return this.entries.toArray();
 	}
 }

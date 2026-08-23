@@ -1,4 +1,3 @@
-// @ts-nocheck
 import type { Collection } from '@rimbu/collection-types/collection';
 import type { KeyedCollection } from '@rimbu/collection-types/collection/keyed';
 import type { MapCollection } from '@rimbu/collection-types/map';
@@ -35,25 +34,22 @@ export namespace HashMap {
 
 	export namespace Advanced {
 		export interface Api<K, V, Tp extends Collection.Advanced.TypesBase>
-			extends Collection.Capability.WithAdd.Api<E, Tp>,
+			extends MapCollection.Advanced.Api<K, V, Tp>,
+				Collection.Capability.WithAdd.Api<readonly [K, V], Tp>,
 				Collection.Capability.WithFlatMap.Api<readonly [K, V], Tp>,
 				Collection.Capability.WithMap.Api<readonly [K, V], Tp>,
 				Collection.Capability.WithMutate.Api<readonly [K, V], Tp>,
-				Collection.Capability.WithRecompose.Api<readonly [K, V], Tp>,
 				Collection.Capability.WithToBuilder.Api<readonly [K, V], Tp>,
-				KeyedCollection.Advanced.Api<K, V, Tp>,
 				KeyedCollection.Capability.WithRemove.Api<K, V, Tp>,
 				KeyedCollection.Capability.WithMapValues.Api<K, V, Tp>,
-				MapCollection.Advanced.Api<K, V, Tp>,
 				MapCollection.Capability.WithSet.Api<K, V, Tp>,
 				MapCollection.Capability.WithUpdateAt.Api<K, V, Tp>,
 				MapCollection.Capability.WithModifyAt.Api<K, V, Tp>,
 				MapCollection.WithRecompose.Api<K, V, Tp> {}
 
 		export interface BuilderApi<K, V, Tp extends Collection.Advanced.TypesBase>
-			extends Collection.Capability.WithAdd.BuilderApi<E, Tp>,
-				KeyedCollection.Advanced.BuilderApi<K, V, Tp>,
-				MapCollection.Advanced.BuilderApi<K, V, Tp>,
+			extends MapCollection.Advanced.BuilderApi<K, V, Tp>,
+				Collection.Capability.WithAdd.BuilderApi<readonly [K, V], Tp>,
 				KeyedCollection.Capability.WithRemove.BuilderApi<K, V, Tp>,
 				MapCollection.Capability.WithSet.BuilderApi<K, V, Tp>,
 				MapCollection.Capability.WithUpdateAt.BuilderApi<K, V, Tp>,
@@ -61,9 +57,9 @@ export namespace HashMap {
 
 		export interface ContextApi<
 			UK,
-			F extends Collection.Advanced.FamilyBase<readonly [UK, any]>,
-		> extends MapCollection.Advanced.ContextApi<F>,
-				Collection.Capability.WithReducer.ContextApi<F> {
+			FAM extends Collection.Advanced.FamilyBase<readonly [UK, any]>,
+		> extends MapCollection.Advanced.ContextApi<FAM>,
+				Collection.Capability.WithReducer.ContextApi<FAM> {
 			readonly blockSizeBits: number;
 			readonly hasher: Hasher<UK>;
 			readonly eq: Eq<UK>;
