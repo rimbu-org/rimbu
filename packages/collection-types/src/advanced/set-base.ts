@@ -27,8 +27,6 @@ export abstract class SetCollectionEmptyBase<
 		SetCollection.Capability.WithRemove.Api<E, Tp>,
 		SetCollection.Capability.WithSymmetricDifferenceAndUnion.Api<E, Tp>
 {
-	abstract readonly context: SetCollection.Context<FAM>;
-
 	add(element: E): Tp['_NON_EMPTY'] {
 		return this.context.of(element);
 	}

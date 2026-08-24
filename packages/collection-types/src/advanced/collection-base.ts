@@ -22,7 +22,7 @@ export abstract class CollectionEmptyBase<
 		Collection.Capability.WithMutate.Api<E, Tp>,
 		Collection.Capability.WithRecompose.Api<E, Tp>
 {
-	abstract readonly context: Collection.Context<FAM>;
+	abstract readonly context: FAM['_CONTEXT'];
 
 	[Symbol.iterator](): FastIterator<E> {
 		return Stream.empty<E>()[Symbol.iterator]();
@@ -110,14 +110,14 @@ export abstract class CollectionEmptyBase<
 
 export abstract class CollectionNonEmptyBase<
 	E,
-	FAM extends Collection.Advanced.FamilyBase<E> = Collection.Advanced.Family<E>,
+	FAM extends Collection.Advanced.Family<E> = Collection.Advanced.Family<E>,
 	Tp extends Collection.Advanced.TypesBase = Collection.Advanced.TypesNonEmpty<
 		FAM,
 		E
 	>,
 > implements Collection.Advanced.Api<E, Tp>
 {
-	abstract readonly context: Collection.Advanced.ContextApi<FAM>;
+	abstract readonly context: FAM['_CONTEXT'];
 
 	abstract get size(): number;
 	abstract stream(): Stream.NonEmpty<E>;
@@ -200,6 +200,8 @@ export abstract class CollectionBuilderBase<
 	Tp extends Collection.Advanced.TypesBase = Collection.Advanced.Types<FAM, E>,
 > implements Collection.Advanced.BuilderApi<E, Tp>
 {
+	abstract readonly context: FAM['_CONTEXT'];
+
 	abstract get size(): number;
 	abstract clear(): void;
 	abstract forEach(f: (value: E) => void): void;

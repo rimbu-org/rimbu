@@ -31,8 +31,6 @@ export abstract class MapCollectionEmptyBase<
 		MapCollection.Capability.WithUpdateAt.Api<K, V, Tp>,
 		MapCollection.Capability.WithModifyAt.Api<K, V, Tp>
 {
-	abstract readonly context: MapCollection.Context<FAM>;
-
 	set(key: K, value: V): Tp['_NON_EMPTY'] {
 		return this.context.of([key, value] as readonly [K, V]) as Tp['_NON_EMPTY'];
 	}

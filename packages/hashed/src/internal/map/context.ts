@@ -113,9 +113,9 @@ export class HashMapContext<UK>
 		return obj instanceof HashMapBlockBuilder;
 	}
 
-	isNonEmptyInstance<K extends UK, V>(
+	isNonEmptyInstance<E extends readonly [UK, any]>(
 		source: unknown,
-	): source is HashMap.NonEmpty<K, V> {
+	): source is HashMap.NonEmpty<E[0], E[1]> {
 		return source instanceof HashMapNonEmptyBase;
 	}
 

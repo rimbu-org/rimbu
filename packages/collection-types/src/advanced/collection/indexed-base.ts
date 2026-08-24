@@ -30,8 +30,6 @@ export abstract class IndexedCollectionEmptyBase<
 		IndexedCollection.Capability.WithSwapAt.Api<E, Tp>,
 		IndexedCollection.Capability.WithUpdateAt.Api<E, Tp>
 {
-	abstract readonly context: IndexedCollection.Context<FAM>;
-
 	streamSlice(): Stream<E> {
 		return Stream.empty<E>();
 	}
@@ -166,8 +164,6 @@ export abstract class IndexedCollectionNonEmptyBase<
 	extends CollectionNonEmptyBase<E, FAM, Tp>
 	implements IndexedCollection.Advanced.Api<E, Tp>
 {
-	abstract readonly context: IndexedCollection.Context<FAM>;
-
 	abstract streamSlice(
 		range: IndexRange,
 		options?: { reversed?: boolean },

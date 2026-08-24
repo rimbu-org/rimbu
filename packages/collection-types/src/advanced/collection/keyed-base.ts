@@ -28,8 +28,6 @@ export abstract class KeyedCollectionEmptyBase<
 		KeyedCollection.Capability.WithRemove.Api<K, V, Tp>,
 		KeyedCollection.Capability.WithMapValues.Api<K, V, Tp>
 {
-	abstract readonly context: KeyedCollection.Context<FAM>;
-
 	get<UK, O>(_: RelatedTo<K, UK>, otherwise?: OptLazy<O>): O {
 		return OptLazy(otherwise) as O;
 	}
@@ -86,8 +84,6 @@ export abstract class KeyedCollectionNonEmptyBase<
 	extends CollectionNonEmptyBase<readonly [K, V], FAM, Tp>
 	implements KeyedCollection.Advanced.Api<K, V, Tp>
 {
-	abstract readonly context: KeyedCollection.Context<FAM>;
-
 	abstract get<UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O;
 
 	has<UK>(key: RelatedTo<K, UK>): boolean {
@@ -119,8 +115,6 @@ export abstract class KeyedCollectionBuilderBase<
 	extends CollectionBuilderBase<readonly [K, V], FAM, Tp>
 	implements KeyedCollection.Advanced.BuilderApi<K, V, Tp>
 {
-	// abstract readonly context: KeyedCollection.Context<FAM>;
-
 	abstract get<UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O;
 
 	has<UK>(key: RelatedTo<K, UK>): boolean {
