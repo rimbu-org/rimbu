@@ -21,7 +21,7 @@ export type MapBlockBuilderEntry<K, V> =
 	| HashMapCollisionBuilder<K, V>;
 
 export class HashMapBlockBuilder<K, V>
-	extends MapCollectionBuilderBase<K, V>
+	extends MapCollectionBuilderBase<K, V, HashMap.Advanced.Family<K, V>>
 	implements HashMap.Builder<K, V>
 {
 	constructor(
