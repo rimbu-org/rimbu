@@ -5,6 +5,11 @@ import type { HashMap } from '@rimbu/hashed/map';
 
 import type { HashMapContext } from '#map/context';
 
+import {
+	defaultFlatMapByAddAll,
+	defaultFlatMapIndexed,
+	defaultMapIndexed,
+} from '@rimbu/collection-types/advanced/collection-base';
 import { MapCollectionNonEmptyBase } from '@rimbu/collection-types/advanced/map-base';
 import { OptLazy } from '@rimbu/common/opt-lazy';
 import { Stream, type StreamSource } from '@rimbu/stream';
@@ -22,6 +27,8 @@ export abstract class HashMapNonEmptyBase<K, V>
 		options: ModifyOptions<V>,
 		atKeyHash?: number,
 	): HashMap<K, V>;
+
+	abstract mapValues<V2>(f: (value: V, key: K) => V2): HashMap.NonEmpty<K, V2>;
 
 	set(key: K, value: V): HashMap.NonEmpty<K, V> {
 		return this.add([key, value]);
@@ -155,13 +162,54 @@ export abstract class HashMapNonEmptyBase<K, V>
 		pred: (entry: readonly [K, V]) => boolean,
 		options: { negate?: boolean | undefined } = {},
 	): HashMap<K, V> {
-		const builder = this.context.builder<K, V>();
+		const builder = this.context.builder<readonly [K, V]>();
 
 		builder.addAll(this.stream().filter(pred, options));
 
 		if (builder.size === this.size) return this;
 
 		return builder.build();
+	}
+
+	map<E2 extends readonly [K, V]>(
+		f: (entry: readonly [K, V]) => E2,
+	): HashMap.NonEmpty<E2[0], E2[1]> {
+		return this.context.from(this.stream().map(f));
+	}
+
+	mapIndexed<E2 extends readonly [K, V]>(
+		f: (entry: readonly [K, V], index: number) => E2,
+		options?: { indexOffset?: number | undefined } | undefined,
+	): HashMap.NonEmpty<E2[0], E2[1]> {
+		return defaultMapIndexed<
+			readonly [K, V],
+			E2,
+			HashMap.NonEmpty<K, V>,
+			HashMap.Advanced.Family<K, V>
+		>(this, f, options);
+	}
+
+	flatMap<E2 extends readonly [K, V]>(
+		f: (entry: readonly [K, V]) => StreamSource<E2>,
+	): HashMap.NonEmpty<E2[0], E2[1]> {
+		return defaultFlatMapByAddAll<
+			readonly [K, V],
+			E2,
+			HashMap.NonEmpty<K, V>,
+			HashMap.Advanced.Family<K, V>
+		>(this, f) as HashMap.NonEmpty<E2[0], E2[1]>;
+	}
+
+	flatMapIndexed<E2 extends readonly [K, V]>(
+		f: (entry: readonly [K, V], index: number) => StreamSource<E2>,
+		options?: { indexOffset?: number | undefined } | undefined,
+	): HashMap.NonEmpty<E2[0], E2[1]> {
+		return defaultFlatMapIndexed<
+			readonly [K, V],
+			E2,
+			HashMap.NonEmpty<K, V>,
+			HashMap.Advanced.Family<K, V>
+		>(this, f, options) as HashMap.NonEmpty<E2[0], E2[1]>;
 	}
 
 	recompose<K2 extends K, V2>(
@@ -182,6 +230,12 @@ export abstract class HashMapNonEmptyBase<K, V>
 		return this.context.from(f(this.stream()));
 	}
 
+	mutate(f: (builder: HashMap.Builder<K, V>) => void): HashMap<K, V> {
+		const builder = this.toBuilder();
+		f(builder);
+		return builder.build();
+	}
+
 	toBuilder(): HashMap.Builder<K, V> {
 		return this.context.createBuilder<K, V>(this);
 	}
@@ -194,26 +248,4 @@ export abstract class HashMapNonEmptyBase<K, V>
 			valueToString: (entry) => `${entry[0]} -> ${entry[1]}`,
 		});
 	}
-
-	map: any;
-	mapIndexed: any;
-	flatMap: any;
-	flatMapIndexed: any;
-
-	// map<W extends readonly [any, any]>(
-	// 	f: (entry: readonly [K, V]) => W,
-	// ): HashMap<W[0], W[1]> {
-	// 	return this.context.from(this.stream().map(f));
-	// }
-
-	// flatMap<W extends readonly [any, any]>(
-	// 	f: (entry: readonly [K, V]) => StreamSource<W>,
-	// ): HashMap<W[0], W[1]> {
-	// 	const builder = this.context.builder<W[0], W[1]>();
-	// 	this.stream().forEach((entry) => {
-	// 		const result = f(entry);
-	// 		builder.setAll(Stream.from(result).map((e) => e));
-	// 	});
-	// 	return builder.build();
-	// }
 }

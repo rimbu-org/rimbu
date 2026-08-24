@@ -1,6 +1,6 @@
 import type { Collection } from '@rimbu/collection-types/collection';
 import type { Op } from '@rimbu/collection-types/types';
-import type { OptLazy, RelatedTo } from '@rimbu/common';
+import type { ArrayNonEmpty, OptLazy, RelatedTo } from '@rimbu/common';
 import type { Stream, StreamSource } from '@rimbu/stream';
 import type { Reducer } from '@rimbu/stream/reducer';
 
@@ -67,8 +67,31 @@ export declare namespace KeyedCollection {
 			has<UK = K>(key: RelatedTo<K, UK>): boolean;
 		}
 
-		export interface ContextApi<F extends Collection.Advanced.FamilyBase<any>>
-			extends Collection.Advanced.ContextApi<F> {}
+		export interface ContextApi<
+			F extends KeyedCollection.Advanced.Family<any, any>,
+		> extends Collection.Advanced.ContextApi<F> {
+			readonly keyedContext: F['_KEYED_CONTEXT'];
+		}
+
+		export interface KeyedContextApi<F extends Advanced.Family<any, any>> {
+			empty<
+				K extends F['_UPPER_K'],
+				V extends F['_UPPER_V'],
+			>(): Collection.Advanced.FamToTypes<F, readonly [K, V]>['_NORMAL'];
+			of<K extends F['_UPPER_K'], V extends F['_UPPER_V']>(
+				...elements: ArrayNonEmpty<readonly [K, V]>
+			): Collection.Advanced.FamToTypes<F, readonly [K, V]>['_NON_EMPTY'];
+			from<K extends F['_UPPER_K'], V extends F['_UPPER_V']>(
+				...sources: ArrayNonEmpty<StreamSource.NonEmpty<readonly [K, V]>>
+			): Collection.Advanced.FamToTypes<F, readonly [K, V]>['_NON_EMPTY'];
+			from<K extends F['_UPPER_K'], V extends F['_UPPER_V']>(
+				...sources: ArrayNonEmpty<StreamSource<readonly [K, V]>>
+			): Collection.Advanced.FamToTypes<F, readonly [K, V]>['_NORMAL'];
+			builder<
+				K extends F['_UPPER_K'],
+				V extends F['_UPPER_V'],
+			>(): Collection.Advanced.FamToTypes<F, readonly [K, V]>['_BUILDER'];
+		}
 
 		export interface Family<K, V>
 			extends Collection.Advanced.Family<readonly [K, V]> {
@@ -88,9 +111,13 @@ export declare namespace KeyedCollection {
 				Collection.Advanced.Types<this['_FAM'], readonly [K, V]>
 			>;
 			_CONTEXT: ContextApi<this['_FAM']>;
+			_KEYED_CONTEXT: KeyedContextApi<this['_FAM']>;
 
 			_UPPER_E: readonly [unknown, unknown];
 			_NEW_E: readonly [unknown, unknown];
+
+			_UPPER_K: this['_UPPER_E'][0];
+			_UPPER_V: this['_UPPER_E'][1];
 
 			_NEW_K: this['_NEW_E'][0];
 			_NEW_V: this['_NEW_E'][1];

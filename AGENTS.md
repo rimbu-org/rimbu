@@ -540,7 +540,7 @@ Example: adding `mapValues<W>(f: (v: V) => W): HashMap<K, W>` to HashMap.
 
 10. **Run `bun install`** from the repo root to wire up the workspace.
 
-11. **Verify**: `bun run typecheck && bun run build:seq && bun run test`
+11. **Verify**: `bun run typecheck:seq && bun run build:seq && bun run test`
 
 ---
 
@@ -550,7 +550,7 @@ Example: adding `mapValues<W>(f: (v: V) => W): HashMap<K, W>` to HashMap.
 |---|---|---|
 | Bun | `bun install` | Install dependencies |
 | TypeScript | `bun run build:seq` | Compile all packages to `dist/` — **run this first** |
-| TypeScript | `bun run typecheck` | Type-check (no emit) — run after build |
+| TypeScript | `bun run typecheck:seq` | Type-check (no emit) — run after build |
 | Biome | `bun run biome:check` | Lint + format check |
 | Biome | `bun run biome:fix` | Auto-fix lint + format |
 | Bun test | `bun run test` | Run tests — run after build |
@@ -558,7 +558,7 @@ Example: adding `mapValues<W>(f: (v: V) => W): HashMap<K, W>` to HashMap.
 | Changesets | `bun run version` | Apply changeset version bumps |
 | Changesets | `bun run release` | Full release: prerelease checks + publish |
 
-**Always run `bun run build:seq` before `bun run typecheck` or `bun run test`.** The build catches emit-specific diagnostics that `--noEmit` suppresses (notably TS2731: implicit symbol-to-string coercion in template literals, introduced in TS 5.5). Running typecheck or tests against a stale `dist/` can produce misleading errors.
+**Always run `bun run build:seq` before `bun run typecheck:seq` or `bun run test`.** The build catches emit-specific diagnostics that `--noEmit` suppresses (notably TS2731: implicit symbol-to-string coercion in template literals, introduced in TS 5.5). Running typecheck or tests against a stale `dist/` can produce misleading errors.
 
 **Use `build:seq`, never the per-package `build`.** Running `bun run build` (which build every workspace package in parallel) exhausts the container's CPU/memory limits and can hang or be killed. `build:seq` builds all packages sequentially with the same end result and stays within the container's resource constraints.
 

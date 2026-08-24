@@ -84,7 +84,7 @@ export abstract class SetCollectionContextBase<
 {
 	abstract isNonEmptyInstance<E extends FAM['_UPPER_E']>(
 		source: unknown,
-	): source is FAM['_NON_EMPTY'];
+	): source is Collection.Advanced.FamToTypes<FAM, E>['_NON_EMPTY'];
 	abstract empty<E extends FAM['_UPPER_E']>(): Collection.Advanced.FamToTypes<
 		FAM,
 		E

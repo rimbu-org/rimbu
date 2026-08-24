@@ -251,6 +251,55 @@ export abstract class CollectionBuilderBase<
 	}
 }
 
+export abstract class CollectionContextBaseWithAddAll<
+	FAM extends Collection.Advanced.FamilyBase<any> &
+		Collection.Capability.WithToBuilder<any> &
+		Collection.Capability.WithAdd<any>,
+> implements Collection.Advanced.ContextApi<FAM>
+{
+	abstract isNonEmptyInstance<E extends FAM['_UPPER_E']>(
+		source: unknown,
+	): source is Collection.Advanced.FamToTypes<FAM, E>['_NON_EMPTY'];
+	abstract empty<E extends FAM['_UPPER_E']>(): Collection.Advanced.FamToTypes<
+		FAM,
+		E
+	>['_NORMAL'];
+	abstract builder<E extends FAM['_UPPER_E']>(): Collection.Advanced.FamToTypes<
+		FAM,
+		E
+	>['_BUILDER'];
+
+	of = <E extends FAM['_UPPER_E']>(
+		...elements: ArrayNonEmpty<E>
+	): Collection.Advanced.FamToTypes<FAM, E>['_NON_EMPTY'] => {
+		return this.from(elements);
+	};
+
+	from = <E extends FAM['_UPPER_E']>(
+		...sources: ArrayNonEmpty<StreamSource<E>>
+	): Collection.Advanced.FamToTypes<FAM, E>['_NON_EMPTY'] => {
+		let builder = this.builder<E>();
+		let i = -1;
+		const length = sources.length;
+		while (++i < length) {
+			const source = sources[i];
+			if (Stream.isEmptyStreamSourceInstance(source)) continue;
+			if (
+				builder.isEmpty &&
+				this.isNonEmptyInstance<E>(source) &&
+				source.context === this
+			) {
+				if (i === length - 1) return source;
+				builder = source.toBuilder();
+				continue;
+			}
+			builder.addAll(source);
+		}
+
+		return builder.build() as any;
+	};
+}
+
 export function defaultMapIndexed<
 	E,
 	E2 extends FAM['_UPPER_E'],
@@ -265,6 +314,28 @@ export function defaultMapIndexed<
 	let index = indexOffset;
 
 	return col.map((element) => mapFun(element, index++));
+}
+
+export function defaultFlatMapByAddAll<
+	E,
+	E2,
+	C extends Collection.NonEmpty<E, FAM>,
+	FAM extends Collection.Capability.WithAdd<E>,
+>(
+	col: C,
+	f: (element: E) => StreamSource<E2>,
+): Collection.Advanced.FamToTypes<FAM, E2>['_NORMAL'] {
+	const token = Symbol();
+	const iterator = col[Symbol.iterator]();
+
+	let result = col.context.empty<E2>();
+	let element: E | typeof token;
+
+	while (token !== (element = iterator.fastNext(token))) {
+		result = result.addAll(f(element));
+	}
+
+	return result;
 }
 
 export function defaultFlatMapIndexed<

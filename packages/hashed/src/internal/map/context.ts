@@ -1,9 +1,12 @@
+import type { KeyedCollection } from '@rimbu/collection-types/collection/keyed';
 import type { HashMap } from '@rimbu/hashed/map';
+import type { StreamSource } from '@rimbu/stream';
 
-import { type ArrayNonEmpty, Eq } from '@rimbu/common';
+import { CollectionContextBaseWithAddAll } from '@rimbu/collection-types/advanced/collection-base';
+import { Eq } from '@rimbu/common';
 import { Hasher } from '@rimbu/hashed';
 import { List } from '@rimbu/list';
-import { Stream, type StreamSource } from '@rimbu/stream';
+import { Reducer } from '@rimbu/stream/reducer';
 
 import { HashMapBlock, type MapEntrySet } from '#map/immutable/block';
 import { HashMapCollision } from '#map/immutable/collision';
@@ -15,6 +18,7 @@ import {
 } from '#map/mutable/block-builder';
 
 export class HashMapContext<UK>
+	extends CollectionContextBaseWithAddAll<HashMap.Advanced.Family<UK, any>>
 	implements HashMap.Advanced.ContextApi<UK, HashMap.Advanced.Family<UK, any>>
 {
 	constructor(
@@ -23,6 +27,8 @@ export class HashMapContext<UK>
 		readonly blockSizeBits: number = 5,
 		readonly listContext = List.defaultContext,
 	) {
+		super();
+
 		this.blockCapacity = 1 << blockSizeBits;
 		this.blockMask = this.blockCapacity - 1;
 		this.maxDepth = Math.ceil(32 / blockSizeBits);
@@ -31,6 +37,12 @@ export class HashMapContext<UK>
 	readonly blockCapacity: number;
 	readonly blockMask: number;
 	readonly maxDepth: number;
+
+	get keyedContext(): KeyedCollection.Advanced.KeyedContextApi<
+		HashMap.Advanced.Family<UK, any>
+	> {
+		return this as any;
+	}
 
 	get hasher(): Hasher<UK> {
 		return this._hasher ?? Hasher.defaultInstance;
@@ -114,67 +126,33 @@ export class HashMapContext<UK>
 
 	#empty: HashMap<UK, any> | undefined;
 
-	empty = <K extends UK, V>(): HashMap<K, V> => {
+	empty = <E extends readonly [UK, any]>(): HashMap<E[0], E[1]> => {
 		if (undefined === this.#empty) {
-			this.#empty = new HashMapEmpty<UK, V>(this);
+			this.#empty = new HashMapEmpty<UK, any>(this);
 		}
 
-		return this.#empty as any;
+		return this.#empty;
 	};
 
-	builder = <K extends UK, V>(): HashMap.Builder<K, V> => {
-		return new HashMapBlockBuilder<K, V>(this as unknown as HashMapContext<K>);
+	builder = <E extends readonly [UK, any]>(): HashMap.Builder<E[0], E[1]> => {
+		return new HashMapBlockBuilder(this);
 	};
 
-	from = <K extends UK, V>(
-		...sources: StreamSource<readonly [K, V]>[]
-	): HashMap.NonEmpty<K, V> => {
-		let builder = this.builder<K, V>();
-
-		const length = sources.length;
-		let i = -1;
-
-		while (++i < length) {
-			const source = sources[i];
-			if (Stream.isEmptyStreamSourceInstance(source)) continue;
-			if (
-				builder.isEmpty &&
-				this.isNonEmptyInstance<K, V>(source) &&
-				source.context === (this as unknown as HashMapContext<K>)
-			) {
-				if (i === length - 1) return source;
-				builder = source.toBuilder();
-				continue;
-			}
-			builder.addAll(source);
-		}
-
-		return builder.build() as HashMap.NonEmpty<K, V>;
+	reducer = <E2 extends readonly [UK, any]>(
+		source?: StreamSource<E2>,
+	): Reducer<E2, HashMap<E2[0], E2[1]>> => {
+		return Reducer.create(
+			() =>
+				undefined === source
+					? this.builder<E2>()
+					: this.from(source).toBuilder(),
+			(builder, entry) => {
+				builder.add(entry);
+				return builder;
+			},
+			(builder) => builder.build(),
+		);
 	};
-
-	of = <K extends UK, V>(
-		...entries: ArrayNonEmpty<readonly [K, V]>
-	): HashMap.NonEmpty<K, V> => {
-		return this.from(entries);
-	};
-
-	// reducer = <K extends UK, V>(
-	// 	source?: StreamSource<readonly [K, V]>,
-	// ): Reducer<readonly [K, V], HashMap<K, V>> => {
-	// 	return Reducer.create(
-	// 		() =>
-	// 			undefined === source
-	// 				? this.builder<K, V>()
-	// 				: this.from(source).toBuilder(),
-	// 		(builder, entry) => {
-	// 			builder.add(entry);
-	// 			return builder;
-	// 		},
-	// 		(builder) => builder.build(),
-	// 	);
-	// };
-
-	reducer: any;
 
 	createContext = <K>(options: {
 		hasher?: Hasher<K> | undefined;

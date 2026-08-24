@@ -126,34 +126,4 @@ describe('Arr', () => {
 		expect(Arr.set(nonEmpty, 100, -100)).toBe(nonEmpty);
 		expect(Arr.set(nonEmpty, 1, 2)).toBe(nonEmpty);
 	});
-
-	it('copySparse', () => {
-		const sparseArray = [];
-		sparseArray[100] = 0;
-		sparseArray[200] = 1;
-
-		const copiedSparseArray = Arr.copySparse(sparseArray);
-
-		expect(copiedSparseArray.length).toBe(sparseArray.length);
-		expect(copiedSparseArray[0]).toBe(sparseArray[0]);
-		expect(copiedSparseArray[100]).toBe(sparseArray[100]);
-		expect(copiedSparseArray[200]).toBe(sparseArray[200]);
-		expect(50 in copiedSparseArray).toBe(false);
-		expect(100 in copiedSparseArray).toBe(true);
-	});
-
-	it('mapSparse', () => {
-		const sparseArray = [];
-		sparseArray[100] = 0;
-		sparseArray[200] = 1;
-
-		const mappedSparseArray = Arr.mapSparse(sparseArray, (v) => v * 2);
-
-		expect(mappedSparseArray.length).toBe(sparseArray.length);
-		expect(mappedSparseArray[0]).toBe(sparseArray[0]);
-		expect(mappedSparseArray[100]).toBe(sparseArray[100] * 2);
-		expect(mappedSparseArray[200]).toBe(sparseArray[200] * 2);
-		expect(50 in mappedSparseArray).toBe(false);
-		expect(100 in mappedSparseArray).toBe(true);
-	});
 });

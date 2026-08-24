@@ -35,31 +35,31 @@ export namespace HashMap {
 	export namespace Advanced {
 		export interface Api<K, V, Tp extends Collection.Advanced.TypesBase>
 			extends MapCollection.Advanced.Api<K, V, Tp>,
-				Collection.Capability.WithToBuilder.Api<readonly [K, V], Tp> {}
-		// Collection.Capability.WithAdd.Api<readonly [K, V], Tp>,
-		// Collection.Capability.WithFlatMap.Api<readonly [K, V], Tp>,
-		// Collection.Capability.WithMap.Api<readonly [K, V], Tp>,
-		// Collection.Capability.WithMutate.Api<readonly [K, V], Tp>,
-		// KeyedCollection.Capability.WithRemove.Api<K, V, Tp>,
-		// KeyedCollection.Capability.WithMapValues.Api<K, V, Tp>,
-		// MapCollection.Capability.WithSet.Api<K, V, Tp>,
-		// MapCollection.Capability.WithUpdateAt.Api<K, V, Tp>,
-		// MapCollection.Capability.WithModifyAt.Api<K, V, Tp>,
-		// MapCollection.WithRecompose.Api<K, V, Tp> {}
+				Collection.Capability.WithAdd.Api<readonly [K, V], Tp>,
+				Collection.Capability.WithFlatMap.Api<readonly [K, V], Tp>,
+				Collection.Capability.WithMap.Api<readonly [K, V], Tp>,
+				Collection.Capability.WithMutate.Api<readonly [K, V], Tp>,
+				Collection.Capability.WithToBuilder.Api<readonly [K, V], Tp>,
+				KeyedCollection.Capability.WithRemove.Api<K, V, Tp>,
+				KeyedCollection.Capability.WithMapValues.Api<K, V, Tp>,
+				MapCollection.Capability.WithSet.Api<K, V, Tp>,
+				MapCollection.Capability.WithUpdateAt.Api<K, V, Tp>,
+				MapCollection.Capability.WithModifyAt.Api<K, V, Tp>,
+				MapCollection.WithRecompose.Api<K, V, Tp> {}
 
 		export interface BuilderApi<K, V, Tp extends Collection.Advanced.TypesBase>
 			extends MapCollection.Advanced.BuilderApi<K, V, Tp>,
 				Collection.Capability.WithAdd.BuilderApi<readonly [K, V], Tp>,
-				KeyedCollection.Capability.WithRemove.BuilderApi<K, V, Tp> {
-			// MapCollection.Capability.WithSet.BuilderApi<K, V, Tp>,
-			// MapCollection.Capability.WithUpdateAt.BuilderApi<K, V, Tp>,
-			// MapCollection.Capability.WithModifyAt.BuilderApi<K, V, Tp> {}
-		}
+				KeyedCollection.Capability.WithRemove.BuilderApi<K, V, Tp>,
+				MapCollection.Capability.WithSet.BuilderApi<K, V, Tp>,
+				MapCollection.Capability.WithUpdateAt.BuilderApi<K, V, Tp>,
+				MapCollection.Capability.WithModifyAt.BuilderApi<K, V, Tp> {}
+
 		export interface ContextApi<
 			UK,
-			FAM extends Collection.Advanced.FamilyBase<readonly [UK, any]>,
-		> extends MapCollection.Advanced.ContextApi<FAM> {
-			// Collection.Capability.WithReducer.ContextApi<FAM>
+			FAM extends KeyedCollection.Advanced.Family<UK, any>,
+		> extends MapCollection.Advanced.ContextApi<FAM>,
+				Collection.Capability.WithReducer.ContextApi<FAM> {
 			readonly blockSizeBits: number;
 			readonly hasher: Hasher<UK>;
 			readonly eq: Eq<UK>;
@@ -71,8 +71,8 @@ export namespace HashMap {
 			_BUILDER: HashMap.Builder<K, V>;
 			_CONTEXT: HashMap.Context<K>;
 
-			_INVARIANT: (entry: readonly [K, V]) => readonly [K, V];
-			_UPPER_E: readonly [K, V];
+			// _INVARIANT: (entry: [K, unknown]) => [K, unknown];
+			_UPPER_E: readonly [K, any];
 
 			_FAM: Family<K, V>;
 			_NEW_FAMILY: Family<this['_NEW_K'], this['_NEW_V']>;
@@ -80,8 +80,7 @@ export namespace HashMap {
 
 		export type DefaultFactory = Pick<
 			Context<any>,
-			// 'builder' | 'empty' | 'from' | 'of' | 'reducer'
-			'builder' | 'empty' | 'from' | 'of'
+			'builder' | 'empty' | 'from' | 'of' | 'reducer'
 		> & {
 			createContext<K>(options: {
 				hasher?: Hasher<K> | undefined;
@@ -93,5 +92,4 @@ export namespace HashMap {
 	}
 }
 
-export const HashMap: HashMap.Advanced.DefaultFactory =
-	new HashMapContext() as any;
+export const HashMap: HashMap.Advanced.DefaultFactory = new HashMapContext();

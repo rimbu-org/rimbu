@@ -50,8 +50,9 @@ export declare namespace MapCollection {
 		export interface BuilderApi<K, V, Tp extends Collection.Advanced.TypesBase>
 			extends KeyedCollection.Advanced.BuilderApi<K, V, Tp> {}
 
-		export interface ContextApi<F extends Collection.Advanced.FamilyBase<any>>
-			extends KeyedCollection.Advanced.ContextApi<F> {}
+		export interface ContextApi<
+			F extends KeyedCollection.Advanced.Family<any, any>,
+		> extends KeyedCollection.Advanced.ContextApi<F> {}
 
 		export interface Family<K, V>
 			extends KeyedCollection.Advanced.Family<K, V> {
