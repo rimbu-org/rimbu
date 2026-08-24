@@ -74,6 +74,8 @@ export declare namespace KeyedCollection {
 		}
 
 		export interface KeyedContextApi<F extends Advanced.Family<any, any>> {
+			readonly defaultContext: F['_CONTEXT'];
+
 			empty<
 				K extends F['_UPPER_K'],
 				V extends F['_UPPER_V'],

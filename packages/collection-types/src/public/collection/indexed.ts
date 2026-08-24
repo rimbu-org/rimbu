@@ -367,5 +367,56 @@ export declare namespace IndexedCollection {
 				>;
 			}
 		}
+
+		export interface WithUnzip<E> extends Advanced.Family<E> {
+			_CONTEXT: WithUnzip.ContextApi<this['_FAM']>;
+
+			_FAM: WithUnzip<E>;
+			_NEW_FAMILY: WithUnzip<this['_NEW_E']>;
+		}
+
+		export namespace WithUnzip {
+			export interface ContextApi<F extends Collection.Advanced.FamilyBase<any>>
+				extends Advanced.ContextApi<F> {
+				unzip<
+					E extends readonly F['_UPPER_E'][] & { length?: L; size?: L },
+					const L extends number,
+				>(
+					source: StreamSource.NonEmpty<E>,
+					options: { length: L },
+				): {
+					[K in keyof E]: Collection.Advanced.FamToTypes<F, E[K]>['_NON_EMPTY'];
+				};
+
+				unzip<
+					E extends readonly F['_UPPER_E'][] & { length?: L; size?: L },
+					const L extends number,
+				>(
+					source: StreamSource<E>,
+					options: { length: L },
+				): {
+					[K in keyof E]: Collection.Advanced.FamToTypes<F, E[K]>['_NORMAL'];
+				};
+			}
+		}
+
+		export interface WithFlatten<E> extends Advanced.Family<E> {
+			_CONTEXT: WithFlatten.ContextApi<this['_FAM']>;
+
+			_FAM: WithFlatten<E>;
+			_NEW_FAMILY: WithFlatten<this['_NEW_E']>;
+		}
+
+		export namespace WithFlatten {
+			export interface ContextApi<F extends Collection.Advanced.FamilyBase<any>>
+				extends Advanced.ContextApi<F> {
+				flatten<E extends F['_UPPER_E']>(
+					source: StreamSource.NonEmpty<StreamSource<E>>,
+				): Collection.Advanced.FamToTypes<F, E>['_NON_EMPTY'];
+				flatten<E extends F['_UPPER_E']>(
+					source: StreamSource<StreamSource<E>>,
+				): Collection.Advanced.FamToTypes<F, E>['_NORMAL'];
+			}
+		}
 	}
 }

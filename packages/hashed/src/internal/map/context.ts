@@ -1,4 +1,3 @@
-import type { KeyedCollection } from '@rimbu/collection-types/collection/keyed';
 import type { HashMap } from '@rimbu/hashed/map';
 import type { StreamSource } from '@rimbu/stream';
 
@@ -21,11 +20,29 @@ export class HashMapContext<UK>
 	extends CollectionContextBaseWithAddAll<HashMap.Advanced.Family<UK, any>>
 	implements HashMap.Advanced.ContextApi<UK, HashMap.Advanced.Family<UK, any>>
 {
-	constructor(
+	static createDefault<UE>(
+		hasher?: Hasher<UE> | undefined,
+		eq?: Eq<UE> | undefined,
+		blockSizeBits?: number,
+		listContext?: List.Context | undefined,
+	) {
+		const result: HashMapContext<UE> = new HashMapContext(
+			hasher,
+			eq,
+			blockSizeBits,
+			listContext,
+			() => result,
+		);
+
+		return result;
+	}
+
+	private constructor(
 		readonly _hasher: Hasher<UK> | undefined = undefined,
 		readonly _eq: Eq<UK> | undefined = undefined,
 		readonly blockSizeBits: number = 5,
 		readonly listContext = List.defaultContext,
+		readonly getDefaultInstance: () => HashMapContext<any>,
 	) {
 		super();
 
@@ -38,7 +55,12 @@ export class HashMapContext<UK>
 	readonly blockMask: number;
 	readonly maxDepth: number;
 
-	get keyedContext(): KeyedCollection.Advanced.KeyedContextApi<
+	get defaultContext(): HashMapContext<any> {
+		return this.getDefaultInstance();
+	}
+
+	get keyedContext(): HashMap.Advanced.KeyedContextApi<
+		UK,
 		HashMap.Advanced.Family<UK, any>
 	> {
 		return this as any;
@@ -165,6 +187,7 @@ export class HashMapContext<UK>
 			options.eq,
 			options.blockSizeBits,
 			options.listContext,
+			this.getDefaultInstance,
 		);
 	};
 }

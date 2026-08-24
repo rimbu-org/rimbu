@@ -262,6 +262,7 @@ export abstract class CollectionContextBaseWithAddAll<
 	abstract isNonEmptyInstance<E extends FAM['_UPPER_E']>(
 		source: unknown,
 	): source is Collection.Advanced.FamToTypes<FAM, E>['_NON_EMPTY'];
+	abstract readonly defaultContext: FAM['_CONTEXT'];
 	abstract empty<E extends FAM['_UPPER_E']>(): Collection.Advanced.FamToTypes<
 		FAM,
 		E

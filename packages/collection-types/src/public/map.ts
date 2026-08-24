@@ -244,35 +244,35 @@ export declare namespace MapCollection {
 				): boolean;
 			}
 		}
-	}
 
-	export interface WithRecompose<K, V> extends Advanced.Family<K, V> {
-		_NORMAL: WithRecompose.Api<
-			K,
-			V,
-			Collection.Advanced.Types<this['_FAM'], readonly [K, V]>
-		>;
-		_NON_EMPTY: WithRecompose.Api<
-			K,
-			V,
-			Collection.Advanced.TypesNonEmpty<this['_FAM'], readonly [K, V]>
-		>;
+		export interface WithRecompose<K, V> extends Advanced.Family<K, V> {
+			_NORMAL: WithRecompose.Api<
+				K,
+				V,
+				Collection.Advanced.Types<this['_FAM'], readonly [K, V]>
+			>;
+			_NON_EMPTY: WithRecompose.Api<
+				K,
+				V,
+				Collection.Advanced.TypesNonEmpty<this['_FAM'], readonly [K, V]>
+			>;
 
-		_FAM: WithRecompose<K, V>;
-		_NEW_FAMILY: WithRecompose<this['_NEW_K'], this['_NEW_V']>;
-	}
+			_FAM: WithRecompose<K, V>;
+			_NEW_FAMILY: WithRecompose<this['_NEW_K'], this['_NEW_V']>;
+		}
 
-	export namespace WithRecompose {
-		export interface Api<K, V, Tp extends Collection.Advanced.TypesBase>
-			extends Advanced.Api<K, V, Tp> {
-			recompose<K2 extends K, V2>(
-				f: (
-					stream: Tp['_AS_STREAM'],
-				) => StreamSource.NonEmpty<readonly [K2, V2]>,
-			): Collection.Advanced.ReTyped<Tp, readonly [K2, V2]>['_SELF'];
-			recompose<K2 extends K, V2>(
-				f: (stream: Tp['_AS_STREAM']) => StreamSource<readonly [K2, V2]>,
-			): Collection.Advanced.ReTyped<Tp, readonly [K2, V2]>['_NORMAL'];
+		export namespace WithRecompose {
+			export interface Api<K, V, Tp extends Collection.Advanced.TypesBase>
+				extends Advanced.Api<K, V, Tp> {
+				recompose<K2 extends K, V2>(
+					f: (
+						stream: Tp['_AS_STREAM'],
+					) => StreamSource.NonEmpty<readonly [K2, V2]>,
+				): Collection.Advanced.ReTyped<Tp, readonly [K2, V2]>['_SELF'];
+				recompose<K2 extends K, V2>(
+					f: (stream: Tp['_AS_STREAM']) => StreamSource<readonly [K2, V2]>,
+				): Collection.Advanced.ReTyped<Tp, readonly [K2, V2]>['_NORMAL'];
+			}
 		}
 	}
 }

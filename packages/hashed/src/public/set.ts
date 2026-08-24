@@ -83,4 +83,5 @@ export namespace HashSet {
 	}
 }
 
-export const HashSet: HashSet.Advanced.DefaultFactory = new HashSetContext();
+export const HashSet: HashSet.Advanced.DefaultFactory =
+	HashSetContext.createDefault();

@@ -261,7 +261,7 @@ export const streamFactoryModule = Module.create<StreamFactory>((mod) => ({
 
 		while (++i < length) {
 			const index = i;
-			result[i] = source.map((t: any): unknown => t[index]);
+			result[i] = mod.from(source).map((t: any): unknown => t[index]);
 		}
 
 		return result;

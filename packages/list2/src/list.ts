@@ -50,7 +50,9 @@ export declare namespace List {
 
 		export interface ContextApi<F extends Collection.Advanced.FamilyBase<any>>
 			extends IndexedCollection.Advanced.ContextApi<F>,
-				Collection.Capability.WithReducer.ContextApi<F> {
+				Collection.Capability.WithReducer.ContextApi<F>,
+				IndexedCollection.Capability.WithUnzip.ContextApi<F>,
+				IndexedCollection.Capability.WithFlatten.ContextApi<F> {
 			readonly blockSizeBits: number;
 		}
 
@@ -72,6 +74,7 @@ export declare namespace List {
 	}
 }
 
-export const List: List.Advanced.DefaultFactory = new ListContext<
-	Collection.Advanced.Types<List.Advanced.Family<any>, any>
->(5, new ArrayOuterChildrenOps() as ChildrenOps);
+export const List: List.Advanced.DefaultFactory = ListContext.createDefault(
+	5,
+	new ArrayOuterChildrenOps() as ChildrenOps,
+);

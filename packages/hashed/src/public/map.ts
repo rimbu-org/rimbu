@@ -45,7 +45,7 @@ export namespace HashMap {
 				MapCollection.Capability.WithSet.Api<K, V, Tp>,
 				MapCollection.Capability.WithUpdateAt.Api<K, V, Tp>,
 				MapCollection.Capability.WithModifyAt.Api<K, V, Tp>,
-				MapCollection.WithRecompose.Api<K, V, Tp> {}
+				MapCollection.Capability.WithRecompose.Api<K, V, Tp> {}
 
 		export interface BuilderApi<K, V, Tp extends Collection.Advanced.TypesBase>
 			extends MapCollection.Advanced.BuilderApi<K, V, Tp>,
@@ -63,6 +63,22 @@ export namespace HashMap {
 			readonly blockSizeBits: number;
 			readonly hasher: Hasher<UK>;
 			readonly eq: Eq<UK>;
+
+			readonly defaultContext: FAM['_CONTEXT'];
+		}
+
+		export interface KeyedContextApi<
+			UK,
+			FAM extends KeyedCollection.Advanced.Family<UK, any>,
+		> extends KeyedCollection.Advanced.KeyedContextApi<FAM> {
+			readonly defaultContext: FAM['_CONTEXT'];
+
+			createContext<K>(options: {
+				hasher?: Hasher<K> | undefined;
+				eq?: Eq<K> | undefined;
+				blockSizeBits?: number | undefined;
+				listContext?: List.Context | undefined;
+			}): Context<K>;
 		}
 
 		export interface Family<K, V> extends MapCollection.Advanced.Family<K, V> {
@@ -70,6 +86,7 @@ export namespace HashMap {
 			_NON_EMPTY: HashMap.NonEmpty<K, V>;
 			_BUILDER: HashMap.Builder<K, V>;
 			_CONTEXT: HashMap.Context<K>;
+			_KEYED_CONTEXT: KeyedContextApi<K, this['_FAM']>;
 
 			// _INVARIANT: (entry: [K, unknown]) => [K, unknown];
 			_UPPER_E: readonly [K, any];
@@ -78,18 +95,9 @@ export namespace HashMap {
 			_NEW_FAMILY: Family<this['_NEW_K'], this['_NEW_V']>;
 		}
 
-		export type DefaultFactory = Pick<
-			Context<any>,
-			'builder' | 'empty' | 'from' | 'of' | 'reducer'
-		> & {
-			createContext<K>(options: {
-				hasher?: Hasher<K> | undefined;
-				eq?: Eq<K> | undefined;
-				blockSizeBits?: number | undefined;
-				listContext?: List.Context | undefined;
-			}): Context<K>;
-		};
+		export type DefaultFactory = KeyedContextApi<any, Family<any, any>>;
 	}
 }
 
-export const HashMap: HashMap.Advanced.DefaultFactory = new HashMapContext();
+export const HashMap: HashMap.Advanced.DefaultFactory =
+	HashMapContext.createDefault().keyedContext;

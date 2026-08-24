@@ -17,16 +17,38 @@ export class HashSetContext<UE>
 	extends CollectionContextBaseWithAddAll<HashSet.Advanced.Family<UE>>
 	implements HashSet.Advanced.ContextApi<UE, HashSet.Advanced.Family<UE>>
 {
-	constructor(
+	static createDefault<UE>(
+		hasher?: Hasher<UE> | undefined,
+		eq?: Eq<UE> | undefined,
+		blockSizeBits?: number,
+		listContext?: List.Context | undefined,
+	) {
+		const result: HashSetContext<UE> = new HashSetContext(
+			hasher,
+			eq,
+			blockSizeBits,
+			listContext,
+			() => result,
+		);
+
+		return result;
+	}
+
+	private constructor(
 		readonly _hasher: Hasher<UE> | undefined = undefined,
 		readonly _eq: Eq<UE> | undefined = undefined,
 		readonly blockSizeBits: number = 5,
 		readonly listContext = List.defaultContext,
+		readonly getDefaultInstance: () => HashSetContext<any>,
 	) {
 		super();
 		this.blockCapacity = 1 << blockSizeBits;
 		this.blockMask = this.blockCapacity - 1;
 		this.maxDepth = Math.ceil(32 / blockSizeBits);
+	}
+
+	get defaultContext(): HashSetContext<any> {
+		return this.getDefaultInstance();
 	}
 
 	readonly blockCapacity: number;
@@ -166,6 +188,7 @@ export class HashSetContext<UE>
 			options.eq,
 			options.blockSizeBits,
 			options.listContext,
+			this.getDefaultInstance,
 		);
 	};
 }

@@ -167,6 +167,8 @@ export declare namespace Collection {
 		}
 
 		export interface ContextApi<F extends FamilyBase<any>> {
+			readonly defaultContext: F['_CONTEXT'];
+
 			empty<E extends F['_UPPER_E']>(): Collection.Advanced.FamToTypes<
 				F,
 				E

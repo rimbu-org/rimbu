@@ -1,14 +1,14 @@
 import type { Collection } from '@rimbu/collection-types/collection';
 import type { SetCollection } from '@rimbu/collection-types/set';
-import type { ArrayNonEmpty } from '@rimbu/common';
 
-import { Stream, type StreamSource } from '@rimbu/stream';
-import { Reducer } from '@rimbu/stream/reducer';
+import { CollectionContextBaseWithAddAll } from '@rimbu/collection-types/advanced/collection-base';
 import {
 	ValuedCollectionBuilderBase,
 	ValuedCollectionEmptyBase,
 	ValuedCollectionNonEmptyBase,
-} from './collection/valued-base';
+} from '@rimbu/collection-types/advanced/collection/valued-base';
+import { Stream, type StreamSource } from '@rimbu/stream';
+import { Reducer } from '@rimbu/stream/reducer';
 
 export abstract class SetCollectionEmptyBase<
 		E,
@@ -78,49 +78,10 @@ export abstract class SetCollectionContextBase<
 		Collection.Capability.WithAdd<any> = SetCollection.Advanced.Family<any> &
 		Collection.Capability.WithToBuilder<any> &
 		Collection.Capability.WithAdd<any>,
-> implements SetCollection.Advanced.ContextApi<FAM>
-{
+> extends CollectionContextBaseWithAddAll<FAM> {
 	abstract isNonEmptyInstance<E extends FAM['_UPPER_E']>(
 		source: unknown,
 	): source is Collection.Advanced.FamToTypes<FAM, E>['_NON_EMPTY'];
-	abstract empty<E extends FAM['_UPPER_E']>(): Collection.Advanced.FamToTypes<
-		FAM,
-		E
-	>['_NORMAL'];
-	abstract builder<E extends FAM['_UPPER_E']>(): Collection.Advanced.FamToTypes<
-		FAM,
-		E
-	>['_BUILDER'];
-
-	of = <E extends FAM['_UPPER_E']>(
-		...elements: ArrayNonEmpty<E>
-	): Collection.Advanced.FamToTypes<FAM, E>['_NON_EMPTY'] => {
-		return this.from(elements);
-	};
-
-	from = <E extends FAM['_UPPER_E']>(
-		...sources: ArrayNonEmpty<StreamSource<E>>
-	): Collection.Advanced.FamToTypes<FAM, E>['_NON_EMPTY'] => {
-		let builder = this.builder<E>();
-		let i = -1;
-		const length = sources.length;
-		while (++i < length) {
-			const source = sources[i];
-			if (Stream.isEmptyStreamSourceInstance(source)) continue;
-			if (
-				builder.isEmpty &&
-				this.isNonEmptyInstance<E>(source) &&
-				source.context === this
-			) {
-				if (i === length - 1) return source;
-				builder = source.toBuilder();
-				continue;
-			}
-			builder.addAll(source);
-		}
-
-		return builder.build() as any;
-	};
 }
 
 export abstract class SetCollectionBuilderBase<

@@ -33,9 +33,22 @@ export class ListContext<
 	F extends List.Advanced.Family<any> = List.Advanced.Family<any>,
 > implements List.Advanced.ContextApi<F>
 {
-	constructor(
+	static createDefault<
+		F extends List.Advanced.Family<any> = List.Advanced.Family<any>,
+	>(blockSizeBits: number, childrenOps: ChildrenOps): ListContext<F> {
+		const result: ListContext<F> = new ListContext(
+			blockSizeBits,
+			childrenOps,
+			() => result,
+		);
+
+		return result;
+	}
+
+	private constructor(
 		readonly blockSizeBits: number,
 		readonly childrenOps: ChildrenOps,
+		readonly getDefaultInstance: () => ListContext<F>,
 	) {
 		this.minBlockSize = 1 << (blockSizeBits - 1);
 		this.maxBlockSize = 1 << blockSizeBits;
@@ -43,6 +56,10 @@ export class ListContext<
 
 	readonly minBlockSize: number;
 	readonly maxBlockSize: number;
+
+	get defaultContext(): ListContext<F> {
+		return this.getDefaultInstance();
+	}
 
 	isList<T>(source: unknown): source is List<T> {
 		return (
@@ -165,6 +182,20 @@ export class ListContext<
 		return this.#_empty as any;
 	};
 
+	fromSingle = <T extends F['_UPPER_E']>(
+		source: StreamSource<T>,
+	): Collection.Advanced.Types<F, T>['_NORMAL'] => {
+		if (this.isInContext<T>(source) && source.nonEmpty()) {
+			return source;
+		} else if (!Stream.isEmptyStreamSourceInstance(source)) {
+			const builder = this.builder<T>();
+			builder.appendAll(source);
+			return builder.build();
+		}
+
+		return this.empty<T>();
+	};
+
 	from = <T extends F['_UPPER_E']>(
 		...sources: StreamSource<T>[]
 	): Collection.Advanced.Types<F, T>['_NON_EMPTY'] => {
@@ -209,9 +240,27 @@ export class ListContext<
 		return defaultReducerByAppend<T, List.Advanced.Family<T>>(this, source);
 	};
 
+	flatten = <E extends F['_UPPER_E']>(
+		source: StreamSource<StreamSource<E>>,
+	): F['_NON_EMPTY'] => {
+		return this.from(source).flatMap((stream) => stream);
+	};
+
+	unzip = <E extends F['_UPPER_E'][] & { length: L }, const L extends number>(
+		source: StreamSource<E>,
+		options: { length: L },
+	): {
+		[K in keyof E]: Collection.Advanced.FamToTypes<F, E[K]>['_NON_EMPTY'];
+	} => {
+		const streams = Stream.unzip(source, options) as Stream<F['_UPPER_E']>[];
+
+		return streams.map(this.fromSingle) as any;
+	};
+
 	createContext = (options: { blockSizeBits?: number }): ListContext<F> =>
 		new ListContext<F>(
 			options.blockSizeBits ?? this.blockSizeBits,
 			this.childrenOps,
+			this.getDefaultInstance,
 		);
 }

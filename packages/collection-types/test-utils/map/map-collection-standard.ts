@@ -30,7 +30,7 @@ const arr6 = [
 
 export function runMapTestsWith(
 	name: string,
-	GMap: MapCollection.Context,
+	GMap: MapCollection.Context['keyedContext'],
 ): void {
 	describe(`${name} creators`, () => {
 		const mapEmpty = GMap.empty<number, string>();
@@ -273,10 +273,10 @@ export function runMapTestsWith(
 				[1, 'b'],
 			]);
 
-			expect(map3.addEntry([10, 'z']).at(10)).toBe('z');
+			expect(map3.addEntry([10, 'z']).get(10)).toBe('z');
 			expect(map3.addEntry([10, 'z']).size).toBe(4);
 
-			expect(map6.addEntry([10, 'z']).at(10)).toBe('z');
+			expect(map6.addEntry([10, 'z']).get(10)).toBe('z');
 			expect(map6.addEntry([10, 'z']).size).toBe(7);
 		});
 
@@ -356,32 +356,32 @@ export function runMapTestsWith(
 		});
 
 		it('get', () => {
-			expect(mapEmpty.at(2)).toBe(undefined);
-			expect(mapEmpty.at(2, 'z')).toBe('z');
-			expect(mapEmpty.at(2, () => 'z')).toBe('z');
+			expect(mapEmpty.get(2)).toBe(undefined);
+			expect(mapEmpty.get(2, 'z')).toBe('z');
+			expect(mapEmpty.get(2, () => 'z')).toBe('z');
 
-			expect(map3.at(2)).toBe('b');
-			expect(map3.at(2, 'z')).toBe('b');
-			expect(map3.at(10)).toBe(undefined);
-			expect(map3.at(10, 'z')).toBe('z');
+			expect(map3.get(2)).toBe('b');
+			expect(map3.get(2, 'z')).toBe('b');
+			expect(map3.get(10)).toBe(undefined);
+			expect(map3.get(10, 'z')).toBe('z');
 
-			expect(map6.at(2)).toBe('b');
-			expect(map6.at(2, 'z')).toBe('b');
-			expect(map6.at(10)).toBe(undefined);
-			expect(map6.at(10, 'z')).toBe('z');
+			expect(map6.get(2)).toBe('b');
+			expect(map6.get(2, 'z')).toBe('b');
+			expect(map6.get(10)).toBe(undefined);
+			expect(map6.get(10, 'z')).toBe('z');
 
-			expect(mapWithUndefinedValue.at('a', 5)).toBeUndefined();
-			expect(mapWithUndefinedValue.at('b', 5)).toBe(5);
+			expect(mapWithUndefinedValue.get('a', 5)).toBeUndefined();
+			expect(mapWithUndefinedValue.get('b', 5)).toBe(5);
 		});
 
 		it('hasKey', () => {
-			expect(mapEmpty.hasKey(2)).toBe(false);
+			expect(mapEmpty.has(2)).toBe(false);
 
-			expect(map3.hasKey(2)).toBe(true);
-			expect(map3.hasKey(10)).toBe(false);
+			expect(map3.has(2)).toBe(true);
+			expect(map3.has(10)).toBe(false);
 
-			expect(map6.hasKey(2)).toBe(true);
-			expect(map6.hasKey(10)).toBe(false);
+			expect(map6.has(2)).toBe(true);
+			expect(map6.has(10)).toBe(false);
 		});
 
 		it('isEmpty', () => {
@@ -406,38 +406,42 @@ export function runMapTestsWith(
 			expect(mapEmpty.modifyAt(2, { ifExists: { update: (v) => v + v } })).toBe(
 				mapEmpty,
 			);
-			expect(mapEmpty.modifyAt(2, { ifNew: { set: 'z' } }).at(2)).toBe('z');
+			expect(mapEmpty.modifyAt(2, { ifNew: { set: 'z' } }).get(2)).toBe('z');
 
 			expect(
-				map3.modifyAt(2, { ifExists: { update: (v) => v + v } }).at(2),
+				map3.modifyAt(2, { ifExists: { update: (v) => v + v } }).get(2),
 			).toBe('bb');
-			expect(map3.modifyAt(2, { ifNew: { set: 'bb' } }).at(2)).toBe('b');
+			expect(map3.modifyAt(2, { ifNew: { set: 'bb' } }).get(2)).toBe('b');
 			expect(
 				map3
 					.modifyAt(10, {
 						ifNew: { set: 'z' },
 						ifExists: { update: (v) => v + v },
 					})
-					.at(10),
+					.get(10),
 			).toBe('z');
 			expect(
-				map3.modifyAt(2, { ifExists: { update: (_, remove) => remove } }).at(2),
+				map3
+					.modifyAt(2, { ifExists: { update: (_, remove) => remove } })
+					.get(2),
 			).toBe(undefined);
 
 			expect(
-				map6.modifyAt(2, { ifExists: { update: (v) => v + v } }).at(2),
+				map6.modifyAt(2, { ifExists: { update: (v) => v + v } }).get(2),
 			).toBe('bb');
-			expect(map6.modifyAt(2, { ifNew: { set: 'bb' } }).at(2)).toBe('b');
+			expect(map6.modifyAt(2, { ifNew: { set: 'bb' } }).get(2)).toBe('b');
 			expect(
 				map6
 					.modifyAt(10, {
 						ifNew: { set: 'z' },
 						ifExists: { update: (v) => v + v },
 					})
-					.at(10),
+					.get(10),
 			).toBe('z');
 			expect(
-				map6.modifyAt(2, { ifExists: { update: (_, remove) => remove } }).at(2),
+				map6
+					.modifyAt(2, { ifExists: { update: (_, remove) => remove } })
+					.get(2),
 			).toBe(undefined);
 		});
 
@@ -449,9 +453,9 @@ export function runMapTestsWith(
 
 		it('removeKey', () => {
 			expect(mapEmpty.removeKey(2)).toBe(mapEmpty);
-			expect(map3.removeKey(2).at(2)).toBe(undefined);
+			expect(map3.removeKey(2).get(2)).toBe(undefined);
 			expect(map3.removeKey(10)).toBe(map3);
-			expect(map6.removeKey(2).at(2)).toBe(undefined);
+			expect(map6.removeKey(2).get(2)).toBe(undefined);
 			expect(map6.removeKey(10)).toBe(map6);
 		});
 
@@ -476,23 +480,23 @@ export function runMapTestsWith(
 
 			expect(map3.removeKeys([10])).toBe(map3);
 			expect(map3.removeKeys([1, 3, 10]).size).toBe(1);
-			expect(map3.removeKeys([1, 3, 10]).at(2)).toBe('b');
-			expect(map3.removeKeys([1, 3, 10]).at(1)).toBe(undefined);
+			expect(map3.removeKeys([1, 3, 10]).get(2)).toBe('b');
+			expect(map3.removeKeys([1, 3, 10]).get(1)).toBe(undefined);
 
 			expect(map6.removeKeys([10])).toBe(map6);
 			expect(map6.removeKeys([1, 3, 10]).size).toBe(4);
-			expect(map6.removeKeys([1, 3, 10]).at(2)).toBe('b');
-			expect(map6.removeKeys([1, 3, 10]).at(1)).toBe(undefined);
+			expect(map6.removeKeys([1, 3, 10]).get(2)).toBe('b');
+			expect(map6.removeKeys([1, 3, 10]).get(1)).toBe(undefined);
 		});
 
 		it('set', () => {
-			expect(mapEmpty.set(1, 'a').at(1)).toBe('a');
+			expect(mapEmpty.set(1, 'a').get(1)).toBe('a');
 
-			expect(map3.set(10, 'z').at(10)).toBe('z');
-			expect(map3.set(2, 'z').at(2)).toBe('z');
+			expect(map3.set(10, 'z').get(10)).toBe('z');
+			expect(map3.set(2, 'z').get(2)).toBe('z');
 
-			expect(map6.set(10, 'z').at(10)).toBe('z');
-			expect(map6.set(2, 'z').at(2)).toBe('z');
+			expect(map6.set(10, 'z').get(10)).toBe('z');
+			expect(map6.set(2, 'z').get(2)).toBe('z');
 		});
 
 		it('size', () => {
@@ -544,13 +548,13 @@ export function runMapTestsWith(
 			}
 			{
 				const b = map3.toBuilder();
-				expect(b.at(2)).toBe('b');
-				expect(b.at(10)).toBe(undefined);
+				expect(b.get(2)).toBe('b');
+				expect(b.get(10)).toBe(undefined);
 			}
 			{
 				const b = map6.toBuilder();
-				expect(b.at(2)).toBe('b');
-				expect(b.at(10)).toBe(undefined);
+				expect(b.get(2)).toBe('b');
+				expect(b.get(10)).toBe(undefined);
 			}
 		});
 
@@ -563,12 +567,12 @@ export function runMapTestsWith(
 			expect(mapEmpty.updateAt(2, () => 'z')).toBe(mapEmpty);
 			expect(mapEmpty.updateAt(2, (v) => v + v)).toBe(mapEmpty);
 
-			expect(map3.updateAt(2, () => 'z').at(2)).toBe('z');
-			expect(map3.updateAt(2, (v) => v + v).at(2)).toBe('bb');
+			expect(map3.updateAt(2, () => 'z').get(2)).toBe('z');
+			expect(map3.updateAt(2, (v) => v + v).get(2)).toBe('bb');
 			expect(map3.updateAt(10, () => 'z')).toBe(map3);
 
-			expect(map6.updateAt(2, () => 'z').at(2)).toBe('z');
-			expect(map6.updateAt(2, (v) => v + v).at(2)).toBe('bb');
+			expect(map6.updateAt(2, () => 'z').get(2)).toBe('z');
+			expect(map6.updateAt(2, (v) => v + v).get(2)).toBe('bb');
 			expect(map6.updateAt(10, () => 'z')).toBe(map6);
 		});
 
@@ -595,13 +599,13 @@ export function runMapTestsWith(
 			const r3 = map3.updateAtAndGet(2, () => 'z');
 			expect(r3[2]).toBe(true);
 			expect(r3[1]).toBe('b');
-			expect(r3[0].at(2)).toBe('z');
+			expect(r3[0].get(2)).toBe('z');
 			expect(r3[0].size).toBe(3);
 
 			const r6 = map6.updateAtAndGet(2, (v) => v + v);
 			expect(r6[2]).toBe(true);
 			expect(r6[1]).toBe('b');
-			expect(r6[0].at(2)).toBe('bb');
+			expect(r6[0].get(2)).toBe('bb');
 			expect(r6[0].size).toBe(6);
 		});
 	});
@@ -646,7 +650,7 @@ export function runMapTestsWith(
 
 			forEachBuilder((b) => {
 				expect(b.build().size).toBe(3);
-				expect(b.build().at(2)).toBe('b');
+				expect(b.build().get(2)).toBe('b');
 			});
 		});
 
@@ -655,7 +659,7 @@ export function runMapTestsWith(
 			expect(b.buildMapValues((v) => v + v)).toBe(GMap.empty());
 			b.addEntries(arr3);
 			expect(b.buildMapValues((v) => v + v).size).toBe(3);
-			expect(b.buildMapValues((v) => v + v).at(2)).toBe('bb');
+			expect(b.buildMapValues((v) => v + v).get(2)).toBe('bb');
 		});
 
 		it('context', () => {
@@ -693,18 +697,18 @@ export function runMapTestsWith(
 
 		it('get', () => {
 			forEachBuilder((b) => {
-				expect(b.at(2)).toBe('b');
-				expect(b.at(2, 'z')).toBe('b');
-				expect(b.at(10)).toBe(undefined);
-				expect(b.at(10, 'z')).toBe('z');
-				expect(b.at(10, () => 'z')).toBe('z');
+				expect(b.get(2)).toBe('b');
+				expect(b.get(2, 'z')).toBe('b');
+				expect(b.get(10)).toBe(undefined);
+				expect(b.get(10, 'z')).toBe('z');
+				expect(b.get(10, () => 'z')).toBe('z');
 			});
 		});
 
 		it('hasKey', () => {
 			forEachBuilder((b) => {
-				expect(b.hasKey(2)).toBe(true);
-				expect(b.hasKey(10)).toBe(false);
+				expect(b.has(2)).toBe(true);
+				expect(b.has(10)).toBe(false);
 			});
 		});
 
@@ -721,29 +725,29 @@ export function runMapTestsWith(
 				expect(b.modifyAt(2, { ifExists: { update: (v) => v + v } })).toBe(
 					true,
 				);
-				expect(b.at(2)).toBe('bb');
+				expect(b.get(2)).toBe('bb');
 
 				expect(b.modifyAt(1, { ifExists: { update: (v) => v } })).toBe(false);
 
 				expect(b.modifyAt(3, { ifNew: { set: 'z' } })).toBe(false);
-				expect(b.at(3)).toBe('c');
+				expect(b.get(3)).toBe('c');
 
 				expect(b.modifyAt(10, { ifExists: { update: (v) => v + v } })).toBe(
 					false,
 				);
-				expect(b.at(10)).toBe(undefined);
+				expect(b.get(10)).toBe(undefined);
 
 				expect(b.size).toBe(3);
 
 				expect(b.modifyAt(10, { ifNew: { set: 'z' } })).toBe(true);
-				expect(b.at(10)).toBe('z');
+				expect(b.get(10)).toBe('z');
 
 				expect(b.size).toBe(4);
 
 				expect(
 					b.modifyAt(2, { ifExists: { update: (_, remove) => remove } }),
 				).toBe(true);
-				expect(b.at(2)).toBe(undefined);
+				expect(b.get(2)).toBe(undefined);
 
 				expect(b.size).toBe(3);
 			});

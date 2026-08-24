@@ -2065,13 +2065,13 @@ export namespace Stream {
 		 * ```
 		 */
 		unzip<T extends readonly unknown[] & { length: L }, L extends number>(
-			source: Stream.NonEmpty<T>,
+			source: StreamSource.NonEmpty<T>,
 			options: {
 				length: L;
 			},
 		): { [K in keyof T]: Stream.NonEmpty<T[K]> };
 		unzip<T extends readonly unknown[] & { length: L }, L extends number>(
-			source: Stream<T>,
+			source: StreamSource<T>,
 			options: { length: L },
 		): { [K in keyof T]: Stream<T[K]> };
 	}
