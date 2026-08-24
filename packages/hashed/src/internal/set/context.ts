@@ -1,9 +1,10 @@
 import type { HashSet } from '@rimbu/hashed';
+import type { StreamSource } from '@rimbu/stream';
 
-import { type ArrayNonEmpty, Eq } from '@rimbu/common';
+import { CollectionContextBaseWithAddAll } from '@rimbu/collection-types/advanced/collection-base';
+import { Eq } from '@rimbu/common';
 import { Hasher } from '@rimbu/hashed';
 import { List } from '@rimbu/list';
-import { Stream, type StreamSource } from '@rimbu/stream';
 import { Reducer } from '@rimbu/stream/reducer';
 import { HashSetEmpty } from './immutable/empty';
 import { HashSetNonEmptyBase } from './immutable/non-empty';
@@ -13,6 +14,7 @@ import { HashSetBlock, type SetEntrySet } from '#set/immutable/block';
 import { HashSetCollision } from '#set/immutable/collision';
 
 export class HashSetContext<UE>
+	extends CollectionContextBaseWithAddAll<HashSet.Advanced.Family<UE>>
 	implements HashSet.Advanced.ContextApi<UE, HashSet.Advanced.Family<UE>>
 {
 	constructor(
@@ -21,6 +23,7 @@ export class HashSetContext<UE>
 		readonly blockSizeBits: number = 5,
 		readonly listContext = List.defaultContext,
 	) {
+		super();
 		this.blockCapacity = 1 << blockSizeBits;
 		this.blockMask = this.blockCapacity - 1;
 		this.maxDepth = Math.ceil(32 / blockSizeBits);
@@ -134,34 +137,6 @@ export class HashSetContext<UE>
 
 	builder = <T extends UE>(): HashSet.Builder<T> => {
 		return new HashSetBlockBuilder<T>(this as unknown as HashSetContext<T>);
-	};
-
-	from = <T extends UE>(...sources: StreamSource<T>[]): HashSet.NonEmpty<T> => {
-		let builder: HashSet.Builder<T> = this.builder<T>();
-
-		const length = sources.length;
-		let i = -1;
-
-		while (++i < length) {
-			const source = sources[i];
-			if (Stream.isEmptyStreamSourceInstance(source)) continue;
-			if (
-				builder.isEmpty &&
-				this.isNonEmptyInstance<T>(source) &&
-				source.context === (this as unknown as HashSet.Context<T>)
-			) {
-				if (i === length - 1) return source;
-				builder = source.toBuilder();
-				continue;
-			}
-			builder.addAll(source);
-		}
-
-		return builder.build() as HashSet.NonEmpty<T>;
-	};
-
-	of = <T extends UE>(...elements: ArrayNonEmpty<T>): HashSet.NonEmpty<T> => {
-		return this.from(elements) as HashSet.NonEmpty<T>;
 	};
 
 	reducer = <E extends UE>(
