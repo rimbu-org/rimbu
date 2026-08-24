@@ -43,14 +43,15 @@ export declare namespace KeyedCollection {
 			> = Collection.Advanced.Family<readonly [K, V]>,
 		> = F & Family<K, V>;
 
+		export type ElementStream<
+			E,
+			IsNonEmpty extends boolean = boolean,
+		> = () => IsNonEmpty extends true ? Stream.NonEmpty<E> : Stream<E>;
+
 		export interface Api<K, V, Tp extends Collection.Advanced.TypesBase>
 			extends Collection.Advanced.Api<readonly [K, V], Tp> {
-			streamKeys(): Tp['_IS_NON_EMPTY'] extends true
-				? Stream.NonEmpty<K>
-				: Stream<K>;
-			streamValues(): Tp['_IS_NON_EMPTY'] extends false
-				? Stream.NonEmpty<V>
-				: Stream<V>;
+			streamKeys: ElementStream<K, Tp['_IS_NON_EMPTY']>;
+			streamValues: ElementStream<V, Tp['_IS_NON_EMPTY']>;
 
 			get<UK = K>(key: RelatedTo<K, UK>): V | undefined;
 			get<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O;

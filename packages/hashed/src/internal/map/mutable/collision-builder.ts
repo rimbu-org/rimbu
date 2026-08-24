@@ -87,9 +87,9 @@ export class HashMapCollisionBuilder<K, V> extends CollisionBuilderBase<
 		return changed;
 	}
 
-	set(key: K, value: V): boolean {
-		return this.addInternal([key, value]);
-	}
+	// set(key: K, value: V): boolean {
+	// 	return this.addInternal([key, value]);
+	// }
 
 	modifyAt(atKey: K, options: ModifyOptions<V>): boolean {
 		if (checkEmptyModifyOptions(options)) return false;

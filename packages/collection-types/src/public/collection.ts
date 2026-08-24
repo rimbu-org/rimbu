@@ -23,9 +23,6 @@ export declare namespace Collection {
 	> = Advanced.Types<F, any>['_CONTEXT'];
 
 	export namespace Advanced {
-		export type IfNonEmpty<Tp extends TypesBase, NonEmpty, Normal> =
-			Tp extends Collection.Advanced.NonEmptyKind<any> ? NonEmpty : Normal;
-
 		export interface TypesBase extends FamilyBase<any> {
 			_SELF: unknown;
 			_NEW_TYPES: TypesBase;
@@ -94,6 +91,7 @@ export declare namespace Collection {
 
 		export interface NonEmptyKind<E> extends FamilyBase<E> {
 			_SELF: this['_NON_EMPTY'];
+			_IS_NON_EMPTY: true;
 
 			_NEW_TYPES: TypesNonEmpty<this['_NEW_FAMILY'], this['_NEW_E']>;
 
