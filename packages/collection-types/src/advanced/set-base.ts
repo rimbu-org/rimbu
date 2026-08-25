@@ -1,12 +1,12 @@
 import type { Collection } from '@rimbu/collection-types/collection';
 import type { SetCollection } from '@rimbu/collection-types/set';
 
-import { CollectionContextBaseWithAddAll } from '@rimbu/collection-types/advanced/collection-base';
 import {
 	ValuedCollectionBuilderBase,
 	ValuedCollectionEmptyBase,
 	ValuedCollectionNonEmptyBase,
 } from '@rimbu/collection-types/advanced/collection/valued-base';
+import { CollectionContextBaseWithAddAll } from '@rimbu/collection-types/advanced/collection-base';
 import { Stream, type StreamSource } from '@rimbu/stream';
 import { Reducer } from '@rimbu/stream/reducer';
 

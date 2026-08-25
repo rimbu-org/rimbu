@@ -1,6 +1,13 @@
 import type { Collection } from '@rimbu/collection-types/collection';
 import type { Op } from '@rimbu/collection-types/types';
-import type { ArrayNonEmpty, OptLazy, RelatedTo } from '@rimbu/common';
+import type {
+	ArrayNonEmpty,
+	IfAllExtend,
+	IfAnyExtends,
+	OptLazy,
+	RelatedTo,
+	SubOf,
+} from '@rimbu/common';
 import type { Stream, StreamSource } from '@rimbu/stream';
 import type { Reducer } from '@rimbu/stream/reducer';
 
@@ -193,6 +200,11 @@ export declare namespace KeyedCollection {
 				V,
 				Collection.Advanced.TypesNonEmpty<this['_FAM'], readonly [K, V]>
 			>;
+			_BUILDER: WithMapValues.BuilderApi<
+				K,
+				V,
+				Collection.Advanced.Types<this['_FAM'], readonly [K, V]>
+			>;
 
 			_FAM: WithMapValues<K, V>;
 			_NEW_FAMILY: WithMapValues<this['_NEW_K'], this['_NEW_V']>;
@@ -204,6 +216,158 @@ export declare namespace KeyedCollection {
 				mapValues<V2 extends V>(
 					mapFun: (value: V, key: K) => V2,
 				): Collection.Advanced.ReTyped<Tp, readonly [K, V2]>['_SELF'];
+			}
+
+			export interface BuilderApi<
+				K,
+				V,
+				Tp extends Collection.Advanced.TypesBase,
+			> extends Advanced.BuilderApi<K, V, Tp> {
+				buildMapValues<V2 extends V>(
+					mapFun: (value: V, key: K) => V2,
+				): Collection.Advanced.ReTyped<Tp, readonly [K, V2]>['_NORMAL'];
+			}
+		}
+
+		export interface WithMerge<K, V> extends Advanced.Family<K, V> {
+			_KEYED_CONTEXT: WithMerge.KeyedContextApi<this['_FAM']>;
+
+			_FAM: WithMerge<K, V>;
+			_NEW_FAMILY: WithMerge<this['_NEW_K'], this['_NEW_V']>;
+		}
+
+		export namespace WithMerge {
+			export type StreamSourceArrayElement<
+				S extends readonly StreamSource<any>[],
+			> = S extends readonly StreamSource<infer E>[] ? E : never;
+			export type StreamSourceElement<S extends StreamSource<any>> =
+				S extends StreamSource<infer E> ? E : never;
+
+			export interface KeyedContextApi<F extends Advanced.Family<any, any>>
+				extends Advanced.KeyedContextApi<F> {
+				mergeAllWith<
+					const S extends readonly StreamSource<
+						readonly [F['_UPPER_K'], any]
+					>[],
+					R,
+					O = undefined,
+				>(
+					sources: S,
+					options: {
+						fillValue?: O;
+						merge: (
+							key: StreamSourceArrayElement<S>[0],
+							values: {
+								[KI in keyof S]:
+									| (StreamSourceElement<S[KI]> & [unknown, unknown])[1]
+									| O;
+							},
+						) => R;
+					},
+				): Collection.Advanced.ReTypeFam<
+					F,
+					readonly [StreamSourceArrayElement<S>[0], SubOf<R, F['_UPPER_V']>]
+				>[IfAnyExtends<S, StreamSource.NonEmpty<any>, '_NON_EMPTY', '_NORMAL'>];
+
+				mergeAll<
+					const S extends readonly StreamSource<
+						readonly [F['_UPPER_K'], any]
+					>[],
+					O = undefined,
+				>(
+					sources: S,
+					options?:
+						| {
+								fillValue?: O;
+						  }
+						| undefined,
+				): Collection.Advanced.ReTypeFam<
+					F,
+					readonly [
+						StreamSourceArrayElement<S>[0],
+						SubOf<
+							{
+								[KI in keyof S]:
+									| (StreamSourceElement<S[KI]> & [unknown, unknown])[1]
+									| O;
+							},
+							F['_UPPER_V']
+						>,
+					]
+				>[IfAnyExtends<S, StreamSource.NonEmpty<any>, '_NON_EMPTY', '_NORMAL'>];
+
+				mergeWith<
+					const S extends StreamSource<readonly [F['_UPPER_K'], any]>[],
+					R,
+				>(
+					sources: S,
+					options: {
+						merge: (
+							key: StreamSourceArrayElement<S>[0],
+							values: {
+								[KI in keyof S]: (StreamSourceElement<S[KI]> &
+									[unknown, unknown])[1];
+							},
+						) => R;
+					},
+				): Collection.Advanced.ReTypeFam<
+					F,
+					readonly [
+						StreamSourceArrayElement<S>[0],
+						SubOf<
+							{
+								[KI in keyof S]: (StreamSourceElement<S[KI]> &
+									[unknown, unknown])[1];
+							},
+							F['_UPPER_V']
+						>,
+					]
+				>[IfAllExtend<S, StreamSource.NonEmpty<any>, '_NON_EMPTY', '_NORMAL'>];
+
+				merge<const S extends StreamSource<readonly [F['_UPPER_K'], any]>[]>(
+					sources: S,
+				): Collection.Advanced.ReTypeFam<
+					F,
+					readonly [
+						StreamSourceArrayElement<S>[0],
+						SubOf<
+							{
+								[KI in keyof S]: (StreamSourceElement<S[KI]> &
+									[unknown, unknown])[1];
+							},
+							F['_UPPER_V']
+						>,
+					]
+				>[IfAllExtend<S, StreamSource.NonEmpty<any>, '_NON_EMPTY', '_NORMAL'>];
+			}
+		}
+
+		export interface WithReducer<K, V>
+			extends Advanced.ExtendFamily<
+				K,
+				V,
+				Collection.Capability.WithReducer<readonly [K, V]>
+			> {
+			_KEYED_CONTEXT: WithReducer.KeyedContextApi<this['_FAM']>;
+
+			_FAM: WithReducer<K, V>;
+			_NEW_FAMILY: WithReducer<this['_NEW_K'], this['_NEW_V']>;
+		}
+
+		export namespace WithReducer {
+			export interface KeyedContextApi<
+				F extends Advanced.ExtendFamily<
+					any,
+					any,
+					Collection.Advanced.Family<any>
+				>,
+			> extends Advanced.KeyedContextApi<F> {
+				reducer<K extends F['_UPPER_K'], V extends F['_UPPER_V']>(
+					source?: StreamSource<readonly [K, V]> | undefined,
+				): Reducer<
+					readonly [K, V],
+					Collection.Advanced.FamToTypes<F, readonly [K, V]>['_NORMAL']
+				>;
 			}
 		}
 	}

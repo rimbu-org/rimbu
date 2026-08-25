@@ -51,6 +51,7 @@ export namespace HashMap {
 			extends MapCollection.Advanced.BuilderApi<K, V, Tp>,
 				Collection.Capability.WithAdd.BuilderApi<readonly [K, V], Tp>,
 				KeyedCollection.Capability.WithRemove.BuilderApi<K, V, Tp>,
+				KeyedCollection.Capability.WithMapValues.BuilderApi<K, V, Tp>,
 				MapCollection.Capability.WithSet.BuilderApi<K, V, Tp>,
 				MapCollection.Capability.WithUpdateAt.BuilderApi<K, V, Tp>,
 				MapCollection.Capability.WithModifyAt.BuilderApi<K, V, Tp> {}
@@ -70,7 +71,8 @@ export namespace HashMap {
 		export interface KeyedContextApi<
 			UK,
 			FAM extends KeyedCollection.Advanced.Family<UK, any>,
-		> extends KeyedCollection.Advanced.KeyedContextApi<FAM> {
+		> extends KeyedCollection.Advanced.KeyedContextApi<FAM>,
+				KeyedCollection.Capability.WithMerge.KeyedContextApi<FAM> {
 			readonly defaultContext: FAM['_CONTEXT'];
 
 			createContext<K>(options: {

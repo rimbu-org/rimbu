@@ -64,3 +64,13 @@ export interface ToJSON<V, D extends string = string> {
 export type WithValueResult<R, V, RNoValue = R, VNoValue = undefined> =
 	| [result: R, value: V, hasValue: true]
 	| [result: RNoValue, value: VNoValue, hasValue: false];
+
+export type IfAnyExtends<T extends readonly unknown[], M, A, B> =
+	Extract<T[number], M> extends never ? B : A;
+
+export type IfAllExtend<
+	T extends readonly unknown[],
+	M,
+	A,
+	B,
+> = T extends readonly M[] ? A : B;

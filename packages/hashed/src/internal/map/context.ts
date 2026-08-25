@@ -1,10 +1,10 @@
 import type { HashMap } from '@rimbu/hashed/map';
-import type { StreamSource } from '@rimbu/stream';
 
 import { CollectionContextBaseWithAddAll } from '@rimbu/collection-types/advanced/collection-base';
 import { Eq } from '@rimbu/common';
 import { Hasher } from '@rimbu/hashed';
 import { List } from '@rimbu/list';
+import { Stream, type StreamSource } from '@rimbu/stream';
 import { Reducer } from '@rimbu/stream/reducer';
 
 import { HashMapBlock, type MapEntrySet } from '#map/immutable/block';
@@ -15,6 +15,170 @@ import {
 	HashMapBlockBuilder,
 	type MapBlockBuilderEntry,
 } from '#map/mutable/block-builder';
+
+export class HashMapKeyedContext<UK>
+	implements
+		HashMap.Advanced.KeyedContextApi<UK, HashMap.Advanced.Family<UK, any>>
+{
+	constructor(readonly context: HashMapContext<UK>) {}
+
+	get defaultContext(): HashMap.Context<UK> {
+		return this.context.defaultContext as any;
+	}
+
+	get createContext() {
+		return this.context.createContext;
+	}
+
+	get empty(): <K extends UK, V>() => HashMap<K, V> {
+		return this.context.empty as any;
+	}
+
+	get of(): <K extends UK, V>(
+		...entries: readonly [K, V][]
+	) => HashMap.NonEmpty<K, V> {
+		return this.context.of;
+	}
+
+	get from(): <K extends UK, V>(
+		source: StreamSource<readonly [K, V]>,
+	) => HashMap.NonEmpty<K, V> {
+		return this.context.builder as any;
+	}
+
+	get builder(): <K extends UK, V>() => HashMap.Builder<K, V> {
+		return this.context.builder as any;
+	}
+
+	mergeAllWith = (
+		sources: readonly StreamSource<readonly [UK, any]>[],
+		options: { fillValue?: any; merge: (key: UK, values: any) => any },
+	): HashMap.NonEmpty<UK, any> => {
+		const { fillValue = undefined, merge: mergeFun } = options;
+
+		const builder = this.builder<UK, any[]>();
+
+		let i = -1;
+		const length = sources.length;
+
+		while (++i < sources.length) {
+			let entry: readonly [UK, unknown] | undefined;
+			const iter = Stream.from(sources[i])[Symbol.iterator]();
+
+			while (undefined !== (entry = iter.fastNext())) {
+				const key = entry[0];
+				const value = entry[1];
+
+				const index = i;
+
+				builder.modifyAt(key, {
+					ifNew: {
+						create: (): unknown[] => {
+							const row = Array(length).fill(fillValue);
+							row[index] = value;
+							return row;
+						},
+					},
+					ifExists: {
+						update: (row): unknown[] => {
+							row[index] = value;
+							return row;
+						},
+					},
+				});
+			}
+		}
+
+		return builder.buildMapValues((values, key) =>
+			mergeFun(key, values),
+		) as HashMap.NonEmpty<UK, any>;
+	};
+
+	mergeAll = (
+		sources: readonly StreamSource<readonly [UK, any]>[],
+		options: { fillValue?: any },
+	): HashMap.NonEmpty<UK, any> => {
+		return this.mergeAllWith(sources, {
+			fillValue: options.fillValue,
+			merge: (_key, values) => values,
+		});
+	};
+
+	mergeWith = (
+		sources: readonly StreamSource<readonly [UK, any]>[],
+		options: { merge: (key: UK, values: any) => any },
+	): HashMap<UK, any> => {
+		if (Stream.from(sources).some(Stream.isEmptyStreamSourceInstance)) {
+			return this.empty();
+		}
+
+		const { merge: mergeFun } = options;
+
+		const builder = this.builder<UK, unknown[]>();
+
+		let i = -1;
+		const length = sources.length;
+
+		while (++i < sources.length) {
+			let entry: readonly [UK, unknown] | undefined;
+			const iter = Stream.from(sources[i])[Symbol.iterator]();
+
+			while (undefined !== (entry = iter.fastNext())) {
+				const key = entry[0];
+				const value = entry[1];
+
+				const index = i;
+
+				builder.modifyAt(key, {
+					ifNew: {
+						create: (nothing): unknown[] | typeof nothing => {
+							if (index > 0) return nothing;
+
+							const row = [value];
+							return row;
+						},
+					},
+					ifExists: {
+						update: (row, remove): unknown[] | typeof remove => {
+							if (row.length !== index) return remove;
+							row.push(value);
+							return row;
+						},
+					},
+				});
+			}
+		}
+
+		// remove all rows that are not full
+		const firstSource = sources[0];
+
+		let entry: readonly [UK, unknown] | undefined;
+		const iter = Stream.from(firstSource)[Symbol.iterator]();
+
+		while (undefined !== (entry = iter.fastNext())) {
+			const key = entry[0];
+
+			builder.modifyAt(key, {
+				ifExists: {
+					update: (row, remove): unknown[] | typeof remove => {
+						if (row.length !== length) return remove;
+						return row;
+					},
+				},
+			});
+		}
+
+		return builder.buildMapValues((row, key) => mergeFun(key, row));
+	};
+
+	merge = (
+		sources: readonly StreamSource<readonly [UK, any]>[],
+	): HashMap<UK, any> => {
+		return this.mergeWith(sources, {
+			merge: (_key, values) => values,
+		});
+	};
+}
 
 export class HashMapContext<UK>
 	extends CollectionContextBaseWithAddAll<HashMap.Advanced.Family<UK, any>>
@@ -59,11 +223,14 @@ export class HashMapContext<UK>
 		return this.getDefaultInstance();
 	}
 
-	get keyedContext(): HashMap.Advanced.KeyedContextApi<
-		UK,
-		HashMap.Advanced.Family<UK, any>
-	> {
-		return this as any;
+	#keyedContext: HashMapKeyedContext<UK> | undefined;
+
+	get keyedContext(): HashMapKeyedContext<UK> {
+		if (undefined === this.#keyedContext) {
+			this.#keyedContext = new HashMapKeyedContext<UK>(this);
+		}
+
+		return this.#keyedContext;
 	}
 
 	get hasher(): Hasher<UK> {

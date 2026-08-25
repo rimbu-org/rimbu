@@ -324,13 +324,7 @@ export declare namespace Collection {
 				extends Collection.Advanced.ContextApi<F> {
 				reducer<E extends F['_UPPER_E']>(
 					source?: StreamSource<E>,
-				): Reducer<
-					E,
-					Collection.Advanced.ReTyped<
-						Collection.Advanced.Types<F, E>,
-						E
-					>['_NORMAL']
-				>;
+				): Reducer<E, Collection.Advanced.FamToTypes<F, E>['_NORMAL']>;
 			}
 		}
 

@@ -8,10 +8,10 @@ describe('HashMap issues fixed by PRs', () => {
 			[[6, 29], 'a'],
 			[[2, 91], 'b'],
 		]);
-		expect(hm.hasKey([6, 29])).toBe(true);
-		expect(hm.hasKey([2, 91])).toBe(true);
-		expect(hm.at([6, 29])).toBe('a');
-		expect(hm.modifyAt([6, 29], { ifExists: { set: 'g' } }).at([6, 29])).toBe(
+		expect(hm.has([6, 29])).toBe(true);
+		expect(hm.has([2, 91])).toBe(true);
+		expect(hm.get([6, 29])).toBe('a');
+		expect(hm.modifyAt([6, 29], { ifExists: { set: 'g' } }).get([6, 29])).toBe(
 			'g',
 		);
 		expect(hm.removeKey([6, 29]).size).toBe(1);
@@ -20,10 +20,10 @@ describe('HashMap issues fixed by PRs', () => {
 			[[6, 30], 'a'],
 			[[2, 91], 'b'],
 		]);
-		expect(hm2.hasKey([6, 30])).toBe(true);
-		expect(hm2.hasKey([2, 91])).toBe(true);
-		expect(hm2.at([6, 30])).toBe('a');
-		expect(hm2.modifyAt([6, 30], { ifExists: { set: 'g' } }).at([6, 30])).toBe(
+		expect(hm2.has([6, 30])).toBe(true);
+		expect(hm2.has([2, 91])).toBe(true);
+		expect(hm2.get([6, 30])).toBe('a');
+		expect(hm2.modifyAt([6, 30], { ifExists: { set: 'g' } }).get([6, 30])).toBe(
 			'g',
 		);
 		expect(hm2.removeKey([6, 30]).size).toBe(1);
@@ -32,10 +32,10 @@ describe('HashMap issues fixed by PRs', () => {
 			[[6, 29], 'c'],
 			[[2, 91], 'd'],
 		]);
-		expect(hm3.hasKey([6, 29])).toBe(true);
-		expect(hm3.hasKey([2, 91])).toBe(true);
-		expect(hm3.at([6, 29])).toBe('c');
-		expect(hm3.modifyAt([6, 29], { ifExists: { set: 'g' } }).at([6, 29])).toBe(
+		expect(hm3.has([6, 29])).toBe(true);
+		expect(hm3.has([2, 91])).toBe(true);
+		expect(hm3.get([6, 29])).toBe('c');
+		expect(hm3.modifyAt([6, 29], { ifExists: { set: 'g' } }).get([6, 29])).toBe(
 			'g',
 		);
 		expect(hm3.removeKey([6, 29]).size).toBe(1);
@@ -43,16 +43,16 @@ describe('HashMap issues fixed by PRs', () => {
 
 	it('issue #186 for builder: HashMap "forgets" about colliding keys, unlike HashSet', () => {
 		const hm = HashMap.builder<[number, number], string>();
-		hm.addEntries([
+		hm.addAll([
 			[[6, 29], 'a'],
 			[[2, 91], 'b'],
 		]);
-		expect(hm.hasKey([6, 29])).toBe(true);
-		expect(hm.hasKey([2, 91])).toBe(true);
-		expect(hm.at([6, 29])).toBe('a');
+		expect(hm.has([6, 29])).toBe(true);
+		expect(hm.has([2, 91])).toBe(true);
+		expect(hm.get([6, 29])).toBe('a');
 
 		hm.modifyAt([6, 29], { ifExists: { set: 'g' } });
-		expect(hm.at([6, 29])).toBe('g');
+		expect(hm.get([6, 29])).toBe('g');
 		hm.removeKey([6, 29]);
 
 		expect(hm.size).toBe(1);
