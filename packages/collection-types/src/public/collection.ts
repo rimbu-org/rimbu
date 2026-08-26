@@ -50,10 +50,6 @@ export declare namespace Collection {
 			_NEW_E: E2;
 		})['_NEW_FAMILY'];
 
-		export type InvariantTypes<Tp extends TypesBase, E> = Tp & {
-			readonly _INVARIANT: (e: E) => E;
-		};
-
 		export interface FamilyBase<E> {
 			/** the kind-free family this record was built from */
 			_FAM: FamilyBase<E>;
@@ -71,8 +67,7 @@ export declare namespace Collection {
 			_NEW_E: unknown;
 			_NEW_FAMILY: FamilyBase<this['_NEW_E']>;
 
-			/** covariant witness, so `Col<number>` is a `Col<number | string>` */
-			_COVARIANT: E;
+			_INVARIANT: (e: any) => any;
 
 			_isEmpty: unknown;
 		}
@@ -213,6 +208,8 @@ export declare namespace Collection {
 				Collection.Advanced.Types<this['_FAM'], E>
 			>;
 
+			_INVARIANT: (e: E) => E;
+
 			_FAM: WithAdd<E>;
 			_NEW_FAMILY: WithAdd<this['_NEW_E']>;
 		}
@@ -238,6 +235,8 @@ export declare namespace Collection {
 			_NORMAL: WithToBuilder.Api<E, Advanced.Types<this['_FAM'], E>>;
 			_NON_EMPTY: WithToBuilder.Api<E, Advanced.TypesNonEmpty<this['_FAM'], E>>;
 
+			_INVARIANT: (e: E) => E;
+
 			_FAM: WithToBuilder<E>;
 			_NEW_FAMILY: WithToBuilder<this['_NEW_E']>;
 		}
@@ -252,6 +251,8 @@ export declare namespace Collection {
 		export interface WithMap<E> extends Advanced.Family<E> {
 			_NORMAL: WithMap.Api<E, Advanced.Types<this['_FAM'], E>>;
 			_NON_EMPTY: WithMap.Api<E, Advanced.TypesNonEmpty<this['_FAM'], E>>;
+
+			_INVARIANT: (e: E) => E;
 
 			_FAM: WithMap<E>;
 			_NEW_FAMILY: WithMap<this['_NEW_E']>;
@@ -273,6 +274,8 @@ export declare namespace Collection {
 		export interface WithFlatMap<E> extends Advanced.Family<E> {
 			_NORMAL: WithFlatMap.Api<E, Advanced.Types<this['_FAM'], E>>;
 			_NON_EMPTY: WithFlatMap.Api<E, Advanced.TypesNonEmpty<this['_FAM'], E>>;
+
+			_INVARIANT: (e: E) => E;
 
 			_FAM: WithFlatMap<E>;
 			_NEW_FAMILY: WithFlatMap<this['_NEW_E']>;
@@ -302,6 +305,8 @@ export declare namespace Collection {
 		export interface WithMutate<E> extends Advanced.Family<E> {
 			_NORMAL: WithMutate.Api<E, Advanced.Types<this['_FAM'], E>>;
 			_NON_EMPTY: WithMutate.Api<E, Advanced.TypesNonEmpty<this['_FAM'], E>>;
+
+			_INVARIANT: (e: E) => E;
 
 			_FAM: WithMutate<E>;
 			_NEW_FAMILY: WithMutate<this['_NEW_E']>;
@@ -333,6 +338,8 @@ export declare namespace Collection {
 		export interface WithRecompose<E> extends Advanced.Family<E> {
 			_NORMAL: WithRecompose.Api<E, Advanced.Types<this['_FAM'], E>>;
 			_NON_EMPTY: WithRecompose.Api<E, Advanced.TypesNonEmpty<this['_FAM'], E>>;
+
+			_INVARIANT: (e: E) => E;
 
 			_FAM: WithRecompose<E>;
 			_NEW_FAMILY: WithRecompose<this['_NEW_E']>;
