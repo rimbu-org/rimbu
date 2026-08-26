@@ -43,11 +43,17 @@ export class HashMapKeyedContext<UK>
 	get from(): <K extends UK, V>(
 		source: StreamSource<readonly [K, V]>,
 	) => HashMap.NonEmpty<K, V> {
-		return this.context.builder as any;
+		return this.context.from as any;
 	}
 
 	get builder(): <K extends UK, V>() => HashMap.Builder<K, V> {
 		return this.context.builder as any;
+	}
+
+	get reducer(): <K extends UK, V>(
+		source?: StreamSource<readonly [K, V]>,
+	) => Reducer<readonly [K, V], HashMap<K, V>> {
+		return this.context.reducer as any;
 	}
 
 	mergeAllWith = (
@@ -96,7 +102,7 @@ export class HashMapKeyedContext<UK>
 
 	mergeAll = (
 		sources: readonly StreamSource<readonly [UK, any]>[],
-		options: { fillValue?: any },
+		options: { fillValue?: any } = {},
 	): HashMap.NonEmpty<UK, any> => {
 		return this.mergeAllWith(sources, {
 			fillValue: options.fillValue,

@@ -66,23 +66,28 @@ export class ListBuilder<T>
 	};
 
 	setAt = <O>(index: number, value: T, otherwise?: OptLazy<O>): T | O => {
-		const result = this.updateAt(index, () => value);
-		if (undefined === result) {
+		const notFound = Symbol();
+		const [previous] = this.updateAt(index, () => value, notFound);
+
+		if (notFound === previous) {
 			return OptLazy(otherwise) as O;
 		}
-		return result[0];
+
+		return previous;
 	};
 
-	updateAt = (
+	updateAt = <O>(
 		index: number,
 		f: (element: T) => T,
-	): [previous: T, current: T] | undefined => {
+		otherwise?: OptLazy<O>,
+	): [previous: T | O, current: T | O] => {
 		if (
 			undefined === this.#outerBuilder ||
 			-index > this.size ||
 			index >= this.size
 		) {
-			return undefined;
+			const otherwiseValue = OptLazy(otherwise) as O;
+			return [otherwiseValue, otherwiseValue];
 		}
 
 		if (index < 0) index = this.size + index;

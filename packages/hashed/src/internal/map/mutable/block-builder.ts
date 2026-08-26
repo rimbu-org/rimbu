@@ -329,18 +329,29 @@ export class HashMapBlockBuilder<K, V>
 		return true;
 	};
 
-	updateAt = <UK>(key: RelatedTo<K, UK>, update: (value: V) => V): boolean => {
-		let changed = false;
+	updateAt = <UK, O>(
+		key: RelatedTo<K, UK>,
+		update: (value: V) => V,
+		otherwise?: OptLazy<O>,
+	): [V | O, V | O] => {
+		let result: [V, V] | undefined = undefined;
+
 		this.modifyAt(key as K, {
 			ifExists: {
 				update: (value: V, _remove) => {
 					const newValue = update(value);
-					if (!Object.is(newValue, value)) changed = true;
+					result = [value, newValue];
+
 					return newValue;
 				},
 			},
 		});
-		return changed;
+
+		if (undefined !== result) {
+			return result;
+		}
+		const otherwiseValue = OptLazy(otherwise) as O;
+		return [otherwiseValue, otherwiseValue];
 	};
 
 	removeKey = <UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O => {

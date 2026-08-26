@@ -46,6 +46,7 @@ export declare namespace List {
 		export interface BuilderApi<T, Tp extends Collection.Advanced.TypesBase>
 			extends IndexedCollection.Capability.WithPrependAppend.BuilderApi<T, Tp>,
 				IndexedCollection.Capability.WithInsertAt.BuilderApi<T, Tp>,
+				IndexedCollection.Capability.WithUpdateAt.BuilderApi<T, Tp>,
 				IndexedCollection.Capability.WithRemoveAt.BuilderApi<T, Tp> {}
 
 		export interface ContextApi<F extends Collection.Advanced.FamilyBase<any>>

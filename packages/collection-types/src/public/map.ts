@@ -1,7 +1,7 @@
 import type { Collection } from '@rimbu/collection-types/collection';
 import type { KeyedCollection } from '@rimbu/collection-types/collection/keyed';
 import type { Op } from '@rimbu/collection-types/types';
-import type { RelatedTo } from '@rimbu/common';
+import type { OptLazy, RelatedTo } from '@rimbu/common';
 import type { StreamSource } from '@rimbu/stream';
 
 export type MapCollection<
@@ -162,8 +162,13 @@ export declare namespace MapCollection {
 			> extends Advanced.BuilderApi<K, V, Tp> {
 				updateAt<UK = K>(
 					key: RelatedTo<K, UK>,
-					update: (value: V) => V,
-				): boolean;
+					f: (value: V) => V,
+				): [previous: V | undefined, current: V | undefined];
+				updateAt<UK, O>(
+					key: RelatedTo<K, UK>,
+					f: (value: V) => V,
+					otherwise: OptLazy<O>,
+				): [previous: V | O, current: V | O];
 			}
 		}
 

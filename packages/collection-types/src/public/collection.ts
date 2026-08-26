@@ -153,6 +153,8 @@ export declare namespace Collection {
 		}
 
 		export interface BuilderApi<E, Tp extends TypesBase> {
+			readonly context: Tp['_CONTEXT'];
+
 			get isEmpty(): boolean;
 			get size(): number;
 

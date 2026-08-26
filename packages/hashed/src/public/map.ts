@@ -72,7 +72,8 @@ export namespace HashMap {
 			UK,
 			FAM extends KeyedCollection.Advanced.Family<UK, any>,
 		> extends KeyedCollection.Advanced.KeyedContextApi<FAM>,
-				KeyedCollection.Capability.WithMerge.KeyedContextApi<FAM> {
+				KeyedCollection.Capability.WithMerge.KeyedContextApi<FAM>,
+				KeyedCollection.Capability.WithReducer.KeyedContextApi<FAM> {
 			readonly defaultContext: FAM['_CONTEXT'];
 
 			createContext<K>(options: {

@@ -314,6 +314,10 @@ export declare namespace IndexedCollection {
 				E,
 				Collection.Advanced.TypesNonEmpty<this['_FAM'], E>
 			>;
+			_BUILDER: WithUpdateAt.BuilderApi<
+				E,
+				Collection.Advanced.Types<this['_FAM'], E>
+			>;
 
 			_FAM: WithUpdateAt<E>;
 			_NEW_FAMILY: WithUpdateAt<this['_NEW_E']>;
@@ -338,6 +342,22 @@ export declare namespace IndexedCollection {
 					[previous: E, current: E],
 					Tp['_NON_EMPTY']
 				>;
+			}
+
+			export interface BuilderApi<E, Tp extends Collection.Advanced.TypesBase>
+				extends Advanced.BuilderApi<E, Tp> {
+				setAt(index: number, element: E): E | undefined;
+				setAt<O>(index: number, element: E, otherwise: OptLazy<O>): E | O;
+
+				updateAt(
+					index: number,
+					f: (element: E) => E,
+				): [previous: E | undefined, current: E | undefined];
+				updateAt<O>(
+					index: number,
+					f: (element: E) => E,
+					otherwise: OptLazy<O>,
+				): [previous: E | O, current: E | O];
 			}
 		}
 
