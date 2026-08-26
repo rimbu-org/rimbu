@@ -334,7 +334,7 @@ export class HashMapBlockBuilder<K, V>
 		update: (value: V) => V,
 		otherwise?: OptLazy<O>,
 	): [V | O, V | O] => {
-		let result: [V, V] | undefined = undefined;
+		let result: [V, V] | undefined;
 
 		this.modifyAt(key as K, {
 			ifExists: {

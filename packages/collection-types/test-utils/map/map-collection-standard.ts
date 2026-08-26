@@ -37,7 +37,8 @@ type Capabilities = Collection.Capability.WithAdd<any> &
 	KeyedCollection.Capability.WithMapValues<any, any> &
 	KeyedCollection.Capability.WithRemove<any, any> &
 	MapCollection.Capability.WithUpdateAt<any, any> &
-	MapCollection.Capability.WithSet<any, any>;
+	MapCollection.Capability.WithSet<any, any> &
+	MapCollection.Capability.WithModifyAt<any, any>;
 
 export function runMapTestsWith(
 	name: string,
@@ -543,10 +544,10 @@ export function runMapTestsWith(
 			}
 		});
 
-		it.skip('toString', () => {
-			expect(mapEmpty.toString()).toBe(`${GMap.typeTag}()`);
-			expect(map3.toString()).toBe(`${GMap.typeTag}(1 -> a, 2 -> b, 3 -> c)`);
-		});
+		// it.skip('toString', () => {
+		// 	expect(mapEmpty.toString()).toBe(`${GMap.typeTag}()`);
+		// 	expect(map3.toString()).toBe(`${GMap.typeTag}(1 -> a, 2 -> b, 3 -> c)`);
+		// });
 
 		it('updateAt', () => {
 			expect(mapEmpty.updateAt(2, () => 'z')).toBe(mapEmpty);
@@ -637,7 +638,7 @@ export function runMapTestsWith(
 
 		it('build', () => {
 			const b = GMap.builder<number, string>();
-			expect(b.build()).toBe(GMap.empty());
+			expect(b.build()).toBe(GMap.empty<number, string>());
 
 			forEachBuilder((b) => {
 				expect(b.build().size).toBe(3);
@@ -647,7 +648,7 @@ export function runMapTestsWith(
 
 		it('buildMapValues', () => {
 			const b = GMap.builder<number, string>();
-			expect(b.buildMapValues((v) => v + v)).toBe(GMap.empty());
+			expect(b.buildMapValues((v) => v + v)).toBe(GMap.empty<number, string>());
 			b.addAll(arr3);
 			expect(b.buildMapValues((v) => v + v).size).toBe(3);
 			expect(b.buildMapValues((v) => v + v).get(2)).toBe('bb');

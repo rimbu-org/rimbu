@@ -399,24 +399,23 @@ export declare namespace IndexedCollection {
 			export interface ContextApi<F extends Collection.Advanced.FamilyBase<any>>
 				extends Advanced.ContextApi<F> {
 				unzip<
-					E extends readonly F['_UPPER_E'][] & { length?: L; size?: L },
+					S extends StreamSource<
+						{ length?: L; size?: L } & readonly F['_UPPER_E'][]
+					>,
 					const L extends number,
 				>(
-					source: StreamSource.NonEmpty<E>,
+					source: S,
 					options: { length: L },
-				): {
-					[K in keyof E]: Collection.Advanced.FamToTypes<F, E[K]>['_NON_EMPTY'];
-				};
-
-				unzip<
-					E extends readonly F['_UPPER_E'][] & { length?: L; size?: L },
-					const L extends number,
-				>(
-					source: StreamSource<E>,
-					options: { length: L },
-				): {
-					[K in keyof E]: Collection.Advanced.FamToTypes<F, E[K]>['_NORMAL'];
-				};
+				): S extends StreamSource<infer E>
+					? {
+							[K in keyof E]: Collection.Advanced.FamToTypes<
+								F,
+								E[K]
+							>[S extends StreamSource.NonEmpty<any>
+								? '_NON_EMPTY'
+								: '_NORMAL'];
+						}
+					: F[S extends StreamSource.NonEmpty<any> ? '_NON_EMPTY' : '_NORMAL'];
 			}
 		}
 

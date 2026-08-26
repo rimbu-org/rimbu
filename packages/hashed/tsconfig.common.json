@@ -8,7 +8,7 @@
 			"@rimbu/collection-types/*": [
 				"../collection-types/*.ts"
 			],
-			"#hashed/*": ["./src/internal/hashed/*.ts"],
+			"#common/*": ["./src/internal/common/*.ts"],
 			"#map/*": ["./src/internal/map/*.ts"],
 			"#set/*": ["./src/internal/set/*.ts"]
 		}

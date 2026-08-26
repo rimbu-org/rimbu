@@ -246,12 +246,10 @@ export class ListContext<
 		return this.from(source).flatMap((stream) => stream);
 	};
 
-	unzip = <E extends F['_UPPER_E'][] & { length: L }, const L extends number>(
-		source: StreamSource<E>,
-		options: { length: L },
-	): {
-		[K in keyof E]: Collection.Advanced.FamToTypes<F, E[K]>['_NON_EMPTY'];
-	} => {
+	unzip = (
+		source: StreamSource<readonly unknown[]>,
+		options: { length: number },
+	): any => {
 		const streams = Stream.unzip(source, options) as Stream<F['_UPPER_E']>[];
 
 		return streams.map(this.fromSingle) as any;

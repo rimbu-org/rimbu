@@ -9,10 +9,12 @@ import { Reducer } from '@rimbu/stream/reducer';
 import { HashSetEmpty } from './immutable/empty';
 import { HashSetNonEmptyBase } from './immutable/non-empty';
 
-import { HashSetBlockBuilder, type SetBlockBuilderEntry } from '#set/builder';
 import { HashSetBlock, type SetEntrySet } from '#set/immutable/block';
 import { HashSetCollision } from '#set/immutable/collision';
-
+import {
+	HashSetBlockBuilder,
+	type SetBlockBuilderEntry,
+} from '#set/mutable/block-builder';
 export class HashSetContext<UE>
 	extends CollectionContextBaseWithAddAll<HashSet.Advanced.Family<UE>>
 	implements HashSet.Advanced.ContextApi<UE, HashSet.Advanced.Family<UE>>

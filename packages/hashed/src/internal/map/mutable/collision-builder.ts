@@ -11,7 +11,7 @@ import {
 } from '@rimbu/collection-types/advanced/common';
 import { OptLazy } from '@rimbu/common/opt-lazy';
 
-import { CollisionBuilderBase } from '#hashed/base';
+import { CollisionBuilderBase } from '#common/base';
 
 export class HashMapCollisionBuilder<K, V> extends CollisionBuilderBase<
 	readonly [K, V]

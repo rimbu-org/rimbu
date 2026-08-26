@@ -17,7 +17,7 @@ export function runSetTestsWith(
 	context: SetCollection.Context<
 		Collection.Capability.WithToBuilder<any> &
 			Collection.Capability.WithReducer<any> &
-			SetCollection.Capability.WithAdd<any> &
+			Collection.Capability.WithAdd<any> &
 			SetCollection.Capability.WithDifferenceAndIntersection<any> &
 			SetCollection.Capability.WithRemove<any> &
 			SetCollection.Capability.WithSymmetricDifferenceAndUnion<any>
@@ -192,32 +192,32 @@ export function runSetTestsWith(
 			expectEqual(set6_1.difference(arr6), []);
 		});
 
-		it.skip('filter', () => {
-			function isEven(value: number): boolean {
-				return value % 2 === 0;
-			}
+		// it.skip('filter', () => {
+		// 	function isEven(value: number): boolean {
+		// 		return value % 2 === 0;
+		// 	}
 
-			function first2(value: number, index: number, halt: () => void): boolean {
-				if (index > 0) halt();
-				return true;
-			}
+		// 	function first2(value: number, index: number, halt: () => void): boolean {
+		// 		if (index > 0) halt();
+		// 		return true;
+		// 	}
 
-			expect(setEmpty.filter(isEven)).toBe(setEmpty);
+		// 	expect(setEmpty.filter(isEven)).toBe(setEmpty);
 
-			expectEqual(set3_1.filter(isEven), [2]);
-			expect(set3_1.filter(first2).size).toBe(2);
+		// 	expectEqual(set3_1.filter(isEven), [2]);
+		// 	expect(set3_1.filter(first2).size).toBe(2);
 
-			expectEqual(set6_1.filter(isEven), [2, 4, 6]);
-			expect(set6_1.filter(first2).size).toBe(2);
+		// 	expectEqual(set6_1.filter(isEven), [2, 4, 6]);
+		// 	expect(set6_1.filter(first2).size).toBe(2);
 
-			expect(setEmpty.filter(isEven, { negate: true })).toBe(setEmpty);
+		// 	expect(setEmpty.filter(isEven, { negate: true })).toBe(setEmpty);
 
-			expectEqual(set3_1.filter(isEven, { negate: true }), [1, 3]);
-			expect(set3_1.filter(first2, { negate: true }).size).toBe(0);
+		// 	expectEqual(set3_1.filter(isEven, { negate: true }), [1, 3]);
+		// 	expect(set3_1.filter(first2, { negate: true }).size).toBe(0);
 
-			expectEqual(set6_1.filter(isEven, { negate: true }), [1, 3, 5]);
-			expect(set6_1.filter(first2, { negate: true }).size).toBe(0);
-		});
+		// 	expectEqual(set6_1.filter(isEven, { negate: true }), [1, 3, 5]);
+		// 	expect(set6_1.filter(first2, { negate: true }).size).toBe(0);
+		// });
 
 		it('forEach', () => {
 			let result = [] as number[];
@@ -336,10 +336,10 @@ export function runSetTestsWith(
 			}
 		});
 
-		it.skip('toString', () => {
-			expect(setEmpty.toString()).toBe(`${S.typeTag}()`);
-			expect(set3_1.toString()).toBe(`${S.typeTag}(1, 2, 3)`);
-		});
+		// it.skip('toString', () => {
+		// 	expect(setEmpty.toString()).toBe(`${S.typeTag}()`);
+		// 	expect(set3_1.toString()).toBe(`${S.typeTag}(1, 2, 3)`);
+		// });
 
 		it('union', () => {
 			expect(setEmpty.union([])).toBe(setEmpty);

@@ -44,9 +44,9 @@
 		}
 	},
 	"imports": {
-		"#hashed/*": {
-			"types": "./dist/internal/hashed/*.d.ts",
-			"default": "./dist/internal/hashed/*.js"
+		"#common/*": {
+			"types": "./dist/internal/common/*.d.ts",
+			"default": "./dist/internal/common/*.js"
 		},
 		"#map/*": {
 			"types": "./dist/internal/map/*.d.ts",
