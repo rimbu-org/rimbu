@@ -174,10 +174,13 @@ export function validateSkill(skillPath: string): ValidationResult {
 }
 
 function extractSection(body: string, heading: string): string | null {
-	const idx = body.indexOf(heading);
-	if (idx === -1) return null;
+	// Require heading at line start (preceded by \n or BOS) to avoid matching inline mentions like "`## Output contract`"
+	const escaped = heading.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+	const re = new RegExp(`(^|\\n)${escaped}(?=\\n|$)`);
+	const match = body.match(re);
+	if (!match || match.index === undefined) return null;
+	const idx = match.index + (match[1]?.length ?? 0);
 	const rest = body.slice(idx);
-	// Find next ## heading at same level
 	const next = rest.slice(heading.length).search(/\n## /);
 	if (next === -1) return rest;
 	return rest.slice(0, heading.length + next);
