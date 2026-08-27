@@ -1,129 +1,112 @@
-// import type { Collection } from '@rimbu/collection-types/collection';
-// import type { Comp, OptLazy, Range } from '@rimbu/common';
-// import type { Stream } from '@rimbu/stream';
+import type { Collection } from '@rimbu/collection-types/collection';
+import type { Comp, OptLazy } from '@rimbu/common';
 
-// export interface SortedCollection<
-// 	S,
-// 	E,
-// 	Tp extends SortedCollection.Advanced.Types<
-// 		S,
-// 		E
-// 	> = SortedCollection.Advanced.Types<S, E>,
-// > extends Collection<E, Tp> {
-// 	readonly comp: Comp<S>;
+export type SortedCollection<
+	S,
+	E,
+	F extends Collection.Advanced.FamilyBase<E> = Collection.Advanced.Family<E>,
+> = SortedCollection.Advanced.ExtendFamily<S, E, F>['_NORMAL'];
 
-// 	lowerBound(search: S): number;
-// 	upperBound(search: S): number;
+export namespace SortedCollection {
+	export type NonEmpty<
+		S,
+		E,
+		F extends Collection.Advanced.FamilyBase<E> = Collection.Advanced.Family<E>,
+	> = Advanced.ExtendFamily<S, E, F>['_NON_EMPTY'];
 
-// 	next(
-// 		search: S,
-// 		options?:
-// 			| { inclusive?: boolean | undefined; otherwise?: never }
-// 			| undefined,
-// 	): E | undefined;
-// 	next<O>(
-// 		search: S,
-// 		options: { inclusive?: boolean | undefined; otherwise: OptLazy<O> },
-// 	): E | O;
-// 	previous(
-// 		search: S,
-// 		options?:
-// 			| { inclusive?: boolean | undefined; otherwise?: never }
-// 			| undefined,
-// 	): E | undefined;
-// 	previous<O>(
-// 		search: S,
-// 		options: { inclusive?: boolean | undefined; otherwise: OptLazy<O> },
-// 	): E | O;
+	export type Builder<
+		S,
+		E,
+		F extends Collection.Advanced.FamilyBase<E> = Collection.Advanced.Family<E>,
+	> = Advanced.ExtendFamily<S, E, F>['_BUILDER'];
 
-// 	streamRange(
-// 		range: Range<S>,
-// 		options?: { reversed?: boolean | undefined } | undefined,
-// 	): Stream<E>;
-// 	sliceRange(range: Range<S>): SortedCollection<S, E>;
-// }
+	export namespace Advanced {
+		export type ExtendFamily<
+			S,
+			E,
+			F extends
+				Collection.Advanced.FamilyBase<E> = Collection.Advanced.Family<E>,
+		> = F & Family<S, E>;
 
-// export declare namespace SortedCollection {
-// 	export interface NonEmpty<
-// 		S,
-// 		E,
-// 		Tp extends SortedCollection.Advanced.TypesNonEmpty<
-// 			S,
-// 			E
-// 		> = SortedCollection.Advanced.TypesNonEmpty<S, E>,
-// 	> extends SortedCollection<S, E, Tp>,
-// 			Collection.NonEmpty<E, Tp> {}
+		export interface MinMax<E, IsNonEmpty extends boolean = boolean> {
+			(): IsNonEmpty extends true ? E : E | undefined;
+			<O>(otherwise: IsNonEmpty extends true ? never : OptLazy<O>): E | O;
+		}
 
-// 	export interface Builder<
-// 		S,
-// 		E,
-// 		Tp extends SortedCollection.Advanced.Types<
-// 			S,
-// 			E
-// 		> = SortedCollection.Advanced.Types<S, E>,
-// 	> extends Collection.Builder<E, Tp> {
-// 		lowerBound(search: S): number;
-// 		upperBound(search: S): number;
+		export interface Api<S, E, Tp extends Collection.Advanced.TypesBase>
+			extends Collection.Advanced.Api<E, Tp> {
+			min: MinMax<E, Tp['_IS_NON_EMPTY']>;
+			max: MinMax<E, Tp['_IS_NON_EMPTY']>;
 
-// 		next(
-// 			search: S,
-// 			options?:
-// 				| { inclusive?: boolean | undefined; otherwise?: never }
-// 				| undefined,
-// 		): E | undefined;
-// 		next<O>(
-// 			search: S,
-// 			options: { inclusive?: boolean | undefined; otherwise: OptLazy<O> },
-// 		): E | O;
-// 		previous(
-// 			search: S,
-// 			options?:
-// 				| { inclusive?: boolean | undefined; otherwise?: never }
-// 				| undefined,
-// 		): E | undefined;
-// 		previous<O>(
-// 			search: S,
-// 			options: { inclusive?: boolean | undefined; otherwise: OptLazy<O> },
-// 		): E | O;
-// 	}
+			previous<O>(
+				search: S,
+				options: { inclusive?: boolean | undefined; otherwise: OptLazy<O> },
+			): E | O;
+			previous(
+				search: S,
+				options?:
+					| { inclusive?: boolean | undefined; otherwise?: undefined }
+					| undefined,
+			): E | undefined;
 
-// 	export namespace Advanced {
-// 		export interface FamilyBase<S, E>
-// 			extends Collection.Advanced.FamilyBase<E> {
-// 			_NEW_S: unknown;
-// 		}
+			next<O>(
+				search: S,
+				options: { inclusive?: boolean | undefined; otherwise: OptLazy<O> },
+			): E | O;
+			next(
+				search: S,
+				options?:
+					| { inclusive?: boolean | undefined; otherwise?: undefined }
+					| undefined,
+			): E | undefined;
+		}
 
-// 		export interface Family<S, E>
-// 			extends Collection.Advanced.Family<E>,
-// 				SortedCollection.Advanced.FamilyBase<S, E> {
-// 			_NORMAL: SortedCollection<S, E>;
-// 			_NON_EMPTY: SortedCollection.NonEmpty<S, E>;
-// 			_BUILDER: SortedCollection.Builder<S, E>;
+		export interface BuilderApi<S, E, Tp extends Collection.Advanced.TypesBase>
+			extends Collection.Advanced.BuilderApi<E, Tp> {
+			min(): E | undefined;
+			min<O>(otherwise: OptLazy<O>): E | O;
+			max(): E | undefined;
+			max<O>(otherwise: OptLazy<O>): E | O;
 
-// 			_NEW_FAMILY: SortedCollection.Advanced.Family<
-// 				this['_NEW_S'],
-// 				this['_NEW_E']
-// 			>;
-// 		}
+			previous(
+				search: S,
+				options?:
+					| { inclusive?: boolean | undefined; otherwise?: undefined }
+					| undefined,
+			): E | undefined;
+			previous<O>(
+				search: S,
+				options: { inclusive?: boolean | undefined; otherwise: OptLazy<O> },
+			): E | O;
 
-// 		export interface NormalKind<S, E>
-// 			extends Collection.Advanced.NormalKind<E>,
-// 				SortedCollection.Advanced.FamilyBase<S, E> {
-// 			_NEW_TYPES: this['_NEW_FAMILY'] &
-// 				SortedCollection.Advanced.NormalKind<this['_NEW_S'], this['_NEW_E']>;
-// 		}
+			next(
+				search: S,
+				options?:
+					| { inclusive?: boolean | undefined; otherwise?: undefined }
+					| undefined,
+			): E | undefined;
+			next<O>(
+				search: S,
+				options: { inclusive?: boolean | undefined; otherwise: OptLazy<O> },
+			): E | O;
+		}
 
-// 		export interface NonEmptyKind<S, E>
-// 			extends Collection.Advanced.NonEmptyKind<E>,
-// 				SortedCollection.Advanced.FamilyBase<S, E> {
-// 			_NEW_TYPES: this['_NEW_FAMILY'] &
-// 				SortedCollection.Advanced.NonEmptyKind<this['_NEW_S'], this['_NEW_E']>;
-// 		}
+		export interface ContextApi<F extends Family<any, any>>
+			extends Collection.Advanced.ContextApi<F> {
+			readonly comp: Comp<F['_UPPER_S']>;
+		}
 
-// 		export type Types<S, E> = SortedCollection.Advanced.Family<S, E> &
-// 			SortedCollection.Advanced.NormalKind<S, E>;
+		export interface Family<S, E> extends Collection.Advanced.Family<E> {
+			_NORMAL: Api<S, E, Collection.Advanced.Types<this['_FAM'], E>>;
+			_NON_EMPTY: Api<S, E, Collection.Advanced.TypesNonEmpty<this['_FAM'], E>>;
+			_BUILDER: BuilderApi<S, E, Collection.Advanced.Types<this['_FAM'], E>>;
+			_CONTEXT: ContextApi<this['_FAM']>;
 
-// 		export type TypesNonEmpty<S, E> = SortedCollection.Advanced.Family<S, E> &
-// 			SortedCollection.Advanced.NonEmptyKind<S, E>;
-// 	}
-// }
+			_UPPER_S: unknown;
+			_NEW_S: unknown;
+
+			_FAM: Family<S, E>;
+			_NEW_FAMILY: Family<this['_NEW_S'], this['_NEW_E']>;
+		}
+	}
+}

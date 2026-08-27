@@ -63,8 +63,6 @@ export declare namespace List {
 			_BUILDER: List.Builder<T>;
 			_CONTEXT: List.Context;
 
-			// _INVARIANT: (value: any) => any;
-
 			_FAM: Family<T>;
 			_NEW_FAMILY: Family<this['_NEW_E']>;
 		}

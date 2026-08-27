@@ -33,9 +33,7 @@ export declare namespace BitList {
 			List.Advanced.BuilderApi<boolean, Tp>;
 
 		export interface ContextApi<F extends Collection.Advanced.FamilyBase<any>>
-			extends List.Advanced.ContextApi<F> {
-			readonly blockSizeBits: number;
-		}
+			extends List.Advanced.ContextApi<F> {}
 
 		export interface Family extends IndexedCollection.Advanced.Family<boolean> {
 			_NORMAL: BitList;
