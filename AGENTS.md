@@ -636,3 +636,22 @@ Use the default labels `needs-triage`, `needs-info`, `ready-for-agent`, `ready-f
 ### Domain docs
 
 This is a single-context repo using root `CONTEXT.md` and `docs/adr/`. See `docs/agents/domain.md`.
+
+### Repo-Health Skills
+
+The repo ships 12 harness-independent skills under `.opencode/skills/<kebab>/SKILL.md` (plain Markdown + Bun scripts; only `rg`/`jq`/`bun` required, no harness-specific JS APIs; file access restricted to the repo root and `/tmp` per §12 `AGENTS.md:601-625`). Each skill is idempotent, single-package-scoped (`<pkg>`), diagnose-by-default — fix/mutate only with explicit `--fix`/`--force`. Checklists stay in the skill files — this table is discovery only (Q16). `maintain-skills` is the caretaker that lints all skills against `../_template/SKILL.md` and reconciles checklist drift with `AGENTS.md`/ADRs (spec §2.5 Q5).
+
+| Skill | Mode | When to use | Normative refs |
+|---|---|---|---|
+| [review-anatomy](.opencode/skills/review-anatomy/SKILL.md) | diagnose | when you edit `packages/*` layout, `package.json` or `tsconfig.*`, consider invoking `review-anatomy` in diagnose mode | `AGENTS.md:76-284` §3–§5 |
+| [review-api](.opencode/skills/review-api/SKILL.md) | diagnose | when you add/change a public method or touch `src/public/`, consider invoking `review-api` in diagnose mode | `AGENTS.md:16-31` §1.1, `AGENTS.md:287-478` §6 |
+| [scout-dead-code](.opencode/skills/scout-dead-code/SKILL.md) | diagnose | when you remove an export or delete an `internal/` file, consider invoking `scout-dead-code` in diagnose mode | `AGENTS.md:104-152` §3 |
+| [audit-tests](.opencode/skills/audit-tests/SKILL.md) | diagnose | when you add a public method or review `test/` coverage, consider invoking `audit-tests` in diagnose mode | `AGENTS.md:480-518` §7 |
+| [audit-type-tests](.opencode/skills/audit-type-tests/SKILL.md) | diagnose | when you change generics, `NonEmpty`/`Types` or `test-d/`, consider invoking `audit-type-tests` in diagnose mode | `AGENTS.md:422-463` §6.6 |
+| [review-impl](.opencode/skills/review-impl/SKILL.md) | diagnose | when you edit `packages/*/src/` implementation, consider invoking `review-impl` in diagnose mode | `AGENTS.md:287-478` §6, `AGENTS.md:565-572` §9 |
+| [review-docs](.opencode/skills/review-docs/SKILL.md) | diagnose | when you edit `src/public/` or add a public export, consider invoking `review-docs` in diagnose mode | `AGENTS.md:546-573` §9 |
+| [write-docs](.opencode/skills/write-docs/SKILL.md) | hybrid | when `review-docs` reports missing `@example` JSDoc, consider invoking `write-docs` in diagnose mode (`--fix` to gap-fill) | `AGENTS.md:16-31` §1.1, §6; docs pipeline |
+| [write-unit-tests](.opencode/skills/write-unit-tests/SKILL.md) | hybrid | when `audit-tests` reports missing `test/*.test.ts`, consider invoking `write-unit-tests` in diagnose mode (`--fix` to generate) | `AGENTS.md:480-518` §7 |
+| [write-type-tests](.opencode/skills/write-type-tests/SKILL.md) | hybrid | when `audit-type-tests` reports missing `expectTypeOf`, consider invoking `write-type-tests` in diagnose mode (`--fix` to generate) | `AGENTS.md:335-463` §6.2–§6.6 |
+| [scout-improvements](.opencode/skills/scout-improvements/SKILL.md) | diagnose | when you want pattern-level improvement ideas for a package, consider invoking `scout-improvements` in diagnose mode | `AGENTS.md:16-31` §1.1, §6 |
+| [maintain-skills](.opencode/skills/maintain-skills/SKILL.md) | hybrid | when you edit `AGENTS.md`, add a skill, or suspect checklist drift, consider invoking `maintain-skills` in diagnose mode | `AGENTS.md:626-638`, `docs/agents/*.md` |
