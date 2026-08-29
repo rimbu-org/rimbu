@@ -101,9 +101,6 @@ export namespace SortedCollection {
 			_NON_EMPTY: Api<E, S, Collection.Advanced.TypesNonEmpty<this['_FAM'], E>>;
 			_BUILDER: BuilderApi<E, S, Collection.Advanced.Types<this['_FAM'], E>>;
 
-			// _E_TO_S: unknown;
-			// _UPPER_S: unknown;
-
 			_NEW_E_TO_S: unknown;
 
 			_FAM: Family<E, S>;

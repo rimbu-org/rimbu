@@ -1,13 +1,13 @@
 import type { Collection } from '@rimbu/collection-types/collection';
+import type { IndexedValuedCollection } from '@rimbu/collection-types/collection/indexed-valued';
 import type { SortedCollection } from '@rimbu/collection-types/collection/sorted';
-import type { ValuedCollection } from '@rimbu/collection-types/collection/valued';
 
-export type SortedValuedCollection<
+export type IndexedValuedSortedCollection<
 	E,
 	F extends Collection.Advanced.FamilyBase<E> = Collection.Advanced.Family<E>,
-> = SortedValuedCollection.Advanced.ExtendFamily<E, F>['_NORMAL'];
+> = IndexedValuedSortedCollection.Advanced.ExtendFamily<E, F>['_NORMAL'];
 
-export namespace SortedValuedCollection {
+export namespace IndexedValuedSortedCollection {
 	export type NonEmpty<
 		E,
 		F extends Collection.Advanced.FamilyBase<E> = Collection.Advanced.Family<E>,
@@ -21,20 +21,25 @@ export namespace SortedValuedCollection {
 		> = F & Family<E>;
 
 		export interface Api<E, Tp extends Collection.Advanced.TypesBase>
-			extends SortedCollection.Advanced.Api<E, E, Tp>,
-				ValuedCollection.Advanced.Api<E, Tp> {}
+			extends IndexedValuedCollection.Advanced.Api<E, Tp>,
+				SortedCollection.Advanced.Api<E, E, Tp> {}
 
 		export interface BuilderApi<E, Tp extends Collection.Advanced.TypesBase>
-			extends SortedCollection.Advanced.BuilderApi<E, E, Tp>,
-				ValuedCollection.Advanced.BuilderApi<E, Tp> {}
+			extends IndexedValuedCollection.Advanced.BuilderApi<E, Tp>,
+				SortedCollection.Advanced.BuilderApi<E, E, Tp> {}
+
+		export interface ContextApi<
+			F extends IndexedValuedCollection.Advanced.Family<any> &
+				SortedCollection.Advanced.Family<any, any>,
+		> extends IndexedValuedCollection.Advanced.ContextApi<F> {}
 
 		export interface Family<E>
-			extends SortedCollection.Advanced.Family<E, E>,
-				ValuedCollection.Advanced.Family<E> {
+			extends IndexedValuedCollection.Advanced.Family<E>,
+				SortedCollection.Advanced.Family<E, E> {
 			_NORMAL: Api<E, Collection.Advanced.Types<this['_FAM'], E>>;
 			_NON_EMPTY: Api<E, Collection.Advanced.TypesNonEmpty<this['_FAM'], E>>;
 			_BUILDER: BuilderApi<E, Collection.Advanced.Types<this['_FAM'], E>>;
-			_CONTEXT: ValuedCollection.Advanced.ContextApi<this['_FAM']>;
+			_CONTEXT: ContextApi<this['_FAM']>;
 
 			_NEW_E_TO_S: this['_NEW_E'];
 

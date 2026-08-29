@@ -1,16 +1,16 @@
 import type { Collection } from '@rimbu/collection-types/collection';
-import type { KeyedCollection } from '@rimbu/collection-types/collection/keyed';
+import type { IndexedKeyedCollection } from '@rimbu/collection-types/collection/indexed-keyed';
 import type { SortedCollection } from '@rimbu/collection-types/collection/sorted';
 
-export type SortedKeyed<
+export type IndexedKeyedSortedCollection<
 	K,
 	V,
 	F extends Collection.Advanced.FamilyBase<
 		readonly [K, V]
 	> = Collection.Advanced.Family<readonly [K, V]>,
-> = SortedKeyed.Advanced.ExtendFamily<K, V, F>['_NORMAL'];
+> = IndexedKeyedSortedCollection.Advanced.ExtendFamily<K, V, F>['_NORMAL'];
 
-export namespace SortedKeyed {
+export namespace IndexedKeyedSortedCollection {
 	export type NonEmpty<
 		K,
 		V,
@@ -29,21 +29,21 @@ export namespace SortedKeyed {
 		> = F & Family<K, V>;
 
 		export interface Api<K, V, Tp extends Collection.Advanced.TypesBase>
-			extends SortedCollection.Advanced.Api<readonly [K, V], K, Tp>,
-				KeyedCollection.Advanced.Api<K, V, Tp> {}
+			extends IndexedKeyedCollection.Advanced.Api<K, V, Tp>,
+				SortedCollection.Advanced.Api<readonly [K, V], K, Tp> {}
 
 		export interface BuilderApi<K, V, Tp extends Collection.Advanced.TypesBase>
-			extends SortedCollection.Advanced.BuilderApi<readonly [K, V], K, Tp>,
-				KeyedCollection.Advanced.BuilderApi<K, V, Tp> {}
+			extends IndexedKeyedCollection.Advanced.BuilderApi<K, V, Tp>,
+				SortedCollection.Advanced.BuilderApi<readonly [K, V], K, Tp> {}
 
 		export interface ContextApi<
-			F extends SortedCollection.Advanced.Family<any, any> &
-				KeyedCollection.Advanced.Family<any, any>,
-		> extends KeyedCollection.Advanced.ContextApi<F> {}
+			F extends IndexedKeyedCollection.Advanced.Family<any, any> &
+				SortedCollection.Advanced.Family<any, any>,
+		> extends IndexedKeyedCollection.Advanced.ContextApi<F> {}
 
 		export interface Family<K, V>
-			extends SortedCollection.Advanced.Family<readonly [K, V], K>,
-				KeyedCollection.Advanced.Family<K, V> {
+			extends IndexedKeyedCollection.Advanced.Family<K, V>,
+				SortedCollection.Advanced.Family<readonly [K, V], K> {
 			_NORMAL: Api<
 				K,
 				V,
@@ -62,6 +62,7 @@ export namespace SortedKeyed {
 			_CONTEXT: ContextApi<this['_FAM']>;
 
 			_UPPER_E: readonly [K, V];
+
 			_NEW_E: readonly [unknown, unknown];
 
 			_FAM: Family<K, V>;
