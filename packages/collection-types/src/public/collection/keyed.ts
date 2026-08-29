@@ -2,7 +2,6 @@ import type { Collection } from '@rimbu/collection-types/collection';
 import type { Op } from '@rimbu/collection-types/types';
 import type {
 	ArrayNonEmpty,
-	IfAllExtend,
 	IfAnyExtends,
 	OptLazy,
 	RelatedTo,
@@ -74,14 +73,13 @@ export declare namespace KeyedCollection {
 			has<UK = K>(key: RelatedTo<K, UK>): boolean;
 		}
 
-		export interface ContextApi<
-			F extends KeyedCollection.Advanced.Family<any, any>,
-		> extends Collection.Advanced.ContextApi<F> {
+		export interface ContextApi<F extends Family<any, any>>
+			extends Collection.Advanced.ContextApi<F> {
 			readonly keyedContext: F['_KEYED_CONTEXT'];
 		}
 
 		export interface KeyedContextApi<F extends Advanced.Family<any, any>> {
-			readonly defaultContext: F['_CONTEXT'];
+			readonly collectionContext: F['_CONTEXT'];
 
 			empty<
 				K extends F['_UPPER_K'],
@@ -322,7 +320,7 @@ export declare namespace KeyedCollection {
 							F['_UPPER_V']
 						>,
 					]
-				>[IfAllExtend<S, StreamSource.NonEmpty<any>, '_NON_EMPTY', '_NORMAL'>];
+				>['_NORMAL'];
 
 				merge<const S extends StreamSource<readonly [F['_UPPER_K'], any]>[]>(
 					sources: S,
@@ -338,16 +336,11 @@ export declare namespace KeyedCollection {
 							F['_UPPER_V']
 						>,
 					]
-				>[IfAllExtend<S, StreamSource.NonEmpty<any>, '_NON_EMPTY', '_NORMAL'>];
+				>['_NORMAL'];
 			}
 		}
 
-		export interface WithReducer<K, V>
-			extends Advanced.ExtendFamily<
-				K,
-				V,
-				Collection.Capability.WithReducer<readonly [K, V]>
-			> {
+		export interface WithReducer<K, V> extends Advanced.Family<K, V> {
 			_KEYED_CONTEXT: WithReducer.KeyedContextApi<this['_FAM']>;
 
 			_FAM: WithReducer<K, V>;
@@ -355,19 +348,140 @@ export declare namespace KeyedCollection {
 		}
 
 		export namespace WithReducer {
-			export interface KeyedContextApi<
-				F extends Advanced.ExtendFamily<
-					any,
-					any,
-					Collection.Advanced.Family<any>
-				>,
-			> extends Advanced.KeyedContextApi<F> {
+			export interface KeyedContextApi<F extends Advanced.Family<any, any>>
+				extends Advanced.KeyedContextApi<F> {
 				reducer<K extends F['_UPPER_K'], V extends F['_UPPER_V']>(
 					source?: StreamSource<readonly [K, V]> | undefined,
 				): Reducer<
 					readonly [K, V],
 					Collection.Advanced.FamToTypes<F, readonly [K, V]>['_NORMAL']
 				>;
+			}
+		}
+
+		export interface WithRecompose<K, V> extends Advanced.Family<K, V> {
+			_NORMAL: WithRecompose.Api<
+				K,
+				V,
+				Collection.Advanced.Types<this['_FAM'], readonly [K, V]>
+			>;
+			_NON_EMPTY: WithRecompose.Api<
+				K,
+				V,
+				Collection.Advanced.TypesNonEmpty<this['_FAM'], readonly [K, V]>
+			>;
+
+			_FAM: WithRecompose<K, V>;
+			_NEW_FAMILY: WithRecompose<this['_NEW_K'], this['_NEW_V']>;
+		}
+
+		export namespace WithRecompose {
+			export interface Api<
+				K,
+				V,
+				Tp extends Collection.Advanced.Types<
+					Advanced.Family<K, V>,
+					readonly [K, V]
+				>,
+			> extends Advanced.Api<K, V, Tp> {
+				recompose<K2 extends Tp['_UPPER_K'], V2 extends Tp['_UPPER_V']>(
+					f: (
+						stream: Tp['_AS_STREAM'],
+					) => StreamSource.NonEmpty<readonly [K2, V2]>,
+				): Collection.Advanced.ReTyped<Tp, readonly [K2, V2]>['_SELF'];
+				recompose<K2 extends Tp['_UPPER_K'], V2 extends Tp['_UPPER_V']>(
+					f: (stream: Tp['_AS_STREAM']) => StreamSource<readonly [K2, V2]>,
+				): Collection.Advanced.ReTyped<Tp, readonly [K2, V2]>['_NORMAL'];
+			}
+		}
+
+		export interface WithMap<K, V> extends Advanced.Family<K, V> {
+			_NORMAL: WithMap.Api<
+				K,
+				V,
+				Collection.Advanced.Types<this['_FAM'], readonly [K, V]>
+			>;
+			_NON_EMPTY: WithMap.Api<
+				K,
+				V,
+				Collection.Advanced.TypesNonEmpty<this['_FAM'], readonly [K, V]>
+			>;
+
+			_INVARIANT: (e: readonly [K, V]) => readonly [K, V];
+
+			_FAM: WithMap<K, V>;
+			_NEW_FAMILY: WithMap<this['_NEW_K'], this['_NEW_V']>;
+		}
+
+		export namespace WithMap {
+			export interface Api<
+				K,
+				V,
+				Tp extends Collection.Advanced.Types<
+					Advanced.Family<K, V>,
+					readonly [K, V]
+				>,
+			> extends Advanced.Api<K, V, Tp> {
+				map<K2 extends Tp['_UPPER_K'], V2 extends Tp['_UPPER_V']>(
+					f: (element: readonly [K, V]) => readonly [K2, V2],
+				): Collection.Advanced.ReTyped<Tp, readonly [K2, V2]>['_SELF'];
+
+				mapIndexed<K2 extends Tp['_UPPER_K'], V2 extends Tp['_UPPER_V']>(
+					f: (element: readonly [K, V], index: number) => readonly [K2, V2],
+				): Collection.Advanced.ReTyped<Tp, readonly [K2, V2]>['_SELF'];
+			}
+		}
+
+		export interface WithFlatMap<K, V> extends Advanced.Family<K, V> {
+			_NORMAL: WithFlatMap.Api<
+				K,
+				V,
+				Collection.Advanced.Types<this['_FAM'], readonly [K, V]>
+			>;
+			_NON_EMPTY: WithFlatMap.Api<
+				K,
+				V,
+				Collection.Advanced.TypesNonEmpty<this['_FAM'], readonly [K, V]>
+			>;
+
+			_INVARIANT: (e: readonly [K, V]) => readonly [K, V];
+
+			_FAM: WithFlatMap<K, V>;
+			_NEW_FAMILY: WithFlatMap<this['_NEW_K'], this['_NEW_V']>;
+		}
+
+		export namespace WithFlatMap {
+			export interface Api<
+				K,
+				V,
+				Tp extends Collection.Advanced.Types<
+					Advanced.Family<K, V>,
+					readonly [K, V]
+				>,
+			> extends Advanced.Api<K, V, Tp> {
+				flatMap<K2 extends Tp['_UPPER_K'], V2 extends Tp['_UPPER_V']>(
+					f: (
+						entry: readonly [K, V],
+					) => StreamSource.NonEmpty<readonly [K2, V]>,
+				): Collection.Advanced.ReTyped<Tp, readonly [K, V]>['_SELF'];
+				flatMap<K2 extends Tp['_UPPER_K'], V2 extends Tp['_UPPER_V']>(
+					f: (entry: readonly [K, V]) => StreamSource<readonly [K, V]>,
+				): Collection.Advanced.ReTyped<Tp, readonly [K, V]>['_NORMAL'];
+
+				flatMapIndexed<K2 extends Tp['_UPPER_K'], V2 extends Tp['_UPPER_V']>(
+					f: (
+						entry: readonly [K, V],
+						index: number,
+					) => StreamSource.NonEmpty<readonly [K, V]>,
+					options: { indexOffset?: number | undefined } | undefined,
+				): Collection.Advanced.ReTyped<Tp, readonly [K, V]>['_SELF'];
+				flatMapIndexed<K2 extends Tp['_UPPER_K'], V2 extends Tp['_UPPER_V']>(
+					f: (
+						entry: readonly [K, V],
+						index: number,
+					) => StreamSource<readonly [K, V]>,
+					options: { indexOffset?: number | undefined } | undefined,
+				): Collection.Advanced.ReTyped<Tp, readonly [K, V]>['_NORMAL'];
 			}
 		}
 	}

@@ -73,7 +73,7 @@ describe('regression: single-child middle underflow (blockSizeBits=5)', () => {
 		}
 
 		const insert = (index: number, value: number) => {
-			b.insertAt(index, value);
+			b.insertAt(index, [value]);
 			expected.splice(normalizeInsertIndex(index, expected.length), 0, value);
 			expectValid(b, expected, `insertAt(${index})`);
 		};
@@ -113,7 +113,7 @@ for (const blockSizeBits of blockSizeBitsValues) {
 				const insert = (index: number, amount = 1) => {
 					const inserted = Array.from({ length: amount }, () => nextValue++);
 					for (let k = 0; k < inserted.length; k++) {
-						b.insertAt(index + k, inserted[k]);
+						b.insertAt(index + k, [inserted[k]]);
 					}
 					expected.splice(
 						normalizeInsertIndex(index, expected.length),
@@ -145,7 +145,7 @@ for (const blockSizeBits of blockSizeBitsValues) {
 					-totalElements,
 					-(totalElements + 1),
 				]) {
-					b.insertAt(index, nextValue);
+					b.insertAt(index, [nextValue]);
 					expected.splice(
 						normalizeInsertIndex(index, expected.length),
 						0,
@@ -162,7 +162,7 @@ for (const blockSizeBits of blockSizeBitsValues) {
 
 				for (const index of [0, 5, -3]) {
 					const value = expected.length;
-					b.insertAt(index, value);
+					b.insertAt(index, [value]);
 					expected.splice(
 						normalizeInsertIndex(index, expected.length),
 						0,
@@ -288,7 +288,7 @@ for (const blockSizeBits of blockSizeBitsValues) {
 
 					if (expected.length === 0 || rng() < 0.55) {
 						const value = nextValue++;
-						b.insertAt(index, value);
+						b.insertAt(index, [value]);
 						expected.splice(
 							normalizeInsertIndex(index, expected.length),
 							0,

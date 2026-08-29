@@ -1,7 +1,7 @@
 import type { Collection } from '@rimbu/collection-types/collection';
 import type { MapCollection } from '@rimbu/collection-types/map';
 import type { Op } from '@rimbu/collection-types/types';
-import type { StreamSource } from '@rimbu/stream';
+import type { Stream, StreamSource } from '@rimbu/stream';
 
 import { first, second } from '@rimbu/base/entry';
 import {
@@ -9,7 +9,6 @@ import {
 	KeyedCollectionEmptyBase,
 	KeyedCollectionNonEmptyBase,
 } from '@rimbu/collection-types/advanced/collection/keyed-base';
-import { Stream } from '@rimbu/stream';
 
 export abstract class MapCollectionEmptyBase<
 		K,
@@ -28,8 +27,8 @@ export abstract class MapCollectionEmptyBase<
 		MapCollection.Advanced.Api<K, V, Tp>,
 		Collection.Capability.WithAdd.Api<readonly [K, V], Tp>,
 		MapCollection.Capability.WithSet.Api<K, V, Tp>,
-		MapCollection.Capability.WithUpdateAt.Api<K, V, Tp>,
-		MapCollection.Capability.WithModifyAt.Api<K, V, Tp>
+		MapCollection.Capability.WithUpdateAtKey.Api<K, V, Tp>,
+		MapCollection.Capability.WithModifyAtKey.Api<K, V, Tp>
 {
 	set(key: K, value: V): Tp['_NON_EMPTY'] {
 		return this.context.of([key, value] as readonly [K, V]) as Tp['_NON_EMPTY'];
@@ -46,11 +45,11 @@ export abstract class MapCollectionEmptyBase<
 		) as Tp['_NORMAL'];
 	}
 
-	updateAt(): Tp['_NORMAL'] {
+	updateAtKey(): Tp['_NORMAL'] {
 		return this;
 	}
 
-	updateAtAndReturn(): Op.WithResult<
+	updateAtKeyAndReturn(): Op.WithResult<
 		Tp['_NORMAL'],
 		[previous: undefined, current: undefined],
 		false
@@ -63,7 +62,7 @@ export abstract class MapCollectionEmptyBase<
 		};
 	}
 
-	modifyAt(
+	modifyAtKey(
 		atKey: K,
 		options: {
 			ifNew?:
@@ -93,10 +92,6 @@ export abstract class MapCollectionEmptyBase<
 		if (token === newValue) return this;
 
 		return this.set(atKey, newValue);
-	}
-
-	recompose(f: any): any {
-		return this.context.from(f(Stream.empty<readonly [K, V]>()));
 	}
 }
 

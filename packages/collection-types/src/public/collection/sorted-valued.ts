@@ -28,18 +28,15 @@ export namespace SortedValuedCollection {
 			extends SortedCollection.Advanced.BuilderApi<E, E, Tp>,
 				ValuedCollection.Advanced.BuilderApi<E, Tp> {}
 
-		export interface ContextApi<
-			F extends SortedCollection.Advanced.Family<any, any>,
-		> extends SortedCollection.Advanced.ContextApi<F>,
-				ValuedCollection.Advanced.ContextApi<F> {}
-
 		export interface Family<E>
 			extends SortedCollection.Advanced.Family<E, E>,
 				ValuedCollection.Advanced.Family<E> {
 			_NORMAL: Api<E, Collection.Advanced.Types<this['_FAM'], E>>;
 			_NON_EMPTY: Api<E, Collection.Advanced.TypesNonEmpty<this['_FAM'], E>>;
 			_BUILDER: BuilderApi<E, Collection.Advanced.Types<this['_FAM'], E>>;
-			_CONTEXT: ContextApi<this['_FAM']>;
+			_CONTEXT: ValuedCollection.Advanced.ContextApi<this['_FAM']>;
+
+			_NEW_E_TO_S: this['_NEW_E'];
 
 			_FAM: Family<E>;
 			_NEW_FAMILY: Family<this['_NEW_E']>;

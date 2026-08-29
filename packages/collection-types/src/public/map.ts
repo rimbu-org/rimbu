@@ -2,7 +2,6 @@ import type { Collection } from '@rimbu/collection-types/collection';
 import type { KeyedCollection } from '@rimbu/collection-types/collection/keyed';
 import type { Op } from '@rimbu/collection-types/types';
 import type { OptLazy, RelatedTo } from '@rimbu/common';
-import type { StreamSource } from '@rimbu/stream';
 
 export type MapCollection<
 	K,
@@ -115,36 +114,36 @@ export declare namespace MapCollection {
 			}
 		}
 
-		export interface WithUpdateAt<K, V> extends Advanced.Family<K, V> {
-			_NORMAL: WithUpdateAt.Api<
+		export interface WithUpdateAtKey<K, V> extends Advanced.Family<K, V> {
+			_NORMAL: WithUpdateAtKey.Api<
 				K,
 				V,
 				Collection.Advanced.Types<this['_FAM'], readonly [K, V]>
 			>;
-			_NON_EMPTY: WithUpdateAt.Api<
+			_NON_EMPTY: WithUpdateAtKey.Api<
 				K,
 				V,
 				Collection.Advanced.TypesNonEmpty<this['_FAM'], readonly [K, V]>
 			>;
-			_BUILDER: WithUpdateAt.BuilderApi<
+			_BUILDER: WithUpdateAtKey.BuilderApi<
 				K,
 				V,
 				Collection.Advanced.Types<this['_FAM'], readonly [K, V]>
 			>;
 
-			_FAM: WithUpdateAt<K, V>;
-			_NEW_FAMILY: WithUpdateAt<this['_NEW_K'], this['_NEW_V']>;
+			_FAM: WithUpdateAtKey<K, V>;
+			_NEW_FAMILY: WithUpdateAtKey<this['_NEW_K'], this['_NEW_V']>;
 		}
 
-		export namespace WithUpdateAt {
+		export namespace WithUpdateAtKey {
 			export interface Api<K, V, Tp extends Collection.Advanced.TypesBase>
 				extends Advanced.Api<K, V, Tp> {
-				updateAt<UK = K>(
+				updateAtKey<UK = K>(
 					key: RelatedTo<K, UK>,
 					update: (value: V) => V,
 				): Tp['_SELF'];
 
-				updateAtAndReturn<UK = K>(
+				updateAtKeyAndReturn<UK = K>(
 					key: RelatedTo<K, UK>,
 					update: (value: V) => V,
 				): Op.DynamicResult<
@@ -160,11 +159,11 @@ export declare namespace MapCollection {
 				V,
 				Tp extends Collection.Advanced.TypesBase,
 			> extends Advanced.BuilderApi<K, V, Tp> {
-				updateAt<UK = K>(
+				updateAtKey<UK = K>(
 					key: RelatedTo<K, UK>,
 					f: (value: V) => V,
 				): [previous: V | undefined, current: V | undefined];
-				updateAt<UK, O>(
+				updateAtKey<UK, O>(
 					key: RelatedTo<K, UK>,
 					f: (value: V) => V,
 					otherwise: OptLazy<O>,
@@ -172,31 +171,31 @@ export declare namespace MapCollection {
 			}
 		}
 
-		export interface WithModifyAt<K, V> extends Advanced.Family<K, V> {
-			_NORMAL: WithModifyAt.Api<
+		export interface WithModifyAtKey<K, V> extends Advanced.Family<K, V> {
+			_NORMAL: WithModifyAtKey.Api<
 				K,
 				V,
 				Collection.Advanced.Types<this['_FAM'], readonly [K, V]>
 			>;
-			_NON_EMPTY: WithModifyAt.Api<
+			_NON_EMPTY: WithModifyAtKey.Api<
 				K,
 				V,
 				Collection.Advanced.TypesNonEmpty<this['_FAM'], readonly [K, V]>
 			>;
-			_BUILDER: WithModifyAt.BuilderApi<
+			_BUILDER: WithModifyAtKey.BuilderApi<
 				K,
 				V,
 				Collection.Advanced.Types<this['_FAM'], readonly [K, V]>
 			>;
 
-			_FAM: WithModifyAt<K, V>;
-			_NEW_FAMILY: WithModifyAt<this['_NEW_K'], this['_NEW_V']>;
+			_FAM: WithModifyAtKey<K, V>;
+			_NEW_FAMILY: WithModifyAtKey<this['_NEW_K'], this['_NEW_V']>;
 		}
 
-		export namespace WithModifyAt {
+		export namespace WithModifyAtKey {
 			export interface Api<K, V, Tp extends Collection.Advanced.TypesBase>
 				extends Advanced.Api<K, V, Tp> {
-				modifyAt(
+				modifyAtKey(
 					atKey: K,
 					options: {
 						ifNew?:
@@ -225,7 +224,7 @@ export declare namespace MapCollection {
 				V,
 				Tp extends Collection.Advanced.TypesBase,
 			> extends Advanced.BuilderApi<K, V, Tp> {
-				modifyAt(
+				modifyAtKey(
 					atKey: K,
 					options: {
 						ifNew?:
@@ -247,36 +246,6 @@ export declare namespace MapCollection {
 							| undefined;
 					},
 				): boolean;
-			}
-		}
-
-		export interface WithRecompose<K, V> extends Advanced.Family<K, V> {
-			_NORMAL: WithRecompose.Api<
-				K,
-				V,
-				Collection.Advanced.Types<this['_FAM'], readonly [K, V]>
-			>;
-			_NON_EMPTY: WithRecompose.Api<
-				K,
-				V,
-				Collection.Advanced.TypesNonEmpty<this['_FAM'], readonly [K, V]>
-			>;
-
-			_FAM: WithRecompose<K, V>;
-			_NEW_FAMILY: WithRecompose<this['_NEW_K'], this['_NEW_V']>;
-		}
-
-		export namespace WithRecompose {
-			export interface Api<K, V, Tp extends Collection.Advanced.TypesBase>
-				extends Advanced.Api<K, V, Tp> {
-				recompose<K2 extends K, V2>(
-					f: (
-						stream: Tp['_AS_STREAM'],
-					) => StreamSource.NonEmpty<readonly [K2, V2]>,
-				): Collection.Advanced.ReTyped<Tp, readonly [K2, V2]>['_SELF'];
-				recompose<K2 extends K, V2>(
-					f: (stream: Tp['_AS_STREAM']) => StreamSource<readonly [K2, V2]>,
-				): Collection.Advanced.ReTyped<Tp, readonly [K2, V2]>['_NORMAL'];
 			}
 		}
 	}

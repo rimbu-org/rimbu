@@ -870,7 +870,7 @@ describe('InnerBlockBuilder.insert/remove.ListBuilder-integration', () => {
 		for (const index of [0, 1, 4, 15, 16, 20, 31, 32, 60, 63]) {
 			const builder = makeBuilder();
 			builder.appendAll(Array.from({ length: 64 }, (_, i) => i));
-			builder.insertAt(index, 99);
+			builder.insertAt(index, [99]);
 			const list = builder.build();
 			expect(verifyImmutableList(list), `insertAt(${index})`).toEqual([]);
 			expect(list.size, `insertAt(${index}) size`).toBe(65);
@@ -886,7 +886,7 @@ describe('InnerBlockBuilder.insert/remove.ListBuilder-integration', () => {
 	it('insertAt splitting a tree block keeps sizes correct', () => {
 		const builder = makeBuilder();
 		builder.appendAll(Array.from({ length: 64 }, (_, i) => i));
-		builder.insertAt(15, 99);
+		builder.insertAt(15, [99]);
 		const list = builder.build();
 		expect(verifyImmutableList(list)).toEqual([]);
 		expect(list.size).toBe(65);
@@ -928,9 +928,9 @@ describe('InnerBlockBuilder.insert/remove.ListBuilder-integration', () => {
 	it('alternating insertAt and removeAt keeps structure valid', () => {
 		const builder = makeBuilder();
 		builder.appendAll(Array.from({ length: 32 }, (_, i) => i));
-		builder.insertAt(10, 99);
+		builder.insertAt(10, [99]);
 		builder.removeAt(5, undefined);
-		builder.insertAt(20, 98);
+		builder.insertAt(20, [98]);
 		builder.removeAt(30, undefined);
 		const list = builder.build();
 		expect(verifyImmutableList(list)).toEqual([]);

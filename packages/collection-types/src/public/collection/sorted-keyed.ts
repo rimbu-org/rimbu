@@ -29,21 +29,20 @@ export namespace SortedKeyed {
 		> = F & Family<K, V>;
 
 		export interface Api<K, V, Tp extends Collection.Advanced.TypesBase>
-			extends SortedCollection.Advanced.Api<K, readonly [K, V], Tp>,
+			extends SortedCollection.Advanced.Api<readonly [K, V], K, Tp>,
 				KeyedCollection.Advanced.Api<K, V, Tp> {}
 
 		export interface BuilderApi<K, V, Tp extends Collection.Advanced.TypesBase>
-			extends SortedCollection.Advanced.BuilderApi<K, readonly [K, V], Tp>,
+			extends SortedCollection.Advanced.BuilderApi<readonly [K, V], K, Tp>,
 				KeyedCollection.Advanced.BuilderApi<K, V, Tp> {}
 
 		export interface ContextApi<
 			F extends SortedCollection.Advanced.Family<any, any> &
 				KeyedCollection.Advanced.Family<any, any>,
-		> extends SortedCollection.Advanced.ContextApi<F>,
-				KeyedCollection.Advanced.ContextApi<F> {}
+		> extends KeyedCollection.Advanced.ContextApi<F> {}
 
 		export interface Family<K, V>
-			extends SortedCollection.Advanced.Family<K, readonly [K, V]>,
+			extends SortedCollection.Advanced.Family<readonly [K, V], K>,
 				KeyedCollection.Advanced.Family<K, V> {
 			_NORMAL: Api<
 				K,

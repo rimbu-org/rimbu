@@ -178,7 +178,7 @@ export class ListBuilder<T>
 		}
 	};
 
-	insertAt = (index: number, value: T): void => {
+	#insertSingleAt(index: number, value: T): void {
 		this.checkLock();
 
 		if (undefined === this.#outerBuilder || index >= this.size) {
@@ -196,14 +196,14 @@ export class ListBuilder<T>
 
 		this.#outerBuilder.insert(index, value);
 		this.#outerBuilder = this.#outerBuilder.normalized();
-	};
+	}
 
-	insertAllAt = (index: number, values: StreamSource<T>): void => {
+	insertAt = (index: number, values: StreamSource<T>): void => {
 		const done = Symbol();
 		const iter = Stream.from(values)[Symbol.iterator]();
 		let next: T | typeof done;
 		while (done !== (next = iter.fastNext(done))) {
-			this.insertAt(index, next);
+			this.#insertSingleAt(index, next);
 			index++;
 		}
 	};

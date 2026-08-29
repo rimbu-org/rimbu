@@ -3,7 +3,7 @@ import type { HashMap } from '@rimbu/hashed/map';
 import type { List } from '@rimbu/list';
 import type { Stream } from '@rimbu/stream';
 
-import type { HashMapContext } from '#map/context';
+import type { HashMapCollectionContext } from '#map/context';
 
 import * as RimbuError from '@rimbu/base/rimbu-error';
 import {
@@ -16,7 +16,7 @@ import { HashMapNonEmptyBase } from '#map/immutable/non-empty';
 
 export class HashMapCollision<K, V> extends HashMapNonEmptyBase<K, V> {
 	constructor(
-		readonly context: HashMapContext<K>,
+		readonly context: HashMapCollectionContext<K>,
 		readonly entries: List.NonEmpty<readonly [K, V]>,
 	) {
 		super();
@@ -77,9 +77,7 @@ export class HashMapCollision<K, V> extends HashMapNonEmptyBase<K, V> {
 		return this.addInternal(entry, hash);
 	}
 
-	mutate: any;
-
-	modifyAt(
+	modifyAtKey(
 		atKey: K,
 		options: ModifyOptions<V>,
 		_atKeyHash?: number,

@@ -1,112 +1,79 @@
-// import type { IndexedCollection } from '@rimbu/collection-types/collection/indexed';
-// import type { KeyedCollection } from '@rimbu/collection-types/collection/keyed';
-// import type { OptLazy, RelatedTo } from '@rimbu/common';
-// import type { Stream } from '@rimbu/stream';
+import type { Collection } from '@rimbu/collection-types/collection';
+import type { IndexedCollection } from '@rimbu/collection-types/collection/indexed';
+import type { KeyedCollection } from '@rimbu/collection-types/collection/keyed';
+import type { OptLazy, RelatedTo } from '@rimbu/common';
 
-// export interface IndexedKeyedCollection<
-// 	K,
-// 	V,
-// 	Tp extends IndexedKeyedCollection.Advanced.Types<
-// 		K,
-// 		V
-// 	> = IndexedKeyedCollection.Advanced.Types<K, V>,
-// > extends IndexedCollection<readonly [K, V], Tp>,
-// 		KeyedCollection<K, V, Tp> {
-// 	indexOf<UK = K>(key: RelatedTo<K, UK>): number | undefined;
-// 	indexOf<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): number | O;
-// }
+export type IndexedKeyedCollection<
+	K,
+	V,
+	F extends Collection.Advanced.FamilyBase<
+		readonly [K, V]
+	> = Collection.Advanced.Family<readonly [K, V]>,
+> = IndexedKeyedCollection.Advanced.ExtendFamily<K, V, F>['_NORMAL'];
 
-// export declare namespace IndexedKeyedCollection {
-// 	export interface NonEmpty<
-// 		K,
-// 		V,
-// 		Tp extends IndexedKeyedCollection.Advanced.TypesNonEmpty<
-// 			K,
-// 			V
-// 		> = IndexedKeyedCollection.Advanced.TypesNonEmpty<K, V>,
-// 	> extends IndexedKeyedCollection<K, V, Tp>,
-// 			IndexedCollection.NonEmpty<readonly [K, V], Tp>,
-// 			KeyedCollection.NonEmpty<K, V, Tp> {
-// 		indexOf<UK = K>(key: RelatedTo<K, UK>): number | undefined;
-// 		indexOf<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): number | O;
-// 	}
+export namespace IndexedKeyedCollection {
+	export type NonEmpty<
+		K,
+		V,
+		F extends Collection.Advanced.FamilyBase<
+			readonly [K, V]
+		> = Collection.Advanced.Family<readonly [K, V]>,
+	> = Advanced.ExtendFamily<K, V, F>['_NON_EMPTY'];
 
-// 	export interface Builder<
-// 		K,
-// 		V,
-// 		Tp extends IndexedKeyedCollection.Advanced.Types<
-// 			K,
-// 			V
-// 		> = IndexedKeyedCollection.Advanced.Types<K, V>,
-// 	> extends IndexedCollection.Builder<readonly [K, V], Tp>,
-// 			KeyedCollection.Builder<K, V, Tp> {
-// 		indexOf<UK = K>(key: RelatedTo<K, UK>): number | undefined;
-// 		indexOf<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): number | O;
-// 	}
+	export namespace Advanced {
+		export type ExtendFamily<
+			K,
+			V,
+			F extends Collection.Advanced.FamilyBase<
+				readonly [K, V]
+			> = Collection.Advanced.Family<readonly [K, V]>,
+		> = F & Family<K, V>;
 
-// 	export namespace Advanced {
-// 		export interface Family<K, V>
-// 			extends IndexedCollection.Advanced.Family<readonly [K, V]>,
-// 				KeyedCollection.Advanced.Family<K, V> {
-// 			_NORMAL: IndexedKeyedCollection<K, V>;
-// 			_NON_EMPTY: IndexedKeyedCollection.NonEmpty<K, V>;
-// 			_BUILDER: IndexedKeyedCollection.Builder<K, V>;
+		export interface Api<K, V, Tp extends Collection.Advanced.TypesBase>
+			extends IndexedCollection.Advanced.Api<readonly [K, V], Tp>,
+				KeyedCollection.Advanced.Api<K, V, Tp> {
+			indexOf<UK = K>(key: RelatedTo<K, UK>): number | undefined;
+			indexOf<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): number | O;
+		}
 
-// 			_NEW_FAMILY: IndexedKeyedCollection.Advanced.Family<
-// 				this['_NEW_K'],
-// 				this['_NEW_V']
-// 			>;
-// 		}
+		export interface BuilderApi<K, V, Tp extends Collection.Advanced.TypesBase>
+			extends IndexedCollection.Advanced.BuilderApi<readonly [K, V], Tp>,
+				KeyedCollection.Advanced.BuilderApi<K, V, Tp> {
+			indexOf<UK = K>(key: RelatedTo<K, UK>): number | undefined;
+			indexOf<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): number | O;
+		}
 
-// 		export interface NormalKind<K, V>
-// 			extends IndexedCollection.Advanced.NormalKind<readonly [K, V]>,
-// 				KeyedCollection.Advanced.NormalKind<K, V> {
-// 			_stream: IndexedCollection.Advanced.NormalKind<
-// 				readonly [K, V]
-// 			>['_stream'];
+		export interface ContextApi<
+			F extends IndexedCollection.Advanced.Family<any> &
+				KeyedCollection.Advanced.Family<any, any>,
+		> extends IndexedCollection.Advanced.ContextApi<F>,
+				KeyedCollection.Advanced.ContextApi<F> {}
 
-// 			_streamKeys: (
-// 				options?: { reversed?: boolean | undefined } | undefined,
-// 			) => Stream<K>;
-// 			_streamValues: (
-// 				options?: { reversed?: boolean | undefined } | undefined,
-// 			) => Stream<V>;
+		export interface Family<K, V>
+			extends IndexedCollection.Advanced.Family<readonly [K, V]>,
+				KeyedCollection.Advanced.Family<K, V> {
+			_NORMAL: Api<
+				K,
+				V,
+				Collection.Advanced.Types<this['_FAM'], readonly [K, V]>
+			>;
+			_NON_EMPTY: Api<
+				K,
+				V,
+				Collection.Advanced.TypesNonEmpty<this['_FAM'], readonly [K, V]>
+			>;
+			_BUILDER: BuilderApi<
+				K,
+				V,
+				Collection.Advanced.Types<this['_FAM'], readonly [K, V]>
+			>;
+			_CONTEXT: ContextApi<this['_FAM']>;
 
-// 			_NEW_TYPES: this['_NEW_FAMILY'] &
-// 				IndexedKeyedCollection.Advanced.NormalKind<
-// 					this['_NEW_K'],
-// 					this['_NEW_V']
-// 				>;
-// 		}
+			_UPPER_E: readonly [K, V];
+			_NEW_E: readonly [unknown, unknown];
 
-// 		export interface NonEmptyKind<K, V>
-// 			extends IndexedCollection.Advanced.NonEmptyKind<readonly [K, V]>,
-// 				KeyedCollection.Advanced.NonEmptyKind<K, V> {
-// 			_stream: IndexedCollection.Advanced.NonEmptyKind<
-// 				readonly [K, V]
-// 			>['_stream'];
-
-// 			_streamKeys: (
-// 				options?: { reversed?: boolean | undefined } | undefined,
-// 			) => Stream.NonEmpty<K>;
-// 			_streamValues: (
-// 				options?: { reversed?: boolean | undefined } | undefined,
-// 			) => Stream.NonEmpty<V>;
-
-// 			_NEW_TYPES: this['_NEW_FAMILY'] &
-// 				IndexedKeyedCollection.Advanced.NonEmptyKind<
-// 					this['_NEW_K'],
-// 					this['_NEW_V']
-// 				>;
-// 		}
-
-// 		export type Types<K, V> = IndexedKeyedCollection.Advanced.Family<K, V> &
-// 			IndexedKeyedCollection.Advanced.NormalKind<K, V>;
-
-// 		export type TypesNonEmpty<K, V> = IndexedKeyedCollection.Advanced.Family<
-// 			K,
-// 			V
-// 		> &
-// 			IndexedKeyedCollection.Advanced.NonEmptyKind<K, V>;
-// 	}
-// }
+			_FAM: Family<K, V>;
+			_NEW_FAMILY: Family<this['_NEW_K'], this['_NEW_V']>;
+		}
+	}
+}

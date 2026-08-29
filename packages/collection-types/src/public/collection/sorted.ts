@@ -1,67 +1,72 @@
 import type { Collection } from '@rimbu/collection-types/collection';
-import type { Comp, OptLazy } from '@rimbu/common';
+import type { OptLazy, RelatedTo } from '@rimbu/common';
 
 export type SortedCollection<
-	S,
 	E,
+	S,
 	F extends Collection.Advanced.FamilyBase<E> = Collection.Advanced.Family<E>,
-> = SortedCollection.Advanced.ExtendFamily<S, E, F>['_NORMAL'];
+> = SortedCollection.Advanced.ExtendFamily<E, S, F>['_NORMAL'];
 
 export namespace SortedCollection {
 	export type NonEmpty<
-		S,
 		E,
+		S,
 		F extends Collection.Advanced.FamilyBase<E> = Collection.Advanced.Family<E>,
-	> = Advanced.ExtendFamily<S, E, F>['_NON_EMPTY'];
+	> = Advanced.ExtendFamily<E, S, F>['_NON_EMPTY'];
+
+	export type Context<
+		F extends
+			Collection.Advanced.FamilyBase<any> = Collection.Advanced.Family<any>,
+	> = Advanced.ExtendFamily<any, any, F>['_CONTEXT'];
 
 	export type Builder<
-		S,
 		E,
+		S,
 		F extends Collection.Advanced.FamilyBase<E> = Collection.Advanced.Family<E>,
-	> = Advanced.ExtendFamily<S, E, F>['_BUILDER'];
+	> = Advanced.ExtendFamily<E, S, F>['_BUILDER'];
 
 	export namespace Advanced {
 		export type ExtendFamily<
-			S,
 			E,
+			S,
 			F extends
 				Collection.Advanced.FamilyBase<E> = Collection.Advanced.Family<E>,
-		> = F & Family<S, E>;
+		> = F & Family<E, S>;
 
 		export interface MinMax<E, IsNonEmpty extends boolean = boolean> {
 			(): IsNonEmpty extends true ? E : E | undefined;
 			<O>(otherwise: IsNonEmpty extends true ? never : OptLazy<O>): E | O;
 		}
 
-		export interface Api<S, E, Tp extends Collection.Advanced.TypesBase>
+		export interface Api<E, S, Tp extends Collection.Advanced.TypesBase>
 			extends Collection.Advanced.Api<E, Tp> {
 			min: MinMax<E, Tp['_IS_NON_EMPTY']>;
 			max: MinMax<E, Tp['_IS_NON_EMPTY']>;
 
-			previous<O>(
-				search: S,
-				options: { inclusive?: boolean | undefined; otherwise: OptLazy<O> },
-			): E | O;
-			previous(
-				search: S,
+			previous<US = S>(
+				search: RelatedTo<S, US>,
 				options?:
 					| { inclusive?: boolean | undefined; otherwise?: undefined }
 					| undefined,
 			): E | undefined;
+			previous<US, O>(
+				search: RelatedTo<S, US>,
+				options: { inclusive?: boolean | undefined; otherwise: OptLazy<O> },
+			): E | O;
 
-			next<O>(
-				search: S,
-				options: { inclusive?: boolean | undefined; otherwise: OptLazy<O> },
-			): E | O;
-			next(
-				search: S,
+			next<US = S>(
+				search: RelatedTo<S, US>,
 				options?:
 					| { inclusive?: boolean | undefined; otherwise?: undefined }
 					| undefined,
 			): E | undefined;
+			next<US, O>(
+				search: RelatedTo<S, US>,
+				options: { inclusive?: boolean | undefined; otherwise: OptLazy<O> },
+			): E | O;
 		}
 
-		export interface BuilderApi<S, E, Tp extends Collection.Advanced.TypesBase>
+		export interface BuilderApi<E, S, Tp extends Collection.Advanced.TypesBase>
 			extends Collection.Advanced.BuilderApi<E, Tp> {
 			min(): E | undefined;
 			min<O>(otherwise: OptLazy<O>): E | O;
@@ -91,22 +96,18 @@ export namespace SortedCollection {
 			): E | O;
 		}
 
-		export interface ContextApi<F extends Family<any, any>>
-			extends Collection.Advanced.ContextApi<F> {
-			readonly comp: Comp<F['_UPPER_S']>;
-		}
+		export interface Family<E, S> extends Collection.Advanced.Family<E> {
+			_NORMAL: Api<E, S, Collection.Advanced.Types<this['_FAM'], E>>;
+			_NON_EMPTY: Api<E, S, Collection.Advanced.TypesNonEmpty<this['_FAM'], E>>;
+			_BUILDER: BuilderApi<E, S, Collection.Advanced.Types<this['_FAM'], E>>;
 
-		export interface Family<S, E> extends Collection.Advanced.Family<E> {
-			_NORMAL: Api<S, E, Collection.Advanced.Types<this['_FAM'], E>>;
-			_NON_EMPTY: Api<S, E, Collection.Advanced.TypesNonEmpty<this['_FAM'], E>>;
-			_BUILDER: BuilderApi<S, E, Collection.Advanced.Types<this['_FAM'], E>>;
-			_CONTEXT: ContextApi<this['_FAM']>;
+			// _E_TO_S: unknown;
+			// _UPPER_S: unknown;
 
-			_UPPER_S: unknown;
-			_NEW_S: unknown;
+			_NEW_E_TO_S: unknown;
 
-			_FAM: Family<S, E>;
-			_NEW_FAMILY: Family<this['_NEW_S'], this['_NEW_E']>;
+			_FAM: Family<E, S>;
+			_NEW_FAMILY: Family<this['_NEW_E'], this['_NEW_E_TO_S']>;
 		}
 	}
 }

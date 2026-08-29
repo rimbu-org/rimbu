@@ -59,8 +59,8 @@ describe('list builder middle underflow (known issue)', () => {
 			// block. The middle now holds exactly one child at the
 			// minimum allowed size.
 			const middleStart = maxBlockSize;
-			b.insertAt(middleStart + 1, 1000);
-			b.insertAt(maxBlockSize + minBlockSize, 1001);
+			b.insertAt(middleStart + 1, [1000]);
+			b.insertAt(maxBlockSize + minBlockSize, [1001]);
 
 			// removing from the middle's single child drops it to
 			// minBlockSize - 1; the tree is still above the
@@ -89,8 +89,8 @@ describe('list builder middle underflow (known issue)', () => {
 			for (let i = 0; i < 2 * maxBlockSize; i++) b.append(i);
 
 			const middleStart = maxBlockSize;
-			b.insertAt(middleStart + 1, 1000);
-			b.insertAt(maxBlockSize + minBlockSize, 1001);
+			b.insertAt(middleStart + 1, [1000]);
+			b.insertAt(maxBlockSize + minBlockSize, [1001]);
 
 			const builtList = b.build();
 			const built = builtList as unknown as {

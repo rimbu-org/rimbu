@@ -3,7 +3,7 @@ import type { Op } from '@rimbu/collection-types/types';
 import type { RelatedTo } from '@rimbu/common/types';
 import type { HashMap } from '@rimbu/hashed/map';
 
-import type { HashMapContext } from '#map/context';
+import type { HashMapCollectionContext } from '#map/context';
 
 import {
 	defaultFlatMapByAddAll,
@@ -18,11 +18,11 @@ export abstract class HashMapNonEmptyBase<K, V>
 	extends MapCollectionNonEmptyBase<K, V, HashMap.Advanced.Family<K, V>>
 	implements HashMap.NonEmpty<K, V>
 {
-	abstract readonly context: HashMapContext<K>;
+	abstract readonly context: HashMapCollectionContext<K>;
 
 	abstract add(entry: readonly [K, V], hash?: number): HashMap.NonEmpty<K, V>;
 
-	abstract modifyAt(
+	abstract modifyAtKey(
 		atKey: K,
 		options: ModifyOptions<V>,
 		atKeyHash?: number,
@@ -50,17 +50,17 @@ export abstract class HashMapNonEmptyBase<K, V>
 		return builder.build();
 	}
 
-	updateAt<UK>(
+	updateAtKey<UK>(
 		key: RelatedTo<K, UK>,
 		update: (value: V) => V,
 	): HashMap.NonEmpty<K, V> {
 		if (!this.context.isValidKey(key)) return this;
-		return this.modifyAt(key, {
+		return this.modifyAtKey(key, {
 			ifExists: { update },
 		}).assumeNonEmpty();
 	}
 
-	updateAtAndReturn<UK>(
+	updateAtKeyAndReturn<UK>(
 		key: RelatedTo<K, UK>,
 		update: (value: V) => V,
 	): Op.DynamicResult<
@@ -73,7 +73,7 @@ export abstract class HashMapNonEmptyBase<K, V>
 		let oldValue: V | typeof token = token;
 		let newValue: V | undefined;
 
-		const newMap = this.modifyAt(key as K, {
+		const newMap = this.modifyAtKey(key as K, {
 			ifExists: {
 				update: (value: V, _remove) => {
 					oldValue = value;
@@ -104,7 +104,7 @@ export abstract class HashMapNonEmptyBase<K, V>
 
 	removeKey<UK>(key: RelatedTo<K, UK>): HashMap<K, V> {
 		if (!this.context.hasher.isValid(key)) return this;
-		return this.modifyAt(key, {
+		return this.modifyAtKey(key, {
 			ifExists: { update: (_, remove) => remove },
 		});
 	}
@@ -132,7 +132,7 @@ export abstract class HashMapNonEmptyBase<K, V>
 		const token = Symbol();
 		let currentValue: V | typeof token = token;
 
-		const newMap = this.modifyAt(key, {
+		const newMap = this.modifyAtKey(key, {
 			ifExists: {
 				update: (value, remove) => {
 					currentValue = value;

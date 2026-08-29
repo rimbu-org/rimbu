@@ -7,6 +7,7 @@ import {
 	CollectionEmptyBase,
 	CollectionNonEmptyBase,
 } from '@rimbu/collection-types/advanced/collection-base';
+import { Stream, type StreamSource } from '@rimbu/stream';
 
 export abstract class ValuedCollectionEmptyBase<
 		E,
@@ -18,10 +19,47 @@ export abstract class ValuedCollectionEmptyBase<
 		>,
 	>
 	extends CollectionEmptyBase<E, FAM, Tp>
-	implements ValuedCollection.Advanced.Api<E, Tp>
+	implements
+		ValuedCollection.Advanced.Api<E, Tp>,
+		Collection.Capability.WithFlatMap.Api<E, Tp>,
+		Collection.Capability.WithMap.Api<E, Tp>,
+		Collection.Capability.WithMutate.Api<E, Tp>,
+		Collection.Capability.WithRecompose.Api<E, Tp>
 {
 	has(): false {
 		return false;
+	}
+
+	map<E2 extends FAM['_UPPER_E']>(
+		_f: (element: E) => E2,
+	): Collection.Advanced.ReTyped<Tp, E2>['_SELF'] {
+		return this as any;
+	}
+
+	mapIndexed<E2 extends FAM['_UPPER_E']>(
+		_f: (element: E, index: number) => E2,
+	): Collection.Advanced.ReTyped<Tp, E2>['_SELF'] {
+		return this as any;
+	}
+
+	flatMap(): this {
+		return this;
+	}
+
+	flatMapIndexed(): this {
+		return this;
+	}
+
+	recompose<E2 extends FAM['_UPPER_E']>(
+		f: (stream: Stream<E>) => StreamSource<E2>,
+	): Collection.Advanced.ReTypeFam<FAM, E2>['_NORMAL'] {
+		return this.context.from(f(Stream.empty()));
+	}
+
+	mutate(f: (builder: FAM['_BUILDER']) => void): FAM['_NORMAL'] {
+		const builder = this.context.builder<E>();
+		f(builder);
+		return builder.build();
 	}
 }
 

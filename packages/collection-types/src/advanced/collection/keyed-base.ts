@@ -10,6 +10,41 @@ import {
 import { OptLazy, type RelatedTo } from '@rimbu/common';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
+export class KeyedCollectionContextBase<
+	UK,
+	UV,
+	FAM extends KeyedCollection.Advanced.Family<UK, UV>,
+> implements KeyedCollection.Advanced.KeyedContextApi<FAM>
+{
+	constructor(readonly collectionContext: FAM['_CONTEXT']) {}
+
+	get empty(): <
+		K extends FAM['_UPPER_K'],
+		V extends FAM['_UPPER_V'],
+	>() => Collection.Advanced.Types<FAM, readonly [K, V]>['_NORMAL'] {
+		return this.collectionContext.empty as any;
+	}
+
+	get of(): <K extends FAM['_UPPER_K'], V extends FAM['_UPPER_V']>(
+		...entries: readonly [K, V][]
+	) => Collection.Advanced.Types<FAM, readonly [K, V]>['_NON_EMPTY'] {
+		return this.collectionContext.of as any;
+	}
+
+	get from(): <K extends FAM['_UPPER_K'], V extends FAM['_UPPER_V']>(
+		source: StreamSource<readonly [K, V]>,
+	) => Collection.Advanced.Types<FAM, readonly [K, V]>['_NON_EMPTY'] {
+		return this.collectionContext.from as any;
+	}
+
+	get builder(): <
+		K extends FAM['_UPPER_K'],
+		V extends FAM['_UPPER_V'],
+	>() => Collection.Advanced.Types<FAM, readonly [K, V]>['_BUILDER'] {
+		return this.collectionContext.builder as any;
+	}
+}
+
 export abstract class KeyedCollectionEmptyBase<
 		K,
 		V,
@@ -26,7 +61,10 @@ export abstract class KeyedCollectionEmptyBase<
 	implements
 		KeyedCollection.Advanced.Api<K, V, Tp>,
 		KeyedCollection.Capability.WithRemove.Api<K, V, Tp>,
-		KeyedCollection.Capability.WithMapValues.Api<K, V, Tp>
+		KeyedCollection.Capability.WithMapValues.Api<K, V, Tp>,
+		KeyedCollection.Capability.WithFlatMap.Api<K, V, Tp>,
+		KeyedCollection.Capability.WithMap.Api<K, V, Tp>,
+		KeyedCollection.Capability.WithRecompose.Api<K, V, Tp>
 {
 	get<UK, O>(_: RelatedTo<K, UK>, otherwise?: OptLazy<O>): O {
 		return OptLazy(otherwise) as O;
@@ -64,8 +102,43 @@ export abstract class KeyedCollectionEmptyBase<
 		};
 	}
 
-	mapValues(): any {
+	map<K2, V2>(): Collection.Advanced.ReTyped<Tp, readonly [K2, V2]>['_SELF'] {
 		return this as any;
+	}
+
+	mapIndexed<K2, V2>(): Collection.Advanced.ReTyped<
+		Tp,
+		readonly [K2, V2]
+	>['_NORMAL'] {
+		return this as any;
+	}
+
+	flatMap(): this {
+		return this;
+	}
+
+	flatMapIndexed(): this {
+		return this;
+	}
+
+	mapValues<V2>(): Collection.Advanced.ReTyped<
+		Tp,
+		readonly [K, V2]
+	>['_NORMAL'] {
+		return this as any;
+	}
+
+	recompose(): Collection.Advanced.FamToTypes<
+		FAM,
+		readonly [unknown, unknown]
+	>['_NORMAL'] {
+		return this;
+	}
+
+	mutate(f: (builder: FAM['_BUILDER']) => void): FAM['_NORMAL'] {
+		const builder = this.context.keyedContext.builder<K, V>();
+		f(builder);
+		return builder.build();
 	}
 }
 

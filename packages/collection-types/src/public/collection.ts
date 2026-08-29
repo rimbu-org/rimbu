@@ -106,7 +106,7 @@ export declare namespace Collection {
 			nonEmpty(): this is Tp['_NON_EMPTY'];
 			assumeNonEmpty(): Tp['_NON_EMPTY'];
 
-			stream: () => Tp['_AS_STREAM'];
+			stream(): Tp['_AS_STREAM'];
 
 			forEach(f: (element: E) => void): void;
 			forEachIndexed(
@@ -249,8 +249,11 @@ export declare namespace Collection {
 		}
 
 		export interface WithMap<E> extends Advanced.Family<E> {
-			_NORMAL: WithMap.Api<E, Advanced.Types<this['_FAM'], E>>;
-			_NON_EMPTY: WithMap.Api<E, Advanced.TypesNonEmpty<this['_FAM'], E>>;
+			_NORMAL: WithMap.Api<E, Collection.Advanced.Types<this['_FAM'], E>>;
+			_NON_EMPTY: WithMap.Api<
+				E,
+				Collection.Advanced.TypesNonEmpty<this['_FAM'], E>
+			>;
 
 			_INVARIANT: (e: E) => E;
 
@@ -259,11 +262,11 @@ export declare namespace Collection {
 		}
 
 		export namespace WithMap {
-			export interface Api<E, Tp extends Advanced.TypesBase>
+			export interface Api<E, Tp extends Collection.Advanced.TypesBase>
 				extends Advanced.Api<E, Tp> {
 				map<E2 extends Tp['_UPPER_E']>(
 					f: (element: E) => E2,
-				): Advanced.ReTyped<Tp, E2>['_SELF'];
+				): Collection.Advanced.ReTyped<Tp, E2>['_SELF'];
 
 				mapIndexed<E2 extends Tp['_UPPER_E']>(
 					f: (element: E, index: number) => E2,
@@ -272,8 +275,11 @@ export declare namespace Collection {
 		}
 
 		export interface WithFlatMap<E> extends Advanced.Family<E> {
-			_NORMAL: WithFlatMap.Api<E, Advanced.Types<this['_FAM'], E>>;
-			_NON_EMPTY: WithFlatMap.Api<E, Advanced.TypesNonEmpty<this['_FAM'], E>>;
+			_NORMAL: WithFlatMap.Api<E, Collection.Advanced.Types<this['_FAM'], E>>;
+			_NON_EMPTY: WithFlatMap.Api<
+				E,
+				Collection.Advanced.TypesNonEmpty<this['_FAM'], E>
+			>;
 
 			_INVARIANT: (e: E) => E;
 
@@ -282,7 +288,7 @@ export declare namespace Collection {
 		}
 
 		export namespace WithFlatMap {
-			export interface Api<E, Tp extends Advanced.TypesBase>
+			export interface Api<E, Tp extends Collection.Advanced.TypesBase>
 				extends Advanced.Api<E, Tp> {
 				flatMap<E2 extends Tp['_UPPER_E']>(
 					f: (element: E) => StreamSource.NonEmpty<E2>,
@@ -303,8 +309,11 @@ export declare namespace Collection {
 		}
 
 		export interface WithMutate<E> extends Advanced.Family<E> {
-			_NORMAL: WithMutate.Api<E, Advanced.Types<this['_FAM'], E>>;
-			_NON_EMPTY: WithMutate.Api<E, Advanced.TypesNonEmpty<this['_FAM'], E>>;
+			_NORMAL: WithMutate.Api<E, Collection.Advanced.Types<this['_FAM'], E>>;
+			_NON_EMPTY: WithMutate.Api<
+				E,
+				Collection.Advanced.TypesNonEmpty<this['_FAM'], E>
+			>;
 
 			_INVARIANT: (e: E) => E;
 
@@ -313,7 +322,7 @@ export declare namespace Collection {
 		}
 
 		export namespace WithMutate {
-			export interface Api<E, Tp extends Advanced.TypesBase>
+			export interface Api<E, Tp extends Collection.Advanced.TypesBase>
 				extends Advanced.Api<E, Tp> {
 				mutate(f: (builder: Tp['_BUILDER']) => void): Tp['_NORMAL'];
 			}
@@ -328,7 +337,7 @@ export declare namespace Collection {
 
 		export namespace WithReducer {
 			export interface ContextApi<F extends Collection.Advanced.FamilyBase<any>>
-				extends Collection.Advanced.ContextApi<F> {
+				extends Advanced.ContextApi<F> {
 				reducer<E extends F['_UPPER_E']>(
 					source?: StreamSource<E>,
 				): Reducer<E, Collection.Advanced.FamToTypes<F, E>['_NORMAL']>;
@@ -336,8 +345,11 @@ export declare namespace Collection {
 		}
 
 		export interface WithRecompose<E> extends Advanced.Family<E> {
-			_NORMAL: WithRecompose.Api<E, Advanced.Types<this['_FAM'], E>>;
-			_NON_EMPTY: WithRecompose.Api<E, Advanced.TypesNonEmpty<this['_FAM'], E>>;
+			_NORMAL: WithRecompose.Api<E, Collection.Advanced.Types<this['_FAM'], E>>;
+			_NON_EMPTY: WithRecompose.Api<
+				E,
+				Collection.Advanced.TypesNonEmpty<this['_FAM'], E>
+			>;
 
 			_INVARIANT: (e: E) => E;
 
@@ -346,14 +358,14 @@ export declare namespace Collection {
 		}
 
 		export namespace WithRecompose {
-			export interface Api<E, Tp extends Advanced.TypesBase>
+			export interface Api<E, Tp extends Collection.Advanced.TypesBase>
 				extends Advanced.Api<E, Tp> {
 				recompose<E2 extends Tp['_UPPER_E']>(
 					f: (stream: Tp['_AS_STREAM']) => StreamSource.NonEmpty<E2>,
-				): Advanced.ReTyped<Tp, E2>['_SELF'];
+				): Collection.Advanced.ReTyped<Tp, E2>['_SELF'];
 				recompose<E2 extends Tp['_UPPER_E']>(
 					f: (stream: Tp['_AS_STREAM']) => StreamSource<E2>,
-				): Advanced.ReTyped<Tp, E2>['_NORMAL'];
+				): Collection.Advanced.ReTyped<Tp, E2>['_NORMAL'];
 			}
 		}
 	}

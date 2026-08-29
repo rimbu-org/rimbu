@@ -2,7 +2,7 @@ import type { RelatedTo } from '@rimbu/common/types';
 import type { HashMap } from '@rimbu/hashed/map';
 import type { List } from '@rimbu/list';
 
-import type { HashMapContext } from '#map/context';
+import type { HashMapCollectionContext } from '#map/context';
 import type { HashMapCollision } from '#map/immutable/collision';
 
 import {
@@ -17,7 +17,7 @@ export class HashMapCollisionBuilder<K, V> extends CollisionBuilderBase<
 	readonly [K, V]
 > {
 	constructor(
-		readonly context: HashMapContext<K>,
+		readonly context: HashMapCollectionContext<K>,
 		public source?: undefined | HashMapCollision<K, V>,
 		public _entries?: undefined | List.Builder<readonly [K, V]>,
 	) {
@@ -87,11 +87,7 @@ export class HashMapCollisionBuilder<K, V> extends CollisionBuilderBase<
 		return changed;
 	}
 
-	// set(key: K, value: V): boolean {
-	// 	return this.addInternal([key, value]);
-	// }
-
-	modifyAt(atKey: K, options: ModifyOptions<V>): boolean {
+	modifyAtKey(atKey: K, options: ModifyOptions<V>): boolean {
 		if (checkEmptyModifyOptions(options)) return false;
 		const { ifNew, ifExists } = options;
 

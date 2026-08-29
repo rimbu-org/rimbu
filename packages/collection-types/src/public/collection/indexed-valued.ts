@@ -1,75 +1,56 @@
-// import type { IndexedCollection } from '@rimbu/collection-types/collection/indexed';
-// import type { ValuedCollection } from '@rimbu/collection-types/collection/valued';
-// import type { OptLazy, RelatedTo } from '@rimbu/common';
+import type { Collection } from '@rimbu/collection-types/collection';
+import type { IndexedCollection } from '@rimbu/collection-types/collection/indexed';
+import type { ValuedCollection } from '@rimbu/collection-types/collection/valued';
+import type { OptLazy, RelatedTo } from '@rimbu/common';
 
-// export interface IndexedValuedCollection<
-// 	T,
-// 	Tp extends
-// 		IndexedValuedCollection.Advanced.Types<T> = IndexedValuedCollection.Advanced.Types<T>,
-// > extends IndexedCollection<T, Tp>,
-// 		ValuedCollection<T, Tp> {
-// 	indexOf<UT = T>(value: RelatedTo<T, UT>): number | undefined;
-// 	indexOf<UT, O>(value: RelatedTo<T, UT>, otherwise: OptLazy<O>): number | O;
-// }
+export type IndexedValuedCollection<
+	E,
+	F extends Collection.Advanced.FamilyBase<E> = Collection.Advanced.Family<E>,
+> = IndexedValuedCollection.Advanced.ExtendFamily<E, F>['_NORMAL'];
 
-// export declare namespace IndexedValuedCollection {
-// 	export interface NonEmpty<
-// 		T,
-// 		Tp extends
-// 			IndexedValuedCollection.Advanced.TypesNonEmpty<T> = IndexedValuedCollection.Advanced.TypesNonEmpty<T>,
-// 	> extends IndexedValuedCollection<T, Tp>,
-// 			IndexedCollection.NonEmpty<T, Tp>,
-// 			ValuedCollection.NonEmpty<T, Tp> {
-// 		indexOf<UT = T>(value: RelatedTo<T, UT>): number | undefined;
-// 		indexOf<UT, O>(value: RelatedTo<T, UT>, otherwise: OptLazy<O>): number | O;
-// 	}
+export namespace IndexedValuedCollection {
+	export type NonEmpty<
+		E,
+		F extends Collection.Advanced.FamilyBase<E> = Collection.Advanced.Family<E>,
+	> = Advanced.ExtendFamily<E, F>['_NON_EMPTY'];
 
-// 	export interface Builder<
-// 		T,
-// 		Tp extends
-// 			IndexedValuedCollection.Advanced.Types<T> = IndexedValuedCollection.Advanced.Types<T>,
-// 	> extends IndexedCollection.Builder<T, Tp>,
-// 			ValuedCollection.Builder<T, Tp> {
-// 		indexOf<UT = T>(value: RelatedTo<T, UT>): number | undefined;
-// 		indexOf<UT, O>(value: RelatedTo<T, UT>, otherwise: OptLazy<O>): number | O;
-// 	}
+	export namespace Advanced {
+		export type ExtendFamily<
+			E,
+			F extends
+				Collection.Advanced.FamilyBase<E> = Collection.Advanced.Family<E>,
+		> = F & Family<E>;
 
-// 	export namespace Advanced {
-// 		// Combining two family axes still requires restating the narrowed
-// 		// slots to resolve TS2320 -- but now only once, in the family, rather
-// 		// than once per kind.
-// 		export interface Family<T>
-// 			extends IndexedCollection.Advanced.Family<T>,
-// 				ValuedCollection.Advanced.Family<T> {
-// 			_NORMAL: IndexedValuedCollection<T>;
-// 			_NON_EMPTY: IndexedValuedCollection.NonEmpty<T>;
-// 			_BUILDER: IndexedValuedCollection.Builder<T>;
+		export interface Api<E, Tp extends Collection.Advanced.TypesBase>
+			extends IndexedCollection.Advanced.Api<E, Tp>,
+				ValuedCollection.Advanced.Api<E, Tp> {
+			indexOf<UE = E>(key: RelatedTo<E, UE>): number | undefined;
+			indexOf<UE, O>(key: RelatedTo<E, UE>, otherwise: OptLazy<O>): number | O;
+		}
 
-// 			_NEW_FAMILY: IndexedValuedCollection.Advanced.Family<this['_NEW_E']>;
-// 		}
+		export interface BuilderApi<E, Tp extends Collection.Advanced.TypesBase>
+			extends IndexedCollection.Advanced.BuilderApi<E, Tp>,
+				ValuedCollection.Advanced.BuilderApi<E, Tp> {
+			indexOf<UE = E>(key: RelatedTo<E, UE>): number | undefined;
+			indexOf<UE, O>(key: RelatedTo<E, UE>, otherwise: OptLazy<O>): number | O;
+		}
 
-// 		export interface NormalKind<T>
-// 			extends IndexedCollection.Advanced.NormalKind<T>,
-// 				ValuedCollection.Advanced.NormalKind<T> {
-// 			_stream: IndexedCollection.Advanced.NormalKind<T>['_stream'];
+		export interface ContextApi<
+			F extends IndexedCollection.Advanced.Family<any> &
+				ValuedCollection.Advanced.Family<any>,
+		> extends IndexedCollection.Advanced.ContextApi<F>,
+				ValuedCollection.Advanced.ContextApi<F> {}
 
-// 			_NEW_TYPES: this['_NEW_FAMILY'] &
-// 				IndexedValuedCollection.Advanced.NormalKind<this['_NEW_E']>;
-// 		}
+		export interface Family<E>
+			extends IndexedCollection.Advanced.Family<E>,
+				ValuedCollection.Advanced.Family<E> {
+			_NORMAL: Api<E, Collection.Advanced.Types<this['_FAM'], E>>;
+			_NON_EMPTY: Api<E, Collection.Advanced.TypesNonEmpty<this['_FAM'], E>>;
+			_BUILDER: BuilderApi<E, Collection.Advanced.Types<this['_FAM'], E>>;
+			_CONTEXT: ContextApi<this['_FAM']>;
 
-// 		export interface NonEmptyKind<T>
-// 			extends IndexedCollection.Advanced.NonEmptyKind<T>,
-// 				ValuedCollection.Advanced.NonEmptyKind<T> {
-// 			_stream: IndexedCollection.Advanced.NonEmptyKind<T>['_stream'];
-
-// 			_NEW_TYPES: this['_NEW_FAMILY'] &
-// 				IndexedValuedCollection.Advanced.NonEmptyKind<this['_NEW_E']>;
-// 		}
-
-// 		export type Types<T> = IndexedValuedCollection.Advanced.Family<T> &
-// 			IndexedValuedCollection.Advanced.NormalKind<T>;
-
-// 		export type TypesNonEmpty<T> = IndexedValuedCollection.Advanced.Family<T> &
-// 			IndexedValuedCollection.Advanced.NonEmptyKind<T>;
-// 	}
-// }
+			_FAM: Family<E>;
+			_NEW_FAMILY: Family<this['_NEW_E']>;
+		}
+	}
+}

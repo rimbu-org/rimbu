@@ -17,10 +17,7 @@ export abstract class CollectionEmptyBase<
 	>,
 > implements
 		Collection.Advanced.Api<E, Tp>,
-		Collection.Capability.WithFlatMap.Api<E, Tp>,
-		Collection.Capability.WithMap.Api<E, Tp>,
-		Collection.Capability.WithMutate.Api<E, Tp>,
-		Collection.Capability.WithRecompose.Api<E, Tp>
+		Collection.Capability.WithToBuilder.Api<E, Tp>
 {
 	abstract readonly context: FAM['_CONTEXT'];
 
@@ -48,14 +45,6 @@ export abstract class CollectionEmptyBase<
 		throw new EmptyCollectionAssumedNonEmptyError();
 	}
 
-	flatMap(): this {
-		return this;
-	}
-
-	flatMapIndexed(): this {
-		return this;
-	}
-
 	stream(): Stream<E> {
 		return Stream.empty<E>();
 	}
@@ -70,33 +59,6 @@ export abstract class CollectionEmptyBase<
 
 	filterIndexed(): this {
 		return this;
-	}
-
-	recompose<E2 extends FAM['_UPPER_E']>(
-		f: (stream: Stream<E>) => StreamSource<E2>,
-	): Collection.Advanced.ReTypeFam<FAM, E2>['_NORMAL'] {
-		return this.context.from(f(Stream.empty()));
-	}
-
-	mutate(f: (builder: FAM['_BUILDER']) => void): FAM['_NORMAL'] {
-		const builder = this.context.builder<E>();
-		f(builder);
-		return builder.build();
-	}
-
-	map<E2 extends FAM['_UPPER_E']>(
-		_f: (element: E) => E2,
-	): Collection.Advanced.ReTyped<
-		Tp & Collection.Advanced.NormalKind<E2>,
-		E2
-	>['_SELF'] {
-		return this as any;
-	}
-
-	mapIndexed<E2 extends FAM['_UPPER_E']>(
-		_f: (element: E, index: number) => E2,
-	): Collection.Advanced.ReTyped<Tp, E2>['_SELF'] {
-		return this as any;
 	}
 
 	toArray(): [] {
@@ -253,7 +215,7 @@ export abstract class CollectionBuilderBase<
 	}
 }
 
-export abstract class CollectionContextBaseWithAddAll<
+export abstract class ContextBaseWithAddAll<
 	FAM extends Collection.Advanced.FamilyBase<any> &
 		Collection.Capability.WithToBuilder<any> &
 		Collection.Capability.WithAdd<any>,

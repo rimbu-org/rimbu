@@ -189,7 +189,7 @@ describe('builder exhaustive small sequences', () => {
 
 				for (let i = 0; i <= arr.length; i++) {
 					const nb = state.b.build().toBuilder() as ListBuilder<number>;
-					nb.insertAt(i, nv);
+					nb.insertAt(i, [nv]);
 					const newArr = [...arr.slice(0, i), nv, ...arr.slice(i)];
 					expectContent(nb, newArr, `${label} insert(${i})`);
 					const key = `${newArr.join(',')}|${nv + 1}|${shapeOf(nb.build())}`;
@@ -556,7 +556,7 @@ describe('builder deep tree random (level >= 2)', () => {
 						: Math.floor(rng() * expected.length);
 
 					if (insert) {
-						b.insertAt(index, nextValue);
+						b.insertAt(index, [nextValue]);
 						expected.splice(index, 0, nextValue);
 						nextValue++;
 					} else {
@@ -610,7 +610,7 @@ describe('builder deep tree random (level >= 2)', () => {
 		for (const [kind, rawIndex] of ops) {
 			if (kind === 'insert') {
 				const index = Math.min(rawIndex, expected.length);
-				b.insertAt(index, nextValue);
+				b.insertAt(index, [nextValue]);
 				expected.splice(index, 0, nextValue);
 				nextValue++;
 			} else {

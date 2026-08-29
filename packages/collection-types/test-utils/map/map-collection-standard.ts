@@ -36,9 +36,9 @@ type Capabilities = Collection.Capability.WithAdd<any> &
 	KeyedCollection.Capability.WithMerge<any, any> &
 	KeyedCollection.Capability.WithMapValues<any, any> &
 	KeyedCollection.Capability.WithRemove<any, any> &
-	MapCollection.Capability.WithUpdateAt<any, any> &
+	MapCollection.Capability.WithUpdateAtKey<any, any> &
 	MapCollection.Capability.WithSet<any, any> &
-	MapCollection.Capability.WithModifyAt<any, any>;
+	MapCollection.Capability.WithModifyAtKey<any, any>;
 
 export function runMapTestsWith(
 	name: string,
@@ -384,18 +384,18 @@ export function runMapTestsWith(
 		});
 
 		it('modifyAt', () => {
-			expect(mapEmpty.modifyAt(2, { ifExists: { update: (v) => v + v } })).toBe(
-				mapEmpty,
-			);
-			expect(mapEmpty.modifyAt(2, { ifNew: { set: 'z' } }).get(2)).toBe('z');
+			expect(
+				mapEmpty.modifyAtKey(2, { ifExists: { update: (v) => v + v } }),
+			).toBe(mapEmpty);
+			expect(mapEmpty.modifyAtKey(2, { ifNew: { set: 'z' } }).get(2)).toBe('z');
 
 			expect(
-				map3.modifyAt(2, { ifExists: { update: (v) => v + v } }).get(2),
+				map3.modifyAtKey(2, { ifExists: { update: (v) => v + v } }).get(2),
 			).toBe('bb');
-			expect(map3.modifyAt(2, { ifNew: { set: 'bb' } }).get(2)).toBe('b');
+			expect(map3.modifyAtKey(2, { ifNew: { set: 'bb' } }).get(2)).toBe('b');
 			expect(
 				map3
-					.modifyAt(10, {
+					.modifyAtKey(10, {
 						ifNew: { set: 'z' },
 						ifExists: { update: (v) => v + v },
 					})
@@ -403,17 +403,17 @@ export function runMapTestsWith(
 			).toBe('z');
 			expect(
 				map3
-					.modifyAt(2, { ifExists: { update: (_, remove) => remove } })
+					.modifyAtKey(2, { ifExists: { update: (_, remove) => remove } })
 					.get(2),
 			).toBe(undefined);
 
 			expect(
-				map6.modifyAt(2, { ifExists: { update: (v) => v + v } }).get(2),
+				map6.modifyAtKey(2, { ifExists: { update: (v) => v + v } }).get(2),
 			).toBe('bb');
-			expect(map6.modifyAt(2, { ifNew: { set: 'bb' } }).get(2)).toBe('b');
+			expect(map6.modifyAtKey(2, { ifNew: { set: 'bb' } }).get(2)).toBe('b');
 			expect(
 				map6
-					.modifyAt(10, {
+					.modifyAtKey(10, {
 						ifNew: { set: 'z' },
 						ifExists: { update: (v) => v + v },
 					})
@@ -421,7 +421,7 @@ export function runMapTestsWith(
 			).toBe('z');
 			expect(
 				map6
-					.modifyAt(2, { ifExists: { update: (_, remove) => remove } })
+					.modifyAtKey(2, { ifExists: { update: (_, remove) => remove } })
 					.get(2),
 			).toBe(undefined);
 		});
@@ -550,21 +550,21 @@ export function runMapTestsWith(
 		// });
 
 		it('updateAt', () => {
-			expect(mapEmpty.updateAt(2, () => 'z')).toBe(mapEmpty);
-			expect(mapEmpty.updateAt(2, (v) => v + v)).toBe(mapEmpty);
+			expect(mapEmpty.updateAtKey(2, () => 'z')).toBe(mapEmpty);
+			expect(mapEmpty.updateAtKey(2, (v) => v + v)).toBe(mapEmpty);
 
-			expect(map3.updateAt(2, () => 'z').get(2)).toBe('z');
-			expect(map3.updateAt(2, (v) => v + v).get(2)).toBe('bb');
-			expect(map3.updateAt(10, () => 'z')).toBe(map3);
+			expect(map3.updateAtKey(2, () => 'z').get(2)).toBe('z');
+			expect(map3.updateAtKey(2, (v) => v + v).get(2)).toBe('bb');
+			expect(map3.updateAtKey(10, () => 'z')).toBe(map3);
 
-			expect(map6.updateAt(2, () => 'z').get(2)).toBe('z');
-			expect(map6.updateAt(2, (v) => v + v).get(2)).toBe('bb');
-			expect(map6.updateAt(10, () => 'z')).toBe(map6);
+			expect(map6.updateAtKey(2, () => 'z').get(2)).toBe('z');
+			expect(map6.updateAtKey(2, (v) => v + v).get(2)).toBe('bb');
+			expect(map6.updateAtKey(10, () => 'z')).toBe(map6);
 		});
 
 		it('updateAtAndReturn', () => {
 			// empty: no-op
-			expect(mapEmpty.updateAtAndReturn(2, () => 'z')).toEqual({
+			expect(mapEmpty.updateAtKeyAndReturn(2, () => 'z')).toEqual({
 				collection: mapEmpty,
 				result: [undefined, undefined],
 				hasResult: false,
@@ -572,24 +572,24 @@ export function runMapTestsWith(
 			});
 
 			// no-op on existing key: value unchanged -> hasValue true (key present), map unchanged
-			const r3Noop = map3.updateAtAndReturn(2, (v) => v);
+			const r3Noop = map3.updateAtKeyAndReturn(2, (v) => v);
 			expect(r3Noop.hasResult).toBe(true);
 			expect(r3Noop.result).toEqual(['b', 'b']);
 			expect(r3Noop.collection).toBe(map3);
 
 			// key absent: hasValue false, map unchanged
-			const r3Absent = map3.updateAtAndReturn(10, () => 'z');
+			const r3Absent = map3.updateAtKeyAndReturn(10, () => 'z');
 			expect(r3Absent.hasResult).toBe(false);
 			expect(r3Absent.collection).toEqual(map3);
 
 			// real update: hasValue true, returns old value, map updated
-			const r3 = map3.updateAtAndReturn(2, () => 'z');
+			const r3 = map3.updateAtKeyAndReturn(2, () => 'z');
 			expect(r3.hasResult).toBe(true);
 			expect(r3.result).toEqual(['b', 'z']);
 			expect(r3.collection.get(2)).toBe('z');
 			expect(r3.collection.size).toBe(3);
 
-			const r6 = map6.updateAtAndReturn(2, (v) => v + v);
+			const r6 = map6.updateAtKeyAndReturn(2, (v) => v + v);
 			expect(r6.hasResult).toBe(true);
 			expect(r6.result).toEqual(['b', 'bb']);
 			expect(r6.collection.get(2)).toBe('bb');
@@ -679,11 +679,11 @@ export function runMapTestsWith(
 			forEachBuilder((b) => {
 				expect(() => b.forEach(() => b.addAll([[1, 'a']]))).toThrow();
 				expect(() => b.forEach(() => b.add([1, 'a']))).toThrow();
-				expect(() => b.forEach(() => b.modifyAt(1, {}))).toThrow();
+				expect(() => b.forEach(() => b.modifyAtKey(1, {}))).toThrow();
 				expect(() => b.forEach(() => b.removeKey(1))).toThrow();
 				expect(() => b.forEach(() => b.removeKeys([1]))).toThrow();
 				expect(() => b.forEach(() => b.set(1, 'a'))).toThrow();
-				expect(() => b.forEach(() => b.updateAt(1, () => 'a'))).toThrow();
+				expect(() => b.forEach(() => b.updateAtKey(1, () => 'a'))).toThrow();
 			});
 		});
 
@@ -714,30 +714,32 @@ export function runMapTestsWith(
 
 		it('modifyAt', () => {
 			forEachBuilder((b) => {
-				expect(b.modifyAt(2, { ifExists: { update: (v) => v + v } })).toBe(
+				expect(b.modifyAtKey(2, { ifExists: { update: (v) => v + v } })).toBe(
 					true,
 				);
 				expect(b.get(2)).toBe('bb');
 
-				expect(b.modifyAt(1, { ifExists: { update: (v) => v } })).toBe(false);
+				expect(b.modifyAtKey(1, { ifExists: { update: (v) => v } })).toBe(
+					false,
+				);
 
-				expect(b.modifyAt(3, { ifNew: { set: 'z' } })).toBe(false);
+				expect(b.modifyAtKey(3, { ifNew: { set: 'z' } })).toBe(false);
 				expect(b.get(3)).toBe('c');
 
-				expect(b.modifyAt(10, { ifExists: { update: (v) => v + v } })).toBe(
+				expect(b.modifyAtKey(10, { ifExists: { update: (v) => v + v } })).toBe(
 					false,
 				);
 				expect(b.get(10)).toBe(undefined);
 
 				expect(b.size).toBe(3);
 
-				expect(b.modifyAt(10, { ifNew: { set: 'z' } })).toBe(true);
+				expect(b.modifyAtKey(10, { ifNew: { set: 'z' } })).toBe(true);
 				expect(b.get(10)).toBe('z');
 
 				expect(b.size).toBe(4);
 
 				expect(
-					b.modifyAt(2, { ifExists: { update: (_, remove) => remove } }),
+					b.modifyAtKey(2, { ifExists: { update: (_, remove) => remove } }),
 				).toBe(true);
 				expect(b.get(2)).toBe(undefined);
 
@@ -784,10 +786,10 @@ export function runMapTestsWith(
 
 		it('updateAt', () => {
 			forEachBuilder((b) => {
-				expect(b.updateAt(10, (v) => v + v)).toEqual([undefined, undefined]);
+				expect(b.updateAtKey(10, (v) => v + v)).toEqual([undefined, undefined]);
 				expect(b.size).toBe(3);
-				expect(b.updateAt(2, (v) => v + v)).toEqual(['b', 'bb']);
-				expect(b.updateAt(2, (v) => v + v)).toEqual(['bb', 'bbbb']);
+				expect(b.updateAtKey(2, (v) => v + v)).toEqual(['b', 'bb']);
+				expect(b.updateAtKey(2, (v) => v + v)).toEqual(['bb', 'bbbb']);
 				expect(b.size).toBe(3);
 			});
 		});

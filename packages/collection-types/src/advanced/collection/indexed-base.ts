@@ -23,6 +23,10 @@ export abstract class IndexedCollectionEmptyBase<
 	extends CollectionEmptyBase<E, FAM, Tp>
 	implements
 		IndexedCollection.Advanced.Api<E, Tp>,
+		Collection.Capability.WithFlatMap.Api<E, Tp>,
+		Collection.Capability.WithMap.Api<E, Tp>,
+		Collection.Capability.WithMutate.Api<E, Tp>,
+		Collection.Capability.WithRecompose.Api<E, Tp>,
 		IndexedCollection.Capability.WithConcat.Api<E, Tp>,
 		IndexedCollection.Capability.WithInsertAt.Api<E, Tp>,
 		IndexedCollection.Capability.WithPrependAppend.Api<E, Tp>,
@@ -44,6 +48,26 @@ export abstract class IndexedCollectionEmptyBase<
 
 	last<O>(otherwise?: OptLazy<O>): O {
 		return OptLazy(otherwise) as O;
+	}
+
+	map<E2 extends FAM['_UPPER_E']>(
+		_f: (element: E) => E2,
+	): Collection.Advanced.ReTyped<Tp, E2>['_SELF'] {
+		return this as any;
+	}
+
+	mapIndexed<E2 extends FAM['_UPPER_E']>(
+		_f: (element: E, index: number) => E2,
+	): Collection.Advanced.ReTyped<Tp, E2>['_SELF'] {
+		return this as any;
+	}
+
+	flatMap(): this {
+		return this;
+	}
+
+	flatMapIndexed(): this {
+		return this;
 	}
 
 	take(): this {
@@ -149,6 +173,16 @@ export abstract class IndexedCollectionEmptyBase<
 			result: [undefined, undefined],
 			hasChanged: false,
 		};
+	}
+
+	recompose(): Collection.Advanced.ReTypeFam<FAM, unknown>['_NORMAL'] {
+		return this;
+	}
+
+	mutate(f: (builder: FAM['_BUILDER']) => void): FAM['_NORMAL'] {
+		const builder = this.context.builder<E>();
+		f(builder);
+		return builder.build();
 	}
 }
 

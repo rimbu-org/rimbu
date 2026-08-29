@@ -1,4 +1,5 @@
 import type { Collection } from '@rimbu/collection-types/collection';
+import type { ValuedCollection } from '@rimbu/collection-types/collection/valued';
 import type { SetCollection } from '@rimbu/collection-types/set';
 
 import {
@@ -6,7 +7,7 @@ import {
 	ValuedCollectionEmptyBase,
 	ValuedCollectionNonEmptyBase,
 } from '@rimbu/collection-types/advanced/collection/valued-base';
-import { CollectionContextBaseWithAddAll } from '@rimbu/collection-types/advanced/collection-base';
+import { ContextBaseWithAddAll } from '@rimbu/collection-types/advanced/collection-base';
 import { Stream, type StreamSource } from '@rimbu/stream';
 import { Reducer } from '@rimbu/stream/reducer';
 
@@ -23,9 +24,9 @@ export abstract class SetCollectionEmptyBase<
 	implements
 		SetCollection.Advanced.Api<E, Tp>,
 		Collection.Capability.WithAdd.Api<E, Tp>,
-		SetCollection.Capability.WithDifferenceAndIntersection.Api<E, Tp>,
-		SetCollection.Capability.WithRemove.Api<E, Tp>,
-		SetCollection.Capability.WithSymmetricDifferenceAndUnion.Api<E, Tp>
+		ValuedCollection.Capability.WithDifferenceAndIntersection.Api<E, Tp>,
+		ValuedCollection.Capability.WithRemove.Api<E, Tp>,
+		ValuedCollection.Capability.WithSymmetricDifferenceAndUnion.Api<E, Tp>
 {
 	add(element: E): Tp['_NON_EMPTY'] {
 		return this.context.of(element);
@@ -78,7 +79,7 @@ export abstract class SetCollectionContextBase<
 		Collection.Capability.WithAdd<any> = SetCollection.Advanced.Family<any> &
 		Collection.Capability.WithToBuilder<any> &
 		Collection.Capability.WithAdd<any>,
-> extends CollectionContextBaseWithAddAll<FAM> {
+> extends ContextBaseWithAddAll<FAM> {
 	abstract isNonEmptyInstance<E extends FAM['_UPPER_E']>(
 		source: unknown,
 	): source is Collection.Advanced.FamToTypes<FAM, E>['_NON_EMPTY'];
@@ -100,7 +101,7 @@ export function defaultFlatMapByUnion<
 	E,
 	E2,
 	C extends SetCollection.NonEmpty<E, FAM>,
-	FAM extends SetCollection.Capability.WithSymmetricDifferenceAndUnion<E>,
+	FAM extends ValuedCollection.Capability.WithSymmetricDifferenceAndUnion<E>,
 >(
 	col: C,
 	f: (element: E) => StreamSource<E2>,
@@ -131,7 +132,7 @@ export function defaultUnionByAdd<
 export function defaultDifferenceByRemove<
 	E,
 	C extends SetCollection.NonEmpty<E, FAM>,
-	FAM extends SetCollection.Capability.WithRemove<E>,
+	FAM extends ValuedCollection.Capability.WithRemove<E>,
 >(col: C, other: StreamSource<E>): FAM['_NORMAL'] {
 	if (other === col) return col.context.empty();
 	if (Stream.isEmptyStreamSourceInstance(other)) return col;
@@ -160,7 +161,7 @@ export function defaultSymDifferenceByRemove<
 	C extends SetCollection.NonEmpty<E, FAM>,
 	FAM extends Collection.Capability.WithToBuilder<E> &
 		Collection.Capability.WithAdd<E> &
-		SetCollection.Capability.WithRemove<E>,
+		ValuedCollection.Capability.WithRemove<E>,
 >(col: C, other: StreamSource<E>): FAM['_NORMAL'] {
 	if (other === col) return col.context.empty();
 	if (Stream.isEmptyStreamSourceInstance(other)) return col;

@@ -1,7 +1,7 @@
 import type { RelatedTo } from '@rimbu/common/types';
 import type { HashMap } from '@rimbu/hashed/map';
 
-import type { HashMapContext } from '#map/context';
+import type { HashMapCollectionContext } from '#map/context';
 import type { HashMapBlock, MapEntrySet } from '#map/immutable/block';
 
 import * as RimbuError from '@rimbu/base/rimbu-error';
@@ -25,7 +25,7 @@ export class HashMapBlockBuilder<K, V>
 	implements HashMap.Builder<K, V>
 {
 	constructor(
-		readonly context: HashMapContext<K>,
+		readonly context: HashMapCollectionContext<K>,
 		public source?: undefined | HashMapBlock<K, V>,
 		public _entries?: undefined | (readonly [K, V])[],
 		public _entrySets?: undefined | MapBlockBuilderEntry<K, V>[],
@@ -204,7 +204,7 @@ export class HashMapBlockBuilder<K, V>
 		return true;
 	}
 
-	modifyAt = (
+	modifyAtKey = (
 		key: K,
 		options: ModifyOptions<V>,
 		keyHash = this.context.hash(key),
@@ -287,7 +287,7 @@ export class HashMapBlockBuilder<K, V>
 			// potential match in entrysets
 			const entrySet = this.entrySets[keyIndex]!;
 			const preSize = entrySet.size;
-			const result = entrySet.modifyAt(key, options, keyHash);
+			const result = entrySet.modifyAtKey(key, options, keyHash);
 
 			if (result) this.source = undefined;
 
@@ -329,14 +329,14 @@ export class HashMapBlockBuilder<K, V>
 		return true;
 	};
 
-	updateAt = <UK, O>(
+	updateAtKey = <UK, O>(
 		key: RelatedTo<K, UK>,
 		update: (value: V) => V,
 		otherwise?: OptLazy<O>,
 	): [V | O, V | O] => {
 		let result: [V, V] | undefined;
 
-		this.modifyAt(key as K, {
+		this.modifyAtKey(key as K, {
 			ifExists: {
 				update: (value: V, _remove) => {
 					const newValue = update(value);
@@ -362,7 +362,7 @@ export class HashMapBlockBuilder<K, V>
 		let removedValue!: V;
 		let found = false;
 
-		this.modifyAt(key, {
+		this.modifyAtKey(key, {
 			ifExists: {
 				update: (currentValue, remove) => {
 					removedValue = currentValue;

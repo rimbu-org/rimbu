@@ -1,7 +1,7 @@
 import type { ArrayNonEmpty, RelatedTo } from '@rimbu/common/types';
 import type { HashMap } from '@rimbu/hashed/map';
 
-import type { HashMapContext } from '#map/context';
+import type { HashMapCollectionContext } from '#map/context';
 import type { HashMapCollision } from '#map/immutable/collision';
 
 import * as RimbuError from '@rimbu/base/rimbu-error';
@@ -18,7 +18,7 @@ export type MapEntrySet<K, V> = HashMapBlock<K, V> | HashMapCollision<K, V>;
 
 export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 	constructor(
-		readonly context: HashMapContext<K>,
+		readonly context: HashMapCollectionContext<K>,
 		readonly entries: readonly (readonly [K, V])[] | null,
 		readonly entrySets: readonly MapEntrySet<K, V>[] | null,
 		readonly size: number,
@@ -158,7 +158,7 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 		return this.copy(newEntries, undefined, this.size + 1);
 	}
 
-	modifyAt(
+	modifyAtKey(
 		atKey: K,
 		options: ModifyOptions<V>,
 		atKeyHash = this.context.hash(atKey),
@@ -248,7 +248,7 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 		if (null !== this.entrySets && atKeyIndex in this.entrySets) {
 			// key is in entrySet
 			const currentEntrySet = this.entrySets[atKeyIndex];
-			const newEntrySet: MapEntrySet<K, V> = currentEntrySet.modifyAt(
+			const newEntrySet: MapEntrySet<K, V> = currentEntrySet.modifyAtKey(
 				atKey,
 				options,
 				atKeyHash,
