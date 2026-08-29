@@ -11,9 +11,9 @@ describe('HashMap issues fixed by PRs', () => {
 		expect(hm.has([6, 29])).toBe(true);
 		expect(hm.has([2, 91])).toBe(true);
 		expect(hm.get([6, 29])).toBe('a');
-		expect(hm.modifyAt([6, 29], { ifExists: { set: 'g' } }).get([6, 29])).toBe(
-			'g',
-		);
+		expect(
+			hm.modifyAtKey([6, 29], { ifExists: { set: 'g' } }).get([6, 29]),
+		).toBe('g');
 		expect(hm.removeKey([6, 29]).size).toBe(1);
 
 		const hm2 = HashMap.from([
@@ -23,9 +23,9 @@ describe('HashMap issues fixed by PRs', () => {
 		expect(hm2.has([6, 30])).toBe(true);
 		expect(hm2.has([2, 91])).toBe(true);
 		expect(hm2.get([6, 30])).toBe('a');
-		expect(hm2.modifyAt([6, 30], { ifExists: { set: 'g' } }).get([6, 30])).toBe(
-			'g',
-		);
+		expect(
+			hm2.modifyAtKey([6, 30], { ifExists: { set: 'g' } }).get([6, 30]),
+		).toBe('g');
 		expect(hm2.removeKey([6, 30]).size).toBe(1);
 
 		const hm3 = HashMap.from([
@@ -35,9 +35,9 @@ describe('HashMap issues fixed by PRs', () => {
 		expect(hm3.has([6, 29])).toBe(true);
 		expect(hm3.has([2, 91])).toBe(true);
 		expect(hm3.get([6, 29])).toBe('c');
-		expect(hm3.modifyAt([6, 29], { ifExists: { set: 'g' } }).get([6, 29])).toBe(
-			'g',
-		);
+		expect(
+			hm3.modifyAtKey([6, 29], { ifExists: { set: 'g' } }).get([6, 29]),
+		).toBe('g');
 		expect(hm3.removeKey([6, 29]).size).toBe(1);
 	});
 
@@ -51,7 +51,7 @@ describe('HashMap issues fixed by PRs', () => {
 		expect(hm.has([2, 91])).toBe(true);
 		expect(hm.get([6, 29])).toBe('a');
 
-		hm.modifyAt([6, 29], { ifExists: { set: 'g' } });
+		hm.modifyAtKey([6, 29], { ifExists: { set: 'g' } });
 		expect(hm.get([6, 29])).toBe('g');
 		hm.removeKey([6, 29]);
 

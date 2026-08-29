@@ -38,7 +38,7 @@ export class HashMapCollectionContext<UK>
 		return result;
 	}
 
-	private constructor(
+	constructor(
 		readonly _hasher: Hasher<UK> | undefined = undefined,
 		readonly _eq: Eq<UK> | undefined = undefined,
 		readonly blockSizeBits: number = 5,
@@ -60,22 +60,18 @@ export class HashMapCollectionContext<UK>
 	// 	return this.getDefaultInstance();
 	// }
 
-	// #keyedContext: HashMapKeyedContext<UK> | undefined;
+	#keyedContext: HashMapKeyedContext<UK> | undefined;
 
-	// get keyedContext(): HashMapKeyedContext<UK> {
-	// 	if (undefined === this.#keyedContext) {
-	// 		this.#keyedContext = new HashMapKeyedContext<UK>(this);
-	// 	}
+	get keyedContext(): HashMapKeyedContext<UK> {
+		if (undefined === this.#keyedContext) {
+			this.#keyedContext = new HashMapKeyedContext<UK>(this);
+		}
 
-	// 	return this.#keyedContext;
-	// }
-
-	get keyedContext(): any {
-		return 0 as any;
+		return this.#keyedContext;
 	}
 
-	get defaultContext(): any {
-		return 0 as any;
+	get defaultContext(): HashMap.Context<UK> {
+		return this.getDefaultInstance();
 	}
 
 	get hasher(): Hasher<UK> {
@@ -187,6 +183,20 @@ export class HashMapCollectionContext<UK>
 			(builder) => builder.build(),
 		);
 	};
+}
+
+export class HashMapKeyedContext<UK>
+	extends KeyedCollectionContextBase<UK, any, HashMap.Advanced.Family<any, any>>
+	implements
+		HashMap.Advanced.KeyedContextApi<UK, HashMap.Advanced.Family<UK, any>>
+{
+	constructor(readonly context: HashMapCollectionContext<UK>) {
+		super(context);
+	}
+
+	get defaultContext(): HashMap.Context<any> {
+		return this.context.defaultContext;
+	}
 
 	createContext = <K>(options: {
 		hasher?: Hasher<K> | undefined;
@@ -199,30 +209,9 @@ export class HashMapCollectionContext<UK>
 			options.eq,
 			options.blockSizeBits,
 			options.listContext,
-			this.getDefaultInstance,
+			this.context.getDefaultInstance,
 		);
 	};
-}
-
-export class HashMapKeyedContext<UK>
-	extends KeyedCollectionContextBase<
-		any,
-		any,
-		HashMap.Advanced.Family<any, any>
-	>
-	implements HashMap.Advanced.KeyedContextApi<HashMap.Advanced.Family<any, any>>
-{
-	constructor(readonly context: HashMapCollectionContext<UK>) {
-		super(context);
-	}
-
-	get defaultContext(): HashMap.Context<any> {
-		return this.context.defaultContext;
-	}
-
-	get createContext() {
-		return this.context.createContext;
-	}
 
 	get reducer(): <K, V>(
 		source?: StreamSource<readonly [K, V]>,
