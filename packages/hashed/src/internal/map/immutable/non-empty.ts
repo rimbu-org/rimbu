@@ -181,12 +181,11 @@ export abstract class HashMapNonEmptyBase<K, V>
 		f: (entry: readonly [K, V], index: number) => E2,
 		options?: { indexOffset?: number | undefined } | undefined,
 	): HashMap.NonEmpty<E2[0], E2[1]> {
-		return defaultMapIndexed<
-			readonly [K, V],
-			E2,
-			HashMap.NonEmpty<K, V>,
-			HashMap.Advanced.Family<K, V>
-		>(this, f, options);
+		return defaultMapIndexed<readonly [K, V], E2, HashMap.NonEmpty<K, V>, any>(
+			this,
+			f,
+			options,
+		);
 	}
 
 	flatMap<E2 extends readonly [K, V]>(

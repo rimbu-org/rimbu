@@ -73,12 +73,11 @@ export namespace HashMap {
 		}
 
 		export interface KeyedContextApi<
-			UK,
-			FAM extends KeyedCollection.Advanced.Family<UK, any>,
+			FAM extends KeyedCollection.Advanced.Family<any, any>,
 		> extends KeyedCollection.Advanced.KeyedContextApi<FAM>,
 				KeyedCollection.Capability.WithMerge.KeyedContextApi<FAM>,
 				KeyedCollection.Capability.WithReducer.KeyedContextApi<FAM> {
-			createContext<K extends UK>(options: {
+			createContext<K>(options: {
 				hasher?: Hasher<K> | undefined;
 				eq?: Eq<K> | undefined;
 				blockSizeBits?: number | undefined;
@@ -91,16 +90,16 @@ export namespace HashMap {
 			_NON_EMPTY: HashMap.NonEmpty<K, V>;
 			_BUILDER: HashMap.Builder<K, V>;
 			_CONTEXT: HashMap.Context<K>;
-			_KEYED_CONTEXT: KeyedContextApi<K, this['_FAM']>;
+			_KEYED_CONTEXT: KeyedContextApi<this['_FAM']>;
 
-			// _INVARIANT: (entry: [K, unknown]) => [K, unknown];
+			// _INVARIANT: (e: K) => K;
 			_UPPER_E: readonly [K, any];
 
 			_FAM: Family<K, V>;
 			_NEW_FAMILY: Family<this['_NEW_K'], this['_NEW_V']>;
 		}
 
-		export type DefaultFactory = KeyedContextApi<any, Family<any, any>>;
+		export type DefaultFactory = KeyedContextApi<Family<any, any>>;
 	}
 }
 

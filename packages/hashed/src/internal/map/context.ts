@@ -19,7 +19,7 @@ import {
 
 export class HashMapCollectionContext<UK>
 	extends ContextBaseWithAddAll<HashMap.Advanced.Family<UK, any>>
-	implements HashMap.Advanced.ContextApi<UK, HashMap.Advanced.Family<any, any>>
+	implements HashMap.Advanced.ContextApi<UK, HashMap.Advanced.Family<UK, any>>
 {
 	static createDefault<UK>(
 		hasher?: Hasher<UK> | undefined,
@@ -205,9 +205,12 @@ export class HashMapCollectionContext<UK>
 }
 
 export class HashMapKeyedContext<UK>
-	extends KeyedCollectionContextBase<UK, any, HashMap.Advanced.Family<UK, any>>
-	implements
-		HashMap.Advanced.KeyedContextApi<UK, HashMap.Advanced.Family<UK, any>>
+	extends KeyedCollectionContextBase<
+		any,
+		any,
+		HashMap.Advanced.Family<any, any>
+	>
+	implements HashMap.Advanced.KeyedContextApi<HashMap.Advanced.Family<any, any>>
 {
 	constructor(readonly context: HashMapCollectionContext<UK>) {
 		super(context);
@@ -221,7 +224,7 @@ export class HashMapKeyedContext<UK>
 		return this.context.createContext;
 	}
 
-	get reducer(): <K extends UK, V>(
+	get reducer(): <K, V>(
 		source?: StreamSource<readonly [K, V]>,
 	) => Reducer<readonly [K, V], HashMap<K, V>> {
 		return this.context.reducer as any;

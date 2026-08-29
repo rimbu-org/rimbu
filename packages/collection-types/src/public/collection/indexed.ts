@@ -251,7 +251,7 @@ export declare namespace IndexedCollection {
 
 			export interface BuilderApi<E, Tp extends Collection.Advanced.TypesBase>
 				extends Advanced.BuilderApi<E, Tp> {
-				insertSingleAt(index: number, elements: StreamSource<E>): void;
+				insertAt(index: number, elements: StreamSource<E>): void;
 			}
 		}
 
