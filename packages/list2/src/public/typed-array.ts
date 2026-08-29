@@ -25,7 +25,10 @@ export declare namespace TypedArrayList {
 
 	export interface NonEmpty<V extends TypedArrayList.View>
 		extends TypedArrayList.Advanced.Api<
-			Collection.Advanced.TypesNonEmpty<TypedArrayList.Advanced.Family<V>, number>
+			Collection.Advanced.TypesNonEmpty<
+				TypedArrayList.Advanced.Family<V>,
+				number
+			>
 		> {}
 
 	export interface Builder<V extends TypedArrayList.View>
@@ -34,7 +37,9 @@ export declare namespace TypedArrayList {
 		> {}
 
 	export interface Context<V extends TypedArrayList.View>
-		extends TypedArrayList.Advanced.ContextApi<TypedArrayList.Advanced.Family<V>> {}
+		extends TypedArrayList.Advanced.ContextApi<
+			TypedArrayList.Advanced.Family<V>
+		> {}
 
 	export namespace Advanced {
 		export type Api<Tp extends Collection.Advanced.TypesBase> =
@@ -84,7 +89,10 @@ export const TypedArrayList: TypedArrayList.Factory = {
 		return ListContext.createDefault(
 			blockSizeBits,
 			(bits) =>
-				new TypedArrayOuterChildrenOps<V>(ViewConstructor as unknown as never, bits) as unknown as ChildrenOps,
+				new TypedArrayOuterChildrenOps<V>(
+					ViewConstructor as unknown as never,
+					bits,
+				) as unknown as ChildrenOps,
 		) as unknown as TypedArrayList.Context<V>;
 	},
 };
