@@ -93,7 +93,6 @@ export namespace HashMap {
 			_CONTEXT: HashMap.Context<K>;
 			_KEYED_CONTEXT: KeyedContextApi<K, this['_FAM']>;
 
-			// _INVARIANT: (e: K) => K;
 			_UPPER_E: readonly [K, any];
 
 			_FAM: Family<K, V>;
