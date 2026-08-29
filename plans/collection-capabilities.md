@@ -657,7 +657,7 @@ not a public contract.
 
 1. Run `git status` and record unrelated worktree changes; do not modify them.
 2. Run `bun run build:seq` to establish a clean emitted baseline.
-3. Run `bun run typecheck`, `bun run biome:check`, and `bun run test`.
+3. Run `bun run typecheck:seq`, `bun run biome:check`, and `bun run test`.
 4. Capture all current public method occurrences with code search so the final
    removal check can prove there are no stale aliases.
 5. Inventory the currently commented Ordered variant files and record what must be
@@ -929,7 +929,7 @@ The redesign is complete only when:
 5. All capability runtime and type suites pass for every adopter.
 6. Ordered randomized model tests pass for every variant.
 7. Proximity exact and nearest lookup semantics are distinct and documented.
-8. `bun run build:seq`, `bun run typecheck`, `bun run biome:check`, and
+8. `bun run build:seq`, `bun run typecheck:seq`, `bun run biome:check`, and
    `bun run test` all pass from the repository root.
 9. A major changeset and migration guide are ready for the lockstep release.
 

@@ -72,6 +72,6 @@ src/
 - **`@rimbu/collection-types` is the highest-risk package.** Its `./common`, `./map/base`, `./set/base` (and `base-module`) subpaths are consumed by nearly every other collection package and must be rewritten to `@rimbu/collection-types/advanced/...` after the restructure. Sequence it **first** or handle its downstream rewrites in the same change.
 - **`@rimbu/collection-types/test-utils/...`** (used in tests) is currently unexported and out of scope — track separately.
 - **`reactor` is intentionally excluded** from this round.
-- **Build order:** run `bun run build:seq` before `bun run typecheck` / `bun run test` after each package change (per AGENTS.md §9). The build catches `dist/`-specific diagnostics that `--noEmit` suppresses.
+- **Build order:** run `bun run build:seq` before `bun run typecheck:seq` / `bun run test` after each package change (per AGENTS.md §9). The build catches `dist/`-specific diagnostics that `--noEmit` suppresses.
 - **No package source was modified** — these files are planning artifacts only.
 - **Final step (F1):** after all packages conform, run one coordinated changeset bump so every package shares a single lockstep version.
