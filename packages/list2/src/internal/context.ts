@@ -35,10 +35,13 @@ export class ListContext<
 {
 	static createDefault<
 		F extends List.Advanced.Family<any> = List.Advanced.Family<any>,
-	>(blockSizeBits: number, childrenOps: ChildrenOps): ListContext<F> {
+	>(
+		blockSizeBits: number,
+		createChildrenOps: (blockSizeBits: number) => ChildrenOps,
+	): ListContext<F> {
 		const result: ListContext<F> = new ListContext(
 			blockSizeBits,
-			childrenOps,
+			createChildrenOps,
 			() => result,
 		);
 
@@ -47,15 +50,17 @@ export class ListContext<
 
 	private constructor(
 		readonly blockSizeBits: number,
-		readonly childrenOps: ChildrenOps,
+		readonly createChildrenOps: (blockSizeBits: number) => ChildrenOps,
 		readonly getDefaultInstance: () => ListContext<F>,
 	) {
 		this.minBlockSize = 1 << (blockSizeBits - 1);
 		this.maxBlockSize = 1 << blockSizeBits;
+		this.childrenOps = createChildrenOps(blockSizeBits);
 	}
 
 	readonly minBlockSize: number;
 	readonly maxBlockSize: number;
+	readonly childrenOps: ChildrenOps;
 
 	get defaultContext(): ListContext<F> {
 		return this.getDefaultInstance();
@@ -258,7 +263,7 @@ export class ListContext<
 	createContext = (options: { blockSizeBits?: number }): ListContext<F> =>
 		new ListContext<F>(
 			options.blockSizeBits ?? this.blockSizeBits,
-			this.childrenOps,
+			this.createChildrenOps,
 			this.getDefaultInstance,
 		);
 }

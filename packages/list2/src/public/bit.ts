@@ -4,6 +4,7 @@ import type { List } from '@rimbu/list';
 
 import type { ChildrenOps } from '#advanced/children-ops';
 
+import { BitOuterChildrenOps } from '#list/children-ops/bit';
 import { ListContext } from '#list/context';
 
 export interface BitList
@@ -55,4 +56,7 @@ export declare namespace BitList {
 }
 
 export const BitList: BitList.Advanced.DefaultFactory =
-	ListContext.createDefault(5, 0 as unknown as ChildrenOps);
+	ListContext.createDefault(
+		5,
+		(blockSizeBits) => new BitOuterChildrenOps(blockSizeBits) as ChildrenOps,
+	);

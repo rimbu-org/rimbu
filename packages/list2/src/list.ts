@@ -75,5 +75,5 @@ export declare namespace List {
 
 export const List: List.Advanced.DefaultFactory = ListContext.createDefault(
 	5,
-	new ArrayOuterChildrenOps() as ChildrenOps,
+	() => new ArrayOuterChildrenOps() as ChildrenOps,
 );
