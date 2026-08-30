@@ -53,6 +53,7 @@ import {
 } from '#sorted/base';
 import { SortedIndex } from '#sorted/sorted-index';
 
+// @ts-ignore
 export class SortedMapEmpty<K = any, V = any>
 	extends SortedEmpty
 	implements SortedMap<K, V>
@@ -245,6 +246,7 @@ export class SortedMapEmpty<K = any, V = any>
 	}
 }
 
+// @ts-ignore
 export abstract class SortedMapNode<K, V>
 	extends SortedNonEmptyBase<readonly [K, V], SortedMapNode<K, V>>
 	implements SortedMap.NonEmpty<K, V>
@@ -600,6 +602,7 @@ export abstract class SortedMapNode<K, V>
 	}
 }
 
+// @ts-ignore
 export class SortedMapLeaf<K, V> extends SortedMapNode<K, V> {
 	constructor(
 		readonly context: ContextImpl<K>,
@@ -821,6 +824,7 @@ export class SortedMapLeaf<K, V> extends SortedMapNode<K, V> {
 	}
 }
 
+// @ts-ignore
 export class SortedMapInner<K, V> extends SortedMapNode<K, V> {
 	constructor(
 		readonly context: ContextImpl<K>,
