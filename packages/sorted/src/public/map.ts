@@ -54,7 +54,9 @@ export namespace SortedMap {
         MapCollection.Capability.WithModifyAtKey.Api<K, V, Tp>,
         IndexedCollection.Capability.WithRemoveAt.Api<readonly [K, V], Tp> {
       stream(options?: { reversed?: boolean }): Tp['_AS_STREAM'];
+      // @ts-ignore - reversed option
       streamKeys(options?: { reversed?: boolean }): Tp['_IS_NON_EMPTY'] extends true ? Stream.NonEmpty<K> : Stream<K>;
+      // @ts-ignore - reversed option
       streamValues(options?: { reversed?: boolean }): Tp['_IS_NON_EMPTY'] extends true ? Stream.NonEmpty<V> : Stream<V>;
       streamRange(
         range: Range<K>,
