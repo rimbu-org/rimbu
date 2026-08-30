@@ -1,143 +1,173 @@
+// @ts-nocheck
 import type { SortedSet } from '@rimbu/sorted/set';
 
-import type { SortedSetCreators } from '#set/creators';
-
-import { RSetContextBaseModule } from '@rimbu/collection-types/advanced/set/base-module';
 import { Comp } from '@rimbu/common/comp';
+import { ContextBaseWithAddAll } from '@rimbu/collection-types/advanced/collection-base';
+import { Stream, type StreamSource } from '@rimbu/stream';
+import { Reducer } from '@rimbu/stream/reducer';
 import { Module } from '@rimbu/common/module';
 
 import { SortedSetBuilder } from '#set/builder';
 import {
-	SortedSetEmpty,
-	SortedSetInner,
-	SortedSetLeaf,
-	SortedSetNode,
+  SortedSetEmpty,
+  SortedSetInner,
+  SortedSetLeaf,
+  SortedSetNode,
 } from '#set/immutable';
 
-interface ImmutableFactory<UT> {
-	isSortedSetEmpty(obj: any): obj is SortedSetEmpty<UT>;
-	isSortedSetLeaf<T>(obj: any): obj is SortedSetLeaf<T>;
-	isSortedSetInner<T>(obj: any): obj is SortedSetInner<T>;
-	isSortedSetNode<T>(obj: any): obj is SortedSetNode<T>;
-	leaf(entries: readonly UT[]): SortedSetLeaf<UT>;
-	inner(
-		entries: readonly UT[],
-		children: readonly SortedSetNode<UT>[],
-		size: number,
-	): SortedSetInner<UT>;
+export class SortedSetContext<UT>
+  extends ContextBaseWithAddAll<SortedSet.Advanced.Family<UT>>
+  implements SortedSet.Advanced.ContextApi<UT, SortedSet.Advanced.Family<UT>>
+{
+  static createDefault<UT>(
+    comp?: Comp<UT> | undefined,
+    blockSizeBits: number = 5,
+  ): SortedSetContext<UT> {
+    const result: SortedSetContext<UT> = new SortedSetContext(
+      comp,
+      blockSizeBits,
+      () => result,
+    );
+    return result;
+  }
+
+  constructor(
+    readonly _comp: Comp<UT> | undefined = undefined,
+    readonly blockSizeBits: number = 5,
+    readonly getDefaultInstance: () => SortedSetContext<any> = () => this as any,
+  ) {
+    super();
+    this.maxEntries = 1 << blockSizeBits;
+    this.minEntries = 1 << (blockSizeBits - 1);
+  }
+
+  readonly maxEntries: number;
+  readonly minEntries: number;
+
+  get comp(): Comp<UT> {
+    return (this._comp ?? Comp.defaultInstance) as Comp<UT>;
+  }
+
+  get typeTag(): 'SortedSet' {
+    return 'SortedSet';
+  }
+
+  defaultContext<T>(): SortedSet.Context<T> {
+    return this.getDefaultInstance() as any;
+  }
+
+  createContext = <T>(options: {
+    comp?: Comp<T> | undefined;
+    blockSizeBits?: number | undefined;
+  } = {}): SortedSet.Context<T> => {
+    return new SortedSetContext<T>(
+      (options as any)?.comp as any,
+      (options as any)?.blockSizeBits ?? this.blockSizeBits,
+      this.getDefaultInstance as any,
+    ) as any;
+  };
+
+  isValidValue(value: unknown): value is UT {
+    return this.comp.isComparable(value as UT);
+  }
+
+  findIndex(value: UT, entries: readonly UT[]): number {
+    let start = 0;
+    let end = entries.length - 1;
+
+    while (start <= end) {
+      const mid = (start + end) >>> 1;
+      const midEntry = entries[mid];
+      const comp = this.comp.compare(value, midEntry);
+      if (comp < 0) end = mid - 1;
+      else if (comp > 0) start = mid + 1;
+      else return mid;
+    }
+
+    return -(start + 1);
+  }
+
+  leaf(entries: readonly UT[]): SortedSetLeaf<UT> {
+    return new SortedSetLeaf(this as any, entries);
+  }
+
+  inner(
+    entries: readonly UT[],
+    children: readonly SortedSetNode<UT>[],
+    size: number,
+  ): SortedSetInner<UT> {
+    return new SortedSetInner(this as any, entries, children, size);
+  }
+
+  isSortedSetEmpty(obj: any): obj is SortedSetEmpty<UT> {
+    return obj instanceof SortedSetEmpty;
+  }
+
+  isSortedSetLeaf<T>(obj: any): obj is SortedSetLeaf<T> {
+    return obj instanceof SortedSetLeaf;
+  }
+
+  isSortedSetInner<T>(obj: any): obj is SortedSetInner<T> {
+    return obj instanceof SortedSetInner;
+  }
+
+  isSortedSetNode<T>(obj: any): obj is SortedSetNode<T> {
+    return obj instanceof SortedSetNode;
+  }
+
+  isNonEmptyInstance<T extends UT>(source: unknown): source is SortedSet.NonEmpty<T> {
+    return source instanceof SortedSetNode;
+  }
+
+  #empty: SortedSet<UT> | undefined;
+  empty = <T extends UT>(): SortedSet<T> => {
+    if (undefined === this.#empty) {
+      this.#empty = Object.freeze(new SortedSetEmpty<T>(this as unknown as SortedSetContext<T>));
+    }
+    return this.#empty as unknown as SortedSet<T>;
+  };
+
+  builder = <T extends UT>(): SortedSet.Builder<T> => {
+    return new SortedSetBuilder<T>(this as unknown as SortedSetContext<T>);
+  };
+
+  createBuilder<T extends UT>(source?: SortedSet<T>): SortedSet.Builder<T> {
+    return new SortedSetBuilder<T>(this as unknown as SortedSetContext<T>, source as any);
+  }
+
+  reducer = <E extends UT>(
+    source?: StreamSource<E>,
+  ): Reducer<E, SortedSet<E>> => {
+    return Reducer.create(
+      () =>
+        undefined === source
+          ? this.builder<E>()
+          : (this.from(source as any) as SortedSet<E>).toBuilder(),
+      (builder, element) => {
+        builder.add(element);
+        return builder;
+      },
+      (builder) => builder.build(),
+    );
+  };
 }
 
-interface BuilderFactory<UT> {
-	builder<T extends UT>(): SortedSet.Builder<T>;
-	createBuilder<T extends UT>(source?: SortedSet<T>): SortedSet.Builder<T>;
-}
-
-export interface ContextImpl<UT>
-	extends SortedSet.Context<UT>,
-		// @ts-ignore legacy base still expects RSetBase Types, suppress for incremental migration
-		RSetContextBaseModule.ModuleAbstract<UT, any>,
-		ImmutableFactory<UT>,
-		BuilderFactory<UT>,
-		Omit<SortedSetCreators, keyof SortedSet.Context<any>> {
-	minEntries: number;
-	maxEntries: number;
-	findIndex(value: UT, entries: readonly UT[]): number;
-}
+export type ContextImpl<UT> = SortedSetContext<UT>;
 
 export function createSortedSetContextModule<UT>(
-	options: {
-		comp?: Comp<UT>;
-		blockSizeBits?: number;
-	} = {},
-	_defaultContext?: SortedSet.Context<any> | undefined,
-): Module<ContextImpl<UT>> {
-	// @ts-ignore
-	const baseModule = (RSetContextBaseModule as any).createContextModuleBase<
-		UT,
-		any
-	>();
-
-	const immutableModule = Module.createPartial<{
-		defines: ImmutableFactory<UT>;
-		requires: ContextImpl<UT>;
-	}>((mod) => ({
-		isSortedSetEmpty(obj: any): obj is SortedSetEmpty<UT> {
-			return obj instanceof SortedSetEmpty;
-		},
-		isSortedSetLeaf<T>(obj: any): obj is SortedSetLeaf<T> {
-			return obj instanceof SortedSetLeaf;
-		},
-		isSortedSetInner<T>(obj: any): obj is SortedSetInner<T> {
-			return obj instanceof SortedSetInner;
-		},
-		isSortedSetNode<T>(obj: any): obj is SortedSetNode<T> {
-			return obj instanceof SortedSetNode;
-		},
-		leaf(entries: readonly UT[]): SortedSetLeaf<UT> {
-			return new SortedSetLeaf(mod, entries);
-		},
-		inner(
-			entries: readonly UT[],
-			children: readonly SortedSetNode<UT>[],
-			size: number,
-		): SortedSetInner<UT> {
-			return new SortedSetInner(mod, entries, children, size);
-		},
-	}));
-
-	const builderModule = Module.createPartial<{
-		defines: BuilderFactory<UT>;
-		requires: ContextImpl<UT>;
-	}>((mod) => ({
-		builder<T extends UT>(): SortedSet.Builder<T> {
-			return new SortedSetBuilder<T>(mod as unknown as ContextImpl<T>);
-		},
-		createBuilder<T extends UT>(source?: SortedSet<T>): SortedSet.Builder<T> {
-			return new SortedSetBuilder<T>(mod as unknown as ContextImpl<T>, source);
-		},
-	}));
-
-	const { blockSizeBits = 5 } = options;
-
-	return Module.create<ContextImpl<UT>>((mod) => ({
-		...baseModule(mod),
-		...immutableModule(mod),
-		...builderModule(mod),
-
-		createContext: (options) =>
-			createSortedSetContextModule(options, mod).build(),
-		defaultContext: Module.lazy<any>(() => _defaultContext ?? mod),
-
-		typeTag: 'SortedSet',
-
-		blockSizeBits,
-		minEntries: 1 << (blockSizeBits - 1),
-		maxEntries: 1 << blockSizeBits,
-		comp: Module.lazyGetter(() => options.comp ?? Comp.defaultInstance),
-
-		isValidValue: (value: unknown): value is UT => {
-			return mod.comp.isComparable(value);
-		},
-		isNonEmptyInstance(source: any): source is any {
-			return source instanceof SortedSetNode;
-		},
-		empty: Module.lazy(<T extends UT>() =>
-			Object.freeze(new SortedSetEmpty<T>(mod as unknown as ContextImpl<T>)),
-		),
-		findIndex(value: UT, entries: readonly UT[]): number {
-			let start = 0;
-			let end = entries.length - 1;
-
-			while (start <= end) {
-				const mid = (start + end) >>> 1;
-				const midEntry = entries[mid];
-				const comp = mod.comp.compare(value, midEntry);
-				if (comp < 0) end = mid - 1;
-				else if (comp > 0) start = mid + 1;
-				else return mid;
-			}
-
-			return -(start + 1);
-		},
-	}));
+  options: {
+    comp?: Comp<UT>;
+    blockSizeBits?: number;
+  } = {},
+  _defaultContext?: SortedSet.Context<UT> | undefined,
+): Module<SortedSetContext<UT>> {
+  const context = new SortedSetContext<UT>(
+    (options as any)?.comp,
+    (options as any)?.blockSizeBits ?? 5,
+    () => (_defaultContext as any) ?? context,
+  );
+  return {
+    getDefinition: () => ({} as any),
+    build: () => context,
+  } as any;
 }

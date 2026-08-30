@@ -70,7 +70,7 @@ export namespace SortedMap {
       take(amount: any): any;
       drop(amount: any): any;
       /** @deprecated use `slice` */
-      sliceIndex(range: any): any;
+      sliceIndex(range: IndexRange): any;
       slice(range: any): any;
       readonly comp: Comp<K>;
     }
