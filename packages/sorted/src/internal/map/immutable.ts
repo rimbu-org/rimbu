@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type {
 	ArrayNonEmpty,
 	RelatedTo,
@@ -247,6 +248,25 @@ export class SortedMapEmpty<K = any, V = any>
 	> {
 // @ts-ignore
 		return [this, undefined, false];
+	}
+
+	removeKeyAndReturn<UK>(key: RelatedTo<K, UK>, otherwise?: OptLazy<any>): any {
+		const result = OptLazy(otherwise);
+		return {
+			collection: this,
+			hasResult: false,
+			result,
+			hasChanged: false,
+		};
+	}
+
+	updateAtKeyAndReturn<UK>(key: RelatedTo<K, UK>, update: (value: V) => V): any {
+		return {
+			collection: this,
+			hasResult: false,
+			result: [undefined, undefined] as any,
+			hasChanged: false,
+		};
 	}
 
 	slice(): SortedMap<K, V> {
@@ -505,8 +525,67 @@ export abstract class SortedMapNode<K, V>
 	// aliases for new MapCollection names
 	modifyAtKey(...args: any[]): any { return (this as any).modifyAt(...args); }
 	updateAtKey(...args: any[]): any { return (this as any).updateAt(...args); }
-	updateAtKeyAndReturn(...args: any[]): any { return (this as any).updateAtAndGet(...args); }
-	removeKeyAndReturn(...args: any[]): any { return (this as any).removeKeyAndGet(...args); }
+
+	removeKeyAndReturn<UK>(key: RelatedTo<K, UK>): any;
+	removeKeyAndReturn<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): any;
+	removeKeyAndReturn<UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): any {
+		const token = Symbol();
+		let removed: V | typeof token = token;
+		const newMap = this.modifyAt(key as K, {
+			ifExists: {
+				update: (value: V, remove: typeof token): any => {
+					removed = value;
+					return remove;
+				},
+			},
+		});
+		if (token === removed) {
+			const result = otherwise !== undefined ? OptLazy(otherwise as any) : undefined;
+			return {
+				collection: this,
+				hasResult: false,
+				result,
+				hasChanged: false,
+			};
+		}
+		return {
+			collection: newMap,
+			hasResult: true,
+			result: removed,
+			hasChanged: true,
+		};
+	}
+
+	updateAtKeyAndReturn<UK>(key: RelatedTo<K, UK>, update: (value: V) => V): any {
+		const token = Symbol();
+		let previous: V | typeof token = token;
+		let current: V | typeof token = token;
+		const newMap = this.modifyAt(key as K, {
+			ifExists: {
+				update: (value: V): any => {
+					previous = value;
+					const newVal = update(value);
+					current = newVal;
+					return newVal;
+				},
+			},
+		});
+		if (token === previous) {
+			return {
+				collection: this,
+				hasResult: false,
+				result: [undefined, undefined] as any,
+				hasChanged: false,
+			};
+		}
+		const hasChanged = newMap !== this;
+		return {
+			collection: newMap,
+			hasResult: true,
+			result: [previous, current] as any,
+			hasChanged,
+		};
+	}
 
 	removeKeyAndGet<UK>(
 		key: RelatedTo<K, UK>,

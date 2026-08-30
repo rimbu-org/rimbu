@@ -311,9 +311,37 @@ export class SortedMapBuilder<K, V>
 		return result!;
 	};
 
+	updateAtKey = <O>(
+		key: K,
+		update: (value: V) => V,
+		otherwise?: OptLazy<O>,
+	): any => {
+		let previous: V | O = undefined as any;
+		let current: V | O = undefined as any;
+		let found = false;
+
+		this.modifyAt(key, {
+			ifExists: {
+				update: (value): V => {
+					previous = value as any;
+					found = true;
+					const newVal = update(value);
+					current = newVal as any;
+					return newVal;
+				},
+			},
+		});
+
+		if (!found) {
+			const fallback = otherwise !== undefined ? (OptLazy(otherwise as any) as O) : (undefined as any);
+			return [fallback, fallback] as any;
+		}
+
+		return [previous, current] as any;
+	};
+
 	// aliases for new names
 	modifyAtKey = this.modifyAt as any;
-	updateAtKey = this.updateAt as any;
 
 	build = (): SortedMap<K, V> => {
 		if (undefined !== this.source) return this.source;
