@@ -1,4 +1,3 @@
-// @ts-nocheck
 import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
 import type { SortedSet } from '@rimbu/sorted/set';
 
@@ -93,18 +92,22 @@ export class SortedSetEmpty<T = any>
 		return this.context.from(values) as SortedSet.NonEmpty<T>;
 	}
 
+	// @ts-ignore
 	remove(_value: any): this {
 		return this;
 	}
 
+	// @ts-ignore
 	removeAll(_values: any): this {
 		return this;
 	}
 
+	// @ts-ignore
 	slice(_range: any): this {
 		return this;
 	}
 
+	// @ts-ignore
 	sliceIndex(_range: any): this {
 		return this;
 	}
@@ -127,14 +130,17 @@ export class SortedSetEmpty<T = any>
 
 	forEachIndexed(_f: any, _options?: any): void {}
 
+	// @ts-ignore
 	filter(_pred: any, _options?: any): this {
 		return this;
 	}
 
+	// @ts-ignore
 	filterIndexed(_pred: any, _options?: any): this {
 		return this;
 	}
 
+	// @ts-ignore
 	forEach(_f: any, _options?: any): void {}
 
 	transform<T2 extends T>(
@@ -178,12 +184,14 @@ export class SortedSetEmpty<T = any>
 		return [this, this];
 	}
 
+	// @ts-ignore
 	intersection(other: StreamSource<T>): SortedSet<T> {
-		return this.intersect(other);
+		return (this as any).intersect(other);
 	}
 
+	// @ts-ignore
 	symmetricDifference(other: StreamSource<T>): SortedSet<T> {
-		return this.symDifference(other);
+		return (this as any).symDifference(other);
 	}
 
 	toBuilder(): SortedSet.Builder<T> {
@@ -401,8 +409,9 @@ export abstract class SortedSetNode<T>
 		return this.atIndex(index, otherwise);
 	}
 
+	// @ts-ignore
 	indexOf(value: T, otherwise?: OptLazy<any>): any {
-		return this.findIndex(value, otherwise);
+		return (this as any).findIndex(value, otherwise);
 	}
 
 	streamSlice(range: any, options?: any): Stream<T> {
@@ -430,12 +439,14 @@ export abstract class SortedSetNode<T>
 		return [this.take(amount), this.drop(amount)];
 	}
 
+	// @ts-ignore
 	intersection(other: StreamSource<T>): SortedSet<T> {
-		return this.intersect(other);
+		return (this as any).intersect(other);
 	}
 
+	// @ts-ignore
 	symmetricDifference(other: StreamSource<T>): SortedSet<T> {
-		return this.symDifference(other);
+		return (this as any).symDifference(other);
 	}
 
 	union(other: StreamSource<T>): SortedSet<T> | any {
