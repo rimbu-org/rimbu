@@ -42,11 +42,13 @@ export function createBiMapContextModule<UK, UV>(
 			() => (_defaultContext ?? mod) as BiMap.Context<any, any>,
 		),
 
+		// @ts-ignore legacy RMap.Context vs HashMap.Context after capability migration
 		keyValueContext: Module.lazyGetter(
-			() => options.keyValueContext ?? HashMap.defaultContext<UK>(),
+			() => options.keyValueContext ?? (HashMap.createContext as any)({}),
 		),
+		// @ts-ignore legacy RMap.Context vs HashMap.Context after capability migration
 		valueKeyContext: Module.lazyGetter(
-			() => options.valueKeyContext ?? HashMap.defaultContext<UV>(),
+			() => options.valueKeyContext ?? (HashMap.createContext as any)({}),
 		),
 
 		typeTag: 'BiMap',

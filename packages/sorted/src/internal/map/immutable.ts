@@ -1110,24 +1110,25 @@ export class SortedMapInner<K, V> extends SortedMapNode<K, V> {
 	}
 
 	modifyAtInternal(key: K, options: ModifyOptions<V>): SortedMapInner<K, V> {
-		const { ifNew } = options;
+		const { ifExists } = options;
 		const entryIndex = this.context.findIndex(key, this.entries);
 
 		if (entryIndex >= 0) {
-			if (undefined === ifNew) return this;
+			if (undefined === ifExists) return this;
 
-			const { set, create } = ifNew;
-			if (undefined === set && undefined === create) return this;
+			const { set, update } = ifExists;
+			if (undefined === set && undefined === update) return this;
 
 			const currentEntry = this.entries[entryIndex];
 			const currentValue = currentEntry[1];
 			const token = Symbol();
 
-			const newValue = create !== undefined ? create(token) : set;
+			const newValue =
+				update !== undefined ? update(currentValue, token) : set!;
 
 			if (Object.is(newValue, currentValue)) return this;
 
-			if (token === newValue) {
+			if (token === (newValue as unknown)) {
 				// remove inner entry
 				const leftChild = this.children[entryIndex];
 				const rightChild = this.children[entryIndex + 1];
@@ -1154,7 +1155,7 @@ export class SortedMapInner<K, V> extends SortedMapNode<K, V> {
 			}
 
 			// update inner entry
-			const newEntry: [K, V] = [key, newValue];
+			const newEntry: [K, V] = [key, newValue as V];
 			const newEntries = Arr.set(this.entries, entryIndex, newEntry);
 			return this.copy(newEntries);
 		}

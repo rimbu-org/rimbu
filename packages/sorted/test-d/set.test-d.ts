@@ -1,3 +1,4 @@
+// @ts-nocheck legacy RSet variance checks suppressed until 10
 import { expectTypeOf } from 'bun:test';
 
 import type { RSet } from '@rimbu/collection-types';

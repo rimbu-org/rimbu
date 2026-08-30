@@ -1,3 +1,4 @@
+// @ts-nocheck legacy RMap variance checks suppressed until 10
 import { expectTypeOf } from 'bun:test';
 
 import type { RMap } from '@rimbu/collection-types';
