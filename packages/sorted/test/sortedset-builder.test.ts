@@ -61,7 +61,7 @@ describe('builder specific', () => {
 	const context = SortedSet.createContext<number>({ blockSizeBits: 2 });
 
 	it('check shape', () => {
-		const builder = context.builder() as SortedSetBuilder<number>;
+		const builder = context.builder() as unknown as SortedSetBuilder<number>;
 		builder.addAll([2, 5, 7, 8, 10, 12, 18, 20, 22, 25, 28]);
 		builder.remove(7);
 		builder.add(15);
@@ -75,7 +75,7 @@ describe('builder specific', () => {
 	});
 
 	it('remove borrow left', () => {
-		const builder = context.builder() as SortedSetBuilder<number>;
+		const builder = context.builder() as unknown as SortedSetBuilder<number>;
 		builder.addAll([2, 5, 7, 8, 10, 12, 18, 20, 22, 25, 28]);
 		builder.remove(7);
 		builder.add(15);
@@ -91,7 +91,7 @@ describe('builder specific', () => {
 	});
 
 	it('remove borrow right', () => {
-		const builder = context.builder() as SortedSetBuilder<number>;
+		const builder = context.builder() as unknown as SortedSetBuilder<number>;
 		builder.addAll([2, 5, 7, 8, 10, 12, 18, 20, 22, 25, 28]);
 		builder.remove(7);
 		builder.add(15);
@@ -107,7 +107,7 @@ describe('builder specific', () => {
 	});
 
 	it('remove join left', () => {
-		const builder = context.builder() as SortedSetBuilder<number>;
+		const builder = context.builder() as unknown as SortedSetBuilder<number>;
 		builder.addAll([2, 5, 7, 8, 10, 12, 18, 20, 22, 25, 28]);
 		builder.remove(7);
 		builder.add(15);
@@ -122,7 +122,7 @@ describe('builder specific', () => {
 	});
 
 	it('remove join right', () => {
-		const builder = context.builder() as SortedSetBuilder<number>;
+		const builder = context.builder() as unknown as SortedSetBuilder<number>;
 		builder.addAll([2, 5, 7, 8, 10, 12, 18, 20, 22, 25, 28]);
 		builder.remove(7);
 		builder.add(15);
@@ -137,7 +137,7 @@ describe('builder specific', () => {
 	});
 
 	it('add give left', () => {
-		const builder = context.builder() as SortedSetBuilder<number>;
+		const builder = context.builder() as unknown as SortedSetBuilder<number>;
 		builder.addAll([2, 5, 7, 8, 10, 12, 18, 20, 22, 25, 28]);
 		builder.remove(7);
 		builder.add(15);
@@ -153,7 +153,7 @@ describe('builder specific', () => {
 	});
 
 	it('add give right', () => {
-		const builder = context.builder() as SortedSetBuilder<number>;
+		const builder = context.builder() as unknown as SortedSetBuilder<number>;
 		builder.addAll([2, 5, 7, 8, 10, 12, 18, 20, 22, 25, 28]);
 		builder.remove(7);
 		builder.add(15);
@@ -169,7 +169,7 @@ describe('builder specific', () => {
 	});
 
 	it('add split left', () => {
-		const builder = context.builder() as SortedSetBuilder<number>;
+		const builder = context.builder() as unknown as SortedSetBuilder<number>;
 		builder.addAll([2, 5, 7, 8, 10, 12, 18, 20, 22, 25, 28]);
 		builder.remove(7);
 		builder.add(15);
@@ -186,7 +186,7 @@ describe('builder specific', () => {
 	});
 
 	it('add split right', () => {
-		const builder = context.builder() as SortedSetBuilder<number>;
+		const builder = context.builder() as unknown as SortedSetBuilder<number>;
 		builder.addAll([2, 5, 7, 8, 10, 12, 18, 20, 22, 25, 28]);
 		builder.remove(7);
 		builder.add(15);
@@ -203,7 +203,7 @@ describe('builder specific', () => {
 	});
 
 	it('deleteMin', () => {
-		const builder = context.builder() as SortedSetBuilder<number>;
+		const builder = context.builder() as unknown as SortedSetBuilder<number>;
 		builder.addAll([2, 5, 7, 8, 10, 12, 18, 20, 22, 25, 28]);
 		builder.remove(7);
 		builder.add(15);
@@ -216,7 +216,7 @@ describe('builder specific', () => {
 	});
 
 	it('deleteMax', () => {
-		const builder = context.builder() as SortedSetBuilder<number>;
+		const builder = context.builder() as unknown as SortedSetBuilder<number>;
 		builder.addAll([2, 5, 7, 8, 10, 12, 18, 20, 22, 25, 28]);
 		builder.remove(7);
 		builder.add(15);

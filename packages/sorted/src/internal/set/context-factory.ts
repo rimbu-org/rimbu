@@ -99,19 +99,19 @@ export class SortedSetContext<UT>
     return new SortedSetInner(this as any, entries, children, size);
   }
 
-  isSortedSetEmpty(obj: any): obj is SortedSetEmpty<UT> {
+  isSortedSetEmpty(obj: unknown): obj is SortedSetEmpty<UT> {
     return obj instanceof SortedSetEmpty;
   }
 
-  isSortedSetLeaf<T>(obj: any): obj is SortedSetLeaf<T> {
+  isSortedSetLeaf<T>(obj: unknown): obj is SortedSetLeaf<T> {
     return obj instanceof SortedSetLeaf;
   }
 
-  isSortedSetInner<T>(obj: any): obj is SortedSetInner<T> {
+  isSortedSetInner<T>(obj: unknown): obj is SortedSetInner<T> {
     return obj instanceof SortedSetInner;
   }
 
-  isSortedSetNode<T>(obj: any): obj is SortedSetNode<T> {
+  isSortedSetNode<T>(obj: unknown): obj is SortedSetNode<T> {
     return obj instanceof SortedSetNode;
   }
 

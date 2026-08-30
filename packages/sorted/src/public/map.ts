@@ -37,7 +37,6 @@ export namespace SortedMap {
     extends Advanced.ContextApi<UK, SortedMap.Advanced.Family<UK, any>> {}
 
   export namespace Advanced {
-    // @ts-ignore - HKT family variance, allow any for _UPPER_E
     export interface Api<
       K,
       V,
@@ -54,7 +53,7 @@ export namespace SortedMap {
         MapCollection.Capability.WithModifyAtKey.Api<K, V, Tp>,
         IndexedCollection.Capability.WithRemoveAt.Api<readonly [K, V], Tp> {
       stream(options?: { reversed?: boolean }): Tp['_AS_STREAM'];
-      // @ts-ignore - reversed option
+      // @ts-ignore - reversed option extends base
       streamKeys(options?: { reversed?: boolean }): Tp['_IS_NON_EMPTY'] extends true ? Stream.NonEmpty<K> : Stream<K>;
       // @ts-ignore - reversed option
       streamValues(options?: { reversed?: boolean }): Tp['_IS_NON_EMPTY'] extends true ? Stream.NonEmpty<V> : Stream<V>;
@@ -78,7 +77,7 @@ export namespace SortedMap {
       ): readonly [K, V] | O;
       atIndex<O>(index: number, otherwise?: OptLazy<O>): readonly [K, V] | O;
       sliceIndex(range: IndexRange): Tp['_NORMAL'];
-      slice(range: Range<K>): Tp['_NORMAL'];
+      slice(range: IndexRange | Range<K>): Tp['_NORMAL'];
       readonly comp: Comp<K>;
     }
 

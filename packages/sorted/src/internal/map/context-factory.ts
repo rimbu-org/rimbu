@@ -109,15 +109,15 @@ export class SortedMapContext<UK>
     return new SortedMapInner(this as any, entries, children, size);
   }
 
-  isSortedMapEmpty(obj: any): obj is SortedMapEmpty {
+  isSortedMapEmpty(obj: unknown): obj is SortedMapEmpty {
     return obj instanceof SortedMapEmpty;
   }
 
-  isSortedMapLeaf<K, V>(obj: any): obj is SortedMapLeaf<K, V> {
+  isSortedMapLeaf<K, V>(obj: unknown): obj is SortedMapLeaf<K, V> {
     return obj instanceof SortedMapLeaf;
   }
 
-  isSortedMapInner<K, V>(obj: any): obj is SortedMapInner<K, V> {
+  isSortedMapInner<K, V>(obj: unknown): obj is SortedMapInner<K, V> {
     return obj instanceof SortedMapInner;
   }
 
@@ -125,7 +125,7 @@ export class SortedMapContext<UK>
     return source instanceof SortedMapNode;
   }
 
-  isSortedMapNode<K, V>(obj: any): obj is SortedMapNode<K, V> {
+  isSortedMapNode<K, V>(obj: unknown): obj is SortedMapNode<K, V> {
     return obj instanceof SortedMapNode;
   }
 

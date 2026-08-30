@@ -125,7 +125,7 @@ describe('SortedSetLeaf', () => {
 		}
 		{
 			const leaf = context.leaf([1, 3, 5, 8, 11]);
-			const newLeaf = leaf.normalize() as SortedSetInner<number>;
+			const newLeaf = leaf.normalize() as unknown as unknown as SortedSetInner<number>;
 			expect(newLeaf).toBeInstanceOf(SortedSetInner);
 			expect(leaf.entries).toEqual([1, 3]);
 		}

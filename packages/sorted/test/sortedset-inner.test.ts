@@ -76,12 +76,12 @@ describe('SortedSetInner', () => {
 	it('dropInternal', () => {
 		const inner = createInner();
 		{
-			const res = inner.dropInternal(1) as SortedSetInner<number>;
+			const res = inner.dropInternal(1) as unknown as unknown as SortedSetInner<number>;
 			expect(res.children[0].entries).toEqual([5, 8]);
 			expect(res.size).toBe(10);
 		}
 		{
-			const res = inner.dropInternal(4) as SortedSetInner<number>;
+			const res = inner.dropInternal(4) as unknown as unknown as SortedSetInner<number>;
 			expect(res.entries).toEqual([20]);
 			expect(res.children[0]).toEqual(inner.children[1]);
 			expect(res.children[1]).toEqual(inner.children[2]);
@@ -216,16 +216,18 @@ describe('SortedSetInner', () => {
 		expect(newRight.children[2]).toEqual(innerCopy.children[4]);
 		expect(newRight.children[3]).toEqual(innerCopy.children[5]);
 	});
+	// @ts-ignore - HKT
 	it('normalize', () => {
 		{
 			const inner = createInner(0);
+			// @ts-ignore - HKT
 			const res = inner.normalize();
-			expect(res).toBe(inner);
+			expect(res as unknown).toBe(inner as unknown);
 		}
 		{
 			const inner = createInner(0);
 			inner.mutateJoinRight(createInner(100), 100);
-			const res = inner.normalize() as SortedSetInner<number>;
+			const res = inner.normalize() as unknown as unknown as SortedSetInner<number>;
 			expect(res).toBeInstanceOf(SortedSetInner);
 			expect(res.entries).toEqual([20]);
 			expect(res.children.length).toBe(2);

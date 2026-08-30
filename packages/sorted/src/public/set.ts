@@ -34,7 +34,6 @@ export namespace SortedSet {
     extends Advanced.ContextApi<UE, SortedSet.Advanced.Family<UE>> {}
 
   export namespace Advanced {
-    // @ts-ignore - HKT family variance, allow any for _UPPER_E
     export interface Api<E, Tp extends Collection.Advanced.TypesBase>
       extends SetCollection.Advanced.Api<E, Tp>,
         IndexedValuedSortedCollection.Advanced.Api<E, Tp>,
@@ -57,7 +56,7 @@ export namespace SortedSet {
       upperBound(value: E): number;
       atIndex<O>(index: number, otherwise?: OptLazy<O>): E | O;
       sliceIndex(range: IndexRange): Tp['_NORMAL'];
-      slice(range: Range<E>): Tp['_NORMAL'];
+      slice(range: IndexRange | Range<E>): Tp['_NORMAL'];
       readonly comp: Comp<E>;
     }
 
