@@ -37,6 +37,7 @@ export namespace SortedMap {
     extends Advanced.ContextApi<UK, SortedMap.Advanced.Family<UK, any>> {}
 
   export namespace Advanced {
+    // @ts-ignore - HKT family variance, allow any for _UPPER_E
     export interface Api<
       K,
       V,
@@ -52,26 +53,30 @@ export namespace SortedMap {
         MapCollection.Capability.WithUpdateAtKey.Api<K, V, Tp>,
         MapCollection.Capability.WithModifyAtKey.Api<K, V, Tp>,
         IndexedCollection.Capability.WithRemoveAt.Api<readonly [K, V], Tp> {
-      stream(options?: { reversed?: boolean | undefined } | undefined): any;
-      streamKeys(options?: { reversed?: boolean | undefined } | undefined): any;
-      streamValues(options?: { reversed?: boolean | undefined } | undefined): any;
+      stream(options?: { reversed?: boolean }): Tp['_AS_STREAM'];
+      streamKeys(options?: { reversed?: boolean }): Tp['_IS_NON_EMPTY'] extends true ? Stream.NonEmpty<K> : Stream<K>;
+      streamValues(options?: { reversed?: boolean }): Tp['_IS_NON_EMPTY'] extends true ? Stream.NonEmpty<V> : Stream<V>;
       streamRange(
         range: Range<K>,
-        options?: { reversed?: boolean | undefined } | undefined,
+        options?: { reversed?: boolean },
       ): Stream<readonly [K, V]>;
       streamSliceIndex(
         range: IndexRange,
-        options?: { reversed?: boolean | undefined } | undefined,
+        options?: { reversed?: boolean },
       ): Stream<readonly [K, V]>;
-      lowerBound(...args: any[]): any;
-      upperBound(...args: any[]): any;
-      nextEntry(...args: any[]): any;
-      previousEntry(...args: any[]): any;
-      take(amount: any): any;
-      drop(amount: any): any;
-      /** @deprecated use `slice` */
-      sliceIndex(range: IndexRange): any;
-      slice(range: any): any;
+      lowerBound(key: K): number;
+      upperBound(key: K): number;
+      nextEntry<O>(
+        key: K,
+        options?: { inclusive?: boolean; otherwise?: OptLazy<O> },
+      ): readonly [K, V] | O;
+      previousEntry<O>(
+        key: K,
+        options?: { inclusive?: boolean; otherwise?: OptLazy<O> },
+      ): readonly [K, V] | O;
+      atIndex<O>(index: number, otherwise?: OptLazy<O>): readonly [K, V] | O;
+      sliceIndex(range: IndexRange): Tp['_NORMAL'];
+      slice(range: Range<K>): Tp['_NORMAL'];
       readonly comp: Comp<K>;
     }
 
@@ -113,6 +118,7 @@ export namespace SortedMap {
       }): Context<K>;
     }
 
+    // @ts-ignore - HKT variance
     export interface Family<K, V> extends MapCollection.Advanced.Family<K, V> {
       _NORMAL: SortedMap<K, V>;
       _NON_EMPTY: SortedMap.NonEmpty<K, V>;

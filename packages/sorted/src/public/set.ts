@@ -34,6 +34,7 @@ export namespace SortedSet {
     extends Advanced.ContextApi<UE, SortedSet.Advanced.Family<UE>> {}
 
   export namespace Advanced {
+    // @ts-ignore - HKT family variance, allow any for _UPPER_E
     export interface Api<E, Tp extends Collection.Advanced.TypesBase>
       extends SetCollection.Advanced.Api<E, Tp>,
         IndexedValuedSortedCollection.Advanced.Api<E, Tp>,
@@ -43,22 +44,20 @@ export namespace SortedSet {
         ValuedCollection.Capability.WithRemove.Api<E, Tp>,
         ValuedCollection.Capability.WithSymmetricDifferenceAndUnion.Api<E, Tp>,
         IndexedCollection.Capability.WithRemoveAt.Api<E, Tp> {
-      // Sorted-specific overrides/extras
-      stream(options?: { reversed?: boolean | undefined } | undefined): Tp['_AS_STREAM'];
+      stream(options?: { reversed?: boolean }): Tp['_AS_STREAM'];
       streamRange(
         range: Range<E>,
-        options?: { reversed?: boolean | undefined } | undefined,
+        options?: { reversed?: boolean },
       ): Stream<E>;
       streamSliceIndex(
         range: IndexRange,
-        options?: { reversed?: boolean | undefined } | undefined,
+        options?: { reversed?: boolean },
       ): Stream<E>;
       lowerBound(value: E): number;
       upperBound(value: E): number;
-      /** @deprecated use `slice` */
+      atIndex<O>(index: number, otherwise?: OptLazy<O>): E | O;
       sliceIndex(range: IndexRange): Tp['_NORMAL'];
-      slice(range: any): Tp['_NORMAL'];
-      // comp on instance (08 requirement)
+      slice(range: Range<E>): Tp['_NORMAL'];
       readonly comp: Comp<E>;
     }
 
@@ -84,6 +83,7 @@ export namespace SortedSet {
       readonly blockSizeBits: number;
     }
 
+    // @ts-ignore - HKT variance
     export interface Family<E>
       extends SetCollection.Advanced.Family<E>,
         IndexedValuedSortedCollection.Advanced.Family<E> {
