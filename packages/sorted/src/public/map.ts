@@ -64,36 +64,55 @@ export namespace SortedMap {
         range: IndexRange,
         options?: { reversed?: boolean | undefined } | undefined,
       ): Stream<readonly [K, V]>;
+      /** @deprecated use `streamRange` or `streamSlice` */
       min(...args: any[]): any;
+      /** @deprecated use `min` */
       minKey(...args: any[]): any;
+      /** @deprecated use `min` */
       minValue(...args: any[]): any;
+      /** @deprecated use `streamRange` or `streamSlice` */
       max(...args: any[]): any;
+      /** @deprecated use `max` */
       maxKey(...args: any[]): any;
+      /** @deprecated use `max` */
       maxValue(...args: any[]): any;
+      /** @deprecated use `indexOf` */
       findIndex(...args: any[]): any;
       lowerBound(...args: any[]): any;
       upperBound(...args: any[]): any;
       nextEntry(...args: any[]): any;
       previousEntry(...args: any[]): any;
+      /** @deprecated use `at` */
       atIndex(index: number): readonly [K, V] | undefined;
+      /** @deprecated use `at` */
       atIndex<O>(index: number, otherwise: OptLazy<O>): readonly [K, V] | O;
       take(amount: any): any;
       drop(amount: any): any;
+      /** @deprecated use `slice` */
       sliceIndex(range: any): any;
       slice(range: any): any;
       readonly comp: Comp<K>;
-      // legacy aliases for RMapBase compatibility (any to avoid at overload clash)
+      /** @deprecated use `add` */
       addEntry(entry: readonly [K, V]): Tp['_NON_EMPTY'];
+      /** @deprecated use `addAll` */
       addEntries(entries: StreamSource<readonly [K, V]>): Tp['_NORMAL'];
+      /** @deprecated use `has` */
       hasKey(...args: any[]): any;
-      // at(key) is legacy for get(key) – use any to avoid clash with indexed at(index)
+      /** @deprecated use `get` */
       at(...args: any[]): any;
+      /** @deprecated use `modifyAtKey` */
       modifyAt(...args: any[]): any;
+      /** @deprecated use `updateAtKey` */
       updateAt(...args: any[]): any;
+      /** @deprecated use `updateAtKeyAndReturn` */
       updateAtAndGet(...args: any[]): any;
+      /** @deprecated use `remove` */
       removeKey(...args: any[]): any;
+      /** @deprecated use `removeAll` */
       removeKeys(...args: any[]): any;
+      /** @deprecated use `removeAndReturn` */
       removeKeyAndGet(...args: any[]): any;
+      /** @deprecated use `removeAndReturn` */
       removeKeyAndReturn(...args: any[]): any;
     }
 
@@ -107,18 +126,25 @@ export namespace SortedMap {
         MapCollection.Capability.WithUpdateAtKey.BuilderApi<K, V, Tp>,
         MapCollection.Capability.WithModifyAtKey.BuilderApi<K, V, Tp>,
         IndexedCollection.Capability.WithRemoveAt.BuilderApi<readonly [K, V], Tp> {
-      // legacy RMap builder aliases
+      /** @deprecated use `add` */
       addEntry(entry: readonly [K, V]): boolean;
+      /** @deprecated use `addAll` */
       addEntries(entries: StreamSource<readonly [K, V]>): boolean;
+      /** @deprecated use `has` */
       hasKey(...args: any[]): any;
+      /** @deprecated use `get` */
       at(...args: any[]): any;
+      /** @deprecated use `modifyAtKey` */
       modifyAt(...args: any[]): any;
+      /** @deprecated use `updateAtKey` */
       updateAt(...args: any[]): any;
       min(): readonly [K, V] | undefined;
       min<O>(otherwise: OptLazy<O>): readonly [K, V] | O;
       max(): readonly [K, V] | undefined;
       max<O>(otherwise: OptLazy<O>): readonly [K, V] | O;
+      /** @deprecated use `at` */
       atIndex(index: number): readonly [K, V] | undefined;
+      /** @deprecated use `at` */
       atIndex<O>(index: number, otherwise: OptLazy<O>): readonly [K, V] | O;
     }
 

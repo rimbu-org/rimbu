@@ -87,7 +87,7 @@ export class SortedMapBuilder<K, V>
 		if (!this.context.comp.isComparable(key)) return OptLazy(otherwise) as O;
 
 // @ts-ignore
-		if (undefined !== this.source) return this.source.at(key, otherwise!);
+		if (undefined !== this.source) return this.source.get(key, otherwise!);
 
 		const entryIndex = this.context.findIndex(key, this.entries);
 
@@ -99,7 +99,7 @@ export class SortedMapBuilder<K, V>
 			const childIndex = SortedIndex.next(entryIndex);
 			const child = this.children[childIndex];
 
-			return child.at(key, otherwise);
+			return child.get(key, otherwise);
 		}
 
 		return OptLazy(otherwise) as O;

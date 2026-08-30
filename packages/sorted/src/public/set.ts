@@ -54,22 +54,24 @@ export namespace SortedSet {
         range: IndexRange,
         options?: { reversed?: boolean | undefined } | undefined,
       ): Stream<E>;
-      // new indexed identity already provides indexOf, keep findIndex as alias
+      /** @deprecated use `indexOf` */
       findIndex(value: E): number | undefined;
+      /** @deprecated use `indexOf` */
       findIndex<O>(value: E, otherwise: OptLazy<O>): number | O;
       lowerBound(value: E): number;
       upperBound(value: E): number;
-      // Sorted neighbors already from SortedCollection, but keep typed here if needed
-      // next/previous already provided by SortedCollection, but ensure they exist for Tp
-      // atIndex alias for at (Indexed)
+      /** @deprecated use `at` */
       atIndex(index: number): E | undefined;
+      /** @deprecated use `at` */
       atIndex<O>(index: number, otherwise: OptLazy<O>): E | O;
+      /** @deprecated use `slice` */
       sliceIndex(range: IndexRange): Tp['_NORMAL'];
       slice(range: any): Tp['_NORMAL'];
       // comp on instance (08 requirement)
       readonly comp: Comp<E>;
-      // legacy aliases kept for test compatibility (deprecated)
+      /** @deprecated use `intersection` */
       intersect(other: StreamSource<E>): Tp['_NORMAL'];
+      /** @deprecated use `symmetricDifference` */
       symDifference(other: StreamSource<E>): Tp['_NORMAL'];
     }
 
@@ -83,7 +85,9 @@ export namespace SortedSet {
       min<O>(otherwise: OptLazy<O>): E | O;
       max(): E | undefined;
       max<O>(otherwise: OptLazy<O>): E | O;
+      /** @deprecated use `at` */
       atIndex(index: number): E | undefined;
+      /** @deprecated use `at` */
       atIndex<O>(index: number, otherwise: OptLazy<O>): E | O;
     }
 

@@ -378,7 +378,7 @@ export abstract class SortedMapNode<K, V>
 
 	hasKey<UK>(key: RelatedTo<K, UK>): boolean {
 		const token = Symbol();
-		return token !== this.at(key, token);
+		return token !== this.get(key, token);
 	}
 
 	lowerBound(key: K): number {
