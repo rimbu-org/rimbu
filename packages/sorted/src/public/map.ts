@@ -53,10 +53,6 @@ export namespace SortedMap {
         MapCollection.Capability.WithModifyAtKey.Api<K, V, Tp>,
         IndexedCollection.Capability.WithRemoveAt.Api<readonly [K, V], Tp> {
       stream(options?: { reversed?: boolean }): Tp['_AS_STREAM'];
-      // @ts-ignore - reversed option extends base
-      streamKeys(options?: { reversed?: boolean }): Tp['_IS_NON_EMPTY'] extends true ? Stream.NonEmpty<K> : Stream<K>;
-      // @ts-ignore - reversed option
-      streamValues(options?: { reversed?: boolean }): Tp['_IS_NON_EMPTY'] extends true ? Stream.NonEmpty<V> : Stream<V>;
       streamRange(
         range: Range<K>,
         options?: { reversed?: boolean },
@@ -119,7 +115,6 @@ export namespace SortedMap {
       }): Context<K>;
     }
 
-    // @ts-ignore - HKT variance
     export interface Family<K, V> extends MapCollection.Advanced.Family<K, V> {
       _NORMAL: SortedMap<K, V>;
       _NON_EMPTY: SortedMap.NonEmpty<K, V>;

@@ -10,6 +10,8 @@ import { Stream, type StreamSource } from '@rimbu/stream';
 import { SortedBuilder } from '#sorted/base';
 import { SortedIndex } from '#sorted/sorted-index';
 
+// @ts-ignore - HKT variance
+// @ts-ignore - HKT
 // @ts-ignore
 export class SortedSetBuilder<T> extends SortedBuilder<T> {
 	constructor(

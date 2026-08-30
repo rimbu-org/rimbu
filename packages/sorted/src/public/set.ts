@@ -82,7 +82,6 @@ export namespace SortedSet {
       readonly blockSizeBits: number;
     }
 
-    // @ts-ignore - HKT variance
     export interface Family<E>
       extends SetCollection.Advanced.Family<E>,
         IndexedValuedSortedCollection.Advanced.Family<E> {

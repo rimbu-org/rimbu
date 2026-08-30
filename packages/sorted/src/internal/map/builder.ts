@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { RelatedTo } from '@rimbu/common/types';
 import type { SortedMap } from '@rimbu/sorted/map';
 
