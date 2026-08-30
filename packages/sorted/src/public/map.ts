@@ -3,12 +3,11 @@ import type { IndexedKeyedSortedCollection } from '@rimbu/collection-types/colle
 import type { MapCollection } from '@rimbu/collection-types/map';
 import type { KeyedCollection } from '@rimbu/collection-types/collection/keyed';
 import type { IndexedCollection } from '@rimbu/collection-types/collection/indexed';
-import type { RMapBase } from '@rimbu/collection-types/advanced/map/base';
 import type { Comp } from '@rimbu/common/comp';
 import type { IndexRange } from '@rimbu/common/index-range';
 import type { OptLazy } from '@rimbu/common';
 import type { Range } from '@rimbu/common/range';
-import type { Stream, StreamSource } from '@rimbu/stream';
+import type { Stream } from '@rimbu/stream';
 
 import { createSortedMapContextModule } from '#map/context-factory';
 
@@ -64,56 +63,16 @@ export namespace SortedMap {
         range: IndexRange,
         options?: { reversed?: boolean | undefined } | undefined,
       ): Stream<readonly [K, V]>;
-      /** @deprecated use `streamRange` or `streamSlice` */
-      min(...args: any[]): any;
-      /** @deprecated use `min` */
-      minKey(...args: any[]): any;
-      /** @deprecated use `min` */
-      minValue(...args: any[]): any;
-      /** @deprecated use `streamRange` or `streamSlice` */
-      max(...args: any[]): any;
-      /** @deprecated use `max` */
-      maxKey(...args: any[]): any;
-      /** @deprecated use `max` */
-      maxValue(...args: any[]): any;
-      /** @deprecated use `indexOf` */
-      findIndex(...args: any[]): any;
       lowerBound(...args: any[]): any;
       upperBound(...args: any[]): any;
       nextEntry(...args: any[]): any;
       previousEntry(...args: any[]): any;
-      /** @deprecated use `at` */
-      atIndex(index: number): readonly [K, V] | undefined;
-      /** @deprecated use `at` */
-      atIndex<O>(index: number, otherwise: OptLazy<O>): readonly [K, V] | O;
       take(amount: any): any;
       drop(amount: any): any;
       /** @deprecated use `slice` */
       sliceIndex(range: any): any;
       slice(range: any): any;
       readonly comp: Comp<K>;
-      /** @deprecated use `add` */
-      addEntry(entry: readonly [K, V]): Tp['_NON_EMPTY'];
-      /** @deprecated use `addAll` */
-      addEntries(entries: StreamSource<readonly [K, V]>): Tp['_NORMAL'];
-      /** @deprecated use `has` */
-      hasKey(...args: any[]): any;
-      /** @deprecated use `get` */
-      at(...args: any[]): any;
-      /** @deprecated use `modifyAtKey` */
-      modifyAt(...args: any[]): any;
-      /** @deprecated use `updateAtKey` */
-      updateAt(...args: any[]): any;
-      /** @deprecated use `updateAtKeyAndReturn` */
-      updateAtAndGet(...args: any[]): any;
-      /** @deprecated use `remove` */
-      removeKey(...args: any[]): any;
-      /** @deprecated use `removeAll` */
-      removeKeys(...args: any[]): any;
-      /** @deprecated use `removeAndReturn` */
-      removeKeyAndGet(...args: any[]): any;
-      /** @deprecated use `removeAndReturn` */
-      removeKeyAndReturn(...args: any[]): any;
     }
 
     export interface BuilderApi<K, V, Tp extends Collection.Advanced.TypesBase>
@@ -126,26 +85,10 @@ export namespace SortedMap {
         MapCollection.Capability.WithUpdateAtKey.BuilderApi<K, V, Tp>,
         MapCollection.Capability.WithModifyAtKey.BuilderApi<K, V, Tp>,
         IndexedCollection.Capability.WithRemoveAt.BuilderApi<readonly [K, V], Tp> {
-      /** @deprecated use `add` */
-      addEntry(entry: readonly [K, V]): boolean;
-      /** @deprecated use `addAll` */
-      addEntries(entries: StreamSource<readonly [K, V]>): boolean;
-      /** @deprecated use `has` */
-      hasKey(...args: any[]): any;
-      /** @deprecated use `get` */
-      at(...args: any[]): any;
-      /** @deprecated use `modifyAtKey` */
-      modifyAt(...args: any[]): any;
-      /** @deprecated use `updateAtKey` */
-      updateAt(...args: any[]): any;
       min(): readonly [K, V] | undefined;
       min<O>(otherwise: OptLazy<O>): readonly [K, V] | O;
       max(): readonly [K, V] | undefined;
       max<O>(otherwise: OptLazy<O>): readonly [K, V] | O;
-      /** @deprecated use `at` */
-      atIndex(index: number): readonly [K, V] | undefined;
-      /** @deprecated use `at` */
-      atIndex<O>(index: number, otherwise: OptLazy<O>): readonly [K, V] | O;
     }
 
     export interface ContextApi<
@@ -184,14 +127,6 @@ export namespace SortedMap {
     }
 
     export type DefaultFactory = KeyedContextApi<any, Family<any, any>>;
-  }
-
-  // @ts-ignore
-  export interface Types extends RMapBase.Types {
-    readonly normal: SortedMap<this['_K'], this['_V']>;
-    readonly nonEmpty: SortedMap.NonEmpty<this['_K'], this['_V']>;
-    readonly context: SortedMap.Context<this['_K']>;
-    readonly builder: SortedMap.Builder<this['_K'], this['_V']>;
   }
 }
 

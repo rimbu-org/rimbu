@@ -56,9 +56,9 @@ export class SortedEmpty extends EmptyBase {
 	removeKeyAndReturn(..._args: any[]): any { return [this, undefined, false] as any; }
 	has(..._args: any[]): any { return false; }
 	hasKey(..._args: any[]): any { return false; }
-	get(..._args: any[]): any { return undefined; }
-	at(..._args: any[]): any { return undefined; }
-	indexOf(..._args: any[]): any { return undefined; }
+	get(..._args: any[]): any { return OptLazy(_args[1]) as any; }
+	at(..._args: any[]): any { return OptLazy(_args[1]) as any; }
+	indexOf(..._args: any[]): any { return OptLazy(_args[1]) as any; }
 	streamSlice(..._args: any[]): any { return this.stream(); }
 	first(..._args: any[]): any { return this.min(..._args); }
 	last(..._args: any[]): any { return this.max(..._args); }

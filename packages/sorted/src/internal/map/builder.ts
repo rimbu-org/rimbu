@@ -83,7 +83,7 @@ export class SortedMapBuilder<K, V>
 		this._children = value;
 	}
 
-	at = <UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O => {
+	get = <UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O => {
 		if (!this.context.comp.isComparable(key)) return OptLazy(otherwise) as O;
 
 // @ts-ignore
@@ -105,13 +105,17 @@ export class SortedMapBuilder<K, V>
 		return OptLazy(otherwise) as O;
 	};
 
+	at = (index: number, otherwise?: any): any => {
+		return this.atIndex(index, otherwise);
+	};
+
 	hasKey = <UK>(key: RelatedTo<K, UK>): boolean => {
-		return Token !== this.at(key, Token);
+		return Token !== this.get(key, Token);
 	};
 
 	// aliases for new KeyedCollection API
 	has = this.hasKey as any;
-	get = this.at as any;
+	at = this.get as any;
 
 	clear = (): void => {
 		this._entries = [];

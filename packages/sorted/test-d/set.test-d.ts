@@ -65,11 +65,11 @@ expectTypeOf(genNonEmpty.difference(genNonEmpty)).toEqualTypeOf<G_Empty>();
 expectTypeOf(genEmpty.filter(() => true)).toEqualTypeOf<G_Empty>();
 expectTypeOf(genNonEmpty.filter(() => true)).toEqualTypeOf<G_Empty>();
 
-// .intersect(..)
-expectTypeOf(genEmpty.intersect(genEmpty)).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.intersect(genEmpty)).toEqualTypeOf<G_Empty>();
-expectTypeOf(genEmpty.intersect(genNonEmpty)).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.intersect(genNonEmpty)).toEqualTypeOf<G_Empty>();
+// .intersection(..)
+expectTypeOf(genEmpty.intersection(genEmpty)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genNonEmpty.intersection(genEmpty)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genEmpty.intersection(genNonEmpty)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genNonEmpty.intersection(genNonEmpty)).toEqualTypeOf<G_Empty>();
 
 // .isEmpty
 expectTypeOf(genEmpty.isEmpty).toEqualTypeOf<boolean>();
@@ -91,11 +91,11 @@ expectTypeOf(genNonEmpty.removeAll([3, 4])).toEqualTypeOf<G_Empty>();
 expectTypeOf(genEmpty.stream()).toEqualTypeOf<Stream<number>>();
 expectTypeOf(genNonEmpty.stream()).toEqualTypeOf<Stream.NonEmpty<number>>();
 
-// .symDifference(..)
-expectTypeOf(genEmpty.symDifference(genEmpty)).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.symDifference(genEmpty)).toEqualTypeOf<G_Empty>();
-expectTypeOf(genEmpty.symDifference(genNonEmpty)).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.symDifference(genNonEmpty)).toEqualTypeOf<G_Empty>();
+// .symmetricDifference(..)
+expectTypeOf(genEmpty.symmetricDifference(genEmpty)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genNonEmpty.symmetricDifference(genEmpty)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genEmpty.symmetricDifference(genNonEmpty)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genNonEmpty.symmetricDifference(genNonEmpty)).toEqualTypeOf<G_Empty>();
 
 // .toArray()
 expectTypeOf(genEmpty.toArray()).toEqualTypeOf<number[]>();

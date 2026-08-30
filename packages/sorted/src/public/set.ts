@@ -3,12 +3,11 @@ import type { IndexedValuedSortedCollection } from '@rimbu/collection-types/coll
 import type { SetCollection } from '@rimbu/collection-types/set';
 import type { ValuedCollection } from '@rimbu/collection-types/collection/valued';
 import type { IndexedCollection } from '@rimbu/collection-types/collection/indexed';
-import type { RSetBase } from '@rimbu/collection-types/advanced/set/base';
 import type { Comp } from '@rimbu/common/comp';
 import type { IndexRange } from '@rimbu/common/index-range';
 import type { OptLazy } from '@rimbu/common';
 import type { Range } from '@rimbu/common/range';
-import type { Stream, StreamSource } from '@rimbu/stream';
+import type { Stream } from '@rimbu/stream';
 
 import { createSortedSetContextModule } from '#set/context-factory';
 
@@ -54,25 +53,13 @@ export namespace SortedSet {
         range: IndexRange,
         options?: { reversed?: boolean | undefined } | undefined,
       ): Stream<E>;
-      /** @deprecated use `indexOf` */
-      findIndex(value: E): number | undefined;
-      /** @deprecated use `indexOf` */
-      findIndex<O>(value: E, otherwise: OptLazy<O>): number | O;
       lowerBound(value: E): number;
       upperBound(value: E): number;
-      /** @deprecated use `at` */
-      atIndex(index: number): E | undefined;
-      /** @deprecated use `at` */
-      atIndex<O>(index: number, otherwise: OptLazy<O>): E | O;
       /** @deprecated use `slice` */
       sliceIndex(range: IndexRange): Tp['_NORMAL'];
       slice(range: any): Tp['_NORMAL'];
       // comp on instance (08 requirement)
       readonly comp: Comp<E>;
-      /** @deprecated use `intersection` */
-      intersect(other: StreamSource<E>): Tp['_NORMAL'];
-      /** @deprecated use `symmetricDifference` */
-      symDifference(other: StreamSource<E>): Tp['_NORMAL'];
     }
 
     export interface BuilderApi<E, Tp extends Collection.Advanced.TypesBase>
@@ -85,10 +72,6 @@ export namespace SortedSet {
       min<O>(otherwise: OptLazy<O>): E | O;
       max(): E | undefined;
       max<O>(otherwise: OptLazy<O>): E | O;
-      /** @deprecated use `at` */
-      atIndex(index: number): E | undefined;
-      /** @deprecated use `at` */
-      atIndex<O>(index: number, otherwise: OptLazy<O>): E | O;
     }
 
     export interface ContextApi<
@@ -126,17 +109,6 @@ export namespace SortedSet {
       }): Context<E>;
       defaultContext<E>(): Context<E>;
     };
-  }
-
-  /**
-   * @deprecated use Family
-   */
-  // @ts-ignore
-  export interface Types extends RSetBase.Types {
-    readonly normal: SortedSet<this['_T']>;
-    readonly nonEmpty: SortedSet.NonEmpty<this['_T']>;
-    readonly context: SortedSet.Context<this['_T']>;
-    readonly builder: SortedSet.Builder<this['_T']>;
   }
 }
 

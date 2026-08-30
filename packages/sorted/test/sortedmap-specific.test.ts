@@ -364,40 +364,40 @@ function runWith(name: string, context: SortedMap.Context<number>): void {
 		});
 
 		it('findIndex', () => {
-			expect(context.empty().findIndex(5)).toBeUndefined();
+			expect(context.empty().indexOf(5)).toBeUndefined();
 
 			const map = context.from(entries(8, 3, 5, 2));
-			expect(map.findIndex(2)).toBe(0);
-			expect(map.findIndex(3)).toBe(1);
-			expect(map.findIndex(5)).toBe(2);
-			expect(map.findIndex(8)).toBe(3);
-			expect(map.findIndex(10)).toBeUndefined();
-			expect(map.findIndex(5, -1)).toBe(2);
-			expect(map.findIndex(10, -1)).toBe(-1);
+			expect(map.indexOf(2)).toBe(0);
+			expect(map.indexOf(3)).toBe(1);
+			expect(map.indexOf(5)).toBe(2);
+			expect(map.indexOf(8)).toBe(3);
+			expect(map.indexOf(10)).toBeUndefined();
+			expect(map.indexOf(5, -1)).toBe(2);
+			expect(map.indexOf(10, -1)).toBe(-1);
 
 			const largeMap = context.from(
 				Stream.range({ amount: 100 }).map((v) => [v, v]),
 			);
-			expect(largeMap.findIndex(0)).toBe(0);
-			expect(largeMap.findIndex(50)).toBe(50);
-			expect(largeMap.findIndex(99)).toBe(99);
-			expect(largeMap.findIndex(100)).toBeUndefined();
-			expect(largeMap.findIndex(100, -2)).toBe(-2);
+			expect(largeMap.indexOf(0)).toBe(0);
+			expect(largeMap.indexOf(50)).toBe(50);
+			expect(largeMap.indexOf(99)).toBe(99);
+			expect(largeMap.indexOf(100)).toBeUndefined();
+			expect(largeMap.indexOf(100, -2)).toBe(-2);
 
 			for (const key of largeMap.streamKeys()) {
-				expect(largeMap.findIndex(key)).toBe(key);
+				expect(largeMap.indexOf(key)).toBe(key);
 			}
 		});
 
 		it('atIndex', () => {
-			expect(context.empty().atIndex(0)).toBeUndefined();
+			expect(context.empty().at(0)).toBeUndefined();
 
 			const map = context.from(entries(8, 3, 5, 2));
-			expect(map.atIndex(0)).toEqual([2, 2]);
-			expect(map.atIndex(1)).toEqual([3, 3]);
-			expect(map.atIndex(-1)).toEqual([8, 8]);
-			expect(map.atIndex(10)).toBeUndefined();
-			expect(map.atIndex(10, ['q', 0])).toEqual(['q', 0]);
+			expect(map.at(0)).toEqual([2, 2]);
+			expect(map.at(1)).toEqual([3, 3]);
+			expect(map.at(-1)).toEqual([8, 8]);
+			expect(map.at(10)).toBeUndefined();
+			expect(map.at(10, ['q', 0])).toEqual(['q', 0]);
 		});
 
 		it('lowerBound / upperBound', () => {

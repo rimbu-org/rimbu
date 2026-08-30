@@ -111,7 +111,7 @@ describe('SortedEmpty', () => {
 		const empty = new SortedEmpty();
 		expect(empty.min(1)).toBe(1);
 		expect(empty.max(1)).toBe(1);
-		expect(empty.atIndex(10, 1)).toBe(1);
+		expect(empty.at(10, 1)).toBe(1);
 		expect(empty.take()).toBe(empty);
 		expect(empty.drop()).toBe(empty);
 		expect(empty.sliceIndex()).toBe(empty);

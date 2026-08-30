@@ -47,15 +47,15 @@ expectTypeOf(genNonEmpty[Symbol.iterator]()).toEqualTypeOf<
 	FastIterator<readonly [number, string]>
 >();
 
-// .addEntries(..)
-expectTypeOf(genEmpty.addEntries(genEmpty)).toEqualTypeOf<G_Empty>();
-expectTypeOf(genEmpty.addEntries(genNonEmpty)).toEqualTypeOf<G_NonEmpty>();
-expectTypeOf(genNonEmpty.addEntries(genEmpty)).toEqualTypeOf<G_NonEmpty>();
-expectTypeOf(genNonEmpty.addEntries(genNonEmpty)).toEqualTypeOf<G_NonEmpty>();
+// .addAll(..)
+expectTypeOf(genEmpty.addAll(genEmpty)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genEmpty.addAll(genNonEmpty)).toEqualTypeOf<G_NonEmpty>();
+expectTypeOf(genNonEmpty.addAll(genEmpty)).toEqualTypeOf<G_NonEmpty>();
+expectTypeOf(genNonEmpty.addAll(genNonEmpty)).toEqualTypeOf<G_NonEmpty>();
 
-// .addEntry(..)
-expectTypeOf(genEmpty.addEntry([1, 'a'])).toEqualTypeOf<G_NonEmpty>();
-expectTypeOf(genNonEmpty.addEntry([1, 'a'])).toEqualTypeOf<G_NonEmpty>();
+// .add(..)
+expectTypeOf(genEmpty.add([1, 'a'])).toEqualTypeOf<G_NonEmpty>();
+expectTypeOf(genNonEmpty.add([1, 'a'])).toEqualTypeOf<G_NonEmpty>();
 
 // .assumeNonEmpty()
 expectTypeOf(genEmpty.assumeNonEmpty()).toEqualTypeOf<G_NonEmpty>();
@@ -69,12 +69,12 @@ expectTypeOf(genNonEmpty.context).toEqualTypeOf<SortedMap.Context<number>>();
 expectTypeOf(genEmpty.filter(() => true)).toEqualTypeOf<G_Empty>();
 expectTypeOf(genNonEmpty.filter(() => true)).toEqualTypeOf<G_Empty>();
 
-// .at(..)
-expectTypeOf(genEmpty.at(2, 'a')).toEqualTypeOf<string>();
-expectTypeOf(genNonEmpty.at(2, 'a')).toEqualTypeOf<string>();
+// .get(..)
+expectTypeOf(genEmpty.get(2, 'a')).toEqualTypeOf<string>();
+expectTypeOf(genNonEmpty.get(2, 'a')).toEqualTypeOf<string>();
 
-expectTypeOf(genEmpty.at(2, true as boolean)).toEqualTypeOf<string | boolean>();
-expectTypeOf(genNonEmpty.at(2, true as boolean)).toEqualTypeOf<
+expectTypeOf(genEmpty.get(2, true as boolean)).toEqualTypeOf<string | boolean>();
+expectTypeOf(genNonEmpty.get(2, true as boolean)).toEqualTypeOf<
 	string | boolean
 >();
 
@@ -90,9 +90,9 @@ expectTypeOf(genNonEmpty.mapValues(() => true as boolean)).toEqualTypeOf<
 	GNE<number, boolean>
 >();
 
-// .modifyAt(..)
-expectTypeOf(genEmpty.modifyAt(2, {})).toEqualTypeOf<GE<number, string>>();
-expectTypeOf(genNonEmpty.modifyAt(2, {})).toEqualTypeOf<GE<number, string>>();
+// .modifyAtKey(..)
+expectTypeOf(genEmpty.modifyAtKey(2, {})).toEqualTypeOf<GE<number, string>>();
+expectTypeOf(genNonEmpty.modifyAtKey(2, {})).toEqualTypeOf<GE<number, string>>();
 
 // .nonEmpty()
 expectTypeOf(genEmpty.nonEmpty()).toEqualTypeOf<boolean>();
@@ -102,11 +102,11 @@ expectTypeOf(genNonEmpty.nonEmpty()).toEqualTypeOf<boolean>();
 expectTypeOf(genEmpty.removeKey(3)).toEqualTypeOf<G_Empty>();
 expectTypeOf(genNonEmpty.removeKey(3)).toEqualTypeOf<G_Empty>();
 
-// .removeKeyAndGet(..)
-expectTypeOf(genEmpty.removeKeyAndGet(3)).toEqualTypeOf<
+// .removeKeyAndReturn(..)
+expectTypeOf(genEmpty.removeKeyAndReturn(3)).toEqualTypeOf<
 	WithValueResult<G_Empty, string>
 >();
-expectTypeOf(genNonEmpty.removeKeyAndGet(3)).toEqualTypeOf<
+expectTypeOf(genNonEmpty.removeKeyAndReturn(3)).toEqualTypeOf<
 	WithValueResult<G_Empty, string>
 >();
 
@@ -150,9 +150,9 @@ expectTypeOf(genNonEmpty.toBuilder()).toEqualTypeOf<
 	SortedMap.Builder<number, string>
 >();
 
-// .updateAt(..)
-expectTypeOf(genEmpty.updateAt(2, () => 'b')).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.updateAt(2, () => 'b')).toEqualTypeOf<G_NonEmpty>();
+// .updateAtKey(..)
+expectTypeOf(genEmpty.updateAtKey(2, () => 'b')).toEqualTypeOf<G_Empty>();
+expectTypeOf(genNonEmpty.updateAtKey(2, () => 'b')).toEqualTypeOf<G_NonEmpty>();
 
 // From Builder
 expectTypeOf(genEmpty.toBuilder().build()).toEqualTypeOf<G_Empty>();

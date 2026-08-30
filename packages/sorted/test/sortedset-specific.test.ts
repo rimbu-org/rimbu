@@ -295,26 +295,26 @@ function runWith(name: string, context: SortedSet.Context<number>): void {
 		});
 
 		it('findIndex', () => {
-			expect(context.empty().findIndex(5)).toBeUndefined();
+			expect(context.empty().indexOf(5)).toBeUndefined();
 
 			const set = context.of<number>(8, 3, 5, 2);
-			expect(set.findIndex(2)).toBe(0);
-			expect(set.findIndex(3)).toBe(1);
-			expect(set.findIndex(5)).toBe(2);
-			expect(set.findIndex(8)).toBe(3);
-			expect(set.findIndex(10)).toBeUndefined();
-			expect(set.findIndex(5, -1)).toBe(2);
-			expect(set.findIndex(10, -1)).toBe(-1);
+			expect(set.indexOf(2)).toBe(0);
+			expect(set.indexOf(3)).toBe(1);
+			expect(set.indexOf(5)).toBe(2);
+			expect(set.indexOf(8)).toBe(3);
+			expect(set.indexOf(10)).toBeUndefined();
+			expect(set.indexOf(5, -1)).toBe(2);
+			expect(set.indexOf(10, -1)).toBe(-1);
 
 			const largeSet = context.from(Stream.range({ amount: 100 }));
-			expect(largeSet.findIndex(0)).toBe(0);
-			expect(largeSet.findIndex(50)).toBe(50);
-			expect(largeSet.findIndex(99)).toBe(99);
-			expect(largeSet.findIndex(100)).toBeUndefined();
-			expect(largeSet.findIndex(100, -2)).toBe(-2);
+			expect(largeSet.indexOf(0)).toBe(0);
+			expect(largeSet.indexOf(50)).toBe(50);
+			expect(largeSet.indexOf(99)).toBe(99);
+			expect(largeSet.indexOf(100)).toBeUndefined();
+			expect(largeSet.indexOf(100, -2)).toBe(-2);
 
 			for (const value of largeSet) {
-				expect(largeSet.findIndex(value)).toBe(value);
+				expect(largeSet.indexOf(value)).toBe(value);
 			}
 		});
 
