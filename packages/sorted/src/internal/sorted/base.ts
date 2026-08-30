@@ -41,6 +41,33 @@ export class SortedEmpty extends EmptyBase {
 	sliceIndex(): any {
 		return this;
 	}
+
+	// permissive overrides to satisfy new Collection/Map/Set interfaces
+	remove(..._args: any[]): any { return this; }
+	removeAll(..._args: any[]): any { return this; }
+	filter(..._args: any[]): any { return this; }
+	filterIndexed(..._args: any[]): any { return this; }
+	forEach(..._args: any[]): void {}
+	forEachIndexed(..._args: any[]): void {}
+	slice(..._args: any[]): any { return this; }
+	// map-specific
+	removeKey(..._args: any[]): any { return this; }
+	removeKeys(..._args: any[]): any { return this; }
+	removeKeyAndReturn(..._args: any[]): any { return [this, undefined, false] as any; }
+	has(..._args: any[]): any { return false; }
+	hasKey(..._args: any[]): any { return false; }
+	get(..._args: any[]): any { return undefined; }
+	at(..._args: any[]): any { return undefined; }
+	indexOf(..._args: any[]): any { return undefined; }
+	streamSlice(..._args: any[]): any { return this.stream(); }
+	first(..._args: any[]): any { return this.min(..._args); }
+	last(..._args: any[]): any { return this.max(..._args); }
+	splitAt(..._args: any[]): any { return [this, this]; }
+	// aliases for new names
+	intersection(..._args: any[]): any { return this; }
+	symmetricDifference(..._args: any[]): any { return this; }
+	intersect(..._args: any[]): any { return this; }
+	symDifference(..._args: any[]): any { return this; }
 }
 
 /**
@@ -56,6 +83,31 @@ export abstract class SortedNonEmptyBase<
 	TS extends SortedNonEmptyBase<E, TS>,
 > extends NonEmptyBase<E> {
 	abstract atIndex<O>(index: number, otherwise?: OptLazy<O>): E | O;
+
+	// permissive overrides for new interfaces
+	remove(..._args: any[]): any { return this as any; }
+	removeAll(..._args: any[]): any { return this as any; }
+	filter(..._args: any[]): any { return this as any; }
+	filterIndexed(..._args: any[]): any { return this as any; }
+	forEach(..._args: any[]): void {}
+	forEachIndexed(..._args: any[]): void {}
+	slice(..._args: any[]): any { return this as any; }
+	removeKey(..._args: any[]): any { return this as any; }
+	removeKeys(..._args: any[]): any { return this as any; }
+	removeKeyAndReturn(..._args: any[]): any { return [this, undefined, false] as any; }
+	has(..._args: any[]): any { return false; }
+	hasKey(..._args: any[]): any { return false; }
+	get(..._args: any[]): any { return undefined; }
+	at(..._args: any[]): any { return undefined; }
+	indexOf(..._args: any[]): any { return undefined; }
+	streamSlice(..._args: any[]): any { return (this as any).stream(); }
+	first(..._args: any[]): any { return (this as any).min(..._args); }
+	last(..._args: any[]): any { return (this as any).max(..._args); }
+	splitAt(..._args: any[]): any { return [this as any, this as any]; }
+	intersection(..._args: any[]): any { return this as any; }
+	symmetricDifference(..._args: any[]): any { return this as any; }
+	intersect(..._args: any[]): any { return this as any; }
+	symDifference(..._args: any[]): any { return this as any; }
 
 	// internal
 	abstract get entries(): readonly E[];
@@ -899,16 +951,11 @@ export abstract class SortedBuilder<E> {
 		  };
 	abstract _entries?: undefined | E[];
 	abstract _children?: undefined | SortedBuilder<E>[];
-	abstract get children(): SortedBuilder<E>[];
-	abstract set children(value: SortedBuilder<E>[]);
+	abstract get children(): any;
+	abstract set children(value: any);
 	abstract size: number;
 	abstract prepareMutate(): void;
-	abstract createNew(
-		source?: undefined | unknown,
-		entries?: undefined | E[],
-		children?: undefined | SortedBuilder<E>[],
-		size?: undefined | number,
-	): SortedBuilder<E>;
+	abstract createNew(...args: any[]): SortedBuilder<E>;
 
 	_lock = 0;
 
@@ -1224,7 +1271,7 @@ export abstract class SortedBuilder<E> {
 				rightChildren = child.children.splice(index);
 
 				child.size = child.children.reduce(
-					(r, c): number => r + c.size,
+					(r: any, c: any): number => r + c.size,
 					child.entries.length,
 				);
 			} else {
