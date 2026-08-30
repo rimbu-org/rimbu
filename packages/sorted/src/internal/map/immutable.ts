@@ -1,4 +1,3 @@
-// @ts-nocheck
 import type {
 	ArrayNonEmpty,
 	RelatedTo,
@@ -158,12 +157,18 @@ export class SortedMapEmpty<K = any, V = any>
 		return 0;
 	}
 
-	nextEntry(): undefined {
-		return undefined;
+	nextEntry<O>(
+		_key: K,
+		options?: { inclusive?: boolean; otherwise?: OptLazy<O> },
+	): O | readonly [K, V] {
+		return OptLazy(options?.otherwise) as O;
 	}
 
-	previousEntry(): undefined {
-		return undefined;
+	previousEntry<O>(
+		_key: K,
+		options?: { inclusive?: boolean; otherwise?: OptLazy<O> },
+	): O | readonly [K, V] {
+		return OptLazy(options?.otherwise) as O;
 	}
 
 	set(key: K, value: V): SortedMap.NonEmpty<K, V> {
@@ -235,9 +240,6 @@ export class SortedMapEmpty<K = any, V = any>
 	}
 	updateAtKey(...args: any[]): any {
 		return (this as any).updateAt(...args);
-	}
-	updateAtKeyAndReturn(...args: any[]): any {
-		return (this as any).updateAtAndGet(...args);
 	}
 
 	transform<V2, K2 extends K>(
@@ -564,7 +566,7 @@ export abstract class SortedMapNode<K, V>
 		let removed: V | typeof token = token;
 		const newMap = this.modifyAt(key as K, {
 			ifExists: {
-				update: (value: V, remove: typeof token): any => {
+				update: (value: V, remove: any): any => {
 					removed = value;
 					return remove;
 				},
@@ -613,7 +615,7 @@ export abstract class SortedMapNode<K, V>
 				hasChanged: false,
 			};
 		}
-		const hasChanged = newMap !== this;
+		const hasChanged = (newMap as unknown) !== (this as unknown);
 		return {
 			collection: newMap,
 			hasResult: true,

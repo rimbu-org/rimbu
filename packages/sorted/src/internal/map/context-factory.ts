@@ -1,4 +1,3 @@
-// @ts-nocheck
 import type { SortedMap } from '@rimbu/sorted/map';
 
 import { Comp } from '@rimbu/common/comp';
@@ -35,7 +34,7 @@ export class SortedMapContext<UK>
   constructor(
     readonly _comp: Comp<UK> | undefined = undefined,
     readonly blockSizeBits: number = 5,
-    readonly getDefaultInstance: () => SortedMapContext<any> = () => this as any,
+    readonly getDefaultInstance: () => SortedMapContext<any> = () => this as unknown as SortedMapContext<any>,
   ) {
     super();
     this.maxEntries = 1 << blockSizeBits;
@@ -53,8 +52,8 @@ export class SortedMapContext<UK>
     return 'SortedMap';
   }
 
-  defaultContext<T>(): SortedMap.Context<T> {
-    return this.getDefaultInstance() as any;
+  get defaultContext(): SortedMap.Context<UK> {
+    return this.getDefaultInstance() as unknown as SortedMap.Context<UK>;
   }
 
   createContext = <K>(options: {
@@ -62,10 +61,10 @@ export class SortedMapContext<UK>
     blockSizeBits?: number | undefined;
   } = {}): SortedMap.Context<K> => {
     return new SortedMapContext<K>(
-      (options as any)?.comp as any,
-      (options as any)?.blockSizeBits ?? this.blockSizeBits,
-      this.getDefaultInstance as any,
-    ) as any;
+      options.comp as Comp<K> | undefined,
+      options.blockSizeBits ?? this.blockSizeBits,
+      this.getDefaultInstance as unknown as () => SortedMapContext<any>,
+    ) as unknown as SortedMap.Context<K>;
   };
 
   #keyedContext: SortedMapKeyedContext<UK> | undefined;
@@ -98,7 +97,7 @@ export class SortedMapContext<UK>
   }
 
   leaf<V>(entries: readonly (readonly [UK, V])[]): SortedMapLeaf<UK, V> {
-    return new SortedMapLeaf<UK, V>(this as any, entries);
+    return new SortedMapLeaf<UK, V>(this as unknown as SortedMapContext<UK>, entries);
   }
 
   inner<V>(
@@ -106,7 +105,7 @@ export class SortedMapContext<UK>
     children: readonly SortedMapNode<UK, V>[],
     size: number,
   ): SortedMapInner<UK, V> {
-    return new SortedMapInner(this as any, entries, children, size);
+    return new SortedMapInner(this as unknown as SortedMapContext<UK>, entries, children, size);
   }
 
   isSortedMapEmpty(obj: unknown): obj is SortedMapEmpty {
@@ -121,7 +120,9 @@ export class SortedMapContext<UK>
     return obj instanceof SortedMapInner;
   }
 
-  isNonEmptyInstance<K, V>(source: unknown): source is SortedMap.NonEmpty<K, V> {
+  isNonEmptyInstance<E extends readonly [UK, any]>(
+    source: unknown,
+  ): source is SortedMap.NonEmpty<E[0], E[1]> {
     return source instanceof SortedMapNode;
   }
 
@@ -130,34 +131,36 @@ export class SortedMapContext<UK>
   }
 
   #empty: SortedMap<UK, any> | undefined;
-  empty = <K extends UK, V>(): SortedMap<K, V> => {
+  empty = <E extends readonly [UK, any]>(): SortedMap<E[0], E[1]> => {
     if (undefined === this.#empty) {
-      this.#empty = Object.freeze(new SortedMapEmpty<any, any>(this as any));
+      this.#empty = Object.freeze(
+        new SortedMapEmpty<any, any>(this as unknown as SortedMapContext<any>),
+      ) as unknown as SortedMap<UK, any>;
     }
-    return this.#empty as unknown as SortedMap<K, V>;
+    return this.#empty as unknown as SortedMap<E[0], E[1]>;
   };
 
-  builder = <K extends UK, V>(): SortedMap.Builder<K, V> => {
-    return new SortedMapBuilder<K, V>(this as any);
+  builder = <E extends readonly [UK, any]>(): SortedMap.Builder<E[0], E[1]> => {
+    return new SortedMapBuilder<E[0], E[1]>(this as unknown as SortedMapContext<E[0]>);
   };
 
   createBuilder<K extends UK, V>(source?: SortedMap<K, V>): SortedMapBuilder<K, V> {
-    return new SortedMapBuilder<K, V>(this as any, source as any);
+    return new SortedMapBuilder<K, V>(this as unknown as SortedMapContext<K>, source as SortedMap<K, V>);
   }
 
-  reducer = <K extends UK, V>(
-    source?: StreamSource<readonly [K, V]>,
-  ): Reducer<readonly [K, V], SortedMap<K, V>> => {
+  reducer = <E extends readonly [UK, any]>(
+    source?: StreamSource<E>,
+  ): Reducer<E, SortedMap<E[0], E[1]>> => {
     return Reducer.create(
       () =>
         undefined === source
-          ? this.builder<K, V>()
-          : (this.from(source as any) as SortedMap<K, V>).toBuilder(),
+          ? this.builder<E>()
+          : (this.from(source as StreamSource<E>) as unknown as SortedMap<E[0], E[1]>).toBuilder(),
       (builder, entry) => {
-        builder.add(entry);
+        builder.add(entry as unknown as E);
         return builder;
       },
-      (builder) => builder.build(),
+      (builder) => builder.build() as unknown as SortedMap<E[0], E[1]>,
     );
   };
 }
@@ -167,28 +170,26 @@ export class SortedMapKeyedContext<UK>
   implements SortedMap.Advanced.KeyedContextApi<UK, SortedMap.Advanced.Family<UK, any>>
 {
   constructor(readonly context: SortedMapContext<UK>) {
-    super(context as any);
+    super(context as unknown as SortedMap.Context<any>);
   }
 
-  get collectionContext(): SortedMap.Context<UK> {
-    return this.context as any;
-  }
-
-  defaultContext<T>(): SortedMap.Context<T> {
-    return (this.context as any).defaultContext() as any;
+  get defaultContext(): SortedMap.Context<any> {
+    return this.context.defaultContext as unknown as SortedMap.Context<any>;
   }
 
   createContext = <K>(options: {
     comp?: Comp<K> | undefined;
     blockSizeBits?: number | undefined;
   }): SortedMap.Context<K> => {
-    return this.context.createContext(options) as any;
+    return this.context.createContext(options) as unknown as SortedMap.Context<K>;
   };
 
   get reducer(): <K, V>(
     source?: StreamSource<readonly [K, V]>,
   ) => Reducer<readonly [K, V], SortedMap<K, V>> {
-    return this.context.reducer as any;
+    return this.context.reducer as unknown as <K, V>(
+      source?: StreamSource<readonly [K, V]>,
+    ) => Reducer<readonly [K, V], SortedMap<K, V>>;
   }
 
   mergeAllWith = (
@@ -196,7 +197,7 @@ export class SortedMapKeyedContext<UK>
     options: { fillValue?: any; merge: (key: UK, values: any) => any },
   ): SortedMap.NonEmpty<UK, any> => {
     const { fillValue = undefined, merge: mergeFun } = options;
-    const builder = (this as any).builder<UK, any[]>();
+    const builder = (this as unknown as SortedMap.Advanced.KeyedContextApi<UK, SortedMap.Advanced.Family<UK, any>>).builder<UK, any[]>();
     let i = -1;
     const length = sources.length;
     while (++i < sources.length) {
@@ -216,7 +217,7 @@ export class SortedMapKeyedContext<UK>
           },
           ifExists: {
             update: (row: unknown[]): unknown[] => {
-              (row as any)[index] = value;
+              (row as unknown as unknown[])[index] = value;
               return row;
             },
           },
@@ -241,10 +242,10 @@ export class SortedMapKeyedContext<UK>
     options: { merge: (key: UK, values: any) => any },
   ): SortedMap<UK, any> => {
     if (Stream.from(sources).some(Stream.isEmptyStreamSourceInstance)) {
-      return (this as any).empty();
+      return (this as unknown as SortedMap.Advanced.KeyedContextApi<UK, SortedMap.Advanced.Family<UK, any>>).empty();
     }
     const { merge: mergeFun } = options;
-    const builder = (this as any).builder<UK, unknown[]>();
+    const builder = (this as unknown as SortedMap.Advanced.KeyedContextApi<UK, SortedMap.Advanced.Family<UK, any>>).builder<UK, unknown[]>();
     let i = -1;
     const length = sources.length;
     while (++i < sources.length) {
@@ -307,14 +308,15 @@ export function createSortedMapContextModule<UK>(
   } = {},
   _defaultContext?: SortedMap.Context<UK> | undefined,
 ): Module<SortedMapKeyedContext<UK>> {
-  const context = new SortedMapContext<UK>(
-    (options as any)?.comp,
-    (options as any)?.blockSizeBits ?? 5,
-    () => (_defaultContext as any) ?? context,
+  let context!: SortedMapContext<UK>;
+  context = new SortedMapContext<UK>(
+    options.comp as Comp<UK> | undefined,
+    options.blockSizeBits ?? 5,
+    () => (_defaultContext as unknown as SortedMapContext<UK>) ?? context,
   );
   const keyedContext = context.keyedContext;
   return {
-    getDefinition: () => ({} as any),
+    getDefinition: () => ({} as unknown as ReturnType<Module<SortedMapKeyedContext<UK>>['getDefinition']>),
     build: () => keyedContext,
-  } as any;
+  } as unknown as Module<SortedMapKeyedContext<UK>>;
 }

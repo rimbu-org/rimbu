@@ -1,4 +1,3 @@
-// @ts-nocheck
 import type { RelatedTo } from '@rimbu/common/types';
 import type { SortedMap } from '@rimbu/sorted/map';
 
@@ -160,11 +159,7 @@ export class SortedMapBuilder<K, V>
 	indexOf = (key: any, otherwise?: any): any => {
 		if (undefined !== this.source) return (this.source as any).indexOf(key, otherwise);
 		let found: number | undefined;
-// @ts-ignore
-		let idx = 0;
 		let halted = false;
-// @ts-ignore
-		const halt = () => { halted = true; };
 		this.forEachIndexed((entry: any, i: number, h: any) => {
 			if (halted) return;
 			if (Object.is(entry[0], key) || this.context.comp.compare(entry[0], key) === 0) {
@@ -348,23 +343,20 @@ export class SortedMapBuilder<K, V>
 		if (undefined !== this.source) return this.source;
 		if (this.size === 0) return this.context.empty();
 		if (!this.hasChildren) {
-// @ts-ignore
-			return this.context.leaf(this.entries.slice());
+			return this.context.leaf(this.entries.slice()) as unknown as SortedMap<K, V>;
 		}
-// @ts-ignore
 		return this.context.inner(
 			this.entries.slice(),
 			this.children.map(
-// @ts-ignore
-				(child): SortedMapNode<K, V> => child.build() as SortedMapNode<K, V>,
+				(child): SortedMapNode<K, V> => child.build() as unknown as SortedMapNode<K, V>,
 			),
 			this.size,
-		);
+		) as unknown as SortedMap<K, V>;
 	};
 
 	buildMapValues = <V2>(f: (value: V, key: K) => V2): SortedMap<K, V2> => {
-// @ts-ignore
-		if (undefined !== this.source) return this.source.mapValues(f);
+		// @ts-ignore - V2 generic variance
+		if (undefined !== this.source) return this.source.mapValues(f as unknown as (value: V, key: K) => V) as unknown as SortedMap<K, V2>;
 		if (this.size === 0) return this.context.empty();
 
 		const newEntries = this.entries.map((entry): [K, V2] => [
@@ -373,20 +365,17 @@ export class SortedMapBuilder<K, V>
 		]);
 
 		if (!this.hasChildren) {
-// @ts-ignore
-			return this.context.leaf(newEntries);
+			return this.context.leaf(newEntries) as unknown as SortedMap<K, V2>;
 		}
 
-// @ts-ignore
 		return this.context.inner(
 			newEntries,
 			this.children.map(
 				(c): SortedMapNode<K, V2> =>
-// @ts-ignore
-					c.buildMapValues(f) as SortedMapNode<K, V2>,
+					c.buildMapValues(f) as unknown as SortedMapNode<K, V2>,
 			),
 			this.size,
-		);
+		) as unknown as SortedMap<K, V2>;
 	};
 
 	addEntryInternal(entry: readonly [K, V]): boolean {

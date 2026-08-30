@@ -1,9 +1,8 @@
-// @ts-nocheck
 import type { SortedSet } from '@rimbu/sorted/set';
 
 import { Comp } from '@rimbu/common/comp';
 import { ContextBaseWithAddAll } from '@rimbu/collection-types/advanced/collection-base';
-import { Stream, type StreamSource } from '@rimbu/stream';
+import { type StreamSource } from '@rimbu/stream';
 import { Reducer } from '@rimbu/stream/reducer';
 import { Module } from '@rimbu/common/module';
 
@@ -34,7 +33,7 @@ export class SortedSetContext<UT>
   constructor(
     readonly _comp: Comp<UT> | undefined = undefined,
     readonly blockSizeBits: number = 5,
-    readonly getDefaultInstance: () => SortedSetContext<any> = () => this as any,
+    readonly getDefaultInstance: () => SortedSetContext<any> = () => this as unknown as SortedSetContext<any>,
   ) {
     super();
     this.maxEntries = 1 << blockSizeBits;
@@ -52,8 +51,8 @@ export class SortedSetContext<UT>
     return 'SortedSet';
   }
 
-  defaultContext<T>(): SortedSet.Context<T> {
-    return this.getDefaultInstance() as any;
+  get defaultContext(): SortedSet.Context<UT> {
+    return this.getDefaultInstance() as unknown as SortedSet.Context<UT>;
   }
 
   createContext = <T>(options: {
@@ -61,10 +60,10 @@ export class SortedSetContext<UT>
     blockSizeBits?: number | undefined;
   } = {}): SortedSet.Context<T> => {
     return new SortedSetContext<T>(
-      (options as any)?.comp as any,
-      (options as any)?.blockSizeBits ?? this.blockSizeBits,
-      this.getDefaultInstance as any,
-    ) as any;
+      options.comp as Comp<T> | undefined,
+      options.blockSizeBits ?? this.blockSizeBits,
+      this.getDefaultInstance as unknown as () => SortedSetContext<any>,
+    ) as unknown as SortedSet.Context<T>;
   };
 
   isValidValue(value: unknown): value is UT {
@@ -88,7 +87,7 @@ export class SortedSetContext<UT>
   }
 
   leaf(entries: readonly UT[]): SortedSetLeaf<UT> {
-    return new SortedSetLeaf(this as any, entries);
+    return new SortedSetLeaf(this as unknown as SortedSetContext<UT>, entries);
   }
 
   inner(
@@ -96,7 +95,7 @@ export class SortedSetContext<UT>
     children: readonly SortedSetNode<UT>[],
     size: number,
   ): SortedSetInner<UT> {
-    return new SortedSetInner(this as any, entries, children, size);
+    return new SortedSetInner(this as unknown as SortedSetContext<UT>, entries, children, size);
   }
 
   isSortedSetEmpty(obj: unknown): obj is SortedSetEmpty<UT> {
@@ -122,7 +121,7 @@ export class SortedSetContext<UT>
   #empty: SortedSet<UT> | undefined;
   empty = <T extends UT>(): SortedSet<T> => {
     if (undefined === this.#empty) {
-      this.#empty = Object.freeze(new SortedSetEmpty<T>(this as unknown as SortedSetContext<T>));
+      this.#empty = Object.freeze(new SortedSetEmpty<T>(this as unknown as SortedSetContext<T>)) as unknown as SortedSet<UT>;
     }
     return this.#empty as unknown as SortedSet<T>;
   };
@@ -132,7 +131,7 @@ export class SortedSetContext<UT>
   };
 
   createBuilder<T extends UT>(source?: SortedSet<T>): SortedSet.Builder<T> {
-    return new SortedSetBuilder<T>(this as unknown as SortedSetContext<T>, source as any);
+    return new SortedSetBuilder<T>(this as unknown as SortedSetContext<T>, source as SortedSet<T>);
   }
 
   reducer = <E extends UT>(
@@ -142,7 +141,7 @@ export class SortedSetContext<UT>
       () =>
         undefined === source
           ? this.builder<E>()
-          : (this.from(source as any) as SortedSet<E>).toBuilder(),
+          : (this.from(source as StreamSource<E>) as SortedSet<E>).toBuilder(),
       (builder, element) => {
         builder.add(element);
         return builder;
@@ -161,13 +160,14 @@ export function createSortedSetContextModule<UT>(
   } = {},
   _defaultContext?: SortedSet.Context<UT> | undefined,
 ): Module<SortedSetContext<UT>> {
-  const context = new SortedSetContext<UT>(
-    (options as any)?.comp,
-    (options as any)?.blockSizeBits ?? 5,
-    () => (_defaultContext as any) ?? context,
+  let context!: SortedSetContext<UT>;
+  context = new SortedSetContext<UT>(
+    options.comp as Comp<UT> | undefined,
+    options.blockSizeBits ?? 5,
+    () => (_defaultContext as unknown as SortedSetContext<UT>) ?? context,
   );
   return {
-    getDefinition: () => ({} as any),
+    getDefinition: () => ({} as unknown as ReturnType<Module<SortedSetContext<UT>>['getDefinition']>),
     build: () => context,
-  } as any;
+  } as unknown as Module<SortedSetContext<UT>>;
 }

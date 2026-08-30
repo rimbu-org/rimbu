@@ -1,4 +1,3 @@
-// @ts-nocheck
 import type { RelatedTo } from '@rimbu/common/types';
 import type { SortedSet } from '@rimbu/sorted/set';
 
