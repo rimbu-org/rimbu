@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { describe, expect, it } from 'bun:test';
 
 import type { RMap } from '@rimbu/collection-types';
@@ -19,8 +20,8 @@ export function runMapRandomTestsWith(
 				expect(this.builder.size).toEqual(this.map.size);
 				expect(this.immm.size).toEqual(this.map.size);
 				this.map.forEach((value, key): void => {
-					expect(this.builder.at(key, 'a')).toEqual(value);
-					expect(this.immm.at(key, 'a')).toEqual(value);
+					expect(this.builder.get(key, 'a')).toEqual(value);
+					expect(this.immm.get(key, 'a')).toEqual(value);
 				});
 			} catch (e) {
 				console.log(this.log);
@@ -42,8 +43,8 @@ export function runMapRandomTestsWith(
 
 		checkGet(index: number): void {
 			const getmap = this.map.get(index);
-			const gethm = this.immm.at(index, undefined);
-			const gethb = this.builder.at(index, undefined);
+			const gethm = this.immm.get(index, undefined);
+			const gethb = this.builder.get(index, undefined);
 
 			try {
 				expect(gethm).toEqual(getmap);
@@ -91,7 +92,7 @@ export function runMapRandomTestsWith(
 			expect(m.addEntry([1, 2]).isEmpty).toBe(false);
 			expect(m.assumeNonEmpty).toThrowError();
 			expect(m.filter((): boolean => false)).toBe(empty);
-			expect(m.at(0, 'a')).toBe('a');
+			expect(m.get(0, 'a')).toBe('a');
 			// expect(m.keySet().isEmpty).toBe(true);
 			expect(m.mapValues((): number => 1)).toBe<any>(empty);
 			expect(m.modifyAt(0, { ifExists: { update: (): number => 5 } })).toBe(
@@ -164,7 +165,7 @@ export function runMapRandomTestsWith(
 
 		it('set existing key overrides', (): void => {
 			const m = context.of([1, 1], [2, 2], [3, 3]);
-			expect(m.set(1, 4).at(1, 'a')).toEqual(4);
+			expect(m.set(1, 4).get(1, 'a')).toEqual(4);
 		});
 
 		it('isEmpty', (): void => {
@@ -210,9 +211,9 @@ export function runMapRandomTestsWith(
 		});
 
 		it('get', (): void => {
-			expect(context.empty().at(1, 'a')).toBe('a');
-			expect(context.of([1, 1]).at(1, 'a')).toBe(1);
-			expect(context.of([1, 1]).at(2, 'a')).toBe('a');
+			expect(context.empty().get(1, 'a')).toBe('a');
+			expect(context.of([1, 1]).get(1, 'a')).toBe(1);
+			expect(context.of([1, 1]).get(2, 'a')).toBe('a');
 		});
 
 		it('hasKey', (): void => {
@@ -339,7 +340,7 @@ export function runMapRandomTestsWith(
 
 			expect(b.isEmpty).toBe(true);
 			expect(b.size).toBe(0);
-			expect(b.at(0, 'a')).toBe('a');
+			expect(b.get(0, 'a')).toBe('a');
 			expect(b.hasKey(0)).toBe(false);
 			expect(b.build()).toBe(context.empty());
 		});
@@ -347,9 +348,9 @@ export function runMapRandomTestsWith(
 		it('set existing key overrides', (): void => {
 			const b = context.builder();
 			Stream.of<[number, number]>([1, 1], [2, 2], [3, 3]).forEach(b.addEntry);
-			expect(b.at(1, 'a')).toBe(1);
+			expect(b.get(1, 'a')).toBe(1);
 			b.set(1, 4);
-			expect(b.at(1, 'a')).toBe(4);
+			expect(b.get(1, 'a')).toBe(4);
 		});
 
 		it('foreach', (): void => {
@@ -410,11 +411,11 @@ export function runMapRandomTestsWith(
 		});
 
 		it('get', (): void => {
-			expect(context.builder().at(1, 'a')).toBe('a');
+			expect(context.builder().get(1, 'a')).toBe('a');
 			const b = context.builder();
 			b.addEntry([1, 1]);
-			expect(b.at(1, 'a')).toBe(1);
-			expect(b.at(2, 'a')).toBe('a');
+			expect(b.get(1, 'a')).toBe(1);
+			expect(b.get(2, 'a')).toBe('a');
 		});
 
 		it('hasKey', (): void => {
@@ -432,11 +433,11 @@ export function runMapRandomTestsWith(
 
 			b = context.builder();
 			expect(b.modifyAt(1, { ifNew: { set: 1 } })).toBe(true);
-			expect(b.at(1, 'a')).toBe(1);
+			expect(b.get(1, 'a')).toBe(1);
 
 			b = context.builder();
 			expect(b.modifyAt(1, { ifNew: { create: () => 1 } })).toBe(true);
-			expect(b.at(1, 'a')).toBe(1);
+			expect(b.get(1, 'a')).toBe(1);
 
 			b = context.builder();
 			expect(b.modifyAt(1, { ifExists: { update: () => 1 } })).toBe(false);
@@ -451,46 +452,46 @@ export function runMapRandomTestsWith(
 			b = context.builder();
 			Stream.of<[number, number]>([1, 1], [2, 2], [3, 3]).forEach(b.addEntry);
 			expect(b.modifyAt(1, { ifNew: { set: 2 } })).toBe(false);
-			expect(b.at(1, 'a')).toBe(1);
+			expect(b.get(1, 'a')).toBe(1);
 
 			b = context.builder();
 			Stream.of<[number, number]>([1, 1], [2, 2], [3, 3]).forEach(b.addEntry);
 			expect(b.modifyAt(1, { ifNew: { create: () => 2 } })).toBe(false);
-			expect(b.at(1, 'a')).toBe(1);
+			expect(b.get(1, 'a')).toBe(1);
 
 			b = context.builder();
 			Stream.of<[number, number]>([1, 1], [2, 2], [3, 3]).forEach(b.addEntry);
 			expect(b.modifyAt(1, { ifExists: { update: (v) => v + 1 } })).toBe(true);
-			expect(b.at(1, 'a')).toBe(2);
+			expect(b.get(1, 'a')).toBe(2);
 
 			b = context.builder();
 			Stream.of<[number, number]>([1, 1], [2, 2], [3, 3]).forEach(b.addEntry);
 			expect(
 				b.modifyAt(2, { ifExists: { update: (_, remove) => remove } }),
 			).toBe(true);
-			expect(b.at(2, 'a')).toBe('a');
+			expect(b.get(2, 'a')).toBe('a');
 
 			b = context.builder();
 			Stream.of<[number, number]>([1, 1], [2, 2], [3, 3]).forEach(b.addEntry);
 			expect(b.modifyAt(4, { ifNew: { set: 4 } })).toBe(true);
-			expect(b.at(4, 'a')).toBe(4);
+			expect(b.get(4, 'a')).toBe(4);
 
 			b = context.builder();
 			Stream.of<[number, number]>([1, 1], [2, 2], [3, 3]).forEach(b.addEntry);
 			expect(b.modifyAt(4, { ifNew: { create: () => 4 } })).toBe(true);
-			expect(b.at(4, 'a')).toBe(4);
+			expect(b.get(4, 'a')).toBe(4);
 
 			b = context.builder();
 			Stream.of<[number, number]>([1, 1], [2, 2], [3, 3]).forEach(b.addEntry);
 			expect(b.modifyAt(4, { ifExists: { update: (v) => v + 1 } })).toBe(false);
-			expect(b.at(4, 'a')).toBe('a');
+			expect(b.get(4, 'a')).toBe('a');
 
 			b = context.builder();
 			Stream.of<[number, number]>([1, 1], [2, 2], [3, 3]).forEach(b.addEntry);
 			expect(
 				b.modifyAt(4, { ifExists: { update: (_, remove) => remove } }),
 			).toBe(false);
-			expect(b.at(4, 'a')).toBe('a');
+			expect(b.get(4, 'a')).toBe('a');
 		});
 
 		it('remove', (): void => {

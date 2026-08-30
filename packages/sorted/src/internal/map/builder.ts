@@ -105,9 +105,9 @@ export class SortedMapBuilder<K, V>
 		return OptLazy(otherwise) as O;
 	};
 
-	at = (index: number, otherwise?: any): any => {
-		return this.atIndex(index, otherwise);
-	};
+	at = ((index: number, otherwise?: any): any => {
+		return (this as any).atIndex(index, otherwise);
+	}) as any;
 
 	hasKey = <UK>(key: RelatedTo<K, UK>): boolean => {
 		return Token !== this.get(key, Token);
@@ -115,7 +115,6 @@ export class SortedMapBuilder<K, V>
 
 	// aliases for new KeyedCollection API
 	has = this.hasKey as any;
-	at = this.get as any;
 
 	clear = (): void => {
 		this._entries = [];

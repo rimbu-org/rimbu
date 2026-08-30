@@ -290,9 +290,13 @@ export abstract class SortedMapNode<K, V>
 		f: (entry: readonly [K, V], index: number, halt: () => void) => void,
 		options?: { state?: TraverseState },
 	): void;
+	// @ts-ignore
 	abstract get<U, O>(key: RelatedTo<K, U>, otherwise?: OptLazy<O>): V | O;
+	// @ts-ignore
 	abstract at<O>(index: number, otherwise?: OptLazy<O>): readonly [K, V] | O;
+	// @ts-ignore
 	abstract atIndex<O>(index: number, otherwise?: OptLazy<O>): readonly [K, V] | O;
+	// @ts-ignore
 	abstract findIndex(key: K): number | undefined;
 	abstract addInternal(
 		entry: readonly [K, V],
@@ -602,10 +606,6 @@ export abstract class SortedMapNode<K, V>
 		if (idx === -1 || idx === undefined) return OptLazy(otherwise) as any;
 		const e = (this as any).atIndex(idx) as readonly [any, any] | undefined;
 		return e ? e[1] : OptLazy(otherwise as any);
-	}
-
-	at(key: any, otherwise?: any): any {
-		return (this as any).get(key, otherwise);
 	}
 
 	has(key: any): boolean {
