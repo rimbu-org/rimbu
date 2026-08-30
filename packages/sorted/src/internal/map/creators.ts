@@ -1,9 +1,8 @@
-// @ts-nocheck
 import type { RMapBase } from '@rimbu/collection-types/advanced/map/base';
 import type { Comp } from '@rimbu/common/comp';
 import type { SortedMap } from '@rimbu/sorted/map';
 
-export interface SortedMapCreators extends RMapBase.Factory<SortedMap.Types> {
+export interface SortedMapCreators extends RMapBase.Factory<any> {
 	/**
 	 * Returns a new SortedMap context instance based on the given `options`.
 	 * @typeparam UK - the upper key type for which the context can create instances

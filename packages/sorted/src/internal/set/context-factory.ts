@@ -1,4 +1,3 @@
-// @ts-nocheck
 import type { SortedSet } from '@rimbu/sorted/set';
 
 import type { SortedSetCreators } from '#set/creators';
