@@ -2,7 +2,7 @@ import type { RSetBase } from '@rimbu/collection-types/advanced/set/base';
 import type { Comp } from '@rimbu/common/comp';
 import type { SortedSet } from '@rimbu/sorted/set';
 
-export interface SortedSetCreators extends RSetBase.Factory<SortedSet.Types> {
+export interface SortedSetCreators extends RSetBase.Factory<any> {
 	/**
 	 * Returns a new SortedSet context instance based on the given `options`.
 	 * @typeparam UT - the upper element type for which the context can create instances

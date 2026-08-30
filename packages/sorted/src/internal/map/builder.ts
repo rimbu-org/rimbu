@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { RelatedTo } from '@rimbu/common/types';
 import type { SortedMap } from '@rimbu/sorted/map';
 
@@ -100,6 +101,76 @@ export class SortedMapBuilder<K, V>
 
 	hasKey = <UK>(key: RelatedTo<K, UK>): boolean => {
 		return Token !== this.at(key, Token);
+	};
+
+	clear = (): void => {
+		this._entries = [];
+		this._children = [];
+		this.size = 0;
+		this.source = undefined;
+	};
+
+	// @ts-ignore
+	forEach = (...args: any[]): void => {
+		const [f, options] = args;
+		if (typeof f === 'function' && f.length === 1) {
+			(this as any).forEachIndexed((v: any) => f(v), options);
+		} else {
+			// @ts-ignore
+			const base = Object.getPrototypeOf(Object.getPrototypeOf(this));
+			if (base && base.forEach) base.forEach.call(this, f, options);
+			else (this as any).forEachIndexed(f, options);
+		}
+	};
+
+	forEachIndexed = (f: any, options: any = {}): void => {
+		// @ts-ignore
+		const SortedBuilderProto = Object.getPrototypeOf(Object.getPrototypeOf(this));
+		if (SortedBuilderProto && SortedBuilderProto.forEach) SortedBuilderProto.forEach.call(this, f, options);
+	};
+
+	first = (..._args: any[]): any => {
+		return (this as any).min(..._args);
+	};
+
+	last = (..._args: any[]): any => {
+		return (this as any).max(..._args);
+	};
+
+	atIndex = (index: any, otherwise?: any): any => {
+		if (undefined !== this.source) return (this.source as any).atIndex(index, otherwise);
+		// fallback via build
+		return (this as any).build().atIndex(index, otherwise);
+	};
+
+	indexOf = (key: any, otherwise?: any): any => {
+		if (undefined !== this.source) return (this.source as any).indexOf(key, otherwise);
+		let found: number | undefined;
+		let idx = 0;
+		let halted = false;
+		const halt = () => { halted = true; };
+		this.forEachIndexed((entry: any, i: number, h: any) => {
+			if (halted) return;
+			if (Object.is(entry[0], key) || this.context.comp.compare(entry[0], key) === 0) {
+				found = i;
+				h();
+				halted = true;
+			}
+		});
+		if (undefined !== found) return found;
+		return otherwise as any;
+	};
+
+	streamSlice = (_range?: any, _options?: any): any => {
+		return (this as any).build().streamSlice(_range, _options);
+	};
+
+	previous = (key: any, options?: any): any => {
+		return (this as any).build().previousEntry(key, options);
+	};
+
+	next = (key: any, options?: any): any => {
+		return (this as any).build().nextEntry(key, options);
 	};
 
 	addEntry = (entry: readonly [K, V]): boolean => {

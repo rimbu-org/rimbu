@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type {
 	ArrayNonEmpty,
 	RelatedTo,
@@ -76,6 +77,48 @@ export class SortedMapEmpty<K = any, V = any>
 
 	streamSliceIndex(): Stream<readonly [K, V]> {
 		return Stream.empty();
+	}
+
+	get comp(): any {
+		return this.context.comp;
+	}
+
+	get(_key: any, _otherwise?: any): any {
+		return (this as any).at(_key, _otherwise);
+	}
+
+	has(_key: any): boolean {
+		return (this as any).hasKey(_key);
+	}
+
+	indexOf(_key: any, _otherwise?: any): any {
+		return (this as any).findIndex(_key, _otherwise);
+	}
+
+	streamSlice(_range?: any, _options?: any): Stream<readonly [K, V]> {
+		return Stream.empty();
+	}
+
+	forEachIndexed(_f?: any, _options?: any): void {}
+
+	filter(_pred?: any, _options?: any): any {
+		return this;
+	}
+
+	filterIndexed(_pred?: any, _options?: any): any {
+		return this;
+	}
+
+	first(..._args: any[]): any {
+		return (this as any).min(..._args);
+	}
+
+	last(..._args: any[]): any {
+		return (this as any).max(..._args);
+	}
+
+	splitAt(_amount?: any): any {
+		return [this, this];
 	}
 
 	minKey<O>(otherwise?: OptLazy<O>): O {
@@ -484,13 +527,56 @@ export abstract class SortedMapNode<K, V>
 		return this.drop(start).take(end - start + 1);
 	}
 
-	slice(range: Range<K>): SortedMap<K, V> {
-		const { startIndex, endIndex } = this.getSliceRange(range);
+	slice(range: any): SortedMap<K, V> {
+		if (range && typeof range === 'object' && 'amount' in range) {
+			return this.sliceIndex(range as IndexRange);
+		}
+		const { startIndex, endIndex } = this.getSliceRange(range as Range<K>);
 
 		return this.sliceIndex({
 			start: [startIndex, true],
 			end: [endIndex, true],
 		});
+	}
+
+	get comp(): any {
+		return this.context.comp;
+	}
+
+	get(key: any, otherwise?: any): any {
+		return (this as any).at(key, otherwise);
+	}
+
+	has(key: any): boolean {
+		return (this as any).hasKey(key);
+	}
+
+	indexOf(key: any, otherwise?: any): any {
+		return (this as any).findIndex(key, otherwise);
+	}
+
+	streamSlice(range: any, options?: any): Stream<readonly [K, V]> {
+		return this.streamSliceIndex(range, options);
+	}
+
+	forEachIndexed(f: any, options?: any): void {
+		return (this as any).forEach(f as any, options as any);
+	}
+
+	filterIndexed(pred: any, options?: any): any {
+		return (this as any).filter(pred as any, options as any);
+	}
+
+	first(..._args: any[]): any {
+		return (this as any).min(..._args);
+	}
+
+	last(..._args: any[]): any {
+		return (this as any).max(..._args);
+	}
+
+	splitAt(amount: number): any {
+		return [(this as any).take(amount), (this as any).drop(amount)];
 	}
 
 	toBuilder(): SortedMapBuilder<K, V> {

@@ -1,467 +1,134 @@
-import type { RSet } from '@rimbu/collection-types';
+import type { Collection } from '@rimbu/collection-types/collection';
+import type { IndexedValuedSortedCollection } from '@rimbu/collection-types/collection/indexed-valued-sorted';
+import type { SetCollection } from '@rimbu/collection-types/set';
+import type { ValuedCollection } from '@rimbu/collection-types/collection/valued';
 import type { RSetBase } from '@rimbu/collection-types/advanced/set/base';
 import type { Comp } from '@rimbu/common/comp';
 import type { IndexRange } from '@rimbu/common/index-range';
-import type { OptLazy } from '@rimbu/common/opt-lazy';
+import type { OptLazy } from '@rimbu/common';
 import type { Range } from '@rimbu/common/range';
-import type { Stream, Streamable } from '@rimbu/stream';
-
-import type { SortedSetCreators } from '#set/creators';
+import type { Stream } from '@rimbu/stream';
 
 import { createSortedSetContextModule } from '#set/context-factory';
 
-/**
- * A type-invariant immutable Set of value type T.
- * In the Set, there are no duplicate values.
- * See the [Set documentation](https://rimbu.org/docs/collections/set) and the [SortedSet API documentation](https://rimbu.org/api/rimbu/sorted/set/SortedSet/interface)
- * @typeparam T - the value type
- * @note
- * - The `SortedSet` keeps the inserted values in sorted order according to the
- * context's `comp` `Comp` instance.
- * @example
- * ```ts
- * import { SortedSet } from '@rimbu/sorted';
- *
- * const s1 = SortedSet.empty<string>()
- * const s2 = SortedSet.of('a', 'b', 'c')
- * ```
- */
-export interface SortedSet<T> extends RSetBase<T, SortedSet.Types> {
-	stream(options?: { reversed?: boolean }): Stream<T>;
-	/**
-	 * Returns a Stream of sorted values of this collection within the given `keyRange`.
-	 * @param keyRange - the range of values to include in the stream
-	 * @param options - (optional) an object containing the following properties:<br/>
-	 * - reversed: (default: false) when true will reverse the stream element order
-	 * @example
-	 * ```ts
-	 * import { SortedSet } from '@rimbu/sorted';
-	 *
-	 * const m = SortedSet.of('b', 'd', 'a', 'c');
-	 * console.log(m.streamRange({ start: 'b', end: 'c' }).toArray())
-	 * // => [ "b", "c" ]
-	 * ```
-	 */
-	streamRange(range: Range<T>, options?: { reversed?: boolean }): Stream<T>;
-	/**
-	 * Returns a Stream of sorted values of this collection within the given `range` index range.
-	 * @param range - the range of values to include in the stream
-	 * @param options - (optional) an object containing the following properties:<br/>
-	 * - reversed: (default: false) when true will reverse the stream element order
-	 * @example
-	 * ```ts
-	 * import { SortedSet } from '@rimbu/sorted';
-	 *
-	 * const m = SortedSet.of('b', 'd', 'a', 'c');
-	 * console.log(m.streamSliceIndex({ start: 1, amount: 2 }).toArray())
-	 * // => [ "b", "c" ]
-	 * ```
-	 */
-	streamSliceIndex(
-		range: IndexRange,
-		options?: { reversed?: boolean },
-	): Stream<T>;
-	/**
-	 * Returns the minimum value of the SortedSet, or a fallback value (default: undefined)
-	 * if the SortedSet is empty.
-	 * @param otherwise - (default: undefined) the fallback value to return if the SortedSet is empty.
-	 * @example
-	 * ```ts
-	 * import { SortedSet } from '@rimbu/sorted';
-	 *
-	 * const m = SortedSet.of('b', 'd', 'a', 'c').asNormal();
-	 * console.log(m.min())
-	 * // => a
-	 * console.log(m.min('q'))
-	 * // => a
-	 * console.log(SortedSet.empty().min())
-	 * // => undefined
-	 * console.log(SortedSet.empty().min('q'))
-	 * // => q
-	 * ```
-	 */
-	min(): T | undefined;
-	min<O>(otherwise: OptLazy<O>): T | O;
-	/**
-	 * Returns the maximum value of the SortedSet, or a fallback value (default: undefined)
-	 * if the SortedSet is empty.
-	 * @param otherwise - (default: undefined) the fallback value to return if the SortedSet is empty.
-	 * @example
-	 * ```ts
-	 * import { SortedSet } from '@rimbu/sorted';
-	 *
-	 * const m = SortedSet.of('b', 'd', 'a', 'c').asNormal();
-	 * console.log(m.max())
-	 * // => d
-	 * console.log(m.max('q'))
-	 * // => d
-	 * console.log(SortedSet.empty().max())
-	 * // => undefined
-	 * console.log(SortedSet.empty().max('q'))
-	 * // => q
-	 * ```
-	 */
-	max(): T | undefined;
-	max<O>(otherwise: OptLazy<O>): T | O;
-	/**
-	 * Returns the index of the given value in the SortedSet, or a fallback value (default: undefined)
-	 * if the value is not present.
-	 * @param value - the value to find the index for
-	 * @param otherwise - (default: undefined) the fallback value to return if the value is not present.
-	 * @example
-	 * ```ts
-	 * import { SortedSet } from '@rimbu/sorted';
-	 *
-	 * const m = SortedSet.of('b', 'd', 'a', 'c');
-	 * console.log(m.findIndex('c'))
-	 * // => 2
-	 * console.log(m.findIndex('q'))
-	 * // => undefined
-	 * console.log(m.findIndex('q', -1))
-	 * // => -1
-	 * ```
-	 */
-	findIndex(value: T): number | undefined;
-	findIndex<O>(value: T, otherwise: OptLazy<O>): number | O;
-	/**
-	 * Returns the index of the first value in the SortedSet that is greater than or equal to
-	 * the given value, i.e. the index where the given value would be inserted to preserve sorted order.
-	 * If the given value is greater than all values in the SortedSet, the SortedSet's size is returned.
-	 * @param value - the value to find the lower bound index for
-	 * @example
-	 * ```ts
-	 * import { SortedSet } from '@rimbu/sorted';
-	 *
-	 * const m = SortedSet.of('b', 'd', 'a', 'c');
-	 * console.log(m.lowerBound('c'))
-	 * // => 2
-	 * console.log(m.lowerBound('q'))
-	 * // => 4
-	 * ```
-	 */
-	lowerBound(value: T): number;
-	/**
-	 * Returns the index of the first value in the SortedSet that is strictly greater than
-	 * the given value, i.e. the index just after the entries with the given value.
-	 * If the given value is greater than or equal to all values in the SortedSet, the SortedSet's size is returned.
-	 * @param value - the value to find the upper bound index for
-	 * @example
-	 * ```ts
-	 * import { SortedSet } from '@rimbu/sorted';
-	 *
-	 * const m = SortedSet.of('b', 'd', 'a', 'c');
-	 * console.log(m.upperBound('c'))
-	 * // => 3
-	 * console.log(m.upperBound('q'))
-	 * // => 4
-	 * ```
-	 */
-	upperBound(value: T): number;
-	/**
-	 * Returns the smallest value strictly greater than the given value, or a fallback value
-	 * (default: undefined) if no such value exists.
-	 * @param value - the value to find the next value for
-	 * @param options - (optional) an object containing the following properties:<br/>
-	 * - inclusive: (default: false) when true, returns the given value if present
-	 * instead of the next greater value
-	 * @param otherwise - (default: undefined) the fallback value to return if no next value exists.
-	 * @example
-	 * ```ts
-	 * import { SortedSet } from '@rimbu/sorted';
-	 *
-	 * const m = SortedSet.of('b', 'd', 'a', 'c');
-	 * console.log(m.next('b'))
-	 * // => c
-	 * console.log(m.next('c'))
-	 * // => d
-	 * console.log(m.next('c', { inclusive: true }))
-	 * // => c
-	 * console.log(m.next('q'))
-	 * // => undefined
-	 * ```
-	 */
-	next(
-		value: T,
-		options?:
-			| { inclusive?: boolean | undefined; otherwise?: never }
-			| undefined,
-	): T | undefined;
-	next<O>(
-		value: T,
-		options: { inclusive?: boolean | undefined; otherwise: OptLazy<O> },
-	): T | O;
-	/**
-	 * Returns the largest value strictly less than the given value, or a fallback value
-	 * (default: undefined) if no such value exists.
-	 * @param value - the value to find the previous value for
-	 * @param options - (optional) an object containing the following properties:<br/>
-	 * - inclusive: (default: false) when true, returns the given value if present
-	 * instead of the previous smaller value
-	 * @param otherwise - (default: undefined) the fallback value to return if no previous value exists.
-	 * @example
-	 * ```ts
-	 * import { SortedSet } from '@rimbu/sorted';
-	 *
-	 * const m = SortedSet.of('b', 'd', 'a', 'c');
-	 * console.log(m.previous('d'))
-	 * // => c
-	 * console.log(m.previous('c'))
-	 * // => b
-	 * console.log(m.previous('c', { inclusive: true }))
-	 * // => c
-	 * console.log(m.previous('a'))
-	 * // => undefined
-	 * ```
-	 */
-	previous(
-		value: T,
-		options?:
-			| { inclusive?: boolean | undefined; otherwise?: never }
-			| undefined,
-	): T | undefined;
-	previous<O>(
-		value: T,
-		options: { inclusive?: boolean | undefined; otherwise?: OptLazy<O> },
-	): T | O;
-	/**
-	 * Returns the value at the given index of the value sort order of the SortedSet, or a fallback value (default: undefined)
-	 * if the index is out of bounds.
-	 * @param index - the index in the key sort order
-	 * @param otherwise - (default: undefined) the fallback value to return if the index is out of bounds.
-	 *
-	 * @note negative index values will retrieve the values from the end of the sort order, e.g. -1 is the last value
-	 * @example
-	 * ```ts
-	 * import { SortedSet } from '@rimbu/sorted';
-	 *
-	 * const m = SortedSet.of('b', 'd', 'a', 'c').asNormal();
-	 * console.log(m.atIndex(1))
-	 * // => b
-	 * console.log(m.atIndex(-1))
-	 * // => d
-	 * console.log(m.atIndex(10))
-	 * // => undefined
-	 * console.log(m.atIndex(10, 'q'))
-	 * // => q
-	 * ```
-	 */
-	atIndex(index: number): T | undefined;
-	atIndex<O>(index: number, otherwise: OptLazy<O>): T | O;
-	/**
-	 * Returns a SortedSet containing the first `amount` of values of this SortedSet.
-	 * @param amount - the amount of elements to keep
-	 *
-	 * @note a negative `amount` takes the last values instead of the first, e.g. -2 is the last 2 elements
-	 * @example
-	 * ```ts
-	 * import { SortedSet } from '@rimbu/sorted';
-	 *
-	 * const m = SortedSet.of('b', 'd', 'a', 'c').asNormal();
-	 * console.log(m.take(2).toArray())
-	 * // => [ "a", "b" ]
-	 * console.log(m.take(-2).toArray())
-	 * // => [ "c", "d" ]
-	 * ```
-	 */
-	take(amount: number): SortedSet<T>;
-	/**
-	 * Returns a SortedSet containing all but the first `amount` of values of this SortedSet.
-	 * @param amount - the amount of elements to keep
-	 *
-	 * @note a negative `amount` drops the last values instead of the first, e.g. -2 is the last 2 elements
-	 * @example
-	 * ```ts
-	 * import { SortedSet } from '@rimbu/sorted';
-	 *
-	 * const m = SortedSet.of('b', 'd', 'a', 'c').asNormal();
-	 * console.log(m.drop(2).toArray())
-	 * // => [ "c", "d" ]
-	 * console.log(m.drop(-2).toArray())
-	 * // => [ "a", "b" ]
-	 * ```
-	 */
-	drop(amount: number): SortedSet<T>;
-	/**
-	 * Returns a SortedSet containing only those values that are within the given `range` index range of the value
-	 * sort order.
-	 * @param range - an `IndexRange` defining the sort order indices to include.
-	 * @example
-	 * ```ts
-	 * import { SortedSet } from '@rimbu/sorted';
-	 *
-	 * const m = SortedSet.of('b', 'd', 'a', 'c').asNormal();
-	 * console.log(m.sliceIndex({ start: 1, amount: 2 }).toArray())
-	 * // => [ "b", "c" ]
-	 * ```
-	 */
-	sliceIndex(range: IndexRange): SortedSet<T>;
-	/**
-	 * Returns a SortedSet containing only those values that are within the given `keyRange`.
-	 * @param range - a `Range` defining the values to include
-	 * @example
-	 * ```ts
-	 * import { SortedSet } from '@rimbu/sorted';
-	 *
-	 * const m = SortedSet.of('b', 'd', 'a', 'c').asNormal();
-	 * console.log(m.slice({ start: 'b', end: 'c' }).toArray())
-	 * // => [ "b", "c" ]
-	 * ```
-	 */
-	slice(range: Range<T>): SortedSet<T>;
-}
+export interface SortedSet<E>
+  extends SortedSet.Advanced.Api<
+    E,
+    Collection.Advanced.Types<SortedSet.Advanced.Family<E>, E>
+  > {}
 
 export namespace SortedSet {
-	/**
-	 * A non-empty type-invariant immutable Set of value type T.
-	 * In the Set, there are no duplicate values.
-	 * See the [Set documentation](https://rimbu.org/docs/collections/set) and the [SortedSet API documentation](https://rimbu.org/api/rimbu/sorted/set/SortedSet/interface)
-	 * @typeparam T - the value type
-	 * @note
-	 * - The `SortedSet` keeps the inserted values in sorted order according to the
-	 * context's `comp` `Comp` instance.
-	 * @example
-	 * ```ts
-	 * import { SortedSet } from '@rimbu/sorted';
-	 *
-	 * const s1 = SortedSet.empty<string>()
-	 * const s2 = SortedSet.of('a', 'b', 'c')
-	 * ```
-	 */
-	export interface NonEmpty<T>
-		extends RSetBase.NonEmpty<T, SortedSet.Types>,
-			Omit<SortedSet<T>, keyof RSetBase.NonEmpty<any, any>>,
-			Streamable.NonEmpty<T> {
-		stream(options?: { reversed?: boolean }): Stream.NonEmpty<T>;
-		/**
-		 * Returns the minimum value of the SortedSet.
-		 * @example
-		 * ```ts
-		 * import { SortedSet } from '@rimbu/sorted';
-		 *
-		 * const m = SortedSet.of('b', 'd', 'a', 'c');
-		 * console.log(m.min())
-		 * // => a
-		 * ```
-		 */
-		min(): T;
-		/**
-		 * Returns the maximum value of the SortedSet.
-		 * @example
-		 * ```ts
-		 * import { SortedSet } from '@rimbu/sorted';
-		 *
-		 * const m = SortedSet.of('b', 'd', 'a', 'c');
-		 * console.log(m.max())
-		 * // => d
-		 * ```
-		 */
-		max(): T;
-		take<N extends number>(
-			amount: N,
-		): 0 extends N ? SortedSet<T> : SortedSet.NonEmpty<T>;
-	}
+  export interface NonEmpty<E>
+    extends Advanced.Api<
+      E,
+      Collection.Advanced.TypesNonEmpty<Advanced.Family<E>, E>
+    > {}
 
-	/**
-	 * A context instance for a `SortedSet` that acts as a factory for every instance of this
-	 * type of collection.
-	 * @typeparam UK - the upper key type bound for which the context can be used
-	 */
-	export interface Context<UT> extends RSetBase.Context<UT, SortedSet.Types> {
-		readonly typeTag: 'SortedSet';
+  export interface Builder<E>
+    extends Advanced.BuilderApi<
+      E,
+      Collection.Advanced.Types<Advanced.Family<E>, E>
+    > {}
 
-		/**
-		 * A `Comp` instance used to sort the set values.
-		 */
-		readonly comp: Comp<UT>;
-	}
+  export interface Context<UE>
+    extends Advanced.ContextApi<UE, SortedSet.Advanced.Family<UE>> {}
 
-	/**
-	 * A mutable `SortedSet` builder used to efficiently create new immutable instances.
-	 * See the [Set documentation](https://rimbu.org/docs/collections/set) and the [SortedSet.Builder API documentation](https://rimbu.org/api/rimbu/sorted/set/SortedSet/Builder/interface)
-	 * @typeparam T - the value type
-	 */
-	export interface Builder<T> extends RSetBase.Builder<T, SortedSet.Types> {
-		/**
-		 * Returns the minimum value of the SortedSet builder, or a fallback value (default: undefined)
-		 * if the builder is empty.
-		 * @param otherwise - (default: undefined) the fallback value to return if the SortedSet is empty.
-		 * @example
-		 * ```ts
-		 * import { SortedSet } from '@rimbu/sorted';
-		 *
-		 * const b = SortedSet.of('b', 'd', 'a', 'c').toBuilder();
-		 * console.log(b.min())
-		 * // => a
-		 * console.log(b.min('q'))
-		 * // => a
-		 * console.log(SortedSet.empty().min())
-		 * // => undefined
-		 * console.log(SortedSet.empty().min('q'))
-		 * // => q
-		 * ```
-		 */
-		min(): T | undefined;
-		min<O>(otherwise: OptLazy<O>): T | O;
-		/**
-		 * Returns the maximum value of the SortedSet builder, or a fallback value (default: undefined)
-		 * if the builder is empty.
-		 * @param otherwise - (default: undefined) the fallback value to return if the SortedSet is empty.
-		 * @example
-		 * ```ts
-		 * import { SortedSet } from '@rimbu/sorted';
-		 *
-		 * const b = SortedSet.of('b', 'd', 'a', 'c').toBuilder();
-		 * console.log(b.max())
-		 * // => d
-		 * console.log(b.max('q'))
-		 * // => d
-		 * console.log(SortedSet.empty().max())
-		 * // => undefined
-		 * console.log(SortedSet.empty().max('q'))
-		 * // => q
-		 * ```
-		 */
-		max(): T | undefined;
-		max<O>(otherwise: OptLazy<O>): T | O;
-		/**
-		 * Returns the value at the given index of the value sort order of the SortedSet builder, or a fallback value (default: undefined)
-		 * if the index is out of bounds.
-		 * @param index - the index in the key sort order
-		 * @param otherwise - (default: undefined) the fallback value to return if the index is out of bounds.
-		 *
-		 * @note negative index values will retrieve the values from the end of the sort order, e.g. -1 is the last value
-		 * @example
-		 * ```ts
-		 * import { SortedSet } from '@rimbu/sorted';
-		 *
-		 * const b = SortedSet.of('b', 'd', 'a', 'c').toBuilder();
-		 * console.log(b.atIndex(1))
-		 * // => b
-		 * console.log(b.atIndex(-1))
-		 * // => d
-		 * console.log(b.atIndex(10))
-		 * // => undefined
-		 * console.log(b.atIndex(10, 'q'))
-		 * // => q
-		 * ```
-		 */
-		atIndex(index: number): T | undefined;
-		atIndex<O>(index: number, otherwise: OptLazy<O>): T | O;
-	}
+  export namespace Advanced {
+    export interface Api<E, Tp extends Collection.Advanced.TypesBase>
+      extends SetCollection.Advanced.Api<E, Tp>,
+        IndexedValuedSortedCollection.Advanced.Api<E, Tp>,
+        Collection.Capability.WithAdd.Api<E, Tp>,
+        Collection.Capability.WithToBuilder.Api<E, Tp>,
+        ValuedCollection.Capability.WithDifferenceAndIntersection.Api<E, Tp>,
+        ValuedCollection.Capability.WithRemove.Api<E, Tp>,
+        ValuedCollection.Capability.WithSymmetricDifferenceAndUnion.Api<E, Tp> {
+      // Sorted-specific overrides/extras
+      stream(options?: { reversed?: boolean | undefined } | undefined): Tp['_AS_STREAM'];
+      streamRange(
+        range: Range<E>,
+        options?: { reversed?: boolean | undefined } | undefined,
+      ): Stream<E>;
+      streamSliceIndex(
+        range: IndexRange,
+        options?: { reversed?: boolean | undefined } | undefined,
+      ): Stream<E>;
+      // new indexed identity already provides indexOf, keep findIndex as alias
+      findIndex(value: E): number | undefined;
+      findIndex<O>(value: E, otherwise: OptLazy<O>): number | O;
+      lowerBound(value: E): number;
+      upperBound(value: E): number;
+      // Sorted neighbors already from SortedCollection, but keep typed here if needed
+      // next/previous already provided by SortedCollection, but ensure they exist for Tp
+      // atIndex alias for at (Indexed)
+      atIndex(index: number): E | undefined;
+      atIndex<O>(index: number, otherwise: OptLazy<O>): E | O;
+      sliceIndex(range: IndexRange): Tp['_NORMAL'];
+      slice(range: any): Tp['_NORMAL'];
+      // comp on instance (08 requirement)
+      readonly comp: Comp<E>;
+    }
 
-	/**
-	 * Utility interface that provides higher-kinded types for this collection.
-	 */
-	export interface Types extends RSet.Types {
-		readonly normal: SortedSet<this['_T']>;
-		readonly nonEmpty: SortedSet.NonEmpty<this['_T']>;
-		readonly context: SortedSet.Context<this['_T']>;
-		readonly builder: SortedSet.Builder<this['_T']>;
-	}
+    export interface BuilderApi<E, Tp extends Collection.Advanced.TypesBase>
+      extends SetCollection.Advanced.BuilderApi<E, Tp>,
+        IndexedValuedSortedCollection.Advanced.BuilderApi<E, Tp>,
+        Collection.Capability.WithAdd.BuilderApi<E, Tp>,
+        ValuedCollection.Capability.WithRemove.BuilderApi<E, Tp> {
+      min(): E | undefined;
+      min<O>(otherwise: OptLazy<O>): E | O;
+      max(): E | undefined;
+      max<O>(otherwise: OptLazy<O>): E | O;
+      atIndex(index: number): E | undefined;
+      atIndex<O>(index: number, otherwise: OptLazy<O>): E | O;
+    }
+
+    export interface ContextApi<
+      UE,
+      F extends SetCollection.Advanced.Family<UE>,
+    > extends SetCollection.Advanced.ContextApi<F>,
+        Collection.Capability.WithReducer.ContextApi<F> {
+      readonly typeTag: 'SortedSet';
+      readonly comp: Comp<UE>;
+      readonly blockSizeBits: number;
+    }
+
+    export interface Family<E>
+      extends SetCollection.Advanced.Family<E>,
+        IndexedValuedSortedCollection.Advanced.Family<E> {
+      _NORMAL: SortedSet<E>;
+      _NON_EMPTY: SortedSet.NonEmpty<E>;
+      _BUILDER: SortedSet.Builder<E>;
+      _CONTEXT: SortedSet.Context<E>;
+
+      _UPPER_E: E;
+      _INVARIANT: (element: E) => E;
+
+      _FAM: Family<E>;
+      _NEW_FAMILY: Family<this['_NEW_E']>;
+    }
+
+    export type DefaultFactory = Pick<
+      Context<any>,
+      'builder' | 'empty' | 'from' | 'of' | 'reducer'
+    > & {
+      createContext<E>(options?: {
+        comp?: Comp<E> | undefined;
+        blockSizeBits?: number | undefined;
+      }): Context<E>;
+      defaultContext<E>(): Context<E>;
+    };
+  }
+
+  /**
+   * @deprecated use Family
+   */
+  // @ts-ignore
+  export interface Types extends RSetBase.Types {
+    readonly normal: SortedSet<this['_T']>;
+    readonly nonEmpty: SortedSet.NonEmpty<this['_T']>;
+    readonly context: SortedSet.Context<this['_T']>;
+    readonly builder: SortedSet.Builder<this['_T']>;
+  }
 }
 
-/**
- * @expandType SortedSetCreators
- */
-export const SortedSet: SortedSetCreators =
-	createSortedSetContextModule().build();
+export const SortedSet: SortedSet.Advanced.DefaultFactory =
+  createSortedSetContextModule().build() as unknown as SortedSet.Advanced.DefaultFactory;

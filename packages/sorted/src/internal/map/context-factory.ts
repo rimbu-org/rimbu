@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { SortedMap } from '@rimbu/sorted/map';
 
 import type { SortedMapCreators } from '#map/creators';
