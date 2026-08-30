@@ -41,7 +41,6 @@ import {
 } from '#sorted/base';
 import { SortedIndex } from '#sorted/sorted-index';
 
-// @ts-ignore
 export class SortedSetEmpty<T = any>
 	extends SortedEmpty
 	implements SortedSet<T>
@@ -92,17 +91,14 @@ export class SortedSetEmpty<T = any>
 		return this.context.from(values) as SortedSet.NonEmpty<T>;
 	}
 
-	// @ts-ignore
 	remove(_value: any): this {
 		return this;
 	}
 
-	// @ts-ignore
 	removeAll(_values: any): this {
 		return this;
 	}
 
-	// @ts-ignore
 	slice(_range: any): this {
 		return this;
 	}
@@ -130,17 +126,14 @@ export class SortedSetEmpty<T = any>
 
 	forEachIndexed(_f: any, _options?: any): void {}
 
-	// @ts-ignore
 	filter(_pred: any, _options?: any): this {
 		return this;
 	}
 
-	// @ts-ignore
 	filterIndexed(_pred: any, _options?: any): this {
 		return this;
 	}
 
-	// @ts-ignore
 	forEach(_f: any, _options?: any): void {}
 
 	transform<T2 extends T>(
@@ -184,12 +177,10 @@ export class SortedSetEmpty<T = any>
 		return [this, this];
 	}
 
-	// @ts-ignore
 	intersection(other: StreamSource<T>): SortedSet<T> {
 		return (this as any).intersect(other);
 	}
 
-	// @ts-ignore
 	symmetricDifference(other: StreamSource<T>): SortedSet<T> {
 		return (this as any).symDifference(other);
 	}
@@ -210,7 +201,6 @@ export class SortedSetEmpty<T = any>
 	}
 }
 
-// @ts-ignore
 export abstract class SortedSetNode<T>
 	extends SortedNonEmptyBase<T, SortedSetNode<T>>
 	implements SortedSet.NonEmpty<T>
@@ -469,12 +459,10 @@ export abstract class SortedSetNode<T>
 		return [next, removed] as any;
 	}
 
-	// @ts-ignore
 	intersection(other: StreamSource<T>): SortedSet<T> {
 		return (this as any).intersect(other);
 	}
 
-	// @ts-ignore
 	symmetricDifference(other: StreamSource<T>): SortedSet<T> {
 		return (this as any).symDifference(other);
 	}

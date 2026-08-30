@@ -15,8 +15,6 @@ import { Stream, type StreamSource } from '@rimbu/stream';
 import { SortedBuilder } from '#sorted/base';
 import { SortedIndex } from '#sorted/sorted-index';
 
-// @ts-ignore
-// @ts-ignore
 export class SortedMapBuilder<K, V>
 	extends SortedBuilder<readonly [K, V]>
 	implements SortedMap.Builder<K, V>

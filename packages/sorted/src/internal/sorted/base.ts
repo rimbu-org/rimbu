@@ -70,6 +70,10 @@ export class SortedEmpty extends EmptyBase {
 	symDifference(..._args: any[]): any { return this; }
 	removeAt(..._args: any[]): any { return this; }
 	removeAtAndReturn(..._args: any[]): any { return [this, undefined] as any; }
+	asNormal(): this { return this; }
+	mutate(..._args: any[]): any { return this; }
+	previous(..._args: any[]): any { return OptLazy(_args[1]?.otherwise) as any; }
+	next(..._args: any[]): any { return OptLazy(_args[1]?.otherwise) as any; }
 }
 
 /**
@@ -112,6 +116,10 @@ export abstract class SortedNonEmptyBase<
 	symDifference(..._args: any[]): any { return this as any; }
 	removeAt(..._args: any[]): any { return this as any; }
 	removeAtAndReturn(..._args: any[]): any { return [this as any, undefined] as any; }
+	asNormal(): this { return this as any; }
+	mutate(..._args: any[]): any { return this as any; }
+	previous(..._args: any[]): any { return undefined as any; }
+	next(..._args: any[]): any { return undefined as any; }
 
 	// internal
 	abstract get entries(): readonly E[];
