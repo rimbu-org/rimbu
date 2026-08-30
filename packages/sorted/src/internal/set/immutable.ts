@@ -103,7 +103,7 @@ export class SortedSetEmpty<T = any>
 		return this;
 	}
 
-	// @ts-ignore
+	// @ts-expect-error
 	sliceIndex(_range: any): this {
 		return this;
 	}
@@ -399,7 +399,7 @@ export abstract class SortedSetNode<T>
 		return this.atIndex(index, otherwise);
 	}
 
-	// @ts-ignore
+	// @ts-expect-error
 	indexOf(value: T, otherwise?: OptLazy<any>): any {
 		return (this as any).findIndex(value, otherwise);
 	}
@@ -449,11 +449,11 @@ export abstract class SortedSetNode<T>
 		return result;
 	}
 
-	removeAtAndReturn(
-		index: number,
-		amount?: number | undefined,
-	): any {
-		const removed = (this as any).slice({ start: index, amount: amount ?? 1 } as any);
+	removeAtAndReturn(index: number, amount?: number | undefined): any {
+		const removed = (this as any).slice({
+			start: index,
+			amount: amount ?? 1,
+		} as any);
 		const next = (this as any).removeAt(index, amount);
 		// DynamicResult: if removed empty? keep simple
 		return [next, removed] as any;

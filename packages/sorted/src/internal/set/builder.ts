@@ -20,7 +20,7 @@ export class SortedSetBuilder<T> extends SortedBuilder<T> {
 		super();
 	}
 
-	// @ts-ignore
+	// @ts-expect-error
 	createNew(
 		source?: undefined | SortedSet<T>,
 		entries?: undefined | T[],
@@ -50,13 +50,13 @@ export class SortedSetBuilder<T> extends SortedBuilder<T> {
 		}
 	}
 
-	// @ts-ignore
+	// @ts-expect-error
 	get children(): SortedSetBuilder<T>[] {
 		this.prepareMutate();
 		return this._children!;
 	}
 
-	// @ts-ignore
+	// @ts-expect-error
 	set children(value: SortedSetBuilder<T>[]) {
 		this.prepareMutate();
 		this.source = undefined;
@@ -87,7 +87,7 @@ export class SortedSetBuilder<T> extends SortedBuilder<T> {
 		this.source = undefined;
 	};
 
-	// @ts-ignore: override to match new Collection BuilderApi
+	// @ts-expect-error: override to match new Collection BuilderApi
 	forEach = (...args: any[]): void => {
 		const [f, options] = args;
 		if (typeof f === 'function' && f.length === 1) {
@@ -207,7 +207,9 @@ export class SortedSetBuilder<T> extends SortedBuilder<T> {
 	removeAllAt = (indices: any, _collector?: any): any => {
 		this.checkLock();
 		// normalize to sorted descending to avoid index shift
-		const arr = (Stream.from(indices).toArray() as number[]).slice().sort((a: number, b: number) => b - a);
+		const arr = (Stream.from(indices).toArray() as number[])
+			.slice()
+			.sort((a: number, b: number) => b - a);
 		let changed = false;
 		let count = 0;
 		for (const idx of arr as number[]) {

@@ -43,37 +43,91 @@ export class SortedEmpty extends EmptyBase {
 	}
 
 	// permissive overrides to satisfy new Collection/Map/Set interfaces
-	remove(..._args: any[]): any { return this; }
-	removeAll(..._args: any[]): any { return this; }
-	filter(..._args: any[]): any { return this; }
-	filterIndexed(..._args: any[]): any { return this; }
+	remove(..._args: any[]): any {
+		return this;
+	}
+	removeAll(..._args: any[]): any {
+		return this;
+	}
+	filter(..._args: any[]): any {
+		return this;
+	}
+	filterIndexed(..._args: any[]): any {
+		return this;
+	}
 	forEach(..._args: any[]): void {}
 	forEachIndexed(..._args: any[]): void {}
-	slice(..._args: any[]): any { return this; }
+	slice(..._args: any[]): any {
+		return this;
+	}
 	// map-specific
-	removeKey(..._args: any[]): any { return this; }
-	removeKeys(..._args: any[]): any { return this; }
-	removeKeyAndReturn(..._args: any[]): any { return [this, undefined, false] as any; }
-	has(..._args: any[]): any { return false; }
-	hasKey(..._args: any[]): any { return false; }
-	get(..._args: any[]): any { return OptLazy(_args[1]) as any; }
-	at(..._args: any[]): any { return OptLazy(_args[1]) as any; }
-	indexOf(..._args: any[]): any { return OptLazy(_args[1]) as any; }
-	streamSlice(..._args: any[]): any { return this.stream(); }
-	first(..._args: any[]): any { return this.min(..._args); }
-	last(..._args: any[]): any { return this.max(..._args); }
-	splitAt(..._args: any[]): any { return [this, this]; }
+	removeKey(..._args: any[]): any {
+		return this;
+	}
+	removeKeys(..._args: any[]): any {
+		return this;
+	}
+	removeKeyAndReturn(..._args: any[]): any {
+		return [this, undefined, false] as any;
+	}
+	has(..._args: any[]): any {
+		return false;
+	}
+	hasKey(..._args: any[]): any {
+		return false;
+	}
+	get(..._args: any[]): any {
+		return OptLazy(_args[1]) as any;
+	}
+	at(..._args: any[]): any {
+		return OptLazy(_args[1]) as any;
+	}
+	indexOf(..._args: any[]): any {
+		return OptLazy(_args[1]) as any;
+	}
+	streamSlice(..._args: any[]): any {
+		return this.stream();
+	}
+	first(..._args: any[]): any {
+		return this.min(..._args);
+	}
+	last(..._args: any[]): any {
+		return this.max(..._args);
+	}
+	splitAt(..._args: any[]): any {
+		return [this, this];
+	}
 	// aliases for new names
-	intersection(..._args: any[]): any { return this; }
-	symmetricDifference(..._args: any[]): any { return this; }
-	intersect(..._args: any[]): any { return this; }
-	symDifference(..._args: any[]): any { return this; }
-	removeAt(..._args: any[]): any { return this; }
-	removeAtAndReturn(..._args: any[]): any { return [this, undefined] as any; }
-	asNormal(): this { return this; }
-	mutate(..._args: any[]): any { return this; }
-	previous(..._args: any[]): any { return OptLazy(_args[1]?.otherwise) as any; }
-	next(..._args: any[]): any { return OptLazy(_args[1]?.otherwise) as any; }
+	intersection(..._args: any[]): any {
+		return this;
+	}
+	symmetricDifference(..._args: any[]): any {
+		return this;
+	}
+	intersect(..._args: any[]): any {
+		return this;
+	}
+	symDifference(..._args: any[]): any {
+		return this;
+	}
+	removeAt(..._args: any[]): any {
+		return this;
+	}
+	removeAtAndReturn(..._args: any[]): any {
+		return [this, undefined] as any;
+	}
+	asNormal(): this {
+		return this;
+	}
+	mutate(..._args: any[]): any {
+		return this;
+	}
+	previous(..._args: any[]): any {
+		return OptLazy(_args[1]?.otherwise) as any;
+	}
+	next(..._args: any[]): any {
+		return OptLazy(_args[1]?.otherwise) as any;
+	}
 }
 
 /**
@@ -91,35 +145,89 @@ export abstract class SortedNonEmptyBase<
 	abstract atIndex<O>(index: number, otherwise?: OptLazy<O>): E | O;
 
 	// permissive overrides for new interfaces
-	remove(..._args: any[]): any { return this as any; }
-	removeAll(..._args: any[]): any { return this as any; }
-	filter(..._args: any[]): any { return this as any; }
-	filterIndexed(..._args: any[]): any { return this as any; }
+	remove(..._args: any[]): any {
+		return this as any;
+	}
+	removeAll(..._args: any[]): any {
+		return this as any;
+	}
+	filter(..._args: any[]): any {
+		return this as any;
+	}
+	filterIndexed(..._args: any[]): any {
+		return this as any;
+	}
 	forEach(..._args: any[]): void {}
 	forEachIndexed(..._args: any[]): void {}
-	slice(..._args: any[]): any { return this as any; }
-	removeKey(..._args: any[]): any { return this as any; }
-	removeKeys(..._args: any[]): any { return this as any; }
-	removeKeyAndReturn(..._args: any[]): any { return [this, undefined, false] as any; }
-	has(..._args: any[]): any { return false; }
-	hasKey(..._args: any[]): any { return false; }
-	get(..._args: any[]): any { return undefined; }
-	at(..._args: any[]): any { return undefined; }
-	indexOf(..._args: any[]): any { return undefined; }
-	streamSlice(..._args: any[]): any { return (this as any).stream(); }
-	first(..._args: any[]): any { return (this as any).min(..._args); }
-	last(..._args: any[]): any { return (this as any).max(..._args); }
-	splitAt(..._args: any[]): any { return [this as any, this as any]; }
-	intersection(..._args: any[]): any { return this as any; }
-	symmetricDifference(..._args: any[]): any { return this as any; }
-	intersect(..._args: any[]): any { return this as any; }
-	symDifference(..._args: any[]): any { return this as any; }
-	removeAt(..._args: any[]): any { return this as any; }
-	removeAtAndReturn(..._args: any[]): any { return [this as any, undefined] as any; }
-	asNormal(): this { return this as any; }
-	mutate(..._args: any[]): any { return this as any; }
-	previous(..._args: any[]): any { return undefined as any; }
-	next(..._args: any[]): any { return undefined as any; }
+	slice(..._args: any[]): any {
+		return this as any;
+	}
+	removeKey(..._args: any[]): any {
+		return this as any;
+	}
+	removeKeys(..._args: any[]): any {
+		return this as any;
+	}
+	removeKeyAndReturn(..._args: any[]): any {
+		return [this, undefined, false] as any;
+	}
+	has(..._args: any[]): any {
+		return false;
+	}
+	hasKey(..._args: any[]): any {
+		return false;
+	}
+	get(..._args: any[]): any {
+		return undefined;
+	}
+	at(..._args: any[]): any {
+		return undefined;
+	}
+	indexOf(..._args: any[]): any {
+		return undefined;
+	}
+	streamSlice(..._args: any[]): any {
+		return (this as any).stream();
+	}
+	first(..._args: any[]): any {
+		return (this as any).min(..._args);
+	}
+	last(..._args: any[]): any {
+		return (this as any).max(..._args);
+	}
+	splitAt(..._args: any[]): any {
+		return [this as any, this as any];
+	}
+	intersection(..._args: any[]): any {
+		return this as any;
+	}
+	symmetricDifference(..._args: any[]): any {
+		return this as any;
+	}
+	intersect(..._args: any[]): any {
+		return this as any;
+	}
+	symDifference(..._args: any[]): any {
+		return this as any;
+	}
+	removeAt(..._args: any[]): any {
+		return this as any;
+	}
+	removeAtAndReturn(..._args: any[]): any {
+		return [this as any, undefined] as any;
+	}
+	asNormal(): this {
+		return this as any;
+	}
+	mutate(..._args: any[]): any {
+		return this as any;
+	}
+	previous(..._args: any[]): any {
+		return undefined as any;
+	}
+	next(..._args: any[]): any {
+		return undefined as any;
+	}
 
 	// internal
 	abstract get entries(): readonly E[];
@@ -999,10 +1107,16 @@ export abstract class SortedBuilder<E> {
 	}
 
 	// permissive indexed WithRemoveAt for builder
-	removeAt(..._args: any[]): any { return undefined as any; }
+	removeAt(..._args: any[]): any {
+		return undefined as any;
+	}
 	removeAtAndReturn?(..._args: any[]): any {}
-	removeAmountAt(..._args: any[]): any { return false; }
-	removeAllAt(..._args: any[]): any { return false; }
+	removeAmountAt(..._args: any[]): any {
+		return false;
+	}
+	removeAllAt(..._args: any[]): any {
+		return false;
+	}
 
 	/**
 	 * Returns the minimum entry of the builder, or the given fallback value

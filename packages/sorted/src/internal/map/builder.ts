@@ -29,7 +29,7 @@ export class SortedMapBuilder<K, V>
 		super();
 	}
 
-// @ts-ignore
+	// @ts-expect-error
 	createNew(
 		source?: undefined | SortedMap<K, V>,
 		_entries?: undefined | (readonly [K, V])[],
@@ -56,7 +56,7 @@ export class SortedMapBuilder<K, V>
 				} else if (this.context.isSortedMapInner<K, V>(this.source)) {
 					this._entries = this.source.entries.slice();
 					this._children = this.source.children.map(
-// @ts-ignore
+						// @ts-expect-error
 						(child): SortedMapBuilder<K, V> => this.createNew(child),
 					);
 				}
@@ -68,13 +68,13 @@ export class SortedMapBuilder<K, V>
 		}
 	}
 
-// @ts-ignore
+	// @ts-expect-error
 	get children(): SortedMapBuilder<K, V>[] {
 		this.prepareMutate();
 		return this._children!;
 	}
 
-// @ts-ignore
+	// @ts-expect-error
 	set children(value: SortedMapBuilder<K, V>[]) {
 		this.prepareMutate();
 		this.source = undefined;
@@ -84,7 +84,7 @@ export class SortedMapBuilder<K, V>
 	get = <UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O => {
 		if (!this.context.comp.isComparable(key)) return OptLazy(otherwise) as O;
 
-// @ts-ignore
+		// @ts-expect-error
 		if (undefined !== this.source) return this.source.get(key, otherwise!);
 
 		const entryIndex = this.context.findIndex(key, this.entries);
@@ -121,13 +121,13 @@ export class SortedMapBuilder<K, V>
 		this.source = undefined;
 	};
 
-	// @ts-ignore
+	// @ts-expect-error
 	forEach = (...args: any[]): void => {
 		const [f, options] = args;
 		if (typeof f === 'function' && f.length === 1) {
 			(this as any).forEachIndexed((v: any) => f(v), options);
 		} else {
-			// @ts-ignore
+			// @ts-expect-error
 			const base = Object.getPrototypeOf(Object.getPrototypeOf(this));
 			if (base && base.forEach) base.forEach.call(this, f, options);
 			else (this as any).forEachIndexed(f, options);
@@ -135,9 +135,12 @@ export class SortedMapBuilder<K, V>
 	};
 
 	forEachIndexed = (f: any, options: any = {}): void => {
-		// @ts-ignore
-		const SortedBuilderProto = Object.getPrototypeOf(Object.getPrototypeOf(this));
-		if (SortedBuilderProto && SortedBuilderProto.forEach) SortedBuilderProto.forEach.call(this, f, options);
+		// @ts-expect-error
+		const SortedBuilderProto = Object.getPrototypeOf(
+			Object.getPrototypeOf(this),
+		);
+		if (SortedBuilderProto && SortedBuilderProto.forEach)
+			SortedBuilderProto.forEach.call(this, f, options);
 	};
 
 	first = (..._args: any[]): any => {
@@ -149,18 +152,23 @@ export class SortedMapBuilder<K, V>
 	};
 
 	atIndex = (index: any, otherwise?: any): any => {
-		if (undefined !== this.source) return (this.source as any).atIndex(index, otherwise);
+		if (undefined !== this.source)
+			return (this.source as any).atIndex(index, otherwise);
 		// fallback via build
 		return (this as any).build().atIndex(index, otherwise);
 	};
 
 	indexOf = (key: any, otherwise?: any): any => {
-		if (undefined !== this.source) return (this.source as any).indexOf(key, otherwise);
+		if (undefined !== this.source)
+			return (this.source as any).indexOf(key, otherwise);
 		let found: number | undefined;
 		let halted = false;
 		this.forEachIndexed((entry: any, i: number, h: any) => {
 			if (halted) return;
-			if (Object.is(entry[0], key) || this.context.comp.compare(entry[0], key) === 0) {
+			if (
+				Object.is(entry[0], key) ||
+				this.context.comp.compare(entry[0], key) === 0
+			) {
 				found = i;
 				h();
 				halted = true;
@@ -260,7 +268,7 @@ export class SortedMapBuilder<K, V>
 		for (let i = 0; i < amount; i++) {
 			const e = this.atIndex(idx) as readonly [K, V] | undefined;
 			if (undefined === e) break;
-			removed = (undefined !== this.removeKey(e[0] as any, Symbol())) || removed;
+			removed = undefined !== this.removeKey(e[0] as any, Symbol()) || removed;
 		}
 		if (removed) this.normalize();
 		return removed;
@@ -268,7 +276,9 @@ export class SortedMapBuilder<K, V>
 
 	removeAllAt = (indices: any, _collector?: any): any => {
 		this.checkLock();
-		const arr = (Stream.from(indices).toArray() as number[]).slice().sort((a: number, b: number) => b - a);
+		const arr = (Stream.from(indices).toArray() as number[])
+			.slice()
+			.sort((a: number, b: number) => b - a);
 		let changed = false;
 		for (const idx of arr as number[]) {
 			const e = this.atIndex(idx) as readonly [K, V] | undefined;
@@ -327,7 +337,10 @@ export class SortedMapBuilder<K, V>
 		});
 
 		if (!found) {
-			const fallback = otherwise !== undefined ? (OptLazy(otherwise as any) as O) : (undefined as any);
+			const fallback =
+				otherwise !== undefined
+					? (OptLazy(otherwise as any) as O)
+					: (undefined as any);
 			return [fallback, fallback] as any;
 		}
 
@@ -341,20 +354,27 @@ export class SortedMapBuilder<K, V>
 		if (undefined !== this.source) return this.source;
 		if (this.size === 0) return this.context.empty();
 		if (!this.hasChildren) {
-			return this.context.leaf(this.entries.slice()) as unknown as SortedMap<K, V>;
+			return this.context.leaf(this.entries.slice()) as unknown as SortedMap<
+				K,
+				V
+			>;
 		}
 		return this.context.inner(
 			this.entries.slice(),
 			this.children.map(
-				(child): SortedMapNode<K, V> => child.build() as unknown as SortedMapNode<K, V>,
+				(child): SortedMapNode<K, V> =>
+					child.build() as unknown as SortedMapNode<K, V>,
 			),
 			this.size,
 		) as unknown as SortedMap<K, V>;
 	};
 
 	buildMapValues = <V2>(f: (value: V, key: K) => V2): SortedMap<K, V2> => {
-		// @ts-ignore - V2 generic variance
-		if (undefined !== this.source) return this.source.mapValues(f as unknown as (value: V, key: K) => V) as unknown as SortedMap<K, V2>;
+		// @ts-expect-error - V2 generic variance
+		if (undefined !== this.source)
+			return this.source.mapValues(
+				f as unknown as (value: V, key: K) => V,
+			) as unknown as SortedMap<K, V2>;
 		if (this.size === 0) return this.context.empty();
 
 		const newEntries = this.entries.map((entry): [K, V2] => [
