@@ -179,6 +179,10 @@ export class SortedMapEmpty<K = any, V = any>
 		return this.context.from(entries) as SortedMap.NonEmpty<K, V>;
 	}
 
+	// aliases for Collection WithAdd
+	add(...args: any[]): any { return (this as any).addEntry(...args); }
+	addAll(...args: any[]): any { return (this as any).addEntries(...args); }
+
 	removeKey(): SortedMap<K, V> {
 // @ts-ignore
 		return this;
@@ -211,6 +215,11 @@ export class SortedMapEmpty<K = any, V = any>
 // @ts-ignore
 		return this.context.leaf([[atKey, newValue]]);
 	}
+
+	// aliases for WithModifyAtKey / WithUpdateAtKey
+	modifyAtKey(...args: any[]): any { return (this as any).modifyAt(...args); }
+	updateAtKey(...args: any[]): any { return (this as any).updateAt(...args); }
+	updateAtKeyAndReturn(...args: any[]): any { return (this as any).updateAtAndGet(...args); }
 
 	transform<V2, K2 extends K>(
 		transformFun: (stream: Stream<readonly [K, V]>) => StreamSource<[K2, V2]>,
@@ -423,6 +432,9 @@ export abstract class SortedMapNode<K, V>
 		return builder.build() as SortedMap.NonEmpty<K, V>;
 	}
 
+	add(...args: any[]): any { return (this as any).addEntry(...args); }
+	addAll(...args: any[]): any { return (this as any).addEntries(...args); }
+
 	modifyAt(atKey: K, options: ModifyOptions<V>): SortedMap<K, V> {
 // @ts-ignore
 		if (checkEmptyModifyOptions(options)) return this;
@@ -479,6 +491,12 @@ export abstract class SortedMapNode<K, V>
 		builder.removeKeys(keys);
 		return builder.build();
 	}
+
+	// aliases for new MapCollection names
+	modifyAtKey(...args: any[]): any { return (this as any).modifyAt(...args); }
+	updateAtKey(...args: any[]): any { return (this as any).updateAt(...args); }
+	updateAtKeyAndReturn(...args: any[]): any { return (this as any).updateAtAndGet(...args); }
+	removeKeyAndReturn(...args: any[]): any { return (this as any).removeKeyAndGet(...args); }
 
 	removeKeyAndGet<UK>(
 		key: RelatedTo<K, UK>,
@@ -607,6 +625,30 @@ export abstract class SortedMapNode<K, V>
 
 	splitAt(amount: number): any {
 		return [(this as any).take(amount), (this as any).drop(amount)];
+	}
+
+	removeAt(index: number, amount?: number | undefined): SortedMap<K, V> {
+		const sz = (this as any).size as number;
+		let idx = index;
+		if (idx < 0) idx = sz + idx;
+		if (idx < 0 || idx >= sz) return this as any;
+		const amt = amount === undefined ? 1 : amount;
+		if (amt <= 0) return this as any;
+		if (amt >= sz && idx === 0) return (this as any).context.empty();
+		let result: SortedMap<K, V> = this as any;
+		for (let i = 0; i < amt; i++) {
+			const e = (result as any).atIndex(idx) as readonly [K, V] | undefined;
+			if (undefined === e) break;
+			result = (result as any).removeKey(e[0]);
+			if ((result as any).size <= idx && amt > 1) break;
+		}
+		return result;
+	}
+
+	removeAtAndReturn(index: number, amount?: number | undefined): any {
+		const removed = (this as any).slice({ start: index, amount: amount ?? 1 } as any);
+		const next = (this as any).removeAt(index, amount);
+		return [next, removed] as any;
 	}
 
 // @ts-ignore

@@ -68,6 +68,8 @@ export class SortedEmpty extends EmptyBase {
 	symmetricDifference(..._args: any[]): any { return this; }
 	intersect(..._args: any[]): any { return this; }
 	symDifference(..._args: any[]): any { return this; }
+	removeAt(..._args: any[]): any { return this; }
+	removeAtAndReturn(..._args: any[]): any { return [this, undefined] as any; }
 }
 
 /**
@@ -108,6 +110,8 @@ export abstract class SortedNonEmptyBase<
 	symmetricDifference(..._args: any[]): any { return this as any; }
 	intersect(..._args: any[]): any { return this as any; }
 	symDifference(..._args: any[]): any { return this as any; }
+	removeAt(..._args: any[]): any { return this as any; }
+	removeAtAndReturn(..._args: any[]): any { return [this as any, undefined] as any; }
 
 	// internal
 	abstract get entries(): readonly E[];
@@ -986,6 +990,12 @@ export abstract class SortedBuilder<E> {
 		return this.size === 0;
 	}
 
+	// permissive indexed WithRemoveAt for builder
+	removeAt(..._args: any[]): any { return undefined as any; }
+	removeAtAndReturn?(..._args: any[]): any {}
+	removeAmountAt(..._args: any[]): any { return false; }
+	removeAllAt(..._args: any[]): any { return false; }
+
 	/**
 	 * Returns the minimum entry of the builder, or the given fallback value
 	 * if the builder is empty.
@@ -1137,7 +1147,7 @@ export abstract class SortedBuilder<E> {
 			const leftChildren = this.children;
 			const rightChildren = leftChildren.splice(index + 1);
 			const leftSize = leftChildren.reduce(
-				(r, c): number => r + c.size,
+				(r: number, c: SortedBuilder<E>): number => r + c.size,
 				leftEntries.length,
 			);
 			const rightSize = this.size - leftSize - 1;

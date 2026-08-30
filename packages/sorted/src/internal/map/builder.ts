@@ -109,6 +109,10 @@ export class SortedMapBuilder<K, V>
 		return Token !== this.at(key, Token);
 	};
 
+	// aliases for new KeyedCollection API
+	has = this.hasKey as any;
+	get = this.at as any;
+
 	clear = (): void => {
 		this._entries = [];
 		this._children = [];
@@ -195,6 +199,10 @@ export class SortedMapBuilder<K, V>
 		return Stream.from(source).filterPure({ pred: this.addEntry }).count() > 0;
 	};
 
+	// aliases for Collection WithAdd
+	add = this.addEntry as any;
+	addAll = this.addEntries as any;
+
 	set = (key: K, value: V): boolean => {
 		return this.addEntry([key, value]);
 	};
@@ -232,6 +240,51 @@ export class SortedMapBuilder<K, V>
 		return result;
 	};
 
+	removeAt = (index: number, otherwise?: any): any => {
+		this.checkLock();
+		const sz = this.size;
+		let idx = index;
+		if (idx < 0) idx = sz + idx;
+		if (idx < 0 || idx >= sz) return otherwise as any;
+		const entry = this.atIndex(idx) as readonly [K, V];
+		this.removeKey(entry[0] as any);
+		this.normalize();
+		return entry;
+	};
+
+	removeAmountAt = (index: number, amount: number): boolean => {
+		this.checkLock();
+		const sz = this.size;
+		let idx = index;
+		if (idx < 0) idx = sz + idx;
+		if (idx < 0 || idx >= sz) return false;
+		if (amount <= 0) return false;
+		let removed = false;
+		for (let i = 0; i < amount; i++) {
+			const e = this.atIndex(idx) as readonly [K, V] | undefined;
+			if (undefined === e) break;
+			removed = (undefined !== this.removeKey(e[0] as any, Symbol())) || removed;
+		}
+		if (removed) this.normalize();
+		return removed;
+	};
+
+	removeAllAt = (indices: any, _collector?: any): any => {
+		this.checkLock();
+		const arr = (Stream.from(indices).toArray() as number[]).slice().sort((a: number, b: number) => b - a);
+		let changed = false;
+		for (const idx of arr as number[]) {
+			const e = this.atIndex(idx) as readonly [K, V] | undefined;
+			if (undefined !== e) {
+				const v = this.removeKey(e[0] as any, Symbol());
+				if (v !== Symbol()) changed = true;
+			}
+		}
+		if (changed) this.normalize();
+		if (_collector) return changed;
+		return changed;
+	};
+
 	updateAt = <O>(
 		key: K,
 		update: (value: V) => V,
@@ -254,6 +307,10 @@ export class SortedMapBuilder<K, V>
 
 		return result!;
 	};
+
+	// aliases for new names
+	modifyAtKey = this.modifyAt as any;
+	updateAtKey = this.updateAt as any;
 
 	build = (): SortedMap<K, V> => {
 		if (undefined !== this.source) return this.source;

@@ -2,12 +2,13 @@ import type { Collection } from '@rimbu/collection-types/collection';
 import type { IndexedKeyedSortedCollection } from '@rimbu/collection-types/collection/indexed-keyed-sorted';
 import type { MapCollection } from '@rimbu/collection-types/map';
 import type { KeyedCollection } from '@rimbu/collection-types/collection/keyed';
+import type { IndexedCollection } from '@rimbu/collection-types/collection/indexed';
 import type { RMapBase } from '@rimbu/collection-types/advanced/map/base';
 import type { Comp } from '@rimbu/common/comp';
 import type { IndexRange } from '@rimbu/common/index-range';
 import type { OptLazy } from '@rimbu/common';
 import type { Range } from '@rimbu/common/range';
-import type { Stream } from '@rimbu/stream';
+import type { Stream, StreamSource } from '@rimbu/stream';
 
 import { createSortedMapContextModule } from '#map/context-factory';
 
@@ -50,7 +51,8 @@ export namespace SortedMap {
         KeyedCollection.Capability.WithMapValues.Api<K, V, Tp>,
         MapCollection.Capability.WithSet.Api<K, V, Tp>,
         MapCollection.Capability.WithUpdateAtKey.Api<K, V, Tp>,
-        MapCollection.Capability.WithModifyAtKey.Api<K, V, Tp> {
+        MapCollection.Capability.WithModifyAtKey.Api<K, V, Tp>,
+        IndexedCollection.Capability.WithRemoveAt.Api<readonly [K, V], Tp> {
       stream(options?: { reversed?: boolean | undefined } | undefined): any;
       streamKeys(options?: { reversed?: boolean | undefined } | undefined): any;
       streamValues(options?: { reversed?: boolean | undefined } | undefined): any;
@@ -80,6 +82,19 @@ export namespace SortedMap {
       sliceIndex(range: any): any;
       slice(range: any): any;
       readonly comp: Comp<K>;
+      // legacy aliases for RMapBase compatibility (any to avoid at overload clash)
+      addEntry(entry: readonly [K, V]): Tp['_NON_EMPTY'];
+      addEntries(entries: StreamSource<readonly [K, V]>): Tp['_NORMAL'];
+      hasKey(...args: any[]): any;
+      // at(key) is legacy for get(key) – use any to avoid clash with indexed at(index)
+      at(...args: any[]): any;
+      modifyAt(...args: any[]): any;
+      updateAt(...args: any[]): any;
+      updateAtAndGet(...args: any[]): any;
+      removeKey(...args: any[]): any;
+      removeKeys(...args: any[]): any;
+      removeKeyAndGet(...args: any[]): any;
+      removeKeyAndReturn(...args: any[]): any;
     }
 
     export interface BuilderApi<K, V, Tp extends Collection.Advanced.TypesBase>
@@ -90,7 +105,15 @@ export namespace SortedMap {
         KeyedCollection.Capability.WithMapValues.BuilderApi<K, V, Tp>,
         MapCollection.Capability.WithSet.BuilderApi<K, V, Tp>,
         MapCollection.Capability.WithUpdateAtKey.BuilderApi<K, V, Tp>,
-        MapCollection.Capability.WithModifyAtKey.BuilderApi<K, V, Tp> {
+        MapCollection.Capability.WithModifyAtKey.BuilderApi<K, V, Tp>,
+        IndexedCollection.Capability.WithRemoveAt.BuilderApi<readonly [K, V], Tp> {
+      // legacy RMap builder aliases
+      addEntry(entry: readonly [K, V]): boolean;
+      addEntries(entries: StreamSource<readonly [K, V]>): boolean;
+      hasKey(...args: any[]): any;
+      at(...args: any[]): any;
+      modifyAt(...args: any[]): any;
+      updateAt(...args: any[]): any;
       min(): readonly [K, V] | undefined;
       min<O>(otherwise: OptLazy<O>): readonly [K, V] | O;
       max(): readonly [K, V] | undefined;

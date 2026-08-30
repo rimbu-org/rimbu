@@ -439,6 +439,36 @@ export abstract class SortedSetNode<T>
 		return [this.take(amount), this.drop(amount)];
 	}
 
+	removeAt(index: number, amount?: number | undefined): SortedSet<T> {
+		const sz = (this as any).size as number;
+		let idx = index;
+		if (idx < 0) idx = sz + idx;
+		if (idx < 0 || idx >= sz) return this as any;
+		const amt = amount === undefined ? 1 : amount;
+		if (amt <= 0) return this as any;
+		if (amt >= sz && idx === 0) return (this as any).context.empty();
+		// remove by iterative value removal
+		let result: SortedSet<T> = this as any;
+		for (let i = 0; i < amt; i++) {
+			const v = (result as any).at(idx);
+			if (undefined === v) break;
+			result = result.remove(v);
+			// idx stays same, next element shifts into position
+			if ((result as any).size <= idx && amt > 1) break;
+		}
+		return result;
+	}
+
+	removeAtAndReturn(
+		index: number,
+		amount?: number | undefined,
+	): any {
+		const removed = (this as any).slice({ start: index, amount: amount ?? 1 } as any);
+		const next = (this as any).removeAt(index, amount);
+		// DynamicResult: if removed empty? keep simple
+		return [next, removed] as any;
+	}
+
 	// @ts-ignore
 	intersection(other: StreamSource<T>): SortedSet<T> {
 		return (this as any).intersect(other);

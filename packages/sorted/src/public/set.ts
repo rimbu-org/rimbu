@@ -2,12 +2,13 @@ import type { Collection } from '@rimbu/collection-types/collection';
 import type { IndexedValuedSortedCollection } from '@rimbu/collection-types/collection/indexed-valued-sorted';
 import type { SetCollection } from '@rimbu/collection-types/set';
 import type { ValuedCollection } from '@rimbu/collection-types/collection/valued';
+import type { IndexedCollection } from '@rimbu/collection-types/collection/indexed';
 import type { RSetBase } from '@rimbu/collection-types/advanced/set/base';
 import type { Comp } from '@rimbu/common/comp';
 import type { IndexRange } from '@rimbu/common/index-range';
 import type { OptLazy } from '@rimbu/common';
 import type { Range } from '@rimbu/common/range';
-import type { Stream } from '@rimbu/stream';
+import type { Stream, StreamSource } from '@rimbu/stream';
 
 import { createSortedSetContextModule } from '#set/context-factory';
 
@@ -41,7 +42,8 @@ export namespace SortedSet {
         Collection.Capability.WithToBuilder.Api<E, Tp>,
         ValuedCollection.Capability.WithDifferenceAndIntersection.Api<E, Tp>,
         ValuedCollection.Capability.WithRemove.Api<E, Tp>,
-        ValuedCollection.Capability.WithSymmetricDifferenceAndUnion.Api<E, Tp> {
+        ValuedCollection.Capability.WithSymmetricDifferenceAndUnion.Api<E, Tp>,
+        IndexedCollection.Capability.WithRemoveAt.Api<E, Tp> {
       // Sorted-specific overrides/extras
       stream(options?: { reversed?: boolean | undefined } | undefined): Tp['_AS_STREAM'];
       streamRange(
@@ -66,13 +68,17 @@ export namespace SortedSet {
       slice(range: any): Tp['_NORMAL'];
       // comp on instance (08 requirement)
       readonly comp: Comp<E>;
+      // legacy aliases kept for test compatibility (deprecated)
+      intersect(other: StreamSource<E>): Tp['_NORMAL'];
+      symDifference(other: StreamSource<E>): Tp['_NORMAL'];
     }
 
     export interface BuilderApi<E, Tp extends Collection.Advanced.TypesBase>
       extends SetCollection.Advanced.BuilderApi<E, Tp>,
         IndexedValuedSortedCollection.Advanced.BuilderApi<E, Tp>,
         Collection.Capability.WithAdd.BuilderApi<E, Tp>,
-        ValuedCollection.Capability.WithRemove.BuilderApi<E, Tp> {
+        ValuedCollection.Capability.WithRemove.BuilderApi<E, Tp>,
+        IndexedCollection.Capability.WithRemoveAt.BuilderApi<E, Tp> {
       min(): E | undefined;
       min<O>(otherwise: OptLazy<O>): E | O;
       max(): E | undefined;

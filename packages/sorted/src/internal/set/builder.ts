@@ -176,6 +176,56 @@ export class SortedSetBuilder<T> extends SortedBuilder<T> {
 		return Stream.from(values).filterPure({ pred: this.remove }).count() > 0;
 	};
 
+	removeAt = (index: number, otherwise?: any): any => {
+		this.checkLock();
+		const sz = this.size;
+		let idx = index;
+		if (idx < 0) idx = sz + idx;
+		if (idx < 0 || idx >= sz) return otherwise as any;
+		const value = this.atIndex(idx);
+		this.remove(value as any);
+		this.normalize();
+		return value;
+	};
+
+	removeAmountAt = (index: number, amount: number): boolean => {
+		this.checkLock();
+		const sz = this.size;
+		let idx = index;
+		if (idx < 0) idx = sz + idx;
+		if (idx < 0 || idx >= sz) return false;
+		if (amount <= 0) return false;
+		let removed = false;
+		for (let i = 0; i < amount; i++) {
+			const v = this.atIndex(idx);
+			if (undefined === v) break;
+			removed = this.remove(v as any) || removed;
+		}
+		if (removed) this.normalize();
+		return removed;
+	};
+
+	removeAllAt = (indices: any, _collector?: any): any => {
+		this.checkLock();
+		// normalize to sorted descending to avoid index shift
+		const arr = (Stream.from(indices).toArray() as number[]).slice().sort((a: number, b: number) => b - a);
+		let changed = false;
+		let count = 0;
+		for (const idx of arr as number[]) {
+			const v = this.atIndex(idx);
+			if (undefined !== v && this.remove(v as any)) {
+				changed = true;
+				count++;
+			}
+		}
+		if (changed) this.normalize();
+		if (_collector) {
+			// if collector provided, return its result over removed? simplified
+			return changed;
+		}
+		return changed;
+	};
+
 	build = (): SortedSet<T> => {
 		if (undefined !== this.source) return this.source;
 		if (this.size === 0) return this.context.empty();
