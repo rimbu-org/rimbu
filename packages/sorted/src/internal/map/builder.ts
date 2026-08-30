@@ -1,4 +1,3 @@
-// @ts-nocheck
 import type { RelatedTo } from '@rimbu/common/types';
 import type { SortedMap } from '@rimbu/sorted/map';
 
@@ -32,6 +31,7 @@ export class SortedMapBuilder<K, V>
 		super();
 	}
 
+// @ts-ignore
 	createNew(
 		source?: undefined | SortedMap<K, V>,
 		_entries?: undefined | (readonly [K, V])[],
@@ -58,6 +58,7 @@ export class SortedMapBuilder<K, V>
 				} else if (this.context.isSortedMapInner<K, V>(this.source)) {
 					this._entries = this.source.entries.slice();
 					this._children = this.source.children.map(
+// @ts-ignore
 						(child): SortedMapBuilder<K, V> => this.createNew(child),
 					);
 				}
@@ -69,11 +70,13 @@ export class SortedMapBuilder<K, V>
 		}
 	}
 
+// @ts-ignore
 	get children(): SortedMapBuilder<K, V>[] {
 		this.prepareMutate();
 		return this._children!;
 	}
 
+// @ts-ignore
 	set children(value: SortedMapBuilder<K, V>[]) {
 		this.prepareMutate();
 		this.source = undefined;
@@ -83,6 +86,7 @@ export class SortedMapBuilder<K, V>
 	at = <UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O => {
 		if (!this.context.comp.isComparable(key)) return OptLazy(otherwise) as O;
 
+// @ts-ignore
 		if (undefined !== this.source) return this.source.at(key, otherwise!);
 
 		const entryIndex = this.context.findIndex(key, this.entries);
@@ -148,8 +152,10 @@ export class SortedMapBuilder<K, V>
 	indexOf = (key: any, otherwise?: any): any => {
 		if (undefined !== this.source) return (this.source as any).indexOf(key, otherwise);
 		let found: number | undefined;
+// @ts-ignore
 		let idx = 0;
 		let halted = false;
+// @ts-ignore
 		const halt = () => { halted = true; };
 		this.forEachIndexed((entry: any, i: number, h: any) => {
 			if (halted) return;
@@ -253,11 +259,14 @@ export class SortedMapBuilder<K, V>
 		if (undefined !== this.source) return this.source;
 		if (this.size === 0) return this.context.empty();
 		if (!this.hasChildren) {
+// @ts-ignore
 			return this.context.leaf(this.entries.slice());
 		}
+// @ts-ignore
 		return this.context.inner(
 			this.entries.slice(),
 			this.children.map(
+// @ts-ignore
 				(child): SortedMapNode<K, V> => child.build() as SortedMapNode<K, V>,
 			),
 			this.size,
@@ -265,6 +274,7 @@ export class SortedMapBuilder<K, V>
 	};
 
 	buildMapValues = <V2>(f: (value: V, key: K) => V2): SortedMap<K, V2> => {
+// @ts-ignore
 		if (undefined !== this.source) return this.source.mapValues(f);
 		if (this.size === 0) return this.context.empty();
 
@@ -274,13 +284,16 @@ export class SortedMapBuilder<K, V>
 		]);
 
 		if (!this.hasChildren) {
+// @ts-ignore
 			return this.context.leaf(newEntries);
 		}
 
+// @ts-ignore
 		return this.context.inner(
 			newEntries,
 			this.children.map(
 				(c): SortedMapNode<K, V2> =>
+// @ts-ignore
 					c.buildMapValues(f) as SortedMapNode<K, V2>,
 			),
 			this.size,
