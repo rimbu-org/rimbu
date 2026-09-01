@@ -9,7 +9,7 @@ import type { IndexRange } from '@rimbu/common/index-range';
 import type { Range } from '@rimbu/common/range';
 import type { Stream } from '@rimbu/stream';
 
-import { createSortedSetContextModule } from '#set/context-factory';
+import { SortedSetContext } from '#set/context';
 
 export interface SortedSet<E>
 	extends SortedSet.Advanced.Api<
@@ -38,6 +38,10 @@ export namespace SortedSet {
 			extends SetCollection.Advanced.Api<E, Tp>,
 				IndexedValuedSortedCollection.Advanced.Api<E, Tp>,
 				Collection.Capability.WithAdd.Api<E, Tp>,
+				Collection.Capability.WithFlatMap.Api<E, Tp>,
+				Collection.Capability.WithMap.Api<E, Tp>,
+				Collection.Capability.WithMutate.Api<E, Tp>,
+				Collection.Capability.WithRecompose.Api<E, Tp>,
 				Collection.Capability.WithToBuilder.Api<E, Tp>,
 				ValuedCollection.Capability.WithDifferenceAndIntersection.Api<E, Tp>,
 				ValuedCollection.Capability.WithRemove.Api<E, Tp>,
@@ -51,10 +55,10 @@ export namespace SortedSet {
 			): Stream<E>;
 			lowerBound(value: E): number;
 			upperBound(value: E): number;
-			atIndex<O>(index: number, otherwise?: OptLazy<O>): E | O;
-			sliceIndex(range: IndexRange): Tp['_NORMAL'];
-			slice(range: IndexRange | Range<E>): Tp['_NORMAL'];
-			readonly comp: Comp<E>;
+			// atIndex<O>(index: number, otherwise?: OptLazy<O>): E | O;
+			// sliceIndex(range: IndexRange): Tp['_NORMAL'];
+			// slice(range: IndexRange | Range<E>): Tp['_NORMAL'];
+			// readonly comp: Comp<E>;
 		}
 
 		export interface BuilderApi<E, Tp extends Collection.Advanced.TypesBase>
@@ -62,17 +66,12 @@ export namespace SortedSet {
 				IndexedValuedSortedCollection.Advanced.BuilderApi<E, Tp>,
 				Collection.Capability.WithAdd.BuilderApi<E, Tp>,
 				ValuedCollection.Capability.WithRemove.BuilderApi<E, Tp>,
-				IndexedCollection.Capability.WithRemoveAt.BuilderApi<E, Tp> {
-			min(): E | undefined;
-			min<O>(otherwise: OptLazy<O>): E | O;
-			max(): E | undefined;
-			max<O>(otherwise: OptLazy<O>): E | O;
-		}
+				IndexedCollection.Capability.WithRemoveAt.BuilderApi<E, Tp> {}
 
 		export interface ContextApi<UE, F extends SetCollection.Advanced.Family<UE>>
 			extends SetCollection.Advanced.ContextApi<F>,
 				Collection.Capability.WithReducer.ContextApi<F> {
-			readonly typeTag: 'SortedSet';
+			// readonly typeTag: 'SortedSet';
 			readonly comp: Comp<UE>;
 			readonly blockSizeBits: number;
 		}
@@ -96,14 +95,13 @@ export namespace SortedSet {
 			Context<any>,
 			'builder' | 'empty' | 'from' | 'of' | 'reducer'
 		> & {
-			createContext<E>(options?: {
+			createContext<E>(options: {
 				comp?: Comp<E> | undefined;
 				blockSizeBits?: number | undefined;
 			}): Context<E>;
-			defaultContext<E>(): Context<E>;
 		};
 	}
 }
 
 export const SortedSet: SortedSet.Advanced.DefaultFactory =
-	createSortedSetContextModule().build() as unknown as SortedSet.Advanced.DefaultFactory;
+	SortedSetContext.createDefault();

@@ -49,13 +49,13 @@ export class HashSetContext<UE>
 		this.maxDepth = Math.ceil(32 / blockSizeBits);
 	}
 
-	get defaultContext(): HashSetContext<any> {
-		return this.getDefaultInstance();
-	}
-
 	readonly blockCapacity: number;
 	readonly blockMask: number;
 	readonly maxDepth: number;
+
+	get defaultContext(): HashSetContext<any> {
+		return this.getDefaultInstance();
+	}
 
 	get hasher(): Hasher<UE> {
 		return this._hasher ?? Hasher.defaultInstance;
@@ -179,13 +179,13 @@ export class HashSetContext<UE>
 		);
 	};
 
-	createContext = <T>(options: {
-		hasher?: Hasher<T> | undefined;
-		eq?: Eq<T> | undefined;
+	createContext = <E>(options: {
+		hasher?: Hasher<E> | undefined;
+		eq?: Eq<E> | undefined;
 		blockSizeBits?: number | undefined;
 		listContext?: List.Context | undefined;
-	}): HashSet.Context<T> => {
-		return new HashSetContext<T>(
+	}): HashSet.Context<E> => {
+		return new HashSetContext<E>(
 			options.hasher,
 			options.eq,
 			options.blockSizeBits,

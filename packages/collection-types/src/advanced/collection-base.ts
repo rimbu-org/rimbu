@@ -8,7 +8,9 @@ import {
 import { type ArrayNonEmpty, TraverseState } from '@rimbu/common';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
-export abstract class CollectionEmptyBase<
+export type Constructor<Res> = new (...args: any[]) => Res;
+
+export class CollectionEmptyBase<
 	E,
 	FAM extends Collection.Advanced.Family<E> = Collection.Advanced.Family<E>,
 	Tp extends Collection.Advanced.Types<FAM, E> = Collection.Advanced.Types<
@@ -19,7 +21,7 @@ export abstract class CollectionEmptyBase<
 		Collection.Advanced.Api<E, Tp>,
 		Collection.Capability.WithToBuilder.Api<E, Tp>
 {
-	abstract readonly context: FAM['_CONTEXT'];
+	constructor(readonly context: FAM['_CONTEXT']) {}
 
 	[Symbol.iterator](): FastIterator<E> {
 		return Stream.empty<E>()[Symbol.iterator]();

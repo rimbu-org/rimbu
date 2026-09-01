@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'bun:test';
 
 import { Comp } from '@rimbu/common/comp';
-import { createSortedSetContextModule } from '#set/context-factory';
 
+import { createSortedSetContextModule } from '#set/context';
 import { SortedSetEmpty, SortedSetInner, SortedSetLeaf } from '#set/immutable';
 
 const context = createSortedSetContextModule({
@@ -125,7 +125,8 @@ describe('SortedSetLeaf', () => {
 		}
 		{
 			const leaf = context.leaf([1, 3, 5, 8, 11]);
-			const newLeaf = leaf.normalize() as unknown as unknown as SortedSetInner<number>;
+			const newLeaf =
+				leaf.normalize() as unknown as unknown as SortedSetInner<number>;
 			expect(newLeaf).toBeInstanceOf(SortedSetInner);
 			expect(leaf.entries).toEqual([1, 3]);
 		}

@@ -1,7 +1,7 @@
 import type { RelatedTo } from '@rimbu/common/types';
 import type { SortedSet } from '@rimbu/sorted/set';
 
-import type { ContextImpl } from '#set/context-factory';
+import type { ContextImpl } from '#set/context';
 import type { SortedSetNode } from '#set/immutable';
 
 import { Stream, type StreamSource } from '@rimbu/stream';

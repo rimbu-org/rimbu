@@ -48,7 +48,8 @@ export class TypedArrayOuterChildrenOps<V extends TypedArrayListView>
 	private createBuffer(length: number): ArrayBuffer {
 		return new ArrayBuffer(length * this.ViewConstructor.BYTES_PER_ELEMENT, {
 			maxByteLength:
-				(1 << (this.blockSizeBits * this.ViewConstructor.BYTES_PER_ELEMENT)) * 2,
+				(1 << (this.blockSizeBits * this.ViewConstructor.BYTES_PER_ELEMENT)) *
+				2,
 		});
 	}
 
@@ -76,7 +77,10 @@ export class TypedArrayOuterChildrenOps<V extends TypedArrayListView>
 		index: number,
 		otherwise?: OptLazy<O>,
 	): T | O {
-		const view = this.getView(children) as unknown as { length: number; at: (i: number) => unknown };
+		const view = this.getView(children) as unknown as {
+			length: number;
+			at: (i: number) => unknown;
+		};
 		if (-index > view.length || index >= view.length) {
 			return OptLazy(otherwise as OptLazy<O>) as O;
 		}
@@ -85,21 +89,30 @@ export class TypedArrayOuterChildrenOps<V extends TypedArrayListView>
 	}
 
 	setAt<T>(children: ArrayBuffer, index: number, value: T): ArrayBuffer {
-		const view = this.getView(children) as unknown as { length: number; at: (i:number)=>unknown };
+		const view = this.getView(children) as unknown as {
+			length: number;
+			at: (i: number) => unknown;
+		};
 		const len = view.length;
 		const i = index < 0 ? len + index : index;
 		const current = (view.at as any)(i);
 		if (Object.is(current, value)) return children;
 		// Use .with if available (ES2023), otherwise copy
-		const viewTyped = this.getView(children) as unknown as { with?: (i:number, v:number)=> V };
+		const viewTyped = this.getView(children) as unknown as {
+			with?: (i: number, v: number) => V;
+		};
 		if (typeof viewTyped.with === 'function') {
-			const newView = viewTyped.with(i, value as unknown as number) as unknown as V;
+			const newView = viewTyped.with(
+				i,
+				value as unknown as number,
+			) as unknown as V;
 			return (newView as unknown as { buffer: ArrayBuffer }).buffer;
 		}
 		const newBuffer = this.createBuffer(len);
 		const newView = new this.ViewConstructor(newBuffer);
 		newView.set(this.getView(children) as unknown as number[]);
-		(newView as unknown as Record<number, number>)[i] = value as unknown as number;
+		(newView as unknown as Record<number, number>)[i] =
+			value as unknown as number;
 		return newBuffer;
 	}
 
@@ -108,10 +121,14 @@ export class TypedArrayOuterChildrenOps<V extends TypedArrayListView>
 		index: number,
 		update: (current: T) => T,
 	): Op.WithResult<ArrayBuffer, [previous: T, current: T], true> {
-		const view = this.getView(children) as unknown as ArrayLike<number> & { at: (i:number)=> unknown };
+		const view = this.getView(children) as unknown as ArrayLike<number> & {
+			at: (i: number) => unknown;
+		};
 		const len = (view as unknown as { length: number }).length;
 		const i = index < 0 ? len + index : index;
-		const previous = (view as unknown as { at: (i:number)=>unknown }).at(i) as T;
+		const previous = (view as unknown as { at: (i: number) => unknown }).at(
+			i,
+		) as T;
 		const current = update(previous);
 		const hasChanged = !Object.is(previous, current);
 		if (!hasChanged) {
@@ -122,16 +139,22 @@ export class TypedArrayOuterChildrenOps<V extends TypedArrayListView>
 				hasChanged: false,
 			};
 		}
-		const viewTyped = this.getView(children) as unknown as { with?: (i:number, v:number)=> V };
+		const viewTyped = this.getView(children) as unknown as {
+			with?: (i: number, v: number) => V;
+		};
 		let newBuffer: ArrayBuffer;
 		if (typeof viewTyped.with === 'function') {
-			const newView = viewTyped.with(i, current as unknown as number) as unknown as V;
+			const newView = viewTyped.with(
+				i,
+				current as unknown as number,
+			) as unknown as V;
 			newBuffer = (newView as unknown as { buffer: ArrayBuffer }).buffer;
 		} else {
 			newBuffer = this.createBuffer(len);
 			const newView = new this.ViewConstructor(newBuffer);
 			newView.set(this.getView(children) as unknown as number[]);
-			(newView as unknown as Record<number, number>)[i] = current as unknown as number;
+			(newView as unknown as Record<number, number>)[i] =
+				current as unknown as number;
 		}
 		return {
 			collection: newBuffer,
@@ -157,13 +180,19 @@ export class TypedArrayOuterChildrenOps<V extends TypedArrayListView>
 	): Stream<T> {
 		const view = this.getView(children) as unknown as ArrayLike<T>;
 		const arr = Array.from(view as unknown as T[]);
-		return Stream.fromArray(arr, { ...((options ?? {}) as object), range } as never) as Stream<T>;
+		return Stream.fromArray(arr, {
+			...((options ?? {}) as object),
+			range,
+		} as never) as Stream<T>;
 	}
 
 	prepend<T>(children: ArrayBuffer, value: T): ArrayBuffer {
 		const view = this.getView(children) as unknown as { length: number };
 		const newBuffer = this.createBuffer(view.length + 1);
-		const newView = new this.ViewConstructor(newBuffer) as unknown as { set: (a:any, o?:number)=>void; [i:number]: number };
+		const newView = new this.ViewConstructor(newBuffer) as unknown as {
+			set: (a: any, o?: number) => void;
+			[i: number]: number;
+		};
 		newView.set(this.getView(children) as unknown as number[], 1);
 		newView[0] = value as unknown as number;
 		return newBuffer;
@@ -172,7 +201,11 @@ export class TypedArrayOuterChildrenOps<V extends TypedArrayListView>
 	append<T>(children: ArrayBuffer, value: T): ArrayBuffer {
 		const view = this.getView(children) as unknown as { length: number };
 		const newBuffer = this.createBuffer(view.length + 1);
-		const newView = new this.ViewConstructor(newBuffer) as unknown as { set: (a:any, o?:number)=>void; [i:number]: number; length: number };
+		const newView = new this.ViewConstructor(newBuffer) as unknown as {
+			set: (a: any, o?: number) => void;
+			[i: number]: number;
+			length: number;
+		};
 		newView.set(this.getView(children) as unknown as number[]);
 		newView[view.length] = value as unknown as number;
 		return newBuffer;
@@ -184,7 +217,9 @@ export class TypedArrayOuterChildrenOps<V extends TypedArrayListView>
 		if (view1.length === 0) return children2;
 		if (view2.length === 0) return children1;
 		const newBuffer = this.createBuffer(view1.length + view2.length);
-		const newView = new this.ViewConstructor(newBuffer) as unknown as { set: (a:any, o?:number)=>void };
+		const newView = new this.ViewConstructor(newBuffer) as unknown as {
+			set: (a: any, o?: number) => void;
+		};
 		newView.set(this.getView(children1) as unknown as number[]);
 		newView.set(this.getView(children2) as unknown as number[], view1.length);
 		return newBuffer;
@@ -196,8 +231,16 @@ export class TypedArrayOuterChildrenOps<V extends TypedArrayListView>
 		deleteCount: number,
 		items: ArrayBuffer = this.createBuffer(0),
 	): ArrayBuffer {
-		const view = this.getView(children) as unknown as { length: number; subarray: (s:number,e?:number)=> any };
-		const itemsView = items ? (new this.ViewConstructor(items) as unknown as { length: number; subarray: (s:number,e?:number)=> any }) : undefined;
+		const view = this.getView(children) as unknown as {
+			length: number;
+			subarray: (s: number, e?: number) => any;
+		};
+		const itemsView = items
+			? (new this.ViewConstructor(items) as unknown as {
+					length: number;
+					subarray: (s: number, e?: number) => any;
+				})
+			: undefined;
 		let deleteAmount = deleteCount;
 		if (deleteAmount > 0) {
 			deleteAmount = Math.min(view.length - start, deleteAmount);
@@ -206,7 +249,9 @@ export class TypedArrayOuterChildrenOps<V extends TypedArrayListView>
 		}
 		const resultLength = view.length - deleteAmount + (itemsView?.length ?? 0);
 		const newBuffer = this.createBuffer(resultLength);
-		const newView = new this.ViewConstructor(newBuffer) as unknown as { set: (a:any, o?:number)=>void };
+		const newView = new this.ViewConstructor(newBuffer) as unknown as {
+			set: (a: any, o?: number) => void;
+		};
 		newView.set((view as any).subarray(0, start));
 		if (itemsView) {
 			newView.set(itemsView as unknown as number[], start);
@@ -219,9 +264,14 @@ export class TypedArrayOuterChildrenOps<V extends TypedArrayListView>
 	}
 
 	toReversed(children: ArrayBuffer): ArrayBuffer {
-		const view = this.getView(children) as unknown as { length: number; toReversed?: ()=> V };
+		const view = this.getView(children) as unknown as {
+			length: number;
+			toReversed?: () => V;
+		};
 		if (view.length <= 1) return children;
-		const typedView = this.getView(children) as unknown as V & { toReversed?: ()=> V };
+		const typedView = this.getView(children) as unknown as V & {
+			toReversed?: () => V;
+		};
 		if (typeof typedView.toReversed === 'function') {
 			const newView = typedView.toReversed();
 			// toReversed returns a new TypedArray with its own buffer
@@ -231,8 +281,14 @@ export class TypedArrayOuterChildrenOps<V extends TypedArrayListView>
 			return newBuffer;
 		}
 		const newBuffer = this.createBuffer(view.length);
-		const newView = new this.ViewConstructor(newBuffer) as unknown as { length: number; [i:number]: number };
-		const oldView = this.getView(children) as unknown as { length: number; [i:number]: number };
+		const newView = new this.ViewConstructor(newBuffer) as unknown as {
+			length: number;
+			[i: number]: number;
+		};
+		const oldView = this.getView(children) as unknown as {
+			length: number;
+			[i: number]: number;
+		};
 		for (let i = 0; i < view.length; i++) {
 			newView[i] = oldView[view.length - 1 - i];
 		}
@@ -240,7 +296,10 @@ export class TypedArrayOuterChildrenOps<V extends TypedArrayListView>
 	}
 
 	join(children: ArrayBuffer, separator: string, reversed?: boolean): string {
-		const view = this.getView(children) as unknown as { join: (s:string)=> string; length: number };
+		const view = this.getView(children) as unknown as {
+			join: (s: string) => string;
+			length: number;
+		};
 		if (!reversed) return view.join(separator);
 		const arr = Array.from(view as unknown as number[]);
 		return arr.reverse().join(separator);
@@ -264,7 +323,9 @@ export class TypedArrayOuterChildrenOps<V extends TypedArrayListView>
 		f: (value: T) => boolean,
 		options?: { negate?: boolean | undefined },
 	): ArrayBuffer | undefined {
-		const view = this.getView(children) as unknown as ArrayLike<T> & { length: number };
+		const view = this.getView(children) as unknown as ArrayLike<T> & {
+			length: number;
+		};
 		const len = view.length;
 		const negate = options?.negate === true;
 		const result: T[] = [];
@@ -277,25 +338,43 @@ export class TypedArrayOuterChildrenOps<V extends TypedArrayListView>
 	}
 
 	map<T, T2>(children: ArrayBuffer, f: (value: T) => T2): ArrayBuffer {
-		const view = this.getView(children) as unknown as { map: (fn:(v:number)=>number)=> V; length: number };
+		const view = this.getView(children) as unknown as {
+			map: (fn: (v: number) => number) => V;
+			length: number;
+		};
 		// Use TypedArray.map when available for performance
 		if (typeof view.map === 'function') {
-			const resultView = view.map((value) => f(value as unknown as T) as unknown as number);
+			const resultView = view.map(
+				(value) => f(value as unknown as T) as unknown as number,
+			);
 			// resultView may share buffer handling; ensure resizable copy
-			const newBuffer = this.createBuffer(resultView.length as unknown as number);
-			new this.ViewConstructor(newBuffer).set(resultView as unknown as number[]);
+			const newBuffer = this.createBuffer(
+				resultView.length as unknown as number,
+			);
+			new this.ViewConstructor(newBuffer).set(
+				resultView as unknown as number[],
+			);
 			return newBuffer;
 		}
-		const arr = Array.from(this.getView(children) as unknown as T[]).map((v) => f(v) as unknown as number);
+		const arr = Array.from(this.getView(children) as unknown as T[]).map(
+			(v) => f(v) as unknown as number,
+		);
 		return this.fromArray(arr);
 	}
 
 	reverseMap<T, T2>(children: ArrayBuffer, f: (value: T) => T2): ArrayBuffer {
-		const view = this.getView(children) as unknown as { length: number; [i:number]: number };
+		const view = this.getView(children) as unknown as {
+			length: number;
+			[i: number]: number;
+		};
 		const newBuffer = this.createBuffer(view.length);
-		const newView = new this.ViewConstructor(newBuffer) as unknown as { [i:number]: number };
+		const newView = new this.ViewConstructor(newBuffer) as unknown as {
+			[i: number]: number;
+		};
 		for (let i = 0; i < view.length; i++) {
-			newView[i] = f(view[view.length - 1 - i] as unknown as T) as unknown as number;
+			newView[i] = f(
+				view[view.length - 1 - i] as unknown as T,
+			) as unknown as number;
 		}
 		return newBuffer;
 	}
@@ -305,7 +384,10 @@ export class TypedArrayOuterChildrenOps<V extends TypedArrayListView>
 		f: (value: T) => void,
 		options?: { reversed?: boolean },
 	): void {
-		const view = this.getView(children) as unknown as { length: number; [i:number]: T };
+		const view = this.getView(children) as unknown as {
+			length: number;
+			[i: number]: T;
+		};
 		if (options?.reversed) {
 			for (let i = view.length - 1; i >= 0; i--) f(view[i]);
 		} else {
@@ -314,7 +396,11 @@ export class TypedArrayOuterChildrenOps<V extends TypedArrayListView>
 	}
 
 	toArray<T>(children: ArrayBuffer, reversed = false): ArrayNonEmpty<T> {
-		const view = this.getView(children) as unknown as { length: number; [i:number]: T; subarray: (s:number,e:number)=> any };
+		const view = this.getView(children) as unknown as {
+			length: number;
+			[i: number]: T;
+			subarray: (s: number, e: number) => any;
+		};
 		if (reversed) {
 			const arr = Array.from(view as unknown as T[]);
 			return arr.reverse() as ArrayNonEmpty<T>;
@@ -328,11 +414,18 @@ export class TypedArrayOuterChildrenOps<V extends TypedArrayListView>
 		end: number,
 		reversed?: boolean | undefined,
 	): T[] {
-		const view = this.getView(children) as unknown as { length: number; subarray: (s:number,e:number)=> any; slice?: (s:number,e:number)=> any };
-		const slice = (view as unknown as { subarray: (s:number,e:number)=> Iterable<T> }).subarray(start, end);
+		const view = this.getView(children) as unknown as {
+			length: number;
+			subarray: (s: number, e: number) => any;
+			slice?: (s: number, e: number) => any;
+		};
+		const slice = (
+			view as unknown as { subarray: (s: number, e: number) => Iterable<T> }
+		).subarray(start, end);
 		const arr = Array.from(slice as unknown as T[]);
 		if (reversed) return arr.reverse() as T[];
-		if (start === 0 && end >= view.length) return Array.from(view as unknown as T[]) as T[];
+		if (start === 0 && end >= view.length)
+			return Array.from(view as unknown as T[]) as T[];
 		return arr as T[];
 	}
 
@@ -341,10 +434,14 @@ export class TypedArrayOuterChildrenOps<V extends TypedArrayListView>
 		index: number,
 		f: (value: T) => T,
 	): [result: ArrayBuffer, previous: T, current: T] {
-		const view = this.getView(children) as unknown as { length: number; [i:number]: T; at: (i:number)=> T };
+		const view = this.getView(children) as unknown as {
+			length: number;
+			[i: number]: T;
+			at: (i: number) => T;
+		};
 		const len = view.length;
 		const i = index < 0 ? len + index : index;
-		const previous = (view as unknown as { at: (i:number)=>T }).at(i);
+		const previous = (view as unknown as { at: (i: number) => T }).at(i);
 		const current = f(previous);
 		if (Object.is(previous, current)) return [children, previous, current];
 		(view as unknown as Record<number, T>)[i] = current;
@@ -352,23 +449,38 @@ export class TypedArrayOuterChildrenOps<V extends TypedArrayListView>
 	}
 
 	mutatePrepend<T>(children: ArrayBuffer, value: T): ArrayBuffer {
-		const view = this.getView(children) as unknown as { length: number; BYTES_PER_ELEMENT: number; copyWithin: (t:number,s:number,e:number)=>void; [i:number]: number };
-		(children as unknown as { resize: (n:number)=>void }).resize(
+		const view = this.getView(children) as unknown as {
+			length: number;
+			BYTES_PER_ELEMENT: number;
+			copyWithin: (t: number, s: number, e: number) => void;
+			[i: number]: number;
+		};
+		(children as unknown as { resize: (n: number) => void }).resize(
 			children.byteLength + view.BYTES_PER_ELEMENT,
 		);
 		// Need to re-get view after resize as length changed
-		const newView = this.getView(children) as unknown as { copyWithin: (t:number,s:number,e:number)=>void; [i:number]: number; length: number };
+		const newView = this.getView(children) as unknown as {
+			copyWithin: (t: number, s: number, e: number) => void;
+			[i: number]: number;
+			length: number;
+		};
 		newView.copyWithin(1, 0, newView.length - 1);
 		newView[0] = value as unknown as number;
 		return children;
 	}
 
 	mutateAppend<T>(children: ArrayBuffer, value: T): ArrayBuffer {
-		const view = this.getView(children) as unknown as { length: number; BYTES_PER_ELEMENT: number };
-		(children as unknown as { resize: (n:number)=>void }).resize(
+		const view = this.getView(children) as unknown as {
+			length: number;
+			BYTES_PER_ELEMENT: number;
+		};
+		(children as unknown as { resize: (n: number) => void }).resize(
 			children.byteLength + view.BYTES_PER_ELEMENT,
 		);
-		const newView = this.getView(children) as unknown as { [i:number]: number; length: number };
+		const newView = this.getView(children) as unknown as {
+			[i: number]: number;
+			length: number;
+		};
 		newView[newView.length - 1] = value as unknown as number;
 		return children;
 	}
@@ -379,8 +491,20 @@ export class TypedArrayOuterChildrenOps<V extends TypedArrayListView>
 		deleteCount = 0,
 		items?: ArrayBuffer | undefined,
 	): [result: ArrayBuffer, deleted: ArrayBuffer] {
-		const view = this.getView(children) as unknown as { length: number; BYTES_PER_ELEMENT: number; copyWithin: (t:number,s:number,e:number)=>void; subarray: (s:number,e:number)=> any; set: (a:any,o?:number)=>void; [i:number]: number };
-		const itemsView = items ? (new this.ViewConstructor(items) as unknown as { length: number; subarray: (s:number,e:number)=> any }) : undefined;
+		const view = this.getView(children) as unknown as {
+			length: number;
+			BYTES_PER_ELEMENT: number;
+			copyWithin: (t: number, s: number, e: number) => void;
+			subarray: (s: number, e: number) => any;
+			set: (a: any, o?: number) => void;
+			[i: number]: number;
+		};
+		const itemsView = items
+			? (new this.ViewConstructor(items) as unknown as {
+					length: number;
+					subarray: (s: number, e: number) => any;
+				})
+			: undefined;
 		let deleteAmount = deleteCount;
 		if (deleteAmount > 0) {
 			deleteAmount = Math.min(view.length - start, deleteAmount);
@@ -389,20 +513,32 @@ export class TypedArrayOuterChildrenOps<V extends TypedArrayListView>
 		}
 		const deletedBuffer = this.createBuffer(deleteAmount);
 		new this.ViewConstructor(deletedBuffer).set(
-			(view as unknown as { subarray: (s:number,e:number)=> Iterable<number> }).subarray(start, start + deleteAmount) as unknown as number[],
+			(
+				view as unknown as {
+					subarray: (s: number, e: number) => Iterable<number>;
+				}
+			).subarray(start, start + deleteAmount) as unknown as number[],
 		);
 		const oldLength = view.length;
 		const itemsLength = itemsView?.length ?? 0;
 		const resultLength = oldLength - deleteAmount + itemsLength;
 		const resultByteLength = resultLength * view.BYTES_PER_ELEMENT;
 		if (resultByteLength > children.byteLength) {
-			(children as unknown as { resize: (n:number)=>void }).resize(resultByteLength);
-			const newView = this.getView(children) as unknown as { copyWithin: (t:number,s:number,e:number)=>void };
+			(children as unknown as { resize: (n: number) => void }).resize(
+				resultByteLength,
+			);
+			const newView = this.getView(children) as unknown as {
+				copyWithin: (t: number, s: number, e: number) => void;
+			};
 			newView.copyWithin(start + itemsLength, start + deleteAmount, oldLength);
 		} else {
-			const newView = this.getView(children) as unknown as { copyWithin: (t:number,s:number,e:number)=>void };
+			const newView = this.getView(children) as unknown as {
+				copyWithin: (t: number, s: number, e: number) => void;
+			};
 			newView.copyWithin(start + itemsLength, start + deleteAmount, oldLength);
-			(children as unknown as { resize: (n:number)=>void }).resize(resultByteLength);
+			(children as unknown as { resize: (n: number) => void }).resize(
+				resultByteLength,
+			);
 		}
 		if (itemsView) {
 			this.getView(children).set(itemsView as unknown as number[], start);
@@ -411,19 +547,28 @@ export class TypedArrayOuterChildrenOps<V extends TypedArrayListView>
 	}
 
 	mutateDropFirst<T>(children: ArrayBuffer): [result: ArrayBuffer, dropped: T] {
-		const view = this.getView(children) as unknown as { length: number; [i:number]: T; copyWithin: (t:number,s:number)=>void; BYTES_PER_ELEMENT: number };
+		const view = this.getView(children) as unknown as {
+			length: number;
+			[i: number]: T;
+			copyWithin: (t: number, s: number) => void;
+			BYTES_PER_ELEMENT: number;
+		};
 		const dropped = view[0];
 		view.copyWithin(0, 1);
-		(children as unknown as { resize: (n:number)=>void }).resize(
+		(children as unknown as { resize: (n: number) => void }).resize(
 			children.byteLength - view.BYTES_PER_ELEMENT,
 		);
 		return [children, dropped];
 	}
 
 	mutateDropLast<T>(children: ArrayBuffer): [result: ArrayBuffer, dropped: T] {
-		const view = this.getView(children) as unknown as { length: number; at: (i:number)=>T; BYTES_PER_ELEMENT: number };
-		const dropped = (view as unknown as { at: (i:number)=>T }).at(-1);
-		(children as unknown as { resize: (n:number)=>void }).resize(
+		const view = this.getView(children) as unknown as {
+			length: number;
+			at: (i: number) => T;
+			BYTES_PER_ELEMENT: number;
+		};
+		const dropped = (view as unknown as { at: (i: number) => T }).at(-1);
+		(children as unknown as { resize: (n: number) => void }).resize(
 			children.byteLength - view.BYTES_PER_ELEMENT,
 		);
 		return [children, dropped as T];
@@ -435,7 +580,9 @@ export class TypedArrayOuterChildrenOps<V extends TypedArrayListView>
 
 	safeCopy(children: ArrayBuffer): ArrayBuffer {
 		const view = this.getView(children) as unknown as Iterable<number>;
-		const newBuffer = this.createBuffer((view as unknown as { length: number }).length);
+		const newBuffer = this.createBuffer(
+			(view as unknown as { length: number }).length,
+		);
 		new this.ViewConstructor(newBuffer).set(view as unknown as number[]);
 		return newBuffer;
 	}

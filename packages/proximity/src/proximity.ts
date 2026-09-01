@@ -55,7 +55,7 @@ export namespace ProximityMap {
 	 * preventing a full scan.
 	 * @example
 	 * ```ts
- * import { ProximityMap } from '@rimbu/proximity';
+	 * import { ProximityMap } from '@rimbu/proximity';
 	 * const m1 = ProximityMap.empty<number, string>()
 	 * const m2 = ProximityMap.of([1, 'a'], [2, 'b'])
 	 * ```

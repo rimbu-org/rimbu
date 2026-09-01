@@ -1,43 +1,32 @@
-// import type { Collection } from '@rimbu/collection-types/collection';
-// import type { IndexedValuedCollection } from '@rimbu/collection-types/collection/indexed-valued';
-// // biome-ignore lint/correctness/noUnusedImports: TypesKey is used as a computed property key, which Biome does not detect
-// import type { TypesKey } from '@rimbu/collection-types/types';
+import type { IndexedCollectionEmptyBase } from '@rimbu/collection-types/advanced/collection/indexed-base';
+import type { ValuedCollectionEmptyBase } from '@rimbu/collection-types/advanced/collection/valued-base';
+import type { Constructor } from '@rimbu/collection-types/advanced/collection-base';
+import type { Collection } from '@rimbu/collection-types/collection';
+import type { IndexedValuedCollection } from '@rimbu/collection-types/collection/indexed-valued';
 
-// import {
-// 	IndexedCollectionEmptyBase,
-// 	IndexedCollectionNonEmptyBase,
-// } from '@rimbu/collection-types/advanced/collection/indexed-base';
-// import { OptLazy } from '@rimbu/common';
+import { OptLazy } from '@rimbu/common';
 
-// export abstract class IndexedValuedCollectionEmptyBase<T>
-// 	extends IndexedCollectionEmptyBase<T>
-// 	implements IndexedValuedCollection<T>
-// {
-// 	declare readonly [TypesKey]: IndexedValuedCollection.Advanced.Types<T>;
+export interface IndexedValuedCollectionEmptyBase<
+	E,
+	Tp extends Collection.Advanced.TypesBase,
+> extends IndexedValuedCollection.Advanced.Api<E, Tp>,
+		IndexedCollectionEmptyBase<E, Tp>,
+		ValuedCollectionEmptyBase<E, Tp> {}
 
-// 	abstract readonly context: Collection.Advanced.ContextBase<
-// 		IndexedValuedCollection.Advanced.Types<T>
-// 	>;
-
-// 	has(): false {
-// 		return false;
-// 	}
-
-// 	indexOf<O>(_: T, otherwise?: OptLazy<O>): O {
-// 		return OptLazy(otherwise) as O;
-// 	}
-// }
-
-// export abstract class IndexedValuedCollectionNonEmptyBase<T>
-// 	extends IndexedCollectionNonEmptyBase<T>
-// 	implements IndexedValuedCollection.NonEmpty<T>
-// {
-// 	declare readonly [TypesKey]: IndexedValuedCollection.Advanced.TypesNonEmpty<T>;
-
-// 	abstract readonly context: Collection.Advanced.ContextBase<
-// 		IndexedValuedCollection.Advanced.TypesNonEmpty<T>
-// 	>;
-
-// 	abstract has(value: T): boolean;
-// 	abstract indexOf<O>(value: T, otherwise?: OptLazy<O>): number | O;
-// }
+export function WithIndexedValuedCollectionEmptyBase<
+	TBase extends Constructor<
+		IndexedCollectionEmptyBase<E, Tp> & ValuedCollectionEmptyBase<E, Tp>
+	>,
+	E,
+	FAM extends Collection.Advanced.Family<E> = Collection.Advanced.Family<E>,
+	Tp extends Collection.Advanced.Types<FAM, E> = Collection.Advanced.Types<
+		FAM,
+		E
+	>,
+>(Base: TBase): TBase & Constructor<IndexedValuedCollectionEmptyBase<E, Tp>> {
+	return class extends Base {
+		indexOf<O>(_: E, otherwise?: OptLazy<O>): O {
+			return OptLazy(otherwise) as O;
+		}
+	};
+}

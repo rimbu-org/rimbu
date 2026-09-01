@@ -1,9 +1,13 @@
+import type { SortedSet } from '@rimbu/sorted';
+
+import type { SortedSetContext } from '#set/context';
+
 import * as Arr from '@rimbu/base/arr';
 import * as RimbuError from '@rimbu/base/rimbu-error';
-import {
-	EmptyBase,
-	NonEmptyBase,
-} from '@rimbu/collection-types/advanced/common/empty-base';
+import { WithIndexedCollectionEmptyBase } from '@rimbu/collection-types/advanced/collection/indexed-base';
+import { CollectionEmptyBase } from '@rimbu/collection-types/advanced/collection-base';
+import { NonEmptyBase } from '@rimbu/collection-types/advanced/common/empty-base';
+import { SetCollectionEmptyBase } from '@rimbu/collection-types/advanced/set-base';
 import { IndexRange } from '@rimbu/common/index-range';
 import { OptLazy } from '@rimbu/common/opt-lazy';
 import { TraverseState } from '@rimbu/common/traverse-state';
@@ -17,116 +21,39 @@ import { SortedIndex } from '#sorted/sorted-index';
  * Provides the index‑based operations used by `SortedMap` / `SortedSet`
  * instances when they are empty and always returns the given fallback value.
  */
-export class SortedEmpty extends EmptyBase {
-	min<O>(otherwise?: OptLazy<O>): O {
-		return OptLazy(otherwise) as O;
+export class SortedEmpty<E = any>
+	extends SetCollectionEmptyBase<E, SortedSet.Advanced.Family<E>>
+	implements SortedSet<E>
+{
+	constructor(context: SortedSetContext<E>) {
+		super(context);
+
+		this.addAll = context.from;
 	}
 
-	max<O>(otherwise?: OptLazy<O>): O {
-		return OptLazy(otherwise) as O;
+	#indexedEmpty = new IndexedCollectionEmptyBase<
+		E,
+		SortedSet.Advanced.Family<E>
+	>(this.context);
+
+	get at() {
+		return this.#indexedEmpty.at;
 	}
 
-	atIndex<O>(index: number, otherwise?: OptLazy<O>): O {
-		return OptLazy(otherwise) as O;
+	get first() {
+		return this.#indexedEmpty.first;
 	}
 
-	take(): any {
-		return this;
+	get last() {
+		return this.#indexedEmpty.last;
 	}
 
-	drop(): any {
-		return this;
+	get take(): SortedSet<E>['take'] {
+		return this.#indexedEmpty.take as any;
 	}
 
-	sliceIndex(): any {
-		return this;
-	}
-
-	// permissive overrides to satisfy new Collection/Map/Set interfaces
-	remove(..._args: any[]): any {
-		return this;
-	}
-	removeAll(..._args: any[]): any {
-		return this;
-	}
-	filter(..._args: any[]): any {
-		return this;
-	}
-	filterIndexed(..._args: any[]): any {
-		return this;
-	}
-	forEach(..._args: any[]): void {}
-	forEachIndexed(..._args: any[]): void {}
-	slice(..._args: any[]): any {
-		return this;
-	}
-	// map-specific
-	removeKey(..._args: any[]): any {
-		return this;
-	}
-	removeKeys(..._args: any[]): any {
-		return this;
-	}
-	removeKeyAndReturn(..._args: any[]): any {
-		return [this, undefined, false] as any;
-	}
-	has(..._args: any[]): any {
-		return false;
-	}
-	hasKey(..._args: any[]): any {
-		return false;
-	}
-	get(..._args: any[]): any {
-		return OptLazy(_args[1]) as any;
-	}
-	at(..._args: any[]): any {
-		return OptLazy(_args[1]) as any;
-	}
-	indexOf(..._args: any[]): any {
-		return OptLazy(_args[1]) as any;
-	}
-	streamSlice(..._args: any[]): any {
-		return this.stream();
-	}
-	first(..._args: any[]): any {
-		return this.min(..._args);
-	}
-	last(..._args: any[]): any {
-		return this.max(..._args);
-	}
-	splitAt(..._args: any[]): any {
-		return [this, this];
-	}
-	// aliases for new names
-	intersection(..._args: any[]): any {
-		return this;
-	}
-	symmetricDifference(..._args: any[]): any {
-		return this;
-	}
-	intersect(..._args: any[]): any {
-		return this;
-	}
-	symDifference(..._args: any[]): any {
-		return this;
-	}
-	removeAt(..._args: any[]): any {
-		return this;
-	}
-	removeAtAndReturn(..._args: any[]): any {
-		return [this, undefined] as any;
-	}
-	asNormal(): this {
-		return this;
-	}
-	mutate(..._args: any[]): any {
-		return this;
-	}
-	previous(..._args: any[]): any {
-		return OptLazy(_args[1]?.otherwise) as any;
-	}
-	next(..._args: any[]): any {
-		return OptLazy(_args[1]?.otherwise) as any;
+	get drop(): SortedSet<E>['drop'] {
+		return this.#indexedEmpty.drop as any;
 	}
 }
 

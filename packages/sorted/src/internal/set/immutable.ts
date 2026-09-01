@@ -1,10 +1,13 @@
 import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
 import type { SortedSet } from '@rimbu/sorted/set';
-
-import type { ContextImpl } from '#set/context-factory';
+import type { SortedSetContext } from './context';
 
 import * as Arr from '@rimbu/base/arr';
 import * as RimbuError from '@rimbu/base/rimbu-error';
+import {
+	IndexedValuedSortedEmptyBase,
+	IndexedValuedSortedNonEmptyBase,
+} from '@rimbu/collection-types/advanced/collection/indexed-valued-sorted-base';
 import { IndexRange } from '@rimbu/common/index-range';
 import { OptLazy } from '@rimbu/common/opt-lazy';
 import { Range } from '@rimbu/common/range';
@@ -36,19 +39,24 @@ import {
 	leafMutateJoinLeft,
 	leafMutateJoinRight,
 	leafMutateSplitRight,
-	SortedEmpty,
 	SortedNonEmptyBase,
 } from '#sorted/base';
 import { SortedIndex } from '#sorted/sorted-index';
 
 export class SortedSetEmpty<T = any>
-	extends SortedEmpty
+	extends IndexedValuedSortedEmptyBase<T, SortedSet.Advanced.Family<T>>
 	implements SortedSet<T>
 {
-	declare _NonEmptyType: SortedSet.NonEmpty<T>;
+	constructor(readonly context: SortedSetContext<T>) {
+		super(context);
+	}
 
-	constructor(readonly context: ContextImpl<T>) {
-		super();
+	get add() {
+		return this.context.of;
+	}
+
+	get addAll() {
+		return this.context.from;
 	}
 
 	streamRange(): Stream<T> {
@@ -59,170 +67,35 @@ export class SortedSetEmpty<T = any>
 		return Stream.empty();
 	}
 
-	has(): false {
-		return false;
-	}
-
-	findIndex<O>(_value: T, otherwise?: OptLazy<O>): O {
-		return OptLazy(otherwise!);
-	}
-
-	lowerBound(): number {
+	lowerBound(): 0 {
 		return 0;
 	}
 
-	upperBound(): number {
+	upperBound(): 0 {
 		return 0;
-	}
-
-	next(): undefined {
-		return undefined;
-	}
-
-	previous(): undefined {
-		return undefined;
-	}
-
-	add(value: T): SortedSet.NonEmpty<T> {
-		return this.context.leaf([value]);
-	}
-
-	addAll(values: StreamSource<T>): SortedSet.NonEmpty<T> {
-		return this.context.from(values) as SortedSet.NonEmpty<T>;
-	}
-
-	remove(_value: any): this {
-		return this;
-	}
-
-	removeAll(_values: any): this {
-		return this;
-	}
-
-	slice(_range: any): this {
-		return this;
-	}
-
-	// @ts-expect-error
-	sliceIndex(_range: any): this {
-		return this;
-	}
-
-	get comp(): any {
-		return this.context.comp;
-	}
-
-	at(index: number, otherwise?: OptLazy<any>): any {
-		return this.atIndex(index, otherwise);
-	}
-
-	indexOf(value: T, otherwise?: OptLazy<any>): any {
-		return this.findIndex(value, otherwise);
-	}
-
-	streamSlice(_range?: any, _options?: any): Stream<T> {
-		return Stream.empty();
-	}
-
-	forEachIndexed(_f: any, _options?: any): void {}
-
-	filter(_pred: any, _options?: any): this {
-		return this;
-	}
-
-	filterIndexed(_pred: any, _options?: any): this {
-		return this;
-	}
-
-	forEach(_f: any, _options?: any): void {}
-
-	transform<T2 extends T>(
-		transformFun: (stream: Stream<T>) => StreamSource<T2>,
-	): any {
-		return this.context.from(transformFun(this.stream()));
-	}
-
-	union(other: StreamSource<T>): SortedSet<T> | any {
-		if (
-			this.context.isSortedSetLeaf(other) ||
-			this.context.isSortedSetNode(other)
-		) {
-			if (other.context === this.context) return other;
-		}
-
-		return this.context.from(other);
-	}
-
-	difference(): SortedSet<T> {
-		return this.context.empty();
-	}
-
-	intersect(): SortedSet<T> {
-		return this.context.empty();
-	}
-
-	symDifference(other: StreamSource<T>): SortedSet<T> {
-		return this.union(other);
-	}
-
-	first<O>(_otherwise?: OptLazy<O>): any {
-		return OptLazy(_otherwise as any);
-	}
-
-	last<O>(_otherwise?: OptLazy<O>): any {
-		return OptLazy(_otherwise as any);
-	}
-
-	splitAt(_amount?: any): any {
-		return [this, this];
-	}
-
-	intersection(other: StreamSource<T>): SortedSet<T> {
-		return (this as any).intersect(other);
-	}
-
-	symmetricDifference(other: StreamSource<T>): SortedSet<T> {
-		return (this as any).symDifference(other);
-	}
-
-	toBuilder(): SortedSet.Builder<T> {
-		return this.context.builder();
-	}
-
-	toString(): string {
-		return `SortedSet()`;
-	}
-
-	toJSON(): ToJSON<T[]> {
-		return {
-			dataType: this.context.typeTag,
-			value: [],
-		};
 	}
 }
 
 export abstract class SortedSetNode<T>
-	extends SortedNonEmptyBase<T, SortedSetNode<T>>
+	extends IndexedValuedSortedNonEmptyBase<T, SortedSet.Advanced.Family<T>>
 	implements SortedSet.NonEmpty<T>
 {
-	declare _NonEmptyType: SortedSetNode<T>;
-
-	abstract get context(): ContextImpl<T>;
-	abstract get size(): number;
-	abstract stream(options?: { reversed?: boolean }): Stream.NonEmpty<T>;
-	abstract streamSliceIndex(
-		range: IndexRange,
-		options?: { reversed?: boolean },
-	): Stream<T>;
-	abstract forEach(
-		f: (value: T, index: number, halt: () => void) => void,
-		options?: { state?: TraverseState },
-	): void;
-	abstract has<U>(value: RelatedTo<T, U>): boolean;
-	abstract findIndex(value: T): number | undefined;
-	abstract min(): T;
-	abstract max(): T;
-	abstract toArray(): ArrayNonEmpty<T>;
+	// abstract get context(): SortedSetContext<T>;
+	// abstract get size(): number;
+	// abstract stream(options?: { reversed?: boolean }): Stream.NonEmpty<T>;
+	// abstract streamSliceIndex(
+	// 	range: IndexRange,
+	// 	options?: { reversed?: boolean },
+	// ): Stream<T>;
+	// abstract forEach(
+	// 	f: (value: T, index: number, halt: () => void) => void,
+	// 	options?: { state?: TraverseState },
+	// ): void;
+	// abstract has<U>(value: RelatedTo<T, U>): boolean;
+	// abstract findIndex(value: T): number | undefined;
+	// abstract min(): T;
+	// abstract max(): T;
+	// abstract toArray(): ArrayNonEmpty<T>;
 
 	// internal methods
 	abstract addInternal(value: T): SortedSetNode<T>;
@@ -230,9 +103,9 @@ export abstract class SortedSetNode<T>
 	abstract getInsertIndexOf(value: T): number;
 	abstract normalize(): SortedSet<T>;
 
-	asNormal(): this {
-		return this;
-	}
+	// asNormal(): this {
+	// 	return this;
+	// }
 
 	lowerBound(value: T): number {
 		const index = this.getInsertIndexOf(value);
@@ -254,7 +127,7 @@ export abstract class SortedSetNode<T>
 		const index = this.getInsertIndexOf(value);
 		const atIndex = index >= 0 ? (inclusive ? index : index + 1) : -index - 1;
 
-		return this.atIndex(atIndex, otherwise);
+		return this.at(atIndex, otherwise);
 	}
 
 	previous<O>(
@@ -269,86 +142,86 @@ export abstract class SortedSetNode<T>
 			index >= 0 ? (inclusive ? index : index - 1) : -index - 1 - 1;
 
 		if (atIndex < 0) return OptLazy(otherwise) as O;
-		return this.atIndex(atIndex, otherwise);
+		return this.at(atIndex, otherwise);
 	}
 
-	getSliceRange(range: Range<T>): { startIndex: number; endIndex: number } {
-		const { start, end } = Range.getNormalizedRange(range);
-		let startIndex = 0;
-		let endIndex = this.size - 1;
+	// getSliceRange(range: Range<T>): { startIndex: number; endIndex: number } {
+	// 	const { start, end } = Range.getNormalizedRange(range);
+	// 	let startIndex = 0;
+	// 	let endIndex = this.size - 1;
 
-		if (undefined !== start) {
-			const [startValue, startInclude] = start;
-			startIndex = this.getInsertIndexOf(startValue);
+	// 	if (undefined !== start) {
+	// 		const [startValue, startInclude] = start;
+	// 		startIndex = this.getInsertIndexOf(startValue);
 
-			if (startIndex < 0) startIndex = SortedIndex.next(startIndex);
-			else if (!startInclude) startIndex++;
-		}
-		if (undefined !== end) {
-			const [endValue, endInclude] = end;
-			endIndex = this.getInsertIndexOf(endValue);
+	// 		if (startIndex < 0) startIndex = SortedIndex.next(startIndex);
+	// 		else if (!startInclude) startIndex++;
+	// 	}
+	// 	if (undefined !== end) {
+	// 		const [endValue, endInclude] = end;
+	// 		endIndex = this.getInsertIndexOf(endValue);
 
-			if (endIndex < 0) endIndex = SortedIndex.prev(endIndex);
-			else if (!endInclude) endIndex--;
-		}
+	// 		if (endIndex < 0) endIndex = SortedIndex.prev(endIndex);
+	// 		else if (!endInclude) endIndex--;
+	// 	}
 
-		return { startIndex, endIndex };
-	}
+	// 	return { startIndex, endIndex };
+	// }
 
-	streamRange(range: Range<T>, options?: { reversed?: boolean }): Stream<T> {
-		const { startIndex, endIndex } = this.getSliceRange(range);
+	// streamRange(range: Range<T>, options?: { reversed?: boolean }): Stream<T> {
+	// 	const { startIndex, endIndex } = this.getSliceRange(range);
 
-		return this.streamSliceIndex(
-			{
-				start: [startIndex, true],
-				end: [endIndex, true],
-			},
-			options,
-		);
-	}
+	// 	return this.streamSliceIndex(
+	// 		{
+	// 			start: [startIndex, true],
+	// 			end: [endIndex, true],
+	// 		},
+	// 		options,
+	// 	);
+	// }
 
 	add(value: T): SortedSet.NonEmpty<T> {
 		return this.addInternal(value).normalize().assumeNonEmpty();
 	}
 
-	addAll(values: StreamSource<T>): SortedSet.NonEmpty<T> {
-		if (Stream.isEmptyStreamSourceInstance(values)) return this;
+	// addAll(values: StreamSource<T>): SortedSet.NonEmpty<T> {
+	// 	if (Stream.isEmptyStreamSourceInstance(values)) return this;
 
-		const builder = this.toBuilder();
-		builder.addAll(values);
-		return builder.build().assumeNonEmpty();
-	}
+	// 	const builder = this.toBuilder();
+	// 	builder.addAll(values);
+	// 	return builder.build().assumeNonEmpty();
+	// }
 
 	remove<U>(value: RelatedTo<T, U>): SortedSet<T> {
 		if (!this.context.comp.isComparable(value)) return this;
 		return this.removeInternal(value).normalize();
 	}
 
-	removeAll<U>(values: StreamSource<RelatedTo<T, U>>): SortedSet<T> {
-		if (Stream.isEmptyStreamSourceInstance(values)) return this;
+	// removeAll<U>(values: StreamSource<RelatedTo<T, U>>): SortedSet<T> {
+	// 	if (Stream.isEmptyStreamSourceInstance(values)) return this;
 
-		const builder = this.toBuilder();
-		builder.removeAll(values);
-		return builder.build();
-	}
+	// 	const builder = this.toBuilder();
+	// 	builder.removeAll(values);
+	// 	return builder.build();
+	// }
 
-	filter(
-		pred: (value: T, index: number, halt: () => void) => boolean,
-		options: { negate?: boolean | undefined } = {},
-	): any {
-		const builder = this.context.builder();
+	// filter(
+	// 	pred: (value: T, index: number, halt: () => void) => boolean,
+	// 	options: { negate?: boolean | undefined } = {},
+	// ): any {
+	// 	const builder = this.context.builder();
 
-		builder.addAll(this.stream().filter(pred, options));
+	// 	builder.addAll(this.stream().filter(pred, options));
 
-		if (builder.size === this.size) return this;
-		return builder.build();
-	}
+	// 	if (builder.size === this.size) return this;
+	// 	return builder.build();
+	// }
 
-	transform<T2 extends T>(
-		transformFun: (stream: Stream.NonEmpty<T>) => StreamSource<T2>,
-	): any {
-		return this.context.from(transformFun(this.stream()));
-	}
+	// transform<T2 extends T>(
+	// 	transformFun: (stream: Stream.NonEmpty<T>) => StreamSource<T2>,
+	// ): any {
+	// 	return this.context.from(transformFun(this.stream()));
+	// }
 
 	take(amount: number): SortedSet<T> | any {
 		if (amount === 0) return this.context.empty();
@@ -366,195 +239,195 @@ export abstract class SortedSetNode<T>
 		return this.dropInternal(amount).normalize();
 	}
 
-	sliceIndex(range: IndexRange): SortedSet<T> {
-		const indexRange = IndexRange.getIndicesFor(range, this.size);
+	// sliceIndex(range: IndexRange): SortedSet<T> {
+	// 	const indexRange = IndexRange.getIndicesFor(range, this.size);
 
-		if (indexRange === 'empty') return this.context.empty();
-		if (indexRange === 'all') return this;
+	// 	if (indexRange === 'empty') return this.context.empty();
+	// 	if (indexRange === 'all') return this;
 
-		const [start, end] = indexRange;
+	// 	const [start, end] = indexRange;
 
-		return this.drop(start).take(end - start + 1);
-	}
+	// 	return this.drop(start).take(end - start + 1);
+	// }
 
-	slice(range: any): SortedSet<T> {
-		// if range has 'amount', it's definitely IndexRange (positional)
-		if (range && typeof range === 'object' && 'amount' in range) {
-			return this.sliceIndex(range as IndexRange);
-		}
-		// otherwise treat as Range<T> (comparator)
-		const { startIndex, endIndex } = this.getSliceRange(range as Range<T>);
+	// slice(range: any): SortedSet<T> {
+	// 	// if range has 'amount', it's definitely IndexRange (positional)
+	// 	if (range && typeof range === 'object' && 'amount' in range) {
+	// 		return this.sliceIndex(range as IndexRange);
+	// 	}
+	// 	// otherwise treat as Range<T> (comparator)
+	// 	const { startIndex, endIndex } = this.getSliceRange(range as Range<T>);
 
-		return this.sliceIndex({
-			start: [startIndex, true],
-			end: [endIndex, true],
-		});
-	}
+	// 	return this.sliceIndex({
+	// 		start: [startIndex, true],
+	// 		end: [endIndex, true],
+	// 	});
+	// }
 
-	get comp(): any {
-		return this.context.comp;
-	}
+	// get comp(): any {
+	// 	return this.context.comp;
+	// }
 
-	at(index: number, otherwise?: OptLazy<any>): any {
-		return this.atIndex(index, otherwise);
-	}
+	// at(index: number, otherwise?: OptLazy<any>): any {
+	// 	return this.atIndex(index, otherwise);
+	// }
 
-	// @ts-expect-error
-	indexOf(value: T, otherwise?: OptLazy<any>): any {
-		return (this as any).findIndex(value, otherwise);
-	}
+	// // @ts-expect-error
+	// indexOf(value: T, otherwise?: OptLazy<any>): any {
+	// 	return (this as any).findIndex(value, otherwise);
+	// }
 
-	streamSlice(range: any, options?: any): Stream<T> {
-		return this.streamSliceIndex(range, options);
-	}
+	// streamSlice(range: any, options?: any): Stream<T> {
+	// 	return this.streamSliceIndex(range, options);
+	// }
 
-	forEachIndexed(f: any, options?: any): void {
-		return this.forEach(f as any, options as any);
-	}
+	// forEachIndexed(f: any, options?: any): void {
+	// 	return this.forEach(f as any, options as any);
+	// }
 
-	filterIndexed(pred: any, options?: any): any {
-		return this.filter(pred as any, options as any);
-	}
+	// filterIndexed(pred: any, options?: any): any {
+	// 	return this.filter(pred as any, options as any);
+	// }
 
-	first(..._args: any[]): any {
-		return (this as any).min(..._args);
-	}
+	// first(..._args: any[]): any {
+	// 	return (this as any).min(..._args);
+	// }
 
-	last(..._args: any[]): any {
-		return (this as any).max(..._args);
-	}
+	// last(..._args: any[]): any {
+	// 	return (this as any).max(..._args);
+	// }
 
-	splitAt(..._args: any[]): any {
-		const [amount] = _args;
-		return [this.take(amount), this.drop(amount)];
-	}
+	// splitAt(..._args: any[]): any {
+	// 	const [amount] = _args;
+	// 	return [this.take(amount), this.drop(amount)];
+	// }
 
-	removeAt(index: number, amount?: number | undefined): SortedSet<T> {
-		const sz = (this as any).size as number;
-		let idx = index;
-		if (idx < 0) idx = sz + idx;
-		if (idx < 0 || idx >= sz) return this as any;
-		const amt = amount === undefined ? 1 : amount;
-		if (amt <= 0) return this as any;
-		if (amt >= sz && idx === 0) return (this as any).context.empty();
-		// remove by iterative value removal
-		let result: SortedSet<T> = this as any;
-		for (let i = 0; i < amt; i++) {
-			const v = (result as any).at(idx);
-			if (undefined === v) break;
-			result = result.remove(v);
-			// idx stays same, next element shifts into position
-			if ((result as any).size <= idx && amt > 1) break;
-		}
-		return result;
-	}
+	// removeAt(index: number, amount?: number | undefined): SortedSet<T> {
+	// 	const sz = (this as any).size as number;
+	// 	let idx = index;
+	// 	if (idx < 0) idx = sz + idx;
+	// 	if (idx < 0 || idx >= sz) return this as any;
+	// 	const amt = amount === undefined ? 1 : amount;
+	// 	if (amt <= 0) return this as any;
+	// 	if (amt >= sz && idx === 0) return (this as any).context.empty();
+	// 	// remove by iterative value removal
+	// 	let result: SortedSet<T> = this as any;
+	// 	for (let i = 0; i < amt; i++) {
+	// 		const v = (result as any).at(idx);
+	// 		if (undefined === v) break;
+	// 		result = result.remove(v);
+	// 		// idx stays same, next element shifts into position
+	// 		if ((result as any).size <= idx && amt > 1) break;
+	// 	}
+	// 	return result;
+	// }
 
-	removeAtAndReturn(index: number, amount?: number | undefined): any {
-		const removed = (this as any).slice({
-			start: index,
-			amount: amount ?? 1,
-		} as any);
-		const next = (this as any).removeAt(index, amount);
-		// DynamicResult: if removed empty? keep simple
-		return [next, removed] as any;
-	}
+	// removeAtAndReturn(index: number, amount?: number | undefined): any {
+	// 	const removed = (this as any).slice({
+	// 		start: index,
+	// 		amount: amount ?? 1,
+	// 	} as any);
+	// 	const next = (this as any).removeAt(index, amount);
+	// 	// DynamicResult: if removed empty? keep simple
+	// 	return [next, removed] as any;
+	// }
 
-	intersection(other: StreamSource<T>): SortedSet<T> {
-		return (this as any).intersect(other);
-	}
+	// intersection(other: StreamSource<T>): SortedSet<T> {
+	// 	return (this as any).intersect(other);
+	// }
 
-	symmetricDifference(other: StreamSource<T>): SortedSet<T> {
-		return (this as any).symDifference(other);
-	}
+	// symmetricDifference(other: StreamSource<T>): SortedSet<T> {
+	// 	return (this as any).symDifference(other);
+	// }
 
-	union(other: StreamSource<T>): SortedSet<T> | any {
-		if (other === this) return this;
-		if (Stream.isEmptyStreamSourceInstance(other)) return this;
+	// union(other: StreamSource<T>): SortedSet<T> | any {
+	// 	if (other === this) return this;
+	// 	if (Stream.isEmptyStreamSourceInstance(other)) return this;
 
-		const builder = this.toBuilder();
-		builder.addAll(other);
-		return builder.build();
-	}
+	// 	const builder = this.toBuilder();
+	// 	builder.addAll(other);
+	// 	return builder.build();
+	// }
 
-	difference(other: StreamSource<T>): SortedSet<T> {
-		if (other === this) return this.context.empty();
-		if (Stream.isEmptyStreamSourceInstance(other)) return this;
+	// difference(other: StreamSource<T>): SortedSet<T> {
+	// 	if (other === this) return this.context.empty();
+	// 	if (Stream.isEmptyStreamSourceInstance(other)) return this;
 
-		const builder = this.toBuilder();
-		builder.removeAll(other);
-		return builder.build();
-	}
+	// 	const builder = this.toBuilder();
+	// 	builder.removeAll(other);
+	// 	return builder.build();
+	// }
 
-	intersect(other: StreamSource<T>): SortedSet<T> {
-		if (other === this) return this;
-		if (Stream.isEmptyStreamSourceInstance(other)) return this.context.empty();
+	// intersect(other: StreamSource<T>): SortedSet<T> {
+	// 	if (other === this) return this;
+	// 	if (Stream.isEmptyStreamSourceInstance(other)) return this.context.empty();
 
-		const builder = this.context.builder();
-		const otherIter = Stream.from(other)[Symbol.iterator]();
-		const done = Symbol('Done');
+	// 	const builder = this.context.builder();
+	// 	const otherIter = Stream.from(other)[Symbol.iterator]();
+	// 	const done = Symbol('Done');
 
-		if (this.context.isSortedSetNode(other)) {
-			const thisIt = this[Symbol.iterator]();
-			let thisValue: T | typeof done = thisIt.fastNext(done);
-			let otherValue: T | typeof done = otherIter.fastNext(done);
-			const comp = this.context.comp;
+	// 	if (this.context.isSortedSetNode(other)) {
+	// 		const thisIt = this[Symbol.iterator]();
+	// 		let thisValue: T | typeof done = thisIt.fastNext(done);
+	// 		let otherValue: T | typeof done = otherIter.fastNext(done);
+	// 		const comp = this.context.comp;
 
-			while (true) {
-				if (done === thisValue || done === otherValue) {
-					break;
-				}
+	// 		while (true) {
+	// 			if (done === thisValue || done === otherValue) {
+	// 				break;
+	// 			}
 
-				const result = comp.compare(thisValue, otherValue);
-				if (result === 0) builder.add(thisValue);
-				if (result <= 0) thisValue = thisIt.fastNext(done);
-				if (result >= 0) otherValue = otherIter.fastNext(done);
-			}
-		} else {
-			let value: T | typeof done;
+	// 			const result = comp.compare(thisValue, otherValue);
+	// 			if (result === 0) builder.add(thisValue);
+	// 			if (result <= 0) thisValue = thisIt.fastNext(done);
+	// 			if (result >= 0) otherValue = otherIter.fastNext(done);
+	// 		}
+	// 	} else {
+	// 		let value: T | typeof done;
 
-			while (done !== (value = otherIter.fastNext(done))) {
-				if (this.has(value)) builder.add(value);
-			}
-		}
+	// 		while (done !== (value = otherIter.fastNext(done))) {
+	// 			if (this.has(value)) builder.add(value);
+	// 		}
+	// 	}
 
-		if (builder.size === this.size) return this;
+	// 	if (builder.size === this.size) return this;
 
-		return builder.build();
-	}
+	// 	return builder.build();
+	// }
 
-	symDifference(other: StreamSource<T>): SortedSet<T> {
-		if (other === this) return this.context.empty();
+	// symDifference(other: StreamSource<T>): SortedSet<T> {
+	// 	if (other === this) return this.context.empty();
 
-		if (Stream.isEmptyStreamSourceInstance(other)) return this;
+	// 	if (Stream.isEmptyStreamSourceInstance(other)) return this;
 
-		const builder = this.toBuilder();
+	// 	const builder = this.toBuilder();
 
-		Stream.from(other)
-			.filterPure({ pred: builder.remove, negate: true })
-			.forEach(builder.add);
+	// 	Stream.from(other)
+	// 		.filterPure({ pred: builder.remove, negate: true })
+	// 		.forEach(builder.add);
 
-		return builder.build();
-	}
+	// 	return builder.build();
+	// }
 
-	toBuilder(): SortedSet.Builder<T> {
-		return this.context.createBuilder(this);
-	}
+	// toBuilder(): SortedSet.Builder<T> {
+	// 	return this.context.createBuilder(this);
+	// }
 
-	toString(): string {
-		return this.stream().join({ start: 'SortedSet(', sep: ', ', end: ')' });
-	}
+	// toString(): string {
+	// 	return this.stream().join({ start: 'SortedSet(', sep: ', ', end: ')' });
+	// }
 
-	toJSON(): ToJSON<T[]> {
-		return {
-			dataType: this.context.typeTag,
-			value: this.toArray(),
-		};
-	}
+	// toJSON(): ToJSON<T[]> {
+	// 	return {
+	// 		dataType: this.context.typeTag,
+	// 		value: this.toArray(),
+	// 	};
+	// }
 }
 
 export class SortedSetLeaf<T> extends SortedSetNode<T> {
 	constructor(
-		readonly context: ContextImpl<T>,
+		readonly context: SortedSetContext<T>,
 		public entries: readonly T[],
 	) {
 		super();
@@ -573,22 +446,22 @@ export class SortedSetLeaf<T> extends SortedSetNode<T> {
 		return Stream.fromArray(this.entries, options) as Stream.NonEmpty<T>;
 	}
 
-	streamSliceIndex(
-		range: IndexRange,
-		options: { reversed?: boolean } = {},
-	): Stream<T> {
-		const { reversed = false } = options;
+	// streamSliceIndex(
+	// 	range: IndexRange,
+	// 	options: { reversed?: boolean } = {},
+	// ): Stream<T> {
+	// 	const { reversed = false } = options;
 
-		return Stream.fromArray(this.entries, { range, reversed });
-	}
+	// 	return Stream.fromArray(this.entries, { range, reversed });
+	// }
 
-	min(): T {
-		return this.entries[0];
-	}
+	// min(): T {
+	// 	return this.entries[0];
+	// }
 
-	max(): T {
-		return this.entries.at(-1)!;
-	}
+	// max(): T {
+	// 	return this.entries.at(-1)!;
+	// }
 
 	has<U>(value: RelatedTo<T, U>): boolean {
 		if (!this.context.comp.isComparable(value)) return false;
@@ -601,12 +474,12 @@ export class SortedSetLeaf<T> extends SortedSetNode<T> {
 		return index < 0 ? OptLazy(otherwise!) : index;
 	}
 
-	atIndex<O>(index: number, otherwise?: OptLazy<O>): T | O {
+	at<O>(index: number, otherwise?: OptLazy<O>): T | O {
 		if (index >= this.size || -index > this.size) {
 			return OptLazy(otherwise) as O;
 		}
 		if (index < 0) {
-			return this.atIndex(this.size + index, otherwise);
+			return this.at(this.size + index, otherwise);
 		}
 
 		return this.entries[index];
@@ -655,7 +528,7 @@ export class SortedSetLeaf<T> extends SortedSetNode<T> {
 
 		if (this.context.comp.compare(currentValue, value) !== 0) return this;
 
-		const newEntries = this.mutateEntries.toSpliced(entryIndex, 1);
+		const newEntries = this.entries.toSpliced(entryIndex, 1);
 		return this.copy(newEntries);
 	}
 
@@ -717,7 +590,7 @@ export class SortedSetLeaf<T> extends SortedSetNode<T> {
 
 export class SortedSetInner<T> extends SortedSetNode<T> {
 	constructor(
-		readonly context: ContextImpl<T>,
+		readonly context: SortedSetContext<T>,
 		public entries: readonly T[],
 		public children: readonly SortedSetNode<T>[],
 		public size: number,
@@ -766,14 +639,6 @@ export class SortedSetInner<T> extends SortedSetNode<T> {
 		return innerStreamSliceIndex<T>(this, range, reversed);
 	}
 
-	min(): T {
-		return this.children[0].min();
-	}
-
-	max(): T {
-		return this.children.at(-1)!.max();
-	}
-
 	has<U>(value: RelatedTo<T, U>): boolean {
 		if (!this.context.comp.isComparable(value)) return false;
 
@@ -812,7 +677,7 @@ export class SortedSetInner<T> extends SortedSetNode<T> {
 		return OptLazy(otherwise!);
 	}
 
-	atIndex<O>(index: number, otherwise?: OptLazy<O>): T | O {
+	at<O>(index: number, otherwise?: OptLazy<O>): T | O {
 		return innerGetAtIndex<T, O>(this, index, otherwise);
 	}
 

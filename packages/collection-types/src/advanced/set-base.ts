@@ -4,62 +4,61 @@ import type { SetCollection } from '@rimbu/collection-types/set';
 
 import {
 	ValuedCollectionBuilderBase,
-	ValuedCollectionEmptyBase,
 	ValuedCollectionNonEmptyBase,
 } from '@rimbu/collection-types/advanced/collection/valued-base';
 import { ContextBaseWithAddAll } from '@rimbu/collection-types/advanced/collection-base';
 import { Stream, type StreamSource } from '@rimbu/stream';
 import { Reducer } from '@rimbu/stream/reducer';
 
-export abstract class SetCollectionEmptyBase<
-		E,
-		FAM extends
-			SetCollection.Advanced.Family<E> = SetCollection.Advanced.Family<E>,
-		Tp extends Collection.Advanced.Types<FAM, E> = Collection.Advanced.Types<
-			FAM,
-			E
-		>,
-	>
-	extends ValuedCollectionEmptyBase<E, FAM, Tp>
-	implements
-		SetCollection.Advanced.Api<E, Tp>,
-		Collection.Capability.WithAdd.Api<E, Tp>,
-		ValuedCollection.Capability.WithDifferenceAndIntersection.Api<E, Tp>,
-		ValuedCollection.Capability.WithRemove.Api<E, Tp>,
-		ValuedCollection.Capability.WithSymmetricDifferenceAndUnion.Api<E, Tp>
-{
-	add(element: E): Tp['_NON_EMPTY'] {
-		return this.context.of(element);
-	}
+// export class SetCollectionEmptyBase<
+// 		E,
+// 		FAM extends
+// 			SetCollection.Advanced.Family<E> = SetCollection.Advanced.Family<E>,
+// 		Tp extends Collection.Advanced.Types<FAM, E> = Collection.Advanced.Types<
+// 			FAM,
+// 			E
+// 		>,
+// 	>
+// 	extends ValuedCollectionEmptyBase<E, FAM, Tp>
+// 	implements
+// 		SetCollection.Advanced.Api<E, Tp>,
+// 		Collection.Capability.WithAdd.Api<E, Tp>,
+// 		ValuedCollection.Capability.WithDifferenceAndIntersection.Api<E, Tp>,
+// 		ValuedCollection.Capability.WithRemove.Api<E, Tp>,
+// 		ValuedCollection.Capability.WithSymmetricDifferenceAndUnion.Api<E, Tp>
+// {
+// 	add(element: E): Tp['_NON_EMPTY'] {
+// 		return this.context.of(element);
+// 	}
 
-	addAll(elements: StreamSource<E>): Tp['_NON_EMPTY'] {
-		return this.context.from(elements) as Tp['_NON_EMPTY'];
-	}
+// 	addAll(elements: StreamSource<E>): Tp['_NON_EMPTY'] {
+// 		return this.context.from(elements) as Tp['_NON_EMPTY'];
+// 	}
 
-	remove(): this {
-		return this;
-	}
+// 	remove(): this {
+// 		return this;
+// 	}
 
-	removeAll(): this {
-		return this;
-	}
+// 	removeAll(): this {
+// 		return this;
+// 	}
 
-	difference(): this {
-		return this;
-	}
+// 	difference(): this {
+// 		return this;
+// 	}
 
-	intersection(): this {
-		return this;
-	}
+// 	intersection(): this {
+// 		return this;
+// 	}
 
-	symmetricDifference(other: StreamSource<E>): Tp['_NORMAL'] {
-		return this.context.from(other);
-	}
+// 	symmetricDifference(other: StreamSource<E>): Tp['_NORMAL'] {
+// 		return this.context.from(other);
+// 	}
 
-	union(other: StreamSource<E>): Tp['_NON_EMPTY'] {
-		return this.context.from(other) as Tp['_NON_EMPTY'];
-	}
-}
+// 	union(other: StreamSource<E>): Tp['_NON_EMPTY'] {
+// 		return this.context.from(other) as Tp['_NON_EMPTY'];
+// 	}
+// }
 
 export abstract class SetCollectionNonEmptyBase<
 		E,

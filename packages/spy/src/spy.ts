@@ -118,7 +118,7 @@ export namespace Spy {
 	 * @param onCall - (optional) a callback function that receives the parameters used on each function call
 	 * @example
 	 * ```ts
- * import { Spy } from '@rimbu/spy';
+	 * import { Spy } from '@rimbu/spy';
 	 * function f(x: number, y: number) {
 	 *   return x + y;
 	 * }
