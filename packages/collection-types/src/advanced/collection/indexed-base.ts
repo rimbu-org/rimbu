@@ -7,6 +7,8 @@ import {
 	type CollectionEmptyBase,
 	CollectionNonEmptyBase,
 	type Constructor,
+	type EmptyCapability,
+	type EmptyConstructor,
 } from '@rimbu/collection-types/advanced/collection-base';
 import { type ArrayNonEmpty, Err, IndexRange, OptLazy } from '@rimbu/common';
 import { Stream, type StreamSource } from '@rimbu/stream';
@@ -477,6 +479,19 @@ export interface IndexedCollectionEmptyBase<
 		IndexedCollection.Capability.WithSwapAt.Api<E, Tp>,
 		IndexedCollection.Capability.WithUpdateAt.Api<E, Tp> {}
 
+/**
+ * The capability contributed by {@link WithIndexedCollectionEmptyBase}.
+ */
+export interface IndexedEmptyCap extends EmptyCapability {
+	_API: IndexedCollectionEmptyBase<this['_E'], this['_TP']>;
+}
+
+/**
+ * Adds the indexed-collection API to an empty collection base constructor.
+ */
+export function WithIndexedCollectionEmptyBase<C extends EmptyCapability>(
+	Base: EmptyConstructor<C>,
+): EmptyConstructor<C & IndexedEmptyCap>;
 export function WithIndexedCollectionEmptyBase<
 	TBase extends Constructor<CollectionEmptyBase<E, FAM, Tp>>,
 	E,
@@ -593,7 +608,7 @@ export function WithIndexedCollectionEmptyBase<
 			};
 		}
 
-		swapAt(): any {
+		swapAt(): this {
 			return this;
 		}
 

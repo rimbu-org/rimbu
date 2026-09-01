@@ -10,6 +10,63 @@ import { Stream, type StreamSource } from '@rimbu/stream';
 
 export type Constructor<Res> = new (...args: any[]) => Res;
 
+/**
+ * Higher-kinded slot describing the extra API surface that a capability mixin
+ * contributes to an empty collection base class.
+ *
+ * Capability mixins cannot be generic in the element type of the class they
+ * produce (TypeScript mixin functions fix their type parameters at application
+ * time). Instead the element type `_E` and the types record `_TP` are supplied
+ * later, by the construct signature of {@link EmptyConstructor}, and each capability
+ * describes its contribution as a function of those slots.
+ *
+ * Capabilities compose by intersection: `(IndexedEmptyCap & ValuedEmptyCap)['_API']`
+ * is the intersection of both contributed API surfaces.
+ */
+export interface EmptyCapability {
+	/** the element type of the collection being extended */
+	_E: unknown;
+	/** the types record of the collection being extended */
+	_TP: Collection.Advanced.TypesBase;
+	/** the API surface contributed by this capability */
+	_API: unknown;
+}
+
+/**
+ * Resolves the API surface contributed by capability `C` for element type `E`
+ * and types record `Tp`.
+ */
+export type ApplyEmptyCapability<
+	C extends EmptyCapability,
+	E,
+	Tp extends Collection.Advanced.TypesBase,
+> = (C & { _E: E; _TP: Tp })['_API'];
+
+/**
+ * A constructor for an empty collection base class carrying the capabilities
+ * `C`. The element type, family and types record are type parameters of the
+ * *construct signature*, not of the enclosing type, so a subclass can bind them
+ * to its own type parameters:
+ *
+ * ```ts
+ * const Base = WithValuedCollectionEmptyBase(CollectionEmptyCtor);
+ *
+ * class MySetEmpty<E> extends Base<E, MySet.Advanced.Family<E>> {}
+ * ```
+ */
+export interface EmptyConstructor<C extends EmptyCapability> {
+	new <
+		E,
+		FAM extends Collection.Advanced.Family<E>,
+		Tp extends Collection.Advanced.Types<FAM, E> = Collection.Advanced.Types<
+			FAM,
+			E
+		>,
+	>(
+		context: FAM['_CONTEXT'],
+	): CollectionEmptyBase<E, FAM, Tp> & ApplyEmptyCapability<C, E, Tp>;
+}
+
 export class CollectionEmptyBase<
 	E,
 	FAM extends Collection.Advanced.Family<E> = Collection.Advanced.Family<E>,
@@ -71,6 +128,17 @@ export class CollectionEmptyBase<
 		return this.context.builder();
 	}
 }
+
+/**
+ * {@link CollectionEmptyBase} viewed as a capability-free {@link EmptyConstructor} —
+ * the seed value to pass to the first capability mixin in a composition.
+ *
+ * The cast is unavoidable: TypeScript does not relate two generic construct
+ * signatures higher-order, so the class cannot be assigned to `EmptyCtor`
+ * directly even though it is structurally identical.
+ */
+export const CollectionEmptyCtor =
+	CollectionEmptyBase as unknown as EmptyConstructor<EmptyCapability>;
 
 export abstract class CollectionNonEmptyBase<
 	E,

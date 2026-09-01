@@ -1,28 +1,12 @@
 import type { HashSet } from '@rimbu/hashed/set';
 
-import { WithIndexedCollectionEmptyBase } from '@rimbu/collection-types/advanced/collection/indexed-base';
 import { WithValuedCollectionEmptyBase } from '@rimbu/collection-types/advanced/collection/valued-base';
-import { CollectionEmptyBase } from '@rimbu/collection-types/advanced/collection-base';
+import { CollectionEmptyCtor } from '@rimbu/collection-types/advanced/collection-base';
 
-const M = WithIndexedCollectionEmptyBase(CollectionEmptyBase)<number>;
-const H2 = WithValuedCollectionEmptyBase(
-	WithIndexedCollectionEmptyBase(CollectionEmptyBase),
-);
+const HashSetEmptyBase = WithValuedCollectionEmptyBase(CollectionEmptyCtor);
 
 export class HashSetEmpty<E = any>
-	// extends CollectionEmptyBase<E, HashSet.Advanced.Family<E>>
-	// extends WithIndexedCollectionEmptyBase(CollectionEmptyBase)<
-	// 	E,
-	// 	HashSet.Advanced.Family<E>
-	// >
-	extends WithValuedCollectionEmptyBase(
-		WithIndexedCollectionEmptyBase(CollectionEmptyBase),
-	)<E, HashSet.Advanced.Family<E>>
-	// extends WithIndexedValuedSortedCollectionEmptyBase(
-	// 	WithSortedCollectionEmptyBase(
-	// 		WithIndexedValuedCollectionEmptyBase(CollectionEmptyBase),
-	// 	),
-	// )
+	extends HashSetEmptyBase<E, HashSet.Advanced.Family<E>>
 	implements HashSet<E>
 {
 	toString(): string {

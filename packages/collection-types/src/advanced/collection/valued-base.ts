@@ -7,6 +7,8 @@ import {
 	type CollectionEmptyBase,
 	CollectionNonEmptyBase,
 	type Constructor,
+	type EmptyCapability,
+	type EmptyConstructor,
 } from '@rimbu/collection-types/advanced/collection-base';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
@@ -143,6 +145,19 @@ export interface ValuedCollectionEmptyBase<
 		ValuedCollection.Capability.WithSymmetricDifferenceAndUnion.Api<E, Tp>,
 		ValuedCollection.Capability.WithRemove.Api<E, Tp> {}
 
+/**
+ * The capability contributed by {@link WithValuedCollectionEmptyBase}.
+ */
+export interface ValuedEmptyCap extends EmptyCapability {
+	_API: ValuedCollectionEmptyBase<this['_E'], this['_TP']>;
+}
+
+/**
+ * Adds the valued-collection API to an empty collection base constructor.
+ */
+export function WithValuedCollectionEmptyBase<C extends EmptyCapability>(
+	Base: EmptyConstructor<C>,
+): EmptyConstructor<C & ValuedEmptyCap>;
 export function WithValuedCollectionEmptyBase<
 	TBase extends Constructor<CollectionEmptyBase<E, FAM, Tp>>,
 	E,

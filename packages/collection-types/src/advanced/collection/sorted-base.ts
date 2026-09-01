@@ -1,6 +1,8 @@
 import type {
 	CollectionEmptyBase,
 	Constructor,
+	EmptyCapability,
+	EmptyConstructor,
 } from '@rimbu/collection-types/advanced/collection-base';
 import type { Collection } from '@rimbu/collection-types/collection';
 import type { SortedCollection } from '@rimbu/collection-types/collection/sorted';
@@ -39,6 +41,19 @@ export interface SortedCollectionEmptyBase<
 	Tp extends Collection.Advanced.TypesBase,
 > extends SortedCollection.Advanced.Api<E, S, Tp> {}
 
+/**
+ * The capability contributed by {@link WithSortedCollectionEmptyBase}.
+ */
+export interface SortedEmptyCap extends EmptyCapability {
+	_API: SortedCollectionEmptyBase<this['_E'], this['_E'], this['_TP']>;
+}
+
+/**
+ * Adds the sorted-collection API to an empty collection base constructor.
+ */
+export function WithSortedCollectionEmptyBase<C extends EmptyCapability>(
+	Base: EmptyConstructor<C>,
+): EmptyConstructor<C & SortedEmptyCap>;
 export function WithSortedCollectionEmptyBase<
 	TBase extends Constructor<CollectionEmptyBase<E, FAM, Tp>>,
 	E,
