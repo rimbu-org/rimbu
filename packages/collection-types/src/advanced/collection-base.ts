@@ -137,7 +137,7 @@ export class CollectionEmptyBase<
  * signatures higher-order, so the class cannot be assigned to `EmptyCtor`
  * directly even though it is structurally identical.
  */
-export const CollectionEmptyCtor =
+export const CollectionEmptyConstructor =
 	CollectionEmptyBase as unknown as EmptyConstructor<EmptyCapability>;
 
 export abstract class CollectionNonEmptyBase<

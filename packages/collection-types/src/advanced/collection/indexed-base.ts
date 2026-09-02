@@ -14,146 +14,164 @@ import { type ArrayNonEmpty, Err, IndexRange, OptLazy } from '@rimbu/common';
 import { Stream, type StreamSource } from '@rimbu/stream';
 import { Reducer } from '@rimbu/stream/reducer';
 
-// export class IndexedCollectionEmptyBase<
-// 		E,
-// 		FAM extends
-// 			IndexedCollection.Advanced.Family<E> = IndexedCollection.Advanced.Family<E>,
-// 		Tp extends Collection.Advanced.Types<FAM, E> = Collection.Advanced.Types<
-// 			FAM,
-// 			E
-// 		>,
-// 	>
-// 	extends CollectionEmptyBase<E, FAM, Tp>
-// 	implements
-// 		IndexedCollection.Advanced.Api<E, Tp>,
-// 		IndexedCollection.Capability.WithConcat.Api<E, Tp>,
-// 		IndexedCollection.Capability.WithInsertAt.Api<E, Tp>,
-// 		IndexedCollection.Capability.WithPrependAppend.Api<E, Tp>,
-// 		IndexedCollection.Capability.WithRemoveAt.Api<E, Tp>,
-// 		IndexedCollection.Capability.WithSwapAt.Api<E, Tp>,
-// 		IndexedCollection.Capability.WithUpdateAt.Api<E, Tp>
-// {
-// 	streamSlice(): Stream<E> {
-// 		return Stream.empty<E>();
-// 	}
+export interface IndexedCollectionEmptyBase<
+	E,
+	Tp extends Collection.Advanced.TypesBase,
+> extends IndexedCollection.Advanced.Api<E, Tp>,
+		IndexedCollection.Capability.WithConcat.Api<E, Tp>,
+		IndexedCollection.Capability.WithInsertAt.Api<E, Tp>,
+		IndexedCollection.Capability.WithPrependAppend.Api<E, Tp>,
+		IndexedCollection.Capability.WithRemoveAt.Api<E, Tp>,
+		IndexedCollection.Capability.WithSwapAt.Api<E, Tp>,
+		IndexedCollection.Capability.WithUpdateAt.Api<E, Tp> {}
 
-// 	at<O>(otherwise?: OptLazy<O>): O {
-// 		return OptLazy(otherwise) as O;
-// 	}
+/**
+ * The capability contributed by {@link WithIndexedCollectionEmptyBase}.
+ */
+export interface IndexedEmptyCapability extends EmptyCapability {
+	_API: IndexedCollectionEmptyBase<this['_E'], this['_TP']>;
+}
 
-// 	first<O>(otherwise?: OptLazy<O>): O {
-// 		return OptLazy(otherwise) as O;
-// 	}
+/**
+ * Adds the indexed-collection API to an empty collection base constructor.
+ */
+export function WithIndexedCollectionEmptyBase<C extends EmptyCapability>(
+	Base: EmptyConstructor<C>,
+): EmptyConstructor<C & IndexedEmptyCapability>;
+export function WithIndexedCollectionEmptyBase<
+	TBase extends Constructor<CollectionEmptyBase<E, FAM, Tp>>,
+	E,
+	FAM extends Collection.Advanced.Family<E> = Collection.Advanced.Family<E>,
+	Tp extends Collection.Advanced.Types<FAM, E> = Collection.Advanced.Types<
+		FAM,
+		E
+	>,
+>(Base: TBase): TBase & Constructor<IndexedCollectionEmptyBase<E, Tp>> {
+	return class extends Base {
+		streamSlice(): Stream<E> {
+			return Stream.empty<E>();
+		}
 
-// 	last<O>(otherwise?: OptLazy<O>): O {
-// 		return OptLazy(otherwise) as O;
-// 	}
+		at<O>(otherwise?: OptLazy<O>): O {
+			return OptLazy(otherwise) as O;
+		}
 
-// 	take(): this {
-// 		return this;
-// 	}
+		first<O>(otherwise?: OptLazy<O>): O {
+			return OptLazy(otherwise) as O;
+		}
 
-// 	drop(): this {
-// 		return this;
-// 	}
+		last<O>(otherwise?: OptLazy<O>): O {
+			return OptLazy(otherwise) as O;
+		}
 
-// 	prepend(element: E): FAM['_NON_EMPTY'] {
-// 		return this.context.of(element);
-// 	}
+		take(): this {
+			return this;
+		}
 
-// 	append(element: E): FAM['_NON_EMPTY'] {
-// 		return this.context.of(element);
-// 	}
+		drop(): this {
+			return this;
+		}
 
-// 	concat(...sources: ArrayNonEmpty<StreamSource.NonEmpty<E>>): Tp['_NON_EMPTY'];
-// 	concat(...sources: ArrayNonEmpty<StreamSource<E>>): Tp['_NORMAL'] {
-// 		return this.context.from(...sources);
-// 	}
+		prepend(element: E): FAM['_NON_EMPTY'] {
+			return this.context.of(element);
+		}
 
-// 	insertAt(_index: number, elements: StreamSource<E>): Tp['_NON_EMPTY'] {
-// 		return this.context.from(elements) as Tp['_NON_EMPTY'];
-// 	}
+		append(element: E): FAM['_NON_EMPTY'] {
+			return this.context.of(element);
+		}
 
-// 	splitAt(): [this, this] {
-// 		return [this, this];
-// 	}
+		concat(
+			...sources: ArrayNonEmpty<StreamSource.NonEmpty<E>>
+		): Tp['_NON_EMPTY'];
+		concat(...sources: ArrayNonEmpty<StreamSource<E>>): Tp['_NORMAL'] {
+			return this.context.from(...sources);
+		}
 
-// 	slice(): this {
-// 		return this;
-// 	}
+		insertAt(_index: number, elements: StreamSource<E>): Tp['_NON_EMPTY'] {
+			return this.context.from(elements) as Tp['_NON_EMPTY'];
+		}
 
-// 	removeAt(): this {
-// 		return this;
-// 	}
+		splitAt(): [this, this] {
+			return [this, this];
+		}
 
-// 	removeAtAndReturn(): Op.WithResult<Tp['_NORMAL'], Tp['_NORMAL'], false> {
-// 		return {
-// 			collection: this,
-// 			hasResult: false,
-// 			result: this,
-// 			hasChanged: false,
-// 		};
-// 	}
+		slice(): this {
+			return this;
+		}
 
-// 	reversed(): this {
-// 		return this;
-// 	}
+		removeAt(): this {
+			return this;
+		}
 
-// 	setAt(): this {
-// 		return this;
-// 	}
+		removeAtAndReturn(): Op.WithResult<Tp['_NORMAL'], Tp['_NORMAL'], false> {
+			return {
+				collection: this,
+				hasResult: false,
+				result: this,
+				hasChanged: false,
+			};
+		}
 
-// 	setAtAndReturn(): Op.WithResult<Tp['_NORMAL'], undefined, false> {
-// 		return {
-// 			collection: this,
-// 			hasResult: false,
-// 			result: undefined,
-// 			hasChanged: false,
-// 		};
-// 	}
+		reversed(): this {
+			return this;
+		}
 
-// 	rotateLeft(): this {
-// 		return this;
-// 	}
+		setAt(): this {
+			return this;
+		}
 
-// 	repeat(): this {
-// 		return this;
-// 	}
+		setAtAndReturn(): Op.WithResult<Tp['_NORMAL'], undefined, false> {
+			return {
+				collection: this,
+				hasResult: false,
+				result: undefined,
+				hasChanged: false,
+			};
+		}
 
-// 	updateAt(): this {
-// 		return this;
-// 	}
+		rotateLeft(): this {
+			return this;
+		}
 
-// 	updateAtAndReturn(): Op.WithResult<
-// 		Tp['_NORMAL'],
-// 		[previous: undefined, current: undefined],
-// 		false
-// 	> {
-// 		return {
-// 			collection: this,
-// 			hasResult: false,
-// 			result: [undefined, undefined],
-// 			hasChanged: false,
-// 		};
-// 	}
+		repeat(): this {
+			return this;
+		}
 
-// 	swapAt(): this {
-// 		return this;
-// 	}
+		updateAt(): this {
+			return this;
+		}
 
-// 	swapAtAndReturn(): Op.WithResult<
-// 		this,
-// 		[previous1: undefined, previous2: undefined],
-// 		false
-// 	> {
-// 		return {
-// 			collection: this,
-// 			hasResult: false,
-// 			result: [undefined, undefined],
-// 			hasChanged: false,
-// 		};
-// 	}
-// }
+		updateAtAndReturn(): Op.WithResult<
+			Tp['_NORMAL'],
+			[previous: undefined, current: undefined],
+			false
+		> {
+			return {
+				collection: this,
+				hasResult: false,
+				result: [undefined, undefined],
+				hasChanged: false,
+			};
+		}
+
+		swapAt(): this {
+			return this;
+		}
+
+		swapAtAndReturn(): Op.WithResult<
+			Tp['_NORMAL'],
+			[previous1: undefined, previous2: undefined],
+			false
+		> {
+			return {
+				collection: this,
+				hasResult: false,
+				result: [undefined, undefined],
+				hasChanged: false,
+			};
+		}
+	};
+}
 
 export abstract class IndexedCollectionNonEmptyBase<
 		E,
@@ -467,171 +485,3 @@ export function defaultReducerByAppend<
 		(builder) => builder.build(),
 	);
 }
-
-export interface IndexedCollectionEmptyBase<
-	E,
-	Tp extends Collection.Advanced.TypesBase,
-> extends IndexedCollection.Advanced.Api<E, Tp>,
-		IndexedCollection.Capability.WithConcat.Api<E, Tp>,
-		IndexedCollection.Capability.WithInsertAt.Api<E, Tp>,
-		IndexedCollection.Capability.WithPrependAppend.Api<E, Tp>,
-		IndexedCollection.Capability.WithRemoveAt.Api<E, Tp>,
-		IndexedCollection.Capability.WithSwapAt.Api<E, Tp>,
-		IndexedCollection.Capability.WithUpdateAt.Api<E, Tp> {}
-
-/**
- * The capability contributed by {@link WithIndexedCollectionEmptyBase}.
- */
-export interface IndexedEmptyCap extends EmptyCapability {
-	_API: IndexedCollectionEmptyBase<this['_E'], this['_TP']>;
-}
-
-/**
- * Adds the indexed-collection API to an empty collection base constructor.
- */
-export function WithIndexedCollectionEmptyBase<C extends EmptyCapability>(
-	Base: EmptyConstructor<C>,
-): EmptyConstructor<C & IndexedEmptyCap>;
-export function WithIndexedCollectionEmptyBase<
-	TBase extends Constructor<CollectionEmptyBase<E, FAM, Tp>>,
-	E,
-	FAM extends Collection.Advanced.Family<E> = Collection.Advanced.Family<E>,
-	Tp extends Collection.Advanced.Types<FAM, E> = Collection.Advanced.Types<
-		FAM,
-		E
-	>,
->(Base: TBase): TBase & Constructor<IndexedCollectionEmptyBase<E, Tp>> {
-	return class extends Base {
-		streamSlice(): Stream<E> {
-			return Stream.empty<E>();
-		}
-
-		at<O>(otherwise?: OptLazy<O>): O {
-			return OptLazy(otherwise) as O;
-		}
-
-		first<O>(otherwise?: OptLazy<O>): O {
-			return OptLazy(otherwise) as O;
-		}
-
-		last<O>(otherwise?: OptLazy<O>): O {
-			return OptLazy(otherwise) as O;
-		}
-
-		take(): this {
-			return this;
-		}
-
-		drop(): this {
-			return this;
-		}
-
-		prepend(element: E): FAM['_NON_EMPTY'] {
-			return this.context.of(element);
-		}
-
-		append(element: E): FAM['_NON_EMPTY'] {
-			return this.context.of(element);
-		}
-
-		concat(
-			...sources: ArrayNonEmpty<StreamSource.NonEmpty<E>>
-		): Tp['_NON_EMPTY'];
-		concat(...sources: ArrayNonEmpty<StreamSource<E>>): Tp['_NORMAL'] {
-			return this.context.from(...sources);
-		}
-
-		insertAt(_index: number, elements: StreamSource<E>): Tp['_NON_EMPTY'] {
-			return this.context.from(elements) as Tp['_NON_EMPTY'];
-		}
-
-		splitAt(): [this, this] {
-			return [this, this];
-		}
-
-		slice(): this {
-			return this;
-		}
-
-		removeAt(): this {
-			return this;
-		}
-
-		removeAtAndReturn(): Op.WithResult<Tp['_NORMAL'], Tp['_NORMAL'], false> {
-			return {
-				collection: this,
-				hasResult: false,
-				result: this,
-				hasChanged: false,
-			};
-		}
-
-		reversed(): this {
-			return this;
-		}
-
-		setAt(): this {
-			return this;
-		}
-
-		setAtAndReturn(): Op.WithResult<Tp['_NORMAL'], undefined, false> {
-			return {
-				collection: this,
-				hasResult: false,
-				result: undefined,
-				hasChanged: false,
-			};
-		}
-
-		rotateLeft(): this {
-			return this;
-		}
-
-		repeat(): this {
-			return this;
-		}
-
-		updateAt(): this {
-			return this;
-		}
-
-		updateAtAndReturn(): Op.WithResult<
-			Tp['_NORMAL'],
-			[previous: undefined, current: undefined],
-			false
-		> {
-			return {
-				collection: this,
-				hasResult: false,
-				result: [undefined, undefined],
-				hasChanged: false,
-			};
-		}
-
-		swapAt(): this {
-			return this;
-		}
-
-		swapAtAndReturn(): Op.WithResult<
-			Tp['_NORMAL'],
-			[previous1: undefined, previous2: undefined],
-			false
-		> {
-			return {
-				collection: this,
-				hasResult: false,
-				result: [undefined, undefined],
-				hasChanged: false,
-			};
-		}
-	};
-}
-
-// const R = WithIndexedCollectionEmptyBase<
-// 	typeof CollectionEmptyBase<number>,
-// 	number
-// >(CollectionEmptyBase);
-// const r = new R(0 as any);
-
-// r.forEach();
-// r.at(0);

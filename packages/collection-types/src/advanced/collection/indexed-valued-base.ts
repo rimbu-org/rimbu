@@ -1,10 +1,10 @@
 import type {
 	IndexedCollectionEmptyBase,
-	IndexedEmptyCap,
+	IndexedEmptyCapability,
 } from '@rimbu/collection-types/advanced/collection/indexed-base';
 import type {
 	ValuedCollectionEmptyBase,
-	ValuedEmptyCap,
+	ValuedEmptyCapability,
 } from '@rimbu/collection-types/advanced/collection/valued-base';
 import type {
 	Constructor,
@@ -26,7 +26,7 @@ export interface IndexedValuedCollectionEmptyBase<
 /**
  * The capability contributed by {@link WithIndexedValuedCollectionEmptyBase}.
  */
-export interface IndexedValuedEmptyCap extends EmptyCapability {
+export interface IndexedValuedEmptyCapability extends EmptyCapability {
 	_API: IndexedValuedCollectionEmptyBase<this['_E'], this['_TP']>;
 }
 
@@ -36,8 +36,10 @@ export interface IndexedValuedEmptyCap extends EmptyCapability {
  * capabilities, since this capability's API surface extends both.
  */
 export function WithIndexedValuedCollectionEmptyBase<
-	C extends EmptyCapability & IndexedEmptyCap & ValuedEmptyCap,
->(Base: EmptyConstructor<C>): EmptyConstructor<C & IndexedValuedEmptyCap>;
+	C extends EmptyCapability & IndexedEmptyCapability & ValuedEmptyCapability,
+>(
+	Base: EmptyConstructor<C>,
+): EmptyConstructor<C & IndexedValuedEmptyCapability>;
 export function WithIndexedValuedCollectionEmptyBase<
 	TBase extends Constructor<
 		IndexedCollectionEmptyBase<E, Tp> & ValuedCollectionEmptyBase<E, Tp>
