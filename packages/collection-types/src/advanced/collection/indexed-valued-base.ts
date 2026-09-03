@@ -1,15 +1,14 @@
 import type {
 	IndexedCollectionEmptyBase,
-	IndexedEmptyCapability,
+	IndexedEmptyMixin,
 } from '@rimbu/collection-types/advanced/collection/indexed-base';
 import type {
 	ValuedCollectionEmptyBase,
-	ValuedEmptyCapability,
+	ValuedEmptyMixin,
 } from '@rimbu/collection-types/advanced/collection/valued-base';
 import type {
+	ApiMixin,
 	Constructor,
-	EmptyCapability,
-	EmptyConstructor,
 } from '@rimbu/collection-types/advanced/collection-base';
 import type { Collection } from '@rimbu/collection-types/collection';
 import type { IndexedValuedCollection } from '@rimbu/collection-types/collection/indexed-valued';
@@ -26,7 +25,7 @@ export interface IndexedValuedCollectionEmptyBase<
 /**
  * The capability contributed by {@link WithIndexedValuedCollectionEmptyBase}.
  */
-export interface IndexedValuedEmptyCapability extends EmptyCapability {
+export interface IndexedValuedEmptyMixin extends ApiMixin {
 	_API: IndexedValuedCollectionEmptyBase<this['_E'], this['_TP']>;
 }
 
@@ -36,10 +35,10 @@ export interface IndexedValuedEmptyCapability extends EmptyCapability {
  * capabilities, since this capability's API surface extends both.
  */
 export function WithIndexedValuedCollectionEmptyBase<
-	C extends EmptyCapability & IndexedEmptyCapability & ValuedEmptyCapability,
+	C extends ApiMixin & IndexedEmptyMixin & ValuedEmptyMixin,
 >(
-	Base: EmptyConstructor<C>,
-): EmptyConstructor<C & IndexedValuedEmptyCapability>;
+	Base: ApiMixin.Constructor<C>,
+): ApiMixin.Constructor<C & IndexedValuedEmptyMixin>;
 export function WithIndexedValuedCollectionEmptyBase<
 	TBase extends Constructor<
 		IndexedCollectionEmptyBase<E, Tp> & ValuedCollectionEmptyBase<E, Tp>

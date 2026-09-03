@@ -4,11 +4,10 @@ import type { Op } from '@rimbu/collection-types/types';
 
 import { Int, throwInvalidStateError } from '@rimbu/base';
 import {
+	type ApiMixin,
 	type CollectionEmptyBase,
 	CollectionNonEmptyBase,
 	type Constructor,
-	type EmptyCapability,
-	type EmptyConstructor,
 } from '@rimbu/collection-types/advanced/collection-base';
 import { type ArrayNonEmpty, Err, IndexRange, OptLazy } from '@rimbu/common';
 import { Stream, type StreamSource } from '@rimbu/stream';
@@ -28,16 +27,16 @@ export interface IndexedCollectionEmptyBase<
 /**
  * The capability contributed by {@link WithIndexedCollectionEmptyBase}.
  */
-export interface IndexedEmptyCapability extends EmptyCapability {
+export interface IndexedEmptyMixin extends ApiMixin {
 	_API: IndexedCollectionEmptyBase<this['_E'], this['_TP']>;
 }
 
 /**
  * Adds the indexed-collection API to an empty collection base constructor.
  */
-export function WithIndexedCollectionEmptyBase<C extends EmptyCapability>(
-	Base: EmptyConstructor<C>,
-): EmptyConstructor<C & IndexedEmptyCapability>;
+export function WithIndexedCollectionEmptyBase<C extends ApiMixin>(
+	Base: ApiMixin.Constructor<C>,
+): ApiMixin.Constructor<C & IndexedEmptyMixin>;
 export function WithIndexedCollectionEmptyBase<
 	TBase extends Constructor<CollectionEmptyBase<E, FAM, Tp>>,
 	E,

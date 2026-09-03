@@ -1,9 +1,11 @@
 import type { HashSet } from '@rimbu/hashed/set';
 
 import { WithValuedCollectionEmptyBase } from '@rimbu/collection-types/advanced/collection/valued-base';
-import { CollectionEmptyCtor } from '@rimbu/collection-types/advanced/collection-base';
+import { CollectionEmptyConstructor } from '@rimbu/collection-types/advanced/collection-base';
 
-const HashSetEmptyBase = WithValuedCollectionEmptyBase(CollectionEmptyCtor);
+const HashSetEmptyBase = WithValuedCollectionEmptyBase(
+	CollectionEmptyConstructor,
+);
 
 export class HashSetEmpty<E = any>
 	extends HashSetEmptyBase<E, HashSet.Advanced.Family<E>>

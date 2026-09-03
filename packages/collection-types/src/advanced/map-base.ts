@@ -1,135 +1,100 @@
-// import type { Collection } from '@rimbu/collection-types/collection';
-// import type { MapCollection } from '@rimbu/collection-types/map';
-// import type { Op } from '@rimbu/collection-types/types';
-// import type { Stream, StreamSource } from '@rimbu/stream';
+import type {
+	ApiMixin,
+	Constructor,
+} from '@rimbu/collection-types/advanced/collection-base';
+import type { Collection } from '@rimbu/collection-types/collection';
+import type { KeyedCollection } from '@rimbu/collection-types/collection/keyed';
+import type { MapCollection } from '@rimbu/collection-types/map';
+import type { Op } from '@rimbu/collection-types/types';
+import type {
+	KeyedCollectionEmptyBase,
+	KeyedEmptyMixin,
+} from './collection/keyed-base';
 
-// import { first, second } from '@rimbu/base/entry';
-// import {
-// 	KeyedCollectionBuilderBase,
-// 	KeyedCollectionEmptyBase,
-// 	KeyedCollectionNonEmptyBase,
-// } from '@rimbu/collection-types/advanced/collection/keyed-base';
+export interface MapCollectionEmptyBase<
+	K,
+	V,
+	Tp extends Collection.Advanced.Types<
+		KeyedCollection.Advanced.Family<K, V>,
+		readonly [K, V]
+	>,
+> extends KeyedCollectionEmptyBase<K, V, Tp>,
+		MapCollection.Capability.WithModifyAtKey.Api<K, V, Tp>,
+		MapCollection.Capability.WithSet.Api<K, V, Tp>,
+		MapCollection.Capability.WithUpdateAtKey.Api<K, V, Tp> {}
 
-// export class MapCollectionEmptyBase<
-// 		K,
-// 		V,
-// 		FAM extends MapCollection.Advanced.Family<
-// 			K,
-// 			V
-// 		> = MapCollection.Advanced.Family<K, V>,
-// 		Tp extends Collection.Advanced.Types<
-// 			FAM,
-// 			readonly [K, V]
-// 		> = Collection.Advanced.Types<FAM, readonly [K, V]>,
-// 	>
-// 	extends KeyedCollectionEmptyBase<K, V, FAM, Tp>
-// 	implements
-// 		MapCollection.Advanced.Api<K, V, Tp>,
-// 		Collection.Capability.WithAdd.Api<readonly [K, V], Tp>,
-// 		MapCollection.Capability.WithSet.Api<K, V, Tp>,
-// 		MapCollection.Capability.WithUpdateAtKey.Api<K, V, Tp>,
-// 		MapCollection.Capability.WithModifyAtKey.Api<K, V, Tp>
-// {
-// 	set(key: K, value: V): Tp['_NON_EMPTY'] {
-// 		return this.context.of([key, value] as readonly [K, V]) as Tp['_NON_EMPTY'];
-// 	}
+export interface MapCollectionMixin extends KeyedEmptyMixin {
+	_API: MapCollectionEmptyBase<this['_K'], this['_V'], this['_TP']>;
+}
 
-// 	add(entry: readonly [K, V]): Tp['_NON_EMPTY'] {
-// 		return this.context.of(entry as readonly [K, V]) as Tp['_NON_EMPTY'];
-// 	}
+export function WithMapCollectionEmptyBase<C extends ApiMixin>(
+	Base: ApiMixin.Constructor<C>,
+): ApiMixin.Constructor<C & MapCollectionMixin>;
+export function WithMapCollectionEmptyBase<
+	TBase extends Constructor<KeyedCollectionEmptyBase<K, V, Tp>>,
+	K,
+	V,
+	FAM extends KeyedCollection.Advanced.Family<
+		K,
+		V
+	> = KeyedCollection.Advanced.Family<K, V>,
+	Tp extends Collection.Advanced.Types<
+		FAM,
+		readonly [K, V]
+	> = Collection.Advanced.Types<FAM, readonly [K, V]>,
+>(Base: TBase): TBase & Constructor<MapCollectionEmptyBase<K, V, Tp>> {
+	return class extends Base {
+		updateAtKey(): Tp['_NORMAL'] {
+			return this;
+		}
 
-// 	addAll(entries: StreamSource.NonEmpty<readonly [K, V]>): Tp['_NON_EMPTY'];
-// 	addAll(entries: StreamSource<readonly [K, V]>): Tp['_NORMAL'] {
-// 		return this.context.from(
-// 			entries as StreamSource<readonly [K, V]>,
-// 		) as Tp['_NORMAL'];
-// 	}
+		updateAtKeyAndReturn(): Op.WithResult<
+			Tp['_NORMAL'],
+			[previous: undefined, current: undefined],
+			false
+		> {
+			return {
+				collection: this,
+				hasResult: false,
+				result: [undefined, undefined],
+				hasChanged: false,
+			};
+		}
 
-// 	updateAtKey(): Tp['_NORMAL'] {
-// 		return this;
-// 	}
+		modifyAtKey(
+			atKey: K,
+			options: {
+				ifNew?:
+					| { set: V; create?: never }
+					| {
+							set?: never;
+							create: <SKIP extends symbol>(skip: SKIP) => V | typeof skip;
+					  };
+				ifExists?:
+					| { set: V; update?: never }
+					| {
+							set?: never;
+							update: <REMOVE extends symbol>(
+								current: V,
+								remove: REMOVE,
+							) => V | REMOVE;
+					  };
+			},
+		): Tp['_NORMAL'] {
+			const { ifNew } = options;
+			if (undefined === ifNew) return this;
 
-// 	updateAtKeyAndReturn(): Op.WithResult<
-// 		Tp['_NORMAL'],
-// 		[previous: undefined, current: undefined],
-// 		false
-// 	> {
-// 		return {
-// 			collection: this,
-// 			hasResult: false,
-// 			result: [undefined, undefined],
-// 			hasChanged: false,
-// 		};
-// 	}
+			const { set, create } = ifNew;
+			const token = Symbol();
+			const newValue = undefined !== create ? create(token) : set;
 
-// 	modifyAtKey(
-// 		atKey: K,
-// 		options: {
-// 			ifNew?:
-// 				| { set: V; create?: never }
-// 				| {
-// 						set?: never;
-// 						create: <SKIP extends symbol>(skip: SKIP) => V | typeof skip;
-// 				  };
-// 			ifExists?:
-// 				| { set: V; update?: never }
-// 				| {
-// 						set?: never;
-// 						update: <REMOVE extends symbol>(
-// 							current: V,
-// 							remove: REMOVE,
-// 						) => V | REMOVE;
-// 				  };
-// 		},
-// 	): Tp['_NORMAL'] {
-// 		const { ifNew } = options;
-// 		if (undefined === ifNew) return this;
+			if (token === newValue) return this;
 
-// 		const { set, create } = ifNew;
-// 		const token = Symbol();
-// 		const newValue = undefined !== create ? create(token) : set;
+			return this.set(atKey, newValue);
+		}
 
-// 		if (token === newValue) return this;
-
-// 		return this.set(atKey, newValue);
-// 	}
-// }
-
-// export abstract class MapCollectionNonEmptyBase<
-// 		K,
-// 		V,
-// 		FAM extends MapCollection.Advanced.Family<
-// 			K,
-// 			V
-// 		> = MapCollection.Advanced.Family<K, V>,
-// 		Tp extends Collection.Advanced.TypesNonEmpty<
-// 			FAM,
-// 			readonly [K, V]
-// 		> = Collection.Advanced.TypesNonEmpty<FAM, readonly [K, V]>,
-// 	>
-// 	extends KeyedCollectionNonEmptyBase<K, V, FAM, Tp>
-// 	implements MapCollection.Advanced.Api<K, V, Tp>
-// {
-// 	streamKeys(): Stream.NonEmpty<K> {
-// 		return this.stream().map(first);
-// 	}
-
-// 	streamValues(): Stream.NonEmpty<V> {
-// 		return this.stream().map(second);
-// 	}
-// }
-
-// export abstract class MapCollectionBuilderBase<
-// 		K,
-// 		V,
-// 		FAM extends MapCollection.Advanced.Family<
-// 			K,
-// 			V
-// 		> = MapCollection.Advanced.Family<K, V>,
-// 		Tp extends Collection.Advanced.Types<
-// 			FAM,
-// 			readonly [K, V]
-// 		> = Collection.Advanced.Types<FAM, readonly [K, V]>,
-// 	>
-// 	extends KeyedCollectionBuilderBase<K, V, FAM, Tp>
-// 	implements MapCollection.Advanced.BuilderApi<K, V, Tp> {}
+		set(atKey: K, value: V): Tp['_NON_EMPTY'] {
+			return this.context.of([atKey, value]);
+		}
+	};
+}

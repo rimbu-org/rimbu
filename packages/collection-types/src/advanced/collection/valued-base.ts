@@ -3,12 +3,11 @@ import type { ValuedCollection } from '@rimbu/collection-types/collection/valued
 import type { RelatedTo } from '@rimbu/common';
 
 import {
+	type ApiMixin,
 	CollectionBuilderBase,
 	type CollectionEmptyBase,
 	CollectionNonEmptyBase,
 	type Constructor,
-	type EmptyCapability,
-	type EmptyConstructor,
 } from '@rimbu/collection-types/advanced/collection-base';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
@@ -19,22 +18,21 @@ export interface ValuedCollectionEmptyBase<
 		Collection.Capability.WithAdd.Api<E, Tp>,
 		Collection.Capability.WithFlatMap.Api<E, Tp>,
 		Collection.Capability.WithMap.Api<E, Tp>,
-		Collection.Capability.WithMutate.Api<E, Tp>,
 		Collection.Capability.WithRecompose.Api<E, Tp>,
 		ValuedCollection.Capability.WithDifferenceAndIntersection.Api<E, Tp>,
 		ValuedCollection.Capability.WithSymmetricDifferenceAndUnion.Api<E, Tp>,
 		ValuedCollection.Capability.WithRemove.Api<E, Tp> {}
 
-export interface ValuedEmptyCapability extends EmptyCapability {
+export interface ValuedEmptyMixin extends ApiMixin {
 	_API: ValuedCollectionEmptyBase<this['_E'], this['_TP']>;
 }
 
 /**
  * Adds the valued-collection API to an empty collection base constructor.
  */
-export function WithValuedCollectionEmptyBase<C extends EmptyCapability>(
-	Base: EmptyConstructor<C>,
-): EmptyConstructor<C & ValuedEmptyCapability>;
+export function WithValuedCollectionEmptyBase<C extends ApiMixin>(
+	Base: ApiMixin.Constructor<C>,
+): ApiMixin.Constructor<C & ValuedEmptyMixin>;
 export function WithValuedCollectionEmptyBase<
 	TBase extends Constructor<CollectionEmptyBase<E, FAM, Tp>>,
 	E,
@@ -81,12 +79,6 @@ export function WithValuedCollectionEmptyBase<
 			f: (stream: Stream<E>) => StreamSource<E2>,
 		): Collection.Advanced.ReTypeFam<FAM, E2>['_NORMAL'] {
 			return this.context.from(f(Stream.empty()));
-		}
-
-		mutate(f: (builder: FAM['_BUILDER']) => void): FAM['_NORMAL'] {
-			const builder = this.context.builder<E>();
-			f(builder);
-			return builder.build();
 		}
 
 		remove(): FAM['_NORMAL'] {
