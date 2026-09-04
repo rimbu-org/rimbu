@@ -11,7 +11,7 @@ const HashMapEmptyBase = WithMapCollectionEmptyBase(
 );
 
 export class HashMapEmpty<K = any, V = any>
-	extends HashMapEmptyBase<readonly [K, V], HashMap.Advanced.Family<K, V>>
+	extends HashMapEmptyBase<K, V, HashMap.Advanced.Family<K, V>>
 	implements HashMap<K, V>
 {
 	constructor(readonly context: HashMapCollectionContext<K>) {

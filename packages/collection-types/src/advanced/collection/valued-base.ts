@@ -1,14 +1,12 @@
+import type {
+	AbstractConstructor,
+	ApiMixin,
+	CollectionEmptyBase,
+	CollectionNonEmptyBase,
+} from '@rimbu/collection-types/advanced/collection-base';
 import type { Collection } from '@rimbu/collection-types/collection';
 import type { ValuedCollection } from '@rimbu/collection-types/collection/valued';
-import type { RelatedTo } from '@rimbu/common';
 
-import {
-	type ApiMixin,
-	CollectionBuilderBase,
-	type CollectionEmptyBase,
-	CollectionNonEmptyBase,
-	type Constructor,
-} from '@rimbu/collection-types/advanced/collection-base';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
 export interface ValuedCollectionEmptyBase<
@@ -31,18 +29,18 @@ export interface ValuedEmptyMixin extends ApiMixin {
  * Adds the valued-collection API to an empty collection base constructor.
  */
 export function WithValuedCollectionEmptyBase<C extends ApiMixin>(
-	Base: ApiMixin.Constructor<C>,
-): ApiMixin.Constructor<C & ValuedEmptyMixin>;
+	Base: ApiMixin.AbstractEmptyConstructor<C>,
+): ApiMixin.AbstractEmptyConstructor<C & ValuedEmptyMixin>;
 export function WithValuedCollectionEmptyBase<
-	TBase extends Constructor<CollectionEmptyBase<E, FAM, Tp>>,
+	TBase extends AbstractConstructor<CollectionEmptyBase<E, Tp>>,
 	E,
 	FAM extends Collection.Advanced.Family<E> = Collection.Advanced.Family<E>,
 	Tp extends Collection.Advanced.Types<FAM, E> = Collection.Advanced.Types<
 		FAM,
 		E
 	>,
->(Base: TBase): TBase & Constructor<ValuedCollectionEmptyBase<E, Tp>> {
-	return class extends Base {
+>(Base: TBase): TBase & AbstractConstructor<ValuedCollectionEmptyBase<E, Tp>> {
+	abstract class Result extends Base {
 		has(): false {
 			return false;
 		}
@@ -104,35 +102,75 @@ export function WithValuedCollectionEmptyBase<
 		union(other: StreamSource<E>): FAM['_NON_EMPTY'] {
 			return this.context.from(other) as FAM['_NON_EMPTY'];
 		}
-	};
+	}
+
+	return Result;
 }
 
-export abstract class ValuedCollectionNonEmptyBase<
-		E,
-		FAM extends
-			ValuedCollection.Advanced.Family<E> = ValuedCollection.Advanced.Family<E>,
-		Tp extends Collection.Advanced.TypesNonEmpty<
-			FAM,
-			E
-		> = Collection.Advanced.TypesNonEmpty<FAM, E>,
-	>
-	extends CollectionNonEmptyBase<E, FAM, Tp>
-	implements ValuedCollection.Advanced.Api<E, Tp>
-{
-	abstract has<UE = E>(value: RelatedTo<E, UE>): boolean;
+export interface ValuedCollectionNonEmptyBase<
+	E,
+	Tp extends Collection.Advanced.TypesNonEmpty<
+		Collection.Advanced.Family<E>,
+		E
+	>,
+> extends ValuedCollection.Advanced.Api<E, Tp>,
+		Collection.Capability.WithMutate.Api<E, Tp>,
+		Collection.Capability.WithRecompose.Api<E, Tp>,
+		Collection.Capability.WithToBuilder.Api<E, Tp> {}
+
+export interface ValuedNonEmptyMixin extends ApiMixin {
+	_API: ValuedCollectionNonEmptyBase<this['_E'], this['_TP']>;
+
+	_TP: Collection.Advanced.TypesNonEmpty<
+		ValuedCollection.Advanced.Family<this['_E']>,
+		this['_E']
+	>;
 }
 
-export abstract class ValuedCollectionBuilderBase<
-		E,
-		FAM extends
-			ValuedCollection.Advanced.Family<E> = ValuedCollection.Advanced.Family<E>,
-		Tp extends Collection.Advanced.Types<FAM, E> = Collection.Advanced.Types<
-			FAM,
-			E
-		>,
-	>
-	extends CollectionBuilderBase<E, FAM, Tp>
-	implements ValuedCollection.Advanced.BuilderApi<E, Tp>
-{
-	abstract has<UE = E>(value: RelatedTo<E, UE>): boolean;
+export function WithValuedCollectionNonEmptyBase<C extends ApiMixin>(
+	Base: ApiMixin.AbstractNonEmptyConstructor<C>,
+): ApiMixin.AbstractNonEmptyConstructor<C & ValuedNonEmptyMixin>;
+export function WithValuedCollectionNonEmptyBase<
+	TBase extends AbstractConstructor<CollectionNonEmptyBase<E, Tp>>,
+	E,
+	Tp extends Collection.Advanced.TypesNonEmpty<
+		ValuedCollection.Advanced.Family<E>,
+		E
+	> = Collection.Advanced.TypesNonEmpty<ValuedCollection.Advanced.Family<E>, E>,
+>(
+	Base: TBase,
+): TBase & AbstractConstructor<ValuedCollectionNonEmptyBase<E, Tp>> {
+	abstract class Result extends Base {
+		abstract has<UE>(value: UE): boolean;
+		abstract toBuilder(): Tp['_BUILDER'];
+
+		recompose<E2 extends Tp['_UPPER_E']>(
+			f: (stream: Tp['_AS_STREAM']) => StreamSource<E2>,
+		): Collection.Advanced.ReTyped<Tp, E2>['_NON_EMPTY'] {
+			return this.context.from(f(this.stream())) as any;
+		}
+
+		mutate(f: (builder: Tp['_BUILDER']) => void): Tp['_NORMAL'] {
+			const builder = this.toBuilder();
+			f(builder);
+			return builder.build();
+		}
+	}
+
+	return Result;
 }
+
+// export abstract class ValuedCollectionBuilderBase<
+// 		E,
+// 		FAM extends
+// 			ValuedCollection.Advanced.Family<E> = ValuedCollection.Advanced.Family<E>,
+// 		Tp extends Collection.Advanced.Types<FAM, E> = Collection.Advanced.Types<
+// 			FAM,
+// 			E
+// 		>,
+// 	>
+// 	extends CollectionBuilderBase<E, FAM, Tp>
+// 	implements ValuedCollection.Advanced.BuilderApi<E, Tp>
+// {
+// 	abstract has<UE = E>(value: RelatedTo<E, UE>): boolean;
+// }

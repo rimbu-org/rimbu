@@ -8,7 +8,7 @@ import {
 import { type ArrayNonEmpty, TraverseState } from '@rimbu/common';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
-export type Constructor<Res> = new (...args: any[]) => Res;
+export type AbstractConstructor<Res> = abstract new (...args: any[]) => Res;
 
 /**
  * Higher-kinded slot describing the extra API surface that a capability mixin
@@ -55,33 +55,41 @@ export declare namespace ApiMixin {
 	 * class MySetEmpty<E> extends Base<E, MySet.Advanced.Family<E>> {}
 	 * ```
 	 */
-	export interface Constructor<C extends ApiMixin> {
-		new <
-			E,
-			FAM extends Collection.Advanced.Family<E>,
-			Tp extends Collection.Advanced.Types<FAM, E> = Collection.Advanced.Types<
-				FAM,
-				E
-			>,
-		>(
-			context: FAM['_CONTEXT'],
-		): CollectionEmptyBase<E, FAM, Tp> & ApiMixin.Apply<C, E, Tp>;
-	}
+	export type AbstractEmptyConstructor<C extends ApiMixin> = abstract new <
+		E,
+		FAM extends Collection.Advanced.Family<E>,
+		Tp extends Collection.Advanced.Types<FAM, E> = Collection.Advanced.Types<
+			FAM,
+			E
+		>,
+	>(
+		context: Tp['_CONTEXT'],
+	) => CollectionEmptyBase<E, Tp> & ApiMixin.Apply<C, E, Tp>;
+
+	export type AbstractNonEmptyConstructor<C extends ApiMixin> = abstract new <
+		E,
+		FAM extends Collection.Advanced.Family<E>,
+		Tp extends Collection.Advanced.TypesNonEmpty<
+			FAM,
+			E
+		> = Collection.Advanced.TypesNonEmpty<FAM, E>,
+	>(
+		context: Tp['_CONTEXT'],
+	) => CollectionNonEmptyBase<E, Tp> & ApiMixin.Apply<C, E, Tp>;
 }
 
 export class CollectionEmptyBase<
 	E,
-	FAM extends Collection.Advanced.Family<E> = Collection.Advanced.Family<E>,
-	Tp extends Collection.Advanced.Types<FAM, E> = Collection.Advanced.Types<
-		FAM,
+	Tp extends Collection.Advanced.Types<
+		Collection.Advanced.Family<E>,
 		E
-	>,
+	> = Collection.Advanced.Types<Collection.Advanced.Family<E>, E>,
 > implements
 		Collection.Advanced.Api<E, Tp>,
 		Collection.Capability.WithMutate.Api<E, Tp>,
 		Collection.Capability.WithToBuilder.Api<E, Tp>
 {
-	constructor(readonly context: FAM['_CONTEXT']) {}
+	constructor(readonly context: Tp['_CONTEXT']) {}
 
 	[Symbol.iterator](): FastIterator<E> {
 		return Stream.empty<E>()[Symbol.iterator]();
@@ -99,7 +107,7 @@ export class CollectionEmptyBase<
 		return this;
 	}
 
-	nonEmpty(): this is FAM['_NON_EMPTY'] {
+	nonEmpty(): this is Tp['_NON_EMPTY'] {
 		return false;
 	}
 
@@ -123,7 +131,7 @@ export class CollectionEmptyBase<
 		return this;
 	}
 
-	mutate(f: (builder: FAM['_BUILDER']) => void): FAM['_NORMAL'] {
+	mutate(f: (builder: Tp['_BUILDER']) => void): Tp['_NORMAL'] {
 		const builder = this.context.builder<E>();
 		f(builder);
 		return builder.build();
@@ -133,7 +141,7 @@ export class CollectionEmptyBase<
 		return [];
 	}
 
-	toBuilder(): FAM['_BUILDER'] {
+	toBuilder(): Tp['_BUILDER'] {
 		return this.context.builder();
 	}
 }
@@ -147,23 +155,22 @@ export class CollectionEmptyBase<
  * directly even though it is structurally identical.
  */
 export const CollectionEmptyConstructor =
-	CollectionEmptyBase as unknown as ApiMixin.Constructor<ApiMixin>;
+	CollectionEmptyBase as unknown as ApiMixin.AbstractEmptyConstructor<ApiMixin>;
 
 export abstract class CollectionNonEmptyBase<
 	E,
-	FAM extends Collection.Advanced.Family<E> = Collection.Advanced.Family<E>,
-	Tp extends Collection.Advanced.TypesBase = Collection.Advanced.TypesNonEmpty<
-		FAM,
+	Tp extends Collection.Advanced.TypesNonEmpty<
+		Collection.Advanced.FamilyBase<E>,
 		E
-	>,
+	> = Collection.Advanced.TypesNonEmpty<Collection.Advanced.FamilyBase<E>, E>,
 > implements Collection.Advanced.Api<E, Tp>
 {
-	abstract readonly context: FAM['_CONTEXT'];
+	abstract readonly context: Tp['_CONTEXT'];
 
 	abstract get size(): number;
 	abstract stream(): Stream.NonEmpty<E>;
 	abstract forEach(f: (value: E) => void): void;
-	abstract filter(pred: (element: E) => boolean): FAM['_NORMAL'];
+	abstract filter(pred: (element: E) => boolean): Tp['_NORMAL'];
 	abstract toArray(): ArrayNonEmpty<E>;
 
 	[Symbol.iterator](): FastIterator<E> {
@@ -174,15 +181,15 @@ export abstract class CollectionNonEmptyBase<
 		return false;
 	}
 
-	nonEmpty(): this is FAM['_NON_EMPTY'] {
+	nonEmpty(): this is Tp['_NON_EMPTY'] {
 		return true;
 	}
 
-	assumeNonEmpty(): FAM['_NON_EMPTY'] {
+	assumeNonEmpty(): Tp['_NON_EMPTY'] {
 		return this;
 	}
 
-	asNormal(): FAM['_NORMAL'] {
+	asNormal(): Tp['_NORMAL'] {
 		return this;
 	}
 
@@ -217,23 +224,26 @@ export abstract class CollectionNonEmptyBase<
 			negate?: boolean | undefined;
 			indexOffset?: number | undefined;
 		} = {},
-	): FAM['_NORMAL'] {
+	): Tp['_NORMAL'] {
 		const { negate = false, indexOffset = 0 } = options;
 		let index = indexOffset;
 		return negate
 			? this.filter((element) => !pred(element, index++))
 			: this.filter((element) => pred(element, index++));
 	}
-
-	recompose<E2 extends FAM['_UPPER_E']>(
-		f: (stream: Stream.NonEmpty<E>) => StreamSource.NonEmpty<E2>,
-	): Collection.Advanced.ReTypeFam<FAM, E2>['_NON_EMPTY'];
-	recompose<E2 extends FAM['_UPPER_E']>(
-		f: (stream: Stream.NonEmpty<E>) => StreamSource<E2>,
-	): Collection.Advanced.ReTypeFam<FAM, E2>['_NON_EMPTY'] {
-		return this.context.from(f(this.stream())) as any;
-	}
 }
+
+export interface CollectionNonEmptyMixin extends ApiMixin {
+	_API: CollectionNonEmptyBase<this['_E'], this['_TP']>;
+
+	_TP: Collection.Advanced.TypesNonEmpty<
+		Collection.Advanced.Family<this['_E']>,
+		this['_E']
+	>;
+}
+
+export const CollectionNonEmptyConstructor =
+	CollectionNonEmptyBase as unknown as ApiMixin.AbstractNonEmptyConstructor<CollectionNonEmptyMixin>;
 
 export abstract class CollectionBuilderBase<
 	E,
@@ -342,6 +352,17 @@ export abstract class ContextBaseWithAddAll<
 
 		return builder.build() as any;
 	};
+}
+
+export function defaultAddAll<
+	E,
+	C extends Collection.NonEmpty<E, FAM>,
+	FAM extends Collection.Capability.WithAdd<E> &
+		Collection.Capability.WithToBuilder<E>,
+>(col: C, elements: StreamSource<E>) {
+	const builder = col.toBuilder();
+	builder.addAll(elements);
+	return builder.build() as C;
 }
 
 export function defaultMapIndexed<

@@ -5,11 +5,11 @@ import type { HashMapCollectionContext } from '#map/context';
 import type { HashMapBlock, MapEntrySet } from '#map/immutable/block';
 
 import * as RimbuError from '@rimbu/base/rimbu-error';
+import { CollectionBuilderBase } from '@rimbu/collection-types/advanced/collection-base';
 import {
 	checkEmptyModifyOptions,
 	type ModifyOptions,
 } from '@rimbu/collection-types/advanced/common';
-import { MapCollectionBuilderBase } from '@rimbu/collection-types/advanced/map-base';
 import { OptLazy } from '@rimbu/common/opt-lazy';
 import { List } from '@rimbu/list';
 import { Stream, type StreamSource } from '@rimbu/stream';
@@ -21,7 +21,7 @@ export type MapBlockBuilderEntry<K, V> =
 	| HashMapCollisionBuilder<K, V>;
 
 export class HashMapBlockBuilder<K, V>
-	extends MapCollectionBuilderBase<K, V, HashMap.Advanced.Family<K, V>>
+	extends CollectionBuilderBase<readonly [K, V], HashMap.Advanced.Family<K, V>>
 	implements HashMap.Builder<K, V>
 {
 	constructor(

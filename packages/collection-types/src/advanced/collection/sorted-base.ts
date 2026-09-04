@@ -1,7 +1,7 @@
 import type {
+	AbstractConstructor,
 	ApiMixin,
 	CollectionEmptyBase,
-	Constructor,
 } from '@rimbu/collection-types/advanced/collection-base';
 import type { Collection } from '@rimbu/collection-types/collection';
 import type { SortedCollection } from '@rimbu/collection-types/collection/sorted';
@@ -23,10 +23,10 @@ export interface SortedEmptyMixin extends ApiMixin {
  * Adds the sorted-collection API to an empty collection base constructor.
  */
 export function WithSortedCollectionEmptyBase<C extends ApiMixin>(
-	Base: ApiMixin.Constructor<C>,
-): ApiMixin.Constructor<C & SortedEmptyMixin>;
+	Base: ApiMixin.AbstractEmptyConstructor<C>,
+): ApiMixin.AbstractEmptyConstructor<C & SortedEmptyMixin>;
 export function WithSortedCollectionEmptyBase<
-	TBase extends Constructor<CollectionEmptyBase<E, FAM, Tp>>,
+	TBase extends AbstractConstructor<CollectionEmptyBase<E, Tp>>,
 	E,
 	S,
 	FAM extends Collection.Advanced.Family<E> = Collection.Advanced.Family<E>,
@@ -34,8 +34,10 @@ export function WithSortedCollectionEmptyBase<
 		FAM,
 		E
 	>,
->(Base: TBase): TBase & Constructor<SortedCollectionEmptyBase<E, S, Tp>> {
-	return class extends Base {
+>(
+	Base: TBase,
+): TBase & AbstractConstructor<SortedCollectionEmptyBase<E, S, Tp>> {
+	abstract class Result extends Base {
 		min<O>(otherwise?: OptLazy<O>): O {
 			return OptLazy(otherwise) as O;
 		}
@@ -49,5 +51,7 @@ export function WithSortedCollectionEmptyBase<
 		next<O>(otherwise?: OptLazy<O>): O {
 			return OptLazy(otherwise) as O;
 		}
-	};
+	}
+
+	return Result;
 }

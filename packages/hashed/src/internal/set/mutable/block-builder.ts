@@ -4,7 +4,7 @@ import type { HashSetContext } from '#set/context';
 import type { HashSetBlock } from '#set/immutable/block';
 
 import * as RimbuError from '@rimbu/base/rimbu-error';
-import { SetCollectionBuilderBase } from '@rimbu/collection-types/advanced/set-base';
+import { CollectionBuilderBase } from '@rimbu/collection-types/advanced/collection-base';
 import { List } from '@rimbu/list';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
@@ -15,7 +15,7 @@ export type SetBlockBuilderEntry<T> =
 	| HashSetCollisionBuilder<T>;
 
 export class HashSetBlockBuilder<T>
-	extends SetCollectionBuilderBase<T, HashSet.Advanced.Family<T>>
+	extends CollectionBuilderBase<T, HashSet.Advanced.Family<T>>
 	implements HashSet.Builder<T>
 {
 	constructor(

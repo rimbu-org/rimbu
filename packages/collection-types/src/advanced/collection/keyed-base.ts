@@ -1,12 +1,14 @@
-import type {
-	ApiMixin,
-	CollectionEmptyBase,
-	Constructor,
-} from '@rimbu/collection-types/advanced/collection-base';
 import type { Collection } from '@rimbu/collection-types/collection';
 import type { KeyedCollection } from '@rimbu/collection-types/collection/keyed';
 import type { Op } from '@rimbu/collection-types/types';
 
+import { first, second } from '@rimbu/base/entry';
+import {
+	type AbstractConstructor,
+	type ApiMixin,
+	CollectionEmptyBase,
+	CollectionNonEmptyBase,
+} from '@rimbu/collection-types/advanced/collection-base';
 import { OptLazy } from '@rimbu/common';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
@@ -60,7 +62,7 @@ export interface KeyedCollectionEmptyBase<
 		KeyedCollection.Capability.WithMap.Api<K, V, Tp>,
 		KeyedCollection.Capability.WithRecompose.Api<K, V, Tp> {}
 
-export interface KeyedEmptyMixin extends ApiMixin {
+export interface KeyedApiMixin extends ApiMixin {
 	_K: this['_E'][0];
 	_V: this['_E'][1];
 
@@ -69,15 +71,54 @@ export interface KeyedEmptyMixin extends ApiMixin {
 		KeyedCollection.Advanced.Family<this['_K'], this['_V']>,
 		this['_E']
 	>;
+}
 
+export declare namespace KeyedApiMixin {
+	export type Apply<
+		C extends KeyedApiMixin,
+		K,
+		V,
+		Tp extends Collection.Advanced.TypesBase,
+	> = (C & { _E: readonly [K, V]; _TP: Tp })['_API'];
+
+	export interface AbstractEmptyConstructor<C extends KeyedApiMixin> {
+		new <
+			K,
+			V,
+			FAM extends KeyedCollection.Advanced.Family<K, V>,
+			Tp extends Collection.Advanced.Types<
+				FAM,
+				readonly [K, V]
+			> = Collection.Advanced.Types<FAM, readonly [K, V]>,
+		>(
+			context: FAM['_CONTEXT'],
+		): KeyedCollectionEmptyBase<K, V, Tp> & KeyedApiMixin.Apply<C, K, V, Tp>;
+	}
+
+	export interface AbstractNonEmptyConstructor<C extends KeyedApiMixin> {
+		new <
+			K,
+			V,
+			FAM extends KeyedCollection.Advanced.Family<K, V>,
+			Tp extends Collection.Advanced.TypesNonEmpty<
+				FAM,
+				readonly [K, V]
+			> = Collection.Advanced.TypesNonEmpty<FAM, readonly [K, V]>,
+		>(
+			context: FAM['_CONTEXT'],
+		): KeyedCollectionNonEmptyBase<K, V, Tp> & KeyedApiMixin.Apply<C, K, V, Tp>;
+	}
+}
+
+export interface KeyedEmptyApiMixin extends KeyedApiMixin {
 	_API: KeyedCollectionEmptyBase<this['_K'], this['_V'], this['_TP']>;
 }
 
 export function WithKeyedCollectionEmptyBase<C extends ApiMixin>(
-	Base: ApiMixin.Constructor<C>,
-): ApiMixin.Constructor<C & KeyedEmptyMixin>;
+	Base: ApiMixin.AbstractEmptyConstructor<C>,
+): KeyedApiMixin.AbstractEmptyConstructor<C & KeyedEmptyApiMixin>;
 export function WithKeyedCollectionEmptyBase<
-	TBase extends Constructor<CollectionEmptyBase<readonly [K, V], FAM, Tp>>,
+	TBase extends AbstractConstructor<CollectionEmptyBase<readonly [K, V], Tp>>,
 	K,
 	V,
 	FAM extends KeyedCollection.Advanced.Family<
@@ -88,14 +129,16 @@ export function WithKeyedCollectionEmptyBase<
 		FAM,
 		readonly [K, V]
 	> = Collection.Advanced.Types<FAM, readonly [K, V]>,
->(Base: TBase): TBase & Constructor<KeyedCollectionEmptyBase<K, V, Tp>> {
-	return class extends Base {
+>(
+	Base: TBase,
+): TBase & AbstractConstructor<KeyedCollectionEmptyBase<K, V, Tp>> {
+	abstract class Result extends Base {
 		get add() {
-			return this.context.of;
+			return this.context.keyedContext.of;
 		}
 
 		get addAll() {
-			return this.context.from;
+			return this.context.keyedContext.from;
 		}
 
 		get<UK, O>(_: UK, otherwise?: OptLazy<O>): O {
@@ -107,11 +150,11 @@ export function WithKeyedCollectionEmptyBase<
 		}
 
 		streamKeys(): Stream.NonEmpty<K> {
-			return Stream.empty() as any;
+			return Stream.empty<K>() as any;
 		}
 
 		streamValues(): Stream.NonEmpty<V> {
-			return Stream.empty() as any;
+			return Stream.empty<V>() as any;
 		}
 
 		removeKey(): this {
@@ -166,5 +209,73 @@ export function WithKeyedCollectionEmptyBase<
 		>['_NORMAL'] {
 			return this;
 		}
-	};
+	}
+
+	return Result;
 }
+
+export interface KeyedCollectionNonEmptyBase<
+	K,
+	V,
+	Tp extends Collection.Advanced.TypesNonEmpty<
+		KeyedCollection.Advanced.Family<K, V>,
+		readonly [K, V]
+	>,
+> extends KeyedCollection.Advanced.Api<K, V, Tp>,
+		KeyedCollection.Capability.WithRecompose.Api<K, V, Tp> {}
+
+export function WithKeyedCollectionNonEmptyBase<C extends ApiMixin>(
+	Base: ApiMixin.AbstractNonEmptyConstructor<C>,
+): KeyedApiMixin.AbstractNonEmptyConstructor<C & KeyedApiMixin>;
+export function WithKeyedCollectionNonEmptyBase<
+	TBase extends AbstractConstructor<
+		CollectionNonEmptyBase<readonly [K, V], Tp>
+	>,
+	K,
+	V,
+	FAM extends KeyedCollection.Advanced.Family<
+		K,
+		V
+	> = KeyedCollection.Advanced.Family<K, V>,
+	Tp extends Collection.Advanced.TypesNonEmpty<
+		FAM,
+		readonly [K, V]
+	> = Collection.Advanced.TypesNonEmpty<FAM, readonly [K, V]>,
+>(
+	Base: TBase,
+): TBase & AbstractConstructor<KeyedCollectionNonEmptyBase<K, V, Tp>> {
+	abstract class Result extends Base {
+		abstract get<UK, O>(value: UK, otherwise?: OptLazy<O>): V | O;
+		abstract toBuilder(): Tp['_BUILDER'];
+
+		has(value: K): boolean {
+			const notFound = Symbol();
+			return notFound !== this.get(value, notFound);
+		}
+
+		streamKeys(): Stream.NonEmpty<K> {
+			return this.stream().map(first);
+		}
+
+		streamValues(): Stream.NonEmpty<V> {
+			return this.stream().map(second);
+		}
+
+		mutate(f: (builder: Tp['_BUILDER']) => void): Tp['_NORMAL'] {
+			const builder = this.toBuilder();
+			f(builder);
+			return builder.build();
+		}
+
+		recompose<K extends Tp['_UPPER_K'], V extends Tp['_UPPER_V']>(
+			f: (stream: Tp['_AS_STREAM']) => StreamSource<readonly [K, V]>,
+		): Collection.Advanced.ReTyped<Tp, readonly [K, V]>['_NON_EMPTY'] {
+			return this.context.keyedContext.from(f(this.stream())) as any;
+		}
+	}
+
+	return Result;
+}
+
+export const KeyedCollectionNonEmptyConstructor =
+	CollectionNonEmptyBase as unknown as KeyedApiMixin.AbstractNonEmptyConstructor<KeyedApiMixin>;

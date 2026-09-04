@@ -4,7 +4,9 @@ import type { StreamSource } from '@rimbu/stream';
 
 import type { HashSetContext } from '#set/context';
 
+import { WithValuedCollectionNonEmptyBase } from '@rimbu/collection-types/advanced/collection/valued-base';
 import {
+	CollectionNonEmptyConstructor,
 	defaultFlatMapIndexed,
 	defaultMapIndexed,
 } from '@rimbu/collection-types/advanced/collection-base';
@@ -14,17 +16,20 @@ import {
 	defaultIntersectByAdd,
 	defaultSymDifferenceByRemove,
 	defaultUnionByAdd,
-	SetCollectionNonEmptyBase,
 } from '@rimbu/collection-types/advanced/set-base';
 
+const NonEmptyBase = WithValuedCollectionNonEmptyBase(
+	CollectionNonEmptyConstructor,
+);
+
 export abstract class HashSetNonEmptyBase<T>
-	extends SetCollectionNonEmptyBase<T, HashSet.Advanced.Family<T>>
+	extends NonEmptyBase<T, HashSet.Advanced.Family<T>>
 	implements HashSet.NonEmpty<T>
 {
 	declare readonly [TypesKey]: HashSet.Advanced.Family<T>;
 
 	constructor(readonly context: HashSetContext<T>) {
-		super();
+		super(context);
 	}
 
 	abstract hasInternal(element: T, hash: number): boolean;
@@ -123,22 +128,6 @@ export abstract class HashSetNonEmptyBase<T>
 		const builder = this.toBuilder();
 		builder.addAll(values);
 		return builder.build() as HashSet.NonEmpty<T>;
-	}
-
-	filter(
-		pred: (value: T, index: number, halt: () => void) => boolean,
-		options: { negate?: boolean | undefined } = {},
-	): HashSet<T> {
-		const builder = this.context.builder<T>();
-		builder.addAll(this.stream().filter(pred, options));
-		if (builder.size === this.size) return this;
-		return builder.build();
-	}
-
-	mutate(f: (builder: HashSet.Builder<T>) => void): HashSet<T> {
-		const builder = this.toBuilder();
-		f(builder);
-		return builder.build();
 	}
 
 	toBuilder(): HashSet.Builder<T> {

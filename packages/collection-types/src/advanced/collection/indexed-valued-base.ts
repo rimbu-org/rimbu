@@ -1,14 +1,8 @@
+import type { IndexedCollectionEmptyBase } from '@rimbu/collection-types/advanced/collection/indexed-base';
+import type { ValuedCollectionEmptyBase } from '@rimbu/collection-types/advanced/collection/valued-base';
 import type {
-	IndexedCollectionEmptyBase,
-	IndexedEmptyMixin,
-} from '@rimbu/collection-types/advanced/collection/indexed-base';
-import type {
-	ValuedCollectionEmptyBase,
-	ValuedEmptyMixin,
-} from '@rimbu/collection-types/advanced/collection/valued-base';
-import type {
+	AbstractConstructor,
 	ApiMixin,
-	Constructor,
 } from '@rimbu/collection-types/advanced/collection-base';
 import type { Collection } from '@rimbu/collection-types/collection';
 import type { IndexedValuedCollection } from '@rimbu/collection-types/collection/indexed-valued';
@@ -35,12 +29,7 @@ export interface IndexedValuedEmptyMixin extends ApiMixin {
  * capabilities, since this capability's API surface extends both.
  */
 export function WithIndexedValuedCollectionEmptyBase<
-	C extends ApiMixin & IndexedEmptyMixin & ValuedEmptyMixin,
->(
-	Base: ApiMixin.Constructor<C>,
-): ApiMixin.Constructor<C & IndexedValuedEmptyMixin>;
-export function WithIndexedValuedCollectionEmptyBase<
-	TBase extends Constructor<
+	TBase extends AbstractConstructor<
 		IndexedCollectionEmptyBase<E, Tp> & ValuedCollectionEmptyBase<E, Tp>
 	>,
 	E,
@@ -49,10 +38,14 @@ export function WithIndexedValuedCollectionEmptyBase<
 		FAM,
 		E
 	>,
->(Base: TBase): TBase & Constructor<IndexedValuedCollectionEmptyBase<E, Tp>> {
-	return class extends Base {
+>(
+	Base: TBase,
+): TBase & AbstractConstructor<IndexedValuedCollectionEmptyBase<E, Tp>> {
+	abstract class Result extends Base {
 		indexOf<O>(_: E, otherwise?: OptLazy<O>): O {
 			return OptLazy(otherwise) as O;
 		}
-	};
+	}
+
+	return Result;
 }

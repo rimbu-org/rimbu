@@ -1,14 +1,11 @@
-import type {
-	ApiMixin,
-	Constructor,
-} from '@rimbu/collection-types/advanced/collection-base';
+import type { AbstractConstructor } from '@rimbu/collection-types/advanced/collection-base';
 import type { Collection } from '@rimbu/collection-types/collection';
 import type { KeyedCollection } from '@rimbu/collection-types/collection/keyed';
 import type { MapCollection } from '@rimbu/collection-types/map';
 import type { Op } from '@rimbu/collection-types/types';
 import type {
+	KeyedApiMixin,
 	KeyedCollectionEmptyBase,
-	KeyedEmptyMixin,
 } from './collection/keyed-base';
 
 export interface MapCollectionEmptyBase<
@@ -18,20 +15,23 @@ export interface MapCollectionEmptyBase<
 		KeyedCollection.Advanced.Family<K, V>,
 		readonly [K, V]
 	>,
-> extends KeyedCollectionEmptyBase<K, V, Tp>,
+> extends MapCollection.Advanced.Api<K, V, Tp>,
+		KeyedCollectionEmptyBase<K, V, Tp>,
 		MapCollection.Capability.WithModifyAtKey.Api<K, V, Tp>,
 		MapCollection.Capability.WithSet.Api<K, V, Tp>,
 		MapCollection.Capability.WithUpdateAtKey.Api<K, V, Tp> {}
 
-export interface MapCollectionMixin extends KeyedEmptyMixin {
+export interface MapEmptyMixin extends KeyedApiMixin {
 	_API: MapCollectionEmptyBase<this['_K'], this['_V'], this['_TP']>;
+
+	_TP: Collection.Advanced.Types<
+		MapCollection.Advanced.Family<this['_K'], this['_V']>,
+		readonly [this['_K'], this['_V']]
+	>;
 }
 
-export function WithMapCollectionEmptyBase<C extends ApiMixin>(
-	Base: ApiMixin.Constructor<C>,
-): ApiMixin.Constructor<C & MapCollectionMixin>;
 export function WithMapCollectionEmptyBase<
-	TBase extends Constructor<KeyedCollectionEmptyBase<K, V, Tp>>,
+	TBase extends AbstractConstructor<KeyedCollectionEmptyBase<K, V, Tp>>,
 	K,
 	V,
 	FAM extends KeyedCollection.Advanced.Family<
@@ -42,8 +42,8 @@ export function WithMapCollectionEmptyBase<
 		FAM,
 		readonly [K, V]
 	> = Collection.Advanced.Types<FAM, readonly [K, V]>,
->(Base: TBase): TBase & Constructor<MapCollectionEmptyBase<K, V, Tp>> {
-	return class extends Base {
+>(Base: TBase): TBase & AbstractConstructor<MapCollectionEmptyBase<K, V, Tp>> {
+	abstract class Result extends Base {
 		updateAtKey(): Tp['_NORMAL'] {
 			return this;
 		}
@@ -83,18 +83,17 @@ export function WithMapCollectionEmptyBase<
 		): Tp['_NORMAL'] {
 			const { ifNew } = options;
 			if (undefined === ifNew) return this;
-
 			const { set, create } = ifNew;
 			const token = Symbol();
 			const newValue = undefined !== create ? create(token) : set;
-
 			if (token === newValue) return this;
-
 			return this.set(atKey, newValue);
 		}
 
 		set(atKey: K, value: V): Tp['_NON_EMPTY'] {
-			return this.context.of([atKey, value]);
+			return this.add([atKey, value]);
 		}
-	};
+	}
+
+	return Result;
 }

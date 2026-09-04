@@ -1,15 +1,9 @@
+import type { IndexedCollectionEmptyBase } from '@rimbu/collection-types/advanced/collection/indexed-base';
 import type {
-	IndexedCollectionEmptyBase,
-	IndexedEmptyMixin,
-} from '@rimbu/collection-types/advanced/collection/indexed-base';
-import type {
+	KeyedApiMixin,
 	KeyedCollectionEmptyBase,
-	KeyedEmptyMixin,
 } from '@rimbu/collection-types/advanced/collection/keyed-base';
-import type {
-	ApiMixin,
-	Constructor,
-} from '@rimbu/collection-types/advanced/collection-base';
+import type { AbstractConstructor } from '@rimbu/collection-types/advanced/collection-base';
 import type { Collection } from '@rimbu/collection-types/collection';
 import type { IndexedKeyedCollection } from '@rimbu/collection-types/collection/indexed-keyed';
 import type { KeyedCollection } from '@rimbu/collection-types/collection/keyed';
@@ -22,21 +16,19 @@ export interface IndexedKeyedCollectionEmptyBase<
 	Tp extends Collection.Advanced.Types<
 		KeyedCollection.Advanced.Family<K, V>,
 		readonly [K, V]
+	> = Collection.Advanced.Types<
+		KeyedCollection.Advanced.Family<K, V>,
+		readonly [K, V]
 	>,
 > extends IndexedKeyedCollection.Advanced.Api<K, V, Tp>,
 		KeyedCollectionEmptyBase<K, V, Tp> {}
 
-export interface IndexedKeyedEmptyMixin extends KeyedEmptyMixin {
+export interface IndexedKeyedEmptyMixin extends KeyedApiMixin {
 	_API: IndexedKeyedCollectionEmptyBase<this['_K'], this['_V'], this['_TP']>;
 }
 
 export function WithIndexedKeyedCollectionEmptyBase<
-	C extends ApiMixin & IndexedEmptyMixin & KeyedEmptyMixin,
->(
-	Base: ApiMixin.Constructor<C>,
-): ApiMixin.Constructor<C & IndexedKeyedEmptyMixin>;
-export function WithIndexedKeyedCollectionEmptyBase<
-	TBase extends Constructor<
+	TBase extends AbstractConstructor<
 		IndexedCollectionEmptyBase<readonly [K, V], Tp> &
 			KeyedCollectionEmptyBase<K, V, Tp>
 	>,
@@ -50,10 +42,14 @@ export function WithIndexedKeyedCollectionEmptyBase<
 		FAM,
 		readonly [K, V]
 	> = Collection.Advanced.Types<FAM, readonly [K, V]>,
->(Base: TBase): TBase & Constructor<IndexedKeyedCollectionEmptyBase<K, V, Tp>> {
-	return class extends Base {
+>(
+	Base: TBase,
+): TBase & AbstractConstructor<IndexedKeyedCollectionEmptyBase<K, V, Tp>> {
+	abstract class Result extends Base {
 		indexOf<O>(_: K, otherwise?: OptLazy<O>): O {
 			return OptLazy(otherwise) as O;
 		}
-	};
+	}
+
+	return Result;
 }
