@@ -19,7 +19,7 @@ export class HashMapCollision<K, V> extends HashMapNonEmptyBase<K, V> {
 		readonly context: HashMapCollectionContext<K>,
 		readonly entries: List.NonEmpty<readonly [K, V]>,
 	) {
-		super();
+		super(context);
 	}
 
 	get size(): number {

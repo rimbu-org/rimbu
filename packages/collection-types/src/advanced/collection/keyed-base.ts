@@ -56,6 +56,7 @@ export interface KeyedCollectionEmptyBase<
 	>,
 > extends KeyedCollection.Advanced.Api<K, V, Tp>,
 		Collection.Capability.WithAdd.Api<readonly [K, V], Tp>,
+		Collection.Capability.WithMutate.Api<readonly [K, V], Tp>,
 		KeyedCollection.Capability.WithRemove.Api<K, V, Tp>,
 		KeyedCollection.Capability.WithMapValues.Api<K, V, Tp>,
 		KeyedCollection.Capability.WithFlatMap.Api<K, V, Tp>,

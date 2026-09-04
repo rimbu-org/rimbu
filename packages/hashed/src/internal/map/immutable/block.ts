@@ -24,7 +24,7 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 		readonly size: number,
 		readonly level: number,
 	) {
-		super();
+		super(context);
 	}
 
 	copy(

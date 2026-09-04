@@ -355,7 +355,7 @@ export function runMapTestsWith(
 			expect(mapWithUndefinedValue.get('b', 5)).toBe(5);
 		});
 
-		it('hasKey', () => {
+		it('has', () => {
 			expect(mapEmpty.has(2)).toBe(false);
 
 			expect(map3.has(2)).toBe(true);
@@ -697,7 +697,7 @@ export function runMapTestsWith(
 			});
 		});
 
-		it('hasKey', () => {
+		it('has', () => {
 			forEachBuilder((b) => {
 				expect(b.has(2)).toBe(true);
 				expect(b.has(10)).toBe(false);

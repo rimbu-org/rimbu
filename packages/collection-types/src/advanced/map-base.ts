@@ -23,13 +23,11 @@ export interface MapCollectionEmptyBase<
 
 export interface MapEmptyMixin extends KeyedApiMixin {
 	_API: MapCollectionEmptyBase<this['_K'], this['_V'], this['_TP']>;
-
-	_TP: Collection.Advanced.Types<
-		MapCollection.Advanced.Family<this['_K'], this['_V']>,
-		readonly [this['_K'], this['_V']]
-	>;
 }
 
+export function WithMapCollectionEmptyBase<C extends KeyedApiMixin>(
+	Base: KeyedApiMixin.AbstractEmptyConstructor<C>,
+): KeyedApiMixin.AbstractEmptyConstructor<C & MapEmptyMixin>;
 export function WithMapCollectionEmptyBase<
 	TBase extends AbstractConstructor<KeyedCollectionEmptyBase<K, V, Tp>>,
 	K,
