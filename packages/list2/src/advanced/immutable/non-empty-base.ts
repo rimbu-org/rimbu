@@ -14,23 +14,28 @@ import {
 	defaultRepeat,
 	defaultSpliceAtAndReturn,
 	defaultSwapAtAndReturn,
-	IndexedCollectionNonEmptyBase,
+	WithIndexedCollectionNonEmptyBase,
 } from '@rimbu/collection-types/advanced/collection/indexed-base';
 import {
+	CollectionNonEmptyConstructor,
 	defaultFlatMapIndexed,
 	defaultMapIndexed,
 } from '@rimbu/collection-types/advanced/collection-base';
 import { type ArrayNonEmpty, IndexRange } from '@rimbu/common';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
+const NonEmptyBase = WithIndexedCollectionNonEmptyBase(
+	CollectionNonEmptyConstructor,
+);
+
 export abstract class ListNonEmptyBase<T>
-	extends IndexedCollectionNonEmptyBase<T, List.Advanced.Family<T>>
+	extends NonEmptyBase<T, List.Advanced.Family<T>>
 	implements List.NonEmpty<T>
 {
 	declare _self: ListNonEmptyBase<T>;
 
 	constructor(readonly context: ListContext) {
-		super();
+		super(context);
 	}
 
 	abstract stream(options?: {

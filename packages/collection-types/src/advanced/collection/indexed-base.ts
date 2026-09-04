@@ -15,8 +15,12 @@ import { Reducer } from '@rimbu/stream/reducer';
 
 export interface IndexedCollectionEmptyBase<
 	E,
-	Tp extends Collection.Advanced.Types<Collection.Advanced.Family<E>, E>,
+	Tp extends Collection.Advanced.TypesBase,
 > extends IndexedCollection.Advanced.Api<E, Tp>,
+		Collection.Capability.WithAdd.Api<E, Tp>,
+		Collection.Capability.WithFlatMap.Api<E, Tp>,
+		Collection.Capability.WithMap.Api<E, Tp>,
+		Collection.Capability.WithRecompose.Api<E, Tp>,
 		IndexedCollection.Capability.WithConcat.Api<E, Tp>,
 		IndexedCollection.Capability.WithInsertAt.Api<E, Tp>,
 		IndexedCollection.Capability.WithPrependAppend.Api<E, Tp>,
@@ -52,6 +56,38 @@ export function WithIndexedCollectionEmptyBase<
 	>,
 >(Base: TBase): TBase & AbstractConstructor<IndexedCollectionEmptyBase<E, Tp>> {
 	abstract class Result extends Base {
+		has(): false {
+			return false;
+		}
+
+		get add() {
+			return this.context.of;
+		}
+
+		get addAll() {
+			return this.context.from;
+		}
+
+		map<E2 extends FAM['_UPPER_E']>(
+			_f: (element: E) => E2,
+		): Collection.Advanced.ReTyped<Tp, E2>['_SELF'] {
+			return this as any;
+		}
+
+		mapIndexed<E2 extends FAM['_UPPER_E']>(
+			_f: (element: E, index: number) => E2,
+		): Collection.Advanced.ReTyped<Tp, E2>['_SELF'] {
+			return this as any;
+		}
+
+		flatMap(): FAM['_NORMAL'] {
+			return this;
+		}
+
+		flatMapIndexed(): FAM['_NORMAL'] {
+			return this;
+		}
+
 		streamSlice(): Stream<E> {
 			return Stream.empty<E>();
 		}
@@ -174,6 +210,12 @@ export function WithIndexedCollectionEmptyBase<
 				hasChanged: false,
 			};
 		}
+
+		recompose<E2 extends FAM['_UPPER_E']>(
+			f: (stream: Stream<E>) => StreamSource<E2>,
+		): Collection.Advanced.ReTypeFam<FAM, E2>['_NORMAL'] {
+			return this.context.from(f(Stream.empty()));
+		}
 	}
 
 	return Result;
@@ -185,7 +227,10 @@ export interface IndexedCollectionNonEmptyBase<
 		Collection.Advanced.FamilyBase<E>,
 		E
 	> = Collection.Advanced.TypesNonEmpty<Collection.Advanced.FamilyBase<E>, E>,
-> extends IndexedCollection.Advanced.Api<E, Tp> {}
+> extends IndexedCollection.Advanced.Api<E, Tp>,
+		Collection.Capability.WithMutate.Api<E, Tp>,
+		Collection.Capability.WithRecompose.Api<E, Tp>,
+		Collection.Capability.WithToBuilder.Api<E, Tp> {}
 
 export interface IndexedNonEmptyMixin extends ApiMixin {
 	_API: IndexedCollectionNonEmptyBase<this['_E'], this['_TP']>;
@@ -217,14 +262,19 @@ export function WithIndexedCollectionNonEmptyBase<
 			options?: { reversed?: boolean },
 		): Stream<E>;
 		abstract at<O>(index: number, otherwise?: OptLazy<O>): E | O;
-		abstract first(): E | undefined;
-		abstract first<O>(otherwise?: OptLazy<O>): E | O;
-		abstract last(): E | undefined;
-		abstract last<O>(otherwise?: OptLazy<O>): E | O;
 		abstract take<const N extends number>(
 			amount: N,
 		): 0 extends N ? Tp['_NORMAL'] : Tp['_NON_EMPTY'];
 		abstract drop(count: number): Tp['_NORMAL'];
+		abstract toBuilder(): Tp['_BUILDER'];
+
+		first<O>(otherwise?: OptLazy<O>): E | O {
+			return this.at(0, otherwise);
+		}
+
+		last<O>(otherwise?: OptLazy<O>): E | O {
+			return this.at(-1, otherwise);
+		}
 
 		slice(range: IndexRange): Tp['_NORMAL'] {
 			const result = IndexRange.getIndicesFor(range, this.size);
@@ -243,6 +293,18 @@ export function WithIndexedCollectionNonEmptyBase<
 			const left = this.take(index);
 			const right = this.drop(index);
 			return [left, right];
+		}
+
+		recompose<E2 extends Tp['_UPPER_E']>(
+			f: (stream: Tp['_AS_STREAM']) => StreamSource<E2>,
+		): Collection.Advanced.ReTyped<Tp, E2>['_NON_EMPTY'] {
+			return this.context.from(f(this.stream())) as any;
+		}
+
+		mutate(f: (builder: Tp['_BUILDER']) => void): Tp['_NORMAL'] {
+			const builder = this.toBuilder();
+			f(builder);
+			return builder.build();
 		}
 	}
 

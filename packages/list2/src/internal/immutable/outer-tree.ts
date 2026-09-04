@@ -114,14 +114,6 @@ export class OuterTree<T>
 		return treeGet(this, index);
 	}
 
-	first(): T {
-		return this.left.first();
-	}
-
-	last(): T {
-		return this.right.last();
-	}
-
 	setAtAndReturn(
 		index: number,
 		element: T,

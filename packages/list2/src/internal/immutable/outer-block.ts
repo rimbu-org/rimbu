@@ -85,14 +85,6 @@ export abstract class OuterBlock<T>
 		return this._get(index);
 	}
 
-	first(): T {
-		return this._get(0 as Int.AtLeastZero);
-	}
-
-	last(): T {
-		return this.at(-1);
-	}
-
 	setAtAndReturn(
 		index: number,
 		element: T,
