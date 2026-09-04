@@ -5,14 +5,17 @@ import type { StreamSource } from '@rimbu/stream';
 import type { ListContext } from '#list/context';
 
 import { Int } from '@rimbu/base';
-import { IndexedCollectionEmptyBase } from '@rimbu/collection-types/advanced/collection/indexed-base';
+import { WithIndexedCollectionEmptyBase } from '@rimbu/collection-types/advanced/collection/indexed-base';
+import { CollectionEmptyConstructor } from '@rimbu/collection-types/advanced/collection-base';
+
+const EmptyBase = WithIndexedCollectionEmptyBase(CollectionEmptyConstructor);
 
 export class ListEmptyBase<T>
-	extends IndexedCollectionEmptyBase<T, List.Advanced.Family<T>>
+	extends EmptyBase<T, List.Advanced.Family<T>>
 	implements List<T>
 {
 	constructor(readonly context: ListContext) {
-		super();
+		super(context);
 	}
 
 	spliceAt(

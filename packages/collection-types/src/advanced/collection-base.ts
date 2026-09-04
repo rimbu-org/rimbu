@@ -16,7 +16,7 @@ export type AbstractConstructor<Res> = abstract new (...args: any[]) => Res;
  *
  * Capability mixins cannot be generic in the element type of the class they
  * produce (TypeScript mixin functions fix their type parameters at application
- * time). Instead the element type `_E` and the types record `_TP` are supplied
+ * time). Instead the element type `_E` and thxe types record `_TP` are supplied
  * later, by the construct signature of {@link ApiMixinConstructor}, and each capability
  * describes its contribution as a function of those slots.
  *

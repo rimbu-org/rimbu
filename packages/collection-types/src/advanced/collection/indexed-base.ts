@@ -15,7 +15,7 @@ import { Reducer } from '@rimbu/stream/reducer';
 
 export interface IndexedCollectionEmptyBase<
 	E,
-	Tp extends Collection.Advanced.TypesBase,
+	Tp extends Collection.Advanced.Types<Collection.Advanced.Family<E>, E>,
 > extends IndexedCollection.Advanced.Api<E, Tp>,
 		IndexedCollection.Capability.WithConcat.Api<E, Tp>,
 		IndexedCollection.Capability.WithInsertAt.Api<E, Tp>,
@@ -29,6 +29,11 @@ export interface IndexedCollectionEmptyBase<
  */
 export interface IndexedEmptyMixin extends ApiMixin {
 	_API: IndexedCollectionEmptyBase<this['_E'], this['_TP']>;
+
+	_TP: Collection.Advanced.Types<
+		IndexedCollection.Advanced.Family<this['_E']>,
+		this['_E']
+	>;
 }
 
 /**
