@@ -277,6 +277,3 @@ export function WithKeyedCollectionNonEmptyBase<
 
 	return Result;
 }
-
-export const KeyedCollectionNonEmptyConstructor =
-	CollectionNonEmptyBase as unknown as KeyedApiMixin.AbstractNonEmptyConstructor<KeyedApiMixin>;
