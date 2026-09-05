@@ -5,8 +5,9 @@ import type { HashMap } from '@rimbu/hashed/map';
 
 import type { HashMapCollectionContext } from '#map/context';
 
-import { KeyedCollectionNonEmptyConstructor } from '@rimbu/collection-types/advanced/collection/keyed-base';
+import { WithKeyedCollectionNonEmptyBase } from '@rimbu/collection-types/advanced/collection/keyed-base';
 import {
+	CollectionNonEmptyConstructor,
 	defaultFlatMapByAddAll,
 	defaultFlatMapIndexed,
 	defaultMapIndexed,
@@ -14,7 +15,9 @@ import {
 import { OptLazy } from '@rimbu/common/opt-lazy';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
-const NonEmptyBase = KeyedCollectionNonEmptyConstructor;
+const NonEmptyBase = WithKeyedCollectionNonEmptyBase(
+	CollectionNonEmptyConstructor,
+);
 
 export abstract class HashMapNonEmptyBase<K, V>
 	extends NonEmptyBase<K, V, HashMap.Advanced.Family<K, V>>
