@@ -236,8 +236,22 @@ export abstract class CollectionNonEmptyBase<
 export interface CollectionNonEmptyMixin extends ApiMixin {
 	_API: CollectionNonEmptyBase<this['_E'], this['_TP']>;
 
+	/**
+	 * Only wide enough to satisfy the `Tp` constraint of {@link CollectionNonEmptyBase}.
+	 *
+	 * This must stay on {@link Collection.Advanced.FamilyBase} and never narrow to
+	 * {@link Collection.Advanced.Family}. `ApiMixin.Apply` supplies the real types
+	 * record by *intersection* (`C & { _TP: Tp }`), which accumulates rather than
+	 * replaces. A `Family<this['_E']>` default therefore survives into the applied
+	 * record and forces every slot — notably `_CONTEXT` — to additionally satisfy
+	 * the element-typed `Collection.Advanced.Family<E>` view alongside the
+	 * key/value-typed view contributed by `Tp`. Those two views are irreconcilable
+	 * for a generic `E`, because a keyed family rebuilds the element type as
+	 * `readonly [E[0], E[1]]`, which is not assignable to an unresolved `E`.
+	 * `FamilyBase` is element-agnostic, so it composes harmlessly.
+	 */
 	_TP: Collection.Advanced.TypesNonEmpty<
-		Collection.Advanced.Family<this['_E']>,
+		Collection.Advanced.FamilyBase<this['_E']>,
 		this['_E']
 	>;
 }
