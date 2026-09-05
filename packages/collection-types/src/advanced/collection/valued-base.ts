@@ -141,7 +141,7 @@ export function WithValuedCollectionNonEmptyBase<
 	Base: TBase,
 ): TBase & AbstractConstructor<ValuedCollectionNonEmptyBase<E, Tp>> {
 	abstract class Result extends Base {
-		abstract has<UE>(value: UE): boolean;
+		abstract has: <UE>(value: UE) => boolean;
 		abstract toBuilder(): Tp['_BUILDER'];
 
 		recompose<E2 extends Tp['_UPPER_E']>(

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'bun:test';
 
 import type { Collection } from '@rimbu/collection-types/collection';
+import type { ValuedCollection } from '@rimbu/collection-types/collection/valued';
 import type { SetCollection } from '@rimbu/collection-types/set';
 
 import { Stream } from '@rimbu/stream';
@@ -18,9 +19,9 @@ export function runSetTestsWith(
 		Collection.Capability.WithToBuilder<any> &
 			Collection.Capability.WithReducer<any> &
 			Collection.Capability.WithAdd<any> &
-			SetCollection.Capability.WithDifferenceAndIntersection<any> &
-			SetCollection.Capability.WithRemove<any> &
-			SetCollection.Capability.WithSymmetricDifferenceAndUnion<any>
+			ValuedCollection.Capability.WithDifferenceAndIntersection<any> &
+			ValuedCollection.Capability.WithRemove<any> &
+			ValuedCollection.Capability.WithSymmetricDifferenceAndUnion<any>
 	>,
 	foreignContext: SetCollection.Context,
 ): void {

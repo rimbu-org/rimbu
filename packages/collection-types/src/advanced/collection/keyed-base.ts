@@ -249,10 +249,10 @@ export function WithKeyedCollectionNonEmptyBase<
 		abstract get<UK, O>(value: UK, otherwise?: OptLazy<O>): V | O;
 		abstract toBuilder(): Tp['_BUILDER'];
 
-		has(value: K): boolean {
+		has = (value: K): boolean => {
 			const notFound = Symbol();
 			return notFound !== this.get(value, notFound);
-		}
+		};
 
 		streamKeys(): Stream.NonEmpty<K> {
 			return this.stream().map(first);
