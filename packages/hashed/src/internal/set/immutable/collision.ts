@@ -5,8 +5,6 @@ import type { Stream } from '@rimbu/stream';
 
 import type { HashSetContext } from '#set/context';
 
-import { TraverseState } from '@rimbu/common/traverse-state';
-
 import { HashSetNonEmptyBase } from '#set/immutable/non-empty';
 
 export class HashSetCollision<T> extends HashSetNonEmptyBase<T> {
@@ -56,15 +54,15 @@ export class HashSetCollision<T> extends HashSetNonEmptyBase<T> {
 		return this.copy(newEntries);
 	}
 
-	forEach(
-		f: (entry: T, index: number, halt: () => void) => void,
-		options: { state?: TraverseState } = {},
-	): void {
-		const { state = TraverseState() } = options;
+	forEach(f: (entry: T) => void): void {
+		this.entries.forEach(f);
+	}
 
-		if (state.halted) return;
-
-		this.entries.forEach(f, { state });
+	map<T2>(f: (value: T) => T2): HashSetCollision<T2> {
+		return new HashSetCollision(
+			this.context as unknown as HashSetContext<T2>,
+			this.entries.map(f),
+		);
 	}
 
 	toArray(): ArrayNonEmpty<T> {

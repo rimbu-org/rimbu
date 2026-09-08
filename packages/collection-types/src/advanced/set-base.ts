@@ -30,6 +30,9 @@ export interface SetNonEmptyMixin extends ApiMixin {
 	>;
 }
 
+export function WithSetCollectionNonEmptyBase<C extends ApiMixin>(
+	Base: ApiMixin.AbstractNonEmptyConstructor<C>,
+): ApiMixin.AbstractNonEmptyConstructor<C & SetNonEmptyMixin>;
 export function WithSetCollectionNonEmptyBase<
 	TBase extends AbstractConstructor<CollectionNonEmptyBase<E, Tp>>,
 	E,

@@ -5,7 +5,6 @@ import type { HashSetContext } from '#set/context';
 import type { HashSetCollision } from '#set/immutable/collision';
 
 import * as RimbuError from '@rimbu/base/rimbu-error';
-import { TraverseState } from '@rimbu/common/traverse-state';
 import { Stream } from '@rimbu/stream';
 
 import { HashSetNonEmptyBase } from '#set/immutable/non-empty';
@@ -204,28 +203,22 @@ export class HashSetBlock<T> extends HashSetNonEmptyBase<T> {
 		return this;
 	}
 
-	forEach(
-		f: (entry: T, index: number, halt: () => void) => void,
-		options: { state?: TraverseState } = {},
-	): void {
-		const { state = TraverseState() } = options;
+	forEach(f: (entry: T) => void): void {
+		this.entries?.forEach(f);
 
-		if (state.halted) return;
+		this.entrySets?.forEach((entrySet) => {
+			entrySet.forEach(f);
+		});
+	}
 
-		const { halt } = state;
-
-		if (null !== this.entries) {
-			for (const key in this.entries) {
-				f(this.entries[key], state.nextIndex(), halt);
-				if (state.halted) return;
-			}
-		}
-		if (null !== this.entrySets) {
-			for (const key in this.entrySets) {
-				this.entrySets[key].forEach(f, { state });
-				if (state.halted) return;
-			}
-		}
+	map<T2>(f: (value: T) => T2): HashSetBlock<T2> {
+		return new HashSetBlock<T2>(
+			this.context as unknown as HashSetContext<T2>,
+			this.entries?.map(f) ?? null,
+			this.entrySets?.map((entrySet) => entrySet.map(f)) ?? null,
+			this.size,
+			this.level,
+		);
 	}
 
 	toArray(): ArrayNonEmpty<T> {
