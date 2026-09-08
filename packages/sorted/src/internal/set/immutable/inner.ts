@@ -1,7 +1,8 @@
 import type { IndexRange } from '@rimbu/common/index-range';
 import type { ArrayNonEmpty, RelatedTo } from '@rimbu/common/types';
 import type { SortedSet } from '@rimbu/sorted/set';
-import type { SortedSetContext } from './context';
+
+import type { SortedSetContext } from '#set/context';
 
 import * as Arr from '@rimbu/base/arr';
 import * as RimbuError from '@rimbu/base/rimbu-error';
@@ -9,6 +10,7 @@ import { OptLazy } from '@rimbu/common/opt-lazy';
 import { TraverseState } from '@rimbu/common/traverse-state';
 import { Stream } from '@rimbu/stream';
 
+import { SortedSetNode } from '#set/immutable/node';
 import {
 	innerDeleteMax,
 	innerDeleteMin,
@@ -35,7 +37,7 @@ export class SortedSetInner<T> extends SortedSetNode<T> {
 		public children: readonly SortedSetNode<T>[],
 		public size: number,
 	) {
-		super();
+		super(context);
 	}
 
 	get mutateChildren(): SortedSetNode<T>[] {

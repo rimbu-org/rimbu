@@ -93,7 +93,7 @@ export interface IndexedSortedNonEmptyMixin extends SortedApiMixin {
 
 export function WithIndexedSortedCollectionNonEmptyBase<C extends ApiMixin>(
 	Base: ApiMixin.AbstractNonEmptyConstructor<C>,
-): SortedApiMixin.AbstractNonEmptyConstructor<C & SortedApiMixin>;
+): SortedApiMixin.AbstractNonEmptyConstructor<C & IndexedSortedNonEmptyMixin>;
 export function WithIndexedSortedCollectionNonEmptyBase<
 	TBase extends AbstractConstructor<IndexedCollectionNonEmptyBase<E, Tp>>,
 	E,

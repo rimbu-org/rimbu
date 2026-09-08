@@ -1,15 +1,16 @@
 import type { IndexRange } from '@rimbu/common/index-range';
 import type { ArrayNonEmpty, RelatedTo } from '@rimbu/common/types';
 import type { SortedSet } from '@rimbu/sorted/set';
-import type { SortedSetContext } from './context';
+
+import type { SortedSetContext } from '#set/context';
 
 import * as Arr from '@rimbu/base/arr';
 import * as RimbuError from '@rimbu/base/rimbu-error';
 import { OptLazy } from '@rimbu/common/opt-lazy';
 import { TraverseState } from '@rimbu/common/traverse-state';
 import { Stream } from '@rimbu/stream';
-import { SortedSetNode } from './node';
 
+import { SortedSetNode } from '#set/immutable/node';
 import {
 	innerDeleteMax,
 	innerDeleteMin,
@@ -59,14 +60,14 @@ export class SortedSetLeaf<T> extends SortedSetNode<T> {
 		return Stream.fromArray(this.entries, options) as Stream.NonEmpty<T>;
 	}
 
-	// streamSliceIndex(
-	// 	range: IndexRange,
-	// 	options: { reversed?: boolean } = {},
-	// ): Stream<T> {
-	// 	const { reversed = false } = options;
+	streamSliceIndex(
+		range: IndexRange,
+		options: { reversed?: boolean } = {},
+	): Stream<T> {
+		const { reversed = false } = options;
 
-	// 	return Stream.fromArray(this.entries, { range, reversed });
-	// }
+		return Stream.fromArray(this.entries, { range, reversed });
+	}
 
 	// min(): T {
 	// 	return this.entries[0];
