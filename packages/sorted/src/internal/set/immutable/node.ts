@@ -9,16 +9,19 @@ import {
 	CollectionNonEmptyConstructor,
 	defaultAddAll,
 } from '@rimbu/collection-types/advanced/collection-base';
+import { WithSetCollectionNonEmptyBase } from '@rimbu/collection-types/advanced/set-base';
 import { OptLazy } from '@rimbu/common/opt-lazy';
 
-const NonEmptyBase = WithIndexedSortedCollectionNonEmptyBase(
-	WithIndexedCollectionNonEmptyBase(
-		WithValuedCollectionNonEmptyBase(CollectionNonEmptyConstructor),
+const NonEmptyBase = WithSetCollectionNonEmptyBase(
+	WithIndexedSortedCollectionNonEmptyBase(
+		WithIndexedCollectionNonEmptyBase(
+			WithValuedCollectionNonEmptyBase(CollectionNonEmptyConstructor),
+		),
 	),
 );
 
 export abstract class SortedSetNode<T>
-	extends NonEmptyBase<T, T, SortedSet.Advanced.Family<T>>
+	extends NonEmptyBase<T, SortedSet.Advanced.Family<T>>
 	implements SortedSet.NonEmpty<T>
 {
 	// abstract get context(): SortedSetContext<T>;

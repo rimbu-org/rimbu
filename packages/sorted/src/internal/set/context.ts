@@ -4,14 +4,12 @@ import type { StreamSource } from '@rimbu/stream';
 import { ContextBaseWithAddAll } from '@rimbu/collection-types/advanced/collection-base';
 import { Comp } from '@rimbu/common/comp';
 import { Reducer } from '@rimbu/stream/reducer';
+import { SortedSetEmpty } from './immutable/empty';
 
 import { SortedSetBuilder } from '#set/builder';
-import {
-	SortedSetEmpty,
-	SortedSetInner,
-	SortedSetLeaf,
-	SortedSetNode,
-} from '#set/immutable';
+import { SortedSetInner } from '#set/immutable/inner';
+import { SortedSetLeaf } from '#set/immutable/leaf';
+import { SortedSetNode } from '#set/immutable/node';
 
 export class SortedSetContext<UE>
 	extends ContextBaseWithAddAll<SortedSet.Advanced.Family<UE>>

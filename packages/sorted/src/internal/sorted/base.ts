@@ -1,11 +1,6 @@
-import type { SortedSet } from '@rimbu/sorted';
-
 import * as Arr from '@rimbu/base/arr';
 import * as RimbuError from '@rimbu/base/rimbu-error';
-import { WithIndexedSortedCollectionEmptyBase } from '@rimbu/collection-types/advanced/collection/indexed-sorted-base';
-import { WithValuedCollectionEmptyBase } from '@rimbu/collection-types/advanced/collection/valued-base';
-import { CollectionEmptyConstructor } from '@rimbu/collection-types/advanced/collection-base';
-import { NonEmptyBase } from '@rimbu/collection-types/advanced/common/empty-base';
+import { CollectionNonEmptyConstructor } from '@rimbu/collection-types/advanced/collection-base';
 import { IndexRange } from '@rimbu/common/index-range';
 import { OptLazy } from '@rimbu/common/opt-lazy';
 import { TraverseState } from '@rimbu/common/traverse-state';
@@ -13,19 +8,21 @@ import { Stream } from '@rimbu/stream';
 
 import { SortedIndex } from '#sorted/sorted-index';
 
-const EmptyBase = WithIndexedSortedCollectionEmptyBase(
-	WithValuedCollectionEmptyBase(CollectionEmptyConstructor),
-);
+// const EmptyBase = WithIndexedSortedCollectionEmptyBase(
+// 	CollectionEmptyConstructor,
+// );
 
-/**
- * Base implementation used for empty sorted collections.<br/>
- * <br/>
- * Provides the index‑based operations used by `SortedMap` / `SortedSet`
- * instances when they are empty and always returns the given fallback value.
- */
-export class SortedEmpty<E = any, S = any>
-	extends EmptyBase<E, S, SortedSet.Advanced.Family<E>>
-	implements SortedSet<E> {}
+// /**
+//  * Base implementation used for empty sorted collections.<br/>
+//  * <br/>
+//  * Provides the index‑based operations used by `SortedMap` / `SortedSet`
+//  * instances when they are empty and always returns the given fallback value.
+//  */
+// export class SortedEmpty<E = any, S = any>
+// 	extends EmptyBase<E, S, SortedSet.Advanced.Family<E>>
+// 	implements SortedSet<E> {}
+
+const NonEmptyBase = CollectionNonEmptyConstructor;
 
 /**
  * Abstract base class for non‑empty sorted collections.<br/>
@@ -35,117 +32,32 @@ export class SortedEmpty<E = any, S = any>
  * @typeparam E - the stored entry type
  * @typeparam TS - the concrete non‑empty node type
  */
-export abstract class SortedNonEmptyBase<
-	E,
-	TS extends SortedNonEmptyBase<E, TS>,
-> extends NonEmptyBase<E> {
-	abstract atIndex<O>(index: number, otherwise?: OptLazy<O>): E | O;
+// export abstract class SortedNonEmptyBase<
+// 	E,
+// 	TS extends SortedNonEmptyBase<E, TS>,
+// > extends NonEmptyBase<E> {
+// 	abstract atIndex<O>(index: number, otherwise?: OptLazy<O>): E | O;
 
-	// permissive overrides for new interfaces
-	remove(..._args: any[]): any {
-		return this as any;
-	}
-	removeAll(..._args: any[]): any {
-		return this as any;
-	}
-	filter(..._args: any[]): any {
-		return this as any;
-	}
-	filterIndexed(..._args: any[]): any {
-		return this as any;
-	}
-	forEach(..._args: any[]): void {}
-	forEachIndexed(..._args: any[]): void {}
-	slice(..._args: any[]): any {
-		return this as any;
-	}
-	removeKey(..._args: any[]): any {
-		return this as any;
-	}
-	removeKeys(..._args: any[]): any {
-		return this as any;
-	}
-	removeKeyAndReturn(..._args: any[]): any {
-		return [this, undefined, false] as any;
-	}
-	has(..._args: any[]): any {
-		return false;
-	}
-	hasKey(..._args: any[]): any {
-		return false;
-	}
-	get(..._args: any[]): any {
-		return undefined;
-	}
-	at(..._args: any[]): any {
-		return undefined;
-	}
-	indexOf(..._args: any[]): any {
-		return undefined;
-	}
-	streamSlice(..._args: any[]): any {
-		return (this as any).stream();
-	}
-	first(..._args: any[]): any {
-		return (this as any).min(..._args);
-	}
-	last(..._args: any[]): any {
-		return (this as any).max(..._args);
-	}
-	splitAt(..._args: any[]): any {
-		return [this as any, this as any];
-	}
-	intersection(..._args: any[]): any {
-		return this as any;
-	}
-	symmetricDifference(..._args: any[]): any {
-		return this as any;
-	}
-	intersect(..._args: any[]): any {
-		return this as any;
-	}
-	symDifference(..._args: any[]): any {
-		return this as any;
-	}
-	removeAt(..._args: any[]): any {
-		return this as any;
-	}
-	removeAtAndReturn(..._args: any[]): any {
-		return [this as any, undefined] as any;
-	}
-	asNormal(): this {
-		return this as any;
-	}
-	mutate(..._args: any[]): any {
-		return this as any;
-	}
-	previous(..._args: any[]): any {
-		return undefined as any;
-	}
-	next(..._args: any[]): any {
-		return undefined as any;
-	}
+// 	// internal
+// 	abstract get entries(): readonly E[];
 
-	// internal
-	abstract get entries(): readonly E[];
+// 	abstract takeInternal(amount: number): TS;
+// 	abstract dropInternal(amount: number): TS;
 
-	abstract takeInternal(amount: number): TS;
-	abstract dropInternal(amount: number): TS;
+// 	abstract mutateSplitRight(index?: number): [E, TS];
+// 	abstract mutateGiveToLeft(left: TS, toLeft: E): [E, TS];
+// 	abstract mutateGiveToRight(right: TS, toRight: E): [E, TS];
+// 	abstract mutateGetFromLeft(left: TS, toMe: E): [E, TS];
+// 	abstract mutateGetFromRight(right: TS, toMe: E): [E, TS];
+// 	abstract mutateJoinLeft(left: TS, entry: E): void;
+// 	abstract mutateJoinRight(right: TS, entry: E): void;
+// 	abstract deleteMin(): [E, TS];
+// 	abstract deleteMax(): [E, TS];
 
-	abstract mutateSplitRight(index?: number): [E, TS];
-	abstract mutateGiveToLeft(left: TS, toLeft: E): [E, TS];
-	abstract mutateGiveToRight(right: TS, toRight: E): [E, TS];
-	abstract mutateGetFromLeft(left: TS, toMe: E): [E, TS];
-	abstract mutateGetFromRight(right: TS, toMe: E): [E, TS];
-	abstract mutateJoinLeft(left: TS, entry: E): void;
-	abstract mutateJoinRight(right: TS, entry: E): void;
-	abstract deleteMin(): [E, TS];
-	abstract deleteMax(): [E, TS];
-
-	get mutateEntries(): E[] {
-		return this.entries as E[];
-	}
-}
+// 	get mutateEntries(): E[] {
+// 		return this.entries as E[];
+// 	}
+// }
 
 /**
  * Describes the mutable surface of a leaf node used by the helper

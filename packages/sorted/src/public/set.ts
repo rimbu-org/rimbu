@@ -82,6 +82,7 @@ export namespace SortedSet {
 			_NON_EMPTY: SortedSet.NonEmpty<E>;
 			_BUILDER: SortedSet.Builder<E>;
 			_CONTEXT: SortedSet.Context<E>;
+			_SELF: this['_NORMAL'];
 
 			_UPPER_E: E;
 			_INVARIANT: (element: E) => E;

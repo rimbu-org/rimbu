@@ -27,9 +27,9 @@ export interface IndexedSortedEmptyMixin extends SortedApiMixin {
 	_API: IndexedSortedCollectionEmptyBase<this['_E'], this['_S'], this['_TP']>;
 }
 
-// export function WithIndexedSortedCollectionEmptyBase<C extends ApiMixin>(
-// 	Base: ApiMixin.AbstractEmptyConstructor<C>,
-// ): SortedApiMixin.AbstractEmptyConstructor<C & IndexedSortedEmptyMixin>;
+export function WithIndexedSortedCollectionEmptyBase<C extends ApiMixin>(
+	Base: ApiMixin.AbstractEmptyConstructor<C>,
+): SortedApiMixin.AbstractEmptyConstructor<C & IndexedSortedEmptyMixin>;
 export function WithIndexedSortedCollectionEmptyBase<
 	TBase extends AbstractConstructor<
 		IndexedCollectionEmptyBase<E, Tp> & SortedCollectionEmptyBase<E, S, Tp>
