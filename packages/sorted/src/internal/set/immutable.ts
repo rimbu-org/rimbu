@@ -1,18 +1,14 @@
-import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
+import type { IndexRange } from '@rimbu/common/index-range';
+import type { ArrayNonEmpty, RelatedTo } from '@rimbu/common/types';
 import type { SortedSet } from '@rimbu/sorted/set';
 import type { SortedSetContext } from './context';
 
 import * as Arr from '@rimbu/base/arr';
 import * as RimbuError from '@rimbu/base/rimbu-error';
-import {
-	IndexedValuedSortedEmptyBase,
-	IndexedValuedSortedNonEmptyBase,
-} from '@rimbu/collection-types/advanced/collection/indexed-valued-sorted-base';
-import { IndexRange } from '@rimbu/common/index-range';
+import { IndexedValuedSortedNonEmptyBase } from '@rimbu/collection-types/advanced/collection/indexed-valued-sorted-base';
 import { OptLazy } from '@rimbu/common/opt-lazy';
-import { Range } from '@rimbu/common/range';
 import { TraverseState } from '@rimbu/common/traverse-state';
-import { Stream, type StreamSource } from '@rimbu/stream';
+import { Stream } from '@rimbu/stream';
 
 import {
 	innerDeleteMax,
@@ -39,42 +35,8 @@ import {
 	leafMutateJoinLeft,
 	leafMutateJoinRight,
 	leafMutateSplitRight,
-	SortedNonEmptyBase,
 } from '#sorted/base';
 import { SortedIndex } from '#sorted/sorted-index';
-
-export class SortedSetEmpty<T = any>
-	extends IndexedValuedSortedEmptyBase<T, SortedSet.Advanced.Family<T>>
-	implements SortedSet<T>
-{
-	constructor(readonly context: SortedSetContext<T>) {
-		super(context);
-	}
-
-	get add() {
-		return this.context.of;
-	}
-
-	get addAll() {
-		return this.context.from;
-	}
-
-	streamRange(): Stream<T> {
-		return Stream.empty();
-	}
-
-	streamSliceIndex(): Stream<T> {
-		return Stream.empty();
-	}
-
-	lowerBound(): 0 {
-		return 0;
-	}
-
-	upperBound(): 0 {
-		return 0;
-	}
-}
 
 export abstract class SortedSetNode<T>
 	extends IndexedValuedSortedNonEmptyBase<T, SortedSet.Advanced.Family<T>>

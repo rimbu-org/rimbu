@@ -1,6 +1,6 @@
 import type { Collection } from '@rimbu/collection-types/collection';
-import type { IndexedValuedCollection } from '@rimbu/collection-types/collection/indexed-valued';
-import type { SortedCollection } from '@rimbu/collection-types/collection/sorted';
+import type { IndexedSortedCollection } from '@rimbu/collection-types/collection/indexed-sorted';
+import type { ValuedCollection } from '@rimbu/collection-types/collection/valued';
 
 export type IndexedValuedSortedCollection<
 	E,
@@ -21,21 +21,21 @@ export namespace IndexedValuedSortedCollection {
 		> = F & Family<E>;
 
 		export interface Api<E, Tp extends Collection.Advanced.TypesBase>
-			extends IndexedValuedCollection.Advanced.Api<E, Tp>,
-				SortedCollection.Advanced.Api<E, E, Tp> {}
+			extends IndexedSortedCollection.Advanced.Api<E, E, Tp>,
+				ValuedCollection.Advanced.Api<E, Tp> {}
 
 		export interface BuilderApi<E, Tp extends Collection.Advanced.TypesBase>
-			extends IndexedValuedCollection.Advanced.BuilderApi<E, Tp>,
-				SortedCollection.Advanced.BuilderApi<E, E, Tp> {}
+			extends IndexedSortedCollection.Advanced.BuilderApi<E, E, Tp>,
+				ValuedCollection.Advanced.BuilderApi<E, Tp> {}
 
 		export interface ContextApi<
-			F extends IndexedValuedCollection.Advanced.Family<any> &
-				SortedCollection.Advanced.Family<any, any>,
-		> extends IndexedValuedCollection.Advanced.ContextApi<F> {}
+			F extends IndexedSortedCollection.Advanced.Family<any, any> &
+				ValuedCollection.Advanced.Family<any>,
+		> extends IndexedSortedCollection.Advanced.ContextApi<F> {}
 
 		export interface Family<E>
-			extends IndexedValuedCollection.Advanced.Family<E>,
-				SortedCollection.Advanced.Family<E, E> {
+			extends IndexedSortedCollection.Advanced.Family<E, E>,
+				ValuedCollection.Advanced.Family<E> {
 			_NORMAL: Api<E, Collection.Advanced.Types<this['_FAM'], E>>;
 			_NON_EMPTY: Api<E, Collection.Advanced.TypesNonEmpty<this['_FAM'], E>>;
 			_BUILDER: BuilderApi<E, Collection.Advanced.Types<this['_FAM'], E>>;

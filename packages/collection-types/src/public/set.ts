@@ -30,19 +30,42 @@ export declare namespace SetCollection {
 		> = F & Family<E>;
 
 		export interface Api<E, Tp extends Collection.Advanced.TypesBase>
-			extends ValuedCollection.Advanced.Api<E, Tp> {}
+			extends ValuedCollection.Advanced.Api<E, Tp>,
+				Collection.Capability.WithAdd.Api<E, Tp>,
+				Collection.Capability.WithFlatMap.Api<E, Tp>,
+				Collection.Capability.WithMap.Api<E, Tp>,
+				Collection.Capability.WithRecompose.Api<E, Tp>,
+				Collection.Capability.WithMutate.Api<E, Tp>,
+				Collection.Capability.WithToBuilder.Api<E, Tp>,
+				ValuedCollection.Capability.WithDifferenceAndIntersection.Api<E, Tp>,
+				ValuedCollection.Capability.WithSymmetricDifferenceAndUnion.Api<E, Tp>,
+				ValuedCollection.Capability.WithRemove.Api<E, Tp> {}
 
 		export interface BuilderApi<E, Tp extends Collection.Advanced.TypesBase>
-			extends ValuedCollection.Advanced.BuilderApi<E, Tp> {}
+			extends ValuedCollection.Advanced.BuilderApi<E, Tp>,
+				Collection.Capability.WithAdd.BuilderApi<E, Tp>,
+				ValuedCollection.Capability.WithRemove.BuilderApi<E, Tp> {}
 
 		export interface ContextApi<F extends Collection.Advanced.FamilyBase<any>>
 			extends ValuedCollection.Advanced.ContextApi<F> {}
 
-		export interface Family<E> extends ValuedCollection.Advanced.Family<E> {
+		export interface Family<E>
+			extends ValuedCollection.Advanced.Family<E>,
+				Collection.Capability.WithAdd<E>,
+				Collection.Capability.WithFlatMap<E>,
+				Collection.Capability.WithMap<E>,
+				Collection.Capability.WithRecompose<E>,
+				Collection.Capability.WithMutate<E>,
+				Collection.Capability.WithToBuilder<E>,
+				ValuedCollection.Capability.WithDifferenceAndIntersection<E>,
+				ValuedCollection.Capability.WithSymmetricDifferenceAndUnion<E>,
+				ValuedCollection.Capability.WithRemove<E> {
 			_NORMAL: Api<E, Collection.Advanced.Types<this['_FAM'], E>>;
 			_NON_EMPTY: Api<E, Collection.Advanced.TypesNonEmpty<this['_FAM'], E>>;
 			_BUILDER: BuilderApi<E, Collection.Advanced.Types<this['_FAM'], E>>;
 			_CONTEXT: ContextApi<this['_FAM']>;
+
+			_INVARIANT: (e: E) => E;
 
 			_FAM: Family<E>;
 			_NEW_FAMILY: Family<this['_NEW_E']>;

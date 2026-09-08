@@ -123,11 +123,11 @@ export class CollectionEmptyBase<
 
 	forEachIndexed(): void {}
 
-	filter(): this {
+	filter(): Tp['_NORMAL'] {
 		return this;
 	}
 
-	filterIndexed(): this {
+	filterIndexed(): Tp['_NORMAL'] {
 		return this;
 	}
 
@@ -146,14 +146,14 @@ export class CollectionEmptyBase<
 	}
 }
 
-/**
- * {@link CollectionEmptyBase} viewed as a capability-free {@link ApiMixinConstructor} —
- * the seed value to pass to the first capability mixin in a composition.
- *
- * The cast is unavoidable: TypeScript does not relate two generic construct
- * signatures higher-order, so the class cannot be assigned to `EmptyCtor`
- * directly even though it is structurally identical.
- */
+// /**
+//  * {@link CollectionEmptyBase} viewed as a capability-free {@link ApiMixinConstructor} —
+//  * the seed value to pass to the first capability mixin in a composition.
+//  *
+//  * The cast is unavoidable: TypeScript does not relate two generic construct
+//  * signatures higher-order, so the class cannot be assigned to `EmptyCtor`
+//  * directly even though it is structurally identical.
+//  */
 export const CollectionEmptyConstructor =
 	CollectionEmptyBase as unknown as ApiMixin.AbstractEmptyConstructor<ApiMixin>;
 

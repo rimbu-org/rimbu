@@ -1,14 +1,14 @@
+import type {
+	AbstractConstructor,
+	ApiMixin,
+	CollectionEmptyBase,
+	CollectionNonEmptyBase,
+} from '@rimbu/collection-types/advanced/collection-base';
 import type { Collection } from '@rimbu/collection-types/collection';
 import type { KeyedCollection } from '@rimbu/collection-types/collection/keyed';
 import type { Op } from '@rimbu/collection-types/types';
 
 import { first, second } from '@rimbu/base/entry';
-import {
-	type AbstractConstructor,
-	type ApiMixin,
-	CollectionEmptyBase,
-	CollectionNonEmptyBase,
-} from '@rimbu/collection-types/advanced/collection-base';
 import { OptLazy } from '@rimbu/common';
 import { Stream, type StreamSource } from '@rimbu/stream';
 

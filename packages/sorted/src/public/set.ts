@@ -3,7 +3,6 @@ import type { IndexedCollection } from '@rimbu/collection-types/collection/index
 import type { IndexedValuedSortedCollection } from '@rimbu/collection-types/collection/indexed-valued-sorted';
 import type { ValuedCollection } from '@rimbu/collection-types/collection/valued';
 import type { SetCollection } from '@rimbu/collection-types/set';
-import type { OptLazy } from '@rimbu/common';
 import type { Comp } from '@rimbu/common/comp';
 import type { IndexRange } from '@rimbu/common/index-range';
 import type { Range } from '@rimbu/common/range';

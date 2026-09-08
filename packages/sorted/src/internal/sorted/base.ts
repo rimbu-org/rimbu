@@ -1,13 +1,11 @@
 import type { SortedSet } from '@rimbu/sorted';
 
-import type { SortedSetContext } from '#set/context';
-
 import * as Arr from '@rimbu/base/arr';
 import * as RimbuError from '@rimbu/base/rimbu-error';
-import { WithIndexedCollectionEmptyBase } from '@rimbu/collection-types/advanced/collection/indexed-base';
-import { CollectionEmptyBase } from '@rimbu/collection-types/advanced/collection-base';
+import { WithIndexedSortedCollectionEmptyBase } from '@rimbu/collection-types/advanced/collection/indexed-sorted-base';
+import { WithValuedCollectionEmptyBase } from '@rimbu/collection-types/advanced/collection/valued-base';
+import { CollectionEmptyConstructor } from '@rimbu/collection-types/advanced/collection-base';
 import { NonEmptyBase } from '@rimbu/collection-types/advanced/common/empty-base';
-import { SetCollectionEmptyBase } from '@rimbu/collection-types/advanced/set-base';
 import { IndexRange } from '@rimbu/common/index-range';
 import { OptLazy } from '@rimbu/common/opt-lazy';
 import { TraverseState } from '@rimbu/common/traverse-state';
@@ -15,47 +13,19 @@ import { Stream } from '@rimbu/stream';
 
 import { SortedIndex } from '#sorted/sorted-index';
 
+const EmptyBase = WithIndexedSortedCollectionEmptyBase(
+	WithValuedCollectionEmptyBase(CollectionEmptyConstructor),
+);
+
 /**
  * Base implementation used for empty sorted collections.<br/>
  * <br/>
  * Provides the index‑based operations used by `SortedMap` / `SortedSet`
  * instances when they are empty and always returns the given fallback value.
  */
-export class SortedEmpty<E = any>
-	extends SetCollectionEmptyBase<E, SortedSet.Advanced.Family<E>>
-	implements SortedSet<E>
-{
-	constructor(context: SortedSetContext<E>) {
-		super(context);
-
-		this.addAll = context.from;
-	}
-
-	#indexedEmpty = new IndexedCollectionEmptyBase<
-		E,
-		SortedSet.Advanced.Family<E>
-	>(this.context);
-
-	get at() {
-		return this.#indexedEmpty.at;
-	}
-
-	get first() {
-		return this.#indexedEmpty.first;
-	}
-
-	get last() {
-		return this.#indexedEmpty.last;
-	}
-
-	get take(): SortedSet<E>['take'] {
-		return this.#indexedEmpty.take as any;
-	}
-
-	get drop(): SortedSet<E>['drop'] {
-		return this.#indexedEmpty.drop as any;
-	}
-}
+export class SortedEmpty<E = any, S = any>
+	extends EmptyBase<E, S, SortedSet.Advanced.Family<E>>
+	implements SortedSet<E> {}
 
 /**
  * Abstract base class for non‑empty sorted collections.<br/>

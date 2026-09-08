@@ -39,8 +39,11 @@ export function WithValuedCollectionEmptyBase<
 		FAM,
 		E
 	>,
->(Base: TBase): TBase & AbstractConstructor<ValuedCollectionEmptyBase<E, Tp>> {
-	abstract class Result extends Base {
+>(Base: TBase) {
+	abstract class Result
+		extends Base
+		implements ValuedCollectionEmptyBase<E, Tp>
+	{
 		has(): false {
 			return false;
 		}
@@ -122,7 +125,7 @@ export interface ValuedNonEmptyMixin extends ApiMixin {
 	_API: ValuedCollectionNonEmptyBase<this['_E'], this['_TP']>;
 
 	_TP: Collection.Advanced.TypesNonEmpty<
-		ValuedCollection.Advanced.Family<this['_E']>,
+		Collection.Advanced.Family<this['_E']>,
 		this['_E']
 	>;
 }

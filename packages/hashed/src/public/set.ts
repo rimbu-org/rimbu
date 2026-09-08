@@ -1,5 +1,4 @@
 import type { Collection } from '@rimbu/collection-types/collection';
-import type { ValuedCollection } from '@rimbu/collection-types/collection/valued';
 import type { SetCollection } from '@rimbu/collection-types/set';
 import type { Eq } from '@rimbu/common';
 import type { Hasher } from '@rimbu/hashed';
@@ -31,24 +30,10 @@ export namespace HashSet {
 
 	export namespace Advanced {
 		export interface Api<E, Tp extends Collection.Advanced.TypesBase>
-			extends SetCollection.Advanced.Api<E, Tp>,
-				Collection.Capability.WithAdd.Api<E, Tp>,
-				Collection.Capability.WithFlatMap.Api<E, Tp>,
-				Collection.Capability.WithMap.Api<E, Tp>,
-				Collection.Capability.WithMutate.Api<E, Tp>,
-				Collection.Capability.WithRecompose.Api<E, Tp>,
-				Collection.Capability.WithToBuilder.Api<E, Tp>,
-				ValuedCollection.Capability.WithDifferenceAndIntersection.Api<E, Tp>,
-				ValuedCollection.Capability.WithRemove.Api<E, Tp>,
-				ValuedCollection.Capability.WithSymmetricDifferenceAndUnion.Api<
-					E,
-					Tp
-				> {}
+			extends SetCollection.Advanced.Api<E, Tp> {}
 
 		export interface BuilderApi<E, Tp extends Collection.Advanced.TypesBase>
-			extends Collection.Capability.WithAdd.BuilderApi<E, Tp>,
-				SetCollection.Advanced.BuilderApi<E, Tp>,
-				ValuedCollection.Capability.WithRemove.BuilderApi<E, Tp> {}
+			extends SetCollection.Advanced.BuilderApi<E, Tp> {}
 
 		export interface ContextApi<
 			UE,
@@ -65,6 +50,7 @@ export namespace HashSet {
 			_NON_EMPTY: HashSet.NonEmpty<E>;
 			_BUILDER: HashSet.Builder<E>;
 			_CONTEXT: HashSet.Context<E>;
+			_SELF: this['_NORMAL'];
 
 			_UPPER_E: E;
 			_INVARIANT: (element: E) => E;
