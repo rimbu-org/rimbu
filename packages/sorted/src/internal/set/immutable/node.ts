@@ -28,22 +28,7 @@ export abstract class SortedSetNode<T>
 	extends NonEmptyBase<T, T, SortedSet.Advanced.Family<T>>
 	implements SortedSet.NonEmpty<T>
 {
-	// abstract get context(): SortedSetContext<T>;
-	// abstract get size(): number;
-	// abstract stream(options?: { reversed?: boolean }): Stream.NonEmpty<T>;
-	// abstract streamSliceIndex(
-	// 	range: IndexRange,
-	// 	options?: { reversed?: boolean },
-	// ): Stream<T>;
-	// abstract forEach(
-	// 	f: (value: T, index: number, halt: () => void) => void,
-	// 	options?: { state?: TraverseState },
-	// ): void;
-	// abstract has<U>(value: RelatedTo<T, U>): boolean;
-	// abstract findIndex(value: T): number | undefined;
-	// abstract min(): T;
-	// abstract max(): T;
-	// abstract toArray(): ArrayNonEmpty<T>;
+	abstract stream(options?: { reversed?: boolean }): Stream.NonEmpty<T>;
 
 	// internal methods
 	abstract addInternal(value: T): SortedSetNode<T>;
@@ -57,10 +42,6 @@ export abstract class SortedSetNode<T>
 		options?: { reversed?: boolean },
 	): Stream<T>;
 	abstract findIndex<O>(value: T, otherwise?: OptLazy<O>): number | O;
-
-	// asNormal(): this {
-	// 	return this;
-	// }
 
 	lowerBound(value: T): number {
 		const index = this.getInsertIndexOf(value);
@@ -210,7 +191,7 @@ export abstract class SortedSetNode<T>
 	// 	return this.context.createBuilder(this);
 	// }
 
-	// toString(): string {
-	// 	return this.stream().join({ start: 'SortedSet(', sep: ', ', end: ')' });
-	// }
+	toString(): string {
+		return this.stream().join({ start: 'SortedSet(', sep: ', ', end: ')' });
+	}
 }
