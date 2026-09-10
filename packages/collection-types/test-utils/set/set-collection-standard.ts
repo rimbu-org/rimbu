@@ -18,7 +18,7 @@ export function runSetTestsWith(
 	context: SetCollection.Context<
 		Collection.Capability.WithToBuilder<any> &
 			Collection.Capability.WithReducer<any> &
-			Collection.Capability.WithAdd<any> &
+			Collection.Capability.WithAddAll<any> &
 			ValuedCollection.Capability.WithDifferenceAndIntersection<any> &
 			ValuedCollection.Capability.WithRemove<any> &
 			ValuedCollection.Capability.WithSymmetricDifferenceAndUnion<any>

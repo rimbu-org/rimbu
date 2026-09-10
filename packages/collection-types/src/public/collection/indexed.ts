@@ -86,9 +86,9 @@ export declare namespace IndexedCollection {
 			extends Collection.Advanced.ContextApi<F> {}
 
 		export interface Family<E> extends Collection.Advanced.Family<E> {
-			_NORMAL: Api<E, Collection.Advanced.Types<this['_FAM'], E>>;
-			_NON_EMPTY: Api<E, Collection.Advanced.TypesNonEmpty<this['_FAM'], E>>;
-			_BUILDER: BuilderApi<E, Collection.Advanced.Types<this['_FAM'], E>>;
+			_NORMAL: Api<E, this['_TYPES']>;
+			_NON_EMPTY: Api<E, this['_TYPES_NON_EMPTY']>;
+			_BUILDER: BuilderApi<E, this['_TYPES']>;
 			_CONTEXT: ContextApi<this['_FAM']>;
 
 			_FAM: Family<E>;
@@ -97,45 +97,49 @@ export declare namespace IndexedCollection {
 	}
 
 	export namespace Capability {
-		export interface WithConcat<E> extends Advanced.Family<E> {
-			_NORMAL: WithConcat.Api<E, Collection.Advanced.Types<this['_FAM'], E>>;
-			_NON_EMPTY: WithConcat.Api<
-				E,
-				Collection.Advanced.TypesNonEmpty<this['_FAM'], E>
-			>;
+		export interface WithConcat<E> extends Collection.Advanced.FamilyBase<E> {
+			_NORMAL: WithConcat.Api<E, this['_TYPES']>;
+			_NON_EMPTY: WithConcat.Api<E, this['_TYPES_NON_EMPTY']>;
 
 			_FAM: WithConcat<E>;
 			_NEW_FAMILY: WithConcat<this['_NEW_E']>;
 		}
 
 		export namespace WithConcat {
-			export interface Api<E, Tp extends Collection.Advanced.TypesBase>
-				extends Advanced.Api<E, Tp> {
+			export interface Api<E, Tp extends Collection.Advanced.TypesBase> {
 				concat(
 					...sources: ArrayNonEmpty<StreamSource.NonEmpty<E>>
 				): Tp['_NON_EMPTY'];
 				concat(...sources: ArrayNonEmpty<StreamSource<E>>): Tp['_SELF'];
+			}
+		}
 
+		export interface WithRepeat<E> extends Collection.Advanced.FamilyBase<E> {
+			_NORMAL: WithRepeat.Api<E, this['_TYPES']>;
+			_NON_EMPTY: WithRepeat.Api<E, this['_TYPES_NON_EMPTY']>;
+
+			_FAM: WithRepeat<E>;
+			_NEW_FAMILY: WithRepeat<this['_NEW_E']>;
+		}
+
+		export namespace WithRepeat {
+			export interface Api<E, Tp extends Collection.Advanced.TypesBase> {
 				repeat<N extends number>(
 					amount: N,
 				): 0 extends N ? Tp['_NORMAL'] : Tp['_SELF'];
 			}
 		}
 
-		export interface WithPadTo<E> extends Advanced.Family<E> {
-			_NORMAL: WithPadTo.Api<E, Collection.Advanced.Types<this['_FAM'], E>>;
-			_NON_EMPTY: WithPadTo.Api<
-				E,
-				Collection.Advanced.TypesNonEmpty<this['_FAM'], E>
-			>;
+		export interface WithPadTo<E> extends Collection.Advanced.FamilyBase<E> {
+			_NORMAL: WithPadTo.Api<E, this['_TYPES']>;
+			_NON_EMPTY: WithPadTo.Api<E, this['_TYPES_NON_EMPTY']>;
 
 			_FAM: WithPadTo<E>;
 			_NEW_FAMILY: WithPadTo<this['_NEW_E']>;
 		}
 
 		export namespace WithPadTo {
-			export interface Api<E, Tp extends Collection.Advanced.TypesBase>
-				extends Advanced.Api<E, Tp> {
+			export interface Api<E, Tp extends Collection.Advanced.TypesBase> {
 				padTo(
 					size: number,
 					fill: E,
@@ -144,33 +148,23 @@ export declare namespace IndexedCollection {
 			}
 		}
 
-		export interface WithPrependAppend<E> extends Advanced.Family<E> {
-			_NORMAL: WithPrependAppend.Api<
-				E,
-				Collection.Advanced.Types<this['_FAM'], E>
-			>;
-			_NON_EMPTY: WithPrependAppend.Api<
-				E,
-				Collection.Advanced.TypesNonEmpty<this['_FAM'], E>
-			>;
-			_BUILDER: WithPrependAppend.BuilderApi<
-				E,
-				Collection.Advanced.Types<this['_FAM'], E>
-			>;
+		export interface WithPrependAppend<E>
+			extends Collection.Advanced.FamilyBase<E> {
+			_NORMAL: WithPrependAppend.Api<E, this['_TYPES']>;
+			_NON_EMPTY: WithPrependAppend.Api<E, this['_TYPES_NON_EMPTY']>;
+			_BUILDER: WithPrependAppend.BuilderApi<E, this['_TYPES']>;
 
 			_FAM: WithPrependAppend<E>;
 			_NEW_FAMILY: WithPrependAppend<this['_NEW_E']>;
 		}
 
 		export namespace WithPrependAppend {
-			export interface Api<E, Tp extends Collection.Advanced.TypesBase>
-				extends Advanced.Api<E, Tp> {
+			export interface Api<E, Tp extends Collection.Advanced.TypesBase> {
 				prepend(element: E): Tp['_NON_EMPTY'];
 				append(element: E): Tp['_NON_EMPTY'];
 			}
 
-			export interface BuilderApi<E, Tp extends Collection.Advanced.TypesBase>
-				extends Advanced.BuilderApi<E, Tp> {
+			export interface BuilderApi<E, Tp extends Collection.Advanced.TypesBase> {
 				prepend(element: E): void;
 				append(element: E): void;
 
@@ -179,20 +173,16 @@ export declare namespace IndexedCollection {
 			}
 		}
 
-		export interface WithSpliceAt<E> extends Advanced.Family<E> {
-			_NORMAL: WithSpliceAt.Api<E, Collection.Advanced.Types<this['_FAM'], E>>;
-			_NON_EMPTY: WithSpliceAt.Api<
-				E,
-				Collection.Advanced.TypesNonEmpty<this['_FAM'], E>
-			>;
+		export interface WithSpliceAt<E> extends Collection.Advanced.FamilyBase<E> {
+			_NORMAL: WithSpliceAt.Api<E, this['_TYPES']>;
+			_NON_EMPTY: WithSpliceAt.Api<E, this['_TYPES_NON_EMPTY']>;
 
 			_FAM: WithSpliceAt<E>;
 			_NEW_FAMILY: WithSpliceAt<this['_NEW_E']>;
 		}
 
 		export namespace WithSpliceAt {
-			export interface Api<E, Tp extends Collection.Advanced.TypesBase>
-				extends Advanced.Api<E, Tp> {
+			export interface Api<E, Tp extends Collection.Advanced.TypesBase> {
 				spliceAt(
 					index: number,
 					options: {
@@ -237,11 +227,16 @@ export declare namespace IndexedCollection {
 			}
 		}
 
-		export interface WithInsertAt<E> extends Advanced.Family<E> {}
+		export interface WithInsertAt<E> extends Collection.Advanced.FamilyBase<E> {
+			_NORMAL: WithInsertAt.Api<E, this['_TYPES']>;
+			_NON_EMPTY: WithInsertAt.Api<E, this['_TYPES_NON_EMPTY']>;
+
+			_FAM: WithInsertAt<E>;
+			_NEW_FAMILY: WithInsertAt<this['_NEW_E']>;
+		}
 
 		export namespace WithInsertAt {
-			export interface Api<E, Tp extends Collection.Advanced.TypesBase>
-				extends Advanced.Api<E, Tp> {
+			export interface Api<E, Tp extends Collection.Advanced.TypesBase> {
 				insertAt(
 					index: number,
 					elements: StreamSource.NonEmpty<E>,
@@ -249,30 +244,22 @@ export declare namespace IndexedCollection {
 				insertAt(index: number, elements: StreamSource<E>): Tp['_SELF'];
 			}
 
-			export interface BuilderApi<E, Tp extends Collection.Advanced.TypesBase>
-				extends Advanced.BuilderApi<E, Tp> {
+			export interface BuilderApi<E, Tp extends Collection.Advanced.TypesBase> {
 				insertAt(index: number, elements: StreamSource<E>): void;
 			}
 		}
 
-		export interface WithRemoveAt<E> extends Advanced.Family<E> {
-			_NORMAL: WithRemoveAt.Api<E, Collection.Advanced.Types<this['_FAM'], E>>;
-			_NON_EMPTY: WithRemoveAt.Api<
-				E,
-				Collection.Advanced.TypesNonEmpty<this['_FAM'], E>
-			>;
-			_BUILDER: WithRemoveAt.BuilderApi<
-				E,
-				Collection.Advanced.Types<this['_FAM'], E>
-			>;
+		export interface WithRemoveAt<E> extends Collection.Advanced.FamilyBase<E> {
+			_NORMAL: WithRemoveAt.Api<E, this['_TYPES']>;
+			_NON_EMPTY: WithRemoveAt.Api<E, this['_TYPES_NON_EMPTY']>;
+			_BUILDER: WithRemoveAt.BuilderApi<E, this['_TYPES']>;
 
 			_FAM: WithRemoveAt<E>;
 			_NEW_FAMILY: WithRemoveAt<this['_NEW_E']>;
 		}
 
 		export namespace WithRemoveAt {
-			export interface Api<E, Tp extends Collection.Advanced.TypesBase>
-				extends Advanced.Api<E, Tp> {
+			export interface Api<E, Tp extends Collection.Advanced.TypesBase> {
 				removeAt(index: number, amount?: number | undefined): Tp['_NORMAL'];
 
 				removeAtAndReturn(
@@ -286,8 +273,7 @@ export declare namespace IndexedCollection {
 				>;
 			}
 
-			export interface BuilderApi<E, Tp extends Collection.Advanced.TypesBase>
-				extends Advanced.BuilderApi<E, Tp> {
+			export interface BuilderApi<E, Tp extends Collection.Advanced.TypesBase> {
 				removeAt(index: number): E | undefined;
 				removeAt<O>(index: number, otherwise: OptLazy<O>): E | O;
 
@@ -306,30 +292,17 @@ export declare namespace IndexedCollection {
 			}
 		}
 
-		export interface WithUpdateAt<E> extends Advanced.Family<E> {
-			_NORMAL: WithUpdateAt.Api<E, Collection.Advanced.Types<this['_FAM'], E>>;
-			_NON_EMPTY: WithUpdateAt.Api<
-				E,
-				Collection.Advanced.TypesNonEmpty<this['_FAM'], E>
-			>;
-			_BUILDER: WithUpdateAt.BuilderApi<
-				E,
-				Collection.Advanced.Types<this['_FAM'], E>
-			>;
+		export interface WithUpdateAt<E> extends Collection.Advanced.FamilyBase<E> {
+			_NORMAL: WithUpdateAt.Api<E, this['_TYPES']>;
+			_NON_EMPTY: WithUpdateAt.Api<E, this['_TYPES_NON_EMPTY']>;
+			_BUILDER: WithUpdateAt.BuilderApi<E, this['_TYPES']>;
 
 			_FAM: WithUpdateAt<E>;
 			_NEW_FAMILY: WithUpdateAt<this['_NEW_E']>;
 		}
 
 		export namespace WithUpdateAt {
-			export interface Api<E, Tp extends Collection.Advanced.TypesBase>
-				extends Advanced.Api<E, Tp> {
-				setAt(index: number, element: E): Tp['_SELF'];
-				setAtAndReturn(
-					index: number,
-					element: E,
-				): Op.DynamicResult<Tp['_SELF'], undefined, E, Tp['_NON_EMPTY']>;
-
+			export interface Api<E, Tp extends Collection.Advanced.TypesBase> {
 				updateAt(index: number, f: (element: E) => E): Tp['_SELF'];
 				updateAtAndReturn(
 					index: number,
@@ -342,11 +315,7 @@ export declare namespace IndexedCollection {
 				>;
 			}
 
-			export interface BuilderApi<E, Tp extends Collection.Advanced.TypesBase>
-				extends Advanced.BuilderApi<E, Tp> {
-				setAt(index: number, element: E): E | undefined;
-				setAt<O>(index: number, element: E, otherwise: OptLazy<O>): E | O;
-
+			export interface BuilderApi<E, Tp extends Collection.Advanced.TypesBase> {
 				updateAt(
 					index: number,
 					f: (element: E) => E,
@@ -359,20 +328,40 @@ export declare namespace IndexedCollection {
 			}
 		}
 
-		export interface WithSwapAt<E> extends Advanced.Family<E> {
-			_NORMAL: WithSwapAt.Api<E, Collection.Advanced.Types<this['_FAM'], E>>;
-			_NON_EMPTY: WithSwapAt.Api<
-				E,
-				Collection.Advanced.TypesNonEmpty<this['_FAM'], E>
-			>;
+		export interface WithSetAt<E> extends Collection.Advanced.FamilyBase<E> {
+			_NORMAL: WithSetAt.Api<E, this['_TYPES']>;
+			_NON_EMPTY: WithSetAt.Api<E, this['_TYPES_NON_EMPTY']>;
+			_BUILDER: WithSetAt.BuilderApi<E, this['_TYPES']>;
+
+			_FAM: WithSetAt<E>;
+			_NEW_FAMILY: WithSetAt<this['_NEW_E']>;
+		}
+
+		export namespace WithSetAt {
+			export interface Api<E, Tp extends Collection.Advanced.TypesBase> {
+				setAt(index: number, element: E): Tp['_SELF'];
+				setAtAndReturn(
+					index: number,
+					element: E,
+				): Op.DynamicResult<Tp['_SELF'], undefined, E, Tp['_NON_EMPTY']>;
+			}
+
+			export interface BuilderApi<E, Tp extends Collection.Advanced.TypesBase> {
+				setAt(index: number, element: E): E | undefined;
+				setAt<O>(index: number, element: E, otherwise: OptLazy<O>): E | O;
+			}
+		}
+
+		export interface WithSwapAt<E> extends Collection.Advanced.FamilyBase<E> {
+			_NORMAL: WithSwapAt.Api<E, this['_TYPES']>;
+			_NON_EMPTY: WithSwapAt.Api<E, this['_TYPES_NON_EMPTY']>;
 
 			_FAM: WithSwapAt<E>;
 			_NEW_FAMILY: WithSwapAt<this['_NEW_E']>;
 		}
 
 		export namespace WithSwapAt {
-			export interface Api<E, Tp extends Collection.Advanced.TypesBase>
-				extends Advanced.Api<E, Tp> {
+			export interface Api<E, Tp extends Collection.Advanced.TypesBase> {
 				swapAt(index1: number, index2: number): Tp['_SELF'];
 				swapAtAndReturn(
 					index1: number,
@@ -386,7 +375,7 @@ export declare namespace IndexedCollection {
 			}
 		}
 
-		export interface WithUnzip<E> extends Advanced.Family<E> {
+		export interface WithUnzip<E> extends Collection.Advanced.FamilyBase<E> {
 			_CONTEXT: WithUnzip.ContextApi<this['_FAM']>;
 
 			_FAM: WithUnzip<E>;
@@ -394,8 +383,9 @@ export declare namespace IndexedCollection {
 		}
 
 		export namespace WithUnzip {
-			export interface ContextApi<F extends Collection.Advanced.FamilyBase<any>>
-				extends Advanced.ContextApi<F> {
+			export interface ContextApi<
+				F extends Collection.Advanced.FamilyBase<any>,
+			> {
 				unzip<
 					S extends StreamSource<
 						{ length?: L; size?: L } & readonly F['_UPPER_E'][]
@@ -417,7 +407,7 @@ export declare namespace IndexedCollection {
 			}
 		}
 
-		export interface WithFlatten<E> extends Advanced.Family<E> {
+		export interface WithFlatten<E> extends Collection.Advanced.FamilyBase<E> {
 			_CONTEXT: WithFlatten.ContextApi<this['_FAM']>;
 
 			_FAM: WithFlatten<E>;
@@ -425,8 +415,9 @@ export declare namespace IndexedCollection {
 		}
 
 		export namespace WithFlatten {
-			export interface ContextApi<F extends Collection.Advanced.FamilyBase<any>>
-				extends Advanced.ContextApi<F> {
+			export interface ContextApi<
+				F extends Collection.Advanced.FamilyBase<any>,
+			> {
 				flatten<E extends F['_UPPER_E']>(
 					source: StreamSource.NonEmpty<StreamSource<E>>,
 				): Collection.Advanced.FamToTypes<F, E>['_NON_EMPTY'];

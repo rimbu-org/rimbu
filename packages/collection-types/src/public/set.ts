@@ -32,19 +32,27 @@ export declare namespace SetCollection {
 		export interface Api<E, Tp extends Collection.Advanced.TypesBase>
 			extends ValuedCollection.Advanced.Api<E, Tp>,
 				Collection.Capability.WithAdd.Api<E, Tp>,
+				Collection.Capability.WithAddAll.Api<E, Tp>,
 				Collection.Capability.WithFlatMap.Api<E, Tp>,
+				Collection.Capability.WithFlatMapIndexed.Api<E, Tp>,
 				Collection.Capability.WithMap.Api<E, Tp>,
+				Collection.Capability.WithMapIndexed.Api<E, Tp>,
 				Collection.Capability.WithRecompose.Api<E, Tp>,
 				Collection.Capability.WithMutate.Api<E, Tp>,
 				Collection.Capability.WithToBuilder.Api<E, Tp>,
-				ValuedCollection.Capability.WithDifferenceAndIntersection.Api<E, Tp>,
-				ValuedCollection.Capability.WithSymmetricDifferenceAndUnion.Api<E, Tp>,
-				ValuedCollection.Capability.WithRemove.Api<E, Tp> {}
+				ValuedCollection.Capability.WithDifference.Api<E, Tp>,
+				ValuedCollection.Capability.WithIntersection.Api<E, Tp>,
+				ValuedCollection.Capability.WithSymmetricDifference.Api<E, Tp>,
+				ValuedCollection.Capability.WithUnion.Api<E, Tp>,
+				ValuedCollection.Capability.WithRemove.Api<E, Tp>,
+				ValuedCollection.Capability.WithRemoveAll.Api<E, Tp> {}
 
 		export interface BuilderApi<E, Tp extends Collection.Advanced.TypesBase>
 			extends ValuedCollection.Advanced.BuilderApi<E, Tp>,
 				Collection.Capability.WithAdd.BuilderApi<E, Tp>,
-				ValuedCollection.Capability.WithRemove.BuilderApi<E, Tp> {}
+				Collection.Capability.WithAddAll.BuilderApi<E, Tp>,
+				ValuedCollection.Capability.WithRemove.BuilderApi<E, Tp>,
+				ValuedCollection.Capability.WithRemoveAll.BuilderApi<E, Tp> {}
 
 		export interface ContextApi<F extends Collection.Advanced.FamilyBase<any>>
 			extends ValuedCollection.Advanced.ContextApi<F> {}
@@ -52,17 +60,23 @@ export declare namespace SetCollection {
 		export interface Family<E>
 			extends ValuedCollection.Advanced.Family<E>,
 				Collection.Capability.WithAdd<E>,
+				Collection.Capability.WithAddAll<E>,
 				Collection.Capability.WithFlatMap<E>,
+				Collection.Capability.WithFlatMapIndexed<E>,
 				Collection.Capability.WithMap<E>,
+				Collection.Capability.WithMapIndexed<E>,
 				Collection.Capability.WithRecompose<E>,
 				Collection.Capability.WithMutate<E>,
 				Collection.Capability.WithToBuilder<E>,
-				ValuedCollection.Capability.WithDifferenceAndIntersection<E>,
-				ValuedCollection.Capability.WithSymmetricDifferenceAndUnion<E>,
-				ValuedCollection.Capability.WithRemove<E> {
-			_NORMAL: Api<E, Collection.Advanced.Types<this['_FAM'], E>>;
-			_NON_EMPTY: Api<E, Collection.Advanced.TypesNonEmpty<this['_FAM'], E>>;
-			_BUILDER: BuilderApi<E, Collection.Advanced.Types<this['_FAM'], E>>;
+				ValuedCollection.Capability.WithDifference<E>,
+				ValuedCollection.Capability.WithIntersection<E>,
+				ValuedCollection.Capability.WithUnion<E>,
+				ValuedCollection.Capability.WithSymmetricDifference<E>,
+				ValuedCollection.Capability.WithRemove<E>,
+				ValuedCollection.Capability.WithRemoveAll<E> {
+			_NORMAL: Api<E, this['_TYPES']>;
+			_NON_EMPTY: Api<E, this['_TYPES_NON_EMPTY']>;
+			_BUILDER: BuilderApi<E, this['_TYPES']>;
 			_CONTEXT: ContextApi<this['_FAM']>;
 
 			_INVARIANT: (e: E) => E;

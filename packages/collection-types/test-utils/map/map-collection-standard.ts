@@ -30,12 +30,12 @@ const arr6 = [
 	[6, 'f'],
 ] as ArrayNonEmpty<[number, string]>;
 
-type Capabilities = Collection.Capability.WithAdd<any> &
+type Capabilities = Collection.Capability.WithAddAll<any> &
 	Collection.Capability.WithToBuilder<any> &
 	KeyedCollection.Capability.WithReducer<any, any> &
 	KeyedCollection.Capability.WithMerge<any, any> &
 	KeyedCollection.Capability.WithMapValues<any, any> &
-	KeyedCollection.Capability.WithRemove<any, any> &
+	KeyedCollection.Capability.WithRemoveKey<any, any> &
 	MapCollection.Capability.WithUpdateAtKey<any, any> &
 	MapCollection.Capability.WithSet<any, any> &
 	MapCollection.Capability.WithModifyAtKey<any, any>;

@@ -17,7 +17,7 @@ export interface IndexedCollectionEmptyBase<
 	E,
 	Tp extends Collection.Advanced.TypesBase,
 > extends IndexedCollection.Advanced.Api<E, Tp>,
-		Collection.Capability.WithAdd.Api<E, Tp>,
+		Collection.Capability.WithAddAll.Api<E, Tp>,
 		Collection.Capability.WithFlatMap.Api<E, Tp>,
 		Collection.Capability.WithMap.Api<E, Tp>,
 		Collection.Capability.WithRecompose.Api<E, Tp>,
@@ -43,9 +43,9 @@ export interface IndexedEmptyMixin extends ApiMixin {
 /**
  * Adds the indexed-collection API to an empty collection base constructor.
  */
-// export function WithIndexedCollectionEmptyBase<C extends ApiMixin>(
-// 	Base: ApiMixin.AbstractEmptyConstructor<C>,
-// ): ApiMixin.AbstractEmptyConstructor<C & IndexedEmptyMixin>;
+export function WithIndexedCollectionEmptyBase<C extends ApiMixin>(
+	Base: ApiMixin.AbstractEmptyConstructor<C>,
+): ApiMixin.AbstractEmptyConstructor<C & IndexedEmptyMixin>;
 export function WithIndexedCollectionEmptyBase<
 	TBase extends AbstractConstructor<CollectionEmptyBase<E, Tp>>,
 	E,
@@ -314,13 +314,13 @@ export function WithIndexedCollectionNonEmptyBase<
 export function defaultFlatMapByConcat<
 	E,
 	E2,
-	Tp extends IndexedCollection.Capability.WithConcat<E> &
-		Collection.Advanced.NonEmptyKind<E>,
-	C extends Collection.Advanced.Api<E, Tp>,
+	C extends Collection.NonEmpty<E, FAM>,
+	FAM extends Collection.Advanced.Family<E> &
+		IndexedCollection.Capability.WithConcat<E>,
 >(
 	col: C,
 	f: (element: E) => StreamSource<E2>,
-): Collection.Advanced.ReTyped<Tp, E2>['_NORMAL'] {
+): Collection.Advanced.ReTypeFam<FAM, E2>['_NORMAL'] {
 	const token = Symbol();
 	const iterator = col[Symbol.iterator]();
 
@@ -337,7 +337,8 @@ export function defaultFlatMapByConcat<
 export function defaultSpliceAtAndReturn<
 	E,
 	C extends IndexedCollection.NonEmpty<E, FAM>,
-	FAM extends IndexedCollection.Capability.WithSpliceAt<E> &
+	FAM extends IndexedCollection.Advanced.Family<E> &
+		IndexedCollection.Capability.WithSpliceAt<E> &
 		IndexedCollection.Capability.WithConcat<E>,
 >(
 	col: C,
@@ -405,7 +406,8 @@ export function defaultSpliceAtAndReturn<
 export function defaultRemoveAtAndReturn<
 	E,
 	C extends IndexedCollection.NonEmpty<E, FAM>,
-	FAM extends IndexedCollection.Capability.WithSpliceAt<E>,
+	FAM extends IndexedCollection.Advanced.Family<E> &
+		IndexedCollection.Capability.WithSpliceAt<E>,
 >(
 	col: C,
 	index: number,
@@ -442,8 +444,9 @@ export function defaultRemoveAtAndReturn<
 export function defaultSwapAtAndReturn<
 	E,
 	C extends IndexedCollection.NonEmpty<E, FAM>,
-	FAM extends IndexedCollection.Capability.WithSwapAt<E> &
-		IndexedCollection.Capability.WithUpdateAt<E>,
+	FAM extends IndexedCollection.Advanced.Family<E> &
+		IndexedCollection.Capability.WithSwapAt<E> &
+		IndexedCollection.Capability.WithSetAt<E>,
 >(
 	col: C,
 	index1: number,
@@ -508,7 +511,8 @@ export function defaultSwapAtAndReturn<
 export function defaultPadTo<
 	E,
 	C extends IndexedCollection.NonEmpty<E, FAM>,
-	FAM extends IndexedCollection.Capability.WithConcat<E> &
+	FAM extends IndexedCollection.Advanced.Family<E> &
+		IndexedCollection.Capability.WithRepeat<E> &
 		IndexedCollection.Capability.WithSpliceAt<E>,
 >(
 	col: C,
@@ -534,7 +538,8 @@ export function defaultPadTo<
 export function defaultRepeat<
 	E,
 	C extends Collection.NonEmpty<E, FAM>,
-	FAM extends IndexedCollection.Capability.WithConcat<E>,
+	FAM extends IndexedCollection.Advanced.Family<E> &
+		IndexedCollection.Capability.WithConcat<E>,
 >(col: C, amount: number): FAM['_NORMAL'] {
 	Int.checkAtLeastZero(amount);
 
@@ -553,7 +558,8 @@ export function defaultRepeat<
 
 export function defaultReducerByAppend<
 	E,
-	FAM extends Collection.Capability.WithToBuilder<E> &
+	FAM extends IndexedCollection.Advanced.Family<E> &
+		Collection.Capability.WithToBuilder<E> &
 		IndexedCollection.Capability.WithPrependAppend<E>,
 >(
 	context: IndexedCollection.Context<FAM>,

@@ -74,12 +74,12 @@ describe('Collection2.ReTyped', () => {
 	});
 
 	it('WithAdd is invariant', () => {
-		expectTypeOf<Collection.Capability.WithAdd<number>>().not.toExtend<
-			Collection.Capability.WithAdd<number | string>
+		expectTypeOf<Collection.Capability.WithAddAll<number>>().not.toExtend<
+			Collection.Capability.WithAddAll<number | string>
 		>();
-		expectTypeOf<Collection.Capability.WithAdd<number | string>>().not.toExtend<
-			Collection.Capability.WithAdd<number>
-		>();
+		expectTypeOf<
+			Collection.Capability.WithAddAll<number | string>
+		>().not.toExtend<Collection.Capability.WithAddAll<number>>();
 	});
 
 	it('WithToBuilder is invariant', () => {

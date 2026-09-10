@@ -29,23 +29,30 @@ export declare namespace List {
 
 	export namespace Advanced {
 		export interface Api<T, Tp extends Collection.Advanced.TypesBase>
-			extends Collection.Capability.WithFlatMap.Api<T, Tp>,
+			extends IndexedCollection.Advanced.Api<T, Tp>,
+				Collection.Capability.WithFlatMap.Api<T, Tp>,
+				Collection.Capability.WithFlatMapIndexed.Api<T, Tp>,
 				Collection.Capability.WithMap.Api<T, Tp>,
+				Collection.Capability.WithMapIndexed.Api<T, Tp>,
 				Collection.Capability.WithMutate.Api<T, Tp>,
 				Collection.Capability.WithRecompose.Api<T, Tp>,
 				Collection.Capability.WithToBuilder.Api<T, Tp>,
 				IndexedCollection.Capability.WithConcat.Api<T, Tp>,
+				IndexedCollection.Capability.WithRepeat.Api<T, Tp>,
 				IndexedCollection.Capability.WithPadTo.Api<T, Tp>,
 				IndexedCollection.Capability.WithPrependAppend.Api<T, Tp>,
 				IndexedCollection.Capability.WithInsertAt.Api<T, Tp>,
 				IndexedCollection.Capability.WithRemoveAt.Api<T, Tp>,
 				IndexedCollection.Capability.WithSpliceAt.Api<T, Tp>,
 				IndexedCollection.Capability.WithSwapAt.Api<T, Tp>,
+				IndexedCollection.Capability.WithSetAt.Api<T, Tp>,
 				IndexedCollection.Capability.WithUpdateAt.Api<T, Tp> {}
 
 		export interface BuilderApi<T, Tp extends Collection.Advanced.TypesBase>
-			extends IndexedCollection.Capability.WithPrependAppend.BuilderApi<T, Tp>,
+			extends IndexedCollection.Advanced.BuilderApi<T, Tp>,
+				IndexedCollection.Capability.WithPrependAppend.BuilderApi<T, Tp>,
 				IndexedCollection.Capability.WithInsertAt.BuilderApi<T, Tp>,
+				IndexedCollection.Capability.WithSetAt.BuilderApi<T, Tp>,
 				IndexedCollection.Capability.WithUpdateAt.BuilderApi<T, Tp>,
 				IndexedCollection.Capability.WithRemoveAt.BuilderApi<T, Tp> {}
 

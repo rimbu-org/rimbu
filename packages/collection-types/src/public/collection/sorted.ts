@@ -97,9 +97,9 @@ export namespace SortedCollection {
 		}
 
 		export interface Family<E, S> extends Collection.Advanced.Family<E> {
-			_NORMAL: Api<E, S, Collection.Advanced.Types<this['_FAM'], E>>;
-			_NON_EMPTY: Api<E, S, Collection.Advanced.TypesNonEmpty<this['_FAM'], E>>;
-			_BUILDER: BuilderApi<E, S, Collection.Advanced.Types<this['_FAM'], E>>;
+			_NORMAL: Api<E, S, this['_TYPES']>;
+			_NON_EMPTY: Api<E, S, this['_TYPES_NON_EMPTY']>;
+			_BUILDER: BuilderApi<E, S, this['_TYPES']>;
 
 			_NEW_E_TO_S: unknown;
 

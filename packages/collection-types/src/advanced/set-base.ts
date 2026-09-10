@@ -40,36 +40,16 @@ export interface SetCollectionNonEmptyImplemented<
 		E
 	>,
 > extends Collection.Advanced.Api<E, Tp>,
-		Collection.Capability.WithAdd.Api<E, Tp> {
-	mapIndexed<E2 extends Tp['_UPPER_E']>(
-		f: (element: E, index: number) => E2,
-	): Collection.Advanced.ReTyped<Tp, E2>['_SELF'];
-
-	flatMap<E2 extends Tp['_UPPER_E']>(
-		f: (element: E) => StreamSource.NonEmpty<E2>,
-	): Collection.Advanced.ReTyped<Tp, E2>['_SELF'];
-	flatMap<E2 extends Tp['_UPPER_E']>(
-		f: (element: E) => StreamSource<E2>,
-	): Collection.Advanced.ReTyped<Tp, E2>['_NORMAL'];
-
-	flatMapIndexed<E2 extends Tp['_UPPER_E']>(
-		f: (element: E, index: number) => StreamSource.NonEmpty<E2>,
-		options: { indexOffset?: number | undefined } | undefined,
-	): Collection.Advanced.ReTyped<Tp, E2>['_SELF'];
-	flatMapIndexed<E2 extends Tp['_UPPER_E']>(
-		f: (element: E, index: number) => StreamSource<E2>,
-		options: { indexOffset?: number | undefined } | undefined,
-	): Collection.Advanced.ReTyped<Tp, E2>['_NORMAL'];
-
-	difference<UE = E>(other: StreamSource<RelatedTo<E, UE>>): Tp['_NORMAL'];
-	intersection<UE = E>(other: StreamSource<RelatedTo<E, UE>>): Tp['_NORMAL'];
-
-	symmetricDifference(other: StreamSource<E>): Tp['_NORMAL'];
-	union(other: StreamSource.NonEmpty<E>): Tp['_NON_EMPTY'];
-	union(other: StreamSource<E>): Tp['_SELF'];
-
-	removeAll<UE = E>(elements: StreamSource<RelatedTo<E, UE>>): Tp['_NORMAL'];
-}
+		Collection.Capability.WithAddAll.Api<E, Tp>,
+		Collection.Capability.WithMapIndexed.Api<E, Tp>,
+		Collection.Capability.WithFlatMap.Api<E, Tp>,
+		Collection.Capability.WithFlatMapIndexed.Api<E, Tp>,
+		ValuedCollection.Capability.WithRemove.Api<E, Tp>,
+		ValuedCollection.Capability.WithRemoveAll.Api<E, Tp>,
+		ValuedCollection.Capability.WithSymmetricDifference.Api<E, Tp>,
+		ValuedCollection.Capability.WithUnion.Api<E, Tp>,
+		ValuedCollection.Capability.WithDifference.Api<E, Tp>,
+		ValuedCollection.Capability.WithIntersection.Api<E, Tp> {}
 
 /**
  * The members that {@link WithSetCollectionNonEmptyBase} leaves abstract, and
@@ -100,7 +80,14 @@ declare abstract class SetCollectionNonEmptyRequirementsClass<
 		Collection.Advanced.Family<E>,
 		E
 	>,
-> {
+> implements
+		Collection.Capability.WithAdd.Api<E, Tp>,
+		Collection.Capability.WithMap.Api<E, Tp>,
+		Collection.Capability.WithMutate.Api<E, Tp>,
+		Collection.Capability.WithRecompose.Api<E, Tp>,
+		Collection.Capability.WithToBuilder.Api<E, Tp>,
+		ValuedCollection.Capability.WithRemove.Api<E, Tp>
+{
 	/**
 	 * Whether this collection considers the order of its elements significant.
 	 *
@@ -182,7 +169,10 @@ export function WithSetCollectionNonEmptyBase<
 	// use them; the type that extenders see is derived from
 	// SetCollectionNonEmptyRequirements, which is what makes them a visible
 	// obligation
-	abstract class Result extends Base {
+	abstract class Result
+		extends Base
+		implements SetCollectionNonEmptyBase<E, Tp>
+	{
 		abstract isOrdered: Requirements['isOrdered'];
 		abstract has: Requirements['has'];
 		abstract add(element: E): Tp['_NON_EMPTY'];
@@ -201,7 +191,7 @@ export function WithSetCollectionNonEmptyBase<
 				return this;
 			}
 
-			return defaultAddAll(this, elements);
+			return defaultAddAll(this, elements) as Tp['_NON_EMPTY'];
 		}
 
 		mapIndexed<E2>(
@@ -264,7 +254,7 @@ export function defaultFlatMapByUnion<
 	E,
 	E2,
 	C extends SetCollection.NonEmpty<E, FAM>,
-	FAM extends ValuedCollection.Capability.WithSymmetricDifferenceAndUnion<E>,
+	FAM extends ValuedCollection.Capability.WithUnion<E>,
 >(
 	col: C,
 	f: (element: E) => StreamSource<E2>,
@@ -284,7 +274,7 @@ export function defaultFlatMapByUnion<
 export function defaultUnionByAdd<
 	E,
 	C extends SetCollection.NonEmpty<E, FAM>,
-	FAM extends Collection.Capability.WithAdd<E>,
+	FAM extends Collection.Capability.WithAddAll<E>,
 >(col: C, other: StreamSource<E>): FAM['_NORMAL'] {
 	if (other === col) return col;
 	if (Stream.isEmptyStreamSourceInstance(other)) return col;
@@ -306,7 +296,7 @@ export function defaultDifferenceByRemove<
 export function defaultIntersectByAdd<
 	E,
 	C extends SetCollection.NonEmpty<E, FAM>,
-	FAM extends Collection.Capability.WithAdd<E>,
+	FAM extends Collection.Capability.WithAddAll<E>,
 >(col: C, other: StreamSource<E>): FAM['_NORMAL'] {
 	if (other === col) return col;
 	if (Stream.isEmptyStreamSourceInstance(other)) return col.context.empty();
@@ -322,9 +312,7 @@ export function defaultIntersectByAdd<
 export function defaultSymDifferenceByRemove<
 	E,
 	C extends SetCollection.NonEmpty<E, FAM>,
-	FAM extends Collection.Capability.WithToBuilder<E> &
-		Collection.Capability.WithAdd<E> &
-		ValuedCollection.Capability.WithRemove<E>,
+	FAM extends SetCollection.Advanced.Family<E>,
 >(col: C, other: StreamSource<E>): FAM['_NORMAL'] {
 	if (other === col) return col.context.empty();
 	if (Stream.isEmptyStreamSourceInstance(other)) return col;
@@ -341,7 +329,7 @@ export function defaultSymDifferenceByRemove<
 export function defaultReducerByAdd<
 	E,
 	F extends Collection.Capability.WithToBuilder<E> &
-		Collection.Capability.WithAdd<E>,
+		Collection.Capability.WithAddAll<E>,
 >(
 	context: SetCollection.Context<F>,
 	source?: StreamSource<E>,

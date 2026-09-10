@@ -319,9 +319,9 @@ export abstract class CollectionBuilderBase<
 }
 
 export abstract class ContextBaseWithAddAll<
-	FAM extends Collection.Advanced.FamilyBase<any> &
+	FAM extends Collection.Advanced.Family<any> &
 		Collection.Capability.WithToBuilder<any> &
-		Collection.Capability.WithAdd<any>,
+		Collection.Capability.WithAddAll<any>,
 > implements Collection.Advanced.ContextApi<FAM>
 {
 	abstract isNonEmptyInstance<E extends FAM['_UPPER_E']>(
@@ -371,12 +371,13 @@ export abstract class ContextBaseWithAddAll<
 export function defaultAddAll<
 	E,
 	C extends Collection.NonEmpty<E, FAM>,
-	FAM extends Collection.Capability.WithAdd<E> &
+	FAM extends Collection.Advanced.Family<E> &
+		Collection.Capability.WithAddAll<E> &
 		Collection.Capability.WithToBuilder<E>,
 >(col: C, elements: StreamSource<E>) {
 	const builder = col.toBuilder();
 	builder.addAll(elements);
-	return builder.build() as C;
+	return builder.build();
 }
 
 export function defaultMapIndexed<
@@ -399,7 +400,8 @@ export function defaultFlatMapByAddAll<
 	E,
 	E2,
 	C extends Collection.NonEmpty<E, FAM>,
-	FAM extends Collection.Capability.WithAdd<E>,
+	FAM extends Collection.Advanced.Family<E> &
+		Collection.Capability.WithAddAll<E>,
 >(
 	col: C,
 	f: (element: E) => StreamSource<E2>,

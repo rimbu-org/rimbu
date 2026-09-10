@@ -13,12 +13,14 @@ export interface ValuedCollectionEmptyBase<
 	E,
 	Tp extends Collection.Advanced.TypesBase,
 > extends ValuedCollection.Advanced.Api<E, Tp>,
-		Collection.Capability.WithAdd.Api<E, Tp>,
+		Collection.Capability.WithAddAll.Api<E, Tp>,
 		Collection.Capability.WithFlatMap.Api<E, Tp>,
 		Collection.Capability.WithMap.Api<E, Tp>,
 		Collection.Capability.WithRecompose.Api<E, Tp>,
-		ValuedCollection.Capability.WithDifferenceAndIntersection.Api<E, Tp>,
-		ValuedCollection.Capability.WithSymmetricDifferenceAndUnion.Api<E, Tp>,
+		ValuedCollection.Capability.WithDifference.Api<E, Tp>,
+		ValuedCollection.Capability.WithIntersection.Api<E, Tp>,
+		ValuedCollection.Capability.WithSymmetricDifference.Api<E, Tp>,
+		ValuedCollection.Capability.WithUnion.Api<E, Tp>,
 		ValuedCollection.Capability.WithRemove.Api<E, Tp> {}
 
 export interface ValuedEmptyMixin extends ApiMixin {

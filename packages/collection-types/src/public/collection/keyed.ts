@@ -100,26 +100,8 @@ export declare namespace KeyedCollection {
 			>(): Collection.Advanced.FamToTypes<F, readonly [K, V]>['_BUILDER'];
 		}
 
-		export interface Family<K, V>
-			extends Collection.Advanced.Family<readonly [K, V]> {
-			_NORMAL: Api<
-				K,
-				V,
-				Collection.Advanced.Types<this['_FAM'], readonly [K, V]>
-			>;
-			_NON_EMPTY: Api<
-				K,
-				V,
-				Collection.Advanced.TypesNonEmpty<this['_FAM'], readonly [K, V]>
-			>;
-			_BUILDER: BuilderApi<
-				K,
-				V,
-				Collection.Advanced.Types<this['_FAM'], readonly [K, V]>
-			>;
-			_CONTEXT: ContextApi<this['_FAM']>;
-			_KEYED_CONTEXT: KeyedContextApi<this['_FAM']>;
-
+		export interface FamilyBase<K, V>
+			extends Collection.Advanced.FamilyBase<readonly [K, V]> {
 			_UPPER_E: readonly [unknown, unknown];
 			_NEW_E: readonly [unknown, unknown];
 
@@ -129,39 +111,40 @@ export declare namespace KeyedCollection {
 			_NEW_K: this['_NEW_E'][0];
 			_NEW_V: this['_NEW_E'][1];
 
+			_FAM: FamilyBase<K, V>;
+			_NEW_FAMILY: FamilyBase<this['_NEW_K'], this['_NEW_V']>;
+		}
+
+		export interface Family<K, V>
+			extends FamilyBase<K, V>,
+				Collection.Advanced.Family<readonly [K, V]> {
+			_NORMAL: Api<K, V, this['_TYPES']>;
+			_NON_EMPTY: Api<K, V, this['_TYPES_NON_EMPTY']>;
+			_BUILDER: BuilderApi<K, V, this['_TYPES']>;
+			_CONTEXT: ContextApi<this['_FAM']>;
+			_KEYED_CONTEXT: KeyedContextApi<this['_FAM']>;
+
+			_UPPER_E: readonly [unknown, unknown];
+			_NEW_E: readonly [unknown, unknown];
+
 			_FAM: Family<K, V>;
 			_NEW_FAMILY: Family<this['_NEW_K'], this['_NEW_V']>;
 		}
 	}
 
 	export namespace Capability {
-		export interface WithRemove<K, V> extends Advanced.Family<K, V> {
-			_NORMAL: WithRemove.Api<
-				K,
-				V,
-				Collection.Advanced.Types<this['_FAM'], readonly [K, V]>
-			>;
-			_NON_EMPTY: WithRemove.Api<
-				K,
-				V,
-				Collection.Advanced.TypesNonEmpty<this['_FAM'], readonly [K, V]>
-			>;
-			_BUILDER: WithRemove.BuilderApi<
-				K,
-				V,
-				Collection.Advanced.Types<this['_FAM'], readonly [K, V]>
-			>;
+		export interface WithRemoveKey<K, V> extends Advanced.FamilyBase<K, V> {
+			_NORMAL: WithRemoveKey.Api<K, V, this['_TYPES']>;
+			_NON_EMPTY: WithRemoveKey.Api<K, V, this['_TYPES_NON_EMPTY']>;
+			_BUILDER: WithRemoveKey.BuilderApi<K, V, this['_TYPES']>;
 
-			_FAM: WithRemove<K, V>;
-			_NEW_FAMILY: WithRemove<this['_NEW_K'], this['_NEW_V']>;
+			_FAM: WithRemoveKey<K, V>;
+			_NEW_FAMILY: WithRemoveKey<this['_NEW_K'], this['_NEW_V']>;
 		}
 
-		export namespace WithRemove {
-			export interface Api<K, V, Tp extends Collection.Advanced.TypesBase>
-				extends Advanced.Api<K, V, Tp> {
+		export namespace WithRemoveKey {
+			export interface Api<K, V, Tp extends Collection.Advanced.TypesBase> {
 				removeKey<UK = K>(key: RelatedTo<K, UK>): Tp['_NORMAL'];
-
-				removeKeys<UK = K>(keys: StreamSource<RelatedTo<K, UK>>): Tp['_NORMAL'];
 
 				removeKeyAndReturn<UK = K>(
 					key: RelatedTo<K, UK>,
@@ -176,9 +159,31 @@ export declare namespace KeyedCollection {
 				K,
 				V,
 				Tp extends Collection.Advanced.TypesBase,
-			> extends Advanced.BuilderApi<K, V, Tp> {
+			> {
 				removeKey<UK = K>(key: RelatedTo<K, UK>): V | undefined;
 				removeKey<UK, O>(key: RelatedTo<K, UK>, otherwise: O): V | O;
+			}
+		}
+
+		export interface WithRemoveKeys<K, V> extends Advanced.FamilyBase<K, V> {
+			_NORMAL: WithRemoveKeys.Api<K, V, this['_TYPES']>;
+			_NON_EMPTY: WithRemoveKeys.Api<K, V, this['_TYPES_NON_EMPTY']>;
+			_BUILDER: WithRemoveKeys.BuilderApi<K, V, this['_TYPES']>;
+
+			_FAM: WithRemoveKeys<K, V>;
+			_NEW_FAMILY: WithRemoveKeys<this['_NEW_K'], this['_NEW_V']>;
+		}
+
+		export namespace WithRemoveKeys {
+			export interface Api<K, V, Tp extends Collection.Advanced.TypesBase> {
+				removeKeys<UK = K>(keys: StreamSource<RelatedTo<K, UK>>): Tp['_NORMAL'];
+			}
+
+			export interface BuilderApi<
+				K,
+				V,
+				Tp extends Collection.Advanced.TypesBase,
+			> {
 				removeKeys<UK = K>(keys: StreamSource<RelatedTo<K, UK>>): boolean;
 				removeKeys<UK, R>(
 					keys: StreamSource<RelatedTo<K, UK>>,
@@ -187,30 +192,17 @@ export declare namespace KeyedCollection {
 			}
 		}
 
-		export interface WithMapValues<K, V> extends Advanced.Family<K, V> {
-			_NORMAL: WithMapValues.Api<
-				K,
-				V,
-				Collection.Advanced.Types<this['_FAM'], readonly [K, V]>
-			>;
-			_NON_EMPTY: WithMapValues.Api<
-				K,
-				V,
-				Collection.Advanced.TypesNonEmpty<this['_FAM'], readonly [K, V]>
-			>;
-			_BUILDER: WithMapValues.BuilderApi<
-				K,
-				V,
-				Collection.Advanced.Types<this['_FAM'], readonly [K, V]>
-			>;
+		export interface WithMapValues<K, V> extends Advanced.FamilyBase<K, V> {
+			_NORMAL: WithMapValues.Api<K, V, this['_TYPES']>;
+			_NON_EMPTY: WithMapValues.Api<K, V, this['_TYPES_NON_EMPTY']>;
+			_BUILDER: WithMapValues.BuilderApi<K, V, this['_TYPES']>;
 
 			_FAM: WithMapValues<K, V>;
 			_NEW_FAMILY: WithMapValues<this['_NEW_K'], this['_NEW_V']>;
 		}
 
 		export namespace WithMapValues {
-			export interface Api<K, V, Tp extends Collection.Advanced.TypesBase>
-				extends Advanced.Api<K, V, Tp> {
+			export interface Api<K, V, Tp extends Collection.Advanced.TypesBase> {
 				mapValues<V2 extends V>(
 					mapFun: (value: V, key: K) => V2,
 				): Collection.Advanced.ReTyped<Tp, readonly [K, V2]>['_SELF'];
@@ -220,14 +212,14 @@ export declare namespace KeyedCollection {
 				K,
 				V,
 				Tp extends Collection.Advanced.TypesBase,
-			> extends Advanced.BuilderApi<K, V, Tp> {
+			> {
 				buildMapValues<V2 extends V>(
 					mapFun: (value: V, key: K) => V2,
 				): Collection.Advanced.ReTyped<Tp, readonly [K, V2]>['_NORMAL'];
 			}
 		}
 
-		export interface WithMerge<K, V> extends Advanced.Family<K, V> {
+		export interface WithMerge<K, V> extends Advanced.FamilyBase<K, V> {
 			_KEYED_CONTEXT: WithMerge.KeyedContextApi<this['_FAM']>;
 
 			_FAM: WithMerge<K, V>;
@@ -241,8 +233,9 @@ export declare namespace KeyedCollection {
 			export type StreamSourceElement<S extends StreamSource<any>> =
 				S extends StreamSource<infer E> ? E : never;
 
-			export interface KeyedContextApi<F extends Advanced.Family<any, any>>
-				extends Advanced.KeyedContextApi<F> {
+			export interface KeyedContextApi<
+				F extends Advanced.FamilyBase<any, any>,
+			> {
 				mergeAllWith<
 					const S extends readonly StreamSource<
 						readonly [F['_UPPER_K'], any]
@@ -340,7 +333,7 @@ export declare namespace KeyedCollection {
 			}
 		}
 
-		export interface WithReducer<K, V> extends Advanced.Family<K, V> {
+		export interface WithReducer<K, V> extends Advanced.FamilyBase<K, V> {
 			_KEYED_CONTEXT: WithReducer.KeyedContextApi<this['_FAM']>;
 
 			_FAM: WithReducer<K, V>;
@@ -348,8 +341,9 @@ export declare namespace KeyedCollection {
 		}
 
 		export namespace WithReducer {
-			export interface KeyedContextApi<F extends Advanced.Family<any, any>>
-				extends Advanced.KeyedContextApi<F> {
+			export interface KeyedContextApi<
+				F extends Advanced.FamilyBase<any, any>,
+			> {
 				reducer<K extends F['_UPPER_K'], V extends F['_UPPER_V']>(
 					source?: StreamSource<readonly [K, V]> | undefined,
 				): Reducer<
@@ -359,17 +353,9 @@ export declare namespace KeyedCollection {
 			}
 		}
 
-		export interface WithRecompose<K, V> extends Advanced.Family<K, V> {
-			_NORMAL: WithRecompose.Api<
-				K,
-				V,
-				Collection.Advanced.Types<this['_FAM'], readonly [K, V]>
-			>;
-			_NON_EMPTY: WithRecompose.Api<
-				K,
-				V,
-				Collection.Advanced.TypesNonEmpty<this['_FAM'], readonly [K, V]>
-			>;
+		export interface WithRecompose<K, V> extends Advanced.FamilyBase<K, V> {
+			_NORMAL: WithRecompose.Api<K, V, this['_TYPES']>;
+			_NON_EMPTY: WithRecompose.Api<K, V, this['_TYPES_NON_EMPTY']>;
 
 			_FAM: WithRecompose<K, V>;
 			_NEW_FAMILY: WithRecompose<this['_NEW_K'], this['_NEW_V']>;
@@ -380,10 +366,10 @@ export declare namespace KeyedCollection {
 				K,
 				V,
 				Tp extends Collection.Advanced.Types<
-					Advanced.Family<K, V>,
+					Advanced.FamilyBase<K, V>,
 					readonly [K, V]
 				>,
-			> extends Advanced.Api<K, V, Tp> {
+			> {
 				recompose<K2 extends Tp['_UPPER_K'], V2 extends Tp['_UPPER_V']>(
 					f: (
 						stream: Tp['_AS_STREAM'],
@@ -395,17 +381,9 @@ export declare namespace KeyedCollection {
 			}
 		}
 
-		export interface WithMap<K, V> extends Advanced.Family<K, V> {
-			_NORMAL: WithMap.Api<
-				K,
-				V,
-				Collection.Advanced.Types<this['_FAM'], readonly [K, V]>
-			>;
-			_NON_EMPTY: WithMap.Api<
-				K,
-				V,
-				Collection.Advanced.TypesNonEmpty<this['_FAM'], readonly [K, V]>
-			>;
+		export interface WithMap<K, V> extends Advanced.FamilyBase<K, V> {
+			_NORMAL: WithMap.Api<K, V, this['_TYPES']>;
+			_NON_EMPTY: WithMap.Api<K, V, this['_TYPES_NON_EMPTY']>;
 
 			_INVARIANT: (e: readonly [K, V]) => readonly [K, V];
 
@@ -418,31 +396,44 @@ export declare namespace KeyedCollection {
 				K,
 				V,
 				Tp extends Collection.Advanced.Types<
-					Advanced.Family<K, V>,
+					Advanced.FamilyBase<K, V>,
 					readonly [K, V]
 				>,
-			> extends Advanced.Api<K, V, Tp> {
+			> {
 				map<K2 extends Tp['_UPPER_K'], V2 extends Tp['_UPPER_V']>(
 					f: (element: readonly [K, V]) => readonly [K2, V2],
 				): Collection.Advanced.ReTyped<Tp, readonly [K2, V2]>['_SELF'];
+			}
+		}
 
+		export interface WithMapIndexed<K, V> extends Advanced.FamilyBase<K, V> {
+			_NORMAL: WithMapIndexed.Api<K, V, this['_TYPES']>;
+			_NON_EMPTY: WithMapIndexed.Api<K, V, this['_TYPES_NON_EMPTY']>;
+
+			_INVARIANT: (e: readonly [K, V]) => readonly [K, V];
+
+			_FAM: WithMapIndexed<K, V>;
+			_NEW_FAMILY: WithMapIndexed<this['_NEW_K'], this['_NEW_V']>;
+		}
+
+		export namespace WithMapIndexed {
+			export interface Api<
+				K,
+				V,
+				Tp extends Collection.Advanced.Types<
+					Advanced.FamilyBase<K, V>,
+					readonly [K, V]
+				>,
+			> {
 				mapIndexed<K2 extends Tp['_UPPER_K'], V2 extends Tp['_UPPER_V']>(
 					f: (element: readonly [K, V], index: number) => readonly [K2, V2],
 				): Collection.Advanced.ReTyped<Tp, readonly [K2, V2]>['_SELF'];
 			}
 		}
 
-		export interface WithFlatMap<K, V> extends Advanced.Family<K, V> {
-			_NORMAL: WithFlatMap.Api<
-				K,
-				V,
-				Collection.Advanced.Types<this['_FAM'], readonly [K, V]>
-			>;
-			_NON_EMPTY: WithFlatMap.Api<
-				K,
-				V,
-				Collection.Advanced.TypesNonEmpty<this['_FAM'], readonly [K, V]>
-			>;
+		export interface WithFlatMap<K, V> extends Advanced.FamilyBase<K, V> {
+			_NORMAL: WithFlatMap.Api<K, V, this['_TYPES']>;
+			_NON_EMPTY: WithFlatMap.Api<K, V, this['_TYPES_NON_EMPTY']>;
 
 			_INVARIANT: (e: readonly [K, V]) => readonly [K, V];
 
@@ -455,10 +446,10 @@ export declare namespace KeyedCollection {
 				K,
 				V,
 				Tp extends Collection.Advanced.Types<
-					Advanced.Family<K, V>,
+					Advanced.FamilyBase<K, V>,
 					readonly [K, V]
 				>,
-			> extends Advanced.Api<K, V, Tp> {
+			> {
 				flatMap<K2 extends Tp['_UPPER_K'], V2 extends Tp['_UPPER_V']>(
 					f: (
 						entry: readonly [K, V],
@@ -467,7 +458,29 @@ export declare namespace KeyedCollection {
 				flatMap<K2 extends Tp['_UPPER_K'], V2 extends Tp['_UPPER_V']>(
 					f: (entry: readonly [K, V]) => StreamSource<readonly [K, V]>,
 				): Collection.Advanced.ReTyped<Tp, readonly [K, V]>['_NORMAL'];
+			}
+		}
 
+		export interface WithFlatMapIndexed<K, V>
+			extends Advanced.FamilyBase<K, V> {
+			_NORMAL: WithFlatMapIndexed.Api<K, V, this['_TYPES']>;
+			_NON_EMPTY: WithFlatMapIndexed.Api<K, V, this['_TYPES_NON_EMPTY']>;
+
+			_INVARIANT: (e: readonly [K, V]) => readonly [K, V];
+
+			_FAM: WithFlatMapIndexed<K, V>;
+			_NEW_FAMILY: WithFlatMapIndexed<this['_NEW_K'], this['_NEW_V']>;
+		}
+
+		export namespace WithFlatMapIndexed {
+			export interface Api<
+				K,
+				V,
+				Tp extends Collection.Advanced.Types<
+					Advanced.FamilyBase<K, V>,
+					readonly [K, V]
+				>,
+			> {
 				flatMapIndexed<K2 extends Tp['_UPPER_K'], V2 extends Tp['_UPPER_V']>(
 					f: (
 						entry: readonly [K, V],
