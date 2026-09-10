@@ -1,6 +1,7 @@
 import type { Collection } from '@rimbu/collection-types/collection';
 import type { ValuedCollection } from '@rimbu/collection-types/collection/valued';
 import type { SetCollection } from '@rimbu/collection-types/set';
+import type { RelatedTo } from '@rimbu/common';
 
 import {
 	type AbstractConstructor,
@@ -13,13 +14,142 @@ import {
 import { Stream, type StreamSource } from '@rimbu/stream';
 import { Reducer } from '@rimbu/stream/reducer';
 
+/**
+ * The part of the set collection API that {@link WithSetCollectionNonEmptyBase}
+ * implements itself.
+ *
+ * Only members that the mixin actually defines may be listed here. Members that
+ * the mixin leaves abstract belong in {@link SetCollectionNonEmptyRequirements}
+ * instead — see the remarks there.
+ *
+ * @remarks
+ * The signatures are copied from the corresponding
+ * {@link Collection.Capability} and {@link ValuedCollection.Capability} `Api`
+ * interfaces rather than inherited from them, because every one of those
+ * interfaces also (re)declares the members this mixin leaves abstract — for
+ * example every valued capability extends
+ * {@link ValuedCollection.Advanced.Api}, which declares `has`. Inheriting them
+ * would silently discharge those obligations again. {@link Collection.Advanced.Api}
+ * is the one exception: it declares no member that this mixin leaves abstract,
+ * only members owned by the collection base itself.
+ */
+export interface SetCollectionNonEmptyImplemented<
+	E,
+	Tp extends Collection.Advanced.TypesNonEmpty<
+		Collection.Advanced.Family<E>,
+		E
+	>,
+> extends Collection.Advanced.Api<E, Tp>,
+		Collection.Capability.WithAdd.Api<E, Tp> {
+	mapIndexed<E2 extends Tp['_UPPER_E']>(
+		f: (element: E, index: number) => E2,
+	): Collection.Advanced.ReTyped<Tp, E2>['_SELF'];
+
+	flatMap<E2 extends Tp['_UPPER_E']>(
+		f: (element: E) => StreamSource.NonEmpty<E2>,
+	): Collection.Advanced.ReTyped<Tp, E2>['_SELF'];
+	flatMap<E2 extends Tp['_UPPER_E']>(
+		f: (element: E) => StreamSource<E2>,
+	): Collection.Advanced.ReTyped<Tp, E2>['_NORMAL'];
+
+	flatMapIndexed<E2 extends Tp['_UPPER_E']>(
+		f: (element: E, index: number) => StreamSource.NonEmpty<E2>,
+		options: { indexOffset?: number | undefined } | undefined,
+	): Collection.Advanced.ReTyped<Tp, E2>['_SELF'];
+	flatMapIndexed<E2 extends Tp['_UPPER_E']>(
+		f: (element: E, index: number) => StreamSource<E2>,
+		options: { indexOffset?: number | undefined } | undefined,
+	): Collection.Advanced.ReTyped<Tp, E2>['_NORMAL'];
+
+	difference<UE = E>(other: StreamSource<RelatedTo<E, UE>>): Tp['_NORMAL'];
+	intersection<UE = E>(other: StreamSource<RelatedTo<E, UE>>): Tp['_NORMAL'];
+
+	symmetricDifference(other: StreamSource<E>): Tp['_NORMAL'];
+	union(other: StreamSource.NonEmpty<E>): Tp['_NON_EMPTY'];
+	union(other: StreamSource<E>): Tp['_SELF'];
+
+	removeAll<UE = E>(elements: StreamSource<RelatedTo<E, UE>>): Tp['_NORMAL'];
+}
+
+/**
+ * The members that {@link WithSetCollectionNonEmptyBase} leaves abstract, and
+ * that an extending class must therefore implement.
+ *
+ * @remarks
+ * This is an ambient `abstract class` and not an interface on purpose.
+ * TypeScript does not model abstractness in types, with one exception: a
+ * non-abstract class that extends a base whose *instance type* contains a member
+ * declared `abstract` is reported with `TS2654`. That check looks at the member
+ * declaration, so it survives an intersection, a type alias, an interface that
+ * extends this class, and the generic construct signature of
+ * {@link ApiMixin.AbstractNonEmptyConstructor}. Declaring these members on an
+ * interface instead would claim they are already implemented, which is how the
+ * missing `isOrdered`, `map` and `mapIndexed` implementations went unnoticed.
+ *
+ * The obligation is discharged as soon as *any* capability in the composition
+ * contributes a non-abstract declaration of the same member, in any order, so a
+ * mixin applied later can still provide these.
+ *
+ * Members are declared with method syntax where possible: a subclass may
+ * implement a base method as a property (e.g. `has = (value) => ...`), but not
+ * the other way around.
+ */
+declare abstract class SetCollectionNonEmptyRequirementsClass<
+	E,
+	Tp extends Collection.Advanced.TypesNonEmpty<
+		Collection.Advanced.Family<E>,
+		E
+	>,
+> {
+	/**
+	 * Whether this collection considers the order of its elements significant.
+	 *
+	 * Used by `addAll` and `removeAll` to decide whether the `elements === this`
+	 * identity shortcut may be taken.
+	 */
+	abstract readonly isOrdered: boolean;
+
+	abstract has<UE = E>(value: RelatedTo<E, UE>): boolean;
+
+	abstract add(element: E): Tp['_NON_EMPTY'];
+
+	abstract remove<UE = E>(element: RelatedTo<E, UE>): Tp['_NORMAL'];
+
+	abstract map<E2 extends Tp['_UPPER_E']>(
+		f: (element: E) => E2,
+	): Collection.Advanced.ReTyped<Tp, E2>['_SELF'];
+
+	abstract recompose<E2 extends Tp['_UPPER_E']>(
+		f: (stream: Tp['_AS_STREAM']) => StreamSource.NonEmpty<E2>,
+	): Collection.Advanced.ReTyped<Tp, E2>['_SELF'];
+	abstract recompose<E2 extends Tp['_UPPER_E']>(
+		f: (stream: Tp['_AS_STREAM']) => StreamSource<E2>,
+	): Collection.Advanced.ReTyped<Tp, E2>['_NORMAL'];
+
+	abstract mutate(f: (builder: Tp['_BUILDER']) => void): Tp['_NORMAL'];
+
+	abstract toBuilder(): Tp['_BUILDER'];
+}
+
+/**
+ * See {@link SetCollectionNonEmptyRequirementsClass}.
+ */
+export type SetCollectionNonEmptyRequirements<
+	E,
+	Tp extends Collection.Advanced.TypesNonEmpty<
+		Collection.Advanced.Family<E>,
+		E
+	>,
+> = SetCollectionNonEmptyRequirementsClass<E, Tp>;
+
 export interface SetCollectionNonEmptyBase<
 	E,
 	Tp extends Collection.Advanced.TypesNonEmpty<
 		Collection.Advanced.Family<E>,
 		E
 	>,
-> extends SetCollection.Advanced.Api<E, Tp> {}
+> extends SetCollectionNonEmptyImplemented<E, Tp>,
+		SetCollectionNonEmptyRequirementsClass<E, Tp> {}
 
 export interface SetNonEmptyMixin extends ApiMixin {
 	_API: SetCollectionNonEmptyBase<this['_E'], this['_TP']>;
@@ -43,9 +173,18 @@ export function WithSetCollectionNonEmptyBase<
 		E
 	> = Collection.Advanced.TypesNonEmpty<FAM, E>,
 >(Base: TBase): TBase & AbstractConstructor<SetCollectionNonEmptyBase<E, Tp>> {
+	type Requirements = SetCollectionNonEmptyRequirements<
+		E,
+		Collection.Advanced.TypesNonEmpty<Collection.Advanced.Family<E>, E>
+	>;
+
+	// the members below are declared abstract here only so that this mixin can
+	// use them; the type that extenders see is derived from
+	// SetCollectionNonEmptyRequirements, which is what makes them a visible
+	// obligation
 	abstract class Result extends Base {
-		abstract isOrdered: boolean;
-		abstract has: (element: E) => boolean;
+		abstract isOrdered: Requirements['isOrdered'];
+		abstract has: Requirements['has'];
 		abstract add(element: E): Tp['_NON_EMPTY'];
 		abstract remove(element: E): Tp['_NORMAL'];
 		abstract map<E2>(
@@ -65,7 +204,13 @@ export function WithSetCollectionNonEmptyBase<
 			return defaultAddAll(this, elements);
 		}
 
-		mapIndexed: any;
+		mapIndexed<E2>(
+			f: (element: E, index: number) => E2,
+		): Collection.Advanced.ReTyped<Tp, E2>['_SELF'] {
+			let index = 0;
+
+			return this.map((element) => f(element, index++)) as any;
+		}
 
 		flatMap<E2>(
 			f: (element: E) => StreamSource<E2>,

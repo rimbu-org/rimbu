@@ -18,6 +18,8 @@ export abstract class HashSetNonEmptyBase<T>
 		super(context);
 	}
 
+	readonly isOrdered = false;
+
 	abstract hasInternal(element: T, hash: number): boolean;
 	abstract add(element: T): HashSet.NonEmpty<T>;
 	abstract remove(element: T): HashSet<T>;

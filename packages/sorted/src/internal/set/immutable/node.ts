@@ -28,6 +28,8 @@ export abstract class SortedSetNode<T>
 	extends NonEmptyBase<T, T, SortedSet.Advanced.Family<T>>
 	implements SortedSet.NonEmpty<T>
 {
+	readonly isOrdered = false;
+
 	abstract stream(options?: { reversed?: boolean }): Stream.NonEmpty<T>;
 
 	// internal methods
@@ -118,6 +120,10 @@ export abstract class SortedSetNode<T>
 
 	add(value: T): SortedSet.NonEmpty<T> {
 		return this.addInternal(value).normalize().assumeNonEmpty();
+	}
+
+	map<T2>(f: (value: T) => T2): SortedSet.NonEmpty<T2> {
+		return this.context.from(this.stream().map(f)).assumeNonEmpty();
 	}
 
 	addAll(values: StreamSource<T>): SortedSet.NonEmpty<T> {
