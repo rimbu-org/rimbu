@@ -2,12 +2,12 @@ import type { HashMap } from '@rimbu/hashed/map';
 
 import type { HashMapCollectionContext } from '#map/context';
 
-import { WithKeyedCollectionEmptyBase } from '@rimbu/collection-types/advanced/collection/keyed-base';
-import { CollectionEmptyConstructor } from '@rimbu/collection-types/advanced/collection-base';
-import { WithMapCollectionEmptyBase } from '@rimbu/collection-types/advanced/map-base';
+import { KeyedCollectionEmpty } from '@rimbu/collection-types/advanced/collection/keyed-base';
+import { CollectionEmpty } from '@rimbu/collection-types/advanced/collection-base';
+import { MapCollectionEmpty } from '@rimbu/collection-types/advanced/map-base';
 
-const HashMapEmptyBase = WithMapCollectionEmptyBase(
-	WithKeyedCollectionEmptyBase(CollectionEmptyConstructor),
+const HashMapEmptyBase = MapCollectionEmpty.WithMixin(
+	KeyedCollectionEmpty.WithMixin(CollectionEmpty.Constructor),
 );
 
 export class HashMapEmpty<K = any, V = any>

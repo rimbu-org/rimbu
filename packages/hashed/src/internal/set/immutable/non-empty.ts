@@ -2,12 +2,12 @@ import type { HashSet } from '@rimbu/hashed/set';
 
 import type { HashSetContext } from '#set/context';
 
-import { WithValuedCollectionNonEmptyBase } from '@rimbu/collection-types/advanced/collection/valued-base';
-import { CollectionNonEmptyConstructor } from '@rimbu/collection-types/advanced/collection-base';
-import { WithSetCollectionNonEmptyBase } from '@rimbu/collection-types/advanced/set-base';
+import { ValuedCollectionNonEmpty } from '@rimbu/collection-types/advanced/collection/valued-base';
+import { CollectionNonEmpty } from '@rimbu/collection-types/advanced/collection-base';
+import { SetCollectionNonEmpty } from '@rimbu/collection-types/advanced/set-base';
 
-const NonEmptyBase = WithSetCollectionNonEmptyBase(
-	WithValuedCollectionNonEmptyBase(CollectionNonEmptyConstructor),
+const NonEmptyBase = SetCollectionNonEmpty.WithMixin(
+	ValuedCollectionNonEmpty.WithMixin(CollectionNonEmpty.Constructor),
 );
 
 export abstract class HashSetNonEmptyBase<T>

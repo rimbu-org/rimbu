@@ -7,7 +7,7 @@ export type IndexedValuedSortedCollection<
 	F extends Collection.Advanced.FamilyBase<E> = Collection.Advanced.Family<E>,
 > = IndexedValuedSortedCollection.Advanced.ExtendFamily<E, F>['_NORMAL'];
 
-export namespace IndexedValuedSortedCollection {
+export declare namespace IndexedValuedSortedCollection {
 	export type NonEmpty<
 		E,
 		F extends Collection.Advanced.FamilyBase<E> = Collection.Advanced.Family<E>,

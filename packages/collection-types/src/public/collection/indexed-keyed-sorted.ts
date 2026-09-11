@@ -10,7 +10,7 @@ export type IndexedKeyedSortedCollection<
 	> = Collection.Advanced.Family<readonly [K, V]>,
 > = IndexedKeyedSortedCollection.Advanced.ExtendFamily<K, V, F>['_NORMAL'];
 
-export namespace IndexedKeyedSortedCollection {
+export declare namespace IndexedKeyedSortedCollection {
 	export type NonEmpty<
 		K,
 		V,

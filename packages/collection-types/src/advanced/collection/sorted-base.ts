@@ -1,19 +1,13 @@
 import type {
 	AbstractConstructor,
 	ApiMixin,
-	CollectionEmptyBase,
-	CollectionNonEmptyBase,
+	CollectionEmpty,
+	CollectionNonEmpty,
 } from '@rimbu/collection-types/advanced/collection-base';
 import type { Collection } from '@rimbu/collection-types/collection';
 import type { SortedCollection } from '@rimbu/collection-types/collection/sorted';
 
 import { OptLazy } from '@rimbu/common';
-
-export interface SortedCollectionEmptyBase<
-	E,
-	S,
-	Tp extends Collection.Advanced.TypesBase,
-> extends SortedCollection.Advanced.Api<E, S, Tp> {}
 
 export interface SortedApiMixin extends ApiMixin {
 	_S: unknown;
@@ -43,7 +37,7 @@ export declare namespace SortedApiMixin {
 			>,
 		>(
 			context: FAM['_CONTEXT'],
-		): SortedCollectionEmptyBase<E, S, Tp> & SortedApiMixin.Apply<C, E, S, Tp>;
+		): SortedCollectionEmpty.Base<E, S, Tp> & SortedApiMixin.Apply<C, E, S, Tp>;
 	}
 
 	export interface AbstractNonEmptyConstructor<C extends SortedApiMixin> {
@@ -57,47 +51,50 @@ export declare namespace SortedApiMixin {
 			> = Collection.Advanced.TypesNonEmpty<FAM, E>,
 		>(
 			context: FAM['_CONTEXT'],
-		): CollectionNonEmptyBase<E, Tp> & SortedApiMixin.Apply<C, E, S, Tp>;
+		): CollectionNonEmpty.Base<E, Tp> & SortedApiMixin.Apply<C, E, S, Tp>;
 	}
 }
 
-export interface SortedEmptyMixin extends SortedApiMixin {
-	_API: SortedCollectionEmptyBase<this['_E'], this['_S'], this['_TP']>;
-}
+export namespace SortedCollectionEmpty {
+	export interface Base<E, S, Tp extends Collection.Advanced.TypesBase>
+		extends SortedCollection.Advanced.Api<E, S, Tp> {}
 
-/**
- * Adds the sorted-collection API to an empty collection base constructor.
- */
-export function WithSortedCollectionEmptyBase<C extends ApiMixin>(
-	Base: ApiMixin.AbstractEmptyConstructor<C>,
-): ApiMixin.AbstractEmptyConstructor<C & SortedEmptyMixin>;
-export function WithSortedCollectionEmptyBase<
-	TBase extends AbstractConstructor<CollectionEmptyBase<E, Tp>>,
-	E,
-	S,
-	FAM extends Collection.Advanced.Family<E> = Collection.Advanced.Family<E>,
-	Tp extends Collection.Advanced.Types<FAM, E> = Collection.Advanced.Types<
-		FAM,
-		E
-	>,
->(
-	Base: TBase,
-): TBase & AbstractConstructor<SortedCollectionEmptyBase<E, S, Tp>> {
-	abstract class Result extends Base {
-		min<O>(otherwise?: OptLazy<O>): O {
-			return OptLazy(otherwise) as O;
-		}
-
-		max<O>(otherwise?: OptLazy<O>): O {
-			return OptLazy(otherwise) as O;
-		}
-		previous<O>(otherwise?: OptLazy<O>): O {
-			return OptLazy(otherwise) as O;
-		}
-		next<O>(otherwise?: OptLazy<O>): O {
-			return OptLazy(otherwise) as O;
-		}
+	export interface Mixin extends SortedApiMixin {
+		_API: Base<this['_E'], this['_S'], this['_TP']>;
 	}
 
-	return Result;
+	/**
+	 * Adds the sorted-collection API to an empty collection base constructor.
+	 */
+	export function WithMixin<C extends ApiMixin>(
+		Base: ApiMixin.AbstractEmptyConstructor<C>,
+	): ApiMixin.AbstractEmptyConstructor<C & Mixin>;
+	export function WithMixin<
+		TBase extends AbstractConstructor<CollectionEmpty.Base<E, Tp>>,
+		E,
+		S,
+		FAM extends Collection.Advanced.Family<E> = Collection.Advanced.Family<E>,
+		Tp extends Collection.Advanced.Types<FAM, E> = Collection.Advanced.Types<
+			FAM,
+			E
+		>,
+	>(Base: TBase): TBase & AbstractConstructor<Base<E, S, Tp>> {
+		abstract class Result extends Base {
+			min<O>(otherwise?: OptLazy<O>): O {
+				return OptLazy(otherwise) as O;
+			}
+
+			max<O>(otherwise?: OptLazy<O>): O {
+				return OptLazy(otherwise) as O;
+			}
+			previous<O>(otherwise?: OptLazy<O>): O {
+				return OptLazy(otherwise) as O;
+			}
+			next<O>(otherwise?: OptLazy<O>): O {
+				return OptLazy(otherwise) as O;
+			}
+		}
+
+		return Result;
+	}
 }

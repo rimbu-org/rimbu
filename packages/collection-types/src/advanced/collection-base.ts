@@ -64,7 +64,7 @@ export declare namespace ApiMixin {
 		>,
 	>(
 		context: Tp['_CONTEXT'],
-	) => CollectionEmptyBase<E, Tp> & ApiMixin.Apply<C, E, Tp>;
+	) => CollectionEmpty.Base<E, Tp> & ApiMixin.Apply<C, E, Tp>;
 
 	export type AbstractNonEmptyConstructor<C extends ApiMixin> = abstract new <
 		E,
@@ -75,189 +75,193 @@ export declare namespace ApiMixin {
 		> = Collection.Advanced.TypesNonEmpty<FAM, E>,
 	>(
 		context: Tp['_CONTEXT'],
-	) => CollectionNonEmptyBase<E, Tp> & ApiMixin.Apply<C, E, Tp>;
+	) => CollectionNonEmpty.Base<E, Tp> & ApiMixin.Apply<C, E, Tp>;
 }
 
-export class CollectionEmptyBase<
-	E,
-	Tp extends Collection.Advanced.Types<
-		Collection.Advanced.Family<E>,
-		E
-	> = Collection.Advanced.Types<Collection.Advanced.Family<E>, E>,
-> implements
-		Collection.Advanced.Api<E, Tp>,
-		Collection.Capability.WithMutate.Api<E, Tp>,
-		Collection.Capability.WithToBuilder.Api<E, Tp>
-{
-	constructor(readonly context: Tp['_CONTEXT']) {}
+export namespace CollectionEmpty {
+	export class Base<
+		E,
+		Tp extends Collection.Advanced.Types<
+			Collection.Advanced.Family<E>,
+			E
+		> = Collection.Advanced.Types<Collection.Advanced.Family<E>, E>,
+	> implements
+			Collection.Advanced.Api<E, Tp>,
+			Collection.Capability.WithMutate.Api<E, Tp>,
+			Collection.Capability.WithToBuilder.Api<E, Tp>
+	{
+		constructor(readonly context: Tp['_CONTEXT']) {}
 
-	[Symbol.iterator](): FastIterator<E> {
-		return Stream.empty<E>()[Symbol.iterator]();
-	}
+		[Symbol.iterator](): FastIterator<E> {
+			return Stream.empty<E>()[Symbol.iterator]();
+		}
 
-	get isEmpty(): true {
-		return true;
-	}
+		get isEmpty(): true {
+			return true;
+		}
 
-	get size(): 0 {
-		return 0;
-	}
+		get size(): 0 {
+			return 0;
+		}
 
-	asNormal(): this {
-		return this;
-	}
+		asNormal(): this {
+			return this;
+		}
 
-	nonEmpty(): this is Tp['_NON_EMPTY'] {
-		return false;
-	}
+		nonEmpty(): this is Tp['_NON_EMPTY'] {
+			return false;
+		}
 
-	assumeNonEmpty(): never {
-		throw new EmptyCollectionAssumedNonEmptyError();
-	}
+		assumeNonEmpty(): never {
+			throw new EmptyCollectionAssumedNonEmptyError();
+		}
 
-	stream(): Stream<E> {
-		return Stream.empty<E>();
-	}
+		stream(): Stream<E> {
+			return Stream.empty<E>();
+		}
 
-	forEach(): void {}
+		forEach(): void {}
 
-	forEachIndexed(): void {}
+		forEachIndexed(): void {}
 
-	filter(): Tp['_NORMAL'] {
-		return this;
-	}
+		filter(): Tp['_NORMAL'] {
+			return this;
+		}
 
-	filterIndexed(): Tp['_NORMAL'] {
-		return this;
-	}
+		filterIndexed(): Tp['_NORMAL'] {
+			return this;
+		}
 
-	mutate(f: (builder: Tp['_BUILDER']) => void): Tp['_NORMAL'] {
-		const builder = this.context.builder<E>();
-		f(builder);
-		return builder.build();
-	}
+		mutate(f: (builder: Tp['_BUILDER']) => void): Tp['_NORMAL'] {
+			const builder = this.context.builder<E>();
+			f(builder);
+			return builder.build();
+		}
 
-	toArray(): [] {
-		return [];
-	}
+		toArray(): [] {
+			return [];
+		}
 
-	toBuilder(): Tp['_BUILDER'] {
-		return this.context.builder();
-	}
-}
-
-// /**
-//  * {@link CollectionEmptyBase} viewed as a capability-free {@link ApiMixinConstructor} —
-//  * the seed value to pass to the first capability mixin in a composition.
-//  *
-//  * The cast is unavoidable: TypeScript does not relate two generic construct
-//  * signatures higher-order, so the class cannot be assigned to `EmptyCtor`
-//  * directly even though it is structurally identical.
-//  */
-export const CollectionEmptyConstructor =
-	CollectionEmptyBase as unknown as ApiMixin.AbstractEmptyConstructor<ApiMixin>;
-
-export abstract class CollectionNonEmptyBase<
-	E,
-	Tp extends Collection.Advanced.TypesNonEmpty<
-		Collection.Advanced.FamilyBase<E>,
-		E
-	> = Collection.Advanced.TypesNonEmpty<Collection.Advanced.FamilyBase<E>, E>,
-> implements Collection.Advanced.Api<E, Tp>
-{
-	abstract readonly context: Tp['_CONTEXT'];
-
-	abstract get size(): number;
-	abstract stream(): Stream.NonEmpty<E>;
-	abstract forEach(f: (value: E) => void): void;
-	abstract filter(pred: (element: E) => boolean): Tp['_NORMAL'];
-	abstract toArray(): ArrayNonEmpty<E>;
-
-	[Symbol.iterator](): FastIterator<E> {
-		return this.stream()[Symbol.iterator]();
-	}
-
-	get isEmpty(): false {
-		return false;
-	}
-
-	nonEmpty(): this is Tp['_NON_EMPTY'] {
-		return true;
-	}
-
-	assumeNonEmpty(): Tp['_NON_EMPTY'] {
-		return this;
-	}
-
-	asNormal(): Tp['_NORMAL'] {
-		return this;
-	}
-
-	forEachIndexed(
-		f: (value: E, index: number, halt: () => void) => void,
-		options: { state?: TraverseState } = {},
-	): void {
-		const { state = TraverseState() } = options;
-
-		if (state.halted) return;
-
-		const haltSymbol = Symbol();
-
-		try {
-			this.forEach((value) => {
-				f(value, state.nextIndex(), state.halt);
-
-				if (state.halted) {
-					throw haltSymbol;
-				}
-			});
-		} catch (err) {
-			if (haltSymbol !== err) {
-				throw err;
-			}
+		toBuilder(): Tp['_BUILDER'] {
+			return this.context.builder();
 		}
 	}
 
-	filterIndexed(
-		pred: (element: E, index: number) => boolean,
-		options: {
-			negate?: boolean | undefined;
-			indexOffset?: number | undefined;
-		} = {},
-	): Tp['_NORMAL'] {
-		const { negate = false, indexOffset = 0 } = options;
-		let index = indexOffset;
-		return negate
-			? this.filter((element) => !pred(element, index++))
-			: this.filter((element) => pred(element, index++));
+	// /**
+	//  * {@link CollectionEmptyBase} viewed as a capability-free {@link ApiMixinConstructor} —
+	//  * the seed value to pass to the first capability mixin in a composition.
+	//  *
+	//  * The cast is unavoidable: TypeScript does not relate two generic construct
+	//  * signatures higher-order, so the class cannot be assigned to `EmptyCtor`
+	//  * directly even though it is structurally identical.
+	//  */
+	export const Constructor =
+		Base as unknown as ApiMixin.AbstractEmptyConstructor<ApiMixin>;
+}
+
+export namespace CollectionNonEmpty {
+	export abstract class Base<
+		E,
+		Tp extends Collection.Advanced.TypesNonEmpty<
+			Collection.Advanced.FamilyBase<E>,
+			E
+		> = Collection.Advanced.TypesNonEmpty<Collection.Advanced.FamilyBase<E>, E>,
+	> implements Collection.Advanced.Api<E, Tp>
+	{
+		abstract readonly context: Tp['_CONTEXT'];
+
+		abstract get size(): number;
+		abstract stream(): Stream.NonEmpty<E>;
+		abstract forEach(f: (value: E) => void): void;
+		abstract filter(pred: (element: E) => boolean): Tp['_NORMAL'];
+		abstract toArray(): ArrayNonEmpty<E>;
+
+		[Symbol.iterator](): FastIterator<E> {
+			return this.stream()[Symbol.iterator]();
+		}
+
+		get isEmpty(): false {
+			return false;
+		}
+
+		nonEmpty(): this is Tp['_NON_EMPTY'] {
+			return true;
+		}
+
+		assumeNonEmpty(): Tp['_NON_EMPTY'] {
+			return this;
+		}
+
+		asNormal(): Tp['_NORMAL'] {
+			return this;
+		}
+
+		forEachIndexed(
+			f: (value: E, index: number, halt: () => void) => void,
+			options: { state?: TraverseState } = {},
+		): void {
+			const { state = TraverseState() } = options;
+
+			if (state.halted) return;
+
+			const haltSymbol = Symbol();
+
+			try {
+				this.forEach((value) => {
+					f(value, state.nextIndex(), state.halt);
+
+					if (state.halted) {
+						throw haltSymbol;
+					}
+				});
+			} catch (err) {
+				if (haltSymbol !== err) {
+					throw err;
+				}
+			}
+		}
+
+		filterIndexed(
+			pred: (element: E, index: number) => boolean,
+			options: {
+				negate?: boolean | undefined;
+				indexOffset?: number | undefined;
+			} = {},
+		): Tp['_NORMAL'] {
+			const { negate = false, indexOffset = 0 } = options;
+			let index = indexOffset;
+			return negate
+				? this.filter((element) => !pred(element, index++))
+				: this.filter((element) => pred(element, index++));
+		}
 	}
+
+	export interface Mixin extends ApiMixin {
+		_API: Base<this['_E'], this['_TP']>;
+
+		/**
+		 * Only wide enough to satisfy the `Tp` constraint of {@link CollectionNonEmptyBase}.
+		 *
+		 * This must stay on {@link Collection.Advanced.FamilyBase} and never narrow to
+		 * {@link Collection.Advanced.Family}. `ApiMixin.Apply` supplies the real types
+		 * record by *intersection* (`C & { _TP: Tp }`), which accumulates rather than
+		 * replaces. A `Family<this['_E']>` default therefore survives into the applied
+		 * record and forces every slot — notably `_CONTEXT` — to additionally satisfy
+		 * the element-typed `Collection.Advanced.Family<E>` view alongside the
+		 * key/value-typed view contributed by `Tp`. Those two views are irreconcilable
+		 * for a generic `E`, because a keyed family rebuilds the element type as
+		 * `readonly [E[0], E[1]]`, which is not assignable to an unresolved `E`.
+		 * `FamilyBase` is element-agnostic, so it composes harmlessly.
+		 */
+		_TP: Collection.Advanced.TypesNonEmpty<
+			Collection.Advanced.FamilyBase<this['_E']>,
+			this['_E']
+		>;
+	}
+
+	export const Constructor =
+		Base as unknown as ApiMixin.AbstractNonEmptyConstructor<Mixin>;
 }
-
-export interface CollectionNonEmptyMixin extends ApiMixin {
-	_API: CollectionNonEmptyBase<this['_E'], this['_TP']>;
-
-	/**
-	 * Only wide enough to satisfy the `Tp` constraint of {@link CollectionNonEmptyBase}.
-	 *
-	 * This must stay on {@link Collection.Advanced.FamilyBase} and never narrow to
-	 * {@link Collection.Advanced.Family}. `ApiMixin.Apply` supplies the real types
-	 * record by *intersection* (`C & { _TP: Tp }`), which accumulates rather than
-	 * replaces. A `Family<this['_E']>` default therefore survives into the applied
-	 * record and forces every slot — notably `_CONTEXT` — to additionally satisfy
-	 * the element-typed `Collection.Advanced.Family<E>` view alongside the
-	 * key/value-typed view contributed by `Tp`. Those two views are irreconcilable
-	 * for a generic `E`, because a keyed family rebuilds the element type as
-	 * `readonly [E[0], E[1]]`, which is not assignable to an unresolved `E`.
-	 * `FamilyBase` is element-agnostic, so it composes harmlessly.
-	 */
-	_TP: Collection.Advanced.TypesNonEmpty<
-		Collection.Advanced.FamilyBase<this['_E']>,
-		this['_E']
-	>;
-}
-
-export const CollectionNonEmptyConstructor =
-	CollectionNonEmptyBase as unknown as ApiMixin.AbstractNonEmptyConstructor<CollectionNonEmptyMixin>;
 
 export abstract class CollectionBuilderBase<
 	E,

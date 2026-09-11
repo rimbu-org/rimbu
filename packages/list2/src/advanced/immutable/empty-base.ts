@@ -5,10 +5,10 @@ import type { StreamSource } from '@rimbu/stream';
 import type { ListContext } from '#list/context';
 
 import { Int } from '@rimbu/base';
-import { WithIndexedCollectionEmptyBase } from '@rimbu/collection-types/advanced/collection/indexed-base';
-import { CollectionEmptyConstructor } from '@rimbu/collection-types/advanced/collection-base';
+import { IndexedCollectionEmpty } from '@rimbu/collection-types/advanced/collection/indexed-base';
+import { CollectionEmpty } from '@rimbu/collection-types/advanced/collection-base';
 
-const EmptyBase = WithIndexedCollectionEmptyBase(CollectionEmptyConstructor);
+const EmptyBase = IndexedCollectionEmpty.WithMixin(CollectionEmpty.Constructor);
 
 export class ListEmptyBase<T>
 	extends EmptyBase<T, List.Advanced.Family<T>>

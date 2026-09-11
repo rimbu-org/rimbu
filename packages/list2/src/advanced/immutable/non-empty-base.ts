@@ -14,18 +14,18 @@ import {
 	defaultRepeat,
 	defaultSpliceAtAndReturn,
 	defaultSwapAtAndReturn,
-	WithIndexedCollectionNonEmptyBase,
+	IndexedCollectionNonEmpty,
 } from '@rimbu/collection-types/advanced/collection/indexed-base';
 import {
-	CollectionNonEmptyConstructor,
+	CollectionNonEmpty,
 	defaultFlatMapIndexed,
 	defaultMapIndexed,
 } from '@rimbu/collection-types/advanced/collection-base';
 import { type ArrayNonEmpty, IndexRange } from '@rimbu/common';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
-const NonEmptyBase = WithIndexedCollectionNonEmptyBase(
-	CollectionNonEmptyConstructor,
+const NonEmptyBase = IndexedCollectionNonEmpty.WithMixin(
+	CollectionNonEmpty.Constructor,
 );
 
 export abstract class ListNonEmptyBase<T>

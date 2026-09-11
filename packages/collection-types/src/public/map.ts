@@ -43,34 +43,50 @@ export declare namespace MapCollection {
 			> = Collection.Advanced.Family<readonly [K, V]>,
 		> = F & Family<K, V>;
 
-		export interface Api<K, V, Tp extends Collection.Advanced.TypesBase>
-			extends KeyedCollection.Advanced.Api<K, V, Tp> {}
+		export interface Api<
+			K,
+			V,
+			Tp extends Collection.Advanced.Types<
+				KeyedCollection.Advanced.FamilyBase<K, V>,
+				readonly [K, V]
+			>,
+		> extends KeyedCollection.Advanced.Api<K, V, Tp>,
+				Collection.Capability.WithAdd.Api<readonly [K, V], Tp>,
+				Collection.Capability.WithAddAll.Api<readonly [K, V], Tp>,
+				Collection.Capability.WithMutate.Api<readonly [K, V], Tp>,
+				Collection.Capability.WithToBuilder.Api<readonly [K, V], Tp>,
+				KeyedCollection.Capability.WithFlatMap.Api<K, V, Tp>,
+				KeyedCollection.Capability.WithFlatMapIndexed.Api<K, V, Tp>,
+				KeyedCollection.Capability.WithMap.Api<K, V, Tp>,
+				KeyedCollection.Capability.WithMapIndexed.Api<K, V, Tp>,
+				KeyedCollection.Capability.WithMapValues.Api<K, V, Tp>,
+				KeyedCollection.Capability.WithRecompose.Api<K, V, Tp>,
+				KeyedCollection.Capability.WithRemoveKey.Api<K, V, Tp>,
+				KeyedCollection.Capability.WithRemoveKeys.Api<K, V, Tp> {}
 
 		export interface BuilderApi<K, V, Tp extends Collection.Advanced.TypesBase>
-			extends KeyedCollection.Advanced.BuilderApi<K, V, Tp> {}
+			extends KeyedCollection.Advanced.BuilderApi<K, V, Tp>,
+				Collection.Capability.WithAdd.BuilderApi<readonly [K, V], Tp>,
+				Collection.Capability.WithAddAll.BuilderApi<readonly [K, V], Tp>,
+				KeyedCollection.Capability.WithRemoveKey.BuilderApi<K, V, Tp>,
+				KeyedCollection.Capability.WithRemoveKeys.BuilderApi<K, V, Tp> {}
 
 		export interface ContextApi<
 			F extends KeyedCollection.Advanced.Family<any, any>,
 		> extends KeyedCollection.Advanced.ContextApi<F> {}
 
+		export interface KeyedContextApi<
+			F extends KeyedCollection.Advanced.Family<any, any>,
+		> extends KeyedCollection.Advanced.KeyedContextApi<F>,
+				KeyedCollection.Capability.WithMerge.KeyedContextApi<F> {}
+
 		export interface Family<K, V>
 			extends KeyedCollection.Advanced.Family<K, V> {
-			_NORMAL: Api<
-				K,
-				V,
-				Collection.Advanced.Types<this['_FAM'], readonly [K, V]>
-			>;
-			_NON_EMPTY: Api<
-				K,
-				V,
-				Collection.Advanced.TypesNonEmpty<this['_FAM'], readonly [K, V]>
-			>;
-			_BUILDER: BuilderApi<
-				K,
-				V,
-				Collection.Advanced.Types<this['_FAM'], readonly [K, V]>
-			>;
+			_NORMAL: Api<K, V, this['_TYPES']>;
+			_NON_EMPTY: Api<K, V, this['_TYPES_NON_EMPTY']>;
+			_BUILDER: BuilderApi<K, V, this['_TYPES']>;
 			_CONTEXT: ContextApi<this['_FAM']>;
+			_KEYED_CONTEXT: KeyedContextApi<this['_FAM']>;
 
 			_FAM: Family<K, V>;
 			_NEW_FAMILY: Family<this['_NEW_K'], this['_NEW_V']>;
@@ -78,30 +94,18 @@ export declare namespace MapCollection {
 	}
 
 	export namespace Capability {
-		export interface WithSet<K, V> extends Advanced.Family<K, V> {
-			_NORMAL: WithSet.Api<
-				K,
-				V,
-				Collection.Advanced.Types<this['_FAM'], readonly [K, V]>
-			>;
-			_NON_EMPTY: WithSet.Api<
-				K,
-				V,
-				Collection.Advanced.TypesNonEmpty<this['_FAM'], readonly [K, V]>
-			>;
-			_BUILDER: WithSet.BuilderApi<
-				K,
-				V,
-				Collection.Advanced.Types<this['_FAM'], readonly [K, V]>
-			>;
+		export interface WithSet<K, V>
+			extends KeyedCollection.Advanced.FamilyBase<K, V> {
+			_NORMAL: WithSet.Api<K, V, this['_TYPES']>;
+			_NON_EMPTY: WithSet.Api<K, V, this['_TYPES_NON_EMPTY']>;
+			_BUILDER: WithSet.BuilderApi<K, V, this['_TYPES']>;
 
 			_FAM: WithSet<K, V>;
 			_NEW_FAMILY: WithSet<this['_NEW_K'], this['_NEW_V']>;
 		}
 
 		export namespace WithSet {
-			export interface Api<K, V, Tp extends Collection.Advanced.TypesBase>
-				extends Advanced.Api<K, V, Tp> {
+			export interface Api<K, V, Tp extends Collection.Advanced.TypesBase> {
 				set(key: K, value: V): Tp['_NON_EMPTY'];
 			}
 
@@ -109,35 +113,23 @@ export declare namespace MapCollection {
 				K,
 				V,
 				Tp extends Collection.Advanced.TypesBase,
-			> extends Advanced.BuilderApi<K, V, Tp> {
+			> {
 				set(key: K, value: V): boolean;
 			}
 		}
 
-		export interface WithUpdateAtKey<K, V> extends Advanced.Family<K, V> {
-			_NORMAL: WithUpdateAtKey.Api<
-				K,
-				V,
-				Collection.Advanced.Types<this['_FAM'], readonly [K, V]>
-			>;
-			_NON_EMPTY: WithUpdateAtKey.Api<
-				K,
-				V,
-				Collection.Advanced.TypesNonEmpty<this['_FAM'], readonly [K, V]>
-			>;
-			_BUILDER: WithUpdateAtKey.BuilderApi<
-				K,
-				V,
-				Collection.Advanced.Types<this['_FAM'], readonly [K, V]>
-			>;
+		export interface WithUpdateAtKey<K, V>
+			extends KeyedCollection.Advanced.FamilyBase<K, V> {
+			_NORMAL: WithUpdateAtKey.Api<K, V, this['_TYPES']>;
+			_NON_EMPTY: WithUpdateAtKey.Api<K, V, this['_TYPES_NON_EMPTY']>;
+			_BUILDER: WithUpdateAtKey.BuilderApi<K, V, this['_TYPES']>;
 
 			_FAM: WithUpdateAtKey<K, V>;
 			_NEW_FAMILY: WithUpdateAtKey<this['_NEW_K'], this['_NEW_V']>;
 		}
 
 		export namespace WithUpdateAtKey {
-			export interface Api<K, V, Tp extends Collection.Advanced.TypesBase>
-				extends Advanced.Api<K, V, Tp> {
+			export interface Api<K, V, Tp extends Collection.Advanced.TypesBase> {
 				updateAtKey<UK = K>(
 					key: RelatedTo<K, UK>,
 					update: (value: V) => V,
@@ -158,7 +150,7 @@ export declare namespace MapCollection {
 				K,
 				V,
 				Tp extends Collection.Advanced.TypesBase,
-			> extends Advanced.BuilderApi<K, V, Tp> {
+			> {
 				updateAtKey<UK = K>(
 					key: RelatedTo<K, UK>,
 					f: (value: V) => V,
@@ -171,30 +163,18 @@ export declare namespace MapCollection {
 			}
 		}
 
-		export interface WithModifyAtKey<K, V> extends Advanced.Family<K, V> {
-			_NORMAL: WithModifyAtKey.Api<
-				K,
-				V,
-				Collection.Advanced.Types<this['_FAM'], readonly [K, V]>
-			>;
-			_NON_EMPTY: WithModifyAtKey.Api<
-				K,
-				V,
-				Collection.Advanced.TypesNonEmpty<this['_FAM'], readonly [K, V]>
-			>;
-			_BUILDER: WithModifyAtKey.BuilderApi<
-				K,
-				V,
-				Collection.Advanced.Types<this['_FAM'], readonly [K, V]>
-			>;
+		export interface WithModifyAtKey<K, V>
+			extends KeyedCollection.Advanced.FamilyBase<K, V> {
+			_NORMAL: WithModifyAtKey.Api<K, V, this['_TYPES']>;
+			_NON_EMPTY: WithModifyAtKey.Api<K, V, this['_TYPES_NON_EMPTY']>;
+			_BUILDER: WithModifyAtKey.BuilderApi<K, V, this['_TYPES']>;
 
 			_FAM: WithModifyAtKey<K, V>;
 			_NEW_FAMILY: WithModifyAtKey<this['_NEW_K'], this['_NEW_V']>;
 		}
 
 		export namespace WithModifyAtKey {
-			export interface Api<K, V, Tp extends Collection.Advanced.TypesBase>
-				extends Advanced.Api<K, V, Tp> {
+			export interface Api<K, V, Tp extends Collection.Advanced.TypesBase> {
 				modifyAtKey(
 					atKey: K,
 					options: {
@@ -223,7 +203,7 @@ export declare namespace MapCollection {
 				K,
 				V,
 				Tp extends Collection.Advanced.TypesBase,
-			> extends Advanced.BuilderApi<K, V, Tp> {
+			> {
 				modifyAtKey(
 					atKey: K,
 					options: {
