@@ -72,11 +72,11 @@ export declare namespace MapCollection {
 				KeyedCollection.Capability.WithRemoveKeys.BuilderApi<K, V, Tp> {}
 
 		export interface ContextApi<
-			F extends KeyedCollection.Advanced.Family<any, any>,
+			F extends KeyedCollection.Advanced.FamilyBase<any, any>,
 		> extends KeyedCollection.Advanced.ContextApi<F> {}
 
 		export interface KeyedContextApi<
-			F extends KeyedCollection.Advanced.Family<any, any>,
+			F extends KeyedCollection.Advanced.FamilyBase<any, any>,
 		> extends KeyedCollection.Advanced.KeyedContextApi<F>,
 				KeyedCollection.Capability.WithMerge.KeyedContextApi<F> {}
 

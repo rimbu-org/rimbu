@@ -53,7 +53,7 @@ export interface KeyedApiMixin extends ApiMixin {
 
 	_E: readonly [unknown, unknown];
 	_TP: Collection.Advanced.Types<
-		KeyedCollection.Advanced.Family<this['_K'], this['_V']>,
+		KeyedCollection.Advanced.FamilyBase<this['_K'], this['_V']>,
 		this['_E']
 	>;
 }
@@ -101,7 +101,7 @@ export namespace KeyedCollectionEmpty {
 		K,
 		V,
 		Tp extends Collection.Advanced.Types<
-			KeyedCollection.Advanced.Family<K, V>,
+			KeyedCollection.Advanced.FamilyBase<K, V>,
 			readonly [K, V]
 		>,
 	> extends KeyedCollection.Advanced.Api<K, V, Tp>,

@@ -15,7 +15,7 @@ export namespace IndexedKeyedCollectionEmpty {
 		K,
 		V,
 		Tp extends Collection.Advanced.Types<
-			KeyedCollection.Advanced.Family<K, V>,
+			KeyedCollection.Advanced.FamilyBase<K, V>,
 			readonly [K, V]
 		> = Collection.Advanced.Types<
 			KeyedCollection.Advanced.Family<K, V>,

@@ -13,7 +13,7 @@ export namespace MapCollectionEmpty {
 		K,
 		V,
 		Tp extends Collection.Advanced.Types<
-			KeyedCollection.Advanced.Family<K, V>,
+			KeyedCollection.Advanced.FamilyBase<K, V>,
 			readonly [K, V]
 		>,
 	> extends MapCollection.Advanced.Api<K, V, Tp>,

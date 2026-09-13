@@ -73,12 +73,12 @@ export declare namespace KeyedCollection {
 			has<UK = K>(key: RelatedTo<K, UK>): boolean;
 		}
 
-		export interface ContextApi<F extends Family<any, any>>
+		export interface ContextApi<F extends FamilyBase<any, any>>
 			extends Collection.Advanced.ContextApi<F> {
 			readonly keyedContext: F['_KEYED_CONTEXT'];
 		}
 
-		export interface KeyedContextApi<F extends Advanced.Family<any, any>> {
+		export interface KeyedContextApi<F extends Advanced.FamilyBase<any, any>> {
 			readonly collectionContext: F['_CONTEXT'];
 
 			empty<
@@ -104,6 +104,8 @@ export declare namespace KeyedCollection {
 			extends Collection.Advanced.FamilyBase<readonly [K, V]> {
 			_UPPER_E: readonly [unknown, unknown];
 			_NEW_E: readonly [unknown, unknown];
+
+			_KEYED_CONTEXT: unknown;
 
 			_UPPER_K: this['_UPPER_E'][0];
 			_UPPER_V: this['_UPPER_E'][1];
