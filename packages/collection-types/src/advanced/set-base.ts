@@ -32,7 +32,7 @@ export namespace SetCollectionNonEmpty {
 			ValuedCollection.Capability.WithDifference.Api<E, Tp>,
 			ValuedCollection.Capability.WithIntersection.Api<E, Tp> {}
 
-	abstract class RequiredClass<
+	declare abstract class RequiredClass<
 		E,
 		Tp extends Collection.Advanced.TypesNonEmpty<
 			Collection.Advanced.Family<E>,

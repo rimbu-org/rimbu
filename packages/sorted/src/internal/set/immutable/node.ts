@@ -28,8 +28,6 @@ export abstract class SortedSetNode<T>
 	extends NonEmptyBase<T, T, SortedSet.Advanced.Family<T>>
 	implements SortedSet.NonEmpty<T>
 {
-	readonly isOrdered = false;
-
 	abstract stream(options?: { reversed?: boolean }): Stream.NonEmpty<T>;
 
 	// internal methods
