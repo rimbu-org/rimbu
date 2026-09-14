@@ -26,7 +26,6 @@ export namespace SetCollectionNonEmpty {
 			Collection.Capability.WithMapIndexed.Api<E, Tp>,
 			Collection.Capability.WithFlatMap.Api<E, Tp>,
 			Collection.Capability.WithFlatMapIndexed.Api<E, Tp>,
-			ValuedCollection.Capability.WithRemove.Api<E, Tp>,
 			ValuedCollection.Capability.WithRemoveAll.Api<E, Tp>,
 			ValuedCollection.Capability.WithSymmetricDifference.Api<E, Tp>,
 			ValuedCollection.Capability.WithUnion.Api<E, Tp>,

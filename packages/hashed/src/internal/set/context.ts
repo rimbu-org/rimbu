@@ -15,6 +15,7 @@ import {
 	HashSetBlockBuilder,
 	type SetBlockBuilderEntry,
 } from '#set/mutable/block-builder';
+
 export class HashSetContext<UE>
 	extends ContextBaseWithAddAll<HashSet.Advanced.Family<UE>>
 	implements HashSet.Advanced.ContextApi<UE, HashSet.Advanced.Family<UE>>

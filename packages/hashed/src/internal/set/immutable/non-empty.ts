@@ -18,12 +18,7 @@ export abstract class HashSetNonEmptyBase<T>
 		super(context);
 	}
 
-	readonly isOrdered = false;
-
 	abstract hasInternal(element: T, hash: number): boolean;
-	abstract add(element: T): HashSet.NonEmpty<T>;
-	abstract remove(element: T): HashSet<T>;
-	abstract map<T2>(f: (element: T) => T2): HashSet.NonEmpty<T2>;
 
 	has = (value: T, inHash?: number): boolean => {
 		if (!this.context.hasher.isValid(value)) return false;
