@@ -19,9 +19,11 @@ export function runSetTestsWith(
 		Collection.Capability.WithToBuilder<any> &
 			Collection.Capability.WithReducer<any> &
 			Collection.Capability.WithAddAll<any> &
-			ValuedCollection.Capability.WithDifferenceAndIntersection<any> &
+			ValuedCollection.Capability.WithDifference<any> &
+			ValuedCollection.Capability.WithIntersection<any> &
 			ValuedCollection.Capability.WithRemove<any> &
-			ValuedCollection.Capability.WithSymmetricDifferenceAndUnion<any>
+			ValuedCollection.Capability.WithSymmetricDifference<any> &
+			ValuedCollection.Capability.WithUnion<any>
 	>,
 	foreignContext: SetCollection.Context,
 ): void {
@@ -193,32 +195,30 @@ export function runSetTestsWith(
 			expectEqual(set6_1.difference(arr6), []);
 		});
 
-		// it.skip('filter', () => {
-		// 	function isEven(value: number): boolean {
-		// 		return value % 2 === 0;
-		// 	}
+		it('filter', () => {
+			function isEven(value: number): boolean {
+				return value % 2 === 0;
+			}
 
-		// 	function first2(value: number, index: number, halt: () => void): boolean {
-		// 		if (index > 0) halt();
-		// 		return true;
-		// 	}
+			expect(setEmpty.filter(isEven)).toBe(setEmpty);
+			expectEqual(set3_1.filter(isEven), [2]);
+			expectEqual(set6_1.filter(isEven), [2, 4, 6]);
+			expect(setEmpty.filter(isEven, { negate: true })).toBe(setEmpty);
+			expectEqual(set3_1.filter(isEven, { negate: true }), [1, 3]);
+			expectEqual(set6_1.filter(isEven, { negate: true }), [1, 3, 5]);
+		});
 
-		// 	expect(setEmpty.filter(isEven)).toBe(setEmpty);
+		it('filterIndexed', () => {
+			function first2(value: number, index: number, halt: () => void): boolean {
+				if (index > 0) halt();
+				return true;
+			}
 
-		// 	expectEqual(set3_1.filter(isEven), [2]);
-		// 	expect(set3_1.filter(first2).size).toBe(2);
-
-		// 	expectEqual(set6_1.filter(isEven), [2, 4, 6]);
-		// 	expect(set6_1.filter(first2).size).toBe(2);
-
-		// 	expect(setEmpty.filter(isEven, { negate: true })).toBe(setEmpty);
-
-		// 	expectEqual(set3_1.filter(isEven, { negate: true }), [1, 3]);
-		// 	expect(set3_1.filter(first2, { negate: true }).size).toBe(0);
-
-		// 	expectEqual(set6_1.filter(isEven, { negate: true }), [1, 3, 5]);
-		// 	expect(set6_1.filter(first2, { negate: true }).size).toBe(0);
-		// });
+			expect(set3_1.filterIndexed(first2).size).toBe(2);
+			expect(set6_1.filterIndexed(first2).size).toBe(2);
+			expect(set3_1.filterIndexed(first2, { negate: true }).size).toBe(0);
+			expect(set6_1.filterIndexed(first2, { negate: true }).size).toBe(0);
+		});
 
 		it('forEach', () => {
 			let result = [] as number[];
