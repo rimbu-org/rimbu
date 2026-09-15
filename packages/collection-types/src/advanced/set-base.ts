@@ -22,8 +22,7 @@ export namespace SetCollectionNonEmpty {
 			Collection.Advanced.Family<E>,
 			E
 		>,
-	> extends Collection.Advanced.Api<E, Tp>,
-			Collection.Capability.WithAddAll.Api<E, Tp>,
+	> extends Collection.Capability.WithAddAll.Api<E, Tp>,
 			Collection.Capability.WithMapIndexed.Api<E, Tp>,
 			Collection.Capability.WithFlatMap.Api<E, Tp>,
 			Collection.Capability.WithFlatMapIndexed.Api<E, Tp>,

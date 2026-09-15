@@ -28,6 +28,19 @@ export abstract class HashSetNonEmptyBase<T>
 		return this.hasInternal(value, hash);
 	};
 
+	filter(
+		pred: (element: T) => boolean,
+		options: { negate?: boolean | undefined } = {},
+	): HashSet<T> {
+		const builder = this.context.builder<T>();
+
+		builder.addAll(this.stream().filter(pred, options));
+
+		if (builder.size === this.size) return this;
+
+		return builder.build();
+	}
+
 	toBuilder(): HashSet.Builder<T> {
 		return this.context.createBuilder(this);
 	}

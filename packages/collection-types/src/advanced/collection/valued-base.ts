@@ -138,8 +138,7 @@ export namespace ValuedCollectionNonEmpty {
 			Collection.Advanced.Family<E>,
 			E
 		>,
-	> extends Collection.Advanced.Api<E, Tp>,
-			Collection.Capability.WithMutate.Api<E, Tp>,
+	> extends Collection.Capability.WithMutate.Api<E, Tp>,
 			Collection.Capability.WithRecompose.Api<E, Tp> {}
 
 	/**

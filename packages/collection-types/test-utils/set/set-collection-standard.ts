@@ -209,15 +209,15 @@ export function runSetTestsWith(
 		});
 
 		it('filterIndexed', () => {
-			function first2(value: number, index: number, halt: () => void): boolean {
-				if (index > 0) halt();
+			function first2(value: number, index: number): boolean {
+				if (index > 1) return false;
 				return true;
 			}
 
 			expect(set3_1.filterIndexed(first2).size).toBe(2);
 			expect(set6_1.filterIndexed(first2).size).toBe(2);
-			expect(set3_1.filterIndexed(first2, { negate: true }).size).toBe(0);
-			expect(set6_1.filterIndexed(first2, { negate: true }).size).toBe(0);
+			expect(set3_1.filterIndexed(first2, { negate: true }).size).toBe(1);
+			expect(set6_1.filterIndexed(first2, { negate: true }).size).toBe(4);
 		});
 
 		it('forEach', () => {

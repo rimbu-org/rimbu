@@ -173,7 +173,18 @@ export namespace CollectionNonEmpty {
 		abstract get size(): number;
 		abstract stream(): Stream.NonEmpty<E>;
 		abstract forEach(f: (value: E) => void): void;
-		abstract filter(pred: (element: E) => boolean): Tp['_NORMAL'];
+		abstract filter<E2 extends E, NE2 extends Tp['_UPPER_E'] = Exclude<E, E2>>(
+			pred: (element: E) => element is E2,
+			options: { negate: true },
+		): Collection.Advanced.ReTyped<Tp, NE2>['_NORMAL'];
+		abstract filter<E2 extends E>(
+			pred: (element: E) => element is E2,
+			options?: { negate?: false | undefined } | undefined,
+		): Collection.Advanced.ReTyped<Tp, E2>['_NORMAL'];
+		abstract filter(
+			pred: (element: E) => boolean,
+			options?: { negate?: boolean | undefined } | undefined,
+		): Tp['_NORMAL'];
 		abstract toArray(): ArrayNonEmpty<E>;
 
 		[Symbol.iterator](): FastIterator<E> {
@@ -229,15 +240,29 @@ export namespace CollectionNonEmpty {
 			} = {},
 		): Tp['_NORMAL'] {
 			const { negate = false, indexOffset = 0 } = options;
+
 			let index = indexOffset;
-			return negate
-				? this.filter((element) => !pred(element, index++))
-				: this.filter((element) => pred(element, index++));
+
+			return this.filter((element) => {
+				return negate !== pred(element, index++);
+			});
 		}
 	}
 
 	export interface Mixin extends ApiMixin {
-		_API: Base<this['_E'], this['_TP']>;
+		/**
+		 * Deliberately empty: the seed's own API is contributed by the
+		 * `CollectionNonEmpty.Base<E, Tp>` half of
+		 * {@link ApiMixin.AbstractNonEmptyConstructor}, so repeating it here would
+		 * put {@link Base} into the composed intersection *twice*.
+		 *
+		 * That matters because of how TypeScript reports unimplemented abstract
+		 * members: when two constituents of an intersection each declare the same
+		 * member abstract, the obligation is dropped. Duplicating the seed would
+		 * therefore silence `TS2654` for every member {@link Base} leaves abstract
+		 * (`context`, `stream`, `forEach`, `filter`, `toArray`).
+		 */
+		_API: unknown;
 
 		/**
 		 * Only wide enough to satisfy the `Tp` constraint of {@link CollectionNonEmptyBase}.
