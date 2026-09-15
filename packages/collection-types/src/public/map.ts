@@ -73,7 +73,13 @@ export declare namespace MapCollection {
 
 		export interface ContextApi<
 			F extends KeyedCollection.Advanced.FamilyBase<any, any>,
-		> extends KeyedCollection.Advanced.ContextApi<F> {}
+		> extends KeyedCollection.Advanced.ContextApi<F> {
+			/**
+			 * Returns `true` when `key` is a value that can be used as a key in this
+			 * map, e.g. is not `NaN` for hash-based maps.
+			 */
+			isValidKey(key: unknown): boolean;
+		}
 
 		export interface KeyedContextApi<
 			F extends KeyedCollection.Advanced.FamilyBase<any, any>,

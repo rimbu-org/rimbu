@@ -99,7 +99,9 @@ export declare namespace Collection {
 			_isEmpty: false;
 		}
 
-		export interface Api<E, Tp extends TypesBase> extends FastIterable<E> {
+		export interface Api<E, Tp extends TypesBase>
+			extends FastIterable<E>,
+				Capability.WithFilter.Api<E, Tp> {
 			readonly context: Tp['_CONTEXT'];
 
 			readonly isEmpty: Tp['_isEmpty'];
@@ -116,19 +118,6 @@ export declare namespace Collection {
 				f: (element: E, index: number, halt: () => void) => void,
 				options?: { state?: TraverseState | undefined } | undefined,
 			): void;
-
-			filter<E2 extends E, NE2 extends Tp['_UPPER_E'] = Exclude<E, E2>>(
-				pred: (element: E) => element is E2,
-				options: { negate: true },
-			): ReTyped<Tp, NE2>['_NORMAL'];
-			filter<E2 extends E>(
-				pred: (element: E) => element is E2,
-				options?: { negate?: false | undefined } | undefined,
-			): ReTyped<Tp, E2>['_NORMAL'];
-			filter(
-				pred: (element: E) => boolean,
-				options?: { negate?: boolean | undefined } | undefined,
-			): Tp['_NORMAL'];
 
 			filterIndexed<E2 extends E, NE2 extends Tp['_UPPER_E'] = Exclude<E, E2>>(
 				pred: (element: E, index: number) => element is E2,
@@ -390,6 +379,31 @@ export declare namespace Collection {
 				recompose<E2 extends Tp['_UPPER_E']>(
 					f: (stream: Tp['_AS_STREAM']) => StreamSource<E2>,
 				): Collection.Advanced.ReTyped<Tp, E2>['_NORMAL'];
+			}
+		}
+
+		export interface WithFilter<E> extends Advanced.FamilyBase<E> {
+			_NORMAL: WithFilter.Api<E, this['_TYPES']>;
+			_NON_EMPTY: WithFilter.Api<E, this['_TYPES_NON_EMPTY']>;
+
+			_FAM: WithFilter<E>;
+			_NEW_FAMILY: WithFilter<this['_NEW_E']>;
+		}
+
+		export namespace WithFilter {
+			export interface Api<E, Tp extends Advanced.TypesBase> {
+				filter<E2 extends E, NE2 extends Tp['_UPPER_E'] = Exclude<E, E2>>(
+					pred: (element: E) => element is E2,
+					options: { negate: true },
+				): Advanced.ReTyped<Tp, NE2>['_NORMAL'];
+				filter<E2 extends E>(
+					pred: (element: E) => element is E2,
+					options?: { negate?: false | undefined } | undefined,
+				): Advanced.ReTyped<Tp, E2>['_NORMAL'];
+				filter(
+					pred: (element: E) => boolean,
+					options?: { negate?: boolean | undefined } | undefined,
+				): Tp['_NORMAL'];
 			}
 		}
 	}
