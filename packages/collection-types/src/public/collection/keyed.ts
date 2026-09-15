@@ -55,23 +55,16 @@ export declare namespace KeyedCollection {
 		> = () => IsNonEmpty extends true ? Stream.NonEmpty<E> : Stream<E>;
 
 		export interface Api<K, V, Tp extends Collection.Advanced.TypesBase>
-			extends Collection.Advanced.Api<readonly [K, V], Tp> {
-			streamKeys: ElementStream<K, Tp['_IS_NON_EMPTY']>;
-			streamValues: ElementStream<V, Tp['_IS_NON_EMPTY']>;
-
-			get<UK = K>(key: RelatedTo<K, UK>): V | undefined;
-			get<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O;
-
-			has<UK = K>(key: RelatedTo<K, UK>): boolean;
-		}
+			extends Collection.Advanced.Api<readonly [K, V], Tp>,
+				Capability.WithStreamKeys.Api<K, V, Tp>,
+				Capability.WithStreamValues.Api<K, V, Tp>,
+				Capability.WithGet.Api<K, V, Tp>,
+				Capability.WithHas.Api<K, V, Tp> {}
 
 		export interface BuilderApi<K, V, Tp extends Collection.Advanced.TypesBase>
-			extends Collection.Advanced.BuilderApi<readonly [K, V], Tp> {
-			get<UK = K>(key: RelatedTo<K, UK>): V | undefined;
-			get<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O;
-
-			has<UK = K>(key: RelatedTo<K, UK>): boolean;
-		}
+			extends Collection.Advanced.BuilderApi<readonly [K, V], Tp>,
+				Capability.WithGet.BuilderApi<K, V, Tp>,
+				Capability.WithHas.BuilderApi<K, V, Tp> {}
 
 		export interface ContextApi<F extends FamilyBase<any, any>>
 			extends Collection.Advanced.ContextApi<F> {
@@ -119,7 +112,11 @@ export declare namespace KeyedCollection {
 
 		export interface Family<K, V>
 			extends FamilyBase<K, V>,
-				Collection.Advanced.Family<readonly [K, V]> {
+				Collection.Advanced.Family<readonly [K, V]>,
+				Capability.WithStreamKeys<K, V>,
+				Capability.WithStreamValues<K, V>,
+				Capability.WithGet<K, V>,
+				Capability.WithHas<K, V> {
 			_NORMAL: Api<K, V, this['_TYPES']>;
 			_NON_EMPTY: Api<K, V, this['_TYPES_NON_EMPTY']>;
 			_BUILDER: BuilderApi<K, V, this['_TYPES']>;
@@ -497,6 +494,82 @@ export declare namespace KeyedCollection {
 					) => StreamSource<readonly [K, V]>,
 					options: { indexOffset?: number | undefined } | undefined,
 				): Collection.Advanced.ReTyped<Tp, readonly [K, V]>['_NORMAL'];
+			}
+		}
+
+		export interface WithGet<K, V> extends Advanced.FamilyBase<K, V> {
+			_NORMAL: WithGet.Api<K, V, this['_TYPES']>;
+			_NON_EMPTY: WithGet.Api<K, V, this['_TYPES_NON_EMPTY']>;
+			_BUILDER: WithGet.BuilderApi<K, V, this['_TYPES']>;
+
+			_FAM: WithGet<K, V>;
+			_NEW_FAMILY: WithGet<this['_NEW_K'], this['_NEW_V']>;
+		}
+
+		export namespace WithGet {
+			export interface Api<K, V, Tp extends Collection.Advanced.TypesBase> {
+				get<UK = K>(key: RelatedTo<K, UK>): V | undefined;
+				get<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O;
+			}
+
+			export interface BuilderApi<
+				K,
+				V,
+				Tp extends Collection.Advanced.TypesBase,
+			> {
+				get<UK = K>(key: RelatedTo<K, UK>): V | undefined;
+				get<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O;
+			}
+		}
+
+		export interface WithHas<K, V> extends Advanced.FamilyBase<K, V> {
+			_NORMAL: WithHas.Api<K, V, this['_TYPES']>;
+			_NON_EMPTY: WithHas.Api<K, V, this['_TYPES_NON_EMPTY']>;
+			_BUILDER: WithHas.BuilderApi<K, V, this['_TYPES']>;
+
+			_FAM: WithHas<K, V>;
+			_NEW_FAMILY: WithHas<this['_NEW_K'], this['_NEW_V']>;
+		}
+
+		export namespace WithHas {
+			export interface Api<K, V, Tp extends Collection.Advanced.TypesBase> {
+				has<UK = K>(key: RelatedTo<K, UK>): boolean;
+			}
+
+			export interface BuilderApi<
+				K,
+				V,
+				Tp extends Collection.Advanced.TypesBase,
+			> {
+				has<UK = K>(key: RelatedTo<K, UK>): boolean;
+			}
+		}
+
+		export interface WithStreamKeys<K, V> extends Advanced.FamilyBase<K, V> {
+			_NORMAL: WithStreamKeys.Api<K, V, this['_TYPES']>;
+			_NON_EMPTY: WithStreamKeys.Api<K, V, this['_TYPES_NON_EMPTY']>;
+
+			_FAM: WithStreamKeys<K, V>;
+			_NEW_FAMILY: WithStreamKeys<this['_NEW_K'], this['_NEW_V']>;
+		}
+
+		export namespace WithStreamKeys {
+			export interface Api<K, V, Tp extends Collection.Advanced.TypesBase> {
+				streamKeys: Advanced.ElementStream<K, Tp['_IS_NON_EMPTY']>;
+			}
+		}
+
+		export interface WithStreamValues<K, V> extends Advanced.FamilyBase<K, V> {
+			_NORMAL: WithStreamValues.Api<K, V, this['_TYPES']>;
+			_NON_EMPTY: WithStreamValues.Api<K, V, this['_TYPES_NON_EMPTY']>;
+
+			_FAM: WithStreamValues<K, V>;
+			_NEW_FAMILY: WithStreamValues<this['_NEW_K'], this['_NEW_V']>;
+		}
+
+		export namespace WithStreamValues {
+			export interface Api<K, V, Tp extends Collection.Advanced.TypesBase> {
+				streamValues: Advanced.ElementStream<V, Tp['_IS_NON_EMPTY']>;
 			}
 		}
 	}

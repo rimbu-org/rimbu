@@ -7,6 +7,7 @@ import type {
 import type { Collection } from '@rimbu/collection-types/collection';
 import type { KeyedCollection } from '@rimbu/collection-types/collection/keyed';
 import type { Op } from '@rimbu/collection-types/types';
+import type { RelatedTo } from '@rimbu/common';
 
 import { first, second } from '@rimbu/base/entry';
 import { OptLazy } from '@rimbu/common';
@@ -91,7 +92,7 @@ export declare namespace KeyedApiMixin {
 			> = Collection.Advanced.TypesNonEmpty<FAM, readonly [K, V]>,
 		>(
 			context: FAM['_CONTEXT'],
-		): KeyedCollectionNonEmpty.Base<K, V, Tp> &
+		): CollectionNonEmpty.Base<readonly [K, V], Tp> &
 			KeyedApiMixin.Apply<C, K, V, Tp>;
 	}
 }
@@ -226,19 +227,89 @@ export namespace KeyedCollectionEmpty {
 }
 
 export namespace KeyedCollectionNonEmpty {
-	export interface Base<
+	/**
+	 * The part of the keyed collection non-empty API that {@link WithMixin}
+	 * implements itself.
+	 *
+	 * Only members that the mixin actually defines may be listed here; members it
+	 * leaves abstract belong in {@link RequiredClass}, otherwise the concrete
+	 * declaration inherited from here silently discharges the obligation.
+	 *
+	 * `KeyedCollection.Advanced.Api` is deliberately *not* inherited even though
+	 * it is the natural supertype: it declares `get`, which this mixin requires
+	 * rather than provides.
+	 */
+	export interface Implemented<
 		K,
 		V,
 		Tp extends Collection.Advanced.TypesNonEmpty<
 			KeyedCollection.Advanced.Family<K, V>,
 			readonly [K, V]
 		>,
-	> extends KeyedCollection.Advanced.Api<K, V, Tp>,
+	> extends KeyedCollection.Capability.WithHas.Api<K, V, Tp>,
+			KeyedCollection.Capability.WithStreamKeys.Api<K, V, Tp>,
+			KeyedCollection.Capability.WithStreamValues.Api<K, V, Tp>,
+			Collection.Capability.WithMutate.Api<readonly [K, V], Tp>,
 			KeyedCollection.Capability.WithRecompose.Api<K, V, Tp> {}
+
+	/**
+	 * The members that {@link WithMixin} leaves abstract, and that an extending
+	 * class must therefore implement.
+	 *
+	 * A requirement must be declared abstract *exactly once* across the exposed
+	 * composition. TypeScript drops the obligation when the same member is
+	 * declared abstract by two different constituents of an intersection, so this
+	 * class states only the requirements this mixin *introduces*. The seed
+	 * ({@link CollectionNonEmpty.Base}) owns `context`, `size`, `stream`,
+	 * `forEach`, `filter` and `toArray`.
+	 */
+	declare abstract class RequiredClass<
+		K,
+		V,
+		Tp extends Collection.Advanced.TypesNonEmpty<
+			KeyedCollection.Advanced.Family<K, V>,
+			readonly [K, V]
+		>,
+	> implements
+			KeyedCollection.Capability.WithGet.Api<K, V, Tp>,
+			Collection.Capability.WithToBuilder.Api<readonly [K, V], Tp>
+	{
+		abstract get<UK = K>(key: RelatedTo<K, UK>): V | undefined;
+		abstract get<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O;
+		abstract toBuilder(): Tp['_BUILDER'];
+	}
+
+	export type Required<
+		K,
+		V,
+		Tp extends Collection.Advanced.TypesNonEmpty<
+			KeyedCollection.Advanced.Family<K, V>,
+			readonly [K, V]
+		>,
+	> = RequiredClass<K, V, Tp>;
+
+	export interface ApiBase<
+		K,
+		V,
+		Tp extends Collection.Advanced.TypesNonEmpty<
+			KeyedCollection.Advanced.Family<K, V>,
+			readonly [K, V]
+		>,
+	> extends Implemented<K, V, Tp>,
+			RequiredClass<K, V, Tp> {}
+
+	export interface Mixin extends KeyedApiMixin {
+		_API: ApiBase<this['_K'], this['_V'], this['_TP']>;
+
+		_TP: Collection.Advanced.TypesNonEmpty<
+			KeyedCollection.Advanced.Family<this['_K'], this['_V']>,
+			this['_E']
+		>;
+	}
 
 	export function WithMixin<C extends ApiMixin>(
 		Base: ApiMixin.AbstractNonEmptyConstructor<C>,
-	): KeyedApiMixin.AbstractNonEmptyConstructor<C & KeyedApiMixin>;
+	): KeyedApiMixin.AbstractNonEmptyConstructor<C & Mixin>;
 	export function WithMixin<
 		TBase extends AbstractConstructor<
 			CollectionNonEmpty.Base<readonly [K, V], Tp>
@@ -253,9 +324,13 @@ export namespace KeyedCollectionNonEmpty {
 			FAM,
 			readonly [K, V]
 		> = Collection.Advanced.TypesNonEmpty<FAM, readonly [K, V]>,
-	>(Base: TBase): TBase & AbstractConstructor<Base<K, V, Tp>> {
-		abstract class Result extends Base {
-			abstract get<UK, O>(value: UK, otherwise?: OptLazy<O>): V | O;
+	>(Base: TBase): TBase & AbstractConstructor<ApiBase<K, V, Tp>> {
+		// the members below are declared abstract here only so that this mixin can
+		// use them; the type that extenders see is derived from RequiredClass,
+		// which is what makes them a visible obligation
+		abstract class Result extends Base implements ApiBase<K, V, Tp> {
+			abstract get<UK = K>(key: RelatedTo<K, UK>): V | undefined;
+			abstract get<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O;
 			abstract toBuilder(): Tp['_BUILDER'];
 
 			has = (value: K): boolean => {
