@@ -1,3 +1,4 @@
+import type { ValuedCollectionNonEmpty } from '@rimbu/collection-types/advanced/collection/valued-base';
 import type { Collection } from '@rimbu/collection-types/collection';
 import type { ValuedCollection } from '@rimbu/collection-types/collection/valued';
 import type { SetCollection } from '@rimbu/collection-types/set';
@@ -32,6 +33,19 @@ export namespace SetCollectionNonEmpty {
 			ValuedCollection.Capability.WithDifference.Api<E, Tp>,
 			ValuedCollection.Capability.WithIntersection.Api<E, Tp> {}
 
+	/**
+	 * The members that {@link WithMixin} leaves abstract, and that an extending
+	 * class must therefore implement.
+	 *
+	 * @remarks
+	 * A requirement must be declared abstract *exactly once* across a
+	 * composition. TypeScript drops the obligation when the same member is
+	 * declared abstract by two different constituents of an intersection, so this
+	 * class only states the requirements this mixin *introduces*. `has` and
+	 * `toBuilder` are required by this mixin as well, but they are introduced one
+	 * layer down by {@link ValuedCollectionNonEmpty.RequiredClass} and must not be
+	 * repeated here.
+	 */
 	declare abstract class RequiredClass<
 		E,
 		Tp extends Collection.Advanced.TypesNonEmpty<
@@ -43,10 +57,8 @@ export namespace SetCollectionNonEmpty {
 			Collection.Capability.WithMap.Api<E, Tp>,
 			Collection.Capability.WithMutate.Api<E, Tp>,
 			Collection.Capability.WithRecompose.Api<E, Tp>,
-			Collection.Capability.WithToBuilder.Api<E, Tp>,
 			ValuedCollection.Capability.WithRemove.Api<E, Tp>
 	{
-		abstract has<UE = E>(value: RelatedTo<E, UE>): boolean;
 		abstract add(element: E): Tp['_NON_EMPTY'];
 		abstract remove<UE = E>(element: RelatedTo<E, UE>): Tp['_NORMAL'];
 		abstract map<E2 extends Tp['_UPPER_E']>(
@@ -59,7 +71,6 @@ export namespace SetCollectionNonEmpty {
 			f: (stream: Tp['_AS_STREAM']) => StreamSource<E2>,
 		): Collection.Advanced.ReTyped<Tp, E2>['_NORMAL'];
 		abstract mutate(f: (builder: Tp['_BUILDER']) => void): Tp['_NORMAL'];
-		abstract toBuilder(): Tp['_BUILDER'];
 	}
 
 	export type Required<
@@ -101,17 +112,18 @@ export namespace SetCollectionNonEmpty {
 			E
 		> = Collection.Advanced.TypesNonEmpty<FAM, E>,
 	>(Base: TBase): TBase & AbstractConstructor<ApiBase<E, Tp>> {
-		type Requirements = Required<
+		type ValuedRequirements = ValuedCollectionNonEmpty.Required<
 			E,
 			Collection.Advanced.TypesNonEmpty<Collection.Advanced.Family<E>, E>
 		>;
 
 		// the members below are declared abstract here only so that this mixin can
-		// use them; the type that extenders see is derived from
-		// SetCollectionNonEmptyRequirements, which is what makes them a visible
-		// obligation
+		// use them; the type that extenders see is derived from RequiredClass,
+		// which is what makes them a visible obligation. `has` and `toBuilder` are
+		// used here too, but are owned by ValuedCollectionNonEmpty.RequiredClass —
+		// see the remarks there.
 		abstract class Result extends Base implements ApiBase<E, Tp> {
-			abstract has: Requirements['has'];
+			abstract has: ValuedRequirements['has'];
 			abstract add(element: E): Tp['_NON_EMPTY'];
 			abstract remove(element: E): Tp['_NORMAL'];
 			abstract map<E2>(

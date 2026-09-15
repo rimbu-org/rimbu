@@ -6,6 +6,7 @@ import type {
 } from '@rimbu/collection-types/advanced/collection-base';
 import type { Collection } from '@rimbu/collection-types/collection';
 import type { ValuedCollection } from '@rimbu/collection-types/collection/valued';
+import type { RelatedTo } from '@rimbu/common';
 
 import { Stream, type StreamSource } from '@rimbu/stream';
 
@@ -114,19 +115,79 @@ export namespace ValuedCollectionEmpty {
 }
 
 export namespace ValuedCollectionNonEmpty {
-	export interface Base<
+	/**
+	 * The part of the valued collection API that {@link WithMixin} implements
+	 * itself.
+	 *
+	 * Only members that the mixin actually defines may be listed here; members it
+	 * leaves abstract belong in {@link RequiredClass}, otherwise the concrete
+	 * declaration inherited from here silently discharges the obligation.
+	 *
+	 * @remarks
+	 * {@link ValuedCollection.Advanced.Api} is deliberately *not* inherited even
+	 * though it is the natural supertype: it declares `has`, which this mixin
+	 * requires rather than provides. Its other half,
+	 * {@link Collection.Advanced.Api}, is inherited, and still masks the members
+	 * that {@link CollectionNonEmpty.Base} leaves abstract (`context`, `size`,
+	 * `stream`, `forEach`, `filter`, `toArray`) — that masking disappears when the
+	 * collection base itself is split the same way.
+	 */
+	export interface Implemented<
 		E,
 		Tp extends Collection.Advanced.TypesNonEmpty<
 			Collection.Advanced.Family<E>,
 			E
 		>,
-	> extends ValuedCollection.Advanced.Api<E, Tp>,
+	> extends Collection.Advanced.Api<E, Tp>,
 			Collection.Capability.WithMutate.Api<E, Tp>,
-			Collection.Capability.WithRecompose.Api<E, Tp>,
-			Collection.Capability.WithToBuilder.Api<E, Tp> {}
+			Collection.Capability.WithRecompose.Api<E, Tp> {}
+
+	/**
+	 * The members that {@link WithMixin} leaves abstract, and that an extending
+	 * class must therefore implement.
+	 *
+	 * Declared as an ambient `abstract class` rather than an interface: an
+	 * `abstract` member declaration is the only way to make "not implemented yet"
+	 * survive into the instance type, where `TS2654` reports it against every
+	 * non-abstract class in the composition. The obligation is discharged as soon
+	 * as any other capability in the composition contributes a non-abstract
+	 * declaration of the same member.
+	 *
+	 * `has` has no fine-grained capability interface to check against — it is
+	 * declared inline on {@link ValuedCollection.Advanced.Api} — so its signature
+	 * is kept in sync by hand.
+	 */
+	declare abstract class RequiredClass<
+		E,
+		Tp extends Collection.Advanced.TypesNonEmpty<
+			Collection.Advanced.Family<E>,
+			E
+		>,
+	> implements Collection.Capability.WithToBuilder.Api<E, Tp>
+	{
+		abstract has<UE = E>(value: RelatedTo<E, UE>): boolean;
+		abstract toBuilder(): Tp['_BUILDER'];
+	}
+
+	export type Required<
+		E,
+		Tp extends Collection.Advanced.TypesNonEmpty<
+			Collection.Advanced.Family<E>,
+			E
+		>,
+	> = RequiredClass<E, Tp>;
+
+	export interface ApiBase<
+		E,
+		Tp extends Collection.Advanced.TypesNonEmpty<
+			Collection.Advanced.Family<E>,
+			E
+		>,
+	> extends Implemented<E, Tp>,
+			RequiredClass<E, Tp> {}
 
 	export interface Mixin extends ApiMixin {
-		_API: Base<this['_E'], this['_TP']>;
+		_API: ApiBase<this['_E'], this['_TP']>;
 
 		_TP: Collection.Advanced.TypesNonEmpty<
 			Collection.Advanced.Family<this['_E']>,
@@ -147,9 +208,17 @@ export namespace ValuedCollectionNonEmpty {
 			ValuedCollection.Advanced.Family<E>,
 			E
 		>,
-	>(Base: TBase): TBase & AbstractConstructor<Base<E, Tp>> {
-		abstract class Result extends Base {
-			abstract has: <UE>(value: UE) => boolean;
+	>(Base: TBase): TBase & AbstractConstructor<ApiBase<E, Tp>> {
+		type Requirements = Required<
+			E,
+			Collection.Advanced.TypesNonEmpty<Collection.Advanced.Family<E>, E>
+		>;
+
+		// the members below are declared abstract here only so that this mixin can
+		// use them; the type that extenders see is derived from RequiredClass,
+		// which is what makes them a visible obligation
+		abstract class Result extends Base implements ApiBase<E, Tp> {
+			abstract has: Requirements['has'];
 			abstract toBuilder(): Tp['_BUILDER'];
 
 			recompose<E2 extends Tp['_UPPER_E']>(
