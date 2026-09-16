@@ -1,11 +1,20 @@
 import type { KeyedApiMixin } from '@rimbu/collection-types/advanced/collection/keyed-base';
-import type { AbstractConstructor } from '@rimbu/collection-types/advanced/collection-base';
-import type { MapCollectionEmpty } from '@rimbu/collection-types/advanced/map-base';
+import type {
+	AbstractConstructor,
+	CollectionNonEmpty,
+} from '@rimbu/collection-types/advanced/collection-base';
+import type {
+	MapCollectionEmpty,
+	MapCollectionNonEmpty,
+} from '@rimbu/collection-types/advanced/map-base';
 import type { Collection } from '@rimbu/collection-types/collection';
 import type { IndexedCollection } from '@rimbu/collection-types/collection/indexed';
 import type { IndexedSortedCollection } from '@rimbu/collection-types/collection/indexed-sorted';
 import type { KeyedCollection } from '@rimbu/collection-types/collection/keyed';
+import type { SortedCollection } from '@rimbu/collection-types/collection/sorted';
+import type { MapCollection } from '@rimbu/collection-types/map';
 import type { Op } from '@rimbu/collection-types/types';
+import type { IndexRange } from '@rimbu/common';
 
 import { OptLazy } from '@rimbu/common';
 import { Stream } from '@rimbu/stream';
@@ -125,6 +134,131 @@ export namespace IndexedKeyedSortedCollectionEmpty {
 
 			next<O>(otherwise?: OptLazy<O>): O {
 				return OptLazy(otherwise) as O;
+			}
+		}
+
+		return Result;
+	}
+}
+
+/**
+ * Keyed counterpart of `IndexedSortedCollectionNonEmpty`.
+ *
+ * Like {@link IndexedKeyedSortedCollectionEmpty}, this exists because the
+ * set-oriented non-empty mixins only accept `ApiMixin.AbstractNonEmptyConstructor`
+ * and cannot wrap a keyed constructor. It composes the keyed-map surface with
+ * the indexed/sorted non-empty surface for `E = readonly [K, V]` and `S = K`.
+ *
+ * `min`/`max` are declared as abstract methods rather than implemented as
+ * getters (as {@link IndexedSortedCollectionNonEmpty} does) because sorted map
+ * nodes implement them as methods, and a base-class getter cannot be overridden
+ * by a method.
+ */
+export namespace IndexedKeyedSortedCollectionNonEmpty {
+	export interface Base<
+		K,
+		V,
+		Tp extends Collection.Advanced.TypesNonEmpty<
+			MapCollection.Advanced.Family<K, V>,
+			readonly [K, V]
+		>,
+	> extends MapCollectionNonEmpty.ApiBase<K, V, Tp>,
+			IndexedCollection.Advanced.Api<readonly [K, V], Tp>,
+			SortedCollection.Capability.WithNeighbor.Api<readonly [K, V], K, Tp>,
+			IndexedSortedCollection.Capability.WithIndexOf.Api<
+				readonly [K, V],
+				K,
+				Tp
+			>,
+			IndexedSortedCollection.Capability.WithBounds.Api<readonly [K, V], K, Tp>,
+			IndexedCollection.Capability.WithRemoveAt.Api<readonly [K, V], Tp> {
+		min(): readonly [K, V];
+		max(): readonly [K, V];
+	}
+
+	export interface Mixin extends KeyedApiMixin {
+		_API: Base<this['_K'], this['_V'], this['_TP']>;
+
+		_TP: Collection.Advanced.TypesNonEmpty<
+			MapCollection.Advanced.Family<this['_K'], this['_V']>,
+			this['_E']
+		>;
+	}
+
+	export function WithMixin<C extends KeyedApiMixin>(
+		Base: KeyedApiMixin.AbstractNonEmptyConstructor<C>,
+	): KeyedApiMixin.AbstractNonEmptyConstructor<C & Mixin>;
+	export function WithMixin<
+		TBase extends AbstractConstructor<
+			MapCollectionNonEmpty.ApiBase<K, V, Tp> &
+				CollectionNonEmpty.Base<readonly [K, V], Tp>
+		>,
+		K,
+		V,
+		FAM extends MapCollection.Advanced.Family<
+			K,
+			V
+		> = MapCollection.Advanced.Family<K, V>,
+		Tp extends Collection.Advanced.TypesNonEmpty<
+			FAM,
+			readonly [K, V]
+		> = Collection.Advanced.TypesNonEmpty<FAM, readonly [K, V]>,
+	>(Base: TBase): TBase & AbstractConstructor<Base<K, V, Tp>> {
+		abstract class Result extends Base implements Base<K, V, Tp> {
+			abstract streamSlice(
+				range: IndexRange,
+				options?: { reversed?: boolean | undefined } | undefined,
+			): Stream<readonly [K, V]>;
+			abstract at<O>(
+				index: number,
+				otherwise?: OptLazy<O>,
+			): readonly [K, V] | O;
+			abstract take<const N extends number>(
+				amount: N,
+			): 0 extends N ? Tp['_NORMAL'] : Tp['_NON_EMPTY'];
+			abstract drop(amount: number): Tp['_NORMAL'];
+			abstract splitAt<const N extends number>(
+				amount: N,
+			): [0 extends N ? Tp['_NORMAL'] : Tp['_NON_EMPTY'], Tp['_NORMAL']];
+			abstract slice(range: IndexRange): Tp['_NORMAL'];
+			abstract min(): readonly [K, V];
+			abstract max(): readonly [K, V];
+			abstract previous<O>(
+				search: K,
+				options?:
+					| { inclusive?: boolean | undefined; otherwise?: OptLazy<O> }
+					| undefined,
+			): readonly [K, V] | O;
+			abstract next<O>(
+				search: K,
+				options?:
+					| { inclusive?: boolean | undefined; otherwise?: OptLazy<O> }
+					| undefined,
+			): readonly [K, V] | O;
+			abstract indexOf(search: K): number | undefined;
+			abstract indexOf<O>(search: K, otherwise: OptLazy<O>): number | O;
+			abstract lowerBound(search: K): number;
+			abstract upperBound(search: K): number;
+			abstract removeAt(
+				index: number,
+				amount?: number | undefined,
+			): Tp['_NORMAL'];
+			abstract removeAtAndReturn(
+				index: number,
+				amount?: number | undefined,
+			): Op.DynamicResult<
+				Tp['_SELF'],
+				Tp['_NORMAL'],
+				Tp['_NON_EMPTY'],
+				Tp['_NORMAL']
+			>;
+
+			first<O>(otherwise?: OptLazy<O>): readonly [K, V] | O {
+				return this.at(0, otherwise);
+			}
+
+			last<O>(otherwise?: OptLazy<O>): readonly [K, V] | O {
+				return this.at(-1, otherwise);
 			}
 		}
 

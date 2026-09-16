@@ -11,9 +11,9 @@ import type { SortedMapBuilder } from '#map/builder';
 import type { ContextImpl } from '#map/context-factory';
 
 import * as Entry from '@rimbu/base/entry';
-import { IndexedCollectionNonEmpty } from '@rimbu/collection-types/advanced/collection/indexed-base';
-import { IndexedSortedCollectionNonEmpty } from '@rimbu/collection-types/advanced/collection/indexed-sorted-base';
+import { IndexedKeyedSortedCollectionNonEmpty } from '@rimbu/collection-types/advanced/collection/indexed-keyed-sorted-base';
 import { KeyedCollectionNonEmpty } from '@rimbu/collection-types/advanced/collection/keyed-base';
+import { CollectionNonEmpty } from '@rimbu/collection-types/advanced/collection-base';
 import {
 	checkEmptyModifyOptions,
 	type ModifyOptions,
@@ -26,18 +26,17 @@ import { Stream, type StreamSource } from '@rimbu/stream';
 
 import { SortedIndex } from '#sorted/sorted-index';
 
-const NonEmptyBase = IndexedSortedCollectionNonEmpty.WithMixin(
+const NonEmptyBase = IndexedKeyedSortedCollectionNonEmpty.WithMixin(
 	MapCollectionNonEmpty.WithMixin(
-		IndexedCollectionNonEmpty.WithMixin(
-			KeyedCollectionNonEmpty.WithMixin(CollectionNonEmpty.Constructor),
-		),
+		KeyedCollectionNonEmpty.WithMixin(CollectionNonEmpty.Constructor),
 	),
 );
 
 export abstract class SortedMapNode<K, V>
-	extends NonEmptyBase<readonly [K, V], K, SortedMapNode<K, V>>
+	extends NonEmptyBase<K, V, SortedMap.Advanced.Family<K, V>>
 	implements SortedMap.NonEmpty<K, V>
 {
+	// @ts-expect-error the keyed+sorted family intersection is not assignable to the concrete context type
 	abstract get context(): ContextImpl<K>;
 	abstract get size(): number;
 	abstract stream(options?: {
@@ -53,14 +52,11 @@ export abstract class SortedMapNode<K, V>
 	): void;
 	// @ts-expect-error
 	abstract get<U, O>(key: RelatedTo<K, U>, otherwise?: OptLazy<O>): V | O;
-	// @ts-expect-error
 	abstract at<O>(index: number, otherwise?: OptLazy<O>): readonly [K, V] | O;
-	// @ts-expect-error
 	abstract atIndex<O>(
 		index: number,
 		otherwise?: OptLazy<O>,
 	): readonly [K, V] | O;
-	// @ts-expect-error
 	abstract findIndex(key: K): number | undefined;
 	abstract addInternal(
 		entry: readonly [K, V],
@@ -79,6 +75,8 @@ export abstract class SortedMapNode<K, V>
 	abstract normalize(): SortedMap<K, V>;
 	abstract min(): readonly [K, V];
 	abstract max(): readonly [K, V];
+	abstract takeInternal(amount: number): SortedMapNode<K, V>;
+	abstract dropInternal(amount: number): SortedMapNode<K, V>;
 
 	// @ts-expect-error
 	asNormal(): this {
@@ -111,13 +109,11 @@ export abstract class SortedMapNode<K, V>
 		return { startIndex, endIndex };
 	}
 
-	streamKeys(options: { reversed?: boolean } = {}): Stream.NonEmpty<K> {
-		return this.stream(options).map(Entry.first);
-	}
+	streamKeys = (options: { reversed?: boolean } = {}): Stream.NonEmpty<K> =>
+		this.stream(options).map(Entry.first);
 
-	streamValues(options: { reversed?: boolean } = {}): Stream.NonEmpty<V> {
-		return this.stream(options).map(Entry.second);
-	}
+	streamValues = (options: { reversed?: boolean } = {}): Stream.NonEmpty<V> =>
+		this.stream(options).map(Entry.second);
 
 	streamRange(
 		keyRange: Range<K>,
@@ -163,6 +159,20 @@ export abstract class SortedMapNode<K, V>
 	upperBound(key: K): number {
 		const index = this.getInsertIndexOf(key);
 		return index >= 0 ? index + 1 : -index - 1;
+	}
+
+	next<O>(
+		key: K,
+		options: { inclusive?: boolean | undefined; otherwise?: OptLazy<O> } = {},
+	): readonly [K, V] | O {
+		return this.nextEntry(key, options);
+	}
+
+	previous<O>(
+		key: K,
+		options: { inclusive?: boolean | undefined; otherwise?: OptLazy<O> } = {},
+	): readonly [K, V] | O {
+		return this.previousEntry(key, options);
 	}
 
 	nextEntry<O>(
@@ -459,19 +469,11 @@ export abstract class SortedMapNode<K, V>
 	}
 
 	forEachIndexed(f: any, options?: any): void {
-		return (this as any).forEach(f as any, options as any);
+		(this as any).forEach(f as any, options as any);
 	}
 
 	filterIndexed(pred: any, options?: any): any {
 		return (this as any).filter(pred as any, options as any);
-	}
-
-	first(..._args: any[]): any {
-		return (this as any).min(..._args);
-	}
-
-	last(..._args: any[]): any {
-		return (this as any).max(..._args);
 	}
 
 	splitAt(amount: number): any {
