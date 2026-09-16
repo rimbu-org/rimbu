@@ -1,63 +1,14 @@
+import type { Comp } from '@rimbu/common/comp';
+
 import * as Arr from '@rimbu/base/arr';
 import * as RimbuError from '@rimbu/base/rimbu-error';
-// import { CollectionNonEmptyConstructor } from '@rimbu/collection-types/advanced/collection-base';
 import { IndexRange } from '@rimbu/common/index-range';
 import { OptLazy } from '@rimbu/common/opt-lazy';
+import { Range } from '@rimbu/common/range';
 import { TraverseState } from '@rimbu/common/traverse-state';
 import { Stream } from '@rimbu/stream';
 
 import { SortedIndex } from '#sorted/sorted-index';
-
-// const EmptyBase = WithIndexedSortedCollectionEmptyBase(
-// 	CollectionEmptyConstructor,
-// );
-
-// /**
-//  * Base implementation used for empty sorted collections.<br/>
-//  * <br/>
-//  * Provides the index‑based operations used by `SortedMap` / `SortedSet`
-//  * instances when they are empty and always returns the given fallback value.
-//  */
-// export class SortedEmpty<E = any, S = any>
-// 	extends EmptyBase<E, S, SortedSet.Advanced.Family<E>>
-// 	implements SortedSet<E> {}
-
-// const NonEmptyBase = CollectionNonEmptyConstructor;
-
-/**
- * Abstract base class for non‑empty sorted collections.<br/>
- * <br/>
- * It exposes the common index‑based operations and structural mutation
- * helpers shared by the sorted map and set node implementations.
- * @typeparam E - the stored entry type
- * @typeparam TS - the concrete non‑empty node type
- */
-// export abstract class SortedNonEmptyBase<
-// 	E,
-// 	TS extends SortedNonEmptyBase<E, TS>,
-// > extends NonEmptyBase<E> {
-// 	abstract atIndex<O>(index: number, otherwise?: OptLazy<O>): E | O;
-
-// 	// internal
-// 	abstract get entries(): readonly E[];
-
-// 	abstract takeInternal(amount: number): TS;
-// 	abstract dropInternal(amount: number): TS;
-
-// 	abstract mutateSplitRight(index?: number): [E, TS];
-// 	abstract mutateGiveToLeft(left: TS, toLeft: E): [E, TS];
-// 	abstract mutateGiveToRight(right: TS, toRight: E): [E, TS];
-// 	abstract mutateGetFromLeft(left: TS, toMe: E): [E, TS];
-// 	abstract mutateGetFromRight(right: TS, toMe: E): [E, TS];
-// 	abstract mutateJoinLeft(left: TS, entry: E): void;
-// 	abstract mutateJoinRight(right: TS, entry: E): void;
-// 	abstract deleteMin(): [E, TS];
-// 	abstract deleteMax(): [E, TS];
-
-// 	get mutateEntries(): E[] {
-// 		return this.entries as E[];
-// 	}
-// }
 
 /**
  * Describes the mutable surface of a leaf node used by the helper
@@ -854,6 +805,290 @@ export function innerStreamSliceIndex<E>(
 
 		return child.stream({ reversed });
 	});
+}
+
+/**
+ * The subset of a normal sorted collection that the shared node operations
+ * need in order to chain `take`/`drop` on their results.
+ * @typeparam TNormal - the normal (possibly empty) collection type
+ */
+export interface SortedNormal<TNormal> {
+	take(amount: number): TNormal;
+	drop(amount: number): TNormal;
+}
+
+/**
+ * The part of a sorted B‑tree node that the shared node operations in
+ * {@link SortedNode} rely on.
+ *
+ * It is intentionally structural so that the same implementations can serve
+ * both the keyed `SortedMap` nodes (`E = readonly [K, V]`, `S = K`) and the
+ * valued `SortedSet` nodes (`E = S = T`). `context` supplies the element
+ * comparator and construction of an empty collection, while the B‑tree
+ * specific operations (`getInsertIndexOf`, `takeInternal`, `dropInternal`, …)
+ * are provided by the concrete leaf/inner nodes.
+ * @typeparam E - the element type stored in the node
+ * @typeparam S - the search/key type used for range and neighbour lookups
+ * @typeparam TNormal - the normal (possibly empty) collection type
+ */
+export interface SortedNodeLike<E, S, TNormal> {
+	readonly size: number;
+	readonly context: {
+		readonly comp: Comp<S>;
+		empty(): TNormal;
+	};
+	getInsertIndexOf(search: S): number;
+	at<O>(index: number, otherwise?: OptLazy<O>): E | O;
+	streamSliceIndex(
+		range: IndexRange,
+		options?: { reversed?: boolean },
+	): Stream<E>;
+	take(amount: number): TNormal;
+	drop(amount: number): TNormal;
+	takeInternal(amount: number): { normalize(): TNormal };
+	dropInternal(amount: number): { normalize(): TNormal };
+}
+
+/**
+ * The index‑based operations shared by the keyed `SortedMap` nodes and the
+ * valued `SortedSet` nodes.
+ *
+ * They are expressed as functions over {@link SortedNodeLike} rather than as a
+ * mixin because the keyed and valued collections bind the search type `S`
+ * differently (`SortedMap` uses `S = K` with `E = readonly [K, V]`, whereas
+ * `SortedSet` uses `S = E = T`). That binding is introduced by the
+ * keyed/valued capability mixins and cannot be threaded through a single
+ * shared mixin layer, so the logic lives here while each node keeps a thin,
+ * correctly typed delegation.
+ */
+export namespace SortedNode {
+	/**
+	 * Returns the inclusive index range covered by the given key `range`, or
+	 * the fallback indices when the range is unbounded.
+	 * @param source - the node to operate on
+	 * @param range - the key range to translate to indices
+	 */
+	export function getSliceRange<E, S, TNormal extends SortedNormal<TNormal>>(
+		source: SortedNodeLike<E, S, TNormal>,
+		range: Range<S>,
+	): { startIndex: number; endIndex: number } {
+		const { start, end } = Range.getNormalizedRange(range);
+		let startIndex = 0;
+		let endIndex = source.size - 1;
+
+		if (undefined !== start) {
+			const [startValue, startInclude] = start;
+			startIndex = source.getInsertIndexOf(startValue);
+
+			if (startIndex < 0) {
+				startIndex = SortedIndex.next(startIndex);
+			} else if (!startInclude) {
+				startIndex++;
+			}
+		}
+		if (undefined !== end) {
+			const [endValue, endInclude] = end;
+			endIndex = source.getInsertIndexOf(endValue);
+
+			if (endIndex < 0) endIndex = SortedIndex.prev(endIndex);
+			else if (!endInclude) endIndex--;
+		}
+
+		return { startIndex, endIndex };
+	}
+
+	/**
+	 * Streams the nodes elements whose key lies within the given `range`.
+	 * @param source - the node to operate on
+	 * @param range - the key range to include
+	 * @param options - (optional) when `reversed`, streams in reverse order
+	 */
+	export function streamRange<E, S, TNormal extends SortedNormal<TNormal>>(
+		source: SortedNodeLike<E, S, TNormal>,
+		range: Range<S>,
+		options?: { reversed?: boolean },
+	): Stream<E> {
+		const { startIndex, endIndex } = getSliceRange(source, range);
+
+		return source.streamSliceIndex(
+			{
+				start: [startIndex, true],
+				end: [endIndex, true],
+			},
+			options,
+		);
+	}
+
+	/**
+	 * Returns the index of the first element whose key is not less than
+	 * `search`, or a negative insertion point when no such key exists.
+	 * @param source - the node to operate on
+	 * @param search - the key to look up
+	 */
+	export function lowerBound<E, S, TNormal extends SortedNormal<TNormal>>(
+		source: SortedNodeLike<E, S, TNormal>,
+		search: S,
+	): number {
+		const index = source.getInsertIndexOf(search);
+		return index >= 0 ? index : -index - 1;
+	}
+
+	/**
+	 * Returns the index just past the last element whose key is not greater
+	 * than `search`, or a negative insertion point when no such key exists.
+	 * @param source - the node to operate on
+	 * @param search - the key to look up
+	 */
+	export function upperBound<E, S, TNormal extends SortedNormal<TNormal>>(
+		source: SortedNodeLike<E, S, TNormal>,
+		search: S,
+	): number {
+		const index = source.getInsertIndexOf(search);
+		return index >= 0 ? index + 1 : -index - 1;
+	}
+
+	/**
+	 * Returns the first element whose key is greater than `search`, or the
+	 * fallback value when there is none.
+	 * @param source - the node to operate on
+	 * @param search - the key to look up
+	 * @param options - (optional) `inclusive` includes equal keys, `otherwise`
+	 * is the fallback value
+	 */
+	export function next<E, S, TNormal extends SortedNormal<TNormal>, O>(
+		source: SortedNodeLike<E, S, TNormal>,
+		search: S,
+		options: { inclusive?: boolean | undefined; otherwise?: OptLazy<O> } = {},
+	): E | O {
+		const { inclusive = false, otherwise } = options;
+		if (!source.context.comp.isComparable(search)) {
+			return OptLazy(otherwise) as O;
+		}
+
+		const atIndex = inclusive
+			? lowerBound(source, search)
+			: upperBound(source, search);
+
+		return source.at(atIndex, otherwise);
+	}
+
+	/**
+	 * Returns the last element whose key is less than `search`, or the
+	 * fallback value when there is none.
+	 * @param source - the node to operate on
+	 * @param search - the key to look up
+	 * @param options - (optional) `inclusive` includes equal keys, `otherwise`
+	 * is the fallback value
+	 */
+	export function previous<E, S, TNormal extends SortedNormal<TNormal>, O>(
+		source: SortedNodeLike<E, S, TNormal>,
+		search: S,
+		options: { inclusive?: boolean | undefined; otherwise?: OptLazy<O> } = {},
+	): E | O {
+		const { inclusive = false, otherwise } = options;
+		if (!source.context.comp.isComparable(search)) {
+			return OptLazy(otherwise) as O;
+		}
+
+		const index = source.getInsertIndexOf(search);
+		const atIndex =
+			index >= 0 ? (inclusive ? index : index - 1) : -index - 1 - 1;
+
+		if (atIndex < 0) return OptLazy(otherwise) as O;
+
+		return source.at(atIndex, otherwise);
+	}
+
+	/**
+	 * Returns a collection with at most the first `amount` elements, or all but
+	 * the last `-amount` elements when `amount` is negative.
+	 * @param source - the node to operate on
+	 * @param amount - the amount of elements to keep from the start
+	 */
+	export function take<E, S, TNormal extends SortedNormal<TNormal>>(
+		source: SortedNodeLike<E, S, TNormal>,
+		amount: number,
+	): TNormal {
+		if (amount === 0) return source.context.empty();
+		if (amount >= source.size || -amount > source.size) {
+			return source as unknown as TNormal;
+		}
+		if (amount < 0) return drop(source, source.size + amount);
+
+		return source.takeInternal(amount).normalize();
+	}
+
+	/**
+	 * Returns a collection without the first `amount` elements, or with only
+	 * the last `-amount` elements when `amount` is negative.
+	 * @param source - the node to operate on
+	 * @param amount - the amount of elements to drop from the start
+	 */
+	export function drop<E, S, TNormal extends SortedNormal<TNormal>>(
+		source: SortedNodeLike<E, S, TNormal>,
+		amount: number,
+	): TNormal {
+		if (amount === 0) return source as unknown as TNormal;
+		if (amount >= source.size || -amount > source.size) {
+			return source.context.empty();
+		}
+		if (amount < 0) return take(source, source.size + amount);
+
+		return source.dropInternal(amount).normalize();
+	}
+
+	/**
+	 * Returns a collection containing only the elements within the given index
+	 * `range`.
+	 * @param source - the node to operate on
+	 * @param range - the index range to keep
+	 */
+	export function sliceIndex<E, S, TNormal extends SortedNormal<TNormal>>(
+		source: SortedNodeLike<E, S, TNormal>,
+		range: IndexRange,
+	): TNormal {
+		const indexRange = IndexRange.getIndicesFor(range, source.size);
+
+		if (indexRange === 'empty') return source.context.empty();
+		if (indexRange === 'all') return source as unknown as TNormal;
+
+		const [start, end] = indexRange;
+
+		return source.drop(start).take(end - start + 1);
+	}
+
+	/**
+	 * Returns a collection containing only the elements within the given index
+	 * range or key range.
+	 * @param source - the node to operate on
+	 * @param range - the index range or key range to keep
+	 */
+	export function slice<E, S, TNormal extends SortedNormal<TNormal>>(
+		source: SortedNodeLike<E, S, TNormal>,
+		range: IndexRange | Range<S>,
+	): TNormal {
+		if (range && typeof range === 'object' && 'amount' in range) {
+			return sliceIndex(source, range as IndexRange);
+		}
+		const { startIndex, endIndex } = getSliceRange(source, range as Range<S>);
+
+		return sliceIndex(source, {
+			start: [startIndex, true],
+			end: [endIndex, true],
+		});
+	}
+
+	/**
+	 * Splits the node into the elements before and from the given `amount`.
+	 * @param source - the node to operate on
+	 * @param amount - the index at which to split
+	 */
+	export function splitAt<E, S, TNormal extends SortedNormal<TNormal>>(
+		source: SortedNodeLike<E, S, TNormal>,
+		amount: number,
+	): [TNormal, TNormal] {
+		return [take(source, amount), drop(source, amount)];
+	}
 }
 
 /**

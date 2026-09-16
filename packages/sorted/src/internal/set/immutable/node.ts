@@ -1,4 +1,6 @@
 import type { IndexRange } from '@rimbu/common/index-range';
+import type { OptLazy } from '@rimbu/common/opt-lazy';
+import type { Range } from '@rimbu/common/range';
 import type { RelatedTo } from '@rimbu/common/types';
 import type { SortedSet } from '@rimbu/sorted/set';
 import type { Stream } from '@rimbu/stream';
@@ -8,10 +10,8 @@ import { IndexedSortedCollectionNonEmpty } from '@rimbu/collection-types/advance
 import { ValuedCollectionNonEmpty } from '@rimbu/collection-types/advanced/collection/valued-base';
 import { CollectionNonEmpty } from '@rimbu/collection-types/advanced/collection-base';
 import { SetCollectionNonEmpty } from '@rimbu/collection-types/advanced/set-base';
-import { OptLazy } from '@rimbu/common/opt-lazy';
-import { Range } from '@rimbu/common/range';
 
-import { SortedIndex } from '#sorted/sorted-index';
+import { SortedNode } from '#sorted/base';
 
 const NonEmptyBase = IndexedSortedCollectionNonEmpty.WithMixin(
 	SetCollectionNonEmpty.WithMixin(
@@ -41,76 +41,33 @@ export abstract class SortedSetNode<T>
 	abstract findIndex<O>(value: T, otherwise?: OptLazy<O>): number | O;
 
 	lowerBound(value: T): number {
-		const index = this.getInsertIndexOf(value);
-		return index >= 0 ? index : -index - 1;
+		return SortedNode.lowerBound(this, value);
 	}
 
 	upperBound(value: T): number {
-		const index = this.getInsertIndexOf(value);
-		return index >= 0 ? index + 1 : -index - 1;
+		return SortedNode.upperBound(this, value);
 	}
 
 	next<O>(
 		value: T,
 		options: { inclusive?: boolean | undefined; otherwise?: OptLazy<O> } = {},
 	): T | O {
-		const { inclusive = false, otherwise } = options;
-		if (!this.context.comp.isComparable(value)) return OptLazy(otherwise) as O;
-
-		const index = this.getInsertIndexOf(value);
-		const atIndex = index >= 0 ? (inclusive ? index : index + 1) : -index - 1;
-
-		return this.at(atIndex, otherwise!);
+		return SortedNode.next(this, value, options);
 	}
 
 	previous<O>(
 		value: T,
 		options: { inclusive?: boolean | undefined; otherwise?: OptLazy<O> } = {},
 	): T | O {
-		const { inclusive = false, otherwise } = options;
-		if (!this.context.comp.isComparable(value)) return OptLazy(otherwise) as O;
-
-		const index = this.getInsertIndexOf(value);
-		const atIndex =
-			index >= 0 ? (inclusive ? index : index - 1) : -index - 1 - 1;
-
-		if (atIndex < 0) return OptLazy(otherwise) as O;
-		return this.at(atIndex, otherwise as OptLazy<O>) as T | O;
+		return SortedNode.previous(this, value, options);
 	}
 
 	getSliceRange(range: Range<T>): { startIndex: number; endIndex: number } {
-		const { start, end } = Range.getNormalizedRange(range);
-		let startIndex = 0;
-		let endIndex = this.size - 1;
-
-		if (undefined !== start) {
-			const [startValue, startInclude] = start;
-			startIndex = this.getInsertIndexOf(startValue);
-
-			if (startIndex < 0) startIndex = SortedIndex.next(startIndex);
-			else if (!startInclude) startIndex++;
-		}
-		if (undefined !== end) {
-			const [endValue, endInclude] = end;
-			endIndex = this.getInsertIndexOf(endValue);
-
-			if (endIndex < 0) endIndex = SortedIndex.prev(endIndex);
-			else if (!endInclude) endIndex--;
-		}
-
-		return { startIndex, endIndex };
+		return SortedNode.getSliceRange(this, range);
 	}
 
 	streamRange(range: Range<T>, options?: { reversed?: boolean }): Stream<T> {
-		const { startIndex, endIndex } = this.getSliceRange(range);
-
-		return this.streamSliceIndex(
-			{
-				start: [startIndex, true],
-				end: [endIndex, true],
-			},
-			options,
-		);
+		return SortedNode.streamRange(this, range, options);
 	}
 
 	add(value: T): SortedSet.NonEmpty<T> {
@@ -123,19 +80,11 @@ export abstract class SortedSetNode<T>
 	}
 
 	take(amount: number): SortedSet<T> | any {
-		if (amount === 0) return this.context.empty();
-		if (amount >= this.size || -amount > this.size) return this;
-		if (amount < 0) return this.drop(this.size + amount);
-
-		return this.takeInternal(amount).normalize();
+		return SortedNode.take(this, amount);
 	}
 
 	drop(amount: number): SortedSet<T> {
-		if (amount === 0) return this;
-		if (amount >= this.size || -amount > this.size) return this.context.empty();
-		if (amount < 0) return this.take(this.size + amount);
-
-		return this.dropInternal(amount).normalize();
+		return SortedNode.drop(this, amount);
 	}
 
 	indexOf(value: T, otherwise?: OptLazy<any>): any {

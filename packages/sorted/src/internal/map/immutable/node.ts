@@ -1,3 +1,5 @@
+import type { IndexRange } from '@rimbu/common/index-range';
+import type { Range } from '@rimbu/common/range';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type {
 	ArrayNonEmpty,
@@ -19,12 +21,10 @@ import {
 	type ModifyOptions,
 } from '@rimbu/collection-types/advanced/common';
 import { MapCollectionNonEmpty } from '@rimbu/collection-types/advanced/map-base';
-import { IndexRange } from '@rimbu/common/index-range';
 import { OptLazy } from '@rimbu/common/opt-lazy';
-import { Range } from '@rimbu/common/range';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
-import { SortedIndex } from '#sorted/sorted-index';
+import { SortedNode } from '#sorted/base';
 
 const NonEmptyBase = IndexedKeyedSortedCollectionNonEmpty.WithMixin(
 	MapCollectionNonEmpty.WithMixin(
@@ -36,7 +36,6 @@ export abstract class SortedMapNode<K, V>
 	extends NonEmptyBase<K, V, SortedMap.Advanced.Family<K, V>>
 	implements SortedMap.NonEmpty<K, V>
 {
-	// @ts-expect-error the keyed+sorted family intersection is not assignable to the concrete context type
 	abstract get context(): ContextImpl<K>;
 	abstract get size(): number;
 	abstract stream(options?: {
@@ -50,7 +49,6 @@ export abstract class SortedMapNode<K, V>
 		f: (entry: readonly [K, V], index: number, halt: () => void) => void,
 		options?: { state?: TraverseState },
 	): void;
-	// @ts-expect-error
 	abstract get<U, O>(key: RelatedTo<K, U>, otherwise?: OptLazy<O>): V | O;
 	abstract at<O>(index: number, otherwise?: OptLazy<O>): readonly [K, V] | O;
 	abstract atIndex<O>(
@@ -67,7 +65,6 @@ export abstract class SortedMapNode<K, V>
 		options: ModifyOptions<V>,
 	): SortedMapNode<K, V>;
 	abstract getInsertIndexOf(key: K): number;
-	// @ts-expect-error
 	abstract mapValues<V2>(
 		mapFun: (value: V, key: K) => V2,
 	): SortedMapNode<K, V2>;
@@ -78,35 +75,12 @@ export abstract class SortedMapNode<K, V>
 	abstract takeInternal(amount: number): SortedMapNode<K, V>;
 	abstract dropInternal(amount: number): SortedMapNode<K, V>;
 
-	// @ts-expect-error
 	asNormal(): this {
 		return this;
 	}
 
 	getSliceRange(range: Range<K>): { startIndex: number; endIndex: number } {
-		const { start, end } = Range.getNormalizedRange(range);
-		let startIndex = 0;
-		let endIndex = this.size - 1;
-
-		if (undefined !== start) {
-			const [startValue, startInclude] = start;
-			startIndex = this.getInsertIndexOf(startValue);
-
-			if (startIndex < 0) {
-				startIndex = SortedIndex.next(startIndex);
-			} else if (!startInclude) {
-				startIndex++;
-			}
-		}
-		if (undefined !== end) {
-			const [endValue, endInclude] = end;
-			endIndex = this.getInsertIndexOf(endValue);
-
-			if (endIndex < 0) endIndex = SortedIndex.prev(endIndex);
-			else if (!endInclude) endIndex--;
-		}
-
-		return { startIndex, endIndex };
+		return SortedNode.getSliceRange(this, range);
 	}
 
 	streamKeys = (options: { reversed?: boolean } = {}): Stream.NonEmpty<K> =>
@@ -119,15 +93,7 @@ export abstract class SortedMapNode<K, V>
 		keyRange: Range<K>,
 		options: { reversed?: boolean } = {},
 	): Stream<readonly [K, V]> {
-		const { startIndex, endIndex } = this.getSliceRange(keyRange);
-
-		return this.streamSliceIndex(
-			{
-				start: [startIndex, true],
-				end: [endIndex, true],
-			},
-			options,
-		);
+		return SortedNode.streamRange(this, keyRange, options);
 	}
 
 	minKey(): K {
@@ -152,13 +118,11 @@ export abstract class SortedMapNode<K, V>
 	}
 
 	lowerBound(key: K): number {
-		const index = this.getInsertIndexOf(key);
-		return index >= 0 ? index : -index - 1;
+		return SortedNode.lowerBound(this, key);
 	}
 
 	upperBound(key: K): number {
-		const index = this.getInsertIndexOf(key);
-		return index >= 0 ? index + 1 : -index - 1;
+		return SortedNode.upperBound(this, key);
 	}
 
 	next<O>(
@@ -179,28 +143,14 @@ export abstract class SortedMapNode<K, V>
 		key: K,
 		options: { inclusive?: boolean | undefined; otherwise?: OptLazy<O> } = {},
 	): readonly [K, V] | O {
-		const { inclusive = false, otherwise } = options;
-		if (!this.context.comp.isComparable(key)) return OptLazy(otherwise) as O;
-
-		const atIndex = inclusive ? this.lowerBound(key) : this.upperBound(key);
-
-		return this.atIndex(atIndex, otherwise);
+		return SortedNode.next(this, key, options);
 	}
 
 	previousEntry<O>(
 		key: K,
 		options: { inclusive?: boolean | undefined; otherwise?: OptLazy<O> } = {},
 	): readonly [K, V] | O {
-		const { inclusive = false, otherwise } = options;
-		if (!this.context.comp.isComparable(key)) return OptLazy(otherwise) as O;
-
-		const index = this.getInsertIndexOf(key);
-		const atIndex =
-			index >= 0 ? (inclusive ? index : index - 1) : -index - 1 - 1;
-
-		if (atIndex < 0) return OptLazy(otherwise) as O;
-
-		return this.atIndex(atIndex, otherwise);
+		return SortedNode.previous(this, key, options);
 	}
 
 	addEntry(entry: readonly [K, V]): SortedMap.NonEmpty<K, V> {
@@ -208,7 +158,6 @@ export abstract class SortedMapNode<K, V>
 	}
 
 	addEntries(entries: StreamSource<readonly [K, V]>): SortedMap.NonEmpty<K, V> {
-		// @ts-expect-error
 		if (Stream.isEmptyStreamSourceInstance(entries)) return this;
 
 		const builder = this.toBuilder();
@@ -224,7 +173,6 @@ export abstract class SortedMapNode<K, V>
 	}
 
 	modifyAt(atKey: K, options: ModifyOptions<V>): SortedMap<K, V> {
-		// @ts-expect-error
 		if (checkEmptyModifyOptions(options)) return this;
 		return this.modifyAtInternal(atKey, options).normalize();
 	}
@@ -237,7 +185,6 @@ export abstract class SortedMapNode<K, V>
 		key: RelatedTo<K, U>,
 		update: (value: V) => V,
 	): SortedMap.NonEmpty<K, V> {
-		// @ts-expect-error
 		if (!this.context.isValidKey(key)) return this;
 
 		return this.modifyAt(key, {
@@ -257,13 +204,11 @@ export abstract class SortedMapNode<K, V>
 			return update(value);
 		});
 
-		// @ts-expect-error
 		if (token === oldValue) return [this, undefined, false];
 		return [newMap, oldValue, true];
 	}
 
 	removeKey<UK>(key: RelatedTo<K, UK>): SortedMap<K, V> {
-		// @ts-expect-error
 		if (!this.context.isValidKey(key)) return this;
 
 		return this.modifyAt(key, {
@@ -272,7 +217,6 @@ export abstract class SortedMapNode<K, V>
 	}
 
 	removeKeys<UK>(keys: StreamSource<RelatedTo<K, UK>>): SortedMap<K, V> {
-		// @ts-expect-error
 		if (Stream.isEmptyStreamSourceInstance(keys)) return this;
 
 		const builder = this.toBuilder();
@@ -359,7 +303,6 @@ export abstract class SortedMapNode<K, V>
 	removeKeyAndGet<UK>(
 		key: RelatedTo<K, UK>,
 	): WithValueResult<SortedMap<K, V>, V> {
-		// @ts-expect-error
 		if (!this.context.isValidKey(key)) return [this, undefined, false];
 
 		const token = Symbol();
@@ -374,25 +317,19 @@ export abstract class SortedMapNode<K, V>
 			},
 		});
 
-		// @ts-expect-error
 		if (token === currentValue) return [this, undefined, false];
 		return [newMap, currentValue, true];
 	}
 
-	// @ts-expect-error
 	filter(
 		pred: (entry: readonly [K, V], index: number, halt: () => void) => boolean,
 		options: { negate?: boolean } = {},
 	): SortedMap<K, V> {
-		// @ts-expect-error
 		const builder = this.context.builder<K, V>();
-		// @ts-expect-error
 		builder.addEntries(this.stream().filter(pred, options));
 
-		// @ts-expect-error
 		if (builder.size === this.size) return this;
 
-		// @ts-expect-error
 		return builder.build();
 	}
 
@@ -405,44 +342,19 @@ export abstract class SortedMapNode<K, V>
 	}
 
 	take(amount: number): SortedMap<K, V> | any {
-		if (amount === 0) return this.context.empty();
-		if (amount >= this.size || -amount > this.size) return this;
-		if (amount < 0) return this.drop(this.size + amount);
-
-		return this.takeInternal(amount).normalize();
+		return SortedNode.take(this, amount);
 	}
 
 	drop(amount: number): SortedMap<K, V> {
-		// @ts-expect-error
-		if (amount === 0) return this;
-		if (amount >= this.size || -amount > this.size) return this.context.empty();
-		if (amount < 0) return this.take(this.size + amount);
-
-		return this.dropInternal(amount).normalize();
+		return SortedNode.drop(this, amount);
 	}
 
 	sliceIndex(range: IndexRange): SortedMap<K, V> {
-		const indexRange = IndexRange.getIndicesFor(range, this.size);
-
-		if (indexRange === 'empty') return this.context.empty();
-		// @ts-expect-error
-		if (indexRange === 'all') return this;
-
-		const [start, end] = indexRange;
-
-		return this.drop(start).take(end - start + 1);
+		return SortedNode.sliceIndex(this, range);
 	}
 
-	slice(range: any): SortedMap<K, V> {
-		if (range && typeof range === 'object' && 'amount' in range) {
-			return this.sliceIndex(range as IndexRange);
-		}
-		const { startIndex, endIndex } = this.getSliceRange(range as Range<K>);
-
-		return this.sliceIndex({
-			start: [startIndex, true],
-			end: [endIndex, true],
-		});
+	slice(range: IndexRange | Range<K>): SortedMap<K, V> {
+		return SortedNode.slice(this, range);
 	}
 
 	get comp(): any {
@@ -477,7 +389,7 @@ export abstract class SortedMapNode<K, V>
 	}
 
 	splitAt(amount: number): any {
-		return [(this as any).take(amount), (this as any).drop(amount)];
+		return SortedNode.splitAt(this, amount);
 	}
 
 	removeAt(index: number, amount?: number | undefined): SortedMap<K, V> {
@@ -507,9 +419,7 @@ export abstract class SortedMapNode<K, V>
 		return [next, removed] as any;
 	}
 
-	// @ts-expect-error
 	toBuilder(): SortedMapBuilder<K, V> {
-		// @ts-expect-error
 		return this.context.createBuilder<K, V>(this);
 	}
 
