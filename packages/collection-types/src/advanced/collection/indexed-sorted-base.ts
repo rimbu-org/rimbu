@@ -11,6 +11,7 @@ import type {
 	ApiMixin,
 } from '@rimbu/collection-types/advanced/collection-base';
 import type { Collection } from '@rimbu/collection-types/collection';
+import type { IndexedCollection } from '@rimbu/collection-types/collection/indexed';
 import type { IndexedSortedCollection } from '@rimbu/collection-types/collection/indexed-sorted';
 
 import { OptLazy } from '@rimbu/common';
@@ -90,7 +91,10 @@ export namespace IndexedSortedCollectionNonEmpty {
 		Base: ApiMixin.AbstractNonEmptyConstructor<C>,
 	): SortedApiMixin.AbstractNonEmptyConstructor<C & Mixin>;
 	export function WithMixin<
-		TBase extends AbstractConstructor<IndexedCollectionNonEmpty.Base<E, Tp>>,
+		TBase extends AbstractConstructor<
+			IndexedCollection.Advanced.Api<E, Tp> &
+				IndexedCollectionNonEmpty.ApiBase<E, Tp>
+		>,
 		E,
 		S,
 		Tp extends Collection.Advanced.TypesNonEmpty<

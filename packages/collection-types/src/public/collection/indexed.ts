@@ -47,29 +47,14 @@ export declare namespace IndexedCollection {
 		}
 
 		export interface Api<E, Tp extends Collection.Advanced.TypesBase>
-			extends Collection.Advanced.Api<E, Tp> {
-			streamSlice(
-				range: IndexRange,
-				options?: { reversed?: boolean | undefined } | undefined,
-			): Stream<E>;
-
-			at(index: number): E | undefined;
-			at<O>(index: number, otherwise: OptLazy<O>): E | O;
-
-			first: FirstLast<E, Tp['_IS_NON_EMPTY']>;
-			last: FirstLast<E, Tp['_IS_NON_EMPTY']>;
-
-			take<const N extends number>(
-				amount: N,
-			): 0 extends N ? Tp['_NORMAL'] : Tp['_SELF'];
-
-			drop(amount: number): Tp['_NORMAL'];
-
-			splitAt<const N extends number>(
-				amount: N,
-			): [0 extends N ? Tp['_NORMAL'] : Tp['_SELF'], Tp['_NORMAL']];
-			slice(range: IndexRange): Tp['_NORMAL'];
-		}
+			extends Collection.Advanced.Api<E, Tp>,
+				Capability.WithStreamSlice.Api<E, Tp>,
+				Capability.WithAt.Api<E, Tp>,
+				Capability.WithFirstLast.Api<E, Tp>,
+				Capability.WithTake.Api<E, Tp>,
+				Capability.WithDrop.Api<E, Tp>,
+				Capability.WithSplitAt.Api<E, Tp>,
+				Capability.WithSlice.Api<E, Tp> {}
 
 		export interface BuilderApi<E, Tp extends Collection.Advanced.TypesBase>
 			extends Collection.Advanced.BuilderApi<E, Tp> {
@@ -85,7 +70,15 @@ export declare namespace IndexedCollection {
 		export interface ContextApi<F extends Collection.Advanced.FamilyBase<any>>
 			extends Collection.Advanced.ContextApi<F> {}
 
-		export interface Family<E> extends Collection.Advanced.Family<E> {
+		export interface Family<E>
+			extends Collection.Advanced.Family<E>,
+				Capability.WithStreamSlice<E>,
+				Capability.WithAt<E>,
+				Capability.WithFirstLast<E>,
+				Capability.WithTake<E>,
+				Capability.WithDrop<E>,
+				Capability.WithSplitAt<E>,
+				Capability.WithSlice<E> {
 			_NORMAL: Api<E, this['_TYPES']>;
 			_NON_EMPTY: Api<E, this['_TYPES_NON_EMPTY']>;
 			_BUILDER: BuilderApi<E, this['_TYPES']>;
@@ -424,6 +417,115 @@ export declare namespace IndexedCollection {
 				flatten<E extends F['_UPPER_E']>(
 					source: StreamSource<StreamSource<E>>,
 				): Collection.Advanced.FamToTypes<F, E>['_NORMAL'];
+			}
+		}
+
+		export interface WithStreamSlice<E>
+			extends Collection.Advanced.FamilyBase<E> {
+			_NORMAL: WithStreamSlice.Api<E, this['_TYPES']>;
+			_NON_EMPTY: WithStreamSlice.Api<E, this['_TYPES_NON_EMPTY']>;
+
+			_FAM: WithStreamSlice<E>;
+			_NEW_FAMILY: WithStreamSlice<this['_NEW_E']>;
+		}
+
+		export namespace WithStreamSlice {
+			export interface Api<E, Tp extends Collection.Advanced.TypesBase> {
+				streamSlice(
+					range: IndexRange,
+					options?: { reversed?: boolean | undefined } | undefined,
+				): Stream<E>;
+			}
+		}
+
+		export interface WithAt<E> extends Collection.Advanced.FamilyBase<E> {
+			_NORMAL: WithAt.Api<E, this['_TYPES']>;
+			_NON_EMPTY: WithAt.Api<E, this['_TYPES_NON_EMPTY']>;
+
+			_FAM: WithAt<E>;
+			_NEW_FAMILY: WithAt<this['_NEW_E']>;
+		}
+
+		export namespace WithAt {
+			export interface Api<E, Tp extends Collection.Advanced.TypesBase> {
+				at(index: number): E | undefined;
+				at<O>(index: number, otherwise: OptLazy<O>): E | O;
+			}
+		}
+
+		export interface WithFirstLast<E>
+			extends Collection.Advanced.FamilyBase<E> {
+			_NORMAL: WithFirstLast.Api<E, this['_TYPES']>;
+			_NON_EMPTY: WithFirstLast.Api<E, this['_TYPES_NON_EMPTY']>;
+
+			_FAM: WithFirstLast<E>;
+			_NEW_FAMILY: WithFirstLast<this['_NEW_E']>;
+		}
+
+		export namespace WithFirstLast {
+			export interface Api<E, Tp extends Collection.Advanced.TypesBase> {
+				first: Advanced.FirstLast<E, Tp['_IS_NON_EMPTY']>;
+				last: Advanced.FirstLast<E, Tp['_IS_NON_EMPTY']>;
+			}
+		}
+
+		export interface WithTake<E> extends Collection.Advanced.FamilyBase<E> {
+			_NORMAL: WithTake.Api<E, this['_TYPES']>;
+			_NON_EMPTY: WithTake.Api<E, this['_TYPES_NON_EMPTY']>;
+
+			_FAM: WithTake<E>;
+			_NEW_FAMILY: WithTake<this['_NEW_E']>;
+		}
+
+		export namespace WithTake {
+			export interface Api<E, Tp extends Collection.Advanced.TypesBase> {
+				take<const N extends number>(
+					amount: N,
+				): 0 extends N ? Tp['_NORMAL'] : Tp['_SELF'];
+			}
+		}
+
+		export interface WithDrop<E> extends Collection.Advanced.FamilyBase<E> {
+			_NORMAL: WithDrop.Api<E, this['_TYPES']>;
+			_NON_EMPTY: WithDrop.Api<E, this['_TYPES_NON_EMPTY']>;
+
+			_FAM: WithDrop<E>;
+			_NEW_FAMILY: WithDrop<this['_NEW_E']>;
+		}
+
+		export namespace WithDrop {
+			export interface Api<E, Tp extends Collection.Advanced.TypesBase> {
+				drop(amount: number): Tp['_NORMAL'];
+			}
+		}
+
+		export interface WithSplitAt<E> extends Collection.Advanced.FamilyBase<E> {
+			_NORMAL: WithSplitAt.Api<E, this['_TYPES']>;
+			_NON_EMPTY: WithSplitAt.Api<E, this['_TYPES_NON_EMPTY']>;
+
+			_FAM: WithSplitAt<E>;
+			_NEW_FAMILY: WithSplitAt<this['_NEW_E']>;
+		}
+
+		export namespace WithSplitAt {
+			export interface Api<E, Tp extends Collection.Advanced.TypesBase> {
+				splitAt<const N extends number>(
+					amount: N,
+				): [0 extends N ? Tp['_NORMAL'] : Tp['_SELF'], Tp['_NORMAL']];
+			}
+		}
+
+		export interface WithSlice<E> extends Collection.Advanced.FamilyBase<E> {
+			_NORMAL: WithSlice.Api<E, this['_TYPES']>;
+			_NON_EMPTY: WithSlice.Api<E, this['_TYPES_NON_EMPTY']>;
+
+			_FAM: WithSlice<E>;
+			_NEW_FAMILY: WithSlice<this['_NEW_E']>;
+		}
+
+		export namespace WithSlice {
+			export interface Api<E, Tp extends Collection.Advanced.TypesBase> {
+				slice(range: IndexRange): Tp['_NORMAL'];
 			}
 		}
 	}

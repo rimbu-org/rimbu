@@ -227,19 +227,85 @@ export namespace IndexedCollectionEmpty {
 }
 
 export namespace IndexedCollectionNonEmpty {
-	export interface Base<
+	/**
+	 * The part of the indexed collection non-empty API that {@link WithMixin}
+	 * implements itself.
+	 *
+	 * Only members that the mixin actually defines may be listed here; members it
+	 * leaves abstract belong in {@link RequiredClass}, otherwise the concrete
+	 * declaration inherited from here silently discharges the obligation.
+	 *
+	 * `IndexedCollection.Advanced.Api` is deliberately *not* inherited even though
+	 * it is the natural supertype: it declares `streamSlice`, `at`, `take` and
+	 * `drop`, which this mixin requires rather than provides.
+	 */
+	export interface Implemented<
 		E,
 		Tp extends Collection.Advanced.TypesNonEmpty<
-			Collection.Advanced.FamilyBase<E>,
+			IndexedCollection.Advanced.Family<E>,
 			E
-		> = Collection.Advanced.TypesNonEmpty<Collection.Advanced.FamilyBase<E>, E>,
-	> extends IndexedCollection.Advanced.Api<E, Tp>,
+		>,
+	> extends IndexedCollection.Capability.WithFirstLast.Api<E, Tp>,
+			IndexedCollection.Capability.WithSlice.Api<E, Tp>,
+			IndexedCollection.Capability.WithSplitAt.Api<E, Tp>,
 			Collection.Capability.WithMutate.Api<E, Tp>,
-			Collection.Capability.WithRecompose.Api<E, Tp>,
-			Collection.Capability.WithToBuilder.Api<E, Tp> {}
+			Collection.Capability.WithRecompose.Api<E, Tp> {}
+
+	/**
+	 * The members that {@link WithMixin} leaves abstract, and that an extending
+	 * class must therefore implement.
+	 *
+	 * A requirement must be declared abstract *exactly once* across the exposed
+	 * composition. TypeScript drops the obligation when the same member is
+	 * declared abstract by two different constituents of an intersection, so this
+	 * class states only the requirements this mixin *introduces*. The seed
+	 * ({@link CollectionNonEmpty.Base}) owns `context`, `size`, `stream`,
+	 * `forEach`, `filter` and `toArray`.
+	 */
+	declare abstract class RequiredClass<
+		E,
+		Tp extends Collection.Advanced.TypesNonEmpty<
+			IndexedCollection.Advanced.Family<E>,
+			E
+		>,
+	> implements
+			IndexedCollection.Capability.WithStreamSlice.Api<E, Tp>,
+			IndexedCollection.Capability.WithAt.Api<E, Tp>,
+			IndexedCollection.Capability.WithTake.Api<E, Tp>,
+			IndexedCollection.Capability.WithDrop.Api<E, Tp>,
+			Collection.Capability.WithToBuilder.Api<E, Tp>
+	{
+		abstract streamSlice(
+			range: IndexRange,
+			options?: { reversed?: boolean | undefined },
+		): Stream<E>;
+		abstract at<O>(index: number, otherwise?: OptLazy<O>): E | O;
+		abstract take<const N extends number>(
+			amount: N,
+		): 0 extends N ? Tp['_NORMAL'] : Tp['_NON_EMPTY'];
+		abstract drop(count: number): Tp['_NORMAL'];
+		abstract toBuilder(): Tp['_BUILDER'];
+	}
+
+	export type Required<
+		E,
+		Tp extends Collection.Advanced.TypesNonEmpty<
+			IndexedCollection.Advanced.Family<E>,
+			E
+		>,
+	> = RequiredClass<E, Tp>;
+
+	export interface ApiBase<
+		E,
+		Tp extends Collection.Advanced.TypesNonEmpty<
+			IndexedCollection.Advanced.Family<E>,
+			E
+		>,
+	> extends Implemented<E, Tp>,
+			RequiredClass<E, Tp> {}
 
 	export interface Mixin extends ApiMixin {
-		_API: Base<this['_E'], this['_TP']>;
+		_API: ApiBase<this['_E'], this['_TP']>;
 
 		_TP: Collection.Advanced.TypesNonEmpty<
 			IndexedCollection.Advanced.Family<this['_E']>,
@@ -259,11 +325,14 @@ export namespace IndexedCollectionNonEmpty {
 			FAM,
 			E
 		> = Collection.Advanced.TypesNonEmpty<FAM, E>,
-	>(Base: TBase): TBase & AbstractConstructor<Base<E, Tp>> {
-		abstract class Result extends Base {
+	>(Base: TBase): TBase & AbstractConstructor<ApiBase<E, Tp>> {
+		// the members below are declared abstract here only so that this mixin can
+		// use them; the type that extenders see is derived from RequiredClass,
+		// which is what makes them a visible obligation
+		abstract class Result extends Base implements ApiBase<E, Tp> {
 			abstract streamSlice(
 				range: IndexRange,
-				options?: { reversed?: boolean },
+				options?: { reversed?: boolean | undefined },
 			): Stream<E>;
 			abstract at<O>(index: number, otherwise?: OptLazy<O>): E | O;
 			abstract take<const N extends number>(
