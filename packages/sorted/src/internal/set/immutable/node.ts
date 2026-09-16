@@ -3,23 +3,23 @@ import type { RelatedTo } from '@rimbu/common/types';
 import type { SortedSet } from '@rimbu/sorted/set';
 import type { Stream, StreamSource } from '@rimbu/stream';
 
-import { WithIndexedCollectionNonEmptyBase } from '@rimbu/collection-types/advanced/collection/indexed-base';
+import { IndexedCollectionNonEmpty } from '@rimbu/collection-types/advanced/collection/indexed-base';
 import { WithIndexedSortedCollectionNonEmptyBase } from '@rimbu/collection-types/advanced/collection/indexed-sorted-base';
-import { WithValuedCollectionNonEmptyBase } from '@rimbu/collection-types/advanced/collection/valued-base';
+import { ValuedCollectionNonEmpty } from '@rimbu/collection-types/advanced/collection/valued-base';
 import {
-	CollectionNonEmptyConstructor,
+	CollectionNonEmpty,
 	defaultAddAll,
 } from '@rimbu/collection-types/advanced/collection-base';
-import { WithSetCollectionNonEmptyBase } from '@rimbu/collection-types/advanced/set-base';
+import { SetCollectionNonEmpty } from '@rimbu/collection-types/advanced/set-base';
 import { OptLazy } from '@rimbu/common/opt-lazy';
 import { Range } from '@rimbu/common/range';
 
 import { SortedIndex } from '#sorted/sorted-index';
 
 const NonEmptyBase = WithIndexedSortedCollectionNonEmptyBase(
-	WithSetCollectionNonEmptyBase(
-		WithIndexedCollectionNonEmptyBase(
-			WithValuedCollectionNonEmptyBase(CollectionNonEmptyConstructor),
+	SetCollectionNonEmpty.WithMixin(
+		IndexedCollectionNonEmpty.WithMixin(
+			ValuedCollectionNonEmpty.WithMixin(CollectionNonEmpty.Constructor),
 		),
 	),
 );
