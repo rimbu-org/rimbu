@@ -1,6 +1,6 @@
 import * as Arr from '@rimbu/base/arr';
 import * as RimbuError from '@rimbu/base/rimbu-error';
-import { CollectionNonEmptyConstructor } from '@rimbu/collection-types/advanced/collection-base';
+// import { CollectionNonEmptyConstructor } from '@rimbu/collection-types/advanced/collection-base';
 import { IndexRange } from '@rimbu/common/index-range';
 import { OptLazy } from '@rimbu/common/opt-lazy';
 import { TraverseState } from '@rimbu/common/traverse-state';
@@ -22,7 +22,7 @@ import { SortedIndex } from '#sorted/sorted-index';
 // 	extends EmptyBase<E, S, SortedSet.Advanced.Family<E>>
 // 	implements SortedSet<E> {}
 
-const NonEmptyBase = CollectionNonEmptyConstructor;
+// const NonEmptyBase = CollectionNonEmptyConstructor;
 
 /**
  * Abstract base class for non‑empty sorted collections.<br/>

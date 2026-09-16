@@ -1,6 +1,6 @@
 import type { Collection } from '@rimbu/collection-types/collection';
 import type { IndexedCollection } from '@rimbu/collection-types/collection/indexed';
-import type { IndexedKeyedSortedCollection } from '@rimbu/collection-types/collection/indexed-keyed-sorted';
+import type { IndexedSortedCollection } from '@rimbu/collection-types/collection/indexed-sorted';
 import type { KeyedCollection } from '@rimbu/collection-types/collection/keyed';
 import type { MapCollection } from '@rimbu/collection-types/map';
 import type { OptLazy } from '@rimbu/common';
@@ -37,17 +37,15 @@ export namespace SortedMap {
 		extends Advanced.ContextApi<UK, SortedMap.Advanced.Family<UK, any>> {}
 
 	export namespace Advanced {
-		export interface Api<K, V, Tp extends Collection.Advanced.TypesBase>
-			extends MapCollection.Advanced.Api<K, V, Tp>,
-				IndexedKeyedSortedCollection.Advanced.Api<K, V, Tp>,
-				Collection.Capability.WithAdd.Api<readonly [K, V], Tp>,
-				Collection.Capability.WithMutate.Api<readonly [K, V], Tp>,
-				Collection.Capability.WithToBuilder.Api<readonly [K, V], Tp>,
-				KeyedCollection.Capability.WithRemove.Api<K, V, Tp>,
-				KeyedCollection.Capability.WithMapValues.Api<K, V, Tp>,
-				MapCollection.Capability.WithSet.Api<K, V, Tp>,
-				MapCollection.Capability.WithUpdateAtKey.Api<K, V, Tp>,
-				MapCollection.Capability.WithModifyAtKey.Api<K, V, Tp>,
+		export interface Api<
+			K,
+			V,
+			Tp extends Collection.Advanced.Types<
+				KeyedCollection.Advanced.Family<K, V>,
+				readonly [K, V]
+			>,
+		> extends MapCollection.Advanced.Api<K, V, Tp>,
+				IndexedSortedCollection.Advanced.Api<readonly [K, V], K, Tp>,
 				IndexedCollection.Capability.WithRemoveAt.Api<readonly [K, V], Tp> {
 			stream(options?: { reversed?: boolean }): Tp['_AS_STREAM'];
 			streamRange(
@@ -76,22 +74,7 @@ export namespace SortedMap {
 
 		export interface BuilderApi<K, V, Tp extends Collection.Advanced.TypesBase>
 			extends MapCollection.Advanced.BuilderApi<K, V, Tp>,
-				IndexedKeyedSortedCollection.Advanced.BuilderApi<K, V, Tp>,
-				Collection.Capability.WithAdd.BuilderApi<readonly [K, V], Tp>,
-				KeyedCollection.Capability.WithRemove.BuilderApi<K, V, Tp>,
-				KeyedCollection.Capability.WithMapValues.BuilderApi<K, V, Tp>,
-				MapCollection.Capability.WithSet.BuilderApi<K, V, Tp>,
-				MapCollection.Capability.WithUpdateAtKey.BuilderApi<K, V, Tp>,
-				MapCollection.Capability.WithModifyAtKey.BuilderApi<K, V, Tp>,
-				IndexedCollection.Capability.WithRemoveAt.BuilderApi<
-					readonly [K, V],
-					Tp
-				> {
-			min(): readonly [K, V] | undefined;
-			min<O>(otherwise: OptLazy<O>): readonly [K, V] | O;
-			max(): readonly [K, V] | undefined;
-			max<O>(otherwise: OptLazy<O>): readonly [K, V] | O;
-		}
+				IndexedSortedCollection.Advanced.BuilderApi<readonly [K, V], K, Tp> {}
 
 		export interface ContextApi<
 			UK,

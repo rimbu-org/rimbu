@@ -1,22 +1,19 @@
 import type { IndexRange } from '@rimbu/common/index-range';
 import type { RelatedTo } from '@rimbu/common/types';
 import type { SortedSet } from '@rimbu/sorted/set';
-import type { Stream, StreamSource } from '@rimbu/stream';
+import type { Stream } from '@rimbu/stream';
 
 import { IndexedCollectionNonEmpty } from '@rimbu/collection-types/advanced/collection/indexed-base';
-import { WithIndexedSortedCollectionNonEmptyBase } from '@rimbu/collection-types/advanced/collection/indexed-sorted-base';
+import { IndexedSortedCollectionNonEmpty } from '@rimbu/collection-types/advanced/collection/indexed-sorted-base';
 import { ValuedCollectionNonEmpty } from '@rimbu/collection-types/advanced/collection/valued-base';
-import {
-	CollectionNonEmpty,
-	defaultAddAll,
-} from '@rimbu/collection-types/advanced/collection-base';
+import { CollectionNonEmpty } from '@rimbu/collection-types/advanced/collection-base';
 import { SetCollectionNonEmpty } from '@rimbu/collection-types/advanced/set-base';
 import { OptLazy } from '@rimbu/common/opt-lazy';
 import { Range } from '@rimbu/common/range';
 
 import { SortedIndex } from '#sorted/sorted-index';
 
-const NonEmptyBase = WithIndexedSortedCollectionNonEmptyBase(
+const NonEmptyBase = IndexedSortedCollectionNonEmpty.WithMixin(
 	SetCollectionNonEmpty.WithMixin(
 		IndexedCollectionNonEmpty.WithMixin(
 			ValuedCollectionNonEmpty.WithMixin(CollectionNonEmpty.Constructor),
@@ -118,18 +115,6 @@ export abstract class SortedSetNode<T>
 
 	add(value: T): SortedSet.NonEmpty<T> {
 		return this.addInternal(value).normalize().assumeNonEmpty();
-	}
-
-	map<T2>(f: (value: T) => T2): SortedSet.NonEmpty<T2> {
-		return this.context.from(this.stream().map(f)).assumeNonEmpty();
-	}
-
-	addAll(values: StreamSource<T>): SortedSet.NonEmpty<T> {
-		return defaultAddAll<
-			T,
-			SortedSet.NonEmpty<T>,
-			SortedSet.Advanced.Family<T>
-		>(this, values);
 	}
 
 	remove<U>(value: RelatedTo<T, U>): SortedSet<T> {

@@ -2,13 +2,13 @@ import type { SortedSet } from '@rimbu/sorted/set';
 
 import type { SortedSetContext } from '#set/context';
 
-import { WithIndexedSortedCollectionEmptyBase } from '@rimbu/collection-types/advanced/collection/indexed-sorted-base';
-import { WithValuedCollectionEmptyBase } from '@rimbu/collection-types/advanced/collection/valued-base';
-import { CollectionEmptyConstructor } from '@rimbu/collection-types/advanced/collection-base';
+import { IndexedSortedCollectionEmpty } from '@rimbu/collection-types/advanced/collection/indexed-sorted-base';
+import { ValuedCollectionEmpty } from '@rimbu/collection-types/advanced/collection/valued-base';
+import { CollectionEmpty } from '@rimbu/collection-types/advanced/collection-base';
 import { Stream } from '@rimbu/stream';
 
-const EmptyBase = WithIndexedSortedCollectionEmptyBase(
-	WithValuedCollectionEmptyBase(CollectionEmptyConstructor),
+const EmptyBase = IndexedSortedCollectionEmpty.WithMixin(
+	ValuedCollectionEmpty.WithMixin(CollectionEmpty.Constructor),
 );
 
 export class SortedSetEmpty<T = any>

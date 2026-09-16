@@ -1,5 +1,6 @@
 import type { Collection } from '@rimbu/collection-types/collection';
 import type { IndexedCollection } from '@rimbu/collection-types/collection/indexed';
+import type { IndexedSortedCollection } from '@rimbu/collection-types/collection/indexed-sorted';
 import type { IndexedValuedSortedCollection } from '@rimbu/collection-types/collection/indexed-valued-sorted';
 import type { ValuedCollection } from '@rimbu/collection-types/collection/valued';
 import type { SetCollection } from '@rimbu/collection-types/set';
@@ -35,16 +36,7 @@ export namespace SortedSet {
 	export namespace Advanced {
 		export interface Api<E, Tp extends Collection.Advanced.TypesBase>
 			extends SetCollection.Advanced.Api<E, Tp>,
-				IndexedValuedSortedCollection.Advanced.Api<E, Tp>,
-				Collection.Capability.WithAdd.Api<E, Tp>,
-				Collection.Capability.WithFlatMap.Api<E, Tp>,
-				Collection.Capability.WithMap.Api<E, Tp>,
-				Collection.Capability.WithMutate.Api<E, Tp>,
-				Collection.Capability.WithRecompose.Api<E, Tp>,
-				Collection.Capability.WithToBuilder.Api<E, Tp>,
-				ValuedCollection.Capability.WithDifferenceAndIntersection.Api<E, Tp>,
-				ValuedCollection.Capability.WithRemove.Api<E, Tp>,
-				ValuedCollection.Capability.WithSymmetricDifferenceAndUnion.Api<E, Tp>,
+				IndexedSortedCollection.Advanced.Api<E, E, Tp>,
 				IndexedCollection.Capability.WithRemoveAt.Api<E, Tp> {
 			stream(options?: { reversed?: boolean }): Tp['_AS_STREAM'];
 			streamRange(range: Range<E>, options?: { reversed?: boolean }): Stream<E>;
@@ -54,10 +46,6 @@ export namespace SortedSet {
 			): Stream<E>;
 			lowerBound(value: E): number;
 			upperBound(value: E): number;
-			// atIndex<O>(index: number, otherwise?: OptLazy<O>): E | O;
-			// sliceIndex(range: IndexRange): Tp['_NORMAL'];
-			// slice(range: IndexRange | Range<E>): Tp['_NORMAL'];
-			// readonly comp: Comp<E>;
 		}
 
 		export interface BuilderApi<E, Tp extends Collection.Advanced.TypesBase>
