@@ -39,32 +39,9 @@ export namespace SortedCollection {
 		}
 
 		export interface Api<E, S, Tp extends Collection.Advanced.TypesBase>
-			extends Collection.Advanced.Api<E, Tp> {
-			min: MinMax<E, Tp['_IS_NON_EMPTY']>;
-			max: MinMax<E, Tp['_IS_NON_EMPTY']>;
-
-			previous<US = S>(
-				search: RelatedTo<S, US>,
-				options?:
-					| { inclusive?: boolean | undefined; otherwise?: undefined }
-					| undefined,
-			): E | undefined;
-			previous<US, O>(
-				search: RelatedTo<S, US>,
-				options: { inclusive?: boolean | undefined; otherwise: OptLazy<O> },
-			): E | O;
-
-			next<US = S>(
-				search: RelatedTo<S, US>,
-				options?:
-					| { inclusive?: boolean | undefined; otherwise?: undefined }
-					| undefined,
-			): E | undefined;
-			next<US, O>(
-				search: RelatedTo<S, US>,
-				options: { inclusive?: boolean | undefined; otherwise: OptLazy<O> },
-			): E | O;
-		}
+			extends Collection.Advanced.Api<E, Tp>,
+				Capability.WithMinMax.Api<E, Tp>,
+				Capability.WithNeighbor.Api<E, S, Tp> {}
 
 		export interface BuilderApi<E, S, Tp extends Collection.Advanced.TypesBase>
 			extends Collection.Advanced.BuilderApi<E, Tp> {
@@ -96,15 +73,73 @@ export namespace SortedCollection {
 			): E | O;
 		}
 
-		export interface Family<E, S> extends Collection.Advanced.Family<E> {
+		export interface Family<E, S>
+			extends Collection.Advanced.Family<E>,
+				Capability.WithMinMax<E>,
+				Capability.WithNeighbor<E, S> {
 			_NORMAL: Api<E, S, this['_TYPES']>;
 			_NON_EMPTY: Api<E, S, this['_TYPES_NON_EMPTY']>;
 			_BUILDER: BuilderApi<E, S, this['_TYPES']>;
+			_CONTEXT: Collection.Advanced.ContextApi<this['_FAM']>;
 
 			_NEW_E_TO_S: unknown;
 
 			_FAM: Family<E, S>;
 			_NEW_FAMILY: Family<this['_NEW_E'], this['_NEW_E_TO_S']>;
+		}
+	}
+
+	export namespace Capability {
+		export interface WithMinMax<E> extends Collection.Advanced.FamilyBase<E> {
+			_NORMAL: WithMinMax.Api<E, this['_TYPES']>;
+			_NON_EMPTY: WithMinMax.Api<E, this['_TYPES_NON_EMPTY']>;
+
+			_FAM: WithMinMax<E>;
+			_NEW_FAMILY: WithMinMax<this['_NEW_E']>;
+		}
+
+		export namespace WithMinMax {
+			export interface Api<E, Tp extends Collection.Advanced.TypesBase> {
+				min: Advanced.MinMax<E, Tp['_IS_NON_EMPTY']>;
+				max: Advanced.MinMax<E, Tp['_IS_NON_EMPTY']>;
+			}
+		}
+
+		export interface WithNeighbor<E, S>
+			extends Collection.Advanced.FamilyBase<E> {
+			_NORMAL: WithNeighbor.Api<E, S, this['_TYPES']>;
+			_NON_EMPTY: WithNeighbor.Api<E, S, this['_TYPES_NON_EMPTY']>;
+
+			_NEW_E_TO_S: unknown;
+
+			_FAM: WithNeighbor<E, S>;
+			_NEW_FAMILY: WithNeighbor<this['_NEW_E'], this['_NEW_E_TO_S']>;
+		}
+
+		export namespace WithNeighbor {
+			export interface Api<E, S, Tp extends Collection.Advanced.TypesBase> {
+				previous<US = S>(
+					search: RelatedTo<S, US>,
+					options?:
+						| { inclusive?: boolean | undefined; otherwise?: undefined }
+						| undefined,
+				): E | undefined;
+				previous<US, O>(
+					search: RelatedTo<S, US>,
+					options: { inclusive?: boolean | undefined; otherwise: OptLazy<O> },
+				): E | O;
+
+				next<US = S>(
+					search: RelatedTo<S, US>,
+					options?:
+						| { inclusive?: boolean | undefined; otherwise?: undefined }
+						| undefined,
+				): E | undefined;
+				next<US, O>(
+					search: RelatedTo<S, US>,
+					options: { inclusive?: boolean | undefined; otherwise: OptLazy<O> },
+				): E | O;
+			}
 		}
 	}
 }

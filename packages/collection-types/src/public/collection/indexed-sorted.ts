@@ -26,16 +26,9 @@ export declare namespace IndexedSortedCollection {
 
 		export interface Api<E, S, Tp extends Collection.Advanced.TypesBase>
 			extends IndexedCollection.Advanced.Api<E, Tp>,
-				SortedCollection.Advanced.Api<E, S, Tp> {
-			indexOf<US = S>(search: RelatedTo<S, US>): number | undefined;
-			indexOf<US, O>(
-				search: RelatedTo<S, US>,
-				otherwise: OptLazy<O>,
-			): number | O;
-
-			lowerBound<US = S>(search: RelatedTo<S, US>): number;
-			upperBound<US = S>(search: RelatedTo<S, US>): number;
-		}
+				SortedCollection.Advanced.Api<E, S, Tp>,
+				Capability.WithIndexOf.Api<E, S, Tp>,
+				Capability.WithBounds.Api<E, S, Tp> {}
 
 		export interface BuilderApi<E, S, Tp extends Collection.Advanced.TypesBase>
 			extends IndexedCollection.Advanced.BuilderApi<E, Tp>,
@@ -57,7 +50,9 @@ export declare namespace IndexedSortedCollection {
 
 		export interface Family<E, S>
 			extends IndexedCollection.Advanced.Family<E>,
-				SortedCollection.Advanced.Family<E, S> {
+				SortedCollection.Advanced.Family<E, S>,
+				Capability.WithIndexOf<E, S>,
+				Capability.WithBounds<E, S> {
 			_NORMAL: Api<E, S, Collection.Advanced.Types<this['_FAM'], E>>;
 			_NON_EMPTY: Api<E, S, Collection.Advanced.TypesNonEmpty<this['_FAM'], E>>;
 			_BUILDER: BuilderApi<E, S, Collection.Advanced.Types<this['_FAM'], E>>;
@@ -65,6 +60,47 @@ export declare namespace IndexedSortedCollection {
 
 			_FAM: Family<E, S>;
 			_NEW_FAMILY: Family<this['_NEW_E'], this['_NEW_E_TO_S']>;
+		}
+	}
+
+	export namespace Capability {
+		export interface WithIndexOf<E, S>
+			extends Collection.Advanced.FamilyBase<E> {
+			_NORMAL: WithIndexOf.Api<E, S, this['_TYPES']>;
+			_NON_EMPTY: WithIndexOf.Api<E, S, this['_TYPES_NON_EMPTY']>;
+
+			_NEW_E_TO_S: unknown;
+
+			_FAM: WithIndexOf<E, S>;
+			_NEW_FAMILY: WithIndexOf<this['_NEW_E'], this['_NEW_E_TO_S']>;
+		}
+
+		export namespace WithIndexOf {
+			export interface Api<E, S, Tp extends Collection.Advanced.TypesBase> {
+				indexOf<US = S>(search: RelatedTo<S, US>): number | undefined;
+				indexOf<US, O>(
+					search: RelatedTo<S, US>,
+					otherwise: OptLazy<O>,
+				): number | O;
+			}
+		}
+
+		export interface WithBounds<E, S>
+			extends Collection.Advanced.FamilyBase<E> {
+			_NORMAL: WithBounds.Api<E, S, this['_TYPES']>;
+			_NON_EMPTY: WithBounds.Api<E, S, this['_TYPES_NON_EMPTY']>;
+
+			_NEW_E_TO_S: unknown;
+
+			_FAM: WithBounds<E, S>;
+			_NEW_FAMILY: WithBounds<this['_NEW_E'], this['_NEW_E_TO_S']>;
+		}
+
+		export namespace WithBounds {
+			export interface Api<E, S, Tp extends Collection.Advanced.TypesBase> {
+				lowerBound<US = S>(search: RelatedTo<S, US>): number;
+				upperBound<US = S>(search: RelatedTo<S, US>): number;
+			}
 		}
 	}
 }

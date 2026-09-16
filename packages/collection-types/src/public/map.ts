@@ -62,18 +62,26 @@ export declare namespace MapCollection {
 				KeyedCollection.Capability.WithMapValues.Api<K, V, Tp>,
 				KeyedCollection.Capability.WithRecompose.Api<K, V, Tp>,
 				KeyedCollection.Capability.WithRemoveKey.Api<K, V, Tp>,
-				KeyedCollection.Capability.WithRemoveKeys.Api<K, V, Tp> {}
+				KeyedCollection.Capability.WithRemoveKeys.Api<K, V, Tp>,
+				MapCollection.Capability.WithSet.Api<K, V, Tp>,
+				MapCollection.Capability.WithUpdateAtKey.Api<K, V, Tp>,
+				MapCollection.Capability.WithModifyAtKey.Api<K, V, Tp> {}
 
 		export interface BuilderApi<K, V, Tp extends Collection.Advanced.TypesBase>
 			extends KeyedCollection.Advanced.BuilderApi<K, V, Tp>,
 				Collection.Capability.WithAdd.BuilderApi<readonly [K, V], Tp>,
 				Collection.Capability.WithAddAll.BuilderApi<readonly [K, V], Tp>,
+				KeyedCollection.Capability.WithMapValues.BuilderApi<K, V, Tp>,
 				KeyedCollection.Capability.WithRemoveKey.BuilderApi<K, V, Tp>,
-				KeyedCollection.Capability.WithRemoveKeys.BuilderApi<K, V, Tp> {}
+				KeyedCollection.Capability.WithRemoveKeys.BuilderApi<K, V, Tp>,
+				MapCollection.Capability.WithSet.BuilderApi<K, V, Tp>,
+				MapCollection.Capability.WithUpdateAtKey.BuilderApi<K, V, Tp>,
+				MapCollection.Capability.WithModifyAtKey.BuilderApi<K, V, Tp> {}
 
 		export interface ContextApi<
 			F extends KeyedCollection.Advanced.FamilyBase<any, any>,
-		> extends KeyedCollection.Advanced.ContextApi<F> {
+		> extends KeyedCollection.Advanced.ContextApi<F>,
+				Collection.Capability.WithReducer.ContextApi<F> {
 			/**
 			 * Returns `true` when `key` is a value that can be used as a key in this
 			 * map, e.g. is not `NaN` for hash-based maps.
@@ -84,7 +92,8 @@ export declare namespace MapCollection {
 		export interface KeyedContextApi<
 			F extends KeyedCollection.Advanced.FamilyBase<any, any>,
 		> extends KeyedCollection.Advanced.KeyedContextApi<F>,
-				KeyedCollection.Capability.WithMerge.KeyedContextApi<F> {}
+				KeyedCollection.Capability.WithMerge.KeyedContextApi<F>,
+				KeyedCollection.Capability.WithReducer.KeyedContextApi<F> {}
 
 		export interface Family<K, V>
 			extends KeyedCollection.Advanced.Family<K, V> {

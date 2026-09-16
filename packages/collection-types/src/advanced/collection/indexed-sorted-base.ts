@@ -13,6 +13,7 @@ import type {
 import type { Collection } from '@rimbu/collection-types/collection';
 import type { IndexedCollection } from '@rimbu/collection-types/collection/indexed';
 import type { IndexedSortedCollection } from '@rimbu/collection-types/collection/indexed-sorted';
+import type { SortedCollection } from '@rimbu/collection-types/collection/sorted';
 
 import { OptLazy } from '@rimbu/common';
 
@@ -69,17 +70,85 @@ export namespace IndexedSortedCollectionEmpty {
 }
 
 export namespace IndexedSortedCollectionNonEmpty {
-	export interface Base<
+	/**
+	 * The part of the indexed-sorted collection non-empty API that
+	 * {@link WithMixin} implements itself.
+	 *
+	 * `IndexedSortedCollection.Advanced.Api` is deliberately *not* inherited even
+	 * though it is the natural supertype: it declares `previous`, `next`,
+	 * `indexOf`, `lowerBound` and `upperBound`, which this mixin requires rather
+	 * than provides.
+	 */
+	export interface Implemented<
 		E,
 		S,
 		Tp extends Collection.Advanced.TypesNonEmpty<
 			Collection.Advanced.Family<E>,
 			E
 		>,
-	> extends IndexedSortedCollection.Advanced.Api<E, S, Tp> {}
+	> extends SortedCollection.Capability.WithMinMax.Api<E, Tp> {}
+
+	/**
+	 * The members that {@link WithMixin} leaves abstract, and that an extending
+	 * class must therefore implement.
+	 *
+	 * A requirement must be declared abstract *exactly once* across the exposed
+	 * composition. TypeScript drops the obligation when the same member is
+	 * declared abstract by two different constituents of an intersection, so this
+	 * class states only the requirements this mixin *introduces*. The seed
+	 * ({@link CollectionNonEmpty.Base}) owns `context`, `size`, `stream`,
+	 * `forEach`, `filter` and `toArray`.
+	 */
+	declare abstract class RequiredClass<
+		E,
+		S,
+		Tp extends Collection.Advanced.TypesNonEmpty<
+			Collection.Advanced.Family<E>,
+			E
+		>,
+	> implements
+			SortedCollection.Capability.WithNeighbor.Api<E, S, Tp>,
+			IndexedSortedCollection.Capability.WithIndexOf.Api<E, S, Tp>,
+			IndexedSortedCollection.Capability.WithBounds.Api<E, S, Tp>
+	{
+		abstract previous<O>(
+			search: S,
+			options?:
+				| { inclusive?: boolean | undefined; otherwise?: OptLazy<O> }
+				| undefined,
+		): E | O;
+		abstract next<O>(
+			search: S,
+			options?:
+				| { inclusive?: boolean | undefined; otherwise?: OptLazy<O> }
+				| undefined,
+		): E | O;
+		abstract indexOf(search: S): number;
+		abstract lowerBound(search: S): number;
+		abstract upperBound(search: S): number;
+	}
+
+	export type Required<
+		E,
+		S,
+		Tp extends Collection.Advanced.TypesNonEmpty<
+			Collection.Advanced.Family<E>,
+			E
+		>,
+	> = RequiredClass<E, S, Tp>;
+
+	export interface ApiBase<
+		E,
+		S,
+		Tp extends Collection.Advanced.TypesNonEmpty<
+			Collection.Advanced.Family<E>,
+			E
+		>,
+	> extends Implemented<E, S, Tp>,
+			RequiredClass<E, S, Tp> {}
 
 	export interface Mixin extends SortedApiMixin {
-		_API: Base<this['_E'], this['_S'], this['_TP']>;
+		_API: ApiBase<this['_E'], this['_S'], this['_TP']>;
 
 		_TP: Collection.Advanced.TypesNonEmpty<
 			Collection.Advanced.Family<this['_E']>,
@@ -104,8 +173,11 @@ export namespace IndexedSortedCollectionNonEmpty {
 			IndexedSortedCollection.Advanced.Family<E, S>,
 			E
 		>,
-	>(Base: TBase): TBase & AbstractConstructor<Base<E, S, Tp>> {
-		abstract class Result extends Base {
+	>(Base: TBase): TBase & AbstractConstructor<ApiBase<E, S, Tp>> {
+		// the members below are declared abstract here only so that this mixin can
+		// use them; the type that extenders see is derived from RequiredClass,
+		// which is what makes them a visible obligation
+		abstract class Result extends Base implements ApiBase<E, S, Tp> {
 			abstract previous<O>(
 				search: S,
 				options?:

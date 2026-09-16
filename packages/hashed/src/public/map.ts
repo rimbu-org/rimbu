@@ -40,39 +40,15 @@ export namespace HashMap {
 				KeyedCollection.Advanced.Family<K, V>,
 				readonly [K, V]
 			>,
-		> extends MapCollection.Advanced.Api<K, V, Tp>,
-				Collection.Capability.WithAdd.Api<readonly [K, V], Tp>,
-				Collection.Capability.WithAddAll.Api<readonly [K, V], Tp>,
-				Collection.Capability.WithMutate.Api<readonly [K, V], Tp>,
-				Collection.Capability.WithToBuilder.Api<readonly [K, V], Tp>,
-				KeyedCollection.Capability.WithFlatMap.Api<K, V, Tp>,
-				KeyedCollection.Capability.WithFlatMapIndexed.Api<K, V, Tp>,
-				KeyedCollection.Capability.WithMap.Api<K, V, Tp>,
-				KeyedCollection.Capability.WithMapIndexed.Api<K, V, Tp>,
-				KeyedCollection.Capability.WithRemoveKey.Api<K, V, Tp>,
-				KeyedCollection.Capability.WithRemoveKeys.Api<K, V, Tp>,
-				KeyedCollection.Capability.WithMapValues.Api<K, V, Tp>,
-				KeyedCollection.Capability.WithRecompose.Api<K, V, Tp>,
-				MapCollection.Capability.WithSet.Api<K, V, Tp>,
-				MapCollection.Capability.WithUpdateAtKey.Api<K, V, Tp>,
-				MapCollection.Capability.WithModifyAtKey.Api<K, V, Tp> {}
+		> extends MapCollection.Advanced.Api<K, V, Tp> {}
 
 		export interface BuilderApi<K, V, Tp extends Collection.Advanced.TypesBase>
-			extends MapCollection.Advanced.BuilderApi<K, V, Tp>,
-				Collection.Capability.WithAdd.BuilderApi<readonly [K, V], Tp>,
-				Collection.Capability.WithAddAll.BuilderApi<readonly [K, V], Tp>,
-				KeyedCollection.Capability.WithRemoveKey.BuilderApi<K, V, Tp>,
-				KeyedCollection.Capability.WithRemoveKeys.BuilderApi<K, V, Tp>,
-				KeyedCollection.Capability.WithMapValues.BuilderApi<K, V, Tp>,
-				MapCollection.Capability.WithSet.BuilderApi<K, V, Tp>,
-				MapCollection.Capability.WithUpdateAtKey.BuilderApi<K, V, Tp>,
-				MapCollection.Capability.WithModifyAtKey.BuilderApi<K, V, Tp> {}
+			extends MapCollection.Advanced.BuilderApi<K, V, Tp> {}
 
 		export interface ContextApi<
 			UK,
 			FAM extends KeyedCollection.Advanced.Family<UK, any>,
-		> extends MapCollection.Advanced.ContextApi<FAM>,
-				Collection.Capability.WithReducer.ContextApi<FAM> {
+		> extends MapCollection.Advanced.ContextApi<FAM> {
 			readonly blockSizeBits: number;
 			readonly hasher: Hasher<UK>;
 			readonly eq: Eq<UK>;
@@ -81,9 +57,7 @@ export namespace HashMap {
 		export interface KeyedContextApi<
 			UK,
 			FAM extends KeyedCollection.Advanced.Family<UK, any>,
-		> extends KeyedCollection.Advanced.KeyedContextApi<FAM>,
-				KeyedCollection.Capability.WithMerge.KeyedContextApi<FAM>,
-				KeyedCollection.Capability.WithReducer.KeyedContextApi<FAM> {
+		> extends MapCollection.Advanced.KeyedContextApi<FAM> {
 			createContext<K>(options: {
 				hasher?: Hasher<K> | undefined;
 				eq?: Eq<K> | undefined;
