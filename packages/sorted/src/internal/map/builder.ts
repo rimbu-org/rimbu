@@ -2,7 +2,7 @@ import type { RelatedTo } from '@rimbu/common/types';
 import type { SortedMap } from '@rimbu/sorted/map';
 
 import type { ContextImpl } from '#map/context-factory';
-import type { SortedMapNode } from '#map/immutable';
+import type { SortedMapNode } from '#map/immutable/node';
 
 import { Token } from '@rimbu/base/token';
 import {

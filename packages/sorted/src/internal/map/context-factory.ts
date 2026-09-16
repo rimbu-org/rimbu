@@ -8,12 +8,10 @@ import { Stream, type StreamSource } from '@rimbu/stream';
 import { Reducer } from '@rimbu/stream/reducer';
 
 import { SortedMapBuilder } from '#map/builder';
-import {
-	SortedMapEmpty,
-	SortedMapInner,
-	SortedMapLeaf,
-	SortedMapNode,
-} from '#map/immutable';
+import { SortedMapEmpty } from '#map/immutable/empty';
+import { SortedMapInner } from '#map/immutable/inner';
+import { SortedMapLeaf } from '#map/immutable/leaf';
+import { SortedMapNode } from '#map/immutable/node';
 
 export class SortedMapContext<UK>
 	extends ContextBaseWithAddAll<SortedMap.Advanced.Family<UK, any>>

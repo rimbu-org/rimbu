@@ -11,24 +11,33 @@ import type { SortedMapBuilder } from '#map/builder';
 import type { ContextImpl } from '#map/context-factory';
 
 import * as Entry from '@rimbu/base/entry';
+import { IndexedCollectionNonEmpty } from '@rimbu/collection-types/advanced/collection/indexed-base';
+import { IndexedSortedCollectionNonEmpty } from '@rimbu/collection-types/advanced/collection/indexed-sorted-base';
+import { KeyedCollectionNonEmpty } from '@rimbu/collection-types/advanced/collection/keyed-base';
 import {
 	checkEmptyModifyOptions,
 	type ModifyOptions,
 } from '@rimbu/collection-types/advanced/common';
+import { MapCollectionNonEmpty } from '@rimbu/collection-types/advanced/map-base';
 import { IndexRange } from '@rimbu/common/index-range';
 import { OptLazy } from '@rimbu/common/opt-lazy';
 import { Range } from '@rimbu/common/range';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
-import { SortedNonEmptyBase } from '#sorted/base';
 import { SortedIndex } from '#sorted/sorted-index';
 
+const NonEmptyBase = IndexedSortedCollectionNonEmpty.WithMixin(
+	MapCollectionNonEmpty.WithMixin(
+		IndexedCollectionNonEmpty.WithMixin(
+			KeyedCollectionNonEmpty.WithMixin(CollectionNonEmpty.Constructor),
+		),
+	),
+);
+
 export abstract class SortedMapNode<K, V>
-	extends SortedNonEmptyBase<readonly [K, V], SortedMapNode<K, V>>
+	extends NonEmptyBase<readonly [K, V], K, SortedMapNode<K, V>>
 	implements SortedMap.NonEmpty<K, V>
 {
-	declare _NonEmptyType: SortedMap.NonEmpty<K, V>;
-
 	abstract get context(): ContextImpl<K>;
 	abstract get size(): number;
 	abstract stream(options?: {
