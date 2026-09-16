@@ -1,41 +1,37 @@
+import type { IndexRange } from '@rimbu/common/index-range';
 import type { RelatedTo, ToJSON, WithValueResult } from '@rimbu/common/types';
 import type { SortedMap } from '@rimbu/sorted/map';
 
 import type { ContextImpl } from '#map/context-factory';
 
-import { IndexedSortedCollectionEmpty } from '@rimbu/collection-types/advanced/collection/indexed-sorted-base';
+import { IndexedKeyedSortedCollectionEmpty } from '@rimbu/collection-types/advanced/collection/indexed-keyed-sorted-base';
 import { KeyedCollectionEmpty } from '@rimbu/collection-types/advanced/collection/keyed-base';
 import { CollectionEmpty } from '@rimbu/collection-types/advanced/collection-base';
 import {
 	checkEmptyModifyOptions,
 	type ModifyOptions,
 } from '@rimbu/collection-types/advanced/common';
+import { MapCollectionEmpty } from '@rimbu/collection-types/advanced/map-base';
 import { OptLazy } from '@rimbu/common/opt-lazy';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
-const EmptyBase = IndexedSortedCollectionEmpty.WithMixin(
-	KeyedCollectionEmpty.WithMixin(CollectionEmpty.Constructor),
+const EmptyBase = IndexedKeyedSortedCollectionEmpty.WithMixin(
+	MapCollectionEmpty.WithMixin(
+		KeyedCollectionEmpty.WithMixin(CollectionEmpty.Constructor),
+	),
 );
 
 export class SortedMapEmpty<K = any, V = any>
-	extends EmptyBase
+	extends EmptyBase<K, V, SortedMap.Advanced.Family<K, V>>
 	implements SortedMap<K, V>
 {
 	declare _NonEmptyType: SortedMap.NonEmpty<K, V>;
 
 	constructor(readonly context: ContextImpl<K>) {
-		super();
+		super(context);
 	}
 
 	streamRange(): Stream<readonly [K, V]> {
-		return Stream.empty();
-	}
-
-	streamKeys(): Stream<K> {
-		return Stream.empty();
-	}
-
-	streamValues(): Stream<V> {
 		return Stream.empty();
 	}
 
@@ -69,14 +65,6 @@ export class SortedMapEmpty<K = any, V = any>
 		return this;
 	}
 
-	first(..._args: any[]): any {
-		return (this as any).min(..._args);
-	}
-
-	last(..._args: any[]): any {
-		return (this as any).max(..._args);
-	}
-
 	splitAt(_amount?: any): any {
 		return [this, this];
 	}
@@ -103,6 +91,14 @@ export class SortedMapEmpty<K = any, V = any>
 
 	at<_, O>(key: any, otherwise?: OptLazy<O>): O {
 		return OptLazy(otherwise) as O;
+	}
+
+	atIndex<O>(_index: number, otherwise?: OptLazy<O>): readonly [K, V] | O {
+		return OptLazy(otherwise) as O;
+	}
+
+	sliceIndex(_range: IndexRange): SortedMap<K, V> {
+		return this;
 	}
 
 	hasKey(): false {
@@ -136,12 +132,10 @@ export class SortedMapEmpty<K = any, V = any>
 	}
 
 	set(key: K, value: V): SortedMap.NonEmpty<K, V> {
-		// @ts-expect-error
 		return this.context.leaf([[key, value]]);
 	}
 
 	addEntry(entry: readonly [K, V]): SortedMap.NonEmpty<K, V> {
-		// @ts-expect-error
 		return this.context.leaf([entry]);
 	}
 
@@ -174,25 +168,20 @@ export class SortedMapEmpty<K = any, V = any>
 	}
 
 	removeKeyAndGet(): WithValueResult<SortedMap<K, V>, V> {
-		// @ts-expect-error
 		return [this, undefined, false];
 	}
 
 	modifyAt(atKey: K, options: ModifyOptions<V>): SortedMap<K, V> {
-		// @ts-expect-error
 		if (checkEmptyModifyOptions(options)) return this;
 
 		const { ifNew } = options;
-		// @ts-expect-error
 		if (undefined === ifNew) return this;
 
 		const { set, create } = ifNew;
 		const skip = Symbol();
 		const newValue = create !== undefined ? create(skip) : set;
 
-		// @ts-expect-error
 		if (skip === newValue) return this;
-		// @ts-expect-error
 		return this.context.leaf([[atKey, newValue]]);
 	}
 
@@ -223,7 +212,6 @@ export class SortedMapEmpty<K = any, V = any>
 		V,
 		SortedMap<K, V>
 	> {
-		// @ts-expect-error
 		return [this, undefined, false];
 	}
 
