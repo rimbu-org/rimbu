@@ -106,4 +106,11 @@ export class SortedMapEmpty<K = any, V = any>
 	toString(): string {
 		return `SortedMap()`;
 	}
+
+	toJSON(): ToJSON<any[]> {
+		return {
+			dataType: this.context.typeTag,
+			value: [],
+		};
+	}
 }
