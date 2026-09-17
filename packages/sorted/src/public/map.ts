@@ -62,7 +62,7 @@ export namespace SortedMap {
 		export interface ContextApi<
 			UK,
 			FAM extends KeyedCollection.Advanced.Family<UK, any>,
-		> extends MapCollection.Advanced.ContextApi<any> {
+		> extends MapCollection.Advanced.ContextApi<FAM> {
 			readonly typeTag: 'SortedMap';
 			readonly comp: Comp<UK>;
 			readonly blockSizeBits: number;
@@ -71,7 +71,7 @@ export namespace SortedMap {
 		export interface KeyedContextApi<
 			UK,
 			FAM extends KeyedCollection.Advanced.Family<UK, any>,
-		> extends MapCollection.Advanced.KeyedContextApi<any> {
+		> extends MapCollection.Advanced.KeyedContextApi<FAM> {
 			createContext<K>(options?: {
 				comp?: Comp<K> | undefined;
 				blockSizeBits?: number | undefined;

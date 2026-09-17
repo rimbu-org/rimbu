@@ -5,7 +5,6 @@ import * as RimbuError from '@rimbu/base/rimbu-error';
 import { IndexRange } from '@rimbu/common/index-range';
 import { OptLazy } from '@rimbu/common/opt-lazy';
 import { Range } from '@rimbu/common/range';
-import { TraverseState } from '@rimbu/common/traverse-state';
 import { Stream } from '@rimbu/stream';
 
 import { SortedIndex } from '#sorted/sorted-index';
@@ -1101,10 +1100,7 @@ export abstract class SortedBuilder<E> {
 				min<O>(otherwise?: OptLazy<O>): E | O;
 				max<O>(otherwise?: OptLazy<O>): E | O;
 				at<O>(index: number, otherwise?: OptLazy<O>): E | O;
-				forEach(
-					f: (entry: E, index: number, halt: () => void) => void,
-					options?: { state?: TraverseState },
-				): void;
+				forEach(f: (entry: E) => void): void;
 		  };
 	abstract _entries?: undefined | E[];
 	abstract _children?: undefined | SortedBuilder<E>[];
@@ -1141,18 +1137,6 @@ export abstract class SortedBuilder<E> {
 
 	get isEmpty(): boolean {
 		return this.size === 0;
-	}
-
-	// permissive indexed WithRemoveAt for builder
-	removeAt(..._args: any[]): any {
-		return undefined as any;
-	}
-	removeAtAndReturn?(..._args: any[]): any {}
-	removeAmountAt(..._args: any[]): any {
-		return false;
-	}
-	removeAllAt(..._args: any[]): any {
-		return false;
 	}
 
 	/**
@@ -1229,33 +1213,26 @@ export abstract class SortedBuilder<E> {
 	 * sort‑order, passing in the entry, its zero‑based index and a `halt`
 	 * function that can be used to stop iteration early.
 	 * @param f - the callback function to invoke for each entry
-	 * @param options - (optional) traversal options including a custom state
 	 */
-	forEach(
-		f: (entry: E, index: number, halt: () => void) => void,
-		options: { state?: TraverseState } = {},
-	): void {
-		const { state = TraverseState() } = options;
-
-		if (state.halted || this.isEmpty) return;
+	forEach(f: (entry: E) => void): void {
+		if (this.isEmpty) return;
 
 		this._lock++;
 
 		if (undefined !== this.source) {
-			this.source.forEach(f, { state });
+			this.source.forEach(f);
 		} else {
 			if (!this.hasChildren) {
-				Arr.forEach(this.entries, f, state);
+				this.entries.forEach(f);
 			} else {
 				let i = -1;
 				const entryLength = this.entries.length;
-				const { halt } = state;
 
-				while (!state.halted && i < entryLength) {
-					if (i >= 0) f(this.entries[i], state.nextIndex(), halt);
+				while (i < entryLength) {
+					if (i >= 0) f(this.entries[i]);
 					else {
 						const childIndex = SortedIndex.next(i);
-						this.children[childIndex].forEach(f, { state });
+						this.children[childIndex].forEach(f);
 					}
 					i = SortedIndex.next(i);
 				}

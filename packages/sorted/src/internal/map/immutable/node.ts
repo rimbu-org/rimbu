@@ -1,8 +1,8 @@
+import type { Comp } from '@rimbu/common/comp';
 import type { IndexRange } from '@rimbu/common/index-range';
 import type { OptLazy } from '@rimbu/common/opt-lazy';
 import type { Range } from '@rimbu/common/range';
-import type { TraverseState } from '@rimbu/common/traverse-state';
-import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
+import type { ArrayNonEmpty, RelatedTo } from '@rimbu/common/types';
 import type { SortedMap } from '@rimbu/sorted/map';
 import type { Stream } from '@rimbu/stream';
 
@@ -50,10 +50,7 @@ export abstract class SortedMapNode<K, V>
 		range: IndexRange,
 		options?: { reversed?: boolean },
 	): Stream<readonly [K, V]>;
-	abstract forEach(
-		f: (entry: readonly [K, V], index: number, halt: () => void) => void,
-		options?: { state?: TraverseState },
-	): void;
+	abstract forEach(f: (entry: readonly [K, V]) => void): void;
 	abstract get<U, O>(key: RelatedTo<K, U>, otherwise?: OptLazy<O>): V | O;
 	abstract at<O>(index: number, otherwise?: OptLazy<O>): readonly [K, V] | O;
 	abstract indexOf(key: K): number | undefined;
@@ -114,11 +111,13 @@ export abstract class SortedMapNode<K, V>
 		return SortedNode.getSliceRange(this, range);
 	}
 
-	streamKeys = (options: { reversed?: boolean } = {}): Stream.NonEmpty<K> =>
-		this.stream(options).map(Entry.first);
+	streamKeys = (options: { reversed?: boolean } = {}): Stream.NonEmpty<K> => {
+		return this.stream(options).map(Entry.first);
+	};
 
-	streamValues = (options: { reversed?: boolean } = {}): Stream.NonEmpty<V> =>
-		this.stream(options).map(Entry.second);
+	streamValues = (options: { reversed?: boolean } = {}): Stream.NonEmpty<V> => {
+		return this.stream(options).map(Entry.second);
+	};
 
 	streamRange(
 		keyRange: Range<K>,
@@ -170,7 +169,7 @@ export abstract class SortedMapNode<K, V>
 		return SortedNode.sliceIndex(this, range);
 	}
 
-	get comp(): any {
+	get comp(): Comp<K> {
 		return this.context.comp;
 	}
 
@@ -216,12 +215,5 @@ export abstract class SortedMapNode<K, V>
 			end: ')',
 			valueToString: (entry) => `${entry[0]} -> ${entry[1]}`,
 		});
-	}
-
-	toJSON(): ToJSON<(readonly [K, V])[]> {
-		return {
-			dataType: this.context.typeTag,
-			value: this.toArray(),
-		};
 	}
 }

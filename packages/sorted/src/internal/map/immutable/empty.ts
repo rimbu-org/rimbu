@@ -1,4 +1,4 @@
-import type { ToJSON } from '@rimbu/common/types';
+import type { Comp } from '@rimbu/common';
 import type { SortedMap } from '@rimbu/sorted/map';
 
 import type { ContextImpl } from '#map/context-factory';
@@ -27,18 +27,11 @@ export class SortedMapEmpty<K = any, V = any>
 		return Stream.empty();
 	}
 
-	get comp(): any {
+	get comp(): Comp<K> {
 		return this.context.comp;
 	}
 
 	toString(): string {
 		return `SortedMap()`;
-	}
-
-	toJSON(): ToJSON<any[]> {
-		return {
-			dataType: this.context.typeTag,
-			value: [],
-		};
 	}
 }

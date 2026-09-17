@@ -20,7 +20,6 @@ export class SortedSetBuilder<T> extends SortedBuilder<T> {
 		super();
 	}
 
-	// @ts-expect-error
 	createNew(
 		source?: undefined | SortedSet<T>,
 		entries?: undefined | T[],

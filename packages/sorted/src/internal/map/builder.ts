@@ -29,7 +29,6 @@ export class SortedMapBuilder<K, V>
 		super();
 	}
 
-	// @ts-expect-error
 	createNew(
 		source?: undefined | SortedMap<K, V>,
 		_entries?: undefined | (readonly [K, V])[],
@@ -115,16 +114,8 @@ export class SortedMapBuilder<K, V>
 		this.source = undefined;
 	};
 
-	forEach = (...args: any[]): void => {
-		const [f, options] = args;
-		if (typeof f === 'function' && f.length === 1) {
-			(this as any).forEachIndexed((v: any) => f(v), options);
-		} else {
-			const base = Object.getPrototypeOf(Object.getPrototypeOf(this));
-			if (base && base.forEach) base.forEach.call(this, f, options);
-			else (this as any).forEachIndexed(f, options);
-		}
-	};
+	// forEach = (f: (entry: readonly [K, V]) => void): void => {
+	// };
 
 	forEachIndexed = (f: any, options: any = {}): void => {
 		const SortedBuilderProto = Object.getPrototypeOf(

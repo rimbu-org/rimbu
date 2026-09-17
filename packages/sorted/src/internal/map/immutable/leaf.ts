@@ -7,7 +7,6 @@ import type { ContextImpl } from '#map/context-factory';
 
 import * as Arr from '@rimbu/base/arr';
 import { OptLazy } from '@rimbu/common/opt-lazy';
-import { TraverseState } from '@rimbu/common/traverse-state';
 import { Stream } from '@rimbu/stream';
 
 import { SortedMapNode } from '#map/immutable/node';
@@ -90,15 +89,8 @@ export class SortedMapLeaf<K, V> extends SortedMapNode<K, V> {
 		return index < 0 ? (OptLazy(otherwise) as O) : index;
 	}
 
-	forEach(
-		f: (entry: readonly [K, V], index: number, halt: () => void) => void,
-		options: { state?: TraverseState } = {},
-	): void {
-		const { state = TraverseState() } = options;
-
-		if (state.halted) return;
-
-		Arr.forEach(this.entries, f, state);
+	forEach(f: (entry: readonly [K, V]) => void): void {
+		this.entries.forEach(f);
 	}
 
 	mapValues<V2>(mapFun: (value: V, key: K) => V2): SortedMapLeaf<K, V2> {

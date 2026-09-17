@@ -8,7 +8,6 @@ import type { ContextImpl } from '#map/context-factory';
 import * as Arr from '@rimbu/base/arr';
 import * as RimbuError from '@rimbu/base/rimbu-error';
 import { OptLazy } from '@rimbu/common/opt-lazy';
-import { TraverseState } from '@rimbu/common/traverse-state';
 import { Stream } from '@rimbu/stream';
 
 import { SortedMapNode } from '#map/immutable/node';
@@ -54,8 +53,10 @@ export class SortedMapInner<K, V> extends SortedMapNode<K, V> {
 			entries === this.entries &&
 			children === this.children &&
 			size === this.size
-		)
+		) {
 			return this;
+		}
+
 		return this.context.inner(entries, children, size);
 	}
 
@@ -63,6 +64,7 @@ export class SortedMapInner<K, V> extends SortedMapNode<K, V> {
 		options: { reversed?: boolean } = {},
 	): Stream.NonEmpty<readonly [K, V]> {
 		const token = Symbol();
+
 		return Stream.zipAll(
 			token,
 			Stream.fromArray(this.children, options),
@@ -135,21 +137,15 @@ export class SortedMapInner<K, V> extends SortedMapNode<K, V> {
 		return OptLazy(otherwise) as O;
 	}
 
-	forEach(
-		f: (entry: readonly [K, V], index: number, halt: () => void) => void,
-		options: { state?: TraverseState } = {},
-	): void {
-		const { state = TraverseState() } = options;
-
+	forEach(f: (entry: readonly [K, V]) => void): void {
 		let i = -1;
 		const entryLength = this.entries.length;
-		const { halt } = state;
 
-		while (!state.halted && i < entryLength) {
-			if (i >= 0) f(this.entries[i], state.nextIndex(), halt);
+		while (i < entryLength) {
+			if (i >= 0) f(this.entries[i]);
 			else {
 				const childIndex = SortedIndex.next(i);
-				this.children[childIndex].forEach(f, { state });
+				this.children[childIndex].forEach(f);
 			}
 			i = SortedIndex.next(i);
 		}
