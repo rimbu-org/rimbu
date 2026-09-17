@@ -14,7 +14,7 @@ import type { KeyedCollection } from '@rimbu/collection-types/collection/keyed';
 import type { SortedCollection } from '@rimbu/collection-types/collection/sorted';
 import type { MapCollection } from '@rimbu/collection-types/map';
 import type { Op } from '@rimbu/collection-types/types';
-import type { IndexRange } from '@rimbu/common';
+import type { IndexRange, RelatedTo } from '@rimbu/common';
 
 import { OptLazy } from '@rimbu/common';
 import { Stream } from '@rimbu/stream';
@@ -128,12 +128,24 @@ export namespace IndexedKeyedSortedCollectionEmpty {
 				return OptLazy(otherwise) as O;
 			}
 
-			previous<O>(otherwise?: OptLazy<O>): O {
-				return OptLazy(otherwise) as O;
+			previous<US, O>(
+				_search: RelatedTo<K, US>,
+				options?: {
+					inclusive?: boolean | undefined;
+					otherwise?: OptLazy<O>;
+				},
+			): readonly [K, V] | O {
+				return OptLazy(options?.otherwise) as O;
 			}
 
-			next<O>(otherwise?: OptLazy<O>): O {
-				return OptLazy(otherwise) as O;
+			next<US, O>(
+				_search: RelatedTo<K, US>,
+				options?: {
+					inclusive?: boolean | undefined;
+					otherwise?: OptLazy<O>;
+				},
+			): readonly [K, V] | O {
+				return OptLazy(options?.otherwise) as O;
 			}
 		}
 

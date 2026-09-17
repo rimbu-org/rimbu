@@ -171,12 +171,9 @@ export function leafMutateJoinRight<S extends LeafMutateSource<S, E>, E>(
  */
 export interface InnerChild<E> {
 	readonly size: number;
-	atIndex<O>(index: number, otherwise?: OptLazy<O>): E | O;
+	at<O>(index: number, otherwise?: OptLazy<O>): E | O;
 	stream(options?: { reversed?: boolean }): Stream<E>;
-	streamSliceIndex(
-		range: IndexRange,
-		options?: { reversed?: boolean },
-	): Stream<E>;
+	streamSlice(range: IndexRange, options?: { reversed?: boolean }): Stream<E>;
 	readonly entries: readonly E[];
 	takeInternal(amount: number): InnerChild<E>;
 	dropInternal(amount: number): InnerChild<E>;
@@ -627,7 +624,7 @@ export function innerGetAtIndex<E, O>(
 	const subIndex = innerGetSubIndex(source, index);
 
 	if (Array.isArray(subIndex))
-		return source.children[subIndex[0]].atIndex(subIndex[1], otherwise);
+		return source.children[subIndex[0]].at(subIndex[1], otherwise);
 	return source.entries[subIndex];
 }
 
@@ -733,7 +730,7 @@ export function innerDropInternal<S extends InnerMutateSource<S, E>, E>(
  * @param range - the index range to include
  * @param reversed - (default: false) when true reverses the stream order
  */
-export function innerStreamSliceIndex<E>(
+export function innerStreamSlice<E>(
 	source: InnerMutateSource<any, E>,
 	range: IndexRange,
 	reversed = false,
@@ -771,7 +768,7 @@ export function innerStreamSliceIndex<E>(
 	if (startElemIndex === endElemIndex) {
 		if (startElemIndex >= 0) return Stream.of(source.entries[startElemIndex]);
 
-		return source.children[SortedIndex.next(startElemIndex)].streamSliceIndex(
+		return source.children[SortedIndex.next(startElemIndex)].streamSlice(
 			{
 				start: inStartElemIndex,
 				end: inEndElemIndex,
@@ -797,10 +794,10 @@ export function innerStreamSliceIndex<E>(
 		const child = source.children[childIndex];
 
 		if (index === startElemIndex) {
-			return child.streamSliceIndex({ start: inStartElemIndex }, { reversed });
+			return child.streamSlice({ start: inStartElemIndex }, { reversed });
 		}
 		if (index === endElemIndex) {
-			return child.streamSliceIndex({ end: inEndElemIndex }, { reversed });
+			return child.streamSlice({ end: inEndElemIndex }, { reversed });
 		}
 
 		return child.stream({ reversed });
@@ -839,10 +836,7 @@ export interface SortedNodeLike<E, S, TNormal> {
 	};
 	getInsertIndexOf(search: S): number;
 	at<O>(index: number, otherwise?: OptLazy<O>): E | O;
-	streamSliceIndex(
-		range: IndexRange,
-		options?: { reversed?: boolean },
-	): Stream<E>;
+	streamSlice(range: IndexRange, options?: { reversed?: boolean }): Stream<E>;
 	take(amount: number): TNormal;
 	drop(amount: number): TNormal;
 	takeInternal(amount: number): { normalize(): TNormal };
@@ -910,7 +904,7 @@ export namespace SortedNode {
 	): Stream<E> {
 		const { startIndex, endIndex } = getSliceRange(source, range);
 
-		return source.streamSliceIndex(
+		return source.streamSlice(
 			{
 				start: [startIndex, true],
 				end: [endIndex, true],
@@ -965,11 +959,11 @@ export namespace SortedNode {
 			return OptLazy(otherwise) as O;
 		}
 
-		const atIndex = inclusive
+		const at = inclusive
 			? lowerBound(source, search)
 			: upperBound(source, search);
 
-		return source.at(atIndex, otherwise);
+		return source.at(at, otherwise);
 	}
 
 	/**
@@ -991,12 +985,11 @@ export namespace SortedNode {
 		}
 
 		const index = source.getInsertIndexOf(search);
-		const atIndex =
-			index >= 0 ? (inclusive ? index : index - 1) : -index - 1 - 1;
+		const at = index >= 0 ? (inclusive ? index : index - 1) : -index - 1 - 1;
 
-		if (atIndex < 0) return OptLazy(otherwise) as O;
+		if (at < 0) return OptLazy(otherwise) as O;
 
-		return source.at(atIndex, otherwise);
+		return source.at(at, otherwise);
 	}
 
 	/**
@@ -1107,7 +1100,7 @@ export abstract class SortedBuilder<E> {
 		| {
 				min<O>(otherwise?: OptLazy<O>): E | O;
 				max<O>(otherwise?: OptLazy<O>): E | O;
-				atIndex<O>(index: number, otherwise?: OptLazy<O>): E | O;
+				at<O>(index: number, otherwise?: OptLazy<O>): E | O;
 				forEach(
 					f: (entry: E, index: number, halt: () => void) => void,
 					options?: { state?: TraverseState },
@@ -1198,9 +1191,9 @@ export abstract class SortedBuilder<E> {
 	 * @param index - the (possibly negative) index to look up
 	 * @param otherwise - (default: undefined) fallback value when out of bounds
 	 */
-	atIndex<O>(index: number, otherwise?: OptLazy<O>): E | O {
+	at<O>(index: number, otherwise?: OptLazy<O>): E | O {
 		if (undefined !== this.source) {
-			return this.source.atIndex(index, otherwise);
+			return this.source.at(index, otherwise);
 		}
 
 		if (index >= this.size || -index > this.size) {
@@ -1208,7 +1201,7 @@ export abstract class SortedBuilder<E> {
 		}
 
 		if (index < 0) {
-			return this.atIndex(this.size + index, otherwise);
+			return this.at(this.size + index, otherwise);
 		}
 
 		if (!this.hasChildren) return this.entries[index];
@@ -1224,7 +1217,7 @@ export abstract class SortedBuilder<E> {
 				const childIndex = SortedIndex.next(elemIndex);
 				const child = this.children[childIndex];
 
-				if (i < child.size) return child.atIndex(i, otherwise);
+				if (i < child.size) return child.at(i, otherwise);
 				i -= child.size;
 			}
 			elemIndex = SortedIndex.next(elemIndex);

@@ -8,7 +8,7 @@ import {
 	innerDropInternal,
 	innerGetAtIndex,
 	innerGetSubIndex,
-	innerStreamSliceIndex,
+	innerStreamSlice,
 	innerTakeInternal,
 } from '#sorted/base';
 
@@ -454,10 +454,10 @@ describe('inner index', () => {
 		expect(res.children[0].entries).toEqual([10, 12, 15, 18]);
 		expect(res.children[1].entries).toEqual([22, 25, 28]);
 	});
-	it('innerStreamSliceIndex', () => {
+	it('innerStreamSlice', () => {
 		const inner = createInner();
 		{
-			const stream = innerStreamSliceIndex(
+			const stream = innerStreamSlice(
 				inner,
 				{ start: 1, amount: 9 },
 				false,
@@ -465,7 +465,7 @@ describe('inner index', () => {
 			expect(stream.toArray()).toEqual([5, 8, 10, 12, 15, 18, 20, 22, 25]);
 		}
 		{
-			const stream = innerStreamSliceIndex(
+			const stream = innerStreamSlice(
 				inner,
 				{ start: 1, amount: 9 },
 				true,

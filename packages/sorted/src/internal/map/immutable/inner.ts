@@ -26,7 +26,7 @@ import {
 	innerMutateSplitRight,
 	innerNormalizeDownsizeChild,
 	innerNormalizeIncreaseChild,
-	innerStreamSliceIndex,
+	innerStreamSlice,
 	innerTakeInternal,
 } from '#sorted/base';
 import { SortedIndex } from '#sorted/sorted-index';
@@ -74,12 +74,12 @@ export class SortedMapInner<K, V> extends SortedMapNode<K, V> {
 		}) as Stream.NonEmpty<readonly [K, V]>;
 	}
 
-	streamSliceIndex(
+	streamSlice(
 		range: IndexRange,
 		options: { reversed?: boolean } = {},
 	): Stream<readonly [K, V]> {
 		const { reversed = false } = options;
-		return innerStreamSliceIndex<readonly [K, V]>(this, range, reversed);
+		return innerStreamSlice<readonly [K, V]>(this, range, reversed);
 	}
 
 	min(): readonly [K, V] {
@@ -104,11 +104,13 @@ export class SortedMapInner<K, V> extends SortedMapNode<K, V> {
 	}
 
 	at<O>(index: number, otherwise?: OptLazy<O>): readonly [K, V] | O {
-		return this.atIndex(index, otherwise);
+		return innerGetAtIndex<readonly [K, V], O>(this, index, otherwise);
 	}
 
-	findIndex<O>(key: K, otherwise?: OptLazy<O>): number | O {
-		if (!this.context.comp.isComparable(key)) return OptLazy(otherwise!);
+	indexOf(key: K): number | undefined;
+	indexOf<O>(key: K, otherwise: OptLazy<O>): number | O;
+	indexOf<O>(key: K, otherwise?: OptLazy<O>): number | O {
+		if (!this.context.comp.isComparable(key)) return OptLazy(otherwise) as O;
 
 		const index = this.context.findIndex(key, this.entries);
 		if (index >= 0)
@@ -118,7 +120,7 @@ export class SortedMapInner<K, V> extends SortedMapNode<K, V> {
 			);
 		const childIndex = SortedIndex.next(index);
 		const child = this.children[childIndex];
-		const index$ = child.findIndex(key);
+		const index$ = child.indexOf(key, undefined);
 		if (undefined !== index$) {
 			return (
 				index$ +
@@ -130,11 +132,7 @@ export class SortedMapInner<K, V> extends SortedMapNode<K, V> {
 			);
 		}
 
-		return OptLazy(otherwise!);
-	}
-
-	atIndex<O>(index: number, otherwise?: OptLazy<O>): readonly [K, V] | O {
-		return innerGetAtIndex<readonly [K, V], O>(this, index, otherwise);
+		return OptLazy(otherwise) as O;
 	}
 
 	forEach(

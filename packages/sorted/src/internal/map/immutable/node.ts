@@ -1,13 +1,10 @@
 import type { IndexRange } from '@rimbu/common/index-range';
+import type { OptLazy } from '@rimbu/common/opt-lazy';
 import type { Range } from '@rimbu/common/range';
 import type { TraverseState } from '@rimbu/common/traverse-state';
-import type {
-	ArrayNonEmpty,
-	RelatedTo,
-	ToJSON,
-	WithValueResult,
-} from '@rimbu/common/types';
+import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
 import type { SortedMap } from '@rimbu/sorted/map';
+import type { Stream } from '@rimbu/stream';
 
 import type { SortedMapBuilder } from '#map/builder';
 import type { ContextImpl } from '#map/context-factory';
@@ -20,13 +17,14 @@ import {
 	checkEmptyModifyOptions,
 	type ModifyOptions,
 } from '@rimbu/collection-types/advanced/common';
-import { OptLazy } from '@rimbu/common/opt-lazy';
-import { Stream, type StreamSource } from '@rimbu/stream';
+import { MapCollectionNonEmpty } from '@rimbu/collection-types/advanced/map-base';
 
 import { SortedNode } from '#sorted/base';
 
 const NonEmptyBase = IndexedKeyedSortedCollectionNonEmpty.WithMixin(
-	KeyedCollectionNonEmpty.WithMixin(CollectionNonEmpty.Constructor),
+	MapCollectionNonEmpty.WithMixin(
+		KeyedCollectionNonEmpty.WithMixin(CollectionNonEmpty.Constructor),
+	),
 );
 
 export abstract class SortedMapNode<K, V>
@@ -48,7 +46,7 @@ export abstract class SortedMapNode<K, V>
 	abstract stream(options?: {
 		reversed?: boolean;
 	}): Stream.NonEmpty<readonly [K, V]>;
-	abstract streamSliceIndex(
+	abstract streamSlice(
 		range: IndexRange,
 		options?: { reversed?: boolean },
 	): Stream<readonly [K, V]>;
@@ -58,11 +56,8 @@ export abstract class SortedMapNode<K, V>
 	): void;
 	abstract get<U, O>(key: RelatedTo<K, U>, otherwise?: OptLazy<O>): V | O;
 	abstract at<O>(index: number, otherwise?: OptLazy<O>): readonly [K, V] | O;
-	abstract atIndex<O>(
-		index: number,
-		otherwise?: OptLazy<O>,
-	): readonly [K, V] | O;
-	abstract findIndex(key: K): number | undefined;
+	abstract indexOf(key: K): number | undefined;
+	abstract indexOf<O>(key: K, otherwise: OptLazy<O>): number | O;
 	abstract addInternal(
 		entry: readonly [K, V],
 		hash?: number,
@@ -132,27 +127,6 @@ export abstract class SortedMapNode<K, V>
 		return SortedNode.streamRange(this, keyRange, options);
 	}
 
-	minKey(): K {
-		return this.min()[0];
-	}
-
-	minValue(): V {
-		return this.min()[1];
-	}
-
-	maxKey(): K {
-		return this.max()[0];
-	}
-
-	maxValue(): V {
-		return this.max()[1];
-	}
-
-	hasKey<UK>(key: RelatedTo<K, UK>): boolean {
-		const token = Symbol();
-		return token !== this.get(key, token);
-	}
-
 	lowerBound(key: K): number {
 		return SortedNode.lowerBound(this, key);
 	}
@@ -165,204 +139,23 @@ export abstract class SortedMapNode<K, V>
 		key: K,
 		options: { inclusive?: boolean | undefined; otherwise?: OptLazy<O> } = {},
 	): readonly [K, V] | O {
-		return this.nextEntry(key, options);
+		return SortedNode.next(this, key, options);
 	}
 
 	previous<O>(
 		key: K,
 		options: { inclusive?: boolean | undefined; otherwise?: OptLazy<O> } = {},
 	): readonly [K, V] | O {
-		return this.previousEntry(key, options);
-	}
-
-	nextEntry<O>(
-		key: K,
-		options: { inclusive?: boolean | undefined; otherwise?: OptLazy<O> } = {},
-	): readonly [K, V] | O {
-		return SortedNode.next(this, key, options);
-	}
-
-	previousEntry<O>(
-		key: K,
-		options: { inclusive?: boolean | undefined; otherwise?: OptLazy<O> } = {},
-	): readonly [K, V] | O {
 		return SortedNode.previous(this, key, options);
 	}
 
-	addEntry(entry: readonly [K, V]): SortedMap.NonEmpty<K, V> {
+	add(entry: readonly [K, V]): SortedMap.NonEmpty<K, V> {
 		return this.addInternal(entry).normalize().assumeNonEmpty();
 	}
 
-	addEntries(entries: StreamSource<readonly [K, V]>): SortedMap.NonEmpty<K, V> {
-		if (Stream.isEmptyStreamSourceInstance(entries)) return this;
-
-		const builder = this.toBuilder();
-		builder.addEntries(entries);
-		return builder.build() as SortedMap.NonEmpty<K, V>;
-	}
-
-	add(...args: any[]): any {
-		return (this as any).addEntry(...args);
-	}
-	addAll(...args: any[]): any {
-		return (this as any).addEntries(...args);
-	}
-
-	modifyAt(atKey: K, options: ModifyOptions<V>): SortedMap<K, V> {
+	modifyAtKey(atKey: K, options: ModifyOptions<V>): SortedMap<K, V> {
 		if (checkEmptyModifyOptions(options)) return this;
 		return this.modifyAtInternal(atKey, options).normalize();
-	}
-
-	set(key: K, value: V): SortedMap.NonEmpty<K, V> {
-		return this.addEntry([key, value]);
-	}
-
-	updateAt<U>(
-		key: RelatedTo<K, U>,
-		update: (value: V) => V,
-	): SortedMap.NonEmpty<K, V> {
-		if (!this.context.isValidKey(key)) return this;
-
-		return this.modifyAt(key, {
-			ifExists: { update },
-		}).assumeNonEmpty();
-	}
-
-	updateAtAndGet<U>(
-		key: RelatedTo<K, U>,
-		update: (value: V) => V,
-	): WithValueResult<SortedMap.NonEmpty<K, V>, V> {
-		const token = Symbol();
-		let oldValue: V | typeof token = token;
-
-		const newMap = this.updateAt(key, (value) => {
-			oldValue = value;
-			return update(value);
-		});
-
-		if (token === oldValue) return [this, undefined, false];
-		return [newMap, oldValue, true];
-	}
-
-	removeKey<UK>(key: RelatedTo<K, UK>): SortedMap<K, V> {
-		if (!this.context.isValidKey(key)) return this;
-
-		return this.modifyAt(key, {
-			ifExists: { update: (_, remove): typeof remove => remove },
-		});
-	}
-
-	removeKeys<UK>(keys: StreamSource<RelatedTo<K, UK>>): SortedMap<K, V> {
-		if (Stream.isEmptyStreamSourceInstance(keys)) return this;
-
-		const builder = this.toBuilder();
-		builder.removeKeys(keys);
-		return builder.build();
-	}
-
-	// aliases for new MapCollection names
-	modifyAtKey(...args: any[]): any {
-		return (this as any).modifyAt(...args);
-	}
-	updateAtKey(...args: any[]): any {
-		return (this as any).updateAt(...args);
-	}
-
-	removeKeyAndReturn<UK>(key: RelatedTo<K, UK>): any;
-	removeKeyAndReturn<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): any;
-	removeKeyAndReturn<UK, O>(
-		key: RelatedTo<K, UK>,
-		otherwise?: OptLazy<O>,
-	): any {
-		const token = Symbol();
-		let removed: V | typeof token = token;
-		const newMap = this.modifyAt(key as K, {
-			ifExists: {
-				update: (value: V, remove: any): any => {
-					removed = value;
-					return remove;
-				},
-			},
-		});
-		if (token === removed) {
-			const result =
-				otherwise !== undefined ? OptLazy(otherwise as any) : undefined;
-			return {
-				collection: this,
-				hasResult: false,
-				result,
-				hasChanged: false,
-			};
-		}
-		return {
-			collection: newMap,
-			hasResult: true,
-			result: removed,
-			hasChanged: true,
-		};
-	}
-
-	updateAtKeyAndReturn<UK>(
-		key: RelatedTo<K, UK>,
-		update: (value: V) => V,
-	): any {
-		const token = Symbol();
-		let previous: V | typeof token = token;
-		let current: V | typeof token = token;
-		const newMap = this.modifyAt(key as K, {
-			ifExists: {
-				update: (value: V): any => {
-					previous = value;
-					const newVal = update(value);
-					current = newVal;
-					return newVal;
-				},
-			},
-		});
-		if (token === previous) {
-			return {
-				collection: this,
-				hasResult: false,
-				result: [undefined, undefined] as any,
-				hasChanged: false,
-			};
-		}
-		const hasChanged = (newMap as unknown) !== (this as unknown);
-		return {
-			collection: newMap,
-			hasResult: true,
-			result: [previous, current] as any,
-			hasChanged,
-		};
-	}
-
-	removeKeyAndGet<UK>(
-		key: RelatedTo<K, UK>,
-	): WithValueResult<SortedMap<K, V>, V> {
-		if (!this.context.isValidKey(key)) return [this, undefined, false];
-
-		const token = Symbol();
-		let currentValue: V | typeof token = token;
-
-		const newMap = this.modifyAt(key, {
-			ifExists: {
-				update: (value, remove) => {
-					currentValue = value;
-					return remove;
-				},
-			},
-		});
-
-		if (token === currentValue) return [this, undefined, false];
-		return [newMap, currentValue, true];
-	}
-
-	transform<V2, K2 extends K>(
-		transformFun: (
-			stream: Stream.NonEmpty<readonly [K, V]>,
-		) => StreamSource<[K2, V2]>,
-	): any {
-		return this.context.from(transformFun(this.stream()));
 	}
 
 	take(amount: number): SortedMap<K, V> | any {
@@ -373,32 +166,12 @@ export abstract class SortedMapNode<K, V>
 		return SortedNode.drop(this, amount);
 	}
 
-	sliceIndex(range: IndexRange): SortedMap<K, V> {
+	slice(range: IndexRange): SortedMap<K, V> {
 		return SortedNode.sliceIndex(this, range);
-	}
-
-	slice(range: IndexRange | Range<K>): SortedMap<K, V> {
-		return SortedNode.slice(this, range);
 	}
 
 	get comp(): any {
 		return this.context.comp;
-	}
-
-	indexOf(key: any, otherwise?: any): any {
-		return (this as any).findIndex(key, otherwise);
-	}
-
-	streamSlice(range: any, options?: any): Stream<readonly [K, V]> {
-		return this.streamSliceIndex(range, options);
-	}
-
-	forEachIndexed(f: any, options?: any): void {
-		(this as any).forEach(f as any, options as any);
-	}
-
-	filterIndexed(pred: any, options?: any): any {
-		return (this as any).filter(pred as any, options as any);
 	}
 
 	splitAt(amount: number): any {
@@ -406,34 +179,34 @@ export abstract class SortedMapNode<K, V>
 	}
 
 	removeAt(index: number, amount?: number | undefined): SortedMap<K, V> {
-		const sz = (this as any).size as number;
+		const sz = this.size;
 		let idx = index;
 		if (idx < 0) idx = sz + idx;
-		if (idx < 0 || idx >= sz) return this as any;
+		if (idx < 0 || idx >= sz) return this;
 		const amt = amount === undefined ? 1 : amount;
-		if (amt <= 0) return this as any;
-		if (amt >= sz && idx === 0) return (this as any).context.empty();
-		let result: SortedMap<K, V> = this as any;
+		if (amt <= 0) return this;
+		if (amt >= sz && idx === 0) return this.context.empty();
+		let result: SortedMap<K, V> = this;
 		for (let i = 0; i < amt; i++) {
-			const e = (result as any).atIndex(idx) as readonly [K, V] | undefined;
+			const e = result.at(idx);
 			if (undefined === e) break;
-			result = (result as any).removeKey(e[0]);
-			if ((result as any).size <= idx && amt > 1) break;
+			result = result.removeKey(e[0]);
+			if (result.size <= idx && amt > 1) break;
 		}
 		return result;
 	}
 
 	removeAtAndReturn(index: number, amount?: number | undefined): any {
-		const removed = (this as any).slice({
+		const removed = this.slice({
 			start: index,
 			amount: amount ?? 1,
-		} as any);
-		const next = (this as any).removeAt(index, amount);
+		});
+		const next = this.removeAt(index, amount);
 		return [next, removed] as any;
 	}
 
 	toBuilder(): SortedMapBuilder<K, V> {
-		return this.context.createBuilder<K, V>(this);
+		return this.context.createBuilder<K, V>(this as unknown as SortedMap<K, V>);
 	}
 
 	toString(): string {

@@ -44,7 +44,7 @@ export class SortedSetLeaf<T> extends SortedSetNode<T> {
 		return Stream.fromArray(this.entries, options) as Stream.NonEmpty<T>;
 	}
 
-	streamSliceIndex(
+	streamSlice(
 		range: IndexRange,
 		options: { reversed?: boolean } = {},
 	): Stream<T> {
@@ -66,10 +66,12 @@ export class SortedSetLeaf<T> extends SortedSetNode<T> {
 		return this.context.findIndex(value, this.entries) >= 0;
 	};
 
-	findIndex<O>(value: T, otherwise?: OptLazy<O>): number | O {
-		if (!this.context.comp.isComparable(value)) return OptLazy(otherwise!);
+	indexOf<US = T>(value: RelatedTo<T, US>): number | undefined;
+	indexOf<US, O>(value: RelatedTo<T, US>, otherwise: OptLazy<O>): number | O;
+	indexOf<US, O>(value: RelatedTo<T, US>, otherwise?: OptLazy<O>): number | O {
+		if (!this.context.comp.isComparable(value)) return OptLazy(otherwise) as O;
 		const index = this.context.findIndex(value, this.entries);
-		return index < 0 ? OptLazy(otherwise!) : index;
+		return index < 0 ? (OptLazy(otherwise) as O) : index;
 	}
 
 	at<O>(index: number, otherwise?: OptLazy<O>): T | O {
@@ -81,10 +83,6 @@ export class SortedSetLeaf<T> extends SortedSetNode<T> {
 		}
 
 		return this.entries[index];
-	}
-
-	atIndex<O>(index: number, otherwise?: OptLazy<O>): T | O {
-		return this.at(index, otherwise);
 	}
 
 	forEach(

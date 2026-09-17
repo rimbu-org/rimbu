@@ -47,7 +47,7 @@ export class SortedMapLeaf<K, V> extends SortedMapNode<K, V> {
 		return Stream.fromArray(this.entries, options) as Stream.NonEmpty<[K, V]>;
 	}
 
-	streamSliceIndex(
+	streamSlice(
 		range: IndexRange,
 		options: { reversed?: boolean } = {},
 	): Stream<readonly [K, V]> {
@@ -75,21 +75,19 @@ export class SortedMapLeaf<K, V> extends SortedMapNode<K, V> {
 	}
 
 	at<O>(index: number, otherwise?: OptLazy<O>): readonly [K, V] | O {
-		return this.atIndex(index, otherwise);
-	}
-
-	findIndex<O>(key: K, otherwise?: OptLazy<O>): number | O {
-		if (!this.context.comp.isComparable(key)) return OptLazy(otherwise!);
-		const index = this.context.findIndex(key, this.entries);
-		return index < 0 ? OptLazy(otherwise!) : index;
-	}
-
-	atIndex<O>(index: number, otherwise?: OptLazy<O>): readonly [K, V] | O {
 		if (index >= this.size || -index > this.size)
 			return OptLazy(otherwise) as O;
-		if (index < 0) return this.atIndex(this.size + index, otherwise);
+		if (index < 0) return this.at(this.size + index, otherwise);
 
 		return this.entries[index];
+	}
+
+	indexOf(key: K): number | undefined;
+	indexOf<O>(key: K, otherwise: OptLazy<O>): number | O;
+	indexOf<O>(key: K, otherwise?: OptLazy<O>): number | O {
+		if (!this.context.comp.isComparable(key)) return OptLazy(otherwise) as O;
+		const index = this.context.findIndex(key, this.entries);
+		return index < 0 ? (OptLazy(otherwise) as O) : index;
 	}
 
 	forEach(

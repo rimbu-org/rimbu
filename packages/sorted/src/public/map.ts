@@ -3,9 +3,7 @@ import type { IndexedCollection } from '@rimbu/collection-types/collection/index
 import type { IndexedSortedCollection } from '@rimbu/collection-types/collection/indexed-sorted';
 import type { KeyedCollection } from '@rimbu/collection-types/collection/keyed';
 import type { MapCollection } from '@rimbu/collection-types/map';
-import type { OptLazy } from '@rimbu/common';
 import type { Comp } from '@rimbu/common/comp';
-import type { IndexRange } from '@rimbu/common/index-range';
 import type { Range } from '@rimbu/common/range';
 import type { Stream } from '@rimbu/stream';
 
@@ -52,25 +50,8 @@ export namespace SortedMap {
 				range: Range<K>,
 				options?: { reversed?: boolean },
 			): Stream<readonly [K, V]>;
-			streamSliceIndex(
-				range: IndexRange,
-				options?: { reversed?: boolean },
-			): Stream<readonly [K, V]>;
 			lowerBound(key: K): number;
 			upperBound(key: K): number;
-			nextEntry<O>(
-				key: K,
-				options?: { inclusive?: boolean; otherwise?: OptLazy<O> },
-			): readonly [K, V] | O;
-			previousEntry<O>(
-				key: K,
-				options?: { inclusive?: boolean; otherwise?: OptLazy<O> },
-			): readonly [K, V] | O;
-			atIndex<O>(index: number, otherwise?: OptLazy<O>): readonly [K, V] | O;
-			/** @deprecated use `indexOf` */
-			findIndex(key: K): number | undefined;
-			sliceIndex(range: IndexRange): Tp['_NORMAL'];
-			slice(range: IndexRange | Range<K>): Tp['_NORMAL'];
 			readonly comp: Comp<K>;
 		}
 

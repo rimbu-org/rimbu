@@ -25,7 +25,7 @@ import {
 	innerMutateSplitRight,
 	innerNormalizeDownsizeChild,
 	innerNormalizeIncreaseChild,
-	innerStreamSliceIndex,
+	innerStreamSlice,
 	innerTakeInternal,
 } from '#sorted/base';
 import { SortedIndex } from '#sorted/sorted-index';
@@ -72,13 +72,13 @@ export class SortedSetInner<T> extends SortedSetNode<T> {
 		}) as Stream.NonEmpty<T>;
 	}
 
-	streamSliceIndex(
+	streamSlice(
 		range: IndexRange,
 		options: { reversed?: boolean } = {},
 	): Stream<T> {
 		const { reversed = false } = options;
 
-		return innerStreamSliceIndex<T>(this, range, reversed);
+		return innerStreamSlice<T>(this, range, reversed);
 	}
 
 	has = <U>(value: RelatedTo<T, U>): boolean => {
@@ -94,8 +94,10 @@ export class SortedSetInner<T> extends SortedSetNode<T> {
 		return child.has<U>(value);
 	};
 
-	findIndex<O>(value: T, otherwise?: OptLazy<O>): number | O {
-		if (!this.context.comp.isComparable(value)) return OptLazy(otherwise!);
+	indexOf<US = T>(value: RelatedTo<T, US>): number | undefined;
+	indexOf<US, O>(value: RelatedTo<T, US>, otherwise: OptLazy<O>): number | O;
+	indexOf<US, O>(value: RelatedTo<T, US>, otherwise?: OptLazy<O>): number | O {
+		if (!this.context.comp.isComparable(value)) return OptLazy(otherwise) as O;
 
 		const index = this.context.findIndex(value, this.entries);
 		if (index >= 0)
@@ -106,7 +108,7 @@ export class SortedSetInner<T> extends SortedSetNode<T> {
 			);
 		const childIndex = SortedIndex.next(index);
 		const child = this.children[childIndex];
-		const index$ = child.findIndex(value, undefined);
+		const index$ = child.indexOf(value, undefined);
 		if (undefined !== index$) {
 			return (
 				index$ +
@@ -116,15 +118,11 @@ export class SortedSetInner<T> extends SortedSetNode<T> {
 			);
 		}
 
-		return OptLazy(otherwise!);
+		return OptLazy(otherwise) as O;
 	}
 
 	at<O>(index: number, otherwise?: OptLazy<O>): T | O {
 		return innerGetAtIndex<T, O>(this, index, otherwise);
-	}
-
-	atIndex<O>(index: number, otherwise?: OptLazy<O>): T | O {
-		return this.at(index, otherwise);
 	}
 
 	forEach(

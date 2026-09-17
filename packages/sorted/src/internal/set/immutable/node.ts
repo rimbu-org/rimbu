@@ -47,7 +47,11 @@ export abstract class SortedSetNode<T>
 	}
 
 	abstract at<O>(index: number, otherwise?: OptLazy<O>): T | O;
-	abstract atIndex<O>(index: number, otherwise?: OptLazy<O>): T | O;
+	abstract indexOf<US = T>(value: RelatedTo<T, US>): number | undefined;
+	abstract indexOf<US, O>(
+		value: RelatedTo<T, US>,
+		otherwise: OptLazy<O>,
+	): number | O;
 
 	// internal methods
 	abstract addInternal(value: T): SortedSetNode<T>;
@@ -56,11 +60,10 @@ export abstract class SortedSetNode<T>
 	abstract normalize(): SortedSet<T>;
 	abstract takeInternal(amount: number): SortedSetNode<T>;
 	abstract dropInternal(amount: number): SortedSetNode<T>;
-	abstract streamSliceIndex(
+	abstract streamSlice(
 		range: IndexRange,
 		options?: { reversed?: boolean },
 	): Stream<T>;
-	abstract findIndex<O>(value: T, otherwise?: OptLazy<O>): number | O;
 	abstract deleteMin(): [T, SortedSetNode<T>];
 	abstract deleteMax(): [T, SortedSetNode<T>];
 	abstract mutateSplitRight(index?: number): [T, SortedSetNode<T>];
@@ -146,50 +149,28 @@ export abstract class SortedSetNode<T>
 		return SortedNode.drop(this, amount);
 	}
 
-	indexOf(value: T, otherwise?: OptLazy<any>): any {
-		return (this as any).findIndex(value, otherwise);
-	}
-
-	streamSlice(range: IndexRange, options?: { reversed?: boolean }): Stream<T> {
-		return this.streamSliceIndex(range, options);
-	}
-
 	removeAt(index: number, amount?: number | undefined): SortedSet<T> {
-		const sz = (this as any).size as number;
+		const sz = this.size;
 		let idx = index;
 		if (idx < 0) idx = sz + idx;
-		if (idx < 0 || idx >= sz) return this as any;
+		if (idx < 0 || idx >= sz) return this;
 		const amt = amount === undefined ? 1 : amount;
-		if (amt <= 0) return this as any;
-		if (amt >= sz && idx === 0) return (this as any).context.empty();
-		// remove by iterative value removal
-		let result: SortedSet<T> = this as any;
+		if (amt <= 0) return this;
+		if (amt >= sz && idx === 0) return this.context.empty();
+		let result: SortedSet<T> = this;
 		for (let i = 0; i < amt; i++) {
-			const v = (result as any).at(idx);
+			const v = result.at(idx);
 			if (undefined === v) break;
 			result = result.remove(v);
-			// idx stays same, next element shifts into position
-			if ((result as any).size <= idx && amt > 1) break;
+			if (result.size <= idx && amt > 1) break;
 		}
 		return result;
 	}
 
 	removeAtAndReturn(index: number, amount?: number | undefined): any {
-		const removed = (this as any).slice({
-			start: index,
-			amount: amount ?? 1,
-		} as any);
-		const next = (this as any).removeAt(index, amount);
-		// DynamicResult: if removed empty? keep simple
+		const removed = this.slice({ start: index, amount: amount ?? 1 });
+		const next = this.removeAt(index, amount);
 		return [next, removed] as any;
-	}
-
-	sliceIndex(range: IndexRange): SortedSet<T> {
-		return SortedNode.sliceIndex(this, range);
-	}
-
-	slice(range: IndexRange | Range<T>): SortedSet<T> {
-		return SortedNode.slice(this, range);
 	}
 
 	toBuilder(): SortedSet.Builder<T> {

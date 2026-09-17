@@ -123,7 +123,7 @@ export namespace IndexedSortedCollectionNonEmpty {
 				| { inclusive?: boolean | undefined; otherwise?: OptLazy<O> }
 				| undefined,
 		): E | O;
-		abstract indexOf(search: S): number;
+		abstract indexOf(search: S): number | undefined;
 		abstract lowerBound(search: S): number;
 		abstract upperBound(search: S): number;
 	}
@@ -190,7 +190,7 @@ export namespace IndexedSortedCollectionNonEmpty {
 					| { inclusive?: boolean | undefined; otherwise?: OptLazy<O> }
 					| undefined,
 			): E | O;
-			abstract indexOf(search: S): number;
+			abstract indexOf(search: S): number | undefined;
 			abstract lowerBound(search: S): number;
 			abstract upperBound(search: S): number;
 

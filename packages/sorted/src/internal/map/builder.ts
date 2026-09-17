@@ -99,16 +99,14 @@ export class SortedMapBuilder<K, V>
 		return OptLazy(otherwise) as O;
 	};
 
-	at = ((index: number, otherwise?: any): any => {
-		return (this as any).atIndex(index, otherwise);
-	}) as any;
-
-	hasKey = <UK>(key: RelatedTo<K, UK>): boolean => {
-		return Token !== this.get(key, Token);
+	at = (index: number, otherwise?: OptLazy<any>): any => {
+		if (undefined !== this.source) return this.source.at(index, otherwise);
+		return this.build().at(index, otherwise);
 	};
 
-	// aliases for new KeyedCollection API
-	has = this.hasKey as any;
+	has = <UK>(key: RelatedTo<K, UK>): boolean => {
+		return Token !== this.get(key, Token);
+	};
 
 	clear = (): void => {
 		this._entries = [];
@@ -144,13 +142,6 @@ export class SortedMapBuilder<K, V>
 		return (this as any).max(..._args);
 	};
 
-	atIndex = (index: any, otherwise?: any): any => {
-		if (undefined !== this.source)
-			return (this.source as any).atIndex(index, otherwise);
-		// fallback via build
-		return (this as any).build().atIndex(index, otherwise);
-	};
-
 	indexOf = (key: any, otherwise?: any): any => {
 		if (undefined !== this.source)
 			return (this.source as any).indexOf(key, otherwise);
@@ -184,14 +175,14 @@ export class SortedMapBuilder<K, V>
 	};
 
 	previous = (key: any, options?: any): any => {
-		return (this as any).build().previousEntry(key, options);
+		return (this as any).build().previous(key, options);
 	};
 
 	next = (key: any, options?: any): any => {
-		return (this as any).build().nextEntry(key, options);
+		return (this as any).build().next(key, options);
 	};
 
-	addEntry = (entry: readonly [K, V]): boolean => {
+	add = (entry: readonly [K, V]): boolean => {
 		this.checkLock();
 
 		const result = this.addEntryInternal(entry);
@@ -199,18 +190,14 @@ export class SortedMapBuilder<K, V>
 		return result;
 	};
 
-	addEntries = (source: StreamSource<readonly [K, V]>): boolean => {
+	addAll = (source: StreamSource<readonly [K, V]>): boolean => {
 		this.checkLock();
 
-		return Stream.from(source).filterPure({ pred: this.addEntry }).count() > 0;
+		return Stream.from(source).filterPure({ pred: this.add }).count() > 0;
 	};
 
-	// aliases for Collection WithAdd
-	add = this.addEntry as any;
-	addAll = this.addEntries as any;
-
 	set = (key: K, value: V): boolean => {
-		return this.addEntry([key, value]);
+		return this.add([key, value]);
 	};
 
 	removeKey = <UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O => {
@@ -237,7 +224,7 @@ export class SortedMapBuilder<K, V>
 		);
 	};
 
-	modifyAt = (key: K, options: ModifyOptions<V>): boolean => {
+	modifyAtKey = (key: K, options: ModifyOptions<V>): boolean => {
 		this.checkLock();
 		if (checkEmptyModifyOptions(options)) return false;
 
@@ -252,7 +239,7 @@ export class SortedMapBuilder<K, V>
 		let idx = index;
 		if (idx < 0) idx = sz + idx;
 		if (idx < 0 || idx >= sz) return otherwise as any;
-		const entry = this.atIndex(idx) as readonly [K, V];
+		const entry = this.at(idx) as readonly [K, V];
 		this.removeKey(entry[0] as any);
 		this.normalize();
 		return entry;
@@ -267,7 +254,7 @@ export class SortedMapBuilder<K, V>
 		if (amount <= 0) return false;
 		let removed = false;
 		for (let i = 0; i < amount; i++) {
-			const e = this.atIndex(idx) as readonly [K, V] | undefined;
+			const e = this.at(idx) as readonly [K, V] | undefined;
 			if (undefined === e) break;
 			removed = undefined !== this.removeKey(e[0] as any, Symbol()) || removed;
 		}
@@ -282,7 +269,7 @@ export class SortedMapBuilder<K, V>
 			.sort((a: number, b: number) => b - a);
 		let changed = false;
 		for (const idx of arr as number[]) {
-			const e = this.atIndex(idx) as readonly [K, V] | undefined;
+			const e = this.at(idx) as readonly [K, V] | undefined;
 			if (undefined !== e) {
 				const v = this.removeKey(e[0] as any, Symbol());
 				if (v !== Symbol()) changed = true;
@@ -291,29 +278,6 @@ export class SortedMapBuilder<K, V>
 		if (changed) this.normalize();
 		if (_collector) return changed;
 		return changed;
-	};
-
-	updateAt = <O>(
-		key: K,
-		update: (value: V) => V,
-		otherwise?: OptLazy<O>,
-	): V | O => {
-		let result: V;
-		let found = false;
-
-		this.modifyAt(key, {
-			ifExists: {
-				update: (value): V => {
-					result = value;
-					found = true;
-					return update(value);
-				},
-			},
-		});
-
-		if (!found) return OptLazy(otherwise) as O;
-
-		return result!;
 	};
 
 	updateAtKey = <O>(
@@ -325,7 +289,7 @@ export class SortedMapBuilder<K, V>
 		let current: V | O = undefined as any;
 		let found = false;
 
-		this.modifyAt(key, {
+		this.modifyAtKey(key, {
 			ifExists: {
 				update: (value): V => {
 					previous = value as any;
@@ -347,9 +311,6 @@ export class SortedMapBuilder<K, V>
 
 		return [previous, current] as any;
 	};
-
-	// aliases for new names
-	modifyAtKey = this.modifyAt as any;
 
 	build = (): SortedMap<K, V> => {
 		if (undefined !== this.source) return this.source;

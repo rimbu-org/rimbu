@@ -29,15 +29,7 @@ export class SortedSetEmpty<T = any>
 		return Stream.empty();
 	}
 
-	streamSliceIndex(): Stream<T> {
-		return Stream.empty();
-	}
-
-	sliceIndex(): SortedSet<T> {
-		return this;
-	}
-
-	toBuilder() {
+	toBuilder(): SortedSet.Builder<T> {
 		return this.context.builder();
 	}
 

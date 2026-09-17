@@ -5,7 +5,6 @@ import type { IndexedValuedSortedCollection } from '@rimbu/collection-types/coll
 import type { ValuedCollection } from '@rimbu/collection-types/collection/valued';
 import type { SetCollection } from '@rimbu/collection-types/set';
 import type { Comp } from '@rimbu/common/comp';
-import type { IndexRange } from '@rimbu/common/index-range';
 import type { Range } from '@rimbu/common/range';
 import type { Stream } from '@rimbu/stream';
 
@@ -40,14 +39,8 @@ export namespace SortedSet {
 				IndexedCollection.Capability.WithRemoveAt.Api<E, Tp> {
 			stream(options?: { reversed?: boolean }): Tp['_AS_STREAM'];
 			streamRange(range: Range<E>, options?: { reversed?: boolean }): Stream<E>;
-			streamSliceIndex(
-				range: IndexRange,
-				options?: { reversed?: boolean },
-			): Stream<E>;
 			lowerBound(value: E): number;
 			upperBound(value: E): number;
-			/** @deprecated use `slice` */
-			sliceIndex(range: IndexRange): Tp['_NORMAL'];
 		}
 
 		export interface BuilderApi<E, Tp extends Collection.Advanced.TypesBase>

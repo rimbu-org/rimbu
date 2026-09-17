@@ -104,7 +104,9 @@ export class SortedSetBuilder<T> extends SortedBuilder<T> {
 	};
 
 	at = (index: number, otherwise?: any): any => {
-		return this.atIndex(index, otherwise);
+		if (undefined !== this.source)
+			return (this.source as any).at(index, otherwise);
+		return (this as any).build().at(index, otherwise);
 	};
 
 	first = (otherwise?: any): any => {
@@ -186,7 +188,7 @@ export class SortedSetBuilder<T> extends SortedBuilder<T> {
 		let idx = index;
 		if (idx < 0) idx = sz + idx;
 		if (idx < 0 || idx >= sz) return otherwise as any;
-		const value = this.atIndex(idx);
+		const value = this.at(idx);
 		this.remove(value as any);
 		this.normalize();
 		return value;
@@ -201,7 +203,7 @@ export class SortedSetBuilder<T> extends SortedBuilder<T> {
 		if (amount <= 0) return false;
 		let removed = false;
 		for (let i = 0; i < amount; i++) {
-			const v = this.atIndex(idx);
+			const v = this.at(idx);
 			if (undefined === v) break;
 			removed = this.remove(v as any) || removed;
 		}
@@ -218,7 +220,7 @@ export class SortedSetBuilder<T> extends SortedBuilder<T> {
 		let changed = false;
 		let count = 0;
 		for (const idx of arr as number[]) {
-			const v = this.atIndex(idx);
+			const v = this.at(idx);
 			if (undefined !== v && this.remove(v as any)) {
 				changed = true;
 				count++;
