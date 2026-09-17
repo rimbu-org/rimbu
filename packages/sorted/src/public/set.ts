@@ -46,6 +46,8 @@ export namespace SortedSet {
 			): Stream<E>;
 			lowerBound(value: E): number;
 			upperBound(value: E): number;
+			/** @deprecated use `slice` */
+			sliceIndex(range: IndexRange): Tp['_NORMAL'];
 		}
 
 		export interface BuilderApi<E, Tp extends Collection.Advanced.TypesBase>
@@ -83,7 +85,7 @@ export namespace SortedSet {
 			Context<any>,
 			'builder' | 'empty' | 'from' | 'of' | 'reducer'
 		> & {
-			createContext<E>(options: {
+			createContext<E>(options?: {
 				comp?: Comp<E> | undefined;
 				blockSizeBits?: number | undefined;
 			}): Context<E>;

@@ -96,7 +96,7 @@ export namespace IndexedCollectionEmpty {
 				return Stream.empty<E>();
 			}
 
-			at<O>(otherwise?: OptLazy<O>): O {
+			at<O>(_index: number, otherwise?: OptLazy<O>): E | O {
 				return OptLazy(otherwise) as O;
 			}
 

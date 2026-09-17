@@ -69,7 +69,7 @@ export class SortedSetContext<UE>
 	}
 
 	leaf<E extends UE>(entries: readonly E[]): SortedSetLeaf<E> {
-		return new SortedSetLeaf(this, entries);
+		return new SortedSetLeaf(this as unknown as SortedSetContext<E>, entries);
 	}
 
 	inner<E extends UE>(
@@ -77,7 +77,12 @@ export class SortedSetContext<UE>
 		children: readonly SortedSetNode<E>[],
 		size: number,
 	): SortedSetInner<E> {
-		return new SortedSetInner(this, entries, children, size);
+		return new SortedSetInner(
+			this as unknown as SortedSetContext<E>,
+			entries,
+			children,
+			size,
+		);
 	}
 
 	isSortedSetEmpty<E extends UE>(obj: unknown): obj is SortedSetEmpty<E> {
@@ -112,11 +117,11 @@ export class SortedSetContext<UE>
 	};
 
 	builder = <E extends UE>(): SortedSet.Builder<E> => {
-		return new SortedSetBuilder<E>(this);
+		return new SortedSetBuilder<E>(this as unknown as ContextImpl<E>);
 	};
 
 	createBuilder<E extends UE>(source?: SortedSet<E>): SortedSet.Builder<E> {
-		return new SortedSetBuilder<E>(this, source);
+		return new SortedSetBuilder<E>(this as unknown as ContextImpl<E>, source);
 	}
 
 	reducer = <E extends UE>(
@@ -148,3 +153,5 @@ export class SortedSetContext<UE>
 		) as unknown as SortedSet.Context<E>;
 	};
 }
+
+export type ContextImpl<UE> = SortedSetContext<UE>;

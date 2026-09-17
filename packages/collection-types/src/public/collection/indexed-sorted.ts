@@ -39,8 +39,8 @@ export declare namespace IndexedSortedCollection {
 				otherwise: OptLazy<O>,
 			): number | O;
 
-			lowerBound(value: E): number;
-			upperBound(value: E): number;
+			lowerBound<US = S>(search: RelatedTo<S, US>): number;
+			upperBound<US = S>(search: RelatedTo<S, US>): number;
 		}
 
 		export interface ContextApi<

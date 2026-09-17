@@ -81,7 +81,7 @@ export class SortedSetInner<T> extends SortedSetNode<T> {
 		return innerStreamSliceIndex<T>(this, range, reversed);
 	}
 
-	has<U>(value: RelatedTo<T, U>): boolean {
+	has = <U>(value: RelatedTo<T, U>): boolean => {
 		if (!this.context.comp.isComparable(value)) return false;
 
 		const index = this.context.findIndex(value, this.entries);
@@ -92,7 +92,7 @@ export class SortedSetInner<T> extends SortedSetNode<T> {
 		const child = this.children[childIndex];
 
 		return child.has<U>(value);
-	}
+	};
 
 	findIndex<O>(value: T, otherwise?: OptLazy<O>): number | O {
 		if (!this.context.comp.isComparable(value)) return OptLazy(otherwise!);
@@ -106,7 +106,7 @@ export class SortedSetInner<T> extends SortedSetNode<T> {
 			);
 		const childIndex = SortedIndex.next(index);
 		const child = this.children[childIndex];
-		const index$ = child.findIndex(value);
+		const index$ = child.findIndex(value, undefined);
 		if (undefined !== index$) {
 			return (
 				index$ +
@@ -121,6 +121,10 @@ export class SortedSetInner<T> extends SortedSetNode<T> {
 
 	at<O>(index: number, otherwise?: OptLazy<O>): T | O {
 		return innerGetAtIndex<T, O>(this, index, otherwise);
+	}
+
+	atIndex<O>(index: number, otherwise?: OptLazy<O>): T | O {
+		return this.at(index, otherwise);
 	}
 
 	forEach(

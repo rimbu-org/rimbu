@@ -18,7 +18,7 @@ function runWith(name: string, context: SortedMap.Context<number>): void {
 					.toArray(),
 			).toEqual(entries(8, 5, 3, 2));
 			const map = context.from(
-				Stream.range({ amount: 100 }).map((v) => [v, v]),
+				Stream.range({ amount: 100 }).map((v): [number, number] => [v, v]),
 			);
 			expect(map.stream({ reversed: true }).toArray()).toEqual(
 				Stream.range({ start: 99, end: 0 }, { delta: -1 })
@@ -30,21 +30,21 @@ function runWith(name: string, context: SortedMap.Context<number>): void {
 		it('streamKeys reversed', () => {
 			expect(context.empty().streamKeys().toArray()).toEqual([],);
 			expect(context.from(entries(8, 3, 5, 2)).streamKeys().toArray(),).toEqual([2, 3, 5, 8]);
-			const map = context.from(Stream.range({ amount: 100 }).map((v) => [v, v]),);
-			expect(map.streamKeys().toArray().sort((a,b)=>a-b)).toEqual(Stream.range({ amount: 100 }).toArray(),);
+			const map = context.from(Stream.range({ amount: 100 }).map((v): [number, number] => [v, v]),);
+			expect(map.streamKeys().toArray().sort((a: number, b: number) => a - b)).toEqual(Stream.range({ amount: 100 }).toArray(),);
 		});
 
 		it('streamValues reversed', () => {
 			expect(context.empty().streamValues().toArray()).toEqual([]);
 			expect(context.from(entries(8, 3, 5, 2)).streamValues().toArray()).toEqual([2, 3, 5, 8]);
-			const map = context.from(Stream.range({ amount: 100 }).map((v) => [v, v]),);
-			expect(map.streamValues().toArray().sort((a,b)=>a-b)).toEqual(Stream.range({ amount: 100 }).toArray(),);
+			const map = context.from(Stream.range({ amount: 100 }).map((v): [number, number] => [v, v]),);
+			expect(map.streamValues().toArray().sort((a: number, b: number) => a - b)).toEqual(Stream.range({ amount: 100 }).toArray(),);
 		});
 
 		it('sliceIndex', () => {
 			expect(context.empty().sliceIndex({ amount: 10 })).toBe(context.empty());
 			const map = context.from(
-				Stream.range({ amount: 100 }).map((v) => [v, v]),
+				Stream.range({ amount: 100 }).map((v): [number, number] => [v, v]),
 			);
 
 			expect(map.sliceIndex({ amount: 3 }).toArray()).toEqual(entries(0, 1, 2));
@@ -89,7 +89,7 @@ function runWith(name: string, context: SortedMap.Context<number>): void {
 		it('slice', () => {
 			expect(context.empty().slice({ start: 3 })).toBe(context.empty());
 			const map = context.from(
-				Stream.range({ amount: 100 }).map((v) => [v, v]),
+				Stream.range({ amount: 100 }).map((v): [number, number] => [v, v]),
 			);
 			expect(map.slice({ end: 3 }).toArray()).toEqual(entries(0, 1, 2, 3));
 			expect(map.slice({ end: [3, false] }).toArray()).toEqual(
@@ -126,7 +126,7 @@ function runWith(name: string, context: SortedMap.Context<number>): void {
 				Stream.empty(),
 			);
 			const map = context.from(
-				Stream.range({ amount: 100 }).map((v) => [v, v]),
+				Stream.range({ amount: 100 }).map((v): [number, number] => [v, v]),
 			);
 			expect(map.streamSliceIndex({ amount: 3 }).toArray()).toEqual(
 				entries(0, 1, 2),
@@ -176,7 +176,7 @@ function runWith(name: string, context: SortedMap.Context<number>): void {
 				context.empty().streamSliceIndex({ amount: 10 }, { reversed: true }),
 			).toBe(Stream.empty());
 			const map = context.from(
-				Stream.range({ amount: 100 }).map((v) => [v, v]),
+				Stream.range({ amount: 100 }).map((v): [number, number] => [v, v]),
 			);
 			expect(
 				map.streamSliceIndex({ amount: 3 }, { reversed: true }).toArray(),
@@ -246,7 +246,7 @@ function runWith(name: string, context: SortedMap.Context<number>): void {
 		it('streamRange', () => {
 			expect(context.empty().streamRange({ start: 3 })).toBe(Stream.empty());
 			const map = context.from(
-				Stream.range({ amount: 100 }).map((v) => [v, v]),
+				Stream.range({ amount: 100 }).map((v): [number, number] => [v, v]),
 			);
 			expect(map.streamRange({ end: 3 }).toArray()).toEqual(
 				entries(0, 1, 2, 3),
@@ -291,7 +291,7 @@ function runWith(name: string, context: SortedMap.Context<number>): void {
 				context.empty().streamRange({ start: 3 }, { reversed: true }),
 			).toBe(Stream.empty());
 			const map = context.from(
-				Stream.range({ amount: 100 }).map((v) => [v, v]),
+				Stream.range({ amount: 100 }).map((v): [number, number] => [v, v]),
 			);
 			expect(map.streamRange({ end: 3 }, { reversed: true }).toArray()).toEqual(
 				entries(3, 2, 1, 0),
@@ -354,7 +354,7 @@ function runWith(name: string, context: SortedMap.Context<number>): void {
 			expect(map.indexOf(10, -1)).toBe(-1);
 
 			const largeMap = context.from(
-				Stream.range({ amount: 100 }).map((v) => [v, v]),
+				Stream.range({ amount: 100 }).map((v): [number, number] => [v, v]),
 			);
 			expect(largeMap.indexOf(0)).toBe(0);
 			expect(largeMap.indexOf(50)).toBe(50);

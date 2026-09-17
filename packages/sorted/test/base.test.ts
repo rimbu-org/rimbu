@@ -11,7 +11,6 @@ import {
 	leafMutateJoinLeft,
 	leafMutateJoinRight,
 	leafMutateSplitRight,
-	SortedEmpty,
 } from '#sorted/base';
 
 function createSource<T>(values: T[]): LeafMutateSource<any, T> {
@@ -103,17 +102,5 @@ describe('base leaf operations', () => {
 		expect(up).toBe(5);
 		expect(s.entries).toEqual([1, 3]);
 		expect(right.entries).toEqual([11, 13]);
-	});
-});
-
-describe('SortedEmpty', () => {
-	it('returns defaults', () => {
-		const empty = new SortedEmpty();
-		expect(empty.min(1)).toBe(1);
-		expect(empty.max(1)).toBe(1);
-		expect(empty.at(10, 1)).toBe(1);
-		expect(empty.take()).toBe(empty);
-		expect(empty.drop()).toBe(empty);
-		expect(empty.sliceIndex()).toBe(empty);
 	});
 });

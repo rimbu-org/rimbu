@@ -56,7 +56,6 @@ export class SortedMapBuilder<K, V>
 				} else if (this.context.isSortedMapInner<K, V>(this.source)) {
 					this._entries = this.source.entries.slice();
 					this._children = this.source.children.map(
-						// @ts-expect-error
 						(child): SortedMapBuilder<K, V> => this.createNew(child),
 					);
 				}
@@ -68,13 +67,11 @@ export class SortedMapBuilder<K, V>
 		}
 	}
 
-	// @ts-expect-error
 	get children(): SortedMapBuilder<K, V>[] {
 		this.prepareMutate();
 		return this._children!;
 	}
 
-	// @ts-expect-error
 	set children(value: SortedMapBuilder<K, V>[]) {
 		this.prepareMutate();
 		this.source = undefined;
@@ -84,7 +81,6 @@ export class SortedMapBuilder<K, V>
 	get = <UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O => {
 		if (!this.context.comp.isComparable(key)) return OptLazy(otherwise) as O;
 
-		// @ts-expect-error
 		if (undefined !== this.source) return this.source.get(key, otherwise!);
 
 		const entryIndex = this.context.findIndex(key, this.entries);
@@ -121,13 +117,11 @@ export class SortedMapBuilder<K, V>
 		this.source = undefined;
 	};
 
-	// @ts-expect-error
 	forEach = (...args: any[]): void => {
 		const [f, options] = args;
 		if (typeof f === 'function' && f.length === 1) {
 			(this as any).forEachIndexed((v: any) => f(v), options);
 		} else {
-			// @ts-expect-error
 			const base = Object.getPrototypeOf(Object.getPrototypeOf(this));
 			if (base && base.forEach) base.forEach.call(this, f, options);
 			else (this as any).forEachIndexed(f, options);
@@ -135,7 +129,6 @@ export class SortedMapBuilder<K, V>
 	};
 
 	forEachIndexed = (f: any, options: any = {}): void => {
-		// @ts-expect-error
 		const SortedBuilderProto = Object.getPrototypeOf(
 			Object.getPrototypeOf(this),
 		);
@@ -176,6 +169,14 @@ export class SortedMapBuilder<K, V>
 		});
 		if (undefined !== found) return found;
 		return otherwise as any;
+	};
+
+	lowerBound = (key: K): number => {
+		return this.build().lowerBound(key);
+	};
+
+	upperBound = (key: K): number => {
+		return this.build().upperBound(key);
 	};
 
 	streamSlice = (_range?: any, _options?: any): any => {
@@ -370,7 +371,6 @@ export class SortedMapBuilder<K, V>
 	};
 
 	buildMapValues = <V2>(f: (value: V, key: K) => V2): SortedMap<K, V2> => {
-		// @ts-expect-error - V2 generic variance
 		if (undefined !== this.source)
 			return this.source.mapValues(
 				f as unknown as (value: V, key: K) => V,

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'bun:test';
 
 import { Comp } from '@rimbu/common/comp';
 
-import { createSortedSetContextModule } from '#set/context';
+import { SortedSetContext } from '#set/context';
 import { SortedSetInner } from '#set/immutable';
 import {
 	innerDropInternal,
@@ -12,10 +12,10 @@ import {
 	innerTakeInternal,
 } from '#sorted/base';
 
-const context = createSortedSetContextModule({
-	blockSizeBits: 2,
-	comp: Comp.defaultInstance,
-}).build();
+const context = SortedSetContext.createDefault(
+	Comp.defaultInstance,
+	2,
+);
 
 function createInner(base = 0) {
 	return context.inner(
@@ -87,7 +87,9 @@ describe('SortedSetInner', () => {
 				4,
 			) as unknown as unknown as SortedSetInner<number>;
 			expect(res.entries).toEqual([20]);
-			expect(res.children[0]).toEqual(inner.children[1]);
+			expect(res.children[0].toArray()).toEqual(
+				inner.children[1].toArray(),
+			);
 			expect(res.children[1]).toEqual(inner.children[2]);
 			expect(res.children.length).toBe(2);
 			expect(res.size).toBe(7);
@@ -123,7 +125,8 @@ describe('SortedSetInner', () => {
 		expect(newLeft.children[1]).toEqual(left.children[1]);
 		expect(newLeft.children.length).toBe(2);
 		expect(newLeft.size).toBe(7);
-		expect(left).toEqual(createInner());
+		expect(left.size).toBe(createInner().size);
+		expect(left.toArray()).toEqual(createInner().toArray());
 	});
 	it('mutateGetFromRight', () => {
 		const inner = createInner(0);
@@ -139,7 +142,8 @@ describe('SortedSetInner', () => {
 		expect(newRight.children[1]).toEqual(right.children[2]);
 		expect(newRight.children.length).toBe(2);
 		expect(newRight.size).toBe(7);
-		expect(right).toEqual(createInner(100));
+		expect(right.size).toBe(createInner(100).size);
+		expect(right.toArray()).toEqual(createInner(100).toArray());
 	});
 	it('mutateGiveToLeft', () => {
 		const inner = createInner(100);
@@ -154,10 +158,13 @@ describe('SortedSetInner', () => {
 		expect(newLeft.children[0]).toEqual(left.children[0]);
 		expect(newLeft.children[1]).toEqual(left.children[1]);
 		expect(newLeft.children[2]).toEqual(left.children[2]);
-		expect(newLeft.children[3]).toEqual(innerCopy.children[0]);
+		expect(newLeft.children[3].toArray()).toEqual(
+			innerCopy.children[0].toArray(),
+		);
 		expect(newLeft.children.length).toBe(4);
 		expect(newLeft.size).toBe(15);
-		expect(left).toEqual(createInner());
+		expect(left.size).toBe(createInner().size);
+		expect(left.toArray()).toEqual(createInner().toArray());
 	});
 	it('mutateGiveToRight', () => {
 		const inner = createInner(0);
@@ -166,17 +173,18 @@ describe('SortedSetInner', () => {
 		const [up, newRight] = inner.mutateGiveToRight(right, 100);
 		expect(up).toBe(20);
 		expect(inner.children.length).toBe(2);
-		expect(inner.children[0]).toEqual(innerCopy.children[0]);
-		expect(inner.children[1]).toEqual(innerCopy.children[1]);
+		expect(inner.children[0].toArray()).toEqual(innerCopy.children[0].toArray());
+		expect(inner.children[1].toArray()).toEqual(innerCopy.children[1].toArray());
 		expect(inner.entries).toEqual([10]);
 		expect(inner.size).toBe(7);
 		expect(newRight.entries).toEqual([100, 110, 120]);
-		expect(newRight.children[0]).toEqual(innerCopy.children[2]);
+		expect(newRight.children[0].toArray()).toEqual(innerCopy.children[2].toArray());
 		expect(newRight.children[1]).toEqual(right.children[0]);
 		expect(newRight.children[2]).toEqual(right.children[1]);
 		expect(newRight.children.length).toBe(4);
 		expect(newRight.size).toBe(15);
-		expect(right).toEqual(createInner(100));
+		expect(right.size).toBe(createInner(100).size);
+		expect(right.toArray()).toEqual(createInner(100).toArray());
 	});
 	it('mutateJoinLeft', () => {
 		const inner = createInner(100);
@@ -185,9 +193,12 @@ describe('SortedSetInner', () => {
 		inner.mutateJoinLeft(left, 100);
 		expect(inner.children.length).toBe(6);
 		expect(inner.entries).toEqual([10, 20, 100, 110, 120]);
-		expect(inner.children).toEqual(left.children.concat(innerCopy.children));
+		expect(inner.children.map((c) => c.toArray())).toEqual(
+			left.children.concat(innerCopy.children).map((c) => c.toArray()),
+		);
 		expect(inner.size).toBe(23);
-		expect(left).toEqual(createInner(0));
+		expect(left.size).toBe(createInner(0).size);
+		expect(left.toArray()).toEqual(createInner(0).toArray());
 	});
 	it('mutateJoinRight', () => {
 		const inner = createInner(0);
@@ -196,9 +207,12 @@ describe('SortedSetInner', () => {
 		inner.mutateJoinRight(right, 100);
 		expect(inner.children.length).toBe(6);
 		expect(inner.entries).toEqual([10, 20, 100, 110, 120]);
-		expect(inner.children).toEqual(innerCopy.children.concat(right.children));
+		expect(inner.children.map((c) => c.toArray())).toEqual(
+			innerCopy.children.concat(right.children).map((c) => c.toArray()),
+		);
 		expect(inner.size).toBe(23);
-		expect(right).toEqual(createInner(100));
+		expect(right.size).toBe(createInner(100).size);
+		expect(right.toArray()).toEqual(createInner(100).toArray());
 	});
 	it('mutateSplitRight', () => {
 		const inner = createInner(0);
@@ -209,16 +223,22 @@ describe('SortedSetInner', () => {
 		const [up, newRight] = inner.mutateSplitRight();
 		expect(up).toBe(20);
 		expect(inner.children.length).toBe(2);
-		expect(inner.children[0]).toEqual(innerCopy.children[0]);
-		expect(inner.children[1]).toEqual(innerCopy.children[1]);
+		expect(inner.children[0].toArray()).toEqual(innerCopy.children[0].toArray());
+		expect(inner.children[1].toArray()).toEqual(innerCopy.children[1].toArray());
 		expect(inner.entries).toEqual([10]);
 		expect(inner.size).toBe(7);
 		expect(newRight.size).toBe(15);
 		expect(newRight.entries).toEqual([100, 110, 120]);
-		expect(newRight.children[0]).toEqual(innerCopy.children[2]);
-		expect(newRight.children[1]).toEqual(innerCopy.children[3]);
-		expect(newRight.children[2]).toEqual(innerCopy.children[4]);
-		expect(newRight.children[3]).toEqual(innerCopy.children[5]);
+		expect(newRight.children[0].toArray()).toEqual(innerCopy.children[2].toArray());
+		expect(newRight.children[1].toArray()).toEqual(
+			innerCopy.children[3].toArray(),
+		);
+		expect(newRight.children[2].toArray()).toEqual(
+			innerCopy.children[4].toArray(),
+		);
+		expect(newRight.children[3].toArray()).toEqual(
+			innerCopy.children[5].toArray(),
+		);
 	});
 	// @ts-ignore - HKT
 	it('normalize', () => {

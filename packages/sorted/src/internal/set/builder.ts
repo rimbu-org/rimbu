@@ -50,13 +50,11 @@ export class SortedSetBuilder<T> extends SortedBuilder<T> {
 		}
 	}
 
-	// @ts-expect-error
 	get children(): SortedSetBuilder<T>[] {
 		this.prepareMutate();
 		return this._children!;
 	}
 
-	// @ts-expect-error
 	set children(value: SortedSetBuilder<T>[]) {
 		this.prepareMutate();
 		this.source = undefined;
@@ -87,7 +85,6 @@ export class SortedSetBuilder<T> extends SortedBuilder<T> {
 		this.source = undefined;
 	};
 
-	// @ts-expect-error: override to match new Collection BuilderApi
 	forEach = (...args: any[]): void => {
 		const [f, options] = args;
 		if (typeof f === 'function' && f.length === 1) {
@@ -131,6 +128,14 @@ export class SortedSetBuilder<T> extends SortedBuilder<T> {
 		});
 		if (undefined !== found) return found;
 		return otherwise as any;
+	};
+
+	lowerBound = (value: T): number => {
+		return this.build().lowerBound(value);
+	};
+
+	upperBound = (value: T): number => {
+		return this.build().upperBound(value);
 	};
 
 	streamSlice = (_range?: any, _options?: any): any => {

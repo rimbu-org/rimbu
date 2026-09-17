@@ -2,13 +2,19 @@ import type { SortedSet } from '@rimbu/sorted/set';
 
 import type { SortedSetContext } from '#set/context';
 
+import { IndexedCollectionEmpty } from '@rimbu/collection-types/advanced/collection/indexed-base';
 import { IndexedSortedCollectionEmpty } from '@rimbu/collection-types/advanced/collection/indexed-sorted-base';
+import { SortedCollectionEmpty } from '@rimbu/collection-types/advanced/collection/sorted-base';
 import { ValuedCollectionEmpty } from '@rimbu/collection-types/advanced/collection/valued-base';
 import { CollectionEmpty } from '@rimbu/collection-types/advanced/collection-base';
 import { Stream } from '@rimbu/stream';
 
 const EmptyBase = IndexedSortedCollectionEmpty.WithMixin(
-	ValuedCollectionEmpty.WithMixin(CollectionEmpty.Constructor),
+	SortedCollectionEmpty.WithMixin(
+		IndexedCollectionEmpty.WithMixin(
+			ValuedCollectionEmpty.WithMixin(CollectionEmpty.Constructor),
+		),
+	),
 );
 
 export class SortedSetEmpty<T = any>
@@ -25,6 +31,10 @@ export class SortedSetEmpty<T = any>
 
 	streamSliceIndex(): Stream<T> {
 		return Stream.empty();
+	}
+
+	sliceIndex(): SortedSet<T> {
+		return this;
 	}
 
 	toBuilder() {

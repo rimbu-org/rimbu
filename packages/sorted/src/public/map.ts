@@ -67,6 +67,8 @@ export namespace SortedMap {
 				options?: { inclusive?: boolean; otherwise?: OptLazy<O> },
 			): readonly [K, V] | O;
 			atIndex<O>(index: number, otherwise?: OptLazy<O>): readonly [K, V] | O;
+			/** @deprecated use `indexOf` */
+			findIndex(key: K): number | undefined;
 			sliceIndex(range: IndexRange): Tp['_NORMAL'];
 			slice(range: IndexRange | Range<K>): Tp['_NORMAL'];
 			readonly comp: Comp<K>;
@@ -79,8 +81,7 @@ export namespace SortedMap {
 		export interface ContextApi<
 			UK,
 			FAM extends KeyedCollection.Advanced.Family<UK, any>,
-		> extends MapCollection.Advanced.ContextApi<FAM>,
-				Collection.Capability.WithReducer.ContextApi<FAM> {
+		> extends MapCollection.Advanced.ContextApi<any> {
 			readonly typeTag: 'SortedMap';
 			readonly comp: Comp<UK>;
 			readonly blockSizeBits: number;
@@ -89,9 +90,7 @@ export namespace SortedMap {
 		export interface KeyedContextApi<
 			UK,
 			FAM extends KeyedCollection.Advanced.Family<UK, any>,
-		> extends KeyedCollection.Advanced.KeyedContextApi<FAM>,
-				KeyedCollection.Capability.WithMerge.KeyedContextApi<FAM>,
-				KeyedCollection.Capability.WithReducer.KeyedContextApi<FAM> {
+		> extends MapCollection.Advanced.KeyedContextApi<any> {
 			createContext<K>(options?: {
 				comp?: Comp<K> | undefined;
 				blockSizeBits?: number | undefined;

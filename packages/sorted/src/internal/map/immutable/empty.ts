@@ -45,6 +45,10 @@ export class SortedMapEmpty<K = any, V = any>
 		return OptLazy(otherwise) as O;
 	}
 
+	findIndex(): number | undefined {
+		return undefined;
+	}
+
 	sliceIndex(_range: IndexRange): SortedMap<K, V> {
 		return this;
 	}

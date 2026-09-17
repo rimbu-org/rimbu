@@ -87,11 +87,23 @@ export namespace SortedCollectionEmpty {
 			max<O>(otherwise?: OptLazy<O>): O {
 				return OptLazy(otherwise) as O;
 			}
-			previous<O>(otherwise?: OptLazy<O>): O {
-				return OptLazy(otherwise) as O;
+			previous<US, O>(
+				_search: US,
+				options?: {
+					inclusive?: boolean | undefined;
+					otherwise?: OptLazy<O>;
+				},
+			): O {
+				return OptLazy(options?.otherwise) as O;
 			}
-			next<O>(otherwise?: OptLazy<O>): O {
-				return OptLazy(otherwise) as O;
+			next<US, O>(
+				_search: US,
+				options?: {
+					inclusive?: boolean | undefined;
+					otherwise?: OptLazy<O>;
+				},
+			): O {
+				return OptLazy(options?.otherwise) as O;
 			}
 		}
 

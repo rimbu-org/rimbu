@@ -11,6 +11,7 @@ import { OptLazy } from '@rimbu/common/opt-lazy';
 import { TraverseState } from '@rimbu/common/traverse-state';
 import { Stream } from '@rimbu/stream';
 
+import { SortedMapNode } from '#map/immutable/node';
 import {
 	innerDeleteMax,
 	innerDeleteMin,
@@ -37,7 +38,7 @@ export class SortedMapInner<K, V> extends SortedMapNode<K, V> {
 		public children: readonly SortedMapNode<K, V>[],
 		readonly size: number,
 	) {
-		super();
+		super(context);
 	}
 
 	get mutateChildren(): SortedMapNode<K, V>[] {
@@ -410,13 +411,11 @@ export class SortedMapInner<K, V> extends SortedMapNode<K, V> {
 	normalize(): SortedMap<K, V> {
 		if (this.entries.length === 0) return this.children[0].normalize();
 
-		// @ts-expect-error
 		if (this.entries.length <= this.context.maxEntries) return this;
 
 		const size = this.size;
 		const [upEntry, rightNode] = this.mutateSplitRight();
 
-		// @ts-expect-error
 		return this.copy([upEntry], [this, rightNode], size);
 	}
 }

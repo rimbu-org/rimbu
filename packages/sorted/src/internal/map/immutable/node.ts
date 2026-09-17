@@ -20,16 +20,13 @@ import {
 	checkEmptyModifyOptions,
 	type ModifyOptions,
 } from '@rimbu/collection-types/advanced/common';
-import { MapCollectionNonEmpty } from '@rimbu/collection-types/advanced/map-base';
 import { OptLazy } from '@rimbu/common/opt-lazy';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
 import { SortedNode } from '#sorted/base';
 
 const NonEmptyBase = IndexedKeyedSortedCollectionNonEmpty.WithMixin(
-	MapCollectionNonEmpty.WithMixin(
-		KeyedCollectionNonEmpty.WithMixin(CollectionNonEmpty.Constructor),
-	),
+	KeyedCollectionNonEmpty.WithMixin(CollectionNonEmpty.Constructor),
 );
 
 export abstract class SortedMapNode<K, V>
@@ -38,6 +35,16 @@ export abstract class SortedMapNode<K, V>
 {
 	abstract get context(): ContextImpl<K>;
 	abstract get size(): number;
+	abstract entries: readonly (readonly [K, V])[];
+
+	/**
+	 * Mutable view of {@link entries} used by the shared B-tree mutation
+	 * helpers. Callers always re-wrap the node through `copy`, so the in-place
+	 * edits never escape.
+	 */
+	get mutateEntries(): (readonly [K, V])[] {
+		return this.entries as (readonly [K, V])[];
+	}
 	abstract stream(options?: {
 		reversed?: boolean;
 	}): Stream.NonEmpty<readonly [K, V]>;
@@ -74,6 +81,35 @@ export abstract class SortedMapNode<K, V>
 	abstract max(): readonly [K, V];
 	abstract takeInternal(amount: number): SortedMapNode<K, V>;
 	abstract dropInternal(amount: number): SortedMapNode<K, V>;
+	abstract deleteMin(): [readonly [K, V], SortedMapNode<K, V>];
+	abstract deleteMax(): [readonly [K, V], SortedMapNode<K, V>];
+	abstract mutateSplitRight(
+		index?: number,
+	): [readonly [K, V], SortedMapNode<K, V>];
+	abstract mutateGiveToLeft(
+		left: SortedMapNode<K, V>,
+		toLeft: readonly [K, V],
+	): [readonly [K, V], SortedMapNode<K, V>];
+	abstract mutateGiveToRight(
+		right: SortedMapNode<K, V>,
+		toRight: readonly [K, V],
+	): [readonly [K, V], SortedMapNode<K, V>];
+	abstract mutateGetFromLeft(
+		left: SortedMapNode<K, V>,
+		toMe: readonly [K, V],
+	): [readonly [K, V], SortedMapNode<K, V>];
+	abstract mutateGetFromRight(
+		right: SortedMapNode<K, V>,
+		toMe: readonly [K, V],
+	): [readonly [K, V], SortedMapNode<K, V>];
+	abstract mutateJoinLeft(
+		left: SortedMapNode<K, V>,
+		entry: readonly [K, V],
+	): void;
+	abstract mutateJoinRight(
+		right: SortedMapNode<K, V>,
+		entry: readonly [K, V],
+	): void;
 
 	asNormal(): this {
 		return this;
@@ -321,18 +357,6 @@ export abstract class SortedMapNode<K, V>
 		return [newMap, currentValue, true];
 	}
 
-	filter(
-		pred: (entry: readonly [K, V], index: number, halt: () => void) => boolean,
-		options: { negate?: boolean } = {},
-	): SortedMap<K, V> {
-		const builder = this.context.builder<K, V>();
-		builder.addEntries(this.stream().filter(pred, options));
-
-		if (builder.size === this.size) return this;
-
-		return builder.build();
-	}
-
 	transform<V2, K2 extends K>(
 		transformFun: (
 			stream: Stream.NonEmpty<readonly [K, V]>,
@@ -359,17 +383,6 @@ export abstract class SortedMapNode<K, V>
 
 	get comp(): any {
 		return this.context.comp;
-	}
-
-	get(key: any, otherwise?: any): any {
-		const idx = (this as any).findIndex(key, -1);
-		if (idx === -1 || idx === undefined) return OptLazy(otherwise) as any;
-		const e = (this as any).atIndex(idx) as readonly [any, any] | undefined;
-		return e ? e[1] : OptLazy(otherwise as any);
-	}
-
-	has(key: any): boolean {
-		return (this as any).hasKey(key);
 	}
 
 	indexOf(key: any, otherwise?: any): any {

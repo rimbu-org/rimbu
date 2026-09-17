@@ -67,7 +67,7 @@ export namespace IndexedKeyedSortedCollectionEmpty {
 				return Stream.empty();
 			}
 
-			at<O>(otherwise?: OptLazy<O>): O {
+			at<O>(_index: number, otherwise?: OptLazy<O>): readonly [K, V] | O {
 				return OptLazy(otherwise) as O;
 			}
 
@@ -181,7 +181,7 @@ export namespace IndexedKeyedSortedCollectionNonEmpty {
 
 		_TP: Collection.Advanced.TypesNonEmpty<
 			MapCollection.Advanced.Family<this['_K'], this['_V']>,
-			this['_E']
+			readonly [this['_K'], this['_V']]
 		>;
 	}
 

@@ -1,323 +1,299 @@
-# Plan: Migrate SortedMap / SortedSet to `collection-types` capability families
+# Plan: Finish the `@rimbu/sorted` capability migration
 
-**Target:** `packages/sorted/src/public/map.ts` & `set.ts` → compose `packages/collection-types/src/public/collection/indexed-valued-sorted.ts` / `indexed-keyed-sorted.ts` like `packages/hashed/src/public/map.ts` / `set.ts` do for `hash`.
+**Goal:** bring `packages/sorted` to the same end state as `packages/hashed` — thin public
+`Family` façades over `@rimbu/collection-types` capability mixins, with concrete nodes,
+contexts and builders implementing the mixin contracts — so the package builds, typechecks,
+and passes its runtime/type tests.
 
-**Source of truth for “hashed pattern”:** `HashMap` in `packages/hashed/src/public/map.ts:1-107` and `HashSet` in `packages/hashed/src/public/set.ts:1-91` – thin `Family`-based façades over `MapCollection` / `SetCollection` + `Collection.Capability.*` / `KeyedCollection.Capability.*` / `ValuedCollection.Capability.*`.
+**Reference (already migrated):** `packages/hashed/src/public/{map,set}.ts` +
+`packages/hashed/src/internal/{map,set}/{context.ts,immutable/*,mutable/*}`.
 
-**Current `sorted` state:** `SortedMap` / `SortedSet` still extend legacy invariant bases `RMapBase` / `RSetBase` from `packages/collection-types/src/advanced/map/base.ts:461` and `packages/collection-types/src/advanced/set/base.ts:340`, plus ad-hoc sorted extras (`streamRange`, `findIndex`, `lowerBound`, `atIndex`, etc.) in `packages/sorted/src/public/map.ts:1-609` / `set.ts:1-467`.
-
-**Capability tickets this unblocks:** `collection-capabilities/issues/08-migrate-sorted-collections.md:1` (blocked by `05`). The checklist there – unified indexed+sorted API, positional/range/neighbor identities, `comp` preservation, `removeAt` order-statistic, negative indexing / `NonEmpty`, removal of aliases – is the acceptance gate.
-
----
-
-## 1. Inventory & Gap Analysis
-
-### 1.1 Existing public contracts to preserve or rename
-
-| Area | `SortedMap` today (`src/public/map.ts`) | `SortedSet` today (`src/public/set.ts`) | Mapping to capability vocabulary |
-|---|---|---|---|
-| identity / membership | `hasKey`, `at(key)` (`RMapBase`) | `has` (`RSetBase`) | `KeyedCollection.Advanced.Api.has` / `ValuedCollection.Advanced.Api.has` + `IndexedValuedCollection.indexOf` / `IndexedKeyedCollection.indexOf` |
-| index of key/value | `findIndex(key): number | undef` (`map.ts:191`) | `findIndex(value)` (`set.ts:124`) | → `indexOf` (see `indexed-valued.ts:27`, `indexed-keyed.ts:35`) – keep `findIndex` as deprecated alias or remove per `08` (“Removed sorted aliases … are absent”) |
-| positional | `atIndex(i)`, `take`, `drop`, `sliceIndex(range)` (`map.ts:336-385`), same for set | → `IndexedCollection.Advanced.Api.at`, `take`, `drop`, `slice` (`indexed.ts:56-71`) + `streamSlice` |
-| range streaming | `streamRange(Range<K>)`, `streamSliceIndex(IndexRange)` (`map.ts:48-67`) | same for set | Keep as sorted-specific extension; no capability yet – stays in `SortedMap/Map` `Advanced.Api` as we did for `HashMap` extras |
-| order bounds | `lowerBound`, `upperBound`, `nextEntry`, `previousEntry` (`map.ts:194-292`) | `lowerBound`, `upperBound`, `next`, `previous` (`set.ts:126-225`) | Belong to `SortedCollection` range/neighbor; will remain in sorted-specific surface but align names to `08` target (positional, comparator-range, neighbor, endpoint). Do not rename `nextEntry`→`next` without ticket 08 approval – plan documents the rename. |
-| endpoints | `min`/`max`/`minKey`/`maxKey`/`minValue`/`maxValue` (`map.ts:87-313`, `set.ts:64-105`) | `min`/`max` | → `SortedCollection.Advanced.Api.min`/`max` (`sorted.ts:41-44`) + `previous`/`next` for builder |
-| builder endpoints | `Builder.min`/`max`/`atIndex` (`map.ts:524-591`, `set.ts:383-449`) | → `SortedCollection.Advanced.BuilderApi.min`/`max` + `IndexedCollection.Advanced.BuilderApi.at`/`first`/`last`. `08` requires `comp` on collection & builder; keep `atIndex`→`at` if renaming. |
-| mutation | `set`, `addEntry`, `addEntries`, `modifyAt`, `updateAt`, `removeKey*` | `add`, `addAll`, `remove`, etc. | Map to `MapCollection.Capability.WithSet`, `KeyedCollection.Capability.WithRemove`, `WithMapValues`, `WithUpdateAtKey`, `WithModifyAtKey`, `Collection.Capability.WithAdd` / `WithMutate` / `WithToBuilder` – same set `HashMap` uses (`hashed/src/public/map.ts:42-54`). `SortedSet` mirrors `HashSet` (`hashed/src/public/set.ts:33-46`). |
-
-### 1.2 Base types to compose
-
-- `SortedSet` ≡ `IndexedValuedSortedCollection` (`indexed-valued-sorted.ts:5-49`: `IndexedValuedCollection.Advanced.Api` + `SortedCollection.Advanced.Api`)
-- `SortedMap` ≡ `IndexedKeyedSortedCollection` (`indexed-keyed-sorted.ts:5-72`: `IndexedKeyedCollection.Advanced.Api` + `SortedCollection.Advanced.Api`)
-
-Both should additionally extend `SetCollection` / `MapCollection` (valued/keyed contracts not fully covered by indexed+sorted alone – `SetCollection` gives `difference`/`intersection`/`union` intent, `MapCollection` gives `streamKeys`/`streamValues`). Follow `HashSet` which extends `SetCollection.Advanced.Api` even though it also has `Valued` capabilities, and `HashMap` which extends `MapCollection.Advanced.Api`.
-
-### 1.3 Context
-
-Current `ContextImpl` in `sorted/src/internal/map/context-factory.ts:1-147` and `set/context-factory.ts:1-141` implement `RMapContextBaseModule` / `RSetContextBaseModule` and expose `comp: Comp<UK>`, `blockSizeBits`, `findIndex`, `isValidKey`. New `ContextApi` should mirror `hashed/src/public/map.ts:65-87` / `set.ts:55-64`:
-
-```ts
-// for SortedSet
-ContextApi<UE, FAM extends IndexedValuedSortedCollection.Advanced.Family<UE>>
-  extends IndexedValuedSortedCollection.Advanced.ContextApi<FAM>, // which embeds Indexed+Valued + Sorted
-          Collection.Capability.WithReducer.ContextApi<FAM> {
-  readonly comp: Comp<UE>;
-  readonly blockSizeBits: number;
-}
-```
-
-Retain `findIndex` as internal helper (`ContextImpl.findIndex`) – not part of public `ContextApi`.
+**Acceptance gate:** `.scratch/collection-capabilities/issues/08-migrate-sorted-collections.md`
+(the alias-removal checkbox is explicitly deferred to ticket `10`).
 
 ---
 
-## 2. Target Public Shape (mirrors `hashed`)
+## 1. Current state (measured 2026-09)
 
-### 2.1 `src/public/set.ts` – after
+The public façades are already on the new pattern, but the internals are mid-rewrite.
 
-```ts
-import type { Collection } from '@rimbu/collection-types/collection';
-import type { SetCollection } from '@rimbu/collection-types/set';
-// optionally keep Comp for context, but prefer deriving from ContextApi
-import type { Comp } from '@rimbu/common/comp';
-import { SortedSetContext } from '#set/context'; // analogous to HashSetContext
-
-export interface SortedSet<E> extends SortedSet.Advanced.Api<E, Collection.Advanced.Types<SortedSet.Advanced.Family<E>, E>> {}
-export namespace SortedSet {
-  export interface NonEmpty<E> extends Advanced.Api<E, Collection.Advanced.TypesNonEmpty<Advanced.Family<E>, E>> {}
-  export interface Builder<E> extends Advanced.BuilderApi<E, Collection.Advanced.Types<Advanced.Family<E>, E>> {}
-  export interface Context<UE> extends Advanced.ContextApi<UE, SortedSet.Advanced.Family<UE>> {}
-
-  export namespace Advanced {
-    export interface Api<E, Tp extends Collection.Advanced.TypesBase>
-      extends SetCollection.Advanced.Api<E, Tp>,
-              IndexedValuedSortedCollection.Advanced.Api<E, Tp>, // gives Indexed+Valued+Sorted base
-              Collection.Capability.WithAdd.Api<E, Tp>,
-              Collection.Capability.WithMutate.Api<E, Tp>,
-              Collection.Capability.WithToBuilder.Api<E, Tp>,
-              // keep existing Valued algebra until unified
-              ValuedCollection.Capability.WithRemove.Api<E, Tp>,
-              ValuedCollection.Capability.WithDifferenceAndIntersection.Api<E, Tp>,
-              ValuedCollection.Capability.WithSymmetricDifferenceAndUnion.Api<E, Tp>,
-              // plus any Sorted extras that are not yet a capability
-              // (streamRange, streamSliceIndex, lowerBound/upperBound, etc. as explicit members,
-              //  or move them to a new SortedSet-specific capability if you introduce one)
-              SortedExtras.Api<E, Tp> {}
-
-    export interface BuilderApi<E, Tp extends Collection.Advanced.TypesBase>
-      extends SetCollection.Advanced.BuilderApi<E, Tp>,
-              IndexedValuedSortedCollection.Advanced.BuilderApi<E, Tp>,
-              Collection.Capability.WithAdd.BuilderApi<E, Tp>,
-              ValuedCollection.Capability.WithRemove.BuilderApi<E, Tp>,
-              SortedExtras.BuilderApi<E, Tp> {}
-
-    export interface ContextApi<UE, F extends Collection.Advanced.FamilyBase<UE>>
-      extends SetCollection.Advanced.ContextApi<F>, // or IndexedValuedSortedCollection.ContextApi
-              Collection.Capability.WithReducer.ContextApi<F> {
-      readonly comp: Comp<UE>;
-      readonly blockSizeBits: number;
-    }
-
-    export interface Family<E> extends IndexedValuedSortedCollection.Advanced.Family<E> {
-      // IndexedValuedSorted already is Family<E> (= IndexedValued+Sorted), so extend it
-      // to also satisfy SetCollection where needed; alternately extend SetCollection and add Indexed+Sorted:
-      // pick ONE parent and intersect the rest via Api/BuilderApi, keep _NORMAL/_NON_EMPTY pointing to SortedSet types:
-      _NORMAL: SortedSet<E>;
-      _NON_EMPTY: SortedSet.NonEmpty<E>;
-      _BUILDER: SortedSet.Builder<E>;
-      _CONTEXT: SortedSet.Context<E>;
-      _FAM: Family<E>;
-      _NEW_FAMILY: Family<this['_NEW_E']>;
-      _UPPER_E: E; _INVARIANT: ...;
-    }
-
-    export type DefaultFactory = Pick<Context<any>, 'builder'|'empty'|'from'|'of'|'reducer'>
-      & { createContext<E>(options:{ comp?: Comp<E>; blockSizeBits?: number }): Context<E>; }
-  }
-}
-export const SortedSet: SortedSet.Advanced.DefaultFactory = SortedSetContext.createDefault();
-```
-
-*Alternative validated in `hashed`: `Family<E> extends SetCollection.Advanced.Family<E>` and `Api` simply also extends `IndexedValuedSortedCollection.Advanced.Api`. Choose whichever gives cleanest `_UPPER_E`/`_NEW_E` wiring; both are equivalent if `IndexedValuedSorted.Family` already extends `Collection.Advanced.Family`. Prefer `Family extends SetCollection.Advanced.Family` + intersecting `IndexedValuedSorted` via `Api` if you want `SetCollection` to be the primary parent (matches HashSet pattern).*
-
-### 2.2 `src/public/map.ts` – after
-
-Mirror `HashMap` in `hashed/src/public/map.ts:10-103` but with `IndexedKeyedSorted`:
-
-```ts
-import type { Collection } from '@rimbu/collection-types/collection';
-import type { MapCollection } from '@rimbu/collection-types/map';
-import type { KeyedCollection } from '@rimbu/collection-types/collection/keyed';
-import type { Comp } from '@rimbu/common/comp';
-import { SortedMapCollectionContext } from '#map/context';
-
-export interface SortedMap<K,V> extends SortedMap.Advanced.Api<K,V, Collection.Advanced.Types<SortedMap.Advanced.Family<K,V>, readonly [K,V]>> {}
-export namespace SortedMap {
-  export interface NonEmpty<K,V> extends Advanced.Api<K,V, Collection.Advanced.TypesNonEmpty<Advanced.Family<K,V>, readonly [K,V]>> {}
-  export interface Builder<K,V> extends Advanced.BuilderApi<K,V, Collection.Advanced.Types<Advanced.Family<K,V>, readonly [K,V]>> {}
-  export interface Context<UK> extends Advanced.ContextApi<UK, SortedMap.Advanced.Family<UK, any>> {}
-
-  export namespace Advanced {
-    export interface Api<K,V, Tp extends Collection.Advanced.Types<KeyedCollection.Advanced.Family<K,V>, readonly [K,V]>>
-      extends MapCollection.Advanced.Api<K,V, Tp>,
-              IndexedKeyedSortedCollection.Advanced.Api<K,V, Tp>,
-              Collection.Capability.WithAdd.Api<readonly [K,V], Tp>,
-              Collection.Capability.WithMutate.Api<readonly [K,V], Tp>,
-              Collection.Capability.WithToBuilder.Api<readonly [K,V], Tp>,
-              KeyedCollection.Capability.WithRemove.Api<K,V, Tp>,
-              KeyedCollection.Capability.WithMapValues.Api<K,V, Tp>,
-              KeyedCollection.Capability.WithRecompose.Api<K,V, Tp>,
-              MapCollection.Capability.WithSet.Api<K,V, Tp>,
-              MapCollection.Capability.WithUpdateAtKey.Api<K,V, Tp>,
-              MapCollection.Capability.WithModifyAtKey.Api<K,V, Tp>,
-              SortedMapExtras.Api<K,V, Tp> {} // streamRange etc.
-
-    export interface BuilderApi<K,V, Tp extends Collection.Advanced.TypesBase>
-      extends MapCollection.Advanced.BuilderApi<K,V, Tp>,
-              IndexedKeyedSortedCollection.Advanced.BuilderApi<K,V, Tp>,
-              Collection.Capability.WithAdd.BuilderApi<readonly [K,V], Tp>,
-              KeyedCollection.Capability.WithRemove.BuilderApi<K,V, Tp>,
-              KeyedCollection.Capability.WithMapValues.BuilderApi<K,V, Tp>,
-              MapCollection.Capability.WithSet.BuilderApi<K,V, Tp>,
-              /* ... */ {}
-
-    export interface ContextApi<UK, FAM extends KeyedCollection.Advanced.Family<UK, any>>
-      extends MapCollection.Advanced.ContextApi<FAM>,
-              Collection.Capability.WithReducer.ContextApi<FAM> {
-      readonly comp: Comp<UK>;
-      readonly blockSizeBits: number;
-    }
-    export interface KeyedContextApi<UK, FAM extends KeyedCollection.Advanced.Family<UK, any>>
-      extends KeyedCollection.Advanced.KeyedContextApi<FAM>,
-              KeyedCollection.Capability.WithMerge.KeyedContextApi<FAM>,
-              KeyedCollection.Capability.WithReducer.KeyedContextApi<FAM> {
-      createContext<K>(options:{ comp?: Comp<K>; blockSizeBits?: number }): Context<K>;
-    }
-
-    export interface Family<K,V> extends MapCollection.Advanced.Family<K,V> {
-      _NORMAL: SortedMap<K,V>;
-      _NON_EMPTY: SortedMap.NonEmpty<K,V>;
-      _BUILDER: SortedMap.Builder<K,V>;
-      _CONTEXT: SortedMap.Context<K>;
-      _KEYED_CONTEXT: KeyedContextApi<K, this['_FAM']>;
-      _UPPER_E: readonly [K, any];
-      _FAM: Family<K,V>;
-      _NEW_FAMILY: Family<this['_NEW_K'], this['_NEW_V']>;
-    }
-    export type DefaultFactory = KeyedContextApi<any, Family<any,any>>;
-  }
-}
-export const SortedMap: SortedMap.Advanced.DefaultFactory = SortedMapCollectionContext.createDefault().keyedContext;
-```
-
-**Where to put “SortedExtras”:** Option A – inline the ad-hoc sorted methods directly in `Advanced.Api` (simplest, mirrors current `map.ts:30-399` extras but typed against `Tp`). Option B – introduce `packages/collection-types/src/public/collection/sorted.ts` capability extensions (`WithRangeSlice`, `WithBounds`, `WithNeighbor`) and consume via capabilities. Prefer A for minimal churn; B is justified only if `08` explicitly wants those as reusable capabilities across `sorted` + `ordered`.
-
-### 2.3 What to do with legacy names
-
-- `findIndex` → `indexOf` (see `indexed-valued.ts:27`, `indexed-keyed.ts:35`). Provide deprecation re-export `/** @deprecated use indexOf */ findIndex(...)` or remove outright per `08` last checkbox.
-- `atIndex` → `at` (from `IndexedCollection`). Same decision.
-- `sliceIndex` → `slice` (from `IndexedCollection`). `slice(Range<K>)` stays for comparator-range (already needed for `slice({ start, end })` on maps).
-- `streamSliceIndex` → `streamSlice` (from `IndexedCollection`).
-- `minKey`/`maxKey`/`minValue`/`maxValue` → superseded by `min`/`max` + `stream` projections; `08` says “Removed sorted aliases and min/max projection APIs are absent”. So `SortedSet` `min`/`max` remain via `SortedCollection`; `SortedMap` `minKey`/`maxKey` etc. are aliases to remove after migration (keep internally if needed, delete from public `Advanced.Api`).
-- Document each rename in `CHANGELOG.md` / changeset.
-
----
-
-## 3. Phased Execution
-
-### Phase 0 — Pre-flight (½ day)
-
-- [ ] Run `bun run build:seq && bun run typecheck:seq` baseline (no changes). Confirm green (`collection-types` currently builds, `sorted` has one known `sortedmap-specific.test.ts` type error – note it).
-- [ ] Snapshot `dist` exports for `SortedMap`/`SortedSet` (typecheck output) to diff later.
-- [ ] Decide extras strategy (inline vs new capabilities) and alias-removal timing; record in this plan or ADR.
-
-### Phase 1 — `collection-types` readiness check (½ day)
-
-- [ ] Verify `IndexedValuedSortedCollection` and `IndexedKeyedSortedCollection` expose the expected `_CONTEXT` / `_FAM` slots (`indexed-valued-sorted.ts:31-48`, `indexed-keyed-sorted.ts:39-70`). They already correctly extend `Indexed{Valued|Keyed}+Sorted`.
-- [ ] If `SetCollection` / `MapCollection` context requirements changed in feat/capabilities branch, add any missing `WithReducer` / `WithMerge` plumbing to `sorted`’s `ContextApi`. No new files in `collection-types` needed unless a reusable sorted capability is introduced.
-
-### Phase 2 — Rewrite `packages/sorted/src/public/set.ts` (1–1.5 days)
-
-1. Replace imports of `RSetBase`/`RSet` with `Collection`, `SetCollection`, `IndexedValuedSortedCollection`, `ValuedCollection.Capability.*`, `Collection.Capability.*`.
-2. Define `SortedSet` / `SortedSet.NonEmpty` / `Builder` / `Context` shell interfaces delegating to `Advanced.*` exactly like `HashSet` (`hashed/src/public/set.ts:10-30`).
-3. Craft `Advanced.Api` – start from “target shape” above; pull in every method currently in `sorted/src/public/set.ts:29-311` that is *not* already covered by `SetCollection`/`IndexedValuedSorted`/`SortedCollection`/capabilities:
-   - Keep `stream(options?:{reversed?:boolean})`, `streamRange`, `streamSliceIndex` (or rename), `findIndex`/`indexOf`, `lowerBound`/`upperBound`, `next`/`previous`, `atIndex`/`take`/`drop`/`sliceIndex`/`slice` as needed; type them against `Tp` (`Tp['_IS_NON_EMPTY']` for `min`/`max` overloads, `Tp['_NORMAL']`/`Tp['_NON_EMPTY']` for `take` – follow `indexed.ts:62-71`).
-   - Ensure `min`/`max` signatures use `SortedCollection.Advanced.MinMax` style (`sorted.ts:36-39`) so `NonEmpty` can drop the fallback overload.
-4. Mirror `Advanced.BuilderApi` and `ContextApi` / `Family` from target shape. Set `_UPPER_E`, `_INVARIANT`, `_FAM`, `_NEW_FAMILY` like `HashSet` Family (`hashed/src/public/set.ts:63-74`).
-5. Replace terminal export `export const SortedSet: SortedSetCreators = createSortedSetContextModule().build()` with `SortedSetContext.createDefault()`-style default factory (see `hashed/src/public/set.ts:90`). Requires context file to expose `createDefault()`.
-
-**Checkpoint:** `bun run typecheck:seq --filter=@rimbu/collection-types --filter=@rimbu/sorted` should pass with stub context.
-
-### Phase 3 — Rewrite `packages/sorted/src/public/map.ts` (1–1.5 days)
-
-Analogous, using `MapCollection` + `IndexedKeyedSortedCollection` + `Keyed/Map` capabilities per “target shape” §2.2. Preserve current `map.ts:30-399` extras similarly; ensure `Context` exposes `comp` and `KeyedContextApi.createContext`.
-
-### Phase 4 — Internal `src/internal/*` adaptation (2–3 days, biggest)
-
-- [ ] **`src/internal/sorted/base.ts`** – unchanged (B-tree primitives), but ensure it no longer imports `RMapBase`/`RSetBase` helpers; replace `MapCollectionEmptyBase`/`NonEmptyBase` usage if present.
-- [ ] **`src/internal/map/immutable.ts` & `src/internal/set/immutable.ts`** (`sorted/src/internal/map/immutable.ts:1-1120`, `set/immutable.ts`): 
-  - Change `extends SortedEmpty implements SortedMap` to implement new `SortedMap` Api (`Collection.Advanced.Types<Family, ...>`). Usually only the `implements` clause changes; method bodies stay.
-  - Update method return types to use `Tp`-derived aliases (`SortedMap<K,V>` vs `WithKeyValue<Tp,...>` becomes `Collection.Advanced.FamToTypes<FAM, ...>`). Follow `hashed/src/internal/map/immutable/non-empty.ts:1-219` after its capability migration for exact signature shape (search for `WithKeyValue` removal).
-  - Keep `normalize`, `stream`, `findIndex`/`getInsertIndexOf`, sorted extras – their logic is independent of the capability typings.
-- [ ] **`src/internal/map/builder.ts` (`builder.ts:1-367`) & `set/builder.ts:1-202`**: make builders implement new `SortedMap.Builder` / `SortedSet.Builder` (`Advanced.BuilderApi`). Add missing `indexOf`/`at`/`removeAt` if `08` requires order-statistic removal. Ensure `build()` returns correct `_NORMAL` type.
-- [ ] **Context factories** (`map/context-factory.ts:1-147`, `set/context-factory.ts:1-141`): 
-  - Stop extending `RMapContextBaseModule`/`RSetContextBaseModule`; instead extend/implement new `MapCollection`/`SetCollection` context base or `Hashed`-style concrete `Context` class (`hashed/src/internal/map/context.ts:1` – see `a8240ed8a` diff: now uses `HashMapContext` class implementing `HashMap.Advanced.ContextApi` and holding `hasher`/`eq`/`blockSizeBits`). Mirror for `SortedMapContext`/`SortedSetContext`, keeping `comp`, `blockSizeBits`, `findIndex`, `isValidKey`/`isValidValue`.
-  - Provide `createDefault()` factory and `keyedContext` / `collectionContext` bridging if using `KeyedContextApi` (map needs `keyedContext` indirection like `HashMap`; set can expose factory directly like `HashSet`).
-  - Implement `empty`, `of`, `from`, `builder`, `reducer` via base helpers (`CollectionContextBaseWithAddAll` in `collection-types/src/advanced/collection-base.ts:251` or `MapCollectionContextBase`) – copy pattern from final `hashed` context.
-
-### Phase 5 — Creators / Module wiring (½ day)
-
-- [ ] Update `src/internal/map/creators.ts` & `set/creators.ts` / `#map/creators` re-exports to produce `SortedMap.Advanced.DefaultFactory` / `SortedSet.Advanced.DefaultFactory` instead of old `SortedMapCreators`. Follow `hashed` final export (`map.ts:106`).
-- [ ] Update `src/sorted.ts` barrel (`packages/sorted/src/sorted.ts`) to re-export from new `public/*`. No API change to consumers besides types.
-
-### Phase 6 — Builders & Extras completeness (½ day)
-
-- [ ] Add `removeAt` (order-statistic) if not present – `08` explicitly calls it out (“`removeAt` uses order-statistic access”). This should delegate to `IndexedCollection.Capability.WithRemoveAt` if that capability is chosen, otherwise a direct method on `SortedSet`/`SortedMap` `Advanced.Api`.
-- [ ] Ensure `comp` is exposed on **collection instances** (`collection.comp`) as well as on `context.comp`, per `08` checkbox 3 – add `readonly comp: Comp<E>` to `Advanced.Api` if not inherited.
-- [ ] Decide on `streamSlice` vs `streamSliceIndex` etc. naming parity with `Ordered` migration (`09`) so both families converge.
-
-### Phase 7 — Type-level tests (½ day)
-
-- [ ] Update / add `test-d/sorted-map.test-d.ts` & `sorted-set.test-d.ts`: cover `NonEmpty` inference (`take(0)` vs `take(1)`), `OptLazy` fallback (`at(key, 'fallback')`, `indexOf`, `min(otherwise)`), `Family` rebinding (`filter`, `mapValues` preserves `SortedMap` not `RMapBase`), and comparator type preservation (`Comp<string>` stays `Comp<string>` through `from`).
-- [ ] Copy patterns from `hashed/test-d/*` after its capability migration.
-
-### Phase 8 — Runtime tests (½–1 day)
-
-- [ ] Keep existing `test/sorted*.test.ts` – they exercise B-tree invariants independent of typings.
-- [ ] Add shared family tests: `collection-types/test-utils/map/map-collection-standard.ts` and `set/set-collection-standard.ts` – run them with `runMapTestsWith('SortedMap', SortedMap)` same as `HashMap` in `05`. Add indexed/positional/neighbor/range coverage (negative indices, `IndexRange`, reversed streams, `NonEmpty` returns).
-- [ ] Run property tests in `test-random/` if any.
-
-### Phase 9 — Verification & Release (½ day)
-
-- [ ] `bun run build:seq` (sequential, per `AGENTS.md:550`) then `bun run typecheck:seq` – must pass for `collection-types`, `sorted`, and downstream `core`, `ordered`, `hashed`.
-- [ ] `bun run test` filtered to `sorted` + `collection-types` + `hashed`.
-- [ ] `biome check src` / `review-api` diagnose run (optional) to catch export drift.
-- [ ] Create changeset (`bunx changeset`) – `feat: migrate SortedMap/SortedSet to capability families`.
-
----
-
-## 4. File Change Checklist
-
-| File | Action |
+| Check | Result |
 |---|---|
-| `packages/collection-types/src/public/collection/indexed-valued-sorted.ts` | READ-ONLY reference – already exists (`:1-49`). If needed, add missing `_INVAR` or capability Context plumbing. |
-| `packages/collection-types/src/public/collection/indexed-keyed-sorted.ts` | READ-ONLY reference – already exists (`:1-72`). Confirm `_KEYED_CONTEXT` wiring matches map expectations. |
-| `packages/sorted/src/public/map.ts` | **REWRITE** to `Family` pattern (delete `RMapBase` import, add `MapCollection`/`IndexedKeyedSortedCollection`/`Capability` imports). |
-| `packages/sorted/src/public/set.ts` | **REWRITE** similarly with `SetCollection` + `IndexedValuedSortedCollection`. |
-| `packages/sorted/src/sorted.ts` | Update barrel if needed. |
-| `packages/sorted/src/internal/map/immutable.ts` | Update `implements` + return types. |
-| `packages/sorted/src/internal/set/immutable.ts` | Same. |
-| `packages/sorted/src/internal/map/builder.ts` | Implement new `BuilderApi`. |
-| `packages/sorted/src/internal/set/builder.ts` | Same. |
-| `packages/sorted/src/internal/map/context-factory.ts` | Replace `RMapContextBaseModule` with capability-based context class + `createDefault`. |
-| `packages/sorted/src/internal/set/context-factory.ts` | Same. |
-| `packages/sorted/src/internal/map/context.ts` *(new, if split like `hashed`)* | Extract concrete `SortedMapCollectionContext` class (optional, matches `hashed/src/internal/map/context.ts`). |
-| `packages/sorted/src/internal/set/context.ts` *(new)* | Same. |
-| `packages/sorted/src/internal/{map,set}/creators.ts` | Adapt to produce `Advanced.DefaultFactory`. |
-| `packages/sorted/tsconfig.common.json` | Add `#map/*`, `#set/*` alias if introducing `context.ts` path; keep existing `#sorted/*`. |
-| `packages/sorted/test/**` | Add standard family test invocations. |
-| `packages/sorted/test-d/**` | Add capability family type tests. |
+| `bunx tsc -p packages/sorted/tsconfig.esm.json --noEmit` | **172 errors** across 19 files |
+| `bunx tsc -p packages/sorted/tsconfig.json --noEmit` | 172 src + test-utils/test errors |
+| `bun test test/*` (run from `packages/sorted`) | 80 pass, 42 fail, 6 errors |
+| `bunx tsc -p packages/collection-types/tsconfig.esm.json` | clean (`src` baseline ok) |
+| `bunx tsc -p packages/hashed/tsconfig.esm.json` | clean (`src` baseline ok) |
+| `collection-types` / `hashed` full `tsconfig.json` | pre-existing failures in `test-utils` / `test-random`, unrelated to sorted |
+
+### 1.1 Error inventory (`tsc tsconfig.esm.json`)
+
+| File | Errors | Primary cause |
+|---|---:|---|
+| `internal/set/immutable/leaf.ts` | 46 | `mutateEntries` missing on node classes; `SortedSetNode`/`mutateEntries` contract |
+| `internal/set/immutable/inner.ts` | 30 | same, plus missing `filter`/`map` on non-empty node |
+| `internal/map/immutable/inner.ts` | 29 | `SortedMapNode` not imported; `mutateEntries`; over-wide `any` |
+| `internal/map/immutable/node.ts` | 24 | duplicate/legacy members vs mixin requirements; `@ts-expect-error` misuse; abstract-vs-concrete ordering |
+| `internal/map/immutable/leaf.ts` | 17 | `SortedMapNode` not imported; `mutateEntries`; `mutateEntries` direct access on line 156 |
+| `internal/set/builder.ts` | 10 | imports `ContextImpl`/`#set/immutable` that don't exist; builder missing API |
+| `internal/map/builder.ts` | 9 (+7 unused `@ts-expect-error`) | builder missing `lowerBound`/`upperBound` etc. |
+| `internal/set/context.ts` | 5 | `SortedSetContext` generic variance (`UE` vs `E`); builder API |
+| `internal/map/immutable/empty.ts` | 1 | `modifyAt` returns `SortedMapLeaf`, not assignable to `SortedMap` |
+| `internal/map/context-factory.ts` | 1 | `builder()` returns a builder missing `lowerBound`/`upperBound` |
+| `test/*`, `test-d/*` | ~30 | tests still reference legacy names / removed exports |
+
+Highest-frequency messages:
+- `Property 'mutateEntries' is missing in ... InnerMutateSource/LeafMutateSource` (~40).
+- `Type 'SortedMapBuilder<K,V>' is missing ... lowerBound, upperBound` (~9, cascades into `toBuilder()`/`asNormal()`).
+- `Cannot find name 'SortedMapNode'` (~10).
+- `SortedSetInner/Leaf is missing implementations ... 'filter', 'map'` (TS2654).
+- `@ts-expect-error` is unused (~12) — stale suppressions that must be deleted.
+
+Runtime failures are all of the shape `context.empty().<method> is not a function`
+(`slice`, `min`, `max`, `next`, …) — the empty mixin base is not composed with the
+sorted/indexed/valued capabilities, so the empty instance is missing the methods.
 
 ---
 
-## 5. Risks & Decisions to Record
+## 2. Target architecture
 
-- **Alias retention vs removal:** `08` requires “Removed sorted aliases … are absent” – so a **breaking** release. Call out in plan whether you do a one-shot removal (simpler) or a deprecation period with `@deprecated` shims (safer). Hashed migration kept legacy names behind for one minor; sorted could do the same – decide and document.
-- **Builder `atIndex`/`indexOf` parity:** If `indexOf` lives on `IndexedValued`/`IndexedKeyed`, the sorted builder must expose the same. Ensure internal builder’s `findIndex` helper is not confused with public `indexOf`.
-- **Context duality (Map needs `KeyedContextApi` vs Set’s direct `Context`):** Follow `HashMap`’s `KeyedContextApi` + `keyedContext` pattern for `SortedMap` so `createContext(comp)` and `merge`/`reducer` keyed APIs resolve correctly. `SortedSet` can follow `HashSet`’s simpler `Context` + `createContext`.
-- **B-tree `comp` covariance:** `Comp<UK>` must stay `Comp<UK>` not `Comp<unknown>` after generic rebinding – verify `Family._UPPER_E` flows through `ContextApi`.
-- **Performance of `addAll` via builder:** After migrating `from`/`of` to use `CollectionContextBaseWithAddAll` helper (`collection-base.ts:251`), verify B-tree bulk insertion still benefits from sorting vs per-element `add`.
+### 2.1 Nodes extend the capability mixins
+
+Public `Family` records (already written) bind the concrete types; the abstract node base
+classes are built by composing the `@rimbu/collection-types/advanced/...` mixins. Concrete
+leaf/inner/empty classes implement only the members the mixins leave abstract. All generic
+methods (`filter`, `map`, `mapValues`, `removeKey(s)`, `addAll`, `set`, `updateAtKey`,
+`difference`, `union`, …) come from the mixins — **do not re-implement them on the nodes**.
+
+Compare `hashed/src/internal/{map,set}/immutable/{empty,non-empty}.ts` (11–51 lines each) to
+`sorted/src/internal/map/immutable/node.ts` (441 lines): the latter still carries a legacy
+hand-rolled API.
+
+Set composition already used by the compiling `SortedSetEmpty`
+(`set/immutable/empty.ts:10-12`):
+```ts
+IndexedSortedCollectionEmpty.WithMixin(
+  ValuedCollectionEmpty.WithMixin(CollectionEmpty.Constructor))
+```
+The non-empty node should mirror this with `IndexedSortedCollectionNonEmpty` +
+`SetCollectionNonEmpty` (for `union`/`difference`/`intersection`/`removeAll`/`mapIndexed`),
+and **drop** the redundant `IndexedCollectionNonEmpty` layer currently in
+`set/immutable/node.ts:16-22`.
+
+Map composition in `map/immutable/node.ts:29-33` mirrors the compiling `SortedMapEmpty`
+(`map/immutable/empty.ts:18-22`); keep `IndexedKeyedSortedCollectionNonEmpty` and drop any
+duplicate `MapCollection`/`KeyedCollection` layers only if the overloads allow.
+
+### 2.2 Contexts
+
+Follow `hashed/src/internal/map/context.ts` / `set/context.ts`:
+- one concrete context class implementing `{SortedMap,SortedSet}.Advanced.ContextApi`;
+- `static createDefault(options?)` returning the **collection** context;
+- map additionally exposes `get keyedContext()` (implements `KeyedContextApi`);
+- `empty`/`builder`/`leaf`/`inner`/`isNonEmptyInstance`/`reducer`/`defaultContext`/`comp`
+  implemented on the class;
+- **delete** the `Module` shim (`map/context-factory.ts:350-371`) and the legacy
+  `creators.ts` interface; the public const becomes
+  `HashMap`-style: map `SortedMapContext.createDefault().keyedContext`, set
+  `SortedSetContext.createDefault()`.
+
+The context's own type parameters must stay generic (`empty<E extends UK>()`,
+`leaf<E extends UK>()`) so that `E extends UE` nodes are assignable — the current
+`SortedSetContext` errors (`context.ts:72,80`) come from `<UE>`-typed returns being
+invariant against `<E>`.
+
+### 2.3 Builders
+
+Follow `hashed/src/internal/map/mutable/block-builder.ts`:
+- extend `CollectionBuilderBase<..., Family>` and `implements SortedMap.Builder`/`SortedSet.Builder`;
+- implement the full `Advanced.BuilderApi` surface (`build`, `size`, `isEmpty`, `clear`,
+  `forEach`, `forEachIndexed`, `add`/`addAll`, `set`/`modifyAtKey`/`updateAt*`,
+  `removeKey(s)`/`remove`/`removeAll`, `indexOf`, `at`/`first`/`last`, `min`/`max`,
+  `lowerBound`/`upperBound`, `removeAt`/`removeAmountAt`/`removeAllAt`);
+- remove every `@ts-expect-error` and `Object.getPrototypeOf` prototype hack.
+
+### 2.4 `#sorted/base.ts` helper contract
+
+The extracted pure helpers (`SortedNode.*`, `innerGetAtIndex`, `innerStreamSliceIndex`, …)
+are fine. The `*MutateSource` helpers still require a mutable `mutateEntries` field that the
+immutable nodes used to expose via the legacy `SortedNonEmptyBase`
+(`get mutateEntries() { return this.entries as E[] }`, removed by the refactor).
+
+**Recommended fix (minimal, matches pre-refactor semantics):** add
+```ts
+get mutateEntries(): E[] { return this.entries as E[]; }
+```
+to the abstract `SortedMapNode` / `SortedSetNode` classes (and keep the existing
+`get mutateChildren()`). The helpers always operate on nodes that are immediately re-wrapped
+through `copy()`, so in-place array edits are the intended legacy contract.
+
+**Alternative (cleaner, larger):** rewrite the `*Mutate*` helpers to be pure
+(array-in/array-out) and delete the `*MutateSource` interfaces. Only choose this if there is
+appetite to touch `base.ts` broadly; it is not required to unblock the migration.
 
 ---
 
-## 6. Acceptance (from `08`)
+## 3. Workstreams
 
-- [ ] `SortedMap`/`SortedSet` `extends Indexed{Valued|Keyed}SortedCollection.Advanced.Family` and pass `map-collection-standard` / `set-collection-standard` suites.
-- [ ] Positional API uses `at`/`slice`/`streamSlice`/`removeAt` with negative-index support; comparator-range API uses `streamRange`/`slice` consistently.
-- [ ] `lowerBound`/`upperBound`/`next`/`previous` neighbor API and `min`/`max` endpoint API present with correct `NonEmpty` overloads.
-- [ ] `comp` visible on both context and instance with concrete comparator types.
-- [ ] No stale `findIndex`/`atIndex`/`sliceIndex`/`minKey` aliases remain in `public/*` (or are explicitly deprecated with a removal note).
-- [ ] `bun run build:seq && bun run typecheck:seq && bun run test` green for `sorted`, `collection-types`, `core`.
+### T1 — Repair node-helper contract (`#sorted/base.ts` + node bases)
+- Add `get mutateEntries()` to `SortedMapNode`/`SortedSetNode` (or make helpers pure).
+- `map/immutable/{leaf,inner}.ts`: add the missing `import { SortedMapNode } from '#map/immutable/node'`.
+- Add `internal/set/immutable.ts` barrel re-exporting `empty/leaf/inner/node`
+  (tests and `set/builder.ts` import `#set/immutable`), or change those imports to
+  `#set/immutable/node`.
+- Export `ContextImpl` from the set context module (map already does via `#map/context-factory`).
+- Remove stale `@ts-expect-error` directives.
+
+### T2 — Set node hierarchy
+Files: `set/immutable/{node,leaf,inner,empty}.ts`.
+- Fix composition (drop redundant index mixin), add `mutateEntries`.
+- Implement mixin-required members with exact signatures, notably:
+  - `filter`, `map` on the non-empty node (currently TS2654 for `SortedSetInner`),
+  - `add`, `remove<UE>`, `has<UE>`, `recompose`,
+  - sorted specifics: `min`/`max`, `previous`/`next`, `indexOf`, `lowerBound`/`upperBound`,
+    `at`, `streamSlice`, `take`/`drop`/`splitAt`/`slice`, `removeAt`, `toBuilder`.
+- Seed requires `forEach(f: (value) => void)`; keep the indexed traversal in an overridden
+  `forEachIndexed` for efficiency.
+- `empty.ts`: rely on `ValuedCollectionEmpty` for `toBuilder`/`mutate`; only override what is
+  sorted-specific.
+
+### T3 — Map node hierarchy
+Files: `map/immutable/{node,leaf,inner,empty}.ts`.
+- Delete legacy duplicates that the mixins now provide: the second `get` (node.ts:364),
+  `has` (371), `hasKey`, `addEntry`/`addEntries`/`add`/`addAll`, `set`, `updateAt`/`updateAtAndGet`,
+  `removeKey`/`removeKeys`/`removeKeyAndReturn`/`removeKeyAndGet`, `modifyAtKey`/`updateAtKey`
+  aliases, `filter` (wrong indexed signature), `filterIndexed`, `forEachIndexed`.
+- Keep/implement the required/overridden members with **exact** signatures:
+  `get<UK,O>`, `mapValues<V2 extends V>` (note `MapCollectionNonEmpty.RequiredClass` constrains
+  `V2 extends V` and returns `ReTyped<Tp, readonly [K,V2]>`), `add`, `modifyAtKey`, `min()`/`max()`
+  (methods, not getters), `previous`/`next`, `indexOf`, `lowerBound`/`upperBound`, `at`,
+  `streamSlice`, `take`/`drop`/`splitAt`/`slice`, `removeAt`, `toBuilder`, `stream`, `forEach`,
+  `size`, `context` (typed `ContextImpl<K>`), plus sorted-only `streamRange`/`streamSliceIndex`.
+- Declare abstract members consecutively / not twice (fixes `TS2512`/`TS2516` at node.ts:52).
+- `empty.ts`: `modifyAt` returns `this.context.leaf(...)` — becomes assignable once the node
+  implements `SortedMap`.
+
+### T4 — Contexts
+Files: `map/context-factory.ts`, `set/context.ts`.
+- Rewrite as in §2.2; delete `Module`/`getDefinition`.
+- Provide `createDefault` / `createContext`; ensure `of`/`from` come from
+  `ContextBaseWithAddAll` and `reducer` powers `Collection.Capability.WithReducer`.
+- Map: `KeyedContextApi` with `mergeAll`/`mergeAllWith`/`merge`/`mergeWith` (port unchanged
+  logic, drop `as unknown as` casts where possible).
+- Ensure the `ContextApi` declares `typeTag`, `comp`, `blockSizeBits`, `isValidKey`/`isValidValue`
+  (needed downstream — cf. hashed test-random errors referencing `_fixedElementType`, `_types`,
+  `isValidValue`).
+
+### T5 — Builders
+Files: `map/builder.ts`, `set/builder.ts`.
+- Rebase on `CollectionBuilderBase`; implement the full `BuilderApi` per §2.3.
+- Fix imports (`#set/immutable`, `ContextImpl`).
+- Reuse the working B-tree mutation logic already present (it is correct; only the type
+  surface and method set need aligning).
+
+### T6 — Public façades
+Files: `public/map.ts`, `public/set.ts`.
+- Confirm/adjust `Advanced.Family`, `Api`, `BuilderApi`, `ContextApi`, `KeyedContextApi`
+  against `IndexedKeyedSortedCollection` / `IndexedValuedSortedCollection`.
+- Decide aliases (see §4). To match ticket `08`'s "kept `@deprecated` … for compatibility"
+  and keep the existing test suite compiling, expose deprecated aliases on the public
+  `Api`: `findIndex`→`indexOf`, `atIndex`→`at`, `sliceIndex`→`slice`, `streamSliceIndex`→`streamSlice`,
+  `nextEntry`/`previousEntry`, `minKey`/`maxKey`/`minValue`/`maxValue`, `hasKey`→`has`,
+  `addEntry`/`addEntries`→`add`/`addAll`. Ticket `10` removes them later.
+- Terminal consts: map `createDefault().keyedContext`; set `createDefault()`.
+
+### T7 — Tests, type tests, random tests
+- `test/sortedset-inner.test.ts`, `test/sortedset-leaf.test.ts`: replace
+  `createSortedSetContextModule` with `SortedSetContext.createDefault()`, import nodes from
+  `#set/immutable/node` (or the new barrel).
+- `test/base.test.ts`: `SortedEmpty` no longer exported — retarget at `SortedBuilder` /
+  `SortedNode` helpers.
+- `test/sortedset-builder.test.ts`: fix the `Expected 1 arguments, but got 0` constructor call.
+- `test/*-specific.test.ts`: legacy `sliceIndex`/`findIndex`/`atIndex`/`nextEntry` usage —
+  resolved by the deprecated aliases (T6) or by updating calls to the new names. Note the
+  known `sortedmap-specific.test.ts` `number[][]` type error.
+- `test-d/{map,set}.test-d.ts`: remove `// @ts-nocheck`, retarget from `RMap`/`RSet` to the
+  new family types, and add coverage for `NonEmpty` inference, `OptLazy`, `mapValues`
+  precision, and comparator preservation.
+- `test-random/*`: verify imports and context API still resolve.
+
+### T8 — Downstream and shared harness
+- `collection-types/test-utils/{map,set}/*-collection-standard.ts` currently fails (44 errors)
+  when compiled against `collection-types` **source** (sorted maps `@rimbu/collection-types/*`
+  to source in `tsconfig.common.json`; hashed maps to `dist`). Since sorted tests call
+  `runMapTestsWith`/`runSetTestsWith`, resolve this — either fix the test-utils to the new
+  builder/API signatures or confirm it is only an artifact of the source mapping.
+- `@rimbu/core` re-exports sorted: run `build:seq` then `typecheck:seq`.
+- Note `hashed/test-random` failures are pre-existing and independent.
+
+### T9 — Verification and release
+- `bun run build:seq` (sequential, per `AGENTS.md` §9) — `src` build must pass for
+  `collection-types`, `sorted`, `core`.
+- `bun run typecheck:seq` — sorted `src` + tests must pass (shared harness caveat in T8).
+- `bun test` filtered to `sorted`, `collection-types`, `hashed`.
+- `bun run biome:check` (no relative imports, no unused, import order).
+- Add a changeset: `feat: migrate SortedMap/SortedSet to capability families`.
 
 ---
 
-*References:* `hashed` capability shape (`hashed/src/public/map.ts:1-107`, `hashed/src/public/set.ts:1-91`), indexed/sorted families (`collection-types/src/public/collection/indexed-valued-sorted.ts:1-49`, `indexed-keyed-sorted.ts:1-72`, `sorted.ts:1-110`), legacy sorted surface (`sorted/src/public/map.ts:1-609`, `sorted/src/public/set.ts:1-467`), context factories (`sorted/src/internal/map/context-factory.ts:1-147`, `sorted/src/internal/set/context-factory.ts:1-141`), internal tree (`sorted/src/internal/map/immutable.ts`, `sorted/src/internal/set/builder.ts:1-202`, `sorted/src/internal/map/builder.ts:1-367`). Related effort tickets `05` & `08` in `.scratch/collection-capabilities/issues/`.
+## 4. Decisions to record
+
+1. **Helper contract:** restore the `mutateEntries` getter (recommended) vs rewrite the
+   `*Mutate*` helpers as pure functions.
+2. **Alias policy:** keep `@deprecated` aliases now, remove in ticket `10` (recommended) vs
+   remove immediately (breaking, forces test rewrites).
+3. **Internal layout:** unify map and set on hashed's layout (`internal/<x>/context.ts`,
+   no `creators.ts`, no `context-factory.ts`) vs leave the current asymmetry.
+4. **Set base composition:** whether `SetCollectionNonEmpty` is required on top of
+   `IndexedSortedCollectionNonEmpty` (it supplies the set algebra) — validate by mirroring the
+   compiling `SortedSetEmpty` composition.
+5. **`SortedBuilder`:** keep the shared abstract builder base (currently has `any`-typed
+   `removeAt*` stubs) or fold its logic into each concrete builder as hashed does.
+
+---
+
+## 5. Suggested execution order
+
+```
+T6 (settle public contract)
+  → T4 (contexts implement ContextApi)
+  → T1 (node-helper contract, parallel with T4)
+  → T2 + T3 (set/map node hierarchies, parallel)
+  → T5 (builders)
+  → T7 (tests + type tests)
+  → T8 (downstream/shared harness)
+  → T9 (verify + changeset)
+```
+
+T1 is isolated and can be done first to collapse ~70 errors. T2 and T3 are independent and
+can be split between agents. T4/T6 are mutually constraining, so settle the façades before
+finalising contexts.
+
+---
+
+## 6. Acceptance (from ticket 08)
+
+- [ ] `SortedMap`/`SortedSet` compose `IndexedKeyedSorted`/`IndexedValuedSorted` +
+      `MapCollection`/`SetCollection` + removal capabilities and pass the shared
+      map-/set-collection suites.
+- [ ] Positional API (`at`/`slice`/`streamSlice`/`removeAt`, negative indices) and
+      comparator-range API (`streamRange`/`slice`) behave consistently.
+- [ ] `lowerBound`/`upperBound`/`next`/`previous` and `min`/`max` are present with correct
+      `NonEmpty` overloads.
+- [ ] `comp` is visible on both context and instance, with the concrete comparator type
+      preserved.
+- [ ] `removeAt` uses order-statistic access with correct no-op behaviour.
+- [ ] No stale `findIndex`/`atIndex`/`sliceIndex`/`minKey` names remain un-deprecated
+      (removal itself is ticket `10`).
+- [ ] `bun run build:seq && bun run typecheck:seq && bun run test` green for `sorted`,
+      `collection-types`, `core`.
+
+---
+
+*References:* hashed public façades `hashed/src/public/{map,set}.ts`; hashed internals
+`hashed/src/internal/{map,set}/{context.ts,immutable/*,mutable/*}`; collection-types mixins
+`collection-types/src/advanced/collection-base.ts`,
+`.../advanced/collection/{indexed-base,valued-base,sorted-base,indexed-sorted-base,indexed-keyed-sorted-base}.ts`,
+`.../advanced/{map-base,set-base}.ts`; sorted internals
+`sorted/src/internal/{map,set}/immutable/*`, `sorted/src/internal/sorted/base.ts`; tickets
+`05`, `08`, `10` under `.scratch/collection-capabilities/issues/`.

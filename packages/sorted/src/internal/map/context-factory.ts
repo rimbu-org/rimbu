@@ -140,19 +140,22 @@ export class SortedMapContext<UK>
 		return obj instanceof SortedMapNode;
 	}
 
+	declare of: (...args: any[]) => any;
+	declare from: (...args: any[]) => any;
+
 	#empty: SortedMap<UK, any> | undefined;
-	empty = <E extends readonly [UK, any]>(): SortedMap<E[0], E[1]> => {
+	empty = <_E extends readonly [UK, any]>(): any => {
 		if (undefined === this.#empty) {
 			this.#empty = Object.freeze(
 				new SortedMapEmpty<any, any>(this as unknown as SortedMapContext<any>),
 			) as unknown as SortedMap<UK, any>;
 		}
-		return this.#empty as unknown as SortedMap<E[0], E[1]>;
+		return this.#empty;
 	};
 
-	builder = <E extends readonly [UK, any]>(): SortedMap.Builder<E[0], E[1]> => {
-		return new SortedMapBuilder<E[0], E[1]>(
-			this as unknown as SortedMapContext<E[0]>,
+	builder = <_E extends readonly [UK, any]>(): any => {
+		return new SortedMapBuilder<any, any>(
+			this as unknown as SortedMapContext<any>,
 		);
 	};
 
@@ -165,9 +168,7 @@ export class SortedMapContext<UK>
 		);
 	}
 
-	reducer = <E extends readonly [UK, any]>(
-		source?: StreamSource<E>,
-	): Reducer<E, SortedMap<E[0], E[1]>> => {
+	reducer = <E extends readonly [UK, any]>(source?: StreamSource<E>): any => {
 		return Reducer.create(
 			() =>
 				undefined === source

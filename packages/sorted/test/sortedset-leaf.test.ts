@@ -2,13 +2,13 @@ import { describe, expect, it } from 'bun:test';
 
 import { Comp } from '@rimbu/common/comp';
 
-import { createSortedSetContextModule } from '#set/context';
+import { SortedSetContext } from '#set/context';
 import { SortedSetEmpty, SortedSetInner, SortedSetLeaf } from '#set/immutable';
 
-const context = createSortedSetContextModule({
-	blockSizeBits: 2,
-	comp: Comp.defaultInstance,
-}).build();
+const context = SortedSetContext.createDefault(
+	Comp.defaultInstance,
+	2,
+);
 
 describe('SortedSetLeaf', () => {
 	it('addInternal', () => {

@@ -1,9 +1,12 @@
 import type { IndexRange } from '@rimbu/common/index-range';
 import type { OptLazy } from '@rimbu/common/opt-lazy';
 import type { Range } from '@rimbu/common/range';
+import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { RelatedTo } from '@rimbu/common/types';
 import type { SortedSet } from '@rimbu/sorted/set';
 import type { Stream } from '@rimbu/stream';
+
+import type { ContextImpl } from '#set/context';
 
 import { IndexedCollectionNonEmpty } from '@rimbu/collection-types/advanced/collection/indexed-base';
 import { IndexedSortedCollectionNonEmpty } from '@rimbu/collection-types/advanced/collection/indexed-sorted-base';
@@ -25,7 +28,26 @@ export abstract class SortedSetNode<T>
 	extends NonEmptyBase<T, T, SortedSet.Advanced.Family<T>>
 	implements SortedSet.NonEmpty<T>
 {
+	abstract get size(): number;
 	abstract stream(options?: { reversed?: boolean }): Stream.NonEmpty<T>;
+	abstract forEach(
+		f: (value: T, index: number, halt: () => void) => void,
+		options?: { state?: TraverseState },
+	): void;
+
+	abstract entries: readonly T[];
+
+	/**
+	 * Mutable view of {@link entries} used by the shared B-tree mutation
+	 * helpers. Callers always re-wrap the node through `copy`, so the in-place
+	 * edits never escape.
+	 */
+	get mutateEntries(): T[] {
+		return this.entries as T[];
+	}
+
+	abstract at<O>(index: number, otherwise?: OptLazy<O>): T | O;
+	abstract atIndex<O>(index: number, otherwise?: OptLazy<O>): T | O;
 
 	// internal methods
 	abstract addInternal(value: T): SortedSetNode<T>;
@@ -39,6 +61,43 @@ export abstract class SortedSetNode<T>
 		options?: { reversed?: boolean },
 	): Stream<T>;
 	abstract findIndex<O>(value: T, otherwise?: OptLazy<O>): number | O;
+	abstract deleteMin(): [T, SortedSetNode<T>];
+	abstract deleteMax(): [T, SortedSetNode<T>];
+	abstract mutateSplitRight(index?: number): [T, SortedSetNode<T>];
+	abstract mutateGiveToLeft(
+		left: SortedSetNode<T>,
+		toLeft: T,
+	): [T, SortedSetNode<T>];
+	abstract mutateGiveToRight(
+		right: SortedSetNode<T>,
+		toRight: T,
+	): [T, SortedSetNode<T>];
+	abstract mutateGetFromLeft(
+		left: SortedSetNode<T>,
+		toMe: T,
+	): [T, SortedSetNode<T>];
+	abstract mutateGetFromRight(
+		right: SortedSetNode<T>,
+		toMe: T,
+	): [T, SortedSetNode<T>];
+	abstract mutateJoinLeft(left: SortedSetNode<T>, entry: T): void;
+	abstract mutateJoinRight(right: SortedSetNode<T>, entry: T): void;
+
+	filter(
+		pred: (element: T) => boolean,
+		options: { negate?: boolean | undefined } = {},
+	): SortedSet<T> {
+		const builder = this.context.builder<T>();
+		builder.addAll(this.stream().filter(pred, options));
+
+		if (builder.size === this.size) return this;
+
+		return builder.build();
+	}
+
+	map<T2>(f: (value: T) => T2): SortedSet.NonEmpty<T2> {
+		return this.context.from(this.stream().map(f)) as SortedSet.NonEmpty<T2>;
+	}
 
 	lowerBound(value: T): number {
 		return SortedNode.lowerBound(this, value);
@@ -125,9 +184,17 @@ export abstract class SortedSetNode<T>
 		return [next, removed] as any;
 	}
 
-	// toBuilder(): SortedSet.Builder<T> {
-	// 	return this.context.createBuilder(this);
-	// }
+	sliceIndex(range: IndexRange): SortedSet<T> {
+		return SortedNode.sliceIndex(this, range);
+	}
+
+	slice(range: IndexRange | Range<T>): SortedSet<T> {
+		return SortedNode.slice(this, range);
+	}
+
+	toBuilder(): SortedSet.Builder<T> {
+		return (this.context as unknown as ContextImpl<T>).createBuilder(this);
+	}
 
 	toString(): string {
 		return this.stream().join({ start: 'SortedSet(', sep: ', ', end: ')' });
