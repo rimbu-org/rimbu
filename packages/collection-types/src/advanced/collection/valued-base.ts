@@ -1,6 +1,7 @@
 import type {
 	AbstractConstructor,
 	ApiMixin,
+	ApiMixinNonEmpty,
 	CollectionEmpty,
 	CollectionNonEmpty,
 } from '@rimbu/collection-types/advanced/collection-base';
@@ -135,7 +136,7 @@ export namespace ValuedCollectionNonEmpty {
 	export interface Implemented<
 		E,
 		Tp extends Collection.Advanced.TypesNonEmpty<
-			Collection.Advanced.Family<E>,
+			Collection.Advanced.FamilyBase<E>,
 			E
 		>,
 	> extends Collection.Capability.WithMutate.Api<E, Tp>,
@@ -159,7 +160,7 @@ export namespace ValuedCollectionNonEmpty {
 	declare abstract class RequiredClass<
 		E,
 		Tp extends Collection.Advanced.TypesNonEmpty<
-			Collection.Advanced.Family<E>,
+			Collection.Advanced.FamilyBase<E>,
 			E
 		>,
 	> implements Collection.Capability.WithToBuilder.Api<E, Tp>
@@ -171,7 +172,7 @@ export namespace ValuedCollectionNonEmpty {
 	export type Required<
 		E,
 		Tp extends Collection.Advanced.TypesNonEmpty<
-			Collection.Advanced.Family<E>,
+			Collection.Advanced.FamilyBase<E>,
 			E
 		>,
 	> = RequiredClass<E, Tp>;
@@ -179,19 +180,14 @@ export namespace ValuedCollectionNonEmpty {
 	export interface ApiBase<
 		E,
 		Tp extends Collection.Advanced.TypesNonEmpty<
-			Collection.Advanced.Family<E>,
+			Collection.Advanced.FamilyBase<E>,
 			E
 		>,
 	> extends Implemented<E, Tp>,
 			RequiredClass<E, Tp> {}
 
-	export interface Mixin extends ApiMixin {
+	export interface Mixin extends ApiMixinNonEmpty {
 		_API: ApiBase<this['_E'], this['_TP']>;
-
-		_TP: Collection.Advanced.TypesNonEmpty<
-			Collection.Advanced.Family<this['_E']>,
-			this['_E']
-		>;
 	}
 
 	export function WithMixin<C extends ApiMixin>(

@@ -18,6 +18,25 @@ export interface SortedApiMixin extends ApiMixin {
 	>;
 }
 
+/**
+ * The non-empty counterpart of {@link SortedApiMixin}.
+ *
+ * Inherits `_TP` from {@link ApiMixinNonEmpty} so that sorted capabilities
+ * contribute the *same* `_TP` declaration as every other non-empty capability.
+ * That is what lets the composed `_TP` collapse to a single type instead of an
+ * N-way intersection — see the note on {@link ApiMixinNonEmpty}.
+ */
+export interface SortedApiMixinNonEmpty extends SortedApiMixin {
+	// Must stay textually identical to `ApiMixinNonEmpty['_TP']` so the two
+	// resolve to the same type and dedupe when intersected. It cannot simply
+	// extend `ApiMixinNonEmpty`, because `SortedApiMixin` already inherits the
+	// wider `ApiMixin['_TP']` and TypeScript rejects the conflicting merge.
+	_TP: Collection.Advanced.TypesNonEmpty<
+		Collection.Advanced.FamilyBase<this['_E']>,
+		this['_E']
+	>;
+}
+
 export declare namespace SortedApiMixin {
 	export type Apply<
 		C extends SortedApiMixin,

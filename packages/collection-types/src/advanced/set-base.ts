@@ -7,6 +7,7 @@ import type { RelatedTo } from '@rimbu/common';
 import {
 	type AbstractConstructor,
 	type ApiMixin,
+	type ApiMixinNonEmpty,
 	type CollectionNonEmpty,
 	defaultAddAll,
 	defaultFlatMapByAddAll,
@@ -19,7 +20,7 @@ export namespace SetCollectionNonEmpty {
 	export interface Implemented<
 		E,
 		Tp extends Collection.Advanced.TypesNonEmpty<
-			Collection.Advanced.Family<E>,
+			Collection.Advanced.FamilyBase<E>,
 			E
 		>,
 	> extends Collection.Capability.WithAddAll.Api<E, Tp>,
@@ -48,7 +49,7 @@ export namespace SetCollectionNonEmpty {
 	declare abstract class RequiredClass<
 		E,
 		Tp extends Collection.Advanced.TypesNonEmpty<
-			Collection.Advanced.Family<E>,
+			Collection.Advanced.FamilyBase<E>,
 			E
 		>,
 	> implements
@@ -75,7 +76,7 @@ export namespace SetCollectionNonEmpty {
 	export type Required<
 		E,
 		Tp extends Collection.Advanced.TypesNonEmpty<
-			Collection.Advanced.Family<E>,
+			Collection.Advanced.FamilyBase<E>,
 			E
 		>,
 	> = RequiredClass<E, Tp>;
@@ -83,19 +84,14 @@ export namespace SetCollectionNonEmpty {
 	export interface ApiBase<
 		E,
 		Tp extends Collection.Advanced.TypesNonEmpty<
-			Collection.Advanced.Family<E>,
+			Collection.Advanced.FamilyBase<E>,
 			E
 		>,
 	> extends Implemented<E, Tp>,
 			RequiredClass<E, Tp> {}
 
-	export interface Mixin extends ApiMixin {
+	export interface Mixin extends ApiMixinNonEmpty {
 		_API: ApiBase<this['_E'], this['_TP']>;
-
-		_TP: Collection.Advanced.TypesNonEmpty<
-			Collection.Advanced.Family<this['_E']>,
-			this['_E']
-		>;
 	}
 
 	export function WithMixin<C extends ApiMixin>(

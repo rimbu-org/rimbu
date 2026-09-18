@@ -4,6 +4,7 @@ import type {
 } from '@rimbu/collection-types/advanced/collection/indexed-base';
 import type {
 	SortedApiMixin,
+	SortedApiMixinNonEmpty,
 	SortedCollectionEmpty,
 } from '@rimbu/collection-types/advanced/collection/sorted-base';
 import type {
@@ -83,7 +84,7 @@ export namespace IndexedSortedCollectionNonEmpty {
 		E,
 		S,
 		Tp extends Collection.Advanced.TypesNonEmpty<
-			Collection.Advanced.Family<E>,
+			Collection.Advanced.FamilyBase<E>,
 			E
 		>,
 	> extends SortedCollection.Capability.WithMinMax.Api<E, Tp> {}
@@ -103,7 +104,7 @@ export namespace IndexedSortedCollectionNonEmpty {
 		E,
 		S,
 		Tp extends Collection.Advanced.TypesNonEmpty<
-			Collection.Advanced.Family<E>,
+			Collection.Advanced.FamilyBase<E>,
 			E
 		>,
 	> implements
@@ -132,7 +133,7 @@ export namespace IndexedSortedCollectionNonEmpty {
 		E,
 		S,
 		Tp extends Collection.Advanced.TypesNonEmpty<
-			Collection.Advanced.Family<E>,
+			Collection.Advanced.FamilyBase<E>,
 			E
 		>,
 	> = RequiredClass<E, S, Tp>;
@@ -141,19 +142,14 @@ export namespace IndexedSortedCollectionNonEmpty {
 		E,
 		S,
 		Tp extends Collection.Advanced.TypesNonEmpty<
-			Collection.Advanced.Family<E>,
+			Collection.Advanced.FamilyBase<E>,
 			E
 		>,
 	> extends Implemented<E, S, Tp>,
 			RequiredClass<E, S, Tp> {}
 
-	export interface Mixin extends SortedApiMixin {
+	export interface Mixin extends SortedApiMixinNonEmpty {
 		_API: ApiBase<this['_E'], this['_S'], this['_TP']>;
-
-		_TP: Collection.Advanced.TypesNonEmpty<
-			Collection.Advanced.Family<this['_E']>,
-			this['_E']
-		>;
 	}
 
 	export function WithMixin<C extends ApiMixin>(
