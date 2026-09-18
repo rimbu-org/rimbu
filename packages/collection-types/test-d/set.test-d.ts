@@ -1,162 +1,123 @@
 import { expectTypeOf } from 'bun:test';
 
-import type { RSet, VariantSet } from '@rimbu/collection-types';
-import type { ArrayNonEmpty } from '@rimbu/common/types';
-import type { FastIterator, Stream } from '@rimbu/stream';
+import type { StreamSource } from '@rimbu/stream';
 
-type VE<T> = VariantSet<T>;
-type VNE<T> = VariantSet.NonEmpty<T>;
-type GE<T> = RSet<T>;
-type GNE<T> = RSet.NonEmpty<T>;
+import type { SetCollection } from '@rimbu/collection-types/set';
 
-type V_Empty = VE<number>;
-type V_NonEmpty = VNE<number>;
-type G_Empty = GE<number>;
-type G_NonEmpty = GNE<number>;
+type S<E = number> = SetCollection<E>;
+type SN<E = number> = SetCollection.NonEmpty<E>;
 
-const varEmpty: V_Empty = undefined as any;
-const varNonEmpty: V_NonEmpty = undefined as any;
+declare const s: S;
+declare const sn: SN;
+declare const streamN: StreamSource<number>;
+declare const streamNE: StreamSource.NonEmpty<number>;
+declare const streamStrNE: StreamSource.NonEmpty<string>;
 
-const genEmpty: G_Empty = undefined as any;
-const genNonEmpty: G_NonEmpty = undefined as any;
+// add / addAll (NonEmpty-first)
+const addN: SN = s.add(1);
+const addNE: SN = sn.add(1);
+const addAllNE: SN = s.addAll(streamNE);
+const addAllN: S = s.addAll(streamN);
+const addAllFromNE: SN = sn.addAll(streamN);
 
-expectTypeOf(varNonEmpty).toExtend<V_Empty>();
-expectTypeOf(genEmpty).toExtend<V_Empty>();
-expectTypeOf(genNonEmpty).toExtend<V_Empty>();
+expectTypeOf(s.has(1)).toEqualTypeOf<boolean>();
 
-expectTypeOf(genNonEmpty).toExtend<V_NonEmpty>();
-expectTypeOf(varEmpty).not.toExtend<V_NonEmpty>();
-expectTypeOf(genEmpty).not.toExtend<V_NonEmpty>();
+// map / mapIndexed preserve the kind
+const mapN: S<string> = s.map((e) => String(e));
+const mapNE: SN<string> = sn.map((e) => String(e));
+const mapIndexedN: S<string> = s.mapIndexed((e, i) => String(e));
+const mapIndexedNE: SN<string> = sn.mapIndexed((e, i) => String(e));
 
-expectTypeOf(genNonEmpty).toExtend<G_Empty>();
-expectTypeOf(varEmpty).not.toExtend<G_Empty>();
-expectTypeOf(genNonEmpty).toExtend<G_NonEmpty>();
-expectTypeOf(varEmpty).not.toExtend<G_NonEmpty>();
+// flatMap / flatMapIndexed (NonEmpty-first, kind-preserving via _SELF)
+const flatMapNonEmptyN: S<string> = s.flatMap(
+	(e): StreamSource.NonEmpty<string> => streamStrNE,
+);
+const flatMapPlainN: S<string> = s.flatMap(
+	(e): StreamSource<string> => streamStrNE,
+);
+const flatMapNEOnNE: SN<string> = sn.flatMap(
+	(e): StreamSource.NonEmpty<string> => streamStrNE,
+);
+const flatMapPlainOnNE: S<string> = sn.flatMap(
+	(e): StreamSource<string> => streamStrNE,
+);
+const flatMapIndexedNonEmptyN: S<string> = s.flatMapIndexed(
+	(e, i): StreamSource.NonEmpty<string> => streamStrNE,
+	undefined,
+);
+const flatMapIndexedPlainNE: S<string> = sn.flatMapIndexed(
+	(e, i): StreamSource<string> => streamStrNE,
+	{ indexOffset: 1 },
+);
 
-// Test variance
-expectTypeOf(varEmpty).toExtend<VE<number | string>>();
-expectTypeOf(varNonEmpty).toExtend<VNE<number | string>>();
+// recompose
+const recomposeNE: SN<string> = sn.recompose(
+	(st): StreamSource.NonEmpty<string> => streamStrNE,
+);
+const recomposeN: S<string> = s.recompose(
+	(st): StreamSource<string> => streamStrNE,
+);
 
-expectTypeOf(genEmpty).toExtend<VE<number | string>>();
-expectTypeOf(genNonEmpty).toExtend<VE<number | string>>();
+// mutate always yields normal, toBuilder yields the concrete builder
+const mutatedN: S = s.mutate(() => {});
+const mutatedFromNE: S = sn.mutate(() => {});
+const builder: SetCollection.Builder<number> = s.toBuilder();
 
-expectTypeOf(genEmpty).not.toExtend<GE<number | string>>();
-expectTypeOf(genNonEmpty).not.toExtend<GNE<number | string>>();
+// set algebra
+const differenceN: S = s.difference(streamN);
+const intersectionN: S = s.intersection(streamN);
+const symmetricDifferenceN: S = s.symmetricDifference(streamN);
+const unionNE: SN = s.union(streamNE);
+const unionN: S = s.union(streamN);
+const unionFromNE: SN = sn.union(streamN);
+const removeN: S = s.remove(1);
+const removeAllN: S = s.removeAll(streamN);
 
-let m!: any;
-expectTypeOf(m as VE<number | string>).not.toExtend<V_Empty>();
-expectTypeOf(m as VNE<number | string>).not.toExtend<V_NonEmpty>();
+// builder
+declare const sb: SetCollection.Builder<number>;
+expectTypeOf(sb.has(1)).toEqualTypeOf<boolean>();
+expectTypeOf(sb.add(1)).toEqualTypeOf<boolean>();
+expectTypeOf(sb.remove(1)).toEqualTypeOf<boolean>();
+expectTypeOf(sb.removeAll(streamN)).toEqualTypeOf<boolean>();
+const built: S = sb.build();
 
-expectTypeOf(m as GE<number | string>).not.toExtend<G_Empty>();
-expectTypeOf(m as GNE<number | string>).not.toExtend<G_NonEmpty>();
+// kind
+expectTypeOf(s.isEmpty).toEqualTypeOf<boolean>();
+expectTypeOf(sn.isEmpty).toEqualTypeOf<false>();
 
-// Iterator
-expectTypeOf(varEmpty[Symbol.iterator]()).toEqualTypeOf<FastIterator<number>>();
-expectTypeOf(varNonEmpty[Symbol.iterator]()).toEqualTypeOf<
-	FastIterator<number>
->();
-expectTypeOf(genEmpty[Symbol.iterator]()).toEqualTypeOf<FastIterator<number>>();
-expectTypeOf(genNonEmpty[Symbol.iterator]()).toEqualTypeOf<
-	FastIterator<number>
->();
+// variance
+expectTypeOf<S<number>>().toExtend<S<number | string>>();
+expectTypeOf<S<number | string>>().not.toExtend<S<number>>();
+expectTypeOf<SN<number>>().toExtend<S<number>>();
 
-// .add(..)
-expectTypeOf(genEmpty.add(1)).toEqualTypeOf<G_NonEmpty>();
-expectTypeOf(genNonEmpty.add(1)).toEqualTypeOf<G_NonEmpty>();
-
-// .addAll(..)
-expectTypeOf(genEmpty.addAll([1, 2, 3])).toEqualTypeOf<G_NonEmpty>();
-expectTypeOf(genNonEmpty.addAll([1, 2, 3])).toEqualTypeOf<G_NonEmpty>();
-
-// .assumeNonEmpty()
-expectTypeOf(varEmpty.assumeNonEmpty()).toEqualTypeOf<V_NonEmpty>();
-expectTypeOf(varNonEmpty.assumeNonEmpty()).toEqualTypeOf<V_NonEmpty>();
-expectTypeOf(genEmpty.assumeNonEmpty()).toEqualTypeOf<G_NonEmpty>();
-expectTypeOf(genNonEmpty.assumeNonEmpty()).toEqualTypeOf<G_NonEmpty>();
-
-// .context
-expectTypeOf(genEmpty.context).toEqualTypeOf<RSet.Context<number>>();
-expectTypeOf(genNonEmpty.context).toEqualTypeOf<RSet.Context<number>>();
-
-// .difference(..)
-expectTypeOf(varEmpty.difference(varEmpty)).toEqualTypeOf<V_Empty>();
-expectTypeOf(varNonEmpty.difference(varEmpty)).toEqualTypeOf<V_Empty>();
-expectTypeOf(varEmpty.difference(varNonEmpty)).toEqualTypeOf<V_Empty>();
-expectTypeOf(varNonEmpty.difference(genNonEmpty)).toEqualTypeOf<V_Empty>();
-
-expectTypeOf(genEmpty.difference(genEmpty)).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.difference(genEmpty)).toEqualTypeOf<G_Empty>();
-expectTypeOf(genEmpty.difference(genNonEmpty)).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.difference(genNonEmpty)).toEqualTypeOf<G_Empty>();
-
-// .filter(..)
-expectTypeOf(varEmpty.filter(() => true)).toEqualTypeOf<V_Empty>();
-expectTypeOf(varNonEmpty.filter(() => true)).toEqualTypeOf<V_Empty>();
-expectTypeOf(genEmpty.filter(() => true)).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.filter(() => true)).toEqualTypeOf<G_Empty>();
-
-// .intersect(..)
-expectTypeOf(varEmpty.intersect(varEmpty)).toEqualTypeOf<V_Empty>();
-expectTypeOf(varNonEmpty.intersect(varEmpty)).toEqualTypeOf<V_Empty>();
-expectTypeOf(varEmpty.intersect(varNonEmpty)).toEqualTypeOf<V_Empty>();
-expectTypeOf(varNonEmpty.intersect(varNonEmpty)).toEqualTypeOf<V_Empty>();
-
-expectTypeOf(genEmpty.intersect(genEmpty)).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.intersect(genEmpty)).toEqualTypeOf<G_Empty>();
-expectTypeOf(genEmpty.intersect(genNonEmpty)).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.intersect(genNonEmpty)).toEqualTypeOf<G_Empty>();
-
-// .isEmpty
-expectTypeOf(varEmpty.isEmpty).toEqualTypeOf<boolean>();
-expectTypeOf(varNonEmpty.isEmpty).toEqualTypeOf<false>();
-expectTypeOf(genEmpty.isEmpty).toEqualTypeOf<boolean>();
-expectTypeOf(genNonEmpty.isEmpty).toEqualTypeOf<false>();
-
-// .nonEmpty()
-expectTypeOf(varEmpty.nonEmpty()).toEqualTypeOf<boolean>();
-expectTypeOf(varNonEmpty.nonEmpty()).toEqualTypeOf<boolean>();
-expectTypeOf(genEmpty.nonEmpty()).toEqualTypeOf<boolean>();
-expectTypeOf(genNonEmpty.nonEmpty()).toEqualTypeOf<boolean>();
-
-// .remove(..)
-expectTypeOf(varEmpty.remove(3)).toEqualTypeOf<V_Empty>();
-expectTypeOf(varNonEmpty.remove(3)).toEqualTypeOf<V_Empty>();
-expectTypeOf(genEmpty.remove(3)).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.remove(3)).toEqualTypeOf<G_Empty>();
-
-// .removeAll(..)
-expectTypeOf(varEmpty.removeAll([3, 4])).toEqualTypeOf<V_Empty>();
-expectTypeOf(varNonEmpty.removeAll([3, 4])).toEqualTypeOf<V_Empty>();
-expectTypeOf(genEmpty.removeAll([3, 4])).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.removeAll([3, 4])).toEqualTypeOf<G_Empty>();
-
-// .stream()
-expectTypeOf(varEmpty.stream()).toEqualTypeOf<Stream<number>>();
-expectTypeOf(varNonEmpty.stream()).toEqualTypeOf<Stream.NonEmpty<number>>();
-expectTypeOf(genEmpty.stream()).toEqualTypeOf<Stream<number>>();
-expectTypeOf(genNonEmpty.stream()).toEqualTypeOf<Stream.NonEmpty<number>>();
-
-// .symDifference(..)
-expectTypeOf(genEmpty.symDifference(genEmpty)).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.symDifference(genEmpty)).toEqualTypeOf<G_Empty>();
-expectTypeOf(genEmpty.symDifference(genNonEmpty)).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.symDifference(genNonEmpty)).toEqualTypeOf<G_Empty>();
-
-// .toArray()
-expectTypeOf(varEmpty.toArray()).toEqualTypeOf<number[]>();
-expectTypeOf(varNonEmpty.toArray()).toEqualTypeOf<ArrayNonEmpty<number>>();
-expectTypeOf(genEmpty.toArray()).toEqualTypeOf<number[]>();
-expectTypeOf(genNonEmpty.toArray()).toEqualTypeOf<ArrayNonEmpty<number>>();
-
-// .toBuilder()
-expectTypeOf(genEmpty.toBuilder()).toEqualTypeOf<RSet.Builder<number>>();
-expectTypeOf(genNonEmpty.toBuilder()).toEqualTypeOf<RSet.Builder<number>>();
-
-// .union(..)
-expectTypeOf(genEmpty.union(genEmpty)).toEqualTypeOf<G_Empty>();
-expectTypeOf(genEmpty.union(genNonEmpty)).toEqualTypeOf<G_NonEmpty>();
-expectTypeOf(genNonEmpty.union(genEmpty)).toEqualTypeOf<G_NonEmpty>();
-expectTypeOf(genNonEmpty.union(genNonEmpty)).toEqualTypeOf<G_NonEmpty>();
-
-// From Builder
-expectTypeOf(genEmpty.toBuilder().build()).toEqualTypeOf<G_Empty>();
+void [
+	addN,
+	addNE,
+	addAllNE,
+	addAllN,
+	addAllFromNE,
+	mapN,
+	mapNE,
+	mapIndexedN,
+	mapIndexedNE,
+	flatMapNonEmptyN,
+	flatMapPlainN,
+	flatMapNEOnNE,
+	flatMapPlainOnNE,
+	flatMapIndexedNonEmptyN,
+	flatMapIndexedPlainNE,
+	recomposeNE,
+	recomposeN,
+	mutatedN,
+	mutatedFromNE,
+	builder,
+	differenceN,
+	intersectionN,
+	symmetricDifferenceN,
+	unionNE,
+	unionN,
+	unionFromNE,
+	removeN,
+	removeAllN,
+	built,
+];

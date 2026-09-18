@@ -9,7 +9,7 @@ import { Stream } from '@rimbu/stream';
 
 function expectEqual<K, V>(
 	map: MapCollection<K, V> | MapCollection.NonEmpty<K, V>,
-	arr: [K, V][],
+	arr: [K, NoInfer<V>][],
 ): void {
 	expect(new Map(map)).toEqual(new Map(arr));
 }
