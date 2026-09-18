@@ -35,6 +35,14 @@
 		".": {
 			"types": "./dist/bimap.d.ts",
 			"default": "./dist/bimap.js"
+		},
+		"./*": {
+			"types": "./dist/public/*.d.ts",
+			"default": "./dist/public/*.js"
+		},
+		"./advanced/*": {
+			"types": "./dist/advanced/*.d.ts",
+			"default": "./dist/advanced/*.js"
 		}
 	},
 	"imports": {
@@ -56,6 +64,7 @@
 		"format:check": "biome format src",
 		"lint:check": "biome lint src",
 		"test": "bun test test/* --tsconfig-override tsconfig.common.json",
+		"test:random": "bun test test-random --tsconfig-override tsconfig.common.json",
 		"typecheck": "tsc -p tsconfig.json --noEmit"
 	},
 	"dependencies": {

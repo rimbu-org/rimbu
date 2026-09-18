@@ -201,8 +201,15 @@ export declare namespace KeyedCollection {
 		}
 
 		export namespace WithMapValues {
-			export interface Api<K, V, Tp extends Collection.Advanced.TypesBase> {
-				mapValues<V2 extends V>(
+			export interface Api<
+				K,
+				V,
+				Tp extends Collection.Advanced.Types<
+					Advanced.FamilyBase<K, V>,
+					readonly [K, V]
+				>,
+			> {
+				mapValues<V2 extends Tp['_UPPER_V']>(
 					mapFun: (value: V, key: K) => V2,
 				): Collection.Advanced.ReTyped<Tp, readonly [K, V2]>['_SELF'];
 			}
@@ -210,9 +217,12 @@ export declare namespace KeyedCollection {
 			export interface BuilderApi<
 				K,
 				V,
-				Tp extends Collection.Advanced.TypesBase,
+				Tp extends Collection.Advanced.Types<
+					Advanced.FamilyBase<K, V>,
+					readonly [K, V]
+				>,
 			> {
-				buildMapValues<V2 extends V>(
+				buildMapValues<V2 extends Tp['_UPPER_V']>(
 					mapFun: (value: V, key: K) => V2,
 				): Collection.Advanced.ReTyped<Tp, readonly [K, V2]>['_NORMAL'];
 			}
@@ -449,14 +459,14 @@ export declare namespace KeyedCollection {
 					readonly [K, V]
 				>,
 			> {
-				flatMap<K2 extends Tp['_UPPER_K'], V2 extends Tp['_UPPER_V']>(
+				flatMap<E2 extends readonly [Tp['_UPPER_K'], Tp['_UPPER_V']]>(
 					f: (
 						entry: readonly [K, V],
-					) => StreamSource.NonEmpty<readonly [K2, V]>,
-				): Collection.Advanced.ReTyped<Tp, readonly [K, V]>['_SELF'];
-				flatMap<K2 extends Tp['_UPPER_K'], V2 extends Tp['_UPPER_V']>(
-					f: (entry: readonly [K, V]) => StreamSource<readonly [K, V]>,
-				): Collection.Advanced.ReTyped<Tp, readonly [K, V]>['_NORMAL'];
+					) => StreamSource.NonEmpty<E2>,
+				): Collection.Advanced.ReTyped<Tp, E2>['_SELF'];
+				flatMap<E2 extends readonly [Tp['_UPPER_K'], Tp['_UPPER_V']]>(
+					f: (entry: readonly [K, V]) => StreamSource<E2>,
+				): Collection.Advanced.ReTyped<Tp, E2>['_NORMAL'];
 			}
 		}
 
@@ -480,20 +490,24 @@ export declare namespace KeyedCollection {
 					readonly [K, V]
 				>,
 			> {
-				flatMapIndexed<K2 extends Tp['_UPPER_K'], V2 extends Tp['_UPPER_V']>(
+				flatMapIndexed<
+					E2 extends readonly [Tp['_UPPER_K'], Tp['_UPPER_V']],
+				>(
 					f: (
 						entry: readonly [K, V],
 						index: number,
-					) => StreamSource.NonEmpty<readonly [K, V]>,
+					) => StreamSource.NonEmpty<E2>,
 					options: { indexOffset?: number | undefined } | undefined,
-				): Collection.Advanced.ReTyped<Tp, readonly [K, V]>['_SELF'];
-				flatMapIndexed<K2 extends Tp['_UPPER_K'], V2 extends Tp['_UPPER_V']>(
+				): Collection.Advanced.ReTyped<Tp, E2>['_SELF'];
+				flatMapIndexed<
+					E2 extends readonly [Tp['_UPPER_K'], Tp['_UPPER_V']],
+				>(
 					f: (
 						entry: readonly [K, V],
 						index: number,
-					) => StreamSource<readonly [K, V]>,
+					) => StreamSource<E2>,
 					options: { indexOffset?: number | undefined } | undefined,
-				): Collection.Advanced.ReTyped<Tp, readonly [K, V]>['_NORMAL'];
+				): Collection.Advanced.ReTyped<Tp, E2>['_NORMAL'];
 			}
 		}
 

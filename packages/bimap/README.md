@@ -118,9 +118,9 @@ empty.isEmpty; // true
 fromEntries.size; // 2
 
 // Lookups
-fromEntries.hasKey(1); // true
+fromEntries.has(1); // true
 fromEntries.hasValue('two'); // true
-fromEntries.getValue(2); // 'two'
+fromEntries.get(2); // 'two'
 fromEntries.getKey('one'); // 1
 
 // Updating (returns new BiMap)

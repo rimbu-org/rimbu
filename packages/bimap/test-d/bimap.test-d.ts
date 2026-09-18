@@ -1,7 +1,7 @@
 import { expectTypeOf } from 'bun:test';
 
 import type { BiMap } from '@rimbu/bimap';
-import type { RMap } from '@rimbu/collection-types';
+import type { MapCollection } from '@rimbu/collection-types/map';
 import type { ArrayNonEmpty } from '@rimbu/common/types';
 import type { FastIterator, Stream } from '@rimbu/stream';
 
@@ -23,15 +23,15 @@ expectTypeOf(bNonEmpty[Symbol.iterator]()).toEqualTypeOf<
 	FastIterator<readonly [number, string]>
 >();
 
-// .addEntries(..)
-expectTypeOf(bEmpty.addEntries(bEmpty)).toEqualTypeOf<B_Empty>();
-expectTypeOf(bEmpty.addEntries(bNonEmpty)).toEqualTypeOf<B_NonEmpty>();
-expectTypeOf(bNonEmpty.addEntries(bEmpty)).toEqualTypeOf<B_NonEmpty>();
-expectTypeOf(bNonEmpty.addEntries(bNonEmpty)).toEqualTypeOf<B_NonEmpty>();
+// .addAll(..)
+expectTypeOf(bEmpty.addAll(bEmpty)).toEqualTypeOf<B_Empty>();
+expectTypeOf(bEmpty.addAll(bNonEmpty)).toEqualTypeOf<B_NonEmpty>();
+expectTypeOf(bNonEmpty.addAll(bEmpty)).toEqualTypeOf<B_NonEmpty>();
+expectTypeOf(bNonEmpty.addAll(bNonEmpty)).toEqualTypeOf<B_NonEmpty>();
 
-// .addEntry(..)
-expectTypeOf(bEmpty.addEntry([1, 'a'])).toEqualTypeOf<B_NonEmpty>();
-expectTypeOf(bNonEmpty.addEntry([1, 'a'])).toEqualTypeOf<B_NonEmpty>();
+// .add(..)
+expectTypeOf(bEmpty.add([1, 'a'])).toEqualTypeOf<B_NonEmpty>();
+expectTypeOf(bNonEmpty.add([1, 'a'])).toEqualTypeOf<B_NonEmpty>();
 
 // .asNormal()
 expectTypeOf(bNonEmpty.asNormal()).toEqualTypeOf<B_Empty>();
@@ -49,32 +49,50 @@ expectTypeOf(bEmpty.filter(() => true)).toEqualTypeOf<B_Empty>();
 expectTypeOf(bNonEmpty.filter(() => true)).toEqualTypeOf<B_Empty>();
 
 // .getKey(..)
-expectTypeOf(bEmpty.atValue('a', 2)).toEqualTypeOf<number>();
-expectTypeOf(bNonEmpty.atValue('a', 2)).toEqualTypeOf<number>();
-expectTypeOf(bEmpty.atValue('a', true as boolean)).toEqualTypeOf<
-	number | boolean
->();
-expectTypeOf(bNonEmpty.atValue('a', true as boolean)).toEqualTypeOf<
-	number | boolean
->();
+expectTypeOf(bEmpty.getKey('a', 2)).toEqualTypeOf<number>();
+expectTypeOf(bNonEmpty.getKey('a', 2)).toEqualTypeOf<number>();
+expectTypeOf(bEmpty.getKey('a', true)).toEqualTypeOf<number | boolean>();
+expectTypeOf(bNonEmpty.getKey('a', true)).toEqualTypeOf<number | boolean>();
 
-// .getValue(..)
-expectTypeOf(bEmpty.at(2, 'a')).toEqualTypeOf<string>();
-expectTypeOf(bNonEmpty.at(2, 'a')).toEqualTypeOf<string>();
-expectTypeOf(bEmpty.at(2, true as boolean)).toEqualTypeOf<string | boolean>();
-expectTypeOf(bNonEmpty.at(2, true as boolean)).toEqualTypeOf<
-	string | boolean
+// .get(..)
+expectTypeOf(bEmpty.get(2, 'a')).toEqualTypeOf<string>();
+expectTypeOf(bNonEmpty.get(2, 'a')).toEqualTypeOf<string>();
+expectTypeOf(bEmpty.get(2, true)).toEqualTypeOf<string | boolean>();
+expectTypeOf(bNonEmpty.get(2, true)).toEqualTypeOf<string | boolean>();
+
+// .has(..)
+expectTypeOf(bEmpty.has(2)).toEqualTypeOf<boolean>();
+expectTypeOf(bNonEmpty.has(2)).toEqualTypeOf<boolean>();
+
+// .hasValue(..)
+expectTypeOf(bEmpty.hasValue('a')).toEqualTypeOf<boolean>();
+expectTypeOf(bNonEmpty.hasValue('a')).toEqualTypeOf<boolean>();
+
+// .invert()
+expectTypeOf(bEmpty.invert()).toEqualTypeOf<BiMap<string, number>>();
+expectTypeOf(bNonEmpty.invert()).toEqualTypeOf<
+	BiMap.NonEmpty<string, number>
 >();
 
 // .isEmpty
 expectTypeOf(bEmpty.isEmpty).toEqualTypeOf<boolean>();
 expectTypeOf(bNonEmpty.isEmpty).toEqualTypeOf<false>();
 
-// .keyValueMap
-expectTypeOf(bEmpty.keyValueMap).toEqualTypeOf<RMap<number, string>>();
+// .keyValueMap / .valueKeyMap
+expectTypeOf(bEmpty.keyValueMap).toEqualTypeOf<MapCollection<number, string>>();
 expectTypeOf(bNonEmpty.keyValueMap).toEqualTypeOf<
-	RMap.NonEmpty<number, string>
+	MapCollection.NonEmpty<number, string>
 >();
+expectTypeOf(bEmpty.valueKeyMap).toEqualTypeOf<MapCollection<string, number>>();
+expectTypeOf(bNonEmpty.valueKeyMap).toEqualTypeOf<
+	MapCollection.NonEmpty<string, number>
+>();
+
+// .mapValues(..)
+expectTypeOf(bEmpty.mapValues((v) => v)).toEqualTypeOf<B_Empty>();
+expectTypeOf(bNonEmpty.mapValues((v) => v)).toEqualTypeOf<B_NonEmpty>();
+const toA = (_v: string): 'a' => 'a';
+expectTypeOf(bEmpty.mapValues(toA)).toEqualTypeOf<BiMap<number, 'a'>>();
 
 // .nonEmpty()
 expectTypeOf(bEmpty.nonEmpty()).toEqualTypeOf<boolean>();
@@ -109,11 +127,15 @@ expectTypeOf(bNonEmpty.stream()).toEqualTypeOf<
 >();
 
 // .streamKeys()
-expectTypeOf(bEmpty.streamKeys()).toEqualTypeOf<Stream<number>>();
+expectTypeOf(bEmpty.streamKeys()).toEqualTypeOf<
+	Stream.NonEmpty<number> | Stream<number>
+>();
 expectTypeOf(bNonEmpty.streamKeys()).toEqualTypeOf<Stream.NonEmpty<number>>();
 
 // .streamValues()
-expectTypeOf(bEmpty.streamValues()).toEqualTypeOf<Stream<string>>();
+expectTypeOf(bEmpty.streamValues()).toEqualTypeOf<
+	Stream.NonEmpty<string> | Stream<string>
+>();
 expectTypeOf(bNonEmpty.streamValues()).toEqualTypeOf<Stream.NonEmpty<string>>();
 
 // .toArray()
@@ -128,17 +150,13 @@ expectTypeOf(bNonEmpty.toBuilder()).toEqualTypeOf<
 	BiMap.Builder<number, string>
 >();
 
-// .updateKeyAtValue(..)
-expectTypeOf(bEmpty.updateKeyAtValue(() => 2, 'b')).toEqualTypeOf<B_Empty>();
-expectTypeOf(
-	bNonEmpty.updateKeyAtValue(() => 2, 'b'),
-).toEqualTypeOf<B_NonEmpty>();
+// .updateAtValue(..)
+expectTypeOf(bEmpty.updateAtValue(() => 2, 'b')).toEqualTypeOf<B_Empty>();
+expectTypeOf(bNonEmpty.updateAtValue(() => 2, 'b')).toEqualTypeOf<B_NonEmpty>();
 
-// .updateValueAtKey(..)
-expectTypeOf(bEmpty.updateValueAtKey(2, () => 'b')).toEqualTypeOf<B_Empty>();
-expectTypeOf(
-	bNonEmpty.updateValueAtKey(2, () => 'b'),
-).toEqualTypeOf<B_NonEmpty>();
+// .updateAtKey(..)
+expectTypeOf(bEmpty.updateAtKey(2, () => 'b')).toEqualTypeOf<B_Empty>();
+expectTypeOf(bNonEmpty.updateAtKey(2, () => 'b')).toEqualTypeOf<B_NonEmpty>();
 
 // From Builder
 expectTypeOf(bEmpty.toBuilder().build()).toEqualTypeOf<B_Empty>();

@@ -67,7 +67,14 @@ export declare namespace MapCollection {
 				MapCollection.Capability.WithUpdateAtKey.Api<K, V, Tp>,
 				MapCollection.Capability.WithModifyAtKey.Api<K, V, Tp> {}
 
-		export interface BuilderApi<K, V, Tp extends Collection.Advanced.TypesBase>
+		export interface BuilderApi<
+			K,
+			V,
+			Tp extends Collection.Advanced.Types<
+				KeyedCollection.Advanced.FamilyBase<K, V>,
+				readonly [K, V]
+			>,
+		>
 			extends KeyedCollection.Advanced.BuilderApi<K, V, Tp>,
 				Collection.Capability.WithAdd.BuilderApi<readonly [K, V], Tp>,
 				Collection.Capability.WithAddAll.BuilderApi<readonly [K, V], Tp>,

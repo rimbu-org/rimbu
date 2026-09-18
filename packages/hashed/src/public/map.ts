@@ -42,8 +42,14 @@ export namespace HashMap {
 			>,
 		> extends MapCollection.Advanced.Api<K, V, Tp> {}
 
-		export interface BuilderApi<K, V, Tp extends Collection.Advanced.TypesBase>
-			extends MapCollection.Advanced.BuilderApi<K, V, Tp> {}
+		export interface BuilderApi<
+			K,
+			V,
+			Tp extends Collection.Advanced.Types<
+				KeyedCollection.Advanced.FamilyBase<K, V>,
+				readonly [K, V]
+			>,
+		> extends MapCollection.Advanced.BuilderApi<K, V, Tp> {}
 
 		export interface ContextApi<
 			UK,

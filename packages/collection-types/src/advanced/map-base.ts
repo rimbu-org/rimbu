@@ -174,7 +174,7 @@ export namespace MapCollectionNonEmpty {
 	{
 		abstract add(element: readonly [K, V]): Tp['_NON_EMPTY'];
 		abstract modifyAtKey(atKey: K, options: ModifyOptions<V>): Tp['_NORMAL'];
-		abstract mapValues<V2 extends V>(
+		abstract mapValues<V2 extends Tp['_UPPER_V']>(
 			mapFun: (value: V, key: K) => V2,
 		): Collection.Advanced.ReTyped<Tp, readonly [K, V2]>['_SELF'];
 	}
@@ -226,7 +226,7 @@ export namespace MapCollectionNonEmpty {
 		abstract class Result extends Base {
 			abstract add(element: readonly [K, V]): Tp['_NON_EMPTY'];
 			abstract modifyAtKey(atKey: K, options: ModifyOptions<V>): Tp['_NORMAL'];
-			abstract mapValues<V2 extends V>(
+			abstract mapValues<V2 extends Tp['_UPPER_V']>(
 				mapFun: (value: V, key: K) => V2,
 			): Collection.Advanced.ReTyped<Tp, readonly [K, V2]>['_SELF'];
 			abstract toBuilder(): Tp['_BUILDER'];
@@ -389,7 +389,7 @@ export namespace MapCollectionNonEmpty {
 				) as any;
 			}
 
-			flatMap<E2 extends readonly [K, V]>(
+			flatMap<E2 extends readonly [Tp['_UPPER_K'], Tp['_UPPER_V']]>(
 				f: (entry: readonly [K, V]) => StreamSource<E2>,
 			): Collection.Advanced.ReTyped<Tp, E2>['_SELF'] {
 				return defaultFlatMapByAddAll<readonly [K, V], E2, any, any>(
@@ -398,7 +398,7 @@ export namespace MapCollectionNonEmpty {
 				) as any;
 			}
 
-			flatMapIndexed<E2 extends readonly [K, V]>(
+			flatMapIndexed<E2 extends readonly [Tp['_UPPER_K'], Tp['_UPPER_V']]>(
 				f: (entry: readonly [K, V], index: number) => StreamSource<E2>,
 				options?: { indexOffset?: number | undefined } | undefined,
 			): Collection.Advanced.ReTyped<Tp, E2>['_SELF'] {

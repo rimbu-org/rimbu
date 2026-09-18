@@ -1,109 +1,86 @@
-import type { BiMap, WithValueResult } from '@rimbu/bimap';
-import type { RMap } from '@rimbu/collection-types';
-import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
+import type { BiMap } from '@rimbu/bimap/bimap';
+import type { MapCollection } from '@rimbu/collection-types/map';
+import type { Op } from '@rimbu/collection-types/types';
 
-import type { ContextImpl } from '#bimap/context-factory';
+import type { BiMapCollectionContext } from '#bimap/context';
 
+import {
+	KeyedCollectionEmpty,
+	KeyedCollectionNonEmpty,
+} from '@rimbu/collection-types/advanced/collection/keyed-base';
+import {
+	CollectionEmpty,
+	CollectionNonEmpty,
+} from '@rimbu/collection-types/advanced/collection-base';
 import {
 	checkEmptyModifyOptions,
 	type ModifyOptions,
 } from '@rimbu/collection-types/advanced/common';
 import {
-	EmptyBase,
-	NonEmptyBase,
-} from '@rimbu/collection-types/advanced/common/empty-base';
-import { OptLazy } from '@rimbu/common/opt-lazy';
-import { TraverseState } from '@rimbu/common/traverse-state';
+	MapCollectionEmpty,
+	MapCollectionNonEmpty,
+} from '@rimbu/collection-types/advanced/map-base';
+import { type ArrayNonEmpty, OptLazy, type RelatedTo } from '@rimbu/common';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
+const BiMapEmptyBase = MapCollectionEmpty.WithMixin(
+	KeyedCollectionEmpty.WithMixin(CollectionEmpty.Constructor),
+);
+
 export class BiMapEmpty<K = any, V = any>
-	extends EmptyBase
+	extends BiMapEmptyBase<K, V, BiMap.Advanced.Family<K, V>>
 	implements BiMap<K, V>
 {
-	declare _NonEmptyType: BiMap.NonEmpty<K, V>;
-
-	constructor(readonly context: ContextImpl<K, V>) {
-		super();
+	constructor(readonly context: BiMapCollectionContext<K, V>) {
+		super(context);
 	}
 
-	get size(): 0 {
-		return 0;
+	get keyValueMap(): MapCollection<K, V> {
+		return this.context.keyValueContext.empty<readonly [K, V]>();
 	}
 
-	get keyValueMap(): RMap<K, V> {
-		return this.context.keyValueContext.empty();
+	get valueKeyMap(): MapCollection<V, K> {
+		return this.context.valueKeyContext.empty<readonly [V, K]>();
 	}
 
-	get valueKeyMap(): RMap<V, K> {
-		return this.context.valueKeyContext.empty();
-	}
-
-	hasKey(): false {
-		return false;
+	getKey<UV = V>(value: RelatedTo<V, UV>): K | undefined;
+	getKey<UV, O>(value: RelatedTo<V, UV>, otherwise: OptLazy<O>): K | O;
+	getKey<UV, O>(_value: RelatedTo<V, UV>, otherwise?: OptLazy<O>): K | O {
+		return OptLazy(otherwise) as O;
 	}
 
 	hasValue(): false {
 		return false;
 	}
 
-	at<_, O>(key: K, otherwise?: OptLazy<O>): O {
-		return OptLazy(otherwise) as O;
-	}
-
-	atValue<_, O>(value: V, otherwise?: OptLazy<O>): O {
-		return OptLazy(otherwise) as O;
-	}
-
-	set(key: K, value: V): BiMap.NonEmpty<K, V> {
-		return this.addEntry([key, value]);
-	}
-
-	setAndGet(
-		key: K,
-		value: V,
-	): WithValueResult<BiMap.NonEmpty<K, V>, readonly [K, V]> {
-		return [this.set(key, value), undefined, false];
-	}
-
-	addEntry(entry: readonly [K, V]): BiMap.NonEmpty<K, V> {
-		return new BiMapNonEmptyImpl(
-			this.context,
-			this.context.keyValueContext.of(entry),
-			this.context.valueKeyContext.of([entry[1], entry[0]]),
-		);
-	}
-
-	addEntryAndGet(
-		entry: readonly [K, V],
-	): WithValueResult<BiMap.NonEmpty<K, V>, readonly [K, V]> {
-		return [this.addEntry(entry), undefined, false];
-	}
-
-	addEntries(entries: StreamSource<readonly [K, V]>): BiMap.NonEmpty<K, V> {
-		return this.context.from(entries) as BiMap.NonEmpty<K, V>;
-	}
-
-	removeKey(): this {
-		return this;
-	}
-
-	removeKeyAndGet(): WithValueResult<BiMap<K, V>, V> {
-		return [this, undefined, false];
-	}
-
-	removeKeys(): this {
-		return this;
-	}
-
 	removeValue(): this {
 		return this;
 	}
 
-	removeValueAndGet(): WithValueResult<BiMap<K, V>, K> {
-		return [this, undefined, false];
+	removeValueAndReturn<UV = V>(
+		value: RelatedTo<V, UV>,
+	): Op.DynamicResult<BiMap<K, V>, undefined, K, BiMap<K, V>>;
+	removeValueAndReturn<UV, O>(
+		value: RelatedTo<V, UV>,
+		otherwise: OptLazy<O>,
+	): Op.DynamicResult<BiMap<K, V>, O, K, BiMap<K, V>>;
+	removeValueAndReturn<UV, O>(
+		_value: RelatedTo<V, UV>,
+		otherwise?: OptLazy<O>,
+	): Op.DynamicResult<BiMap<K, V>, O | undefined, K, BiMap<K, V>> {
+		return {
+			collection: this,
+			hasResult: false,
+			result: OptLazy(otherwise) as O,
+			hasChanged: false,
+		};
 	}
 
 	removeValues(): this {
+		return this;
+	}
+
+	removeEntries(): this {
 		return this;
 	}
 
@@ -111,41 +88,22 @@ export class BiMapEmpty<K = any, V = any>
 		return this;
 	}
 
-	updateKeyAtValue(): this {
+	updateAtValue(): this {
 		return this;
 	}
 
-	updateValueAtKey(): this {
-		return this;
-	}
-
-	updateKeyAtValueAndGet(): WithValueResult<
+	updateAtValueAndReturn(): Op.DynamicResult<
 		BiMap.NonEmpty<K, V>,
-		K,
-		BiMap<K, V>
+		[previous: undefined, current: undefined],
+		[previous: K, current: K],
+		BiMap.NonEmpty<K, V>
 	> {
-		return [this, undefined, false];
-	}
-
-	updateValueAtKeyAndGet(): WithValueResult<
-		BiMap.NonEmpty<K, V>,
-		V,
-		BiMap<K, V>
-	> {
-		return [this, undefined, false];
-	}
-
-	modifyAtKey(atKey: K, options: ModifyOptions<V>): BiMap<K, V> {
-		if (checkEmptyModifyOptions(options)) return this;
-		const { ifNew } = options;
-		if (undefined === ifNew) return this;
-
-		const { set, create } = ifNew;
-		const skip = Symbol();
-		const newValue = undefined !== create ? create(skip) : set;
-
-		if (skip === newValue) return this;
-		return this.set(atKey, newValue);
+		return {
+			collection: this as any,
+			hasResult: false,
+			result: [undefined, undefined],
+			hasChanged: false,
+		};
 	}
 
 	modifyAtValue(atValue: V, options: ModifyOptions<K>): BiMap<K, V> {
@@ -161,12 +119,36 @@ export class BiMapEmpty<K = any, V = any>
 		return this.set(newKey, atValue);
 	}
 
-	streamKeys(): Stream<K> {
-		return Stream.empty();
+	invert(): BiMap<V, K> {
+		return this.context.invertContext().empty<readonly [V, K]>();
 	}
 
-	streamValues(): Stream<V> {
-		return Stream.empty();
+	addAndReturn(
+		entry: readonly [K, V],
+	): Op.DynamicResult<
+		BiMap.NonEmpty<K, V>,
+		undefined,
+		readonly [K, V],
+		BiMap.NonEmpty<K, V>
+	> {
+		return {
+			collection: this.add(entry),
+			hasResult: false,
+			result: undefined,
+			hasChanged: true,
+		};
+	}
+
+	setAndReturn(
+		key: K,
+		value: V,
+	): Op.DynamicResult<
+		BiMap.NonEmpty<K, V>,
+		undefined,
+		readonly [K, V],
+		BiMap.NonEmpty<K, V>
+	> {
+		return this.addAndReturn([key, value]);
 	}
 
 	toBuilder(): BiMap.Builder<K, V> {
@@ -176,27 +158,109 @@ export class BiMapEmpty<K = any, V = any>
 	toString(): string {
 		return `BiMap()`;
 	}
+}
 
-	toJSON(): ToJSON<(readonly [K, V])[], this['context']['typeTag']> {
-		return {
-			dataType: this.context.typeTag,
-			value: [],
-		};
+const BiMapNonEmptyMixin = MapCollectionNonEmpty.WithMixin(
+	KeyedCollectionNonEmpty.WithMixin(CollectionNonEmpty.Constructor),
+);
+
+export abstract class BiMapNonEmptyBase<K, V>
+	extends BiMapNonEmptyMixin<K, V, BiMap.Advanced.Family<K, V>>
+	implements BiMap.NonEmpty<K, V>
+{
+	abstract readonly context: BiMapCollectionContext<K, V>;
+	abstract readonly keyValueMap: MapCollection.NonEmpty<K, V>;
+	abstract readonly valueKeyMap: MapCollection.NonEmpty<V, K>;
+
+	abstract get size(): number;
+	abstract stream(): Stream.NonEmpty<readonly [K, V]>;
+	abstract forEach(f: (entry: readonly [K, V]) => void): void;
+	abstract toArray(): ArrayNonEmpty<readonly [K, V]>;
+
+	abstract get<UK = K>(key: RelatedTo<K, UK>): V | undefined;
+	abstract get<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O;
+
+	abstract add(entry: readonly [K, V]): BiMap.NonEmpty<K, V>;
+	abstract modifyAtKey(atKey: K, options: ModifyOptions<V>): BiMap<K, V>;
+	abstract mapValues<V2 extends V>(
+		mapFun: (value: V, key: K) => V2,
+	): BiMap.NonEmpty<K, V2>;
+	abstract toBuilder(): BiMap.Builder<K, V>;
+
+	abstract getKey<UV = V>(value: RelatedTo<V, UV>): K | undefined;
+	abstract getKey<UV, O>(value: RelatedTo<V, UV>, otherwise: OptLazy<O>): K | O;
+
+	abstract hasValue<UV = V>(value: RelatedTo<V, UV>): boolean;
+
+	abstract removeValue<UV = V>(value: RelatedTo<V, UV>): BiMap<K, V>;
+	abstract removeValues<UV = V>(
+		values: StreamSource<RelatedTo<V, UV>>,
+	): BiMap<K, V>;
+	abstract removeValueAndReturn<UV = V>(
+		value: RelatedTo<V, UV>,
+	): Op.DynamicResult<BiMap.NonEmpty<K, V>, undefined, K, BiMap<K, V>>;
+	abstract removeValueAndReturn<UV, O>(
+		value: RelatedTo<V, UV>,
+		otherwise: OptLazy<O>,
+	): Op.DynamicResult<BiMap.NonEmpty<K, V>, O, K, BiMap<K, V>>;
+
+	abstract removeEntries(entries: StreamSource<readonly [K, V]>): BiMap<K, V>;
+
+	abstract removeEntry(entry: readonly [K, V]): BiMap<K, V>;
+
+	abstract updateAtValue<UV = V>(
+		keyUpdate: (key: K) => K,
+		value: RelatedTo<V, UV>,
+	): BiMap.NonEmpty<K, V>;
+	abstract updateAtValueAndReturn<UV = V>(
+		keyUpdate: (key: K) => K,
+		value: RelatedTo<V, UV>,
+	): Op.DynamicResult<
+		BiMap.NonEmpty<K, V>,
+		[previous: undefined, current: undefined],
+		[previous: K, current: K],
+		BiMap.NonEmpty<K, V>
+	>;
+
+	abstract modifyAtValue(atValue: V, options: ModifyOptions<K>): BiMap<K, V>;
+
+	abstract invert(): BiMap.NonEmpty<V, K>;
+
+	abstract setAndReturn(
+		key: K,
+		value: V,
+	): Op.DynamicResult<
+		BiMap.NonEmpty<K, V>,
+		undefined,
+		readonly [K, V],
+		BiMap.NonEmpty<K, V>
+	>;
+	abstract addAndReturn(
+		entry: readonly [K, V],
+	): Op.DynamicResult<
+		BiMap.NonEmpty<K, V>,
+		undefined,
+		readonly [K, V],
+		BiMap.NonEmpty<K, V>
+	>;
+
+	toString(): string {
+		return this.stream().join({
+			start: 'BiMap(',
+			sep: ', ',
+			end: ')',
+			valueToString: (entry) => `${entry[0]} <-> ${entry[1]}`,
+		});
 	}
 }
 
-export class BiMapNonEmptyImpl<K, V>
-	extends NonEmptyBase<readonly [K, V]>
-	implements BiMap.NonEmpty<K, V>
-{
-	declare _NonEmptyType: BiMap.NonEmpty<K, V>;
-
+export class BiMapImpl<K, V> extends BiMapNonEmptyBase<K, V> {
 	constructor(
-		readonly context: ContextImpl<K, V>,
-		readonly keyValueMap: RMap.NonEmpty<K, V>,
-		readonly valueKeyMap: RMap.NonEmpty<V, K>,
+		readonly context: BiMapCollectionContext<K, V>,
+		readonly keyValueMap: MapCollection.NonEmpty<K, V>,
+		readonly valueKeyMap: MapCollection.NonEmpty<V, K>,
 	) {
-		super();
+		super(context);
 	}
 
 	copy(
@@ -205,15 +269,15 @@ export class BiMapNonEmptyImpl<K, V>
 	): BiMap.NonEmpty<K, V> {
 		if (keyValueMap === this.keyValueMap && valueKeyMap === this.valueKeyMap)
 			return this;
-		return new BiMapNonEmptyImpl(this.context, keyValueMap, valueKeyMap);
+		return new BiMapImpl(this.context, keyValueMap, valueKeyMap);
 	}
 
 	copyE(
-		keyValueMap: RMap<K, V> = this.keyValueMap,
-		valueKeyMap: RMap<V, K> = this.valueKeyMap,
+		keyValueMap: MapCollection<K, V> = this.keyValueMap,
+		valueKeyMap: MapCollection<V, K> = this.valueKeyMap,
 	): BiMap<K, V> {
 		if (keyValueMap.nonEmpty() && valueKeyMap.nonEmpty()) {
-			return new BiMapNonEmptyImpl(this.context, keyValueMap, valueKeyMap);
+			return new BiMapImpl(this.context, keyValueMap, valueKeyMap);
 		}
 		return this.context.empty();
 	}
@@ -222,225 +286,242 @@ export class BiMapNonEmptyImpl<K, V>
 		return this.keyValueMap.size;
 	}
 
-	asNormal(): this {
-		return this;
-	}
-
 	stream(): Stream.NonEmpty<readonly [K, V]> {
 		return this.keyValueMap.stream();
 	}
 
-	streamKeys(): Stream.NonEmpty<K> {
-		return this.keyValueMap.streamKeys();
+	get<UK = K>(key: RelatedTo<K, UK>): V | undefined;
+	get<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O;
+	get<UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O {
+		if (undefined === otherwise) {
+			return this.keyValueMap.get(key) as V | O;
+		}
+		return this.keyValueMap.get(key, otherwise) as V | O;
 	}
 
-	streamValues(): Stream.NonEmpty<V> {
-		return this.valueKeyMap.streamKeys();
+	getKey<UV = V>(value: RelatedTo<V, UV>): K | undefined;
+	getKey<UV, O>(value: RelatedTo<V, UV>, otherwise: OptLazy<O>): K | O;
+	getKey<UV, O>(value: RelatedTo<V, UV>, otherwise?: OptLazy<O>): K | O {
+		if (undefined === otherwise) {
+			return this.valueKeyMap.get(value) as K | O;
+		}
+		return this.valueKeyMap.get(value, otherwise) as K | O;
 	}
 
-	hasKey<UK>(key: RelatedTo<K, UK>): boolean {
-		return this.keyValueMap.hasKey(key);
+	has<UK = K>(key: RelatedTo<K, UK>): boolean {
+		return this.keyValueMap.has(key);
 	}
 
-	hasValue<UV>(value: RelatedTo<V, UV>): boolean {
-		return this.valueKeyMap.hasKey(value);
+	hasValue<UV = V>(value: RelatedTo<V, UV>): boolean {
+		return this.valueKeyMap.has(value);
 	}
 
-	at<UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O {
-		return this.keyValueMap.at(key, otherwise!);
-	}
-
-	atValue<UV, O>(value: RelatedTo<V, UV>, otherwise?: OptLazy<O>): K | O {
-		return this.valueKeyMap.at(value, otherwise!);
-	}
-
-	set(key: K, value: V): BiMap.NonEmpty<K, V> {
-		return this.addEntry([key, value]);
-	}
-
-	setAndGet(
-		key: K,
-		value: V,
-	): WithValueResult<BiMap.NonEmpty<K, V>, readonly [K, V]> {
-		return this.addEntryAndGet([key, value]);
-	}
-
-	addEntry(entry: readonly [K, V]): BiMap.NonEmpty<K, V> {
+	add(entry: readonly [K, V]): BiMap.NonEmpty<K, V> {
 		const [key, value] = entry;
 
-		const [removedKeyValueMap, removedValue, wasKeyRemoved] =
-			this.keyValueMap.removeKeyAndGet(key);
-		const [removedValueKeyMap, removedKey, wasValueRemoved] =
-			this.valueKeyMap.removeKeyAndGet(value);
+		const token = Symbol();
+		const currentValue = this.keyValueMap.get(key, token);
+		const currentKey = this.valueKeyMap.get(value, token);
 
-		if (wasKeyRemoved) {
-			if (wasValueRemoved) {
-				// check if existing entry was not same
-				if (Object.is(removedKey, key) && Object.is(removedValue, value)) {
+		if (token !== currentValue) {
+			if (token !== currentKey) {
+				if (Object.is(currentKey, key) && Object.is(currentValue, value)) {
 					return this;
 				}
 
-				const newKeyValueMap = removedKeyValueMap
-					.removeKey(removedKey)
-					.addEntry(entry);
-				const newValueKeyMap = removedValueKeyMap
-					.removeKey(removedValue)
-					.set(value, key);
-
-				return this.copy(newKeyValueMap, newValueKeyMap);
+				return this.copy(
+					this.keyValueMap
+						.removeKey(key)
+						.removeKey(currentKey)
+						.set(key, value) as MapCollection.NonEmpty<K, V>,
+					this.valueKeyMap
+						.removeKey(value)
+						.removeKey(currentValue)
+						.set(value, key) as MapCollection.NonEmpty<V, K>,
+				);
 			}
 
-			const newValueKeyMap = removedValueKeyMap
-				.removeKey(removedValue)
-				.set(value, key);
-			const newKeyValueMap = removedKeyValueMap.addEntry(entry);
-
-			return this.copy(newKeyValueMap, newValueKeyMap);
+			return this.copy(
+				this.keyValueMap
+					.removeKey(key)
+					.set(key, value) as MapCollection.NonEmpty<K, V>,
+				this.valueKeyMap
+					.removeKey(currentValue)
+					.set(value, key) as MapCollection.NonEmpty<V, K>,
+			);
 		}
 
-		if (wasValueRemoved) {
-			const newValueKeyMap = removedValueKeyMap.set(value, key);
-			const newKeyValueMap = removedKeyValueMap
-				.removeKey(removedKey)
-				.addEntry(entry);
-
-			return this.copy(newKeyValueMap, newValueKeyMap);
+		if (token !== currentKey) {
+			return this.copy(
+				this.keyValueMap
+					.removeKey(currentKey)
+					.set(key, value) as MapCollection.NonEmpty<K, V>,
+				this.valueKeyMap
+					.removeKey(value)
+					.set(value, key) as MapCollection.NonEmpty<V, K>,
+			);
 		}
 
-		// key and value were not present
 		return this.copy(
-			this.keyValueMap.addEntry(entry),
+			this.keyValueMap.set(key, value),
 			this.valueKeyMap.set(value, key),
 		);
 	}
 
-	addEntryAndGet(
+	addAndReturn(
 		entry: readonly [K, V],
-	): WithValueResult<BiMap.NonEmpty<K, V>, readonly [K, V]> {
+	): Op.DynamicResult<
+		BiMap.NonEmpty<K, V>,
+		undefined,
+		readonly [K, V],
+		BiMap.NonEmpty<K, V>
+	> {
 		const [key, value] = entry;
 
-		const [removedKeyValueMap, removedValue, wasKeyRemoved] =
-			this.keyValueMap.removeKeyAndGet(key);
-		const [removedValueKeyMap, removedKey, wasValueRemoved] =
-			this.valueKeyMap.removeKeyAndGet(value);
+		const token = Symbol();
+		const currentValue = this.keyValueMap.get(key, token);
+		const currentKey = this.valueKeyMap.get(value, token);
 
-		if (wasKeyRemoved) {
-			if (wasValueRemoved) {
-				// check if existing entry was not same
-				if (Object.is(removedKey, key) && Object.is(removedValue, value)) {
-					return [this, entry, true];
+		if (token !== currentValue) {
+			if (token !== currentKey) {
+				if (Object.is(currentKey, key) && Object.is(currentValue, value)) {
+					return {
+						collection: this,
+						hasResult: true,
+						result: entry,
+						hasChanged: false,
+					};
 				}
 
-				const newKeyValueMap = removedKeyValueMap
-					.removeKey(removedKey)
-					.addEntry(entry);
-				const newValueKeyMap = removedValueKeyMap
-					.removeKey(removedValue)
-					.set(value, key);
-
-				return [
-					this.copy(newKeyValueMap, newValueKeyMap),
-					[key, removedValue],
-					true,
-				];
+				return {
+					collection: this.copy(
+						this.keyValueMap
+							.removeKey(key)
+							.removeKey(currentKey)
+							.set(key, value) as MapCollection.NonEmpty<K, V>,
+						this.valueKeyMap
+							.removeKey(value)
+							.removeKey(currentValue)
+							.set(value, key) as MapCollection.NonEmpty<V, K>,
+					),
+					hasResult: true,
+					result: [key, currentValue] as readonly [K, V],
+					hasChanged: true,
+				};
 			}
 
-			const newValueKeyMap = removedValueKeyMap
-				.removeKey(removedValue)
-				.set(value, key);
-			const newKeyValueMap = removedKeyValueMap.addEntry(entry);
-
-			return [
-				this.copy(newKeyValueMap, newValueKeyMap),
-				[key, removedValue],
-				true,
-			];
+			return {
+				collection: this.copy(
+					this.keyValueMap
+						.removeKey(key)
+						.set(key, value) as MapCollection.NonEmpty<K, V>,
+					this.valueKeyMap
+						.removeKey(currentValue)
+						.set(value, key) as MapCollection.NonEmpty<V, K>,
+				),
+				hasResult: true,
+				result: [key, currentValue] as readonly [K, V],
+				hasChanged: true,
+			};
 		}
 
-		if (wasValueRemoved) {
-			const newValueKeyMap = removedValueKeyMap.set(value, key);
-			const newKeyValueMap = removedKeyValueMap
-				.removeKey(removedKey)
-				.addEntry(entry);
-
-			return [
-				this.copy(newKeyValueMap, newValueKeyMap),
-				[removedKey, value],
-				true,
-			];
+		if (token !== currentKey) {
+			return {
+				collection: this.copy(
+					this.keyValueMap
+						.removeKey(currentKey)
+						.set(key, value) as MapCollection.NonEmpty<K, V>,
+					this.valueKeyMap
+						.removeKey(value)
+						.set(value, key) as MapCollection.NonEmpty<V, K>,
+				),
+				hasResult: true,
+				result: [currentKey, value] as readonly [K, V],
+				hasChanged: true,
+			};
 		}
 
-		// key and value were not present
-		return [
-			this.copy(
-				this.keyValueMap.addEntry(entry),
+		return {
+			collection: this.copy(
+				this.keyValueMap.set(key, value),
 				this.valueKeyMap.set(value, key),
 			),
-			undefined,
-			false,
-		];
+			hasResult: false,
+			result: undefined,
+			hasChanged: true,
+		};
 	}
 
-	removeEntry([key, value]: readonly [K, V]): BiMap<K, V> {
-		return this.modifyAtKey(key, {
-			ifExists: {
-				update: (currentValue, remove) =>
-					currentValue === value ? remove : currentValue,
-			},
-		});
+	setAndReturn(
+		key: K,
+		value: V,
+	): Op.DynamicResult<
+		BiMap.NonEmpty<K, V>,
+		undefined,
+		readonly [K, V],
+		BiMap.NonEmpty<K, V>
+	> {
+		return this.addAndReturn([key, value]);
 	}
 
-	addEntries(entries: StreamSource<readonly [K, V]>): BiMap.NonEmpty<K, V> {
-		if (Stream.isEmptyStreamSourceInstance(entries)) return this;
+	removeKey<UK = K>(key: RelatedTo<K, UK>): BiMap<K, V> {
+		const token = Symbol();
+		const removedValue = this.keyValueMap.get(key, token);
 
-		const builder = this.toBuilder();
+		if (token === removedValue) return this;
 
-		builder.addEntries(entries);
-
-		return builder.build() as BiMap.NonEmpty<K, V>;
-	}
-
-	removeKey<UK>(key: RelatedTo<K, UK>): BiMap<K, V> {
-		const [removedKeyValueMap, removedValue, wasKeyRemoved] =
-			this.keyValueMap.removeKeyAndGet(key);
-
-		if (!wasKeyRemoved) return this;
-
-		if (this.size === 1) {
-			return this.context.empty();
-		}
-
-		const removedValueKeyMap = this.valueKeyMap.removeKey(removedValue);
+		if (this.size === 1) return this.context.empty();
 
 		return this.copy(
-			removedKeyValueMap.assumeNonEmpty(),
-			removedValueKeyMap.assumeNonEmpty(),
+			this.keyValueMap.removeKey(key).assumeNonEmpty(),
+			this.valueKeyMap.removeKey(removedValue as V).assumeNonEmpty(),
 		);
 	}
 
-	removeKeyAndGet<UK>(
+	removeKeyAndReturn<UK = K>(
 		key: RelatedTo<K, UK>,
-	): WithValueResult<BiMap<K, V>, V, BiMap.NonEmpty<K, V>> {
-		const [removedKeyValueMap, removedValue, wasKeyRemoved] =
-			this.keyValueMap.removeKeyAndGet(key);
+	): Op.DynamicResult<BiMap.NonEmpty<K, V>, undefined, V, BiMap<K, V>>;
+	removeKeyAndReturn<UK, O>(
+		key: RelatedTo<K, UK>,
+		otherwise: OptLazy<O>,
+	): Op.DynamicResult<BiMap.NonEmpty<K, V>, O, V, BiMap<K, V>>;
+	removeKeyAndReturn<UK, O>(
+		key: RelatedTo<K, UK>,
+		otherwise?: OptLazy<O>,
+	): Op.DynamicResult<BiMap.NonEmpty<K, V>, V | O | undefined, V, BiMap<K, V>> {
+		const token = Symbol();
+		const removedValue = this.keyValueMap.get(key, token);
 
-		if (!wasKeyRemoved) return [this, undefined, false];
+		if (token === removedValue) {
+			return {
+				collection: this,
+				hasResult: false,
+				result: OptLazy(otherwise) as O,
+				hasChanged: false,
+			};
+		}
 
-		if (this.size === 1) return [this.context.empty(), removedValue, true];
+		if (this.size === 1) {
+			return {
+				collection: this.context.empty(),
+				hasResult: true,
+				result: removedValue as V,
+				hasChanged: true,
+			};
+		}
 
-		const removedValueKeyMap = this.valueKeyMap.removeKey(removedValue);
-
-		return [
-			this.copy(
-				removedKeyValueMap.assumeNonEmpty(),
-				removedValueKeyMap.assumeNonEmpty(),
+		return {
+			collection: this.copy(
+				this.keyValueMap.removeKey(key).assumeNonEmpty(),
+				this.valueKeyMap.removeKey(removedValue as V).assumeNonEmpty(),
 			),
-			removedValue,
-			true,
-		];
+			hasResult: true,
+			result: removedValue as V,
+			hasChanged: true,
+		};
 	}
 
-	removeKeys<UK>(keys: Stream<RelatedTo<K, UK>>): BiMap<K, V> {
+	removeKeys<UK = K>(keys: StreamSource<RelatedTo<K, UK>>): BiMap<K, V> {
 		if (Stream.isEmptyStreamSourceInstance(keys)) return this;
 
 		const builder = this.toBuilder();
@@ -450,45 +531,64 @@ export class BiMapNonEmptyImpl<K, V>
 		return builder.build();
 	}
 
-	removeValue<UV>(value: RelatedTo<V, UV>): BiMap<K, V> {
-		const [removedValueKeyMap, removedKey, wasValueRemoved] =
-			this.valueKeyMap.removeKeyAndGet(value);
+	removeValue<UV = V>(value: RelatedTo<V, UV>): BiMap<K, V> {
+		const token = Symbol();
+		const removedKey = this.valueKeyMap.get(value, token);
 
-		if (!wasValueRemoved) return this;
+		if (token === removedKey) return this;
 
 		if (this.size === 1) return this.context.empty();
 
-		const removedKeyValueMap = this.keyValueMap.removeKey(removedKey);
-
 		return this.copy(
-			removedKeyValueMap.assumeNonEmpty(),
-			removedValueKeyMap.assumeNonEmpty(),
+			this.keyValueMap.removeKey(removedKey as K).assumeNonEmpty(),
+			this.valueKeyMap.removeKey(value).assumeNonEmpty(),
 		);
 	}
 
-	removeValueAndGet<UV>(
+	removeValueAndReturn<UV = V>(
 		value: RelatedTo<V, UV>,
-	): WithValueResult<BiMap<K, V>, K> {
-		const [removedValueKeyMap, removedKey, wasValueRemoved] =
-			this.valueKeyMap.removeKeyAndGet(value);
+	): Op.DynamicResult<BiMap.NonEmpty<K, V>, undefined, K, BiMap<K, V>>;
+	removeValueAndReturn<UV, O>(
+		value: RelatedTo<V, UV>,
+		otherwise: OptLazy<O>,
+	): Op.DynamicResult<BiMap.NonEmpty<K, V>, O, K, BiMap<K, V>>;
+	removeValueAndReturn<UV, O>(
+		value: RelatedTo<V, UV>,
+		otherwise?: OptLazy<O>,
+	): Op.DynamicResult<BiMap.NonEmpty<K, V>, K | O | undefined, K, BiMap<K, V>> {
+		const token = Symbol();
+		const removedKey = this.valueKeyMap.get(value, token);
 
-		if (!wasValueRemoved) return [this, undefined, false];
+		if (token === removedKey) {
+			return {
+				collection: this,
+				hasResult: false,
+				result: OptLazy(otherwise) as O,
+				hasChanged: false,
+			};
+		}
 
-		if (this.size === 1) return [this.context.empty(), removedKey, true];
+		if (this.size === 1) {
+			return {
+				collection: this.context.empty(),
+				hasResult: true,
+				result: removedKey as K,
+				hasChanged: true,
+			};
+		}
 
-		const removedKeyValueMap = this.keyValueMap.removeKey(removedKey);
-
-		return [
-			this.copy(
-				removedKeyValueMap.assumeNonEmpty(),
-				removedValueKeyMap.assumeNonEmpty(),
+		return {
+			collection: this.copy(
+				this.keyValueMap.removeKey(removedKey as K).assumeNonEmpty(),
+				this.valueKeyMap.removeKey(value).assumeNonEmpty(),
 			),
-			removedKey,
-			true,
-		];
+			hasResult: true,
+			result: removedKey as K,
+			hasChanged: true,
+		};
 	}
 
-	removeValues<UV>(values: Stream<RelatedTo<V, UV>>): BiMap<K, V> {
+	removeValues<UV = V>(values: StreamSource<RelatedTo<V, UV>>): BiMap<K, V> {
 		if (Stream.isEmptyStreamSourceInstance(values)) return this;
 
 		const builder = this.toBuilder();
@@ -498,58 +598,80 @@ export class BiMapNonEmptyImpl<K, V>
 		return builder.build();
 	}
 
-	updateValueAtKey(key: K, valueUpdate: (value: V) => V): BiMap.NonEmpty<K, V> {
-		const token = Symbol();
-		const currentValue = this.at(key, token);
-		if (token === currentValue) return this;
-
-		const newValue = valueUpdate(currentValue);
-		if (Object.is(newValue, currentValue)) return this;
-		return this.set(key, newValue);
+	removeEntry(entry: readonly [K, V]): BiMap<K, V> {
+		return this.modifyAtKey(entry[0], {
+			ifExists: {
+				update: (currentValue, remove) =>
+					currentValue === entry[1] ? remove : currentValue,
+			},
+		});
 	}
 
-	updateKeyAtValue(keyUpdate: (key: K) => K, value: V): BiMap.NonEmpty<K, V> {
+	removeEntries(entries: StreamSource<readonly [K, V]>): BiMap<K, V> {
+		if (Stream.isEmptyStreamSourceInstance(entries)) return this;
+
+		const builder = this.toBuilder();
+
+		builder.removeEntries(entries);
+
+		return builder.build();
+	}
+
+	updateAtValue<UV = V>(
+		keyUpdate: (key: K) => K,
+		value: RelatedTo<V, UV>,
+	): BiMap.NonEmpty<K, V> {
 		const token = Symbol();
-		const currentKey = this.atValue(value, token);
+		const currentKey = this.valueKeyMap.get(value, token);
+
 		if (token === currentKey) return this;
 
-		const newKey = keyUpdate(currentKey);
+		const newKey = keyUpdate(currentKey as K);
+
 		if (Object.is(newKey, currentKey)) return this;
-		return this.set(newKey, value);
+
+		return this.set(newKey, value as V);
 	}
 
-	updateValueAtKeyAndGet(
-		key: K,
-		valueUpdate: (value: V) => V,
-	): WithValueResult<BiMap.NonEmpty<K, V>, V> {
-		const token = Symbol();
-		let oldValue: V | typeof token = token;
-
-		const newBiMap = this.updateValueAtKey(key, (value) => {
-			oldValue = value;
-			return valueUpdate(value);
-		});
-
-		if (token === oldValue) return [this, undefined, false];
-		return [newBiMap, oldValue, true];
-	}
-
-	updateKeyAtValueAndGet(
+	updateAtValueAndReturn<UV = V>(
 		keyUpdate: (key: K) => K,
-		value: V,
-	): WithValueResult<BiMap.NonEmpty<K, V>, K> {
+		value: RelatedTo<V, UV>,
+	): Op.DynamicResult<
+		BiMap.NonEmpty<K, V>,
+		[previous: undefined, current: undefined],
+		[previous: K, current: K],
+		BiMap.NonEmpty<K, V>
+	> {
 		const token = Symbol();
-		let oldKey: K | typeof token = token;
-		let newKey: K | typeof token = token;
+		const currentKey = this.valueKeyMap.get(value, token);
 
-		const newBiMap = this.updateKeyAtValue((key) => {
-			oldKey = key;
-			newKey = keyUpdate(key);
-			return newKey;
-		}, value);
+		if (token === currentKey) {
+			return {
+				collection: this,
+				hasResult: false,
+				result: [undefined, undefined],
+				hasChanged: false,
+			};
+		}
 
-		if (token === oldKey) return [this, undefined, false];
-		return [newBiMap, oldKey, true];
+		const oldKey = currentKey as K;
+		const newKey = keyUpdate(oldKey);
+
+		if (Object.is(newKey, oldKey)) {
+			return {
+				collection: this,
+				hasResult: true,
+				result: [oldKey, newKey],
+				hasChanged: false,
+			};
+		}
+
+		return {
+			collection: this.set(newKey, value as V),
+			hasResult: true,
+			result: [oldKey, newKey],
+			hasChanged: true,
+		};
 	}
 
 	modifyAtKey(atKey: K, options: ModifyOptions<V>): BiMap<K, V> {
@@ -592,7 +714,10 @@ export class BiMapNonEmptyImpl<K, V>
 			};
 		}
 
-		const newKeyValueMap = this.keyValueMap.modifyAt(atKey, keyValueMapOptions);
+		const newKeyValueMap = this.keyValueMap.modifyAtKey(
+			atKey,
+			keyValueMapOptions,
+		);
 		if (newKeyValueMap === this.keyValueMap) return this;
 
 		if (newKeyValueMap.nonEmpty() && newValueKeyMap.nonEmpty()) {
@@ -642,7 +767,7 @@ export class BiMapNonEmptyImpl<K, V>
 			};
 		}
 
-		const newValueKeyMap = this.valueKeyMap.modifyAt(
+		const newValueKeyMap = this.valueKeyMap.modifyAtKey(
 			atValue,
 			valueKeyMapOptions,
 		);
@@ -655,50 +780,27 @@ export class BiMapNonEmptyImpl<K, V>
 		return this.context.empty();
 	}
 
-	forEach(
-		f: (entry: readonly [K, V], index: number, halt: () => void) => void,
-		options: { state?: TraverseState } = {},
-	): void {
-		const { state = TraverseState() } = options;
-
-		if (state.halted) return;
-		this.keyValueMap.forEach(f, { state });
-	}
-
-	filter(
-		pred: (entry: readonly [K, V], index: number, halt: () => void) => boolean,
-		options: { negate?: boolean } = {},
-	): BiMap<K, V> {
-		const builder = this.context.builder();
-
-		builder.addEntries(this.stream().filter(pred, options));
-
-		if (builder.size === this.size) return this;
-
-		return builder.build();
-	}
-
-	toBuilder(): BiMap.Builder<K, V> {
-		return this.context.createBuilder(this);
+	forEach(f: (entry: readonly [K, V]) => void): void {
+		this.keyValueMap.forEach(f);
 	}
 
 	toArray(): ArrayNonEmpty<readonly [K, V]> {
 		return this.keyValueMap.toArray();
 	}
 
-	toString(): string {
-		return this.stream().join({
-			start: `BiMap(`,
-			sep: ', ',
-			end: `)`,
-			valueToString: (entry) => `${entry[0]} <-> ${entry[1]}`,
-		});
+	mapValues<V2 extends V>(
+		mapFun: (value: V, key: K) => V2,
+	): BiMap.NonEmpty<K, V2> {
+		return this.toBuilder().buildMapValues(mapFun).assumeNonEmpty();
 	}
 
-	toJSON(): ToJSON<(readonly [K, V])[], this['context']['typeTag']> {
-		return {
-			dataType: this.context.typeTag,
-			value: this.toArray(),
-		};
+	invert(): BiMap.NonEmpty<V, K> {
+		return this.context
+			.invertContext()
+			.createNonEmptyImpl(this.valueKeyMap, this.keyValueMap);
+	}
+
+	toBuilder(): BiMap.Builder<K, V> {
+		return this.context.createBuilder(this);
 	}
 }

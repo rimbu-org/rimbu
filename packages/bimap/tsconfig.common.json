@@ -1,6 +1,8 @@
 {
 	"compilerOptions": {
 		"paths": {
+			"@rimbu/bimap/advanced/*": ["./src/advanced/*.ts"],
+			"@rimbu/bimap/*": ["./src/public/*.ts"],
 			"@rimbu/bimap": ["./src/bimap.ts"],
 			"#bimap/*": ["./src/internal/*.ts"]
 		}
