@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 
 import type { Collection } from '@rimbu/collection-types/collection';
-import type { KeyedCollection } from '@rimbu/collection-types/collection/keyed';
 import type { MapCollection } from '@rimbu/collection-types/map';
 import type { ArrayNonEmpty } from '@rimbu/common/types';
 
@@ -30,15 +29,17 @@ const arr6 = [
 	[6, 'f'],
 ] as ArrayNonEmpty<[number, string]>;
 
-type Capabilities = Collection.Capability.WithAddAll<any> &
-	Collection.Capability.WithToBuilder<any> &
-	KeyedCollection.Capability.WithReducer<any, any> &
-	KeyedCollection.Capability.WithMerge<any, any> &
-	KeyedCollection.Capability.WithMapValues<any, any> &
-	KeyedCollection.Capability.WithRemoveKey<any, any> &
-	MapCollection.Capability.WithUpdateAtKey<any, any> &
-	MapCollection.Capability.WithSet<any, any> &
-	MapCollection.Capability.WithModifyAtKey<any, any>;
+/**
+ * The family these standard tests run against.
+ *
+ * Note: this must be a *named* interface extending the aggregate
+ * `MapCollection.Advanced.Family`, not an ad-hoc intersection of the individual
+ * `Capability.*` families. An anonymous intersection is not cacheable by
+ * symbol, so every slot resolution re-intersects all members recursively
+ * through `_TYPES` / `_TYPES_NON_EMPTY`, and it does not reconstruct the real
+ * `BuilderApi` (so `get` / `has` / `size` / `removeKeys` go missing).
+ */
+interface Capabilities extends MapCollection.Advanced.Family<any, any> {}
 
 export function runMapTestsWith(
 	name: string,

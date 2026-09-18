@@ -38,11 +38,21 @@ export declare namespace Collection {
 				? TypesNonEmpty<(Tp & { _NEW_E: E2 })['_NEW_FAMILY'], E2>
 				: Types<(Tp & { _NEW_E: E2 })['_NEW_FAMILY'], E2>;
 
+		/**
+		 * Note: the `[IsNonEmpty] extends [true]` form is deliberate. A naked
+		 * `IsNonEmpty extends true` distributes over the default `boolean`
+		 * (= `true | false`), which forces both branches to be instantiated and
+		 * unioned on every use. The tuple wrapper makes the check
+		 * non-distributive, halving the work without changing the result: the
+		 * slots read from this type (`_NORMAL`, `_NON_EMPTY`, `_BUILDER`,
+		 * `_CONTEXT`) are declared on the family, not on `NormalKind` /
+		 * `NonEmptyKind`, so both branches resolve them identically.
+		 */
 		export type FamToTypes<
 			F extends FamilyBase<any>,
 			E2,
 			IsNonEmpty extends boolean = boolean,
-		> = IsNonEmpty extends true
+		> = [IsNonEmpty] extends [true]
 			? TypesNonEmpty<(F & { _NEW_E: E2 })['_NEW_FAMILY'], E2>
 			: Types<(F & { _NEW_E: E2 })['_NEW_FAMILY'], E2>;
 
