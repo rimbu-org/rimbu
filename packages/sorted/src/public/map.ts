@@ -52,7 +52,6 @@ export namespace SortedMap {
 			): Stream<readonly [K, V]>;
 			lowerBound(key: K): number;
 			upperBound(key: K): number;
-			readonly comp: Comp<K>;
 		}
 
 		export interface BuilderApi<K, V, Tp extends Collection.Advanced.TypesBase>
