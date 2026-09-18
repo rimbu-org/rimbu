@@ -35,7 +35,7 @@ Additional triggers: after `review-api` (§6.6), when `maintain-skills` reports 
 
 ### Diagnose (read-only, default)
 
-1. Resolve target: single package `<pkg>` (e.g. `packages/hashed`) is default. If `--workspace` is passed, expand to all packages with `package.json` (exclude `list2`). Require `<pkg>` if no `--workspace`.
+1. Resolve target: single package `<pkg>` (e.g. `packages/hashed`) is default. If `--workspace` is passed, expand to all packages with `package.json`. Require `<pkg>` if no `--workspace`.
 2. For each target package, collect evidence **without mutating** via `rg` + file listing:
    - Enumerate public generic methods: `rg -n "^\s*(?:readonly\s+)?\w+\s*(?:<[^>]*>)?\s*\(.*<.*>.*\)" src/public --no-heading` (methods with `<...>` generics) and `rg -n "interface NonEmpty|interface Types|const.*<.*>|NoInfer" src/public --no-heading` to list `NonEmpty`/`Types`/`const`/`NoInfer` sites.
    - For each generic method, check `test-d/` coverage: `rg -n "\b<method>\b" test-d --no-heading` and `rg -n "expectTypeOf" test-d --no-heading`. If `0` matches for the method but `test-d/` exists, emit `warn` (missing type test) with `rg` command + `0 matches` and `test-d/` `file:line` where coverage exists or would be. If `test-d/` dir missing, emit `warn` per method (no type tests).

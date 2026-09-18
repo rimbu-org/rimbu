@@ -1,510 +1,92 @@
-import type { ListContext } from '#list/context-module';
+import type { Int } from '@rimbu/base';
+
+import type { ListContext } from '#list/context';
+import type { Inner } from '#list/immutable/common';
 import type { InnerTree } from '#list/immutable/inner-tree';
-import type { Inner } from '#list/immutable/utils';
 import type {
 	BlockBuilder,
 	InnerBuilder,
-	ToImmutable,
-} from '#list/mutable/builder-base';
+	NestedBlockBuilder,
+} from '#list/mutable/common';
 import type { InnerBlockBuilder } from '#list/mutable/inner-block-builder';
 
-import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
+import { CacheMap } from '#list/immutable/cache-map';
+import { TreeBuilderBase } from '#list/mutable/tree-builder-base';
 
-import { recomputeSizes } from '#list/mutable/inner-block-builder';
-import { TreeBuilder } from '#list/mutable/tree-builder';
-
-export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
-	extends TreeBuilder<T, C>
+export class InnerTreeBuilder<T, C extends BlockBuilder<any>>
+	extends TreeBuilderBase<T, C>
 	implements InnerBuilder<T, C>
 {
 	constructor(
-		context: ListContext,
+		readonly context: ListContext,
 		readonly level: number,
-		public source?: InnerTree<T, ToImmutable<C>>,
-		public _left?: InnerBlockBuilder<T, C>,
-		public _right?: InnerBlockBuilder<T, C>,
-		public _middle?: InnerBuilder<T, InnerBlockBuilder<T, C>>,
-		public length: number = source?.length ?? 0,
+		source?: InnerTree<T, any>,
+		_left?: InnerBlockBuilder<T, C>,
+		_right?: InnerBlockBuilder<T, C>,
+		_middle?: InnerBuilder<T, InnerBlockBuilder<T, C>>,
+		size: number = source?.size ?? 0,
 	) {
-		super(context);
+		super();
+
+		this.#source = source;
+		this.#_left = _left;
+		this.#_right = _right;
+		this.#_middle = _middle;
+		this.#size = size;
 	}
 
-	/**
-	 * Typed accessors for left/right/middle that narrow the optional constructor
-	 * fields to their expected types after `prepareMutate()` has been called.
-	 * `left` and `right` use `!` because they are guaranteed non-undefined after materialization.
-	 */
+	#source: InnerTree<T, any> | undefined;
+	#_left: InnerBlockBuilder<T, C> | undefined;
+	#_right: InnerBlockBuilder<T, C> | undefined;
+	#_middle: InnerBuilder<T, InnerBlockBuilder<T, C>> | undefined;
+	#size: number;
+
 	get left(): InnerBlockBuilder<T, C> {
-		return this._left!;
+		return this.#_left!;
 	}
 
 	set left(value: InnerBlockBuilder<T, C>) {
-		this._left = value;
+		this.#_left = value;
 	}
 
 	get right(): InnerBlockBuilder<T, C> {
-		return this._right!;
+		return this.#_right!;
 	}
 
 	set right(value: InnerBlockBuilder<T, C>) {
-		this._right = value;
+		this.#_right = value;
 	}
 
 	get middle(): InnerBuilder<T, InnerBlockBuilder<T, C>> | undefined {
-		return this._middle;
+		return this.#_middle;
 	}
 
 	set middle(value: InnerBuilder<T, InnerBlockBuilder<T, C>> | undefined) {
-		this._middle = value;
+		this.#_middle = value;
+	}
+
+	get size(): number {
+		return this.#size;
+	}
+
+	set size(value: number) {
+		this.#size = value;
 	}
 
 	prepareMutate(): void {
-		if (undefined === this.source) return;
+		if (undefined === this.#source) return;
 
-		this._left = this.context.innerBlockBuilderSource(this.source.left);
-		this._right = this.context.innerBlockBuilderSource(this.source.right);
-		this._middle =
-			null === this.source.middle
+		this.#_left = this.#source.left.toNodeBuilder();
+		this.#_right = this.#source.right.toNodeBuilder();
+		this.#_middle =
+			null === this.#source.middle
 				? undefined
-				: this.context.createInnerBuilder(this.source.middle);
-		this.length = this.source.length;
-		this.source = undefined;
+				: this.#source.middle.toNodeBuilder();
+		this.#source = undefined;
 	}
 
-	get(index: number): T {
-		if (undefined !== this.source) {
-			return this.source.get(index);
-		}
-
-		return super.get(index);
-	}
-
-	prependChild(child: C): void {
-		this.prepareMutate();
-		this.length += child.length;
-
-		if (this.left.canAddChild) {
-			this.left.prependChild(child);
-			return;
-		}
-
-		if (undefined === this.middle) {
-			if (this.right.canAddChild) {
-				const shiftToRight = this.left.dropLastChild();
-				this.right.prependChild(shiftToRight);
-				this.left.prependChild(child);
-				return;
-			}
-		}
-
-		this.prependMiddle(this.left);
-		this.left = this.context.innerBlockBuilder(
-			this.level,
-			[child],
-			child.length,
-		);
-	}
-
-	appendChild(child: C): void {
-		this.prepareMutate();
-		this.length += child.length;
-
-		if (this.right.canAddChild) {
-			this.right.appendChild(child);
-			return;
-		}
-
-		if (undefined === this.middle) {
-			if (this.left.canAddChild) {
-				const shiftToLLeft = this.right.dropFirstChild();
-				this.left.appendChild(shiftToLLeft);
-				this.right.appendChild(child);
-				return;
-			}
-		}
-
-		this.appendMiddle(this.right);
-		this.right = this.context.innerBlockBuilder(
-			this.right.level,
-			[child],
-			child.length,
-		);
-	}
-
-	firstChild(): C {
-		this.prepareMutate();
-
-		return this.left.firstChild();
-	}
-
-	lastChild(): C {
-		this.prepareMutate();
-		return this.right.lastChild();
-	}
-
-	dropFirstChild(): C {
-		this.prepareMutate();
-		const firstChild = this.left.dropFirstChild();
-		this.length -= firstChild.length;
-
-		if (this.left.nrChildren === 0) {
-			if (undefined === this.middle) {
-				if (this.right.canRemoveChild) {
-					this.left.appendChild(this.right.dropFirstChild());
-				}
-			} else {
-				const firstMiddleBlock = this.middle.dropFirstChild();
-				this.middle = this.middle.normalized();
-				this.left = firstMiddleBlock;
-			}
-		}
-
-		return firstChild;
-	}
-
-	dropLastChild(): C {
-		this.prepareMutate();
-		const lastChild = this.right.dropLastChild();
-		this.length -= lastChild.length;
-
-		if (this.right.nrChildren === 0) {
-			if (undefined === this.middle) {
-				if (this.left.canRemoveChild) {
-					this.right.prependChild(this.left.dropLastChild());
-				}
-			} else {
-				// right is empty, need to shift from middle to right
-				const lastMiddleBlock = this.middle.dropLastChild();
-				this.middle = this.middle.normalized();
-				this.right = lastMiddleBlock;
-			}
-		}
-
-		return lastChild;
-	}
-
-	remove(index: number): T {
-		this.prepareMutate();
-
-		this.length--;
-
-		const middleIndex = index - this.left.length;
-
-		if (middleIndex < 0) {
-			// index is in left
-			const oldValue = this.left.remove(index);
-			this.repairLeftAfterRemove();
-			return oldValue;
-		}
-
-		const rightIndex = middleIndex - (this.middle?.length ?? 0);
-
-		if (rightIndex >= 0) {
-			// index is in right
-			const oldValue = this.right.remove(rightIndex);
-			this.repairRightAfterRemove();
-			return oldValue;
-		}
-
-		if (undefined === this.middle) {
-			throwInvalidStateError();
-		}
-
-		// index is in middle
-		const oldValue = this.middle.remove(middleIndex);
-		this.middle = this.middle.normalized();
-
-		return oldValue;
-	}
-
-	private repairRightAfterRemove(): void {
-		if (this.right.nrChildren === 0) {
-			if (undefined !== this.middle) {
-				this.right = this.middle.dropLastChild();
-				this.middle = this.middle.normalized();
-			} else if (this.left.canRemoveChild) {
-				// no middle — steal one child from left
-				this.right.prependChild(this.left.dropLastChild());
-			}
-		}
-	}
-
-	private repairLeftAfterRemove(): void {
-		if (this.left.nrChildren === 0) {
-			if (undefined !== this.middle) {
-				this.left = this.middle.dropFirstChild();
-				this.middle = this.middle.normalized();
-			} else if (this.right.canRemoveChild) {
-				// no middle — steal one child from right
-				this.left.appendChild(this.right.dropFirstChild());
-			}
-		} else if (this.left.nrChildren === 1) {
-			const leftFirstChild = this.left.firstChild();
-			if (this.level === 1 && !leftFirstChild.childrenInMin) {
-				this.repairLeftLevel1(leftFirstChild);
-			} else if (!leftFirstChild.childrenInMin) {
-				this.repairLeftHigherLevel();
-			}
-		}
-	}
-
-	/**
-	 * Level 1: The boundary outer block is underfull.
-	 * Fix by merging/redistributing with adjacent outer block from middle or right.
-	 */
-	private repairLeftLevel1(leftOuterBlock: C): void {
-		if (undefined !== this.middle) {
-			const firstMiddleBlock = this.middle.dropFirstChild();
-			this.middle = this.middle.normalized();
-			const firstMiddleOuterBlock = firstMiddleBlock.firstChild();
-			const combined =
-				leftOuterBlock.nrChildren + firstMiddleOuterBlock.nrChildren;
-			if (combined <= this.context.maxBlockSize) {
-				leftOuterBlock.appendItems(firstMiddleOuterBlock);
-				firstMiddleBlock.dropFirstChild();
-			} else {
-				leftOuterBlock.appendItems(firstMiddleOuterBlock);
-				const newFirst = leftOuterBlock.splitRight(
-					(leftOuterBlock.nrChildren + 1) >>> 1,
-				) as C;
-				const sizeDelta = newFirst.length - firstMiddleOuterBlock.length;
-				firstMiddleBlock.children[0] = newFirst;
-				firstMiddleBlock.length += sizeDelta;
-			}
-			// Redistribute inner block children
-			const totalInner = this.left.nrChildren + firstMiddleBlock.nrChildren;
-			if (totalInner <= this.context.maxBlockSize) {
-				this.left.appendItems(firstMiddleBlock);
-			} else {
-				while (
-					this.left.nrChildren < this.context.minBlockSize &&
-					firstMiddleBlock.canRemoveChild
-				) {
-					this.left.appendChild(firstMiddleBlock.dropFirstChild());
-				}
-				if (this.middle === undefined) {
-					this.middle = this.context.innerBlockBuilder(
-						this.level,
-						[firstMiddleBlock],
-						firstMiddleBlock.length,
-					);
-				} else {
-					this.middle.prependChild(firstMiddleBlock);
-				}
-			}
-			this.left.length = this.left.children.reduce(
-				(sum, c) => sum + c.length,
-				0,
-			);
-		} else if (this.right.canRemoveChild) {
-			// At level 1, right's children (C) are InnerBlockBuilders containing outer blocks.
-			// TypeScript can't narrow C based on runtime level, so cast is needed.
-			const rightFirstBlock =
-				this.right.firstChild() as unknown as InnerBlockBuilder<T, any>;
-			const rightFirstOuter = rightFirstBlock.firstChild() as C;
-			const combined = leftOuterBlock.nrChildren + rightFirstOuter.nrChildren;
-			if (combined <= this.context.maxBlockSize) {
-				leftOuterBlock.appendItems(rightFirstOuter);
-				this.left.length += rightFirstOuter.length;
-				rightFirstBlock.dropFirstChild();
-				this.right.length -= rightFirstOuter.length;
-			} else {
-				leftOuterBlock.appendItems(rightFirstOuter);
-				const newFirst = leftOuterBlock.splitRight(
-					(leftOuterBlock.nrChildren + 1) >>> 1,
-				) as C;
-				const delta = newFirst.length - rightFirstOuter.length;
-				(rightFirstBlock as any).children[0] = newFirst;
-				rightFirstBlock.length += delta;
-				this.left.length -= delta;
-				this.right.length += delta;
-			}
-		}
-	}
-
-	/**
-	 * Level > 1: The single child of this.left is underfull (has < minBlockSize children).
-	 * Steal children from the first middle block to bring this.left up.
-	 */
-	private repairLeftHigherLevel(): void {
-		if (undefined === this.middle) return;
-
-		const firstMiddleBlock = this.middle.dropFirstChild();
-		this.middle = this.middle.normalized();
-		const totalInner = this.left.nrChildren + firstMiddleBlock.nrChildren;
-		if (totalInner <= this.context.maxBlockSize) {
-			this.left.appendItems(firstMiddleBlock);
-		} else {
-			while (
-				this.left.nrChildren < this.context.minBlockSize &&
-				firstMiddleBlock.canRemoveChild
-			) {
-				this.left.appendChild(firstMiddleBlock.dropFirstChild());
-			}
-			if (this.middle === undefined) {
-				this.middle = this.context.innerBlockBuilder(
-					this.level,
-					[firstMiddleBlock],
-					firstMiddleBlock.length,
-				);
-			} else {
-				this.middle.prependChild(firstMiddleBlock);
-			}
-		}
-		// Fix the underfull first child by merging/redistributing with its right sibling
-		const first = this.left.firstChild();
-		if (!first.childrenInMin && this.left.nrChildren > 1) {
-			const second = this.left.children[1] as C;
-			if (first.nrChildren + second.nrChildren <= this.context.maxBlockSize) {
-				// merge first into second, remove first
-				second.prependItems(first);
-				this.left.children.splice(0, 1);
-			} else {
-				// redistribute: merge then split
-				first.appendItems(second);
-				this.left.children[1] = first.splitRight(
-					(first.nrChildren + 1) >>> 1,
-				) as C;
-			}
-			this.left.sizes = recomputeSizes(
-				this.left.children,
-				this.left.level,
-				this.context.blockSizeBits,
-			);
-		}
-		this.left.length = this.left.children.reduce((sum, c) => sum + c.length, 0);
-	}
-
-	modifyFirstChild(f: (child: C) => number | undefined): number | undefined {
-		const delta = this.left.modifyFirstChild(f);
-		if (undefined !== delta) {
-			this.prepareMutate();
-			this.length += delta;
-		}
-
-		return delta;
-	}
-
-	modifyLastChild(f: (child: C) => number | undefined): number | undefined {
-		const delta = this.right.modifyLastChild(f);
-		if (undefined !== delta) {
-			this.prepareMutate();
-			this.length += delta;
-		}
-
-		return delta;
-	}
-
-	build(): Inner<T, ToImmutable<C>> {
-		if (this.source) {
-			return this.source;
-		}
-
-		// Ensure the mutable structure is normalized before building immutable.
-		const normalized = this.normalized();
-		if (normalized !== this) {
-			return normalized.build();
-		}
-
-		const result = this.context.innerTree(
-			this.left.build(),
-			this.right.build(),
-			this.middle?.build() ?? null,
-			this.length,
-			this.level,
-		);
-
-		return result._normalize();
-	}
-
-	buildMap<T2>(f: (value: T) => T2): Inner<T2, any> {
-		if (this.source?.map) {
-			return this.source.map(f);
-		}
-
-		// Ensure the mutable structure is normalized before building immutable.
-		const normalized = this.normalized();
-		if (normalized !== this) {
-			return normalized.buildMap(f);
-		}
-
-		const left = this.left.buildMap(f);
-		const right = this.right.buildMap(f);
-		const middle = this.middle?.buildMap?.(f) ?? null;
-
-		const result = this.context.innerTree(
-			left,
-			right,
-			middle,
-			this.length,
-			this.level,
-		);
-
-		return result._normalize();
-	}
-
-	normalized(): InnerBuilder<T, C> {
-		if (undefined === this.middle) {
-			if (
-				this.left.nrChildren + this.right.nrChildren <=
-				this.context.maxBlockSize
-			) {
-				// fits in a single block
-				this.left.appendItems(this.right);
-				return this.left;
-			}
-
-			return this;
-		}
-
-		// middle exists — only attempt collapse when middle is a block with ≤ 2
-		// children (the only situation that can arise after a single remove)
-		if (
-			!this.context.isInnerBlockBuilder<T, InnerBlockBuilder<T, C>>(
-				this.middle,
-			) ||
-			this.middle.nrChildren > 2
-		) {
-			return this;
-		}
-
-		const firstMiddleChild = this.middle.firstChild();
-		const secondMiddleChild =
-			this.middle.nrChildren === 2 ? this.middle.lastChild() : undefined;
-
-		const totalNrChildren =
-			this.left.nrChildren +
-			firstMiddleChild.nrChildren +
-			(secondMiddleChild?.nrChildren ?? 0) +
-			this.right.nrChildren;
-
-		if (totalNrChildren <= this.context.maxBlockSize) {
-			// all children fit in one block — collapse to a single InnerBlockBuilder
-			this.left.appendItems(firstMiddleChild);
-			if (undefined !== secondMiddleChild) {
-				this.left.appendItems(secondMiddleChild);
-			}
-			this.left.appendItems(this.right);
-			return this.left;
-		}
-
-		if (totalNrChildren <= this.context.maxBlockSize * 2) {
-			// all children fit in two blocks — eliminate middle, redistribute
-			this.left.appendItems(firstMiddleChild);
-			if (undefined !== secondMiddleChild) {
-				this.left.appendItems(secondMiddleChild);
-			}
-			this.left.appendItems(this.right);
-			this.middle = undefined;
-			this.right = this.left.splitRight();
-		}
-
-		// totalNrChildren > maxBlockSize * 2: middle stays, already canonical
-		return this;
-	}
-
-	getChildLength(child: C): number {
-		return child.length;
+	getChildSize(child: C): number {
+		return child.size;
 	}
 
 	prependBlockChild(block: InnerBlockBuilder<T, C>, child: C): void {
@@ -523,36 +105,304 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 		return block.dropLastChild();
 	}
 
-	_verifyStructure(messages: string[] = []): string[] {
-		if (undefined !== this.source) {
-			return this.source._verifyStructure(messages);
+	protected firstBlockChild(block: BlockBuilder<T, C>): C {
+		return (block as NestedBlockBuilder<T, C>).firstChild();
+	}
+
+	protected lastBlockChild(block: BlockBuilder<T, C>): C {
+		return (block as NestedBlockBuilder<T, C>).lastChild();
+	}
+
+	protected modifyBlockFirstChild(
+		block: BlockBuilder<T, C>,
+		f: (child: C) => number | undefined,
+	): number | undefined {
+		return (block as NestedBlockBuilder<T, C>).modifyFirstChild(f);
+	}
+
+	protected modifyBlockLastChild(
+		block: BlockBuilder<T, C>,
+		f: (child: C) => number | undefined,
+	): number | undefined {
+		return (block as NestedBlockBuilder<T, C>).modifyLastChild(f);
+	}
+
+	createBlockBuilder(child: C): InnerBlockBuilder<T, C> {
+		return this.context.innerBlockBuilder([child], child.size, this.level);
+	}
+
+	get(index: Int.AtLeastZero): T {
+		if (undefined !== this.#source) {
+			return this.#source._get(index);
 		}
 
-		if (
-			undefined !== this.middle &&
-			this.context.isInnerBlockBuilder<T, InnerBlockBuilder<T, C>>(
-				this.middle,
-			) &&
-			this.middle.nrChildren <= 2
-		) {
-			const [firstMiddleBlock, secondMiddleBlock] = this.middle.readChildren;
-			const totalNrChildren =
-				this.left.nrChildren +
-				firstMiddleBlock.nrChildren +
-				(secondMiddleBlock?.nrChildren ?? 0) +
-				this.right.nrChildren;
+		return super.get(index);
+	}
 
-			if (totalNrChildren <= this.context.maxBlockSize) {
-				messages.push(
-					`InnerTreeBuilder has middle but total children count ${totalNrChildren} is less than or equal to maxBlockSize ${this.context.maxBlockSize}, should be an InnerBlock`,
-				);
-			} else if (totalNrChildren <= this.context.maxBlockSize * 2) {
-				messages.push(
-					`InnerTreeBuilder has middle but total children count ${totalNrChildren} is less than or equal to 2 * maxBlockSize ${this.context.maxBlockSize * 2}, should not have middle`,
-				);
+	forEach(f: (element: T) => void): void {
+		if (undefined !== this.#source) {
+			this.#source.forEach(f);
+			return;
+		}
+
+		this.left.forEach(f);
+		this.middle?.forEach?.(f);
+		this.right.forEach(f);
+	}
+
+	prependChild(child: C): void {
+		this.prepend(child);
+	}
+
+	appendChild(child: C): void {
+		this.append(child);
+	}
+
+	firstChild(): C {
+		this.prepareMutate();
+		return this.left.firstChild();
+	}
+
+	lastChild(): C {
+		this.prepareMutate();
+		return this.right.lastChild();
+	}
+
+	dropFirstChild(): C {
+		this.prepareMutate();
+		const child = this.left.dropFirstChild();
+		this.#size -= child.size;
+
+		if (this.left.nrChildren === 0) {
+			// left block is now empty: replace it with the first child of the
+			// middle, or steal a child from the right block when there is no
+			// middle
+			if (undefined === this.middle) {
+				if (this.right.canRemoveChild) {
+					this.left.appendChild(this.right.dropFirstChild());
+				}
+			} else {
+				const firstMiddleBlock = this.middle.dropFirstChild();
+				this.middle = this.middle.normalized();
+				this.left = firstMiddleBlock;
 			}
 		}
 
-		return super._verifyStructure(messages);
+		return child;
+	}
+
+	dropLastChild(): C {
+		this.prepareMutate();
+		const child = this.right.dropLastChild();
+		this.#size -= child.size;
+
+		if (this.right.nrChildren === 0) {
+			// right block is now empty: replace it with the last child of the
+			// middle, or steal a child from the left block when there is no
+			// middle
+			if (undefined === this.middle) {
+				if (this.left.canRemoveChild) {
+					this.right.prependChild(this.left.dropLastChild());
+				}
+			} else {
+				const lastMiddleBlock = this.middle.dropLastChild();
+				this.middle = this.middle.normalized();
+				this.right = lastMiddleBlock;
+			}
+		}
+
+		return child;
+	}
+
+	modifyFirstChild(f: (child: C) => number | undefined): number | undefined {
+		this.prepareMutate();
+		const delta = this.left.modifyFirstChild(f);
+		if (undefined !== delta) {
+			this.#size += delta;
+		}
+		return delta;
+	}
+
+	modifyLastChild(f: (child: C) => number | undefined): number | undefined {
+		this.prepareMutate();
+		const delta = this.right.modifyLastChild(f);
+		if (undefined !== delta) {
+			this.#size += delta;
+		}
+		return delta;
+	}
+
+	build(): Inner<T, any> {
+		if (undefined !== this.#source) return this.#source;
+
+		return this.context.innerTree<T, any>(
+			this.left.build(),
+			this.right.build(),
+			this.middle?.build() ?? null,
+			this.#size,
+			this.level,
+		);
+	}
+
+	buildMap<T2>(
+		f: (element: T) => T2,
+		cacheMap = new CacheMap(),
+	): Inner<T2, any> {
+		if (undefined !== this.#source) return this.#source.map(f, cacheMap);
+
+		return this.context.innerTree(
+			this.left.buildMap(f, cacheMap),
+			this.right.buildMap(f, cacheMap),
+			null,
+			this.#size,
+			this.level,
+		);
+	}
+
+	normalized(): InnerBuilder<T, C> | undefined {
+		if (this.#size <= 0) return undefined;
+
+		if (undefined === this.middle) {
+			const totalChildren = this.left.nrChildren + this.right.nrChildren;
+
+			if (totalChildren <= this.context.maxBlockSize) {
+				this.left.appendFrom(this.right);
+				return this.left;
+			}
+		}
+
+		return this;
+	}
+
+	_repairSingleChildLeftSpine(): void {
+		const middle = this.middle;
+		if (undefined === middle || this.left.nrChildren !== 1) return;
+
+		const child = this.firstBlockChild(this.left);
+		if (!this.context.isBlockBuilder<T>(child) || child.hasEnoughChildren)
+			return;
+
+		const donor = middle.firstChild();
+		const donorBlock = this.firstBlockChild(donor);
+		if (!this.context.isBlockBuilder<T>(donorBlock)) return;
+
+		const childNeeds = this.context.minBlockSize - child.nrChildren;
+		if (
+			donorBlock.nrChildren >=
+			2 * this.context.minBlockSize - child.nrChildren
+		) {
+			this.modifyBlockFirstChild(this.left, (leftChild) => {
+				if (!this.context.isBlockBuilder<T>(leftChild)) return;
+
+				let movedSize = 0;
+				middle.modifyFirstChild((firstBlock) =>
+					this.modifyBlockFirstChild(firstBlock, (boundaryBlock) => {
+						if (!this.context.isBlockBuilder<T>(boundaryBlock)) return;
+
+						for (let i = 0; i < childNeeds; i++) {
+							const moved = boundaryBlock.dropFirstChild();
+							leftChild.appendChild(moved);
+							movedSize += boundaryBlock.getChildSize(moved);
+						}
+
+						return -movedSize;
+					}),
+				);
+
+				return movedSize;
+			});
+			return;
+		}
+
+		const absorbed = this.dropBlockFirstChild(this.left);
+		if (!this.context.isBlockBuilder<T>(absorbed)) return;
+
+		middle.modifyFirstChild((firstBlock) =>
+			this.modifyBlockFirstChild(firstBlock, (boundaryBlock) => {
+				if (!this.context.isBlockBuilder<T>(boundaryBlock)) return;
+
+				const previousSize = boundaryBlock.size;
+				boundaryBlock.prependFrom(absorbed);
+				return boundaryBlock.size - previousSize;
+			}),
+		);
+	}
+
+	_repairSingleChildRightSpine(): void {
+		const middle = this.middle;
+		if (undefined === middle || this.right.nrChildren !== 1) return;
+
+		const child = this.firstBlockChild(this.right);
+		if (!this.context.isBlockBuilder<T>(child) || child.hasEnoughChildren)
+			return;
+
+		const donor = middle.lastChild();
+		const donorBlock = this.lastBlockChild(donor);
+		if (!this.context.isBlockBuilder<T>(donorBlock)) return;
+
+		const childNeeds = this.context.minBlockSize - child.nrChildren;
+		if (
+			donorBlock.nrChildren >=
+			2 * this.context.minBlockSize - child.nrChildren
+		) {
+			this.modifyBlockFirstChild(this.right, (rightChild) => {
+				if (!this.context.isBlockBuilder<T>(rightChild)) return;
+
+				let movedSize = 0;
+				middle.modifyLastChild((lastBlock) =>
+					this.modifyBlockLastChild(lastBlock, (boundaryBlock) => {
+						if (!this.context.isBlockBuilder<T>(boundaryBlock)) return;
+
+						for (let i = 0; i < childNeeds; i++) {
+							const moved = boundaryBlock.dropLastChild();
+							rightChild.prependChild(moved);
+							movedSize += boundaryBlock.getChildSize(moved);
+						}
+
+						return -movedSize;
+					}),
+				);
+
+				return movedSize;
+			});
+			return;
+		}
+
+		const absorbed = this.dropBlockLastChild(this.right);
+		if (!this.context.isBlockBuilder<T>(absorbed)) return;
+
+		middle.modifyLastChild((lastBlock) =>
+			this.modifyBlockLastChild(lastBlock, (boundaryBlock) => {
+				if (!this.context.isBlockBuilder<T>(boundaryBlock)) return;
+
+				const previousSize = boundaryBlock.size;
+				boundaryBlock.appendFrom(absorbed);
+				return boundaryBlock.size - previousSize;
+			}),
+		);
+	}
+
+	_verifyStructure(errors: string[] = []): string[] {
+		if (undefined !== this.#source) {
+			return this.#source._verifyStructure(errors);
+		}
+
+		if (this.left.level !== this.level) {
+			errors.push(
+				`InnerTreeBuilder has left block with wrong level: ${this.left.level} != ${this.level}`,
+			);
+		}
+		if (this.right.level !== this.level) {
+			errors.push(
+				`InnerTreeBuilder has right block with wrong level: ${this.right.level} != ${this.level}`,
+			);
+		}
+		if (this.middle && this.middle.level !== this.level + 1) {
+			errors.push(
+				`InnerTreeBuilder has middle with wrong level: ${this.middle.level} != ${this.level + 1}`,
+			);
+		}
+
+		return super._verifyStructure(errors);
 	}
 }

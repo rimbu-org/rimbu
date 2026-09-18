@@ -36,8 +36,8 @@ function verifyStructure(list: List<number>): string[] {
  *   `size <= 2 * maxBlockSize` (src/internal/mutable/outer-tree-builder.ts),
  *   so once the tree is above that threshold the underflow survives.
  *
- * The same bug exists in `@rimbu/list` (identical early-exit and same failing
- * sequence), so this is a shared design bug, not a list2 regression.
+ * This is a known design bug in the builder's middle-region removal, not a
+ * regression of this package.
  */
 describe('list builder middle underflow (known issue)', () => {
 	const blockSizeBitsValues = [2, 3, 4, 5] as const;

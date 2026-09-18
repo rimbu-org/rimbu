@@ -5,7 +5,7 @@ Source: `AGENTS.md:213-224` §4 `test` script, `AGENTS.md:480-518` §7 method ch
 ## Scope
 
 - **Default:** single package `<pkg>` (`packages/<name>` with `src/public/` and `package.json`)
-- **`--workspace`:** all packages with `package.json` (exclude `list2`), audits each package's `src/public/` vs `test/`
+- **`--workspace`:** all packages with `package.json`, audits each package's `src/public/` vs `test/`
 
 ## Checks
 

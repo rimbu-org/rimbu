@@ -118,8 +118,6 @@ function discoverPackages(): string[] {
 	const pkgs: string[] = [];
 	for (const e of entries) {
 		if (!e.isDirectory()) continue;
-		// Exclude unpublished list2 (not in fixed, per spec §5 and AGENTS.md:77)
-		if (e.name === 'list2') continue;
 		const pkgJson = join(PACKAGES_ROOT, e.name, 'package.json');
 		if (existsSync(pkgJson)) pkgs.push(join(PACKAGES_ROOT, e.name));
 	}

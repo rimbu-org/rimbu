@@ -36,7 +36,7 @@ function discoverPackages(): string[] {
 	const entries = readdirSync(PACKAGES_ROOT, { withFileTypes: true });
 	const pkgs: string[] = [];
 	for (const e of entries) {
-		if (!e.isDirectory() || e.name === 'list2') continue;
+		if (!e.isDirectory()) continue;
 		if (existsSync(join(PACKAGES_ROOT, e.name, 'src'))) pkgs.push(join(PACKAGES_ROOT, e.name));
 	}
 	return pkgs.sort();

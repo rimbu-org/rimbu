@@ -9,7 +9,7 @@ This skill is **diagnose-only**, **pattern-level**, **advisory**. Severity is `i
 ## Scope
 
 - **Default:** single package `<pkg>` (`packages/<name>` with `src/`)
-- **`--workspace`:** all 23 published packages (`packages/*` per `AGENTS.md:45-68`, exclude `list2`), still `rg`-only, no `build:seq`
+- **`--workspace`:** all 23 published packages (`packages/*` per `AGENTS.md:45-68`), still `rg`-only, no `build:seq`
 - **Evidence:** `rg -n "<pattern>" packages/<pkg>/src --no-heading` lines cited verbatim in **Rationale**; optional `jq` for `package.json`/`tsconfig` inspection
 - **Output:** advisory backlog with columns `Opportunity | Rationale | Effort (S/M/L) | ADR sketch | AGENTS.md impact` (spec §2.7 row 11). Every row must have a one-line **ADR sketch**; if the suggestion contradicts `docs/adr/<nnnn>-*.md`, flag `Contradicts ADR-XXXX — …` per `docs/agents/domain.md:32-36` (if `docs/adr/` absent, note `No ADR contradiction — docs/adr/ not present` per `domain.md:11-12`)
 

@@ -34,7 +34,7 @@ Additional triggers: after `review-api`/`review-impl`, before `write-docs` (10),
 
 ### Diagnose (read-only, default)
 
-1. Resolve target: single package `<pkg>` (e.g. `packages/stream`) is default. If `--workspace` is passed, expand to all packages with `src/public/` (or `src/<name>.ts` when no `public/` tier, exclude `list2`). Require `<pkg>` if no `--workspace`.
+1. Resolve target: single package `<pkg>` (e.g. `packages/stream`) is default. If `--workspace` is passed, expand to all packages with `src/public/` (or `src/<name>.ts` when no `public/` tier). Require `<pkg>` if no `--workspace`.
 2. For each target package, collect evidence **without mutating** and **without `build:seq`** by default:
    - Enumerate public files: `src/public/**/*.ts` plus `src/<name>.ts` entry. For each file, enumerate top-level public exports via `rg -n "^\s*export\s+(type\s+)?(function|class|interface|type|const|let|var|namespace|enum)" src/public --no-heading` and manual scan for exports inside files.
    - For each export at `file:line`, inspect preceding 20 lines for `/**` and `@example`. Use `rg -n "@example" src/public --no-heading` for quick presence and file-read window for per-export decision. If no `/**` in window, emit `warn` `missing-jsdoc`; if `/**` present but no `@example`, emit `warn` `missing-example` (which also fails `docs:verify-examples` runnable). Evidence is the `rg` line or the export line itself, `file:line`.

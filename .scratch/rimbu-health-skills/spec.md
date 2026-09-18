@@ -2,7 +2,7 @@
 
 **Feature slug:** `rimbu-health-skills`
 **Status:** `ready-for-agent` — grilled 2026-08-27, frontier empty, confirmed by owner
-**Monorepo:** `/workspace/rimbu-worktree` — 23 published packages (`packages/*` per `AGENTS.md:45-68` + unpublished `list2`), Bun-only, Biome, `build:seq`/`typecheck:seq`
+**Monorepo:** `/workspace/rimbu-worktree` — 23 published packages (`packages/*` per `AGENTS.md:45-68`), Bun-only, Biome, `build:seq`/`typecheck:seq`
 
 ---
 

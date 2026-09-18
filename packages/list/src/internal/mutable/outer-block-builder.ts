@@ -1,42 +1,56 @@
-import type { WithElem } from '@rimbu/collection-types/advanced/common';
-import type { TraverseState } from '@rimbu/common/traverse-state';
-
-import type { ListContext } from '#list/context-module';
+import type { OuterChildren } from '#advanced/children-ops';
+import type { ListContext } from '#list/context';
 import type { OuterBlock } from '#list/immutable/outer-block';
-import type { ListImpl } from '#list/list-impl';
+import type { BlockBuilder, OuterBuilder } from '#list/mutable/common';
 
-import {
-	type BlockBuilder,
-	BuilderBase,
-	type OuterBuilder,
-} from '#list/mutable/builder-base';
+import { type Int, throwInvalidUsageError } from '@rimbu/base';
 
-export class OuterBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
-	extends BuilderBase
+import { CacheMap } from '#list/immutable/cache-map';
+
+export class OuterBlockBuilder<T>
 	implements OuterBuilder<T>, BlockBuilder<T, T>
 {
 	constructor(
-		context: ListContext,
-		public source?: OuterBlock<T>,
-		public _children?: WithElem<Tp, T>['outerChildren'],
+		readonly context: ListContext,
+		source?: OuterBlock<T>,
+		children?: OuterChildren<T>,
 	) {
-		super(context);
+		if (undefined === source && undefined === children) {
+			throwInvalidUsageError('Either source or children must be defined');
+		}
+		if (undefined !== source && undefined !== children) {
+			throwInvalidUsageError(
+				'Either source or children must be defined, but not both',
+			);
+		}
+
+		this.#source = source;
+		this.#_children = children;
 	}
 
-	get length(): number {
-		return this.source?.length ?? this.ops.length(this.children);
+	declare _self: OuterBlockBuilder<T>;
+
+	#source: OuterBlock<T> | undefined;
+	#_children: OuterChildren<T> | undefined;
+
+	get #ops() {
+		return this.context.childrenOps;
 	}
 
-	get children(): WithElem<Tp, T>['outerChildren'] {
-		return this._children!;
+	get #children(): OuterChildren<T> {
+		return this.#_children as OuterChildren<T>;
 	}
 
-	set children(value: WithElem<Tp, T>['outerChildren']) {
-		this._children = value;
+	set #children(value: OuterChildren<T>) {
+		this.#_children = value;
+	}
+
+	get size(): number {
+		return this.#source?.size ?? this.context.childrenOps.size(this.#children);
 	}
 
 	get nrChildren(): number {
-		return this.source?.nrChildren ?? this.ops.length(this.children);
+		return this.size;
 	}
 
 	get canAddChild(): boolean {
@@ -47,135 +61,157 @@ export class OuterBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 		return this.nrChildren > this.context.minBlockSize;
 	}
 
-	get childrenInMax(): boolean {
+	get notTooManyChildren(): boolean {
 		return this.nrChildren <= this.context.maxBlockSize;
 	}
 
-	get childrenInMin(): boolean {
+	get hasEnoughChildren(): boolean {
 		return this.nrChildren >= this.context.minBlockSize;
 	}
 
-	prepareMutate(): void {
-		if (undefined === this.source) return;
+	#prepareMutate(): void {
+		if (undefined === this.#source) return;
 
-		this._children = this.source.isReversedBlock
-			? this.ops.toReversed(this.source.children)
-			: this.ops.safeCopy(this.source.children);
-		this.source = undefined;
+		this.#_children = this.#source._copyChildren();
+		this.#source = undefined;
 	}
 
-	copy(children: WithElem<Tp, T>['outerChildren']): OuterBlockBuilder<T> {
+	#copy(children: OuterChildren<T>): OuterBlockBuilder<T> {
 		return this.context.outerBlockBuilder(children);
 	}
 
-	get(index: number): T {
-		if (undefined !== this.source) {
-			return this.source.get(index);
+	get(index: Int.AtLeastZero): T {
+		if (undefined !== this.#source) {
+			return this.#source._get(index);
 		}
 
-		return this.ops.at(this.children, index);
+		return this.#ops.at(this.#children, index);
 	}
 
-	prepend(value: T): void {
-		this.prepareMutate();
-		this.children = this.ops.mutatePrepend(this.children, value);
-	}
-
-	append(value: T): void {
-		this.prepareMutate();
-		this.children = this.ops.mutateAppend(this.children, value);
-	}
-
-	/**
-	 * Appends multiple raw values to this block's children.
-	 * Used for bulk-filling during array append operations.
-	 */
-	appendValues(values: T[]): void {
-		this.prepareMutate();
-		this.children = this.ops.concat(this.children, this.ops.of(values));
-	}
-
-	insert(index: number, value: T): void {
-		this.prepareMutate();
-		this.ops.mutateSplice(this.children, index, 0, this.ops.of([value]));
-	}
-
-	remove(index: number): T {
-		this.prepareMutate();
-
-		const [, removedChildren] = this.ops.mutateSplice(this.children, index, 1);
-		return this.ops.at(removedChildren, 0);
-	}
-
-	prependItems(other: OuterBlockBuilder<T>): void {
-		this.prepareMutate();
-		this.children = this.ops.concat(
-			other.source?.children ?? other.children,
-			this.children,
+	update(index: number, f: (element: T) => T): [previous: T, current: T] {
+		this.#prepareMutate();
+		const [newChildren, previous, current] = this.#ops.mutateUpdate(
+			this.#children,
+			index,
+			f,
 		);
+		this.#children = newChildren;
+
+		return [previous, current];
 	}
 
-	appendItems(other: OuterBlockBuilder<T>): void {
-		this.prepareMutate();
-		this.children = this.ops.concat(
-			this.children,
-			other.source?.children ?? other.children,
+	getChildSize(): number {
+		return 1;
+	}
+
+	prepend(element: T): void {
+		this.#prepareMutate();
+		this.#children = this.#ops.mutatePrepend(this.#children, element);
+	}
+
+	append(element: T): void {
+		this.#prepareMutate();
+		this.#children = this.#ops.mutateAppend(this.#children, element);
+	}
+
+	insert(index: Int.AtLeastOne, element: T): void {
+		this.#prepareMutate();
+
+		const [newChildren] = this.#ops.mutateSplice(
+			this.#children,
+			index,
+			0,
+			this.#ops.of([element]),
 		);
+		this.#children = newChildren;
+	}
+
+	remove(index: Int.AtLeastZero): T {
+		this.#prepareMutate();
+
+		const [newChildren, removed] = this.#ops.mutateSplice(
+			this.#children,
+			index,
+			1,
+		);
+		this.#children = newChildren;
+
+		return this.#ops.at(removed, 0);
+	}
+
+	prependChild(child: T): void {
+		this.prepend(child);
+	}
+
+	appendChild(child: T): void {
+		this.append(child);
 	}
 
 	dropFirstChild(): T {
-		this.prepareMutate();
-		const [newChildren, value] = this.ops.mutateDropFirst<T>(this.children);
-		this.children = newChildren;
-		return value;
-	}
-
-	/** Removes and returns the first `n` children as a new block builder. */
-	dropFirstChildren(n: number): OuterBlockBuilder<T> {
-		this.prepareMutate();
-		const [newChildren, droppedChildren] = this.ops.mutateSplice(
-			this.children,
-			0,
-			n,
-		);
-		this.children = newChildren;
-		return this.copy(droppedChildren);
+		this.#prepareMutate();
+		const [newChildren, dropped] = this.#ops.mutateDropFirst(this.#children);
+		this.#children = newChildren;
+		return dropped;
 	}
 
 	dropLastChild(): T {
-		this.prepareMutate();
-		const [newChildren, value] = this.ops.mutateDropLast<T>(this.children);
-		this.children = newChildren;
-		return value;
+		this.#prepareMutate();
+		const [newChildren, dropped] = this.#ops.mutateDropLast(this.#children);
+		this.#children = newChildren;
+		return dropped;
 	}
 
-	/** Removes and returns the last `n` children as a new block builder. */
-	dropLastChildren(n: number): OuterBlockBuilder<T> {
-		this.prepareMutate();
-		const [newChildren, droppedChildren] = this.ops.mutateSplice(
-			this.children,
-			this.nrChildren - n,
-			n,
-		);
-		this.children = newChildren;
-		return this.copy(droppedChildren);
+	forEach(f: (element: T) => void): void {
+		if (undefined !== this.#source) {
+			this.#source.forEach(f);
+			return;
+		}
+
+		this.#ops.forEach(this.#children, f);
 	}
 
 	build(): OuterBlock<T> {
 		return (
-			this.source ?? this.context.outerBlock(this.ops.safeCopy(this.children))
+			this.#source ??
+			this.context.outerBlockLeftRight(this.#ops.safeCopy(this.#children))
 		);
 	}
 
-	buildMap<T2>(f: (value: T) => T2): OuterBlock<T2> {
+	buildMap<T2>(
+		f: (element: T) => T2,
+		cacheMap = new CacheMap(),
+	): OuterBlock<T2> {
 		return (
-			this.source?.map(f) ??
-			this.context.outerBlock(this.ops.map(this.children, f))
+			this.#source?.map(f, cacheMap) ??
+			this.context.outerBlockLeftRight(this.#ops.map(this.#children, f))
 		);
+	}
+
+	_verifyStructure(
+		errors: string[] = [],
+		enforceMinChildren = false,
+	): string[] {
+		if (undefined !== this.#source) {
+			return this.#source._verifyStructure(errors, enforceMinChildren);
+		}
+
+		if (enforceMinChildren && !this.hasEnoughChildren) {
+			errors.push(
+				`OuterBlockBuilder has fewer children than allowed: ${this.nrChildren} < ${this.context.minBlockSize}`,
+			);
+		}
+		if (!this.notTooManyChildren) {
+			errors.push(
+				`OuterBlockBuilder has more children than allowed: ${this.nrChildren} > ${this.context.maxBlockSize}`,
+			);
+		}
+
+		return errors;
 	}
 
 	normalized(): OuterBuilder<T> | undefined {
-		const length = this.length;
+		const length = this.size;
+
 		if (length <= 0) {
 			// block is empty
 			return undefined;
@@ -188,78 +224,55 @@ export class OuterBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 
 		// need to split block and create tree
 		const newRight = this.splitRight();
-
 		return this.context.outerTreeBuilder(this, newRight, undefined, length);
 	}
 
-	splitRight(index = this.length >>> 1): OuterBlockBuilder<T> {
-		this.prepareMutate();
-		const [newChildren, rightChildren] = this.ops.mutateSplice(
-			this.children,
+	splitRight(index = this.size >>> 1): OuterBlockBuilder<T> {
+		this.#prepareMutate();
+
+		const [newChildren, rightChildren] = this.#ops.mutateSplice(
+			this.#children,
 			index,
 		);
-		this.children = newChildren;
-		return this.copy(rightChildren);
+		this.#children = newChildren;
+		return this.#copy(rightChildren);
 	}
 
-	updateAt(index: number, update: (current: T) => T): T {
-		const oldValue =
-			(this.source?.get(index) as T) ?? this.ops.at<T>(this.children, index);
-		const newValue = update(oldValue);
+	prependFrom(other: OuterBlockBuilder<T>): void {
+		this.#prepareMutate();
 
-		if (!Object.is(oldValue, newValue)) {
-			this.prepareMutate();
-			// value changed
-			this.ops.mutateSet(this.children, index, newValue);
+		if (undefined !== other.#source) {
+			this.#children = other.#source._concatChildren(this.#children);
+		} else {
+			this.#children = this.#ops.concat(other.#children, this.#children);
 		}
-
-		return oldValue;
 	}
 
-	forEach(
-		f: (value: T, index: number, halt: () => void) => void,
-		options: { reversed: boolean; state: TraverseState },
-	): void {
-		if (undefined !== this.source) {
-			this.source.forEach(f, options);
-			return;
-		}
+	appendFrom(other: OuterBlockBuilder<T>): void {
+		this.#prepareMutate();
 
-		this.ops.forEach(this.children, f, options);
+		if (undefined !== other.#source) {
+			this.#children = other.#source._prependChildren(this.#children);
+		} else {
+			this.#children = this.#ops.concat(this.#children, other.#children);
+		}
 	}
 
-	prependChild(child: T): void {
-		this.prepareMutate();
-		this.children = this.ops.mutatePrepend(this.children, child);
+	moveTo(other: OuterBlockBuilder<T>, count: number): void {
+		this.#prepareMutate();
+		other.#prepareMutate();
+
+		const [newChildren, moved] = this.#ops.mutateSplice(this.#children, count);
+		this.#children = newChildren;
+		other.#children = this.#ops.concat(other.#children, moved);
 	}
 
-	appendChild(child: T): void {
-		this.prepareMutate();
-		this.children = this.ops.mutateAppend(this.children, child);
-	}
+	moveFrom(other: OuterBlockBuilder<T>, count: number): void {
+		this.#prepareMutate();
+		other.#prepareMutate();
 
-	_verifyStructure(
-		messages: string[] = [],
-		enforceMinChildren = false,
-	): string[] {
-		if (undefined !== this.source) {
-			return this.source._verifyStructure(messages);
-		}
-
-		if (enforceMinChildren && this.nrChildren < this.context.minBlockSize) {
-			messages.push(
-				`OuterBlockBuilder has too few children: ${this.nrChildren} < ${this.context.minBlockSize}`,
-			);
-		}
-		if (this.nrChildren === 0) {
-			messages.push(`OuterBlockBuilder has no children.`);
-		}
-		if (this.nrChildren > this.context.maxBlockSize) {
-			messages.push(
-				`OuterBlockBuilder has too many children: ${this.nrChildren} > ${this.context.maxBlockSize}`,
-			);
-		}
-
-		return messages;
+		const [newChildren, moved] = this.#ops.mutateSplice(other.#children, count);
+		other.#children = newChildren;
+		this.#children = this.#ops.concat(this.#children, moved);
 	}
 }

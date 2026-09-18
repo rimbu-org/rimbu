@@ -1,37 +1,36 @@
-import type { IndexRange } from '@rimbu/common/index-range';
-import type { ArrayNonEmpty } from '@rimbu/common/types';
-import type { Stream, StreamSource } from '@rimbu/stream';
+import type { Op } from '@rimbu/collection-types/types';
+import type { List } from '@rimbu/list';
+import type { Stream } from '@rimbu/stream';
 
-import type { ListContext } from '#list/context-module';
-import type { CacheMap } from '#list/immutable/cache-map';
+import type { ListContext } from '#list/context';
+import type { Inner, Tree } from '#list/immutable/common';
 import type { OuterBlock } from '#list/immutable/outer-block';
-import type { Inner, ListCommon } from '#list/immutable/utils';
-import type { ListImpl } from '#list/list-impl';
+import type { OuterTreeBuilder } from '#list/mutable/outer-tree-builder';
 
-import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
-import { OptLazy } from '@rimbu/common/opt-lazy';
-import { TraverseState } from '@rimbu/common/traverse-state';
+import { Int } from '@rimbu/base';
+import { type ArrayNonEmpty, OptLazy } from '@rimbu/common';
 
-import { OuterBase } from '#list/immutable/outer-base';
+import { ListNonEmptyBase } from '#advanced/immutable/non-empty-base';
+import { CacheMap } from '#list/immutable/cache-map';
 import {
-	treeForEach,
 	treeGet,
-	treeToArray,
-	treeToStream,
-	treeToStreamRange,
+	treeStream,
+	treeStreamSlice,
 	treeUpdate,
-} from '#list/immutable/tree-base';
+} from '#list/immutable/tree';
 
 export class OuterTree<T>
-	extends OuterBase<T>
-	implements ListImpl.NonEmpty<T>, ListCommon<T>
+	extends ListNonEmptyBase<T>
+	implements Tree<T, OuterBlock<T>>
 {
+	declare _self: OuterTree<T>;
+
 	constructor(
 		context: ListContext,
 		readonly left: OuterBlock<T>,
 		readonly right: OuterBlock<T>,
 		readonly middle: Inner<T, OuterBlock<T>> | null,
-		readonly length: number,
+		readonly size: number,
 	) {
 		super(context);
 	}
@@ -40,140 +39,197 @@ export class OuterTree<T>
 		left = this.left,
 		right = this.right,
 		middle = this.middle,
-		length = this.length,
+		size = this.size,
 	): OuterTree<T> {
 		if (
 			left === this.left &&
 			right === this.right &&
 			middle === this.middle &&
-			length === this.length
+			size === this.size
 		) {
 			return this;
 		}
 
-		return this.context.outerTree(left, right, middle, length);
+		return this.context.outerTree(left, right, middle, size);
 	}
 
-	copy2<T2>(
+	#copyAsType<T2>(
 		left: OuterBlock<T2>,
 		right: OuterBlock<T2>,
 		middle: Inner<T2, OuterBlock<T2>> | null,
-		length = this.length,
+		size = this.size,
 	): OuterTree<T2> {
-		return this.context.outerTree(left, right, middle, length);
+		return this.context.outerTree(left, right, middle, size);
 	}
 
-	stream(options?: { reversed?: boolean }): Stream.NonEmpty<T> {
-		return treeToStream(this, options);
+	#createNormalized(
+		left = this.left,
+		right = this.right,
+		middle = this.middle,
+		size = this.size,
+	): List.NonEmpty<T> {
+		if (size <= 2 * this.context.maxBlockSize) {
+			if (null === middle) {
+				return left.concat(right);
+			}
+
+			return this.context.from(left, middle, right);
+		}
+
+		return this.copy(left, right, middle, size);
 	}
 
-	streamRange(
-		range: IndexRange,
-		options: { reversed?: boolean } = {},
+	get #ops() {
+		return this.context.childrenOps;
+	}
+
+	stream(options?: { reversed?: boolean | undefined }): Stream.NonEmpty<T> {
+		return treeStream(this, options);
+	}
+
+	_streamSlice(
+		start: number,
+		end: number,
+		options: { reversed?: boolean | undefined } = {},
 	): Stream<T> {
-		return treeToStreamRange(this, range, options);
+		return treeStreamSlice(this, start, end, options);
 	}
 
-	get<O>(index: number, otherwise?: OptLazy<O>): T | O {
-		const { length } = this;
-
-		if (index >= length || -index > length) {
+	at<O>(index: number, otherwise?: OptLazy<O>): T | O {
+		const size = this.size;
+		if (-index > size || index >= size) {
 			return OptLazy(otherwise) as O;
 		}
+
 		if (index < 0) {
-			return this.get(length + index, otherwise);
+			index = size + index;
 		}
 
-		return treeGet<T>(this, index);
+		Int.checkAtLeastZero(index);
+
+		return this._get(index);
 	}
 
-	updateAt(index: number, update: (current: T) => T): OuterTree<T> {
-		const { length } = this;
-
-		if (index >= length || -index > length) return this;
-		if (index < 0) return this.updateAt(length + index, update);
-
-		return treeUpdate<T, OuterTree<T>>(this, index, update);
+	_get(index: Int.AtLeastZero): T {
+		return treeGet(this, index);
 	}
 
-	first(): T {
-		return this.left.first();
+	setAtAndReturn(
+		index: number,
+		element: T,
+	): Op.DynamicResult<OuterTree<T>, undefined, T> {
+		const outcome = this.updateAtAndReturn(index, () => element);
+
+		const [previous] = outcome.result;
+
+		return { ...outcome, result: previous as any };
 	}
 
-	last(): T {
-		return this.right.last();
+	updateAtAndReturn(
+		index: number,
+		f: (element: T) => T,
+	): Op.DynamicResult<
+		OuterTree<T>,
+		[previous: undefined, current: undefined],
+		[previous: T, current: T]
+	> {
+		const size = this.size;
+		if (-index > size || index >= size) {
+			return {
+				collection: this,
+				hasResult: false,
+				result: [undefined, undefined],
+				hasChanged: false,
+			};
+		}
+		if (index < 0) {
+			index = size + index;
+		}
+
+		Int.checkAtLeastZero(index);
+
+		return this._update(index, f);
 	}
 
-	prepend(value: T): OuterTree<T> {
-		const newLength = this.length + 1;
+	_update(
+		index: Int.AtLeastZero,
+		f: (element: T) => T,
+	): Op.WithResult<OuterTree<T>, [previous: T, current: T], true> {
+		return treeUpdate(this as OuterTree<T>, index, f);
+	}
 
-		if (this.left.canAddChild) {
+	prepend(element: T): OuterTree<T> {
+		const newSize = this.size + 1;
+
+		if (this.left._canAddChild) {
 			return this.copy(
-				this.left.prependBlockChild(value),
+				this.left._prependBlockChild(element),
 				this.right,
 				this.middle,
-				newLength,
+				newSize,
 			);
 		}
 
 		// left block full, see if right block can take one from left and add the new value to left
-		if (null === this.middle && this.right.canAddChild) {
-			const [newLeft, shiftToRightChild] = this.left.dropLastChild();
-			const newRight = this.right.prependBlockChild(shiftToRightChild);
+		if (null === this.middle && this.right._canAddChild) {
+			const [newLeft, shiftToRightChild] = this.left._dropLastChild();
+			const newRight = this.right._prependBlockChild(shiftToRightChild);
 			return this.copy(
-				newLeft.prependBlockChild(value),
+				newLeft._prependBlockChild(element),
 				newRight,
 				undefined,
-				newLength,
+				newSize,
 			);
 		}
 
 		// left block full, see if first middle block can take one from left and add the new value to left
 		if (this.middle) {
 			const newMiddle = this.middle.modifyFirstChild((block) => {
-				if (!block.canAddChild) return block;
+				if (!block._canAddChild) return block;
 
-				return block.prependBlockChild(this.left.last());
+				return block._prependBlockChild(this.left.last());
 			});
 
 			if (newMiddle !== this.middle) {
-				const newLeft = this.left.takeChildren(-1).prependBlockChild(value);
-				return this.copy(newLeft, undefined, newMiddle, newLength);
+				const newLeft = this.left
+					._takeChildren((this.left.size - 1) as Int.AtLeastOne)
+					._prependBlockChild(element);
+				return this.copy(newLeft, undefined, newMiddle, newSize);
 			}
 		}
 
 		// no middle or first middle block full, shift whole left to middle and add new value to left
 		const newMiddle =
 			this.middle?.prependChild(this.left) ??
-			this.context.innerBlock([this.left], this.left.length, 1);
+			this.context.innerBlock([this.left], this.left.size, 1);
 
 		return this.copy(
-			this.left.copy(this.ops.of([value])),
+			this.context.outerBlockLeftRight(this.#ops.of([element])),
 			this.right,
 			newMiddle,
-			newLength,
+			newSize,
 		);
 	}
 
-	append(value: T): OuterTree<T> {
-		const newLength = this.length + 1;
+	append(element: T): OuterTree<T> {
+		const newLength = this.size + 1;
 
-		if (this.right.canAddChild) {
+		if (this.right._canAddChild) {
 			return this.copy(
 				this.left,
-				this.right.appendBlockChild(value),
+				this.right._appendBlockChild(element),
 				this.middle,
 				newLength,
 			);
 		}
 
 		// right block full, see if left block can take one from right and add the new value to right
-		if (null === this.middle && this.left.canAddChild) {
-			const [newRight, shiftToLeftChild] = this.right.dropFirstChild();
-			const newLeft = this.left.appendBlockChild(shiftToLeftChild);
+		if (null === this.middle && this.left._canAddChild) {
+			const [newRight, shiftToLeftChild] = this.right._dropFirstChild();
+			const newLeft = this.left._appendBlockChild(shiftToLeftChild);
 			return this.copy(
 				newLeft,
-				newRight.appendBlockChild(value),
+				newRight._appendBlockChild(element),
 				undefined,
 				newLength,
 			);
@@ -182,13 +238,15 @@ export class OuterTree<T>
 		// right block full, see if first middle block can take one from right and add the new value to right
 		if (this.middle) {
 			const newMiddle = this.middle.modifyLastChild((lastMiddleBlock) => {
-				if (!lastMiddleBlock.canAddChild) return lastMiddleBlock;
+				if (!lastMiddleBlock._canAddChild) return lastMiddleBlock;
 
-				return lastMiddleBlock.appendBlockChild(this.right.first());
+				return lastMiddleBlock._appendBlockChild(this.right.first());
 			});
 
 			if (newMiddle !== this.middle) {
-				const newRight = this.right.dropChildren(1).appendBlockChild(value);
+				const newRight = this.right
+					._dropChildren(1 as Int.AtLeastOne)
+					._appendBlockChild(element);
 				return this.copy(undefined, newRight, newMiddle, newLength);
 			}
 		}
@@ -198,408 +256,363 @@ export class OuterTree<T>
 			this.middle?.appendChild(this.right) ??
 			this.context.innerBlock<T, OuterBlock<T>>(
 				[this.right],
-				this.right.length,
+				this.right.size,
 				1,
 			);
 
 		return this.copy(
 			undefined,
-			this.right.copy(this.ops.of([value])),
+			this.context.outerBlockLeftRight(this.#ops.of([element])),
 			newMiddle,
 			newLength,
 		);
 	}
 
-	take(amountInput: number): any {
-		const amount = Math.floor(amountInput);
-		if (amount === 0) return this.context.empty();
-		if (amount >= this.length || -amount > this.length) return this;
-		if (amount < 0) return this.drop(this.length + amount);
+	take<N extends number>(count: N): 0 extends N ? List<T> : List.NonEmpty<T> {
+		if (count === 0) {
+			return this.context.empty() as List.NonEmpty<T>;
+		}
+		if (count >= this.size || -count >= this.size) return this;
 
-		const middleAmount = amount - this.left.length;
-
-		if (middleAmount <= 0) return this.left.take(amount);
-
-		if (null === this.middle) {
-			return this.copy(
-				undefined,
-				this.right.takeChildren(middleAmount),
-				undefined,
-				amount,
-			)._normalize();
+		if (count < 0) {
+			return this.drop(this.size + count).assumeNonEmpty();
 		}
 
-		const rightAmount = middleAmount - this.middle.length;
+		Int.checkAtLeastOne(count);
 
-		if (rightAmount > 0) {
-			const newRight = this.right.takeChildren(rightAmount);
-			return this.copy(undefined, newRight, undefined, amount)._normalize();
+		const middleCount = count - this.left.size;
+
+		if (!Int.isAtLeastOne(middleCount)) {
+			return this.left.take(count) as List.NonEmpty<T>;
+		}
+
+		if (null === this.middle) {
+			return this.#createNormalized(
+				undefined,
+				this.right._takeChildren(middleCount),
+				undefined,
+				count,
+			);
+		}
+
+		const rightCount = middleCount - this.middle.size;
+
+		if (Int.isAtLeastOne(rightCount)) {
+			const newRight = this.right._takeChildren(rightCount);
+			return this.#createNormalized(undefined, newRight, undefined, count);
 		}
 
 		const [newMiddle, upRight, inUpRight] =
-			this.middle.takeInternal(middleAmount);
+			this.middle.takeInternal(middleCount);
 
-		const newRight = upRight.takeChildren(inUpRight);
+		const newRight = upRight._takeChildren(inUpRight as Int.AtLeastOne);
 
-		return this.copy(undefined, newRight, newMiddle, amount)._normalize();
+		return this.#createNormalized(undefined, newRight, newMiddle, count);
 	}
 
-	drop(amountInput: number): ListImpl<T> {
-		const amount = Math.floor(amountInput);
-		if (amount === 0) return this;
-		if (amount >= this.length || -amount > this.length)
-			return this.context.empty();
-		if (amount < 0) return this.take(this.length + amount);
+	drop(count: number): List<T> {
+		if (count === 0) return this;
+		if (count >= this.size || -count >= this.size) return this.context.empty();
 
-		const newLength = this.length - amount;
+		if (count < 0) {
+			return this.take(this.size + count);
+		}
 
-		const middleAmount = amount - this.left.length;
+		Int.checkAtLeastOne(count);
 
-		if (middleAmount < 0) {
-			const newLeft = this.left.dropChildren(amount);
-			return this.copy(newLeft, undefined, undefined, newLength)._normalize();
+		const newSize = this.size - count;
+		const middleCount = count - this.left.size;
+
+		if (!Int.isAtLeastZero(middleCount)) {
+			const newLeft = this.left._dropChildren(count);
+			return this.#createNormalized(newLeft, undefined, undefined, newSize);
 		}
 
 		if (null === this.middle) {
-			return this.right.drop(middleAmount);
+			return this.right.drop(middleCount);
 		}
 
-		const rightAmount = middleAmount - this.middle.length;
+		const rightCount = middleCount - this.middle.size;
 
-		if (rightAmount >= 0) {
-			return this.right.drop(rightAmount);
+		if (rightCount >= 0) {
+			return this.right.drop(rightCount);
 		}
 
-		const [newMiddle, upLeft, inUpLeft] =
-			this.middle.dropInternal(middleAmount);
-		const newLeft = upLeft.dropChildren(inUpLeft);
+		const [newMiddle, upLeft, inUpLeft] = this.middle.dropInternal(middleCount);
+		const newLeft = Int.isAtLeastOne(inUpLeft)
+			? upLeft._dropChildren(inUpLeft)
+			: upLeft;
 
-		return this.copy(newLeft, undefined, newMiddle, newLength)._normalize();
+		return this.#createNormalized(newLeft, undefined, newMiddle, newSize);
 	}
 
-	reversed(cacheMap: CacheMap = this.context.cacheMap()): OuterTree<T> {
-		const cachedThis = cacheMap.get<OuterTree<T>>(this);
-		if (cachedThis !== undefined) return cachedThis;
-
-		const newMid = this.middle?.reversed(cacheMap) ?? null;
-		const newLeft = this.right.reversed(cacheMap);
-		const newRight =
-			this.left === this.right ? newLeft : this.left.reversed(cacheMap);
-
-		const reversedThis = this.copy(newLeft, newRight, newMid);
-		return cacheMap.setAndReturn(this, reversedThis);
+	forEach(f: (element: T) => void): void {
+		this.left.forEach(f);
+		this.middle?.forEach(f);
+		this.right.forEach(f);
 	}
 
-	concat(...sources: ArrayNonEmpty<StreamSource<T>>): ListImpl.NonEmpty<T> {
-		const asList = this.context.from(...sources) as ListImpl<T>;
+	filter(
+		f: (element: T) => boolean,
+		options?: { negate?: boolean | undefined },
+	): List<T> {
+		const cacheMap = new CacheMap();
 
-		if (asList.nonEmpty()) {
-			if (this.context.isOuterBlock<T>(asList)) {
-				return this.concatBlock(asList);
-			} else if (this.context.isOuterTree<T>(asList)) {
-				return this.concatTree(asList);
-			} else {
-				throwInvalidStateError();
-			}
-		}
+		const newList = this.left
+			.filter(f, options, cacheMap)
+			.concat(
+				this.middle?.filter(f, options, cacheMap),
+				this.right.filter(f, options, cacheMap),
+			);
 
-		return this;
+		return newList.size === this.size ? this : newList;
 	}
 
-	concatBlock(outerBlock: OuterBlock<T>): ListImpl.NonEmpty<T> {
-		const newLength = this.length + outerBlock.length;
+	map<T2>(f: (element: T) => T2): OuterTree<T2> {
+		const cacheMap = new CacheMap();
 
-		if (this.right.length + outerBlock.length <= this.context.maxBlockSize) {
-			const newRight = this.right.concatChildren(outerBlock);
-			return this.copy(undefined, newRight, undefined, newLength);
-		}
-
-		if (this.right.childrenInMin) {
-			const newMiddle = this.appendMiddle(this.right);
-
-			return this.copy(undefined, outerBlock, newMiddle, newLength);
-		}
-
-		const newRight = this.right.concatChildren(outerBlock);
-		const newLast = newRight._mutateSplitRight(this.context.maxBlockSize);
-		const newMiddle = this.appendMiddle(newRight);
-
-		return this.copy(undefined, newLast, newMiddle, newLength);
+		return this.#copyAsType(
+			this.left.map(f, cacheMap),
+			this.right.map(f, cacheMap),
+			this.middle?.map(f, cacheMap) ?? null,
+			this.size,
+		);
 	}
 
-	concatTree(outerTree: OuterTree<T>): OuterTree<T> {
-		const newLength = this.length + outerTree.length;
-		const jointLength = this.right.length + outerTree.left.length;
+	_concat(source: List.NonEmpty<T>): List.NonEmpty<T> {
+		return (source as ListNonEmptyBase<T>)._prependTree(this);
+	}
+
+	reversed(): OuterTree<T> {
+		const cacheMap = new CacheMap();
+
+		return this.copy(
+			this.right.reversed(cacheMap),
+			this.left.reversed(cacheMap),
+			this.middle?.reversed(cacheMap) ?? null,
+			this.size,
+		);
+	}
+
+	toNodeBuilder(): OuterTreeBuilder<T> {
+		return this.context.outerTreeBuilderSource(this);
+	}
+
+	toArray(): ArrayNonEmpty<T> {
+		const cacheMap = new CacheMap();
+
+		return ([] as T[]).concat(
+			this.left.toArray(cacheMap),
+			this.middle?.toArray(cacheMap) ?? [],
+			this.right.toArray(cacheMap),
+		) as ArrayNonEmpty<T>;
+	}
+
+	_prependBlock(leftBlock: OuterBlock<T>): OuterTree<T> {
+		const newSize = this.size + leftBlock.size;
+
+		// Case 1: Left block can be merged with current left block
+		if (this.left.size + leftBlock.size <= this.context.maxBlockSize) {
+			const newLeftChildren = leftBlock._concatChildren(
+				this.left._copyChildren(),
+			);
+			const newLeftBlock = this.context.outerBlockLeftRight(newLeftChildren);
+			return this.copy(newLeftBlock, undefined, undefined, newSize);
+		}
+
+		// Case 2: Tree Left block can be merged with current middle block
+		if (this.left._hasEnoughChildren) {
+			const newMiddle = this._prependMiddle(this.left);
+
+			return this.copy(leftBlock, undefined, newMiddle, newSize);
+		}
+
+		// Case 3: Left block can be merged with current left block and split into two blocks for middle
+		const jointChildren = leftBlock._concatChildren(this.left._copyChildren());
+		const [newLeftChildren, toMiddleChildren] = this.#ops.mutateSplice(
+			jointChildren,
+			-this.context.maxBlockSize,
+		);
+
+		const newLeft = this.context.outerBlockLeftRight(newLeftChildren);
+		const toMiddle = this.context.outerBlockLeftRight(toMiddleChildren);
+
+		const newMiddle = this._prependMiddle(toMiddle);
+
+		return this.copy(newLeft, undefined, newMiddle, newSize);
+	}
+
+	_prependTree(leftTree: OuterTree<T>): OuterTree<T> {
+		const newSize = this.size + leftTree.size;
+		const jointLength = leftTree.right.size + this.left.size;
 
 		// Case 1: Joint is too small (underflow) — must merge with neighbors
 		if (jointLength < this.context.minBlockSize) {
 			if (null === this.middle) {
-				// left + right > maxBlockSize
-				const joint = this.left
-					.concatChildren(this.right)
-					.concatChildren(outerTree.left);
-				const toMiddle = joint._mutateSplitRight(
-					this.ops.length(joint.children) - this.context.maxBlockSize,
+				//this  left + right > maxBlockSize, otherwise would be single block
+				const jointChildren = leftTree.right._concatChildren(
+					this.left._concatChildren(this.right._copyChildren()),
 				);
-				const newMiddle = outerTree.prependMiddle(toMiddle);
+				const [toLeftMiddleChildren, newRightChildren] = this.#ops.mutateSplice(
+					jointChildren,
+					this.context.maxBlockSize,
+				);
+				const toLeftMiddle =
+					this.context.outerBlockLeftRight(toLeftMiddleChildren);
+				const newRight = this.context.outerBlockLeftRight(newRightChildren);
+				const newLeftMiddle = leftTree._prependMiddle(toLeftMiddle);
 
-				return outerTree.copy(joint, undefined, newMiddle, newLength);
+				return this.context.outerTree(
+					leftTree.left,
+					newRight,
+					newLeftMiddle,
+					newSize,
+				);
 			}
 
-			const [newMiddle, toJoint] = this.middle.dropLastChild();
-			const joint = toJoint
-				.concatChildren(this.right)
-				.concatChildren(outerTree.left);
+			// this.middle exists, so we can merge joint with middle
+			// middle block >= min size, joint length < min size,
+			const [newThisMiddle, toJoint] = this.middle.dropFirstChild();
+			const jointChildren = leftTree.right._concatChildren(
+				this.left._concatChildren(toJoint._copyChildren()),
+			);
+			const jointNrChildren = this.#ops.size(jointChildren);
 
-			if (joint.childrenInMax) {
+			// Case 1a: Joint fits in a single block — merge and push to middle
+			if (jointNrChildren <= this.context.maxBlockSize) {
+				const joint = this.context.outerBlockLeftRight(jointChildren);
+
 				const m =
-					null === newMiddle
-						? outerTree.prependMiddle(joint)
-						: newMiddle.concat(outerTree.prependMiddle(joint));
-				return this.copy(undefined, outerTree.right, m, newLength);
+					null === newThisMiddle
+						? leftTree._appendMiddle(joint)
+						: leftTree._appendMiddle(joint).concat(newThisMiddle);
+
+				return this.context.outerTree(leftTree.left, this.right, m, newSize);
 			}
 
-			const newOtherLeft = joint._mutateSplitRight();
-			const newMiddle2 =
-				null === newMiddle
-					? outerTree.prependMiddle(newOtherLeft).prependChild(joint)
-					: null === outerTree.middle
-						? newMiddle.appendChild(joint).appendChild(newOtherLeft)
-						: newMiddle
-								.appendChild(joint)
-								.appendChild(newOtherLeft)
-								.concat(outerTree.middle);
-			return this.copy(undefined, outerTree.right, newMiddle2, newLength);
+			// Case 1b: Joint overflows — merge and split into two blocks for middle
+			const [jointLeftChildren, jointRightChildren] = this.#ops.mutateSplice(
+				jointChildren,
+				jointNrChildren >> 1,
+			);
+
+			const jointLeft = this.context.outerBlockLeftRight(jointLeftChildren);
+			const jointRight = this.context.outerBlockLeftRight(jointRightChildren);
+
+			const newMiddle =
+				null === newThisMiddle
+					? leftTree._appendMiddle(jointLeft).appendChild(jointRight)
+					: null === leftTree.middle
+						? newThisMiddle.prependChild(jointRight).prependChild(jointLeft)
+						: leftTree
+								._appendMiddle(jointLeft)
+								.appendChild(jointRight)
+								.concat(newThisMiddle);
+
+			return this.context.outerTree(
+				leftTree.left,
+				this.right,
+				newMiddle,
+				newSize,
+			);
 		}
 
 		// Case 2: Joint fits in a single block — merge and push to middle
 		if (jointLength <= this.context.maxBlockSize) {
-			const joint = this.right.concatChildren(outerTree.left);
-			const newThisMiddle = this.appendMiddle(joint);
+			const jointChildren = leftTree.right._concatChildren(
+				this.left._copyChildren(),
+			);
+			const joint = this.context.outerBlockLeftRight(jointChildren);
+			const newThisMiddle = this._prependMiddle(joint);
 			const newMiddle =
-				null === outerTree.middle
+				null === leftTree.middle
 					? newThisMiddle
-					: newThisMiddle.concat(outerTree.middle);
-			return this.copy(undefined, outerTree.right, newMiddle, newLength);
+					: leftTree.middle.concat(newThisMiddle);
+
+			return this.context.outerTree(
+				leftTree.left,
+				this.right,
+				newMiddle,
+				newSize,
+			);
 		}
 
 		// Case 3: Both sides already satisfy minBlockSize — push both to middle
-		if (this.right.childrenInMin && outerTree.left.childrenInMin) {
-			const newThisMiddle = this.appendMiddle(this.right).appendChild(
-				outerTree.left,
-			);
-			const newMiddle =
-				null === outerTree.middle
-					? newThisMiddle
-					: newThisMiddle.concat(outerTree.middle);
-
-			return this.copy(undefined, outerTree.right, newMiddle, newLength);
-		}
-
-		// Case 4: Joint overflows — merge and split into two blocks for middle
-		const joint = this.right.concatChildren(outerTree.left);
-		const jointRight = joint._mutateSplitRight();
-
-		const newThisMiddle = this.appendMiddle(joint).appendChild(jointRight);
-		const newMiddle =
-			null === outerTree.middle
-				? newThisMiddle
-				: newThisMiddle.concat(outerTree.middle);
-
-		return this.copy(undefined, outerTree.right, newMiddle, newLength);
-	}
-
-	prependMiddle(outerBlock: OuterBlock<T>): Inner<T, OuterBlock<T>> {
-		return (
-			this.middle?.prependChild(outerBlock) ??
-			this.context.innerBlock<T, OuterBlock<T>>(
-				[outerBlock],
-				outerBlock.length,
-				1,
-			)
-		);
-	}
-
-	appendMiddle(outerBlock: OuterBlock<T>): Inner<T, OuterBlock<T>> {
-		return (
-			this.middle?.appendChild(outerBlock) ??
-			this.context.innerBlock<T, OuterBlock<T>>(
-				[outerBlock],
-				outerBlock.length,
-				1,
-			)
-		);
-	}
-
-	forEach(
-		f: (value: T, index: number, halt: () => void) => void,
-		options: { reversed?: boolean; state?: TraverseState } | undefined = {},
-	): void {
-		const { reversed = false, state = TraverseState() } = options;
-		treeForEach(this, f, { reversed, state });
-	}
-
-	map<T2>(
-		mapFun: (value: T, index: number) => T2,
-		options: { reversed?: boolean; indexOffset?: number } = {},
-	): OuterTree<T2> {
-		const { reversed = false, indexOffset = 0 } = options;
-
-		let offset = indexOffset;
-
-		if (reversed) {
-			const newLeft = this.right.map(mapFun, {
-				reversed: true,
-				indexOffset: offset,
-			});
-			offset += this.right.length;
+		if (leftTree.right._hasEnoughChildren && this.left._hasEnoughChildren) {
+			const newLeftMiddle = leftTree
+				._appendMiddle(leftTree.right)
+				.appendChild(this.left);
 
 			const newMiddle =
 				null === this.middle
-					? null
-					: this.middle.map<T2, OuterBlock<T2>>(mapFun, {
-							reversed: true,
-							indexOffset: offset,
-						});
-			if (null !== this.middle) offset += this.middle.length;
+					? newLeftMiddle
+					: newLeftMiddle.concat(this.middle);
 
-			const newRight = this.left.map(mapFun, {
-				reversed: true,
-				indexOffset: offset,
-			});
-
-			return this.copy2(newLeft, newRight, newMiddle);
+			return this.context.outerTree(
+				leftTree.left,
+				this.right,
+				newMiddle,
+				newSize,
+			);
 		}
 
-		const newLeft = this.left.map(mapFun, { indexOffset: offset });
-		offset += this.left.length;
+		// Case 4: Joint overflows — merge and split into two blocks for middle
+		const jointChildren = leftTree.right._concatChildren(
+			this.left._copyChildren(),
+		);
+		const [jointLeftChildren, jointRightChildren] = this.#ops.mutateSplice(
+			jointChildren,
+			jointLength >> 1,
+		);
 
+		const jointLeft = this.context.outerBlockLeftRight(jointLeftChildren);
+		const jointRight = this.context.outerBlockLeftRight(jointRightChildren);
+		const newLeftMiddle = leftTree
+			._appendMiddle(jointLeft)
+			.appendChild(jointRight);
 		const newMiddle =
-			null === this.middle
-				? null
-				: this.middle.map<T2, OuterBlock<T2>>(mapFun, { indexOffset: offset });
+			null === this.middle ? newLeftMiddle : newLeftMiddle.concat(this.middle);
 
-		if (null !== this.middle) offset += this.middle.length;
-
-		const newRight = this.right.map(mapFun, { indexOffset: offset });
-
-		return this.copy2(newLeft, newRight, newMiddle);
-	}
-
-	mapPure<T2>(
-		mapFun: (value: T) => T2,
-		options: { reversed?: boolean } = {},
-		cacheMap: CacheMap = this.context.cacheMap(),
-	): OuterTree<T2> {
-		const cachedThis = cacheMap.get<OuterTree<T2>>(this);
-		if (undefined !== cachedThis) return cachedThis;
-
-		const newLeft = this.left.mapPure(mapFun, options, cacheMap);
-		const newRight = this.right.mapPure(mapFun, options, cacheMap);
-		const newMiddle =
-			null === this.middle
-				? null
-				: this.middle.mapPure<T2, OuterBlock<T2>>(mapFun, options, cacheMap);
-
-		const { reversed = false } = options;
-
-		return cacheMap.setAndReturn(
-			this,
-			reversed
-				? this.copy2(newRight, newLeft, newMiddle)
-				: this.copy2(newLeft, newRight, newMiddle),
+		return this.context.outerTree(
+			leftTree.left,
+			this.right,
+			newMiddle,
+			newSize,
 		);
 	}
 
-	toArray(options?: {
-		range?: IndexRange | undefined;
-		reversed?: boolean | undefined;
-	}): ArrayNonEmpty<T> {
-		return treeToArray(this, options) as ArrayNonEmpty<T>;
+	_prependMiddle(block: OuterBlock<T>): Inner<T, OuterBlock<T>> {
+		return (
+			this.middle?.prependChild(block) ??
+			this.context.innerBlock<T, OuterBlock<T>>([block], block.size, 1)
+		);
 	}
 
-	_normalize(): ListImpl.NonEmpty<T> {
-		if (null === this.middle) {
-			if (this.length <= this.context.maxBlockSize) {
-				// can merge left and right
-				return this.left.concatChildren(this.right);
-			}
-		} else if (this.context.isInnerBlock<T, OuterBlock<T>>(this.middle)) {
-			if (this.length <= this.context.maxBlockSize) {
-				// left, middle, and right can be merged into one block
-				const firstMiddleChild = this.middle.children[0]!;
-
-				return this.left
-					.concatChildren(firstMiddleChild)
-					.concatChildren(this.right);
-			}
-
-			const firstChild = this.middle.children[0]!;
-
-			if (this.left.length + firstChild.length <= this.context.maxBlockSize) {
-				// first middle child can be merged with left
-				const result = this.middle.dropFirstChild();
-				const newMiddle = result[0];
-				const block = result[1];
-				return this.copy(this.left.concatChildren(block), undefined, newMiddle);
-			}
-
-			const lastChild = this.middle.children.at(-1)!;
-
-			if (this.right.length + lastChild.length <= this.context.maxBlockSize) {
-				// last middle child can be merged with right
-				const result = this.middle.dropLastChild();
-				const newMiddle = result[0];
-				const block = result[1];
-
-				return this.copy(
-					undefined,
-					block.concatChildren(this.right),
-					newMiddle,
-				);
-			}
-
-			if (this.length <= this.context.maxBlockSize * 2) {
-				// length fits in two blocks but no single merge above worked;
-				// flatten all elements into two blocks and drop the middle
-				let merged = this.left;
-				for (const child of this.middle.children) {
-					merged = merged.concatChildren(child);
-				}
-				merged = merged.concatChildren(this.right);
-				const newRight = merged._mutateSplitRight();
-				return this.copy(merged, newRight, null, this.length);
-			}
-		}
-
-		return this;
-	}
-
-	_structure(depth = 0): string {
-		const space = '  '.repeat(depth);
-		const nextDepth = depth + 2;
-		return `\
-${space}OuterTree(len: ${this.length})
-${space}  left: (len: ${this.left.length}, ch: ${this.left.nrChildren})
-${this.left._structure(nextDepth)}
-${space}  middle: (len ${this.middle?.length ?? '-'})
-${this.middle?._structure(nextDepth) ?? `${space}    <notree>`}
-${space}  right: (len: ${this.right.length}, ch: ${this.right.nrChildren})
-${this.right._structure(nextDepth)})\
-`;
+	_appendMiddle(block: OuterBlock<T>): Inner<T, OuterBlock<T>> {
+		return (
+			this.middle?.appendChild(block) ??
+			this.context.innerBlock<T, OuterBlock<T>>([block], block.size, 1)
+		);
 	}
 
 	_verifyStructure(messages: string[] = []): string[] {
-		if (this.length <= this.context.maxBlockSize) {
+		if (this.size <= this.context.maxBlockSize) {
 			messages.push(
-				`OuterTree length ${this.length} is less than or equal to maxBlockSize ${this.context.maxBlockSize}, should be an OuterBlock`,
+				`OuterTree size ${this.size} is less than or equal to maxBlockSize ${this.context.maxBlockSize}, should be an OuterBlock`,
 			);
 		}
 
-		if (null !== this.middle && this.length <= this.context.maxBlockSize * 2) {
-			messages.push(
-				`OuterTree length ${this.length} is less than or equal to 2 * maxBlockSize ${this.context.maxBlockSize * 2} but has a middle.`,
-			);
+		if (this.middle) {
+			if (this.middle.level !== 1) {
+				messages.push(
+					`OuterTree has middle with wrong level: ${this.middle.level} != 1`,
+				);
+			}
+			if (this.size <= this.context.maxBlockSize * 2) {
+				messages.push(
+					`OuterTree size ${this.size} is less than or equal to 2 * maxBlockSize ${this.context.maxBlockSize * 2} but has a middle.`,
+				);
+			}
 		}
 
 		this.left._verifyStructure(messages);

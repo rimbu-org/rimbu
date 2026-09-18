@@ -5,7 +5,7 @@ Source: `AGENTS.md:213-224` §4 `test` script, `AGENTS.md:480-518` §7 method ch
 ## Scope
 
 - **Default:** single package `<pkg>` (`packages/<name>` with `src/public/` and `package.json`)
-- **`--workspace`:** all packages with `package.json` (exclude `list2`), audits each package's `src/public/` vs `test/` then optionally generates `test/*.generated.test.ts`
+- **`--workspace`:** all packages with `package.json`, audits each package's `src/public/` vs `test/` then optionally generates `test/*.generated.test.ts`
 - **Hybrid:** diagnose by default (read-only, reuses `audit-tests` 06); fix only with `--fix` (gap-fill), `--force` to overwrite hand-written `test/*.test.ts` (Q11), `--dry-run` to simulate
 
 ## Checks

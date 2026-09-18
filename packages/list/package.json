@@ -45,12 +45,13 @@
 		}
 	},
 	"imports": {
+		"#advanced/*": {
+			"types": "./dist/advanced/*.d.ts",
+			"default": "./dist/advanced/*.js"
+		},
 		"#list/*": {
 			"types": "./dist/internal/*.d.ts",
 			"default": "./dist/internal/*.js"
-		},
-		"#test/*": {
-			"default": "./test/*.ts"
 		}
 	},
 	"files": [
@@ -59,14 +60,14 @@
 	],
 	"scripts": {
 		"biome:check": "biome check src",
-		"biome:fix": "biome check src --write",
+		"biome:fix": "biome check src test test-types --write",
 		"build": "bun clean:build && bunx tsc --p tsconfig.esm.json",
 		"clean": "rimraf dist node_modules",
 		"clean:build": "rimraf dist",
 		"format:check": "biome format src",
 		"lint:check": "biome lint src",
 		"test": "bun test test/* --tsconfig-override tsconfig.common.json",
-		"test:random": "bun test test-random",
+		"test:single": "bun test --tsconfig-override tsconfig.common.json",
 		"typecheck": "tsc -p tsconfig.json --noEmit"
 	},
 	"dependencies": {

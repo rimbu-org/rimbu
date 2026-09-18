@@ -33,7 +33,7 @@ Additional triggers: after `review-anatomy`, before `bun test`, when `maintain-s
 
 ### Diagnose (read-only, default)
 
-1. Resolve target: single package `<pkg>` (e.g. `packages/list`) is default. If `--workspace` is passed, expand to all packages with `src/` (exclude `list2`). Require `<pkg>` if no `--workspace`.
+1. Resolve target: single package `<pkg>` (e.g. `packages/list`) is default. If `--workspace` is passed, expand to all packages with `src/`. Require `<pkg>` if no `--workspace`.
 2. For each target package, collect evidence **without mutating** and **without `build:seq`** (Q10, fast) via `rg`:
    - `noUnusedImports` `error` — `rg -n "import.*\{[^}]*\}" src --no-heading` + `rg -n "from.*#|from.*@rimbu"` and check via `biome check` if available, but primary evidence is `rg` for unused (heuristic: `import { X } from` where `X` not found via `rg -n "\bX\b" src --no-heading` elsewhere)
    - `noExplicitAny` `warn` — `rg -n ":\s*any\b|\bas\s+any\b|<any>|any\[\]" src --no-heading` (exclude `test/` per `biome.json:73-84`)

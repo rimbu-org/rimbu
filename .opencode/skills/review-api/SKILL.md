@@ -33,7 +33,7 @@ Additional triggers: before publishing a new collection method (see `AGENTS.md:4
 
 ### Diagnose (read-only, default)
 
-1. Resolve target: single package `<pkg>` (e.g. `packages/stream`) is default. If `--workspace` is passed, expand to all packages with `src/public/` (exclude `list2`). Require `<pkg>` if no `--workspace`.
+1. Resolve target: single package `<pkg>` (e.g. `packages/stream`) is default. If `--workspace` is passed, expand to all packages with `src/public/`. Require `<pkg>` if no `--workspace`.
 2. For each target, collect evidence **without mutating** via `rg` (and `API_SURFACE.md`/`support/docs-extractor` output where available):
    - (a) **Naming** — `rg -n "filter|map\(|flatMap|take\(|drop\(" src/public --no-heading` to list canonical names; flag synonyms like `select`/`where`/`collect`/`filterBy` if they appear as public methods (evidence is `rg` line, `file:line`)
    - (b) **Math indices** — check that `Stream`/`AsyncStream` `at(-1)` returns fallback (not last) and that other collections document `-1` = last per `AGENTS.md:21-25`; evidence is `rg -n "at\(|get\(|slice\(" src/public` and impl `rg -n "index.*<.*0|at\(.*-1" src/internal`

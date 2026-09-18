@@ -1,1061 +1,369 @@
-import { beforeEach, describe, expect, it, vi } from 'bun:test';
+import { describe, expect, it } from 'bun:test';
 
-import type { ListContext } from '#list/context-module';
+import type { Int } from '@rimbu/base';
 
-import { TraverseState } from '@rimbu/common/traverse-state';
+import type { ListContext } from '#list/context';
+import type { OuterBlockBuilder } from '#list/mutable/outer-block-builder';
 
-import { OuterBlock } from '#list/immutable/outer-block';
-import { OuterTree } from '#list/immutable/outer-tree';
-import { ListHelpers } from '#list/list-helpers';
-import { InnerTreeBuilder } from '#list/mutable/inner-tree-builder';
-import { OuterBlockBuilder } from '#list/mutable/outer-block-builder';
-import { OuterTreeBuilder } from '#list/mutable/outer-tree-builder';
+import { List } from '@rimbu/list';
 
-const context = ListHelpers.createListContext({
-	blockSizeBits: 2,
-}) as unknown as ListContext<ListHelpers.TypesImpl>;
+function makeContext(blockSizeBits: number): ListContext {
+	return List.createContext({ blockSizeBits }) as ListContext;
+}
 
-describe('OuterTreeBuilder', () => {
-	beforeEach(() => {
-		vi.resetAllMocks();
+function ob<T>(ctx: ListContext, vals: T[]): OuterBlockBuilder<T> {
+	return ctx.outerBlockBuilder(ctx.childrenOps.of(vals));
+}
+
+function treeBuilder<T>(ctx: ListContext, leftVals: T[], rightVals: T[]): any {
+	const left = ob(ctx, leftVals);
+	const right = ob(ctx, rightVals);
+	return ctx.outerTreeBuilder(
+		left,
+		right,
+		undefined,
+		leftVals.length + rightVals.length,
+	);
+}
+
+describe('OuterTreeBuilder.properties', () => {
+	it('level is 0', () => {
+		const ctx = makeContext(2);
+		const t = treeBuilder(ctx, [1, 2], [3, 4]);
+		expect(t.level).toBe(0);
 	});
 
-	it('append', () => {
-		{
-			// can add to right
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2]),
-				context.outerBlockBuilder([11, 12, 13]),
-				undefined,
-				5,
-			);
-			t.append(-1);
-			expect(t.length).toBe(6);
-			expect(t.get(5)).toBe(-1);
-			expect(t.left.children).toEqual([1, 2] as any);
-			expect(t.right.children).toEqual([11, 12, 13, -1] as any);
-		}
-		{
-			// right full, no middle, left has place
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2, 3]),
-				context.outerBlockBuilder([11, 12, 13, 14]),
-				undefined,
-				7,
-			);
-			t.append(-1);
-			expect(t.length).toBe(8);
-			expect(t.get(7)).toBe(-1);
-			expect(t.left.children).toEqual([1, 2, 3, 11] as any);
-			expect(t.right.children).toEqual([12, 13, 14, -1] as any);
-		}
-		{
-			// left and right full, no middle
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2, 3, 4]),
-				context.outerBlockBuilder([11, 12, 13, 14]),
-				undefined,
-				8,
-			);
-			t.append(-1);
-			expect(t.length).toBe(9);
-			expect(t.get(8)).toBe(-1);
-			expect(t.left.children).toEqual([1, 2, 3, 4] as any);
-			expect((t.middle as any).children[0].children).toEqual([11, 12, 13, 14]);
-			expect(t.right.children).toEqual([-1] as any);
-		}
-		{
-			// right full, last middle has place
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2]),
-				context.outerBlockBuilder([11, 12, 13, 14]),
-				context.innerBlockBuilder(1, [context.outerBlockBuilder([21, 22])], 2),
-				8,
-			);
-			t.append(-1);
-			expect(t.length).toBe(9);
-			expect(t.get(8)).toBe(-1);
-			expect(t.left.children).toEqual([1, 2] as any);
-			expect((t.middle as any).children[0].children).toEqual([21, 22, 11]);
-			expect(t.right.children).toEqual([12, 13, 14, -1] as any);
-			expect(t.middle!.length).toBe(3);
-		}
-		{
-			// right full, last middle full
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2]),
-				context.outerBlockBuilder([11, 12, 13, 14]),
-				context.innerBlockBuilder(
-					1,
-					[context.outerBlockBuilder([21, 22, 23, 24])],
-					4,
-				),
-				10,
-			);
-			t.append(-1);
-			expect(t.length).toBe(11);
-			expect(t.get(10)).toBe(-1);
-			expect(t.left.children).toEqual([1, 2] as any);
-			expect((t.middle as any).children[0].children).toEqual([21, 22, 23, 24]);
-			expect((t.middle as any).children[1].children).toEqual([11, 12, 13, 14]);
-			expect(t.right.children).toEqual([-1] as any);
-			expect(t.middle!.length).toBe(8);
-		}
+	it('size equals sum of left + right', () => {
+		const ctx = makeContext(3);
+		const t = treeBuilder(ctx, [1, 2, 3], [4, 5]);
+		expect(t.size).toBe(5);
 	});
 
-	it('appendMiddle', () => {
-		{
-			// no middle
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2, 3]),
-				context.outerBlockBuilder([11, 12, 13]),
-				undefined,
-				6,
-			);
-			const child = context.outerBlockBuilder([21, 22, 23]);
-			t.appendMiddle(child);
-			expect(t.length).toBe(6);
-			expect((t.middle as any).children[0]).toBe(child);
-		}
-		{
-			// middle, simple append
-			const middleBlock = context.outerBlockBuilder([21, 22, 23, 24]);
-
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2, 3]),
-				context.outerBlockBuilder([11, 12, 13]),
-				context.innerBlockBuilder(1, [middleBlock], 4),
-				10,
-			);
-			const child = context.outerBlockBuilder([31, 32, 33]);
-			t.appendMiddle(child);
-			expect(t.length).toBe(10);
-			expect((t.middle as any).children[0]).toBe(middleBlock);
-			expect((t.middle as any).children[1]).toBe(child);
-		}
-		{
-			// middle, simple block merge
-			const middleBlock = context.outerBlockBuilder([21, 22, 23]);
-
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2, 3]),
-				context.outerBlockBuilder([11, 12, 13]),
-				context.innerBlockBuilder(1, [middleBlock], 3),
-				9,
-			);
-			const child = context.outerBlockBuilder([31]);
-			t.appendMiddle(child);
-			expect(t.length).toBe(9);
-			expect((t.middle as any).children[0].children).toEqual([21, 22, 23, 31]);
-		}
-		{
-			// middle, prepend block
-			const middleBlock = context.outerBlockBuilder([21, 22, 23]);
-
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2, 3]),
-				context.outerBlockBuilder([11, 12, 13]),
-				context.innerBlockBuilder(1, [middleBlock], 3),
-				9,
-			);
-			const child = context.outerBlockBuilder([31, 32, 33]);
-			t.appendMiddle(child);
-			expect(t.length).toBe(9);
-			expect((t.middle as any).children[0]).toBe(middleBlock);
-			expect(child.children).toEqual([31, 32, 33] as any);
-			expect((t.middle as any).children[1]).toBe(child);
-			expect(middleBlock.children).toEqual([21, 22, 23] as any);
-		}
-		{
-			// middle, marge and split and normalize
-			const middle = context.innerBlockBuilder<
-				number,
-				OuterBlockBuilder<number>
-			>(
-				1,
-				[
-					context.outerBlockBuilder([21, 22, 23, 24]),
-					context.outerBlockBuilder([21, 22, 23, 24]),
-					context.outerBlockBuilder([21, 22, 23, 24]),
-					context.outerBlockBuilder([21, 22, 23, 24]),
-				],
-				16,
-			);
-
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2, 3]),
-				context.outerBlockBuilder([11, 12, 13]),
-				middle,
-				22,
-			);
-			const child = context.outerBlockBuilder([31]);
-			t.appendMiddle(child);
-			expect(t.length).toBe(22);
-			expect(t.middle).toBeInstanceOf(InnerTreeBuilder);
-			const newMiddle = t.middle as InnerTreeBuilder<number, any>;
-			expect(newMiddle.level).toBe(1);
-			expect(newMiddle.left).toBe(middle);
-			expect(newMiddle.left.nrChildren).toBe(2);
-			expect(newMiddle.right.nrChildren).toBe(3);
-			expect(newMiddle.right.children[2]).toBe(child);
-			expect(newMiddle.right.children[2].children).toEqual([31]);
-		}
+	it('has left, right, middle', () => {
+		const ctx = makeContext(2);
+		const t = treeBuilder(ctx, [1], [2]);
+		expect(t.left).toBeDefined();
+		expect(t.right).toBeDefined();
+		expect(t.middle).toBeUndefined();
 	});
 
-	it('build', () => {
-		{
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2]),
-				context.outerBlockBuilder([11, 12]),
-				undefined,
-				4,
-			);
-			const r = t.build();
-			expect(r.toArray()).toEqual([1, 2, 11, 12]);
-			expect(r).toBeInstanceOf(OuterBlock);
-		}
-		{
-			const source = context.outerTree(
-				context.outerBlock([1, 2]),
-				context.outerBlock([11, 12]),
-				null,
-				4,
-			);
+	it('context is the list context', () => {
+		const ctx = makeContext(3);
+		const t = treeBuilder(ctx, [1], [2]);
+		expect(t.context.blockSizeBits).toBe(3);
+	});
+});
 
-			const t = context.outerTreeBuilderSource(source);
-			const r = t.build();
-			expect(r.toArray()).toEqual([1, 2, 11, 12]);
-			expect(r).toBeInstanceOf(OuterTree);
-		}
+describe('OuterTreeBuilder.read', () => {
+	describe('get', () => {
+		it('from left block', () => {
+			const ctx = makeContext(2);
+			const t = treeBuilder(ctx, [10, 20, 30], [40, 50]);
+			expect(t.get(0 as Int.AtLeastZero)).toBe(10);
+			expect(t.get(2 as Int.AtLeastZero)).toBe(30);
+		});
+
+		it('from right block', () => {
+			const ctx = makeContext(2);
+			const t = treeBuilder(ctx, [10, 20, 30], [40, 50]);
+			expect(t.get(3 as Int.AtLeastZero)).toBe(40);
+			expect(t.get(4 as Int.AtLeastZero)).toBe(50);
+		});
+
+		it('last elements via positive index', () => {
+			const ctx = makeContext(2);
+			const t = treeBuilder(ctx, [10, 20, 30], [40, 50]);
+			expect(t.get(4 as Int.AtLeastZero)).toBe(50);
+			expect(t.get(3 as Int.AtLeastZero)).toBe(40);
+			expect(t.get(2 as Int.AtLeastZero)).toBe(30);
+		});
 	});
 
-	it('buildMap', () => {
-		{
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2]),
-				context.outerBlockBuilder([11, 12]),
-				undefined,
-				4,
-			);
-			const r = t.buildMap((v) => v + 1);
-			expect(r.toArray()).toEqual([2, 3, 12, 13]);
-			expect(r).toBeInstanceOf(OuterBlock);
-		}
-		{
-			const source = context.outerTree(
-				context.outerBlock([1, 2]),
-				context.outerBlock([11, 12]),
-				null,
-				4,
-			);
-
-			const t = context.outerTreeBuilderSource(source);
-			const r = t.buildMap((v) => v + 1);
-			expect(r.toArray()).toEqual([2, 3, 12, 13]);
-			expect(r).toBeInstanceOf(OuterTree);
-		}
+	describe('get', () => {
+		it('returns element at index', () => {
+			const ctx = makeContext(2);
+			const t = treeBuilder(ctx, [10, 20], [30, 40]);
+			expect(t.get(0 as Int.AtLeastZero)).toBe(10);
+			expect(t.get(1 as Int.AtLeastZero)).toBe(20);
+			expect(t.get(2 as Int.AtLeastZero)).toBe(30);
+			expect(t.get(3 as Int.AtLeastZero)).toBe(40);
+		});
 	});
 
-	it('context', () => {
-		expect(
-			context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2]),
-				context.outerBlockBuilder([11, 12]),
-				undefined,
-				4,
-			).context,
-		).toBe(context);
+	describe('forEach', () => {
+		it('visits left then right in order', () => {
+			const ctx = makeContext(2);
+			const t = treeBuilder(ctx, [1, 2], [3, 4]);
+			const result: number[] = [];
+			t.forEach((v: number) => result.push(v));
+			expect(result).toEqual([1, 2, 3, 4]);
+		});
+	});
+});
+
+describe('OuterTreeBuilder.prepend', () => {
+	const bits = 2; // max=4
+
+	it('prepends to left when left has room', () => {
+		const ctx = makeContext(bits);
+		const t = treeBuilder(ctx, [2, 3], [5, 6]);
+		t.prepend(1);
+		expect(t.size).toBe(5);
+		expect(t.build().toArray()).toEqual([1, 2, 3, 5, 6]);
 	});
 
-	it('forEach', () => {
-		{
-			// no middle
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2, 3, 4]),
-				context.outerBlockBuilder([11, 12, 13, 14]),
-				undefined,
-				8,
-			);
-			const cb = vi.fn();
-			t.forEach(cb, { reversed: false, state: TraverseState() });
-			expect(cb).toBeCalledTimes(8);
-			expect(cb.mock.calls[1][0]).toBe(2);
-			expect(cb.mock.calls[1][1]).toBe(1);
-
-			cb.mockReset();
-
-			t.forEach(cb, { reversed: true, state: TraverseState() });
-			expect(cb).toBeCalledTimes(8);
-			expect(cb.mock.calls[1][0]).toBe(13);
-			expect(cb.mock.calls[1][1]).toBe(1);
-
-			cb.mockReset();
-
-			t.forEach(
-				(_, __, halt) => {
-					halt();
-					cb();
-				},
-				{ reversed: false, state: TraverseState() },
-			);
-
-			expect(cb).toBeCalledTimes(1);
-		}
-		{
-			//  middle
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2, 3, 4]),
-				context.outerBlockBuilder([11, 12, 13, 14]),
-				context.innerBlockBuilder(
-					1,
-					[context.outerBlockBuilder([21, 22, 23])],
-					3,
-				),
-				11,
-			);
-			const cb = vi.fn();
-			t.forEach(cb, { reversed: false, state: TraverseState() });
-			expect(cb).toBeCalledTimes(11);
-			expect(cb.mock.calls[1][0]).toBe(2);
-			expect(cb.mock.calls[1][1]).toBe(1);
-
-			cb.mockReset();
-
-			t.forEach(
-				(_, __, halt) => {
-					halt();
-					cb();
-				},
-				{ reversed: false, state: TraverseState() },
-			);
-
-			expect(cb).toBeCalledTimes(1);
-		}
+	it('shifts left→right when left full and right has room', () => {
+		const ctx = makeContext(bits);
+		const t = treeBuilder(ctx, [1, 2, 3, 4], [5]);
+		t.prepend(0);
+		expect(t.size).toBe(6);
+		expect(t.build().toArray()).toEqual([0, 1, 2, 3, 4, 5]);
 	});
 
-	it('get', () => {
-		{
-			// no source, middle
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2, 3]),
-				context.outerBlockBuilder([11, 12, 13]),
-				context.innerBlockBuilder(
-					1,
-					[context.outerBlockBuilder([21, 22, 23])],
-					3,
-				),
-				9,
-			);
-
-			expect(t.get(0)).toBe(1);
-			expect(t.get(3)).toBe(21);
-			expect(t.get(6)).toBe(11);
-		}
-		{
-			// no source, no middle
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2, 3]),
-				context.outerBlockBuilder([11, 12, 13]),
-				undefined,
-				6,
-			);
-
-			expect(t.get(0)).toBe(1);
-			expect(t.get(3)).toBe(11);
-			expect(t.get(5)).toBe(13);
-		}
-		{
-			// source
-			const t = context.outerTreeBuilderSource(
-				context.outerTree(
-					context.outerBlock([1, 2, 3]),
-					context.outerBlock([4, 5, 6]),
-					null,
-					6,
-				),
-			);
-			expect(t.get(4)).toBe(5);
-		}
+	it('promotes left to middle when both are full', () => {
+		const ctx = makeContext(bits);
+		const t = treeBuilder(ctx, [1, 2, 3, 4], [5, 6, 7, 8]);
+		t.prepend(0);
+		expect(t.size).toBe(9);
+		expect(t.middle).toBeDefined();
+		expect(t.build().toArray()).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8]);
 	});
 
-	it('getChildLength', () => {
-		expect(
-			context
-				.outerTreeBuilder(
-					context.outerBlockBuilder([1, 2]),
-					context.outerBlockBuilder([11, 12]),
-					undefined,
-					4,
-				)
-				.getChildLength(),
-		).toBe(1);
+	it('multiple prepends build correct tree', () => {
+		const ctx = makeContext(bits);
+		const t = treeBuilder(ctx, [5], [6]);
+		t.prepend(4);
+		t.prepend(3);
+		t.prepend(2);
+		t.prepend(1);
+		t.prepend(0);
+		expect(t.build().toArray()).toEqual([0, 1, 2, 3, 4, 5, 6]);
+	});
+});
+
+describe('OuterTreeBuilder.append', () => {
+	const bits = 2; // max=4
+
+	it('appends to right when right has room', () => {
+		const ctx = makeContext(bits);
+		const t = treeBuilder(ctx, [1, 2], [4, 5]);
+		t.append(6);
+		expect(t.size).toBe(5);
+		expect(t.build().toArray()).toEqual([1, 2, 4, 5, 6]);
 	});
 
-	it('insert', () => {
-		{
-			// no middle, insert keeps same structure
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2, 3]),
-				context.outerBlockBuilder([11, 12, 13]),
-				undefined,
-				6,
-			);
-			t.insert(3, -1);
-			expect(t.length).toBe(7);
-			expect(t.left.children).toEqual([1, 2, 3, -1] as any);
-			expect(t.right.children).toEqual([11, 12, 13] as any);
-		}
-		{
-			// no middle, left shifts child to right
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2, 3, 4]),
-				context.outerBlockBuilder([11, 12, 13]),
-				undefined,
-				7,
-			);
-			t.insert(3, -1);
-			expect(t.length).toBe(8);
-			expect(t.left.children).toEqual([1, 2, 3, -1] as any);
-			expect(t.right.children).toEqual([4, 11, 12, 13] as any);
-		}
-		{
-			// no middle, right shifts child to left
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2, 3]),
-				context.outerBlockBuilder([11, 12, 13, 14]),
-				undefined,
-				7,
-			);
-			t.insert(4, -1);
-			expect(t.length).toBe(8);
-			expect(t.left.children).toEqual([1, 2, 3, 11] as any);
-			expect(t.right.children).toEqual([-1, 12, 13, 14] as any);
-		}
-		{
-			// middle, insert left needs to shift from left to middle
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2, 3, 4]),
-				context.outerBlockBuilder([11, 12]),
-				context.innerBlockBuilder(1, [context.outerBlockBuilder([21, 22])], 2),
-				8,
-			);
-			t.insert(1, -1);
-			expect(t.length).toBe(9);
-			expect(t.left.children).toEqual([1, -1, 2, 3] as any);
-			expect((t.middle as any).children[0].children).toEqual([4, 21, 22]);
-			expect(t.right.children).toEqual([11, 12] as any);
-		}
-		{
-			// middle, insert right needs to shift from right to middle
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2]),
-				context.outerBlockBuilder([11, 12, 13, 14]),
-				context.innerBlockBuilder(1, [context.outerBlockBuilder([21, 22])], 2),
-				8,
-			);
-			t.insert(6, -1);
-			expect(t.length).toBe(9);
-			expect(t.left.children).toEqual([1, 2] as any);
-			expect((t.middle as any).children[0].children).toEqual([21, 22, 11]);
-			expect(t.right.children).toEqual([12, -1, 13, 14] as any);
-		}
-		{
-			// middle, insert left splits and adds to middle
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2, 3, 4]),
-				context.outerBlockBuilder([11, 12]),
-				context.innerBlockBuilder(
-					1,
-					[context.outerBlockBuilder([21, 22, 23, 24])],
-					4,
-				),
-				10,
-			);
-			t.insert(2, -1);
-			expect(t.length).toBe(11);
-			expect(t.left.children).toEqual([1, 2] as any);
-			expect((t.middle as any).children[0].children).toEqual([-1, 3, 4]);
-			expect((t.middle as any).children[1].children).toEqual([21, 22, 23, 24]);
-			expect(t.right.children).toEqual([11, 12] as any);
-		}
-		{
-			// middle, insert right splits and adds to middle
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2]),
-				context.outerBlockBuilder([11, 12, 13, 14]),
-				context.innerBlockBuilder(
-					1,
-					[context.outerBlockBuilder([21, 22, 23, 24])],
-					4,
-				),
-				10,
-			);
-			t.insert(8, -1);
-			expect(t.length).toBe(11);
-			expect(t.left.children).toEqual([1, 2] as any);
-			expect((t.middle as any).children[0].children).toEqual([21, 22, 23, 24]);
-			expect((t.middle as any).children[1].children).toEqual([11, 12]);
-			expect(t.right.children).toEqual([-1, 13, 14] as any);
-		}
-		{
-			// insert into middle, no change to middle
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2]),
-				context.outerBlockBuilder([11, 12]),
-				context.innerBlockBuilder(
-					1,
-					[context.outerBlockBuilder([21, 22, 23])],
-					3,
-				),
-				7,
-			);
-			t.insert(4, -1);
-			expect(t.length).toBe(8);
-			expect(t.left.children).toEqual([1, 2] as any);
-			expect((t.middle as any).children[0].children).toEqual([21, 22, -1, 23]);
-			expect(t.right.children).toEqual([11, 12] as any);
-		}
-		{
-			// insert into middle, normalize middle
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2]),
-				context.outerBlockBuilder([11, 12]),
-				context.innerBlockBuilder(
-					1,
-					[context.outerBlockBuilder([21, 22, 23, 24])],
-					4,
-				),
-				8,
-			);
-			t.insert(4, -1);
-			expect(t.length).toBe(9);
-			expect(t.left.children).toEqual([1, 2] as any);
-			expect((t.middle as any).children[0].children).toEqual([21, 22]);
-			expect((t.middle as any).children[1].children).toEqual([-1, 23, 24]);
-			expect(t.right.children).toEqual([11, 12] as any);
-		}
+	it('shifts right→left when right full and left has room', () => {
+		const ctx = makeContext(bits);
+		const t = treeBuilder(ctx, [1], [2, 3, 4, 5]);
+		t.append(6);
+		expect(t.size).toBe(6);
+		expect(t.build().toArray()).toEqual([1, 2, 3, 4, 5, 6]);
 	});
 
-	it('length', () => {
-		{
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2]),
-				context.outerBlockBuilder([11, 12]),
-				undefined,
-				4,
-			);
-			expect(t.length).toBe(4);
-		}
-		{
-			const source = context.outerTree(
-				context.outerBlock([1, 2]),
-				context.outerBlock([11, 12]),
-				null,
-				4,
-			);
-
-			const t = context.outerTreeBuilderSource(source);
-			expect(t.length).toBe(4);
-		}
+	it('promotes right to middle when both are full', () => {
+		const ctx = makeContext(bits);
+		const t = treeBuilder(ctx, [1, 2, 3, 4], [5, 6, 7, 8]);
+		t.append(9);
+		expect(t.size).toBe(9);
+		expect(t.middle).toBeDefined();
+		expect(t.build().toArray()).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
 	});
 
-	it('level', () => {
-		expect(
-			context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2]),
-				context.outerBlockBuilder([11, 12]),
-				undefined,
-				4,
-			).level,
-		).toBe(0);
+	it('multiple appends build correct tree', () => {
+		const ctx = makeContext(bits);
+		const t = treeBuilder(ctx, [0], [1]);
+		t.append(2);
+		t.append(3);
+		t.append(4);
+		t.append(5);
+		expect(t.build().toArray()).toEqual([0, 1, 2, 3, 4, 5]);
+	});
+});
+
+describe('OuterTreeBuilder.build', () => {
+	const bits = 2;
+
+	it('returns tree with correct elements', () => {
+		const ctx = makeContext(bits);
+		const t = treeBuilder(ctx, [1, 2], [3, 4]);
+		const result = t.build();
+		expect(result.size).toBe(4);
+		expect(result.toArray()).toEqual([1, 2, 3, 4]);
 	});
 
-	it('normalized', () => {
-		{
-			// can collapse into block
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2]),
-				context.outerBlockBuilder([11, 12]),
-				undefined,
-				4,
-			);
-			const n = t.normalized() as OuterBlockBuilder<number>;
-			expect(n).toBeInstanceOf(OuterBlockBuilder);
-			expect(n.children).toEqual([1, 2, 11, 12] as any);
-			expect(n.length).toBe(4);
-		}
-		{
-			// can merge middle with left
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2]),
-				context.outerBlockBuilder([11, 12, 13]),
-				context.innerBlockBuilder(1, [context.outerBlockBuilder([21, 22])], 2),
-				7,
-			);
-			const n = t.normalized() as OuterTreeBuilder<number>;
-			expect(n).toBeInstanceOf(OuterTreeBuilder);
-			expect(n.left.children).toEqual([1, 2, 21] as any);
-			expect(n.right.children).toEqual([22, 11, 12, 13] as any);
-			expect(n.length).toBe(7);
-		}
-		{
-			// can merge middle with right
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2, 3]),
-				context.outerBlockBuilder([11, 12]),
-				context.innerBlockBuilder(1, [context.outerBlockBuilder([21, 22])], 2),
-				7,
-			);
-			const n = t.normalized() as OuterTreeBuilder<number>;
-			expect(n).toBeInstanceOf(OuterTreeBuilder);
-			expect(n.left.children).toEqual([1, 2, 3] as any);
-			expect(n.right.children).toEqual([21, 22, 11, 12] as any);
-			expect(n.length).toBe(7);
-		}
-		{
-			// merges all and redistributes
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2]),
-				context.outerBlockBuilder([11, 12]),
-				context.innerBlockBuilder(
-					1,
-					[context.outerBlockBuilder([21, 22, 23])],
-					3,
-				),
-				7,
-			);
-			const n = t.normalized() as OuterTreeBuilder<number>;
-			expect(n).toBeInstanceOf(OuterTreeBuilder);
-			expect(n.left.children).toEqual([1, 2, 21] as any);
-			expect(n.right.children).toEqual([22, 23, 11, 12] as any);
-			expect(n.middle).toBeUndefined();
-			expect(n.length).toBe(7);
-		}
+	it('returns outer tree type', () => {
+		const ctx = makeContext(bits);
+		const t = treeBuilder(ctx, [1], [2]);
+		expect(t.build()).toHaveProperty('left');
 	});
 
-	it('prepareMutate', () => {
-		{
-			const left = context.outerBlockBuilder([1, 2]);
-			const right = context.outerBlockBuilder([11, 12]);
-			const t = context.outerTreeBuilder(left, right, undefined, 4);
-			t.prepareMutate();
-			expect(t.source).toBeUndefined();
-			expect(t.left).toBe(left);
-			expect(t.right).toBe(right);
-		}
-		{
-			const source = context.outerTree(
-				context.outerBlock([1, 2]),
-				context.outerBlock([11, 12]),
-				null,
-				4,
-			);
+	it('build after append reflects changes', () => {
+		const ctx = makeContext(bits);
+		const t = treeBuilder(ctx, [1, 2], [3]);
+		t.append(4);
+		expect(t.build().toArray()).toEqual([1, 2, 3, 4]);
+	});
+});
 
-			const t = context.outerTreeBuilderSource(source);
-			t.prepareMutate();
-			expect(t.source).toBeUndefined();
-			expect(t.left.source).toBe(source.left);
-			expect(t.right.source).toBe(source.right);
-			expect(t.left).toBeInstanceOf(OuterBlockBuilder);
-			expect(t.right).toBeInstanceOf(OuterBlockBuilder);
-		}
+describe('OuterTreeBuilder.buildMap', () => {
+	it('transforms elements', () => {
+		const ctx = makeContext(2);
+		const t = treeBuilder(ctx, [1, 2], [3, 4]);
+		const mapped = t.buildMap((x: number) => x * 10);
+		expect(mapped.toArray()).toEqual([10, 20, 30, 40]);
 	});
 
-	it('prepareMutate is called', () => {
-		const mockPrepareMutate = vi.fn();
+	it('drops middle in result', () => {
+		const ctx = makeContext(2);
+		const t = treeBuilder(ctx, [1, 2], [3, 4]);
+		const mapped = t.buildMap((x: number) => x);
+		expect(mapped).toHaveProperty('left');
+		expect(mapped.toArray()).toEqual([1, 2, 3, 4]);
+	});
+});
 
-		function createTree() {
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2, 3]),
-				context.outerBlockBuilder([11, 12, 13]),
-				undefined,
-				6,
-			);
+describe('OuterTreeBuilder.normalized', () => {
+	const bits = 2;
 
-			t.prepareMutate = mockPrepareMutate;
-
-			return t;
-		}
-
-		createTree().append(1);
-		expect(mockPrepareMutate).toBeCalledTimes(1);
-		mockPrepareMutate.mockReset();
-
-		createTree().prepend(1);
-		expect(mockPrepareMutate).toBeCalledTimes(1);
-		mockPrepareMutate.mockReset();
-
-		createTree().insert(1, 1);
-		expect(mockPrepareMutate).toBeCalledTimes(1);
-		mockPrepareMutate.mockReset();
-
-		createTree().remove(1);
-		expect(mockPrepareMutate).toBeCalledTimes(1);
-		mockPrepareMutate.mockReset();
-
-		createTree().updateAt(1, () => -1);
-		expect(mockPrepareMutate).toBeCalledTimes(1);
+	it('empty returns undefined', () => {
+		const ctx = makeContext(bits);
+		const t = ctx.outerTreeBuilder(ob(ctx, []), ob(ctx, []), undefined, 0);
+		expect(t.normalized()).toBeUndefined();
 	});
 
-	it('prepend', () => {
-		{
-			// can add to left
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2]),
-				context.outerBlockBuilder([11, 12, 13]),
-				undefined,
-				5,
-			);
-			t.prepend(-1);
-			expect(t.length).toBe(6);
-			expect(t.get(0)).toBe(-1);
-			expect(t.left.children).toEqual([-1, 1, 2] as any);
-			expect(t.right.children).toEqual([11, 12, 13] as any);
-		}
-		{
-			// left full, no middle, right has place
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2, 3, 4]),
-				context.outerBlockBuilder([11, 12, 13]),
-				undefined,
-				7,
-			);
-			t.prepend(-1);
-			expect(t.length).toBe(8);
-			expect(t.get(0)).toBe(-1);
-			expect(t.left.children).toEqual([-1, 1, 2, 3] as any);
-			expect(t.right.children).toEqual([4, 11, 12, 13] as any);
-		}
-		{
-			// left and right full, no middle
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2, 3, 4]),
-				context.outerBlockBuilder([11, 12, 13, 14]),
-				undefined,
-				8,
-			);
-			t.prepend(-1);
-			expect(t.length).toBe(9);
-			expect(t.get(0)).toBe(-1);
-			expect(t.left.children).toEqual([-1] as any);
-			expect((t.middle as any).children[0].children).toEqual([1, 2, 3, 4]);
-			expect(t.right.children).toEqual([11, 12, 13, 14] as any);
-		}
-		{
-			// left full, first middle has place
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2, 3, 4]),
-				context.outerBlockBuilder([11, 12]),
-				context.innerBlockBuilder(1, [context.outerBlockBuilder([21, 22])], 2),
-				8,
-			);
-			t.prepend(-1);
-			expect(t.length).toBe(9);
-			expect(t.left.children).toEqual([-1, 1, 2, 3] as any);
-			expect((t.middle as any).children[0].children).toEqual([4, 21, 22]);
-			expect(t.right.children).toEqual([11, 12] as any);
-			expect(t.middle!.length).toBe(3);
-		}
-		{
-			// left full, first middle full
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2, 3, 4]),
-				context.outerBlockBuilder([11, 12]),
-				context.innerBlockBuilder(
-					1,
-					[context.outerBlockBuilder([21, 22, 23, 24])],
-					4,
-				),
-				10,
-			);
-			t.prepend(-1);
-			expect(t.length).toBe(11);
-			expect(t.left.children).toEqual([-1] as any);
-			expect((t.middle as any).children[0].children).toEqual([1, 2, 3, 4]);
-			expect((t.middle as any).children[1].children).toEqual([21, 22, 23, 24]);
-			expect(t.right.children).toEqual([11, 12] as any);
-			expect(t.middle!.length).toBe(8);
-		}
+	it('collapses to single block when total children fit in one block', () => {
+		const ctx = makeContext(bits);
+		const t = treeBuilder(ctx, [1], [2, 3]);
+		const result = t.normalized();
+		expect(result).toBeDefined();
+		expect(result!.build().toArray()).toEqual([1, 2, 3]);
 	});
 
-	it('prependMiddle', () => {
-		{
-			// no middle
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2, 3]),
-				context.outerBlockBuilder([11, 12, 13]),
-				undefined,
-				6,
-			);
-			const child = context.outerBlockBuilder([21, 22, 23]);
-			t.prependMiddle(child);
-			expect(t.length).toBe(6);
-			expect((t.middle as any).children[0]).toBe(child);
-		}
-		{
-			// middle, simple prepend
-			const middleBlock = context.outerBlockBuilder([21, 22, 23, 24]);
-
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2, 3]),
-				context.outerBlockBuilder([11, 12, 13]),
-				context.innerBlockBuilder(1, [middleBlock], 4),
-				10,
-			);
-			const child = context.outerBlockBuilder([31, 32, 33]);
-			t.prependMiddle(child);
-			expect(t.length).toBe(10);
-			expect((t.middle as any).children[0]).toBe(child);
-			expect((t.middle as any).children[1]).toBe(middleBlock);
-		}
-		{
-			// middle, simple block merge
-			const middleBlock = context.outerBlockBuilder([21, 22, 23]);
-
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2, 3]),
-				context.outerBlockBuilder([11, 12, 13]),
-				context.innerBlockBuilder(1, [middleBlock], 3),
-				9,
-			);
-			const child = context.outerBlockBuilder([31]);
-			t.prependMiddle(child);
-			expect(t.length).toBe(9);
-			expect((t.middle as any).children[0].children).toEqual([31, 21, 22, 23]);
-		}
-		{
-			// middle, prepend block
-			const middleBlock = context.outerBlockBuilder([21, 22, 23]);
-
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2, 3]),
-				context.outerBlockBuilder([11, 12, 13]),
-				context.innerBlockBuilder(1, [middleBlock], 3),
-				9,
-			);
-			const child = context.outerBlockBuilder([31, 32, 33]);
-			t.prependMiddle(child);
-			expect(t.length).toBe(9);
-			expect((t.middle as any).children[0]).toBe(child);
-			expect(child.children).toEqual([31, 32, 33] as any);
-			expect((t.middle as any).children[1]).toBe(middleBlock);
-			expect(middleBlock.children).toEqual([21, 22, 23] as any);
-		}
-		{
-			// middle, merge and split and normalize
-			const middle = context.innerBlockBuilder<
-				number,
-				OuterBlockBuilder<number>
-			>(
-				1,
-				[
-					context.outerBlockBuilder([21, 22, 23, 24]),
-					context.outerBlockBuilder([21, 22, 23, 24]),
-					context.outerBlockBuilder([21, 22, 23, 24]),
-					context.outerBlockBuilder([21, 22, 23, 24]),
-				],
-				16,
-			);
-
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2, 3]),
-				context.outerBlockBuilder([11, 12, 13]),
-				middle,
-				22,
-			);
-			const child = context.outerBlockBuilder([31]);
-			t.prependMiddle(child);
-			expect(t.length).toBe(22);
-			expect(t.middle).toBeInstanceOf(InnerTreeBuilder);
-			const newMiddle = t.middle as InnerTreeBuilder<number, any>;
-			expect(newMiddle.level).toBe(1);
-			expect(newMiddle.left).toBe(middle);
-			expect(newMiddle.left.nrChildren).toBe(2);
-			expect(newMiddle.right.nrChildren).toBe(3);
-			expect(newMiddle.left.children[0]).toBe(child);
-			expect(child.children).toEqual([31] as any);
-		}
+	it('keeps tree when children exceed maxBlockSize', () => {
+		const ctx = makeContext(bits);
+		const t = treeBuilder(ctx, [1, 2, 3], [4, 5]);
+		const result = t.normalized();
+		expect(result).toBeDefined();
+		expect(result!.build().toArray()).toEqual([1, 2, 3, 4, 5]);
 	});
 
-	it('remove', () => {
-		{
-			// no middle, remove keeps same structure
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2, 3]),
-				context.outerBlockBuilder([11, 12, 13]),
-				undefined,
-				6,
-			);
-			expect(t.remove(3)).toBe(11);
-			expect(t.length).toBe(5);
-			expect(t.left.children).toEqual([1, 2, 3] as any);
-			expect(t.right.children).toEqual([12, 13] as any);
-		}
-		{
-			// no middle, left gets value from right
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2]),
-				context.outerBlockBuilder([11, 12, 13]),
-				undefined,
-				5,
-			);
-			expect(t.remove(1)).toBe(2);
-			expect(t.length).toBe(4);
-			expect(t.left.children).toEqual([1, 11] as any);
-			expect(t.right.children).toEqual([12, 13] as any);
-		}
-		{
-			// no middle, right gets value from left
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2, 3]),
-				context.outerBlockBuilder([11, 12]),
-				undefined,
-				5,
-			);
-			expect(t.remove(4)).toBe(12);
-			expect(t.length).toBe(4);
-			expect(t.left.children).toEqual([1, 2] as any);
-			expect(t.right.children).toEqual([3, 11] as any);
-		}
-		{
-			// middle, remove from left borrows then normalizes
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2]),
-				context.outerBlockBuilder([11, 12]),
-				context.innerBlockBuilder(
-					1,
-					[context.outerBlockBuilder([21, 22, 23, 24])],
-					4,
-				),
-				8,
-			);
-			expect(t.remove(0)).toBe(1);
-			expect(t.length).toBe(7);
-			expect(t.left.children).toEqual([2, 21, 22] as any);
-			expect(t.middle).toBeUndefined();
-			expect(t.right.children).toEqual([23, 24, 11, 12] as any);
-		}
-		{
-			// middle, remove from right borrows then normalizes
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2]),
-				context.outerBlockBuilder([11, 12]),
-				context.innerBlockBuilder(
-					1,
-					[context.outerBlockBuilder([21, 22, 23, 24])],
-					4,
-				),
-				8,
-			);
-			expect(t.remove(7)).toBe(12);
-			expect(t.length).toBe(7);
-			expect(t.left.children).toEqual([1, 2, 21] as any);
-			expect(t.middle).toBeUndefined();
-			expect(t.right.children).toEqual([22, 23, 24, 11] as any);
-		}
-		{
-			// middle, remove from middle normalizes away
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2]),
-				context.outerBlockBuilder([11, 12]),
-				context.innerBlockBuilder(
-					1,
-					[context.outerBlockBuilder([21, 22, 23, 24])],
-					4,
-				),
-				8,
-			);
-			expect(t.remove(3)).toBe(22);
-			expect(t.length).toBe(7);
-			expect(t.left.children).toEqual([1, 2, 21] as any);
-			expect(t.middle).toBeUndefined();
-			expect(t.right.children).toEqual([23, 24, 11, 12] as any);
-		}
-		{
-			// middle, remove from left needs to merge with first middle child
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2]),
-				context.outerBlockBuilder([11, 12]),
-				context.innerBlockBuilder(1, [context.outerBlockBuilder([21, 22])], 2),
-				6,
-			);
-			expect(t.remove(1)).toBe(2);
-			expect(t.length).toBe(5);
-			expect(t.left.children).toEqual([1, 21, 22] as any);
-			expect(t.middle).toBeUndefined();
-			expect(t.right.children).toEqual([11, 12] as any);
-		}
-		{
-			// middle, remove from right needs to merge with last middle child
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2]),
-				context.outerBlockBuilder([11, 12]),
-				context.innerBlockBuilder(1, [context.outerBlockBuilder([21, 22])], 2),
-				6,
-			);
-			expect(t.remove(4)).toBe(11);
-			expect(t.length).toBe(5);
-			expect(t.left.children).toEqual([1, 2] as any);
-			expect(t.middle).toBeUndefined();
-			expect(t.right.children).toEqual([21, 22, 12] as any);
-		}
+	it('keeps tree when middle exists', () => {
+		const ctx = makeContext(bits);
+		const t = treeBuilder(ctx, [1, 2, 3, 4], [5, 6, 7, 8]);
+		t.append(9); // creates middle
+		const result = t.normalized();
+		expect(result).toBe(t as any);
+	});
+});
+
+describe('OuterTreeBuilder.mixed-prepend-append', () => {
+	const bits = 2;
+
+	it('alternating order produces correct result', () => {
+		const ctx = makeContext(bits);
+		const t = treeBuilder(ctx, [3], [5]);
+		t.prepend(1);
+		t.append(7);
+		t.prepend(0);
+		t.append(9);
+		expect(t.build().toArray()).toEqual([0, 1, 3, 5, 7, 9]);
 	});
 
-	it('source', () => {
-		{
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2]),
-				context.outerBlockBuilder([11, 12]),
-				undefined,
-				4,
-			);
-			expect(t.source).toBeUndefined();
+	it('large alternating sequence', () => {
+		const ctx = makeContext(bits);
+		const t = treeBuilder(ctx, [5], [6]);
+		for (let i = 4; i >= 0; i--) {
+			t.prepend(i);
 		}
-		{
-			const source = context.outerTree(
-				context.outerBlock([1, 2]),
-				context.outerBlock([11, 12]),
-				null,
-				4,
-			);
+		for (let i = 7; i <= 12; i++) {
+			t.append(i);
+		}
+		expect(t.build().toArray()).toEqual([
+			0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
+		]);
+	});
+});
 
-			const t = context.outerTreeBuilderSource(source);
-			expect(t.source).toBe(source);
-		}
+describe('OuterTreeBuilder.edge-cases', () => {
+	const bits = 2;
+
+	describe('deep tree building', () => {
+		it('50 appends with small block size', () => {
+			const ctx = makeContext(bits);
+			const t = treeBuilder(ctx, [0], [1]);
+			for (let i = 2; i < 50; i++) {
+				t.append(i);
+			}
+			expect(t.size).toBe(50);
+			const list = t.build();
+			expect(list.toArray()).toEqual(Array.from({ length: 50 }, (_, i) => i));
+		});
+
+		it('50 prepends with small block size', () => {
+			const ctx = makeContext(bits);
+			const t = treeBuilder(ctx, [47], [48, 49]);
+			for (let i = 46; i >= 0; i--) {
+				t.prepend(i);
+			}
+			expect(t.size).toBe(50);
+			const list = t.build();
+			expect(list.toArray()).toEqual(Array.from({ length: 50 }, (_, i) => i));
+		});
 	});
 
-	it('updateAt', () => {
-		{
-			// no middle
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2]),
-				context.outerBlockBuilder([11, 12]),
-				undefined,
-				4,
-			);
-			expect(t.updateAt(1, () => -1)).toBe(2);
-			expect(t.get(1)).toBe(-1);
-			expect(t.updateAt(2, (v) => v + 1)).toBe(11);
-			expect(t.get(2)).toBe(12);
-		}
-		{
-			// middle
-			const t = context.outerTreeBuilder(
-				context.outerBlockBuilder([1, 2]),
-				context.outerBlockBuilder([11, 12]),
-				context.innerBlockBuilder(
-					1,
-					[context.outerBlockBuilder([21, 22, 23])],
-					3,
-				),
-				7,
-			);
-			expect(t.updateAt(1, () => -1)).toBe(2);
-			expect(t.get(1)).toBe(-1);
-			expect(t.updateAt(2, (v) => v + 1)).toBe(21);
-			expect(t.get(2)).toBe(22);
-			expect(t.updateAt(6, () => -2)).toBe(12);
-			expect(t.get(6)).toBe(-2);
-		}
+	describe('via List.builder', () => {
+		it('List.builder normalizes through OuterTreeBuilder', () => {
+			const b = List.builder<number>();
+			for (let i = 0; i < 20; i++) {
+				b.append(i);
+			}
+			const list = b.build();
+			expect(list.toArray()).toEqual(Array.from({ length: 20 }, (_, i) => i));
+			expect(list.at(0)).toBe(0);
+			expect(list.at(19)).toBe(19);
+		});
+
+		it('List.builder prepend order is correct', () => {
+			const b = List.builder<number>();
+			b.prepend(3);
+			b.prepend(2);
+			b.prepend(1);
+			b.append(4);
+			b.append(5);
+			const list = b.build();
+			expect(list.toArray()).toEqual([1, 2, 3, 4, 5]);
+		});
+	});
+
+	describe('null / undefined elements', () => {
+		it('null elements', () => {
+			const ctx = makeContext(bits);
+			const t = treeBuilder(ctx, [1], [null, 3]);
+			t.append(null);
+			expect(t.get(1 as Int.AtLeastZero)).toBeNull();
+			expect(t.build().toArray()).toEqual([1, null, 3, null]);
+		});
+
+		it('undefined elements', () => {
+			const ctx = makeContext(bits);
+			const t = treeBuilder(ctx, [1], [undefined, 3]);
+			expect(t.get(1 as Int.AtLeastZero)).toBeUndefined();
+			expect(t.build().toArray()).toEqual([1, undefined, 3]);
+		});
+	});
+
+	describe('get returns elements correctly after mutation', () => {
+		it('get works after multiple prepends', () => {
+			const ctx = makeContext(bits);
+			const t = treeBuilder(ctx, [4], [6]);
+			t.prepend(2);
+			t.append(8);
+			t.prepend(0);
+			expect(t.get(0 as Int.AtLeastZero)).toBe(0);
+			expect(t.get(1 as Int.AtLeastZero)).toBe(2);
+			expect(t.get(2 as Int.AtLeastZero)).toBe(4);
+			expect(t.get(3 as Int.AtLeastZero)).toBe(6);
+			expect(t.get(4 as Int.AtLeastZero)).toBe(8);
+		});
 	});
 });

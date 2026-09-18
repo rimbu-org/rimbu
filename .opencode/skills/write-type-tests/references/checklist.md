@@ -5,7 +5,7 @@ Source: `AGENTS.md:335-352` §6.2 NonEmpty, `AGENTS.md:375-398` §6.4 HKT Types,
 ## Scope
 
 - **Default:** single package `<pkg>` (`packages/<name>` with `src/public/` and `package.json`)
-- **`--workspace`:** all packages with `package.json` (exclude `list2`), audits each package's `src/public/` vs `test-d/` then optionally generates `test-d/*.generated.test-d.ts`
+- **`--workspace`:** all packages with `package.json`, audits each package's `src/public/` vs `test-d/` then optionally generates `test-d/*.generated.test-d.ts`
 - **Hybrid:** diagnose by default (read-only, reuses `audit-type-tests` 07); fix only with `--fix` (gap-fill), `--force` to overwrite hand-written `test-d/*.test-d.ts` (Q11), `--dry-run` to simulate
 
 ## Checks

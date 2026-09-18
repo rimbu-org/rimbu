@@ -5,7 +5,7 @@ Source: `AGENTS.md:79-113` §3, `AGENTS.md:138-152` import rule, `spec.md:2.7` Q
 ## Scope
 
 - **Default:** single package `<pkg>` (`packages/<name>` with `src/public/` or `src/internal/` or `src/advanced/`)
-- **`--workspace`:** all packages with `package.json` (exclude `list2` unpublished), builds cross-package import graph via `rg` + `tsconfig` `paths` (`#pkg/*`, `@rimbu/*`)
+- **`--workspace`:** all packages with `package.json`, builds cross-package import graph via `rg` + `tsconfig` `paths` (`#pkg/*`, `@rimbu/*`)
 
 ## Checks
 

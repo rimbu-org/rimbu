@@ -33,7 +33,7 @@ Additional triggers: after `review-anatomy`, before `bun run build:seq`, when `m
 
 ### Diagnose (read-only, default)
 
-1. Resolve target: single package `<pkg>` (e.g. `packages/stream`) is default. If `--workspace` is passed, expand to all packages with `package.json` (exclude `list2`), build a cross-package import graph. Require `<pkg>` if no `--workspace`.
+1. Resolve target: single package `<pkg>` (e.g. `packages/stream`) is default. If `--workspace` is passed, expand to all packages with `package.json`, build a cross-package import graph. Require `<pkg>` if no `--workspace`.
 2. For each target package, collect evidence **without mutating** via `rg` (and `tsconfig` `paths` for alias resolution):
    - **Unused public exports:** enumerate `src/public/**/*.ts` exports (`export`/`export type`/`export *`) and for each, `rg -n "from.*@rimbu/<pkg>.*<export>|import.*<export>" packages --no-heading` across `src/` + `test/` (+ `test-d/` + `test-random/` if present). If zero matches, emit `warn` with `rg` command + match count `0` as evidence. Never `error`.
    - **Orphan internal files:** list `src/internal/**/*.ts` files and for each, `rg -n "from.*#<pkg>.*<basename>|from.*<basename>" packages/<pkg>/src --no-heading` across the package's `src/`. If zero importers (excluding self), emit `warn` with `rg` command + `0` matches.

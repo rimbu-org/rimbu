@@ -33,7 +33,7 @@ Additional triggers: before `bun run build:seq`, after `bun run biome:check` fai
 
 ### Diagnose (read-only, default)
 
-1. Resolve target: single package `<pkg>` (e.g. `packages/stream`) is default. If `--workspace` is passed, expand to all packages under `packages/*` that contain a `package.json` (exclude `list2` if not in `fixed`). If no arg and no `--workspace`, require `<pkg>` and error if missing.
+1. Resolve target: single package `<pkg>` (e.g. `packages/stream`) is default. If `--workspace` is passed, expand to all packages under `packages/*` that contain a `package.json`. If no arg and no `--workspace`, require `<pkg>` and error if missing.
 2. For each target package, collect evidence **without mutating**:
    - Read `package.json` and validate `name`, `exports` (`"."`, `"./*"`, `"./advanced/*"` → `dist/...`), `imports` (`#<name>/*`), `files`, `sideEffects`, `type`, `dependencies` `workspace:*`, `publishConfig`, `scripts` per `AGENTS.md:155-235` checklist
    - Read `tsconfig.json`, `tsconfig.esm.json`, `tsconfig.common.json` and validate `extends`, `include`, `compilerOptions` (`rootDir`, `outDir`, `paths` for `@rimbu/<name>` and `#<name>/*`) per `AGENTS.md:238-284`
@@ -72,7 +72,7 @@ Severity for this skill:
 
 - `error` — shape violations: missing/incorrect `exports`/`imports`/`files`/`sideEffects`/`workspace:*`, `tsconfig` shape mismatch, layout tier leakage (`internal` exported, missing `src/<name>.ts`), relative imports (`./`/`../`) in `src/`
 - `warn` — style drift: `package.json` description/keywords/author/license drift, `tsconfig` `include` extra entries, `scripts` missing optional `test:random`
-- `info` — advisory: package has no `advanced/` but `exports` declares it (empty tier), or `list2`-style unpublished package not in `fixed`
+- `info` — advisory: package has no `advanced/` but `exports` declares it (empty tier)
 
 Location: `file:line` for `package.json:XX`/`tsconfig:YY`/`src/...:ZZ` or `package: <name>` for package-level. Evidence is verbatim `rg`/`biome`/`tsc` snippet or the offending JSON path. `Normative ref` is `AGENTS.md:XX-YY §Z` or `docs/adr/NNNN`.
 

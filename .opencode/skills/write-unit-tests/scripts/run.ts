@@ -42,7 +42,7 @@ function discoverPackages(): string[] {
 	const entries = readdirSync(PACKAGES_ROOT, { withFileTypes: true });
 	const pkgs: string[] = [];
 	for (const e of entries) {
-		if (!e.isDirectory() || e.name === 'list2') continue;
+		if (!e.isDirectory()) continue;
 		if (existsSync(join(PACKAGES_ROOT, e.name, 'package.json'))) pkgs.push(join(PACKAGES_ROOT, e.name));
 	}
 	return pkgs.sort();
@@ -195,7 +195,7 @@ function extractPublicMethods(pkgDir: string): { name: string; file: string; lin
 	let canonical: string[] = [];
 	if (['hashed', 'ordered', 'sorted', 'bimap', 'bimultimap', 'multimap', 'multiset', 'proximity', 'table', 'graph'].includes(pkgName)) {
 		canonical = canonicalMap;
-	} else if (['list', 'list2'].includes(pkgName)) {
+	} else if (pkgName === 'list') {
 		canonical = canonicalList;
 	} else if (pkgName === 'stream') {
 		canonical = canonicalStream;

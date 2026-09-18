@@ -5,7 +5,7 @@ Source: `AGENTS.md:546-573` §9, `package.json:56-64`, `config/typedoc.json:1-16
 ## Scope
 
 - **Default:** single package `<pkg>` (`packages/<name>` with `src/public/**/*.ts` and/or `src/<name>.ts` entry)
-- **`--workspace`:** all packages with `src/public/` (or `src/<name>.ts` when `public/` tier not present, exclude `list2` unpublished)
+- **`--workspace`:** all packages with `src/public/` (or `src/<name>.ts` when `public/` tier not present unpublished)
 - **Hybrid:** diagnose by default (read-only, reuse `review-docs` 09); fix only with `--fix` (gap-fill), `--force` to overwrite/augment existing JSDoc (Q13)
 - **Gap-fill only:** never overwrite hand-written `/**` without `--force`; generate one JSDoc block at a time, preserving `biome.json:11-14` tabs and `46-50` single quotes; runnable `// =>` examples only
 

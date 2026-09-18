@@ -10,8 +10,7 @@ import { Stream } from '@rimbu/stream';
  *
  * Each block stores its elements in a resizable `ArrayBuffer` viewed through
  * the configured `ViewConstructor` (e.g. `Uint8Array`, `Float64Array`).
- * This mirrors `packages/list/src/internal/typed-array-helpers.ts` but
- * adapted to the `list2` `ChildrenOps` interface (`size` vs `length`,
+ * This is adapted to the `ChildrenOps` interface (`size` vs `length`,
  * `Op.WithResult`, `OptLazy` fallback, `Stream` range handling, etc.).
  *
  * - `size` is `view.length`

@@ -1,42 +1,89 @@
-import type { ListBase } from '#list/list-base';
+import type { Collection } from '@rimbu/collection-types/collection';
+import type { IndexedCollection } from '@rimbu/collection-types/collection/indexed';
 
-import { ListHelpers } from '#list/list-helpers';
+import type { ChildrenOps } from '#advanced/children-ops';
 
-/**
- * A random accessible immutable sequence of values of type T.
- * See the [List documentation](https://rimbu.org/docs/collections/list) and the [List API documentation](https://rimbu.org/api/rimbu/list/List/interface)
- * @typeparam T - the value type
- * @note
- * - The `List` is implemented as a block-based balanced tree, giving efficient
- *   random access, updates, and concatenation regardless of size.
- * - Indices follow mathematical convention: a negative index counts from the end,
- *   e.g. -1 is the last value.
- * @example
- * ```ts
- * import { List } from '@rimbu/list';
- *
- * const initialList = List.of(1, 2, 3, 4, 5);
- * const updatedList = initialList
- *   .append(6)
- *   .filter((v) => v % 2 === 0)
- *   .map((v) => v * 10);
- * console.log(updatedList.toString()); // => List(20, 40, 60)
- * console.log(updatedList.get(0, 'none')); // => 20
- * ```
- */
-export interface List<T> extends ListBase<T, ListHelpers.Types> {}
+import { ArrayOuterChildrenOps } from '#list/children-ops/array';
+import { ListContext } from '#list/context';
 
-export namespace List {
+export interface List<T>
+	extends List.Advanced.Api<
+		T,
+		Collection.Advanced.Types<List.Advanced.Family<T>, T>
+	> {}
+
+export declare namespace List {
 	export interface NonEmpty<T>
-		extends ListBase.NonEmpty<T, ListHelpers.Types>,
-			Omit<List<T>, keyof ListBase.NonEmpty<any>> {}
+		extends Advanced.Api<
+			T,
+			Collection.Advanced.TypesNonEmpty<Advanced.Family<T>, T>
+		> {}
 
-	export interface Builder<T> extends ListBase.Builder<T, ListHelpers.Types> {}
+	export interface Builder<T>
+		extends Advanced.BuilderApi<
+			T,
+			Collection.Advanced.Types<Advanced.Family<T>, T>
+		> {}
 
-	export interface Context extends ListHelpers.Context {}
+	export interface Context extends Advanced.ContextApi<Advanced.Family<any>> {}
+
+	export namespace Advanced {
+		export interface Api<T, Tp extends Collection.Advanced.TypesBase>
+			extends IndexedCollection.Advanced.Api<T, Tp>,
+				Collection.Capability.WithFlatMap.Api<T, Tp>,
+				Collection.Capability.WithFlatMapIndexed.Api<T, Tp>,
+				Collection.Capability.WithMap.Api<T, Tp>,
+				Collection.Capability.WithMapIndexed.Api<T, Tp>,
+				Collection.Capability.WithMutate.Api<T, Tp>,
+				Collection.Capability.WithRecompose.Api<T, Tp>,
+				Collection.Capability.WithToBuilder.Api<T, Tp>,
+				IndexedCollection.Capability.WithConcat.Api<T, Tp>,
+				IndexedCollection.Capability.WithRepeat.Api<T, Tp>,
+				IndexedCollection.Capability.WithPadTo.Api<T, Tp>,
+				IndexedCollection.Capability.WithPrependAppend.Api<T, Tp>,
+				IndexedCollection.Capability.WithInsertAt.Api<T, Tp>,
+				IndexedCollection.Capability.WithRemoveAt.Api<T, Tp>,
+				IndexedCollection.Capability.WithSpliceAt.Api<T, Tp>,
+				IndexedCollection.Capability.WithSwapAt.Api<T, Tp>,
+				IndexedCollection.Capability.WithSetAt.Api<T, Tp>,
+				IndexedCollection.Capability.WithUpdateAt.Api<T, Tp> {}
+
+		export interface BuilderApi<T, Tp extends Collection.Advanced.TypesBase>
+			extends IndexedCollection.Advanced.BuilderApi<T, Tp>,
+				IndexedCollection.Capability.WithPrependAppend.BuilderApi<T, Tp>,
+				IndexedCollection.Capability.WithInsertAt.BuilderApi<T, Tp>,
+				IndexedCollection.Capability.WithSetAt.BuilderApi<T, Tp>,
+				IndexedCollection.Capability.WithUpdateAt.BuilderApi<T, Tp>,
+				IndexedCollection.Capability.WithRemoveAt.BuilderApi<T, Tp> {}
+
+		export interface ContextApi<F extends Collection.Advanced.FamilyBase<any>>
+			extends IndexedCollection.Advanced.ContextApi<F>,
+				Collection.Capability.WithReducer.ContextApi<F>,
+				IndexedCollection.Capability.WithUnzip.ContextApi<F>,
+				IndexedCollection.Capability.WithFlatten.ContextApi<F> {
+			readonly blockSizeBits: number;
+		}
+
+		export interface Family<T> extends IndexedCollection.Advanced.Family<T> {
+			_NORMAL: List<T>;
+			_NON_EMPTY: List.NonEmpty<T>;
+			_BUILDER: List.Builder<T>;
+			_CONTEXT: List.Context;
+
+			_FAM: Family<T>;
+			_NEW_FAMILY: Family<this['_NEW_E']>;
+		}
+
+		export type DefaultFactory = Omit<Context, 'blockSizeBits'> & {
+			createContext(options: { blockSizeBits?: number }): List.Context;
+		};
+	}
 }
 
-export const List: ListHelpers.Factory = ListHelpers.createListContext();
+export const List: List.Advanced.DefaultFactory = ListContext.createDefault(
+	5,
+	() => new ArrayOuterChildrenOps() as ChildrenOps,
+);
 
 export * from '@rimbu/list/bit';
 export * from '@rimbu/list/char';

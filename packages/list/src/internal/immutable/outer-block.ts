@@ -1,408 +1,275 @@
-import type { WithElem } from '@rimbu/collection-types/advanced/common';
-import type { ArrayNonEmpty } from '@rimbu/common/types';
-import type { Stream, StreamSource } from '@rimbu/stream';
+import type { Op } from '@rimbu/collection-types/types';
+import type { List } from '@rimbu/list';
+import type { Stream } from '@rimbu/stream';
 
-import type { ListContext } from '#list/context-module';
+import type { ChildrenOps, OuterChildren } from '#advanced/children-ops';
+import type { CacheMap } from '#list/immutable/cache-map';
+import type { Block } from '#list/immutable/common';
 import type { OuterTree } from '#list/immutable/outer-tree';
-import type { Block } from '#list/immutable/utils';
-import type { ListImpl } from '#list/list-impl';
 import type { OuterBlockBuilder } from '#list/mutable/outer-block-builder';
 
-import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
-import { IndexRange } from '@rimbu/common/index-range';
-import { OptLazy } from '@rimbu/common/opt-lazy';
-import { TraverseState } from '@rimbu/common/traverse-state';
+import { Int } from '@rimbu/base';
+import { type ArrayNonEmpty, OptLazy } from '@rimbu/common';
 
-import { OuterBase } from '#list/immutable/outer-base';
+import { ListNonEmptyBase } from '#advanced/immutable/non-empty-base';
 
-export class OuterBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
-	extends OuterBase<T>
-	implements ListImpl.NonEmpty<T>, Block<T, T>
+export abstract class OuterBlock<T>
+	extends ListNonEmptyBase<T>
+	implements Block<T>
 {
-	declare _self: OuterBlock<T>;
+	declare _self: this;
 
-	constructor(
-		context: ListContext,
-		public children: WithElem<Tp, T>['outerChildren'],
-	) {
-		super(context);
+	abstract get size(): number;
+	abstract stream(options?: {
+		reversed?: boolean | undefined;
+	}): Stream.NonEmpty<T>;
+	abstract _update(
+		index: Int.AtLeastZero,
+		f: (element: T) => T,
+	): Op.WithResult<OuterBlock<T>, [previous: T, current: T], true>;
+	abstract forEach(f: (element: T) => void): void;
+	abstract filter(
+		f: (element: T) => boolean,
+		options?: { negate?: boolean | undefined },
+		cacheMap?: CacheMap,
+	): List<T>;
+	abstract reversed(cacheMap?: CacheMap): OuterBlock<T>;
+	abstract toArray(cacheMap?: CacheMap): ArrayNonEmpty<T>;
+	abstract map<T2>(f: (element: T) => T2, cacheMap?: CacheMap): OuterBlock<T2>;
+
+	abstract _get(index: Int.AtLeastZero): T;
+	abstract _appendBlockChild(child: T): OuterBlock<T>;
+	abstract _prependBlockChild(child: T): OuterBlock<T>;
+	abstract _createOuterBlock(element: T): OuterBlock<T>;
+	abstract _copyChildren(): OuterChildren<T>;
+	abstract _takeChildren(amount: Int.AtLeastOne): OuterBlock<T>;
+	abstract _dropChildren(amount: Int.AtLeastOne): OuterBlock<T>;
+	abstract _concatChildren(children: OuterChildren<T>): OuterChildren<T>;
+	abstract _prependChildren(children: OuterChildren<T>): OuterChildren<T>;
+
+	get #ops(): ChildrenOps {
+		return this.context.childrenOps;
 	}
 
-	get isReversedBlock() {
-		return false;
+	get _nrChildren(): number {
+		return this.size;
 	}
 
-	get length() {
-		return this.ops.length(this.children);
+	get _notTooManyChildren(): boolean {
+		return this.size <= this.context.maxBlockSize;
 	}
 
-	get nrChildren() {
-		return this.ops.length(this.children);
+	get _hasEnoughChildren(): boolean {
+		return this.size >= this.context.minBlockSize;
 	}
 
-	get childrenInMax(): boolean {
-		return this.length <= this.context.maxBlockSize;
+	get _canAddChild(): boolean {
+		return this.size < this.context.maxBlockSize;
 	}
 
-	get childrenInMin(): boolean {
-		return this.length >= this.context.minBlockSize;
+	get _canRemoveChild(): boolean {
+		return this.size > this.context.minBlockSize;
 	}
 
-	get canAddChild(): boolean {
-		return this.length < this.context.maxBlockSize;
-	}
-
-	get canRemoveChild(): boolean {
-		return this.length > this.context.minBlockSize;
-	}
-
-	copy(children: WithElem<Tp, T>['outerChildren']): OuterBlock<T> {
-		if (children === this.children) return this;
-		return this.context.outerBlock(children);
-	}
-
-	copy2<T2>(children: WithElem<Tp, T2>['outerChildren']): OuterBlock<T2> {
-		if (children === this.children) return this as unknown as OuterBlock<T2>;
-		return this.context.outerBlock(children);
-	}
-
-	stream(options: { reversed?: boolean } = {}): Stream.NonEmpty<T> {
-		return this.ops.stream(this.children, options);
-	}
-
-	getIndex(index: number): number {
-		return index;
-	}
-
-	streamRange(
-		range: IndexRange,
-		options: { reversed?: boolean } = {},
-	): Stream<T> {
-		const { reversed = false } = options;
-
-		return this.ops.streamRange(this.children, {
-			range,
-			reversed,
-		});
-	}
-
-	get<O>(index: number, otherwise?: OptLazy<O>): T | O {
-		const { length } = this;
-		if (index >= length || -index > length) {
-			return OptLazy(otherwise!);
+	at<O>(index: number, otherwise?: OptLazy<O>): T | O {
+		const size = this.size;
+		if (-index > size || index >= size) {
+			return OptLazy(otherwise) as O;
+		}
+		if (index < 0) {
+			index = size + index;
 		}
 
-		return this.ops.at(this.children, this.getIndex(index));
+		Int.checkAtLeastZero(index);
+
+		return this._get(index);
 	}
 
-	updateAt(index: number, update: (current: T) => T): OuterBlock<T> {
-		const { length } = this;
-		if (index >= length || -index > length) {
+	setAtAndReturn(
+		index: number,
+		element: T,
+	): Op.DynamicResult<OuterBlock<T>, undefined, T> {
+		const outcome = this.updateAtAndReturn(index, () => element);
+
+		const [result] = outcome.result;
+
+		return { ...outcome, result: result as any };
+	}
+
+	updateAtAndReturn(
+		index: number,
+		f: (element: T) => T,
+	): Op.DynamicResult<
+		OuterBlock<T>,
+		[previous: undefined, current: undefined],
+		[previous: T, current: T]
+	> {
+		const size = this.size;
+		if (-index > size || index >= size) {
+			return {
+				collection: this,
+				hasResult: false,
+				result: [undefined, undefined],
+				hasChanged: false,
+			};
+		}
+		if (index < 0) {
+			index = size + index;
+		}
+
+		Int.checkAtLeastZero(index);
+
+		return this._update(index, f);
+	}
+
+	take<N extends number>(count: N): 0 extends N ? List<T> : List.NonEmpty<T> {
+		if (count === 0) return this.context.empty() as List.NonEmpty<T>;
+		if (count >= this.size || -count >= this.size) {
+			Int.check(count);
 			return this;
 		}
+		if (Int.isAtLeastOne(count)) {
+			return this._takeChildren(count);
+		}
 
-		return this.copy(
-			this.ops.updateAt(this.children, this.getIndex(index), update),
-		);
+		return this._dropChildren((this.size + count) as Int.AtLeastOne);
 	}
 
-	first(): T {
-		return this.get(0);
+	drop(count: number): List<T> {
+		if (count === 0) return this;
+		if (count >= this.size || -count >= this.size) {
+			Int.check(count);
+			return this.context.empty();
+		}
+		if (Int.isAtLeastOne(count)) {
+			return this._dropChildren(count);
+		}
+
+		return this._takeChildren((this.size + count) as Int.AtLeastOne);
 	}
 
-	last(): T {
-		return this.get(-1);
-	}
-
-	prepend(value: T): ListImpl.NonEmpty<T> {
-		if (this.canAddChild) {
-			return this.prependBlockChild(value);
+	prepend(element: T): List.NonEmpty<T> {
+		if (this._canAddChild) {
+			return this._prependBlockChild(element);
 		}
 
 		return this.context.outerTree<T>(
-			this.context.outerBlock(this.ops.of([value])),
+			this._createOuterBlock(element),
 			this,
 			null,
-			this.length + 1,
+			this.size + 1,
 		);
 	}
 
-	append(value: T): ListImpl.NonEmpty<T> {
-		if (this.canAddChild) {
-			return this.appendBlockChild(value);
+	append(element: T): List.NonEmpty<T> {
+		if (this._canAddChild) {
+			return this._appendBlockChild(element);
 		}
 
 		return this.context.outerTree(
 			this,
-			this.context.outerBlock(this.ops.of([value])),
+			this._createOuterBlock(element),
 			null,
-			this.length + 1,
+			this.size + 1,
 		);
 	}
 
-	prependBlockChild(value: T): OuterBlock<T> {
-		return this.copy(this.ops.prepend(this.children, value));
-	}
-
-	appendBlockChild(value: T): OuterBlock<T> {
-		return this.copy(this.ops.append(this.children, value));
-	}
-
-	reversed(cacheMap = this.context.cacheMap()): OuterBlock<T> {
-		if (this.length === 1) return this;
-
-		const cachedThis = cacheMap.get<OuterBlock<T>>(this);
-		if (cachedThis !== undefined) return cachedThis;
-
-		const reversedThis = this.isReversedBlock
-			? this.context.outerBlock<T>(this.children)
-			: this.context.reversedOuterBlock<T>(this.children);
-
-		return cacheMap.setAndReturn(this, reversedThis);
-	}
-
-	take(amountInput: number): any {
-		const amount = Math.floor(amountInput);
-		if (amount === 0) return this.context.empty();
-		if (amount >= this.length || -amount > this.length) return this;
-		if (amount < 0) return this.drop(this.length + amount);
-
-		return this.takeChildren(amount);
-	}
-
-	drop(amountInput: number): ListImpl<T> {
-		const amount = Math.floor(amountInput);
-		if (amount === 0) return this;
-		if (amount >= this.length || -amount > this.length)
-			return this.context.empty();
-		if (amount < 0) return this.take(this.length + amount);
-
-		return this.dropChildren(amount);
-	}
-
-	takeChildren(amount: number): OuterBlock<T> {
-		if (amount >= this.length) return this;
-		if (amount < 0) return this.takeChildren(this.length + amount);
-
-		return this.copy(
-			this.ops.toSpliced(this.children, amount, this.context.maxBlockSize),
-		);
-	}
-
-	dropChildren(amount: number): OuterBlock<T> {
-		if (amount === 0) return this;
-		if (amount < 0) return this.dropChildren(this.length + amount);
-
-		return this.copy(this.ops.toSpliced(this.children, 0, amount));
-	}
-
-	dropFirstChild(): [OuterBlock<T>, T] {
-		return [this.dropChildren(1), this.first()];
-	}
-
-	dropLastChild(): [OuterBlock<T>, T] {
-		return [this.takeChildren(-1), this.last()];
-	}
-
-	concat(...sources: ArrayNonEmpty<StreamSource<T>>): ListImpl.NonEmpty<T> {
-		const asList = this.context.from(...sources);
-
-		if (asList.nonEmpty()) {
-			if (this.context.isOuterBlock<T>(asList)) {
-				if (asList === this && this.length > this.context.minBlockSize) {
-					return this.context.outerTree<T>(
-						this,
-						this,
-						null,
-						this.length + asList.length,
-					);
-				}
-
-				return this.concatBlock(asList);
-			}
-
-			if (this.context.isOuterTree<T>(asList)) {
-				return this.concatTree(asList);
-			}
-
-			throwInvalidStateError();
+	_concat(source: List.NonEmpty<T>): List.NonEmpty<T> {
+		if (source === this && this.size > this.context.minBlockSize) {
+			return this.context.outerTree(this, this, null, this.size * 2);
 		}
 
-		return this;
+		return (source as ListNonEmptyBase<T>)._prependBlock(this);
 	}
 
-	concatBlock(other: OuterBlock<T>): ListImpl.NonEmpty<T> {
-		return this.concatChildren(other)._mutateNormalize();
-	}
-
-	concatChildren(other: OuterBlock<T>): OuterBlock<T> {
-		return this.context.outerBlock(
-			this.ops.concat(
-				this.children,
-				other.isReversedBlock
-					? this.ops.toReversed(other.children)
-					: other.children,
-			),
-		);
-	}
-
-	concatTree(other: OuterTree<T>): OuterTree<T> {
-		const newLength = this.length + other.length;
-
-		if (this.length + other.left.length <= this.context.maxBlockSize) {
-			// this block children fit in tree left, just merge
-			const newLeft = this.concatChildren(other.left);
-
-			return other.copy(newLeft, undefined, undefined, newLength);
-		}
-
-		if (this.length + other.length <= 2 * this.context.maxBlockSize) {
-			// can fit in other left and right without middle, rebalance
-			const newLeft = this.concatChildren(other.left).concatChildren(
-				other.right,
-			);
-			const newRight = newLeft._mutateSplitRight();
-
-			return other.copy(newLeft, newRight, null, newLength);
-		}
-
-		if (other.left.childrenInMin) {
-			const newMiddle = other.prependMiddle(other.left);
-
-			return other.copy(this, undefined, newMiddle, newLength);
-		}
-
-		const newLeft = this.concatChildren(other.left);
-		const newSecond = newLeft._mutateSplitRight(
-			newLeft.length - this.context.maxBlockSize,
-		);
-		const newMiddle = other.prependMiddle(newSecond);
-
-		return other.copy(newLeft, undefined, newMiddle, newLength);
-	}
-
-	forEach(
-		f: (value: T, index: number, halt: () => void) => void,
-		options: { reversed?: boolean; state?: TraverseState } | undefined = {},
-	): void {
-		const { reversed = false, state = TraverseState() } = options;
-
-		if (state.halted) return;
-
-		this.ops.forEach(this.children, f, {
-			reversed: this.isReversedBlock !== reversed,
-			state,
-		});
-	}
-
-	map<T2>(
-		mapFun: (value: T, index: number) => T2,
-		options: { reversed?: boolean; indexOffset?: number } = {},
-	): OuterBlock<T2> {
-		const { reversed = false, indexOffset = 0 } = options;
-
-		const newChildren = reversed
-			? this.ops.reverseMap(this.children, mapFun, indexOffset)
-			: this.ops.map(this.children, mapFun, indexOffset);
-
-		return this.context.outerBlock(newChildren);
-	}
-
-	mapPure<T2>(
-		mapFun: (value: T) => T2,
-		options: { reversed?: boolean } = {},
-		cacheMap = this.context.cacheMap(),
-	): OuterBlock<T2> {
-		const cachedThis = cacheMap.get<OuterBlock<T2>>(this);
-		if (undefined !== cachedThis) return cachedThis;
-
-		return cacheMap.setAndReturn(this, this.map(mapFun, options));
-	}
-
-	toArray(
-		options: { range?: IndexRange | undefined; reversed?: boolean } = {},
-	): any {
-		const { range, reversed = false } = options;
-		const reverseOrder = reversed !== this.isReversedBlock;
-
-		if (undefined === range) {
-			return this.ops.toArray(
-				this.children,
-				undefined,
-				undefined,
-				reverseOrder,
-			);
-		}
-
-		const indexRange = IndexRange.getIndicesFor(range, this.length);
-
-		if (indexRange === 'empty') {
-			return [];
-		}
-
-		if (indexRange === 'all') {
-			return this.ops.toArray(
-				this.children,
-				undefined,
-				undefined,
-				reverseOrder,
-			);
-		}
-
-		const [indexStart, indexEnd] = indexRange;
-
-		const start = this.isReversedBlock
-			? this.length - 1 - indexEnd
-			: indexStart;
-		const end = this.isReversedBlock ? this.length - indexStart : indexEnd + 1;
-
-		return this.ops.toArray(this.children, start, end, reverseOrder);
-	}
-
-	createBlockBuilder(): OuterBlockBuilder<T> {
+	toNodeBuilder(): OuterBlockBuilder<T> {
 		return this.context.outerBlockBuilderSource(this);
 	}
 
-	_mutateNormalize(): ListImpl.NonEmpty<T> {
-		if (this.childrenInMax) return this;
-
-		const length = this.length;
-
-		const newRight = this._mutateSplitRight();
-
-		return this.context.outerTree(this, newRight, null, length);
+	_dropFirstChild(): [OuterBlock<T>, T] {
+		const first = this.first();
+		const newSelf = this._dropChildren(1 as Int.AtLeastOne);
+		return [newSelf, first];
 	}
 
-	_mutateSplitRight(childIndex = this.length >>> 1): OuterBlock<T> {
-		const [newChildren, rightChildren] = this.ops.mutateSplice(
-			this.children,
-			childIndex,
+	_dropLastChild(): [OuterBlock<T>, T] {
+		const last = this.last();
+		const newSelf = this._takeChildren((this.size - 1) as Int.AtLeastOne);
+		return [newSelf, last];
+	}
+
+	_prependBlock(leftBlock: OuterBlock<T>): List.NonEmpty<T> {
+		const newSize = leftBlock.size + this.size;
+
+		if (newSize <= this.context.maxBlockSize) {
+			const newChildren = leftBlock._concatChildren(this._copyChildren());
+			return this.context.outerBlockLeftRight(newChildren);
+		}
+
+		return this.context.outerTree(leftBlock, this, null, newSize);
+	}
+
+	_prependTree(leftTree: OuterTree<T>): List.NonEmpty<T> {
+		const newSize = leftTree.size + this.size;
+
+		const jointSize = leftTree.right.size + this.size;
+		// Case 1: Joint is small enough to merge into a single block
+		if (jointSize <= this.context.maxBlockSize) {
+			const newLeftRightChildren = leftTree.right.concat(this) as OuterBlock<T>;
+			return this.context.outerTree(
+				leftTree.left,
+				newLeftRightChildren,
+				leftTree.middle,
+				newSize,
+			);
+		}
+
+		// Case 2: Joint is too large to merge into a single block, but can be merged into the middle of the tree
+		if (leftTree.right._hasEnoughChildren) {
+			const newLeftMiddle =
+				leftTree.middle?.appendChild(leftTree.right) ??
+				this.context.innerBlock([leftTree.right], leftTree.right.size, 1);
+
+			return this.context.outerTree(
+				leftTree.left,
+				this,
+				newLeftMiddle,
+				newSize,
+			);
+		}
+
+		// Case 3: Need to join and split the joint into a new block, and add it to the middle of the tree
+		const jointChildren = leftTree.right._concatChildren(this._copyChildren());
+		const [toMiddleChildren, newRightChildren] = this.#ops.mutateSplice(
+			jointChildren,
+			this.context.maxBlockSize,
 		);
-		this.children = newChildren;
 
-		return this.copy(rightChildren);
-	}
+		const toMiddle = this.context.outerBlockLeftRight(toMiddleChildren);
+		const newRight = this.context.outerBlockLeftRight(newRightChildren);
 
-	_structure(depth = 0): string {
-		const space = '  '.repeat(depth);
-		return `${space}OuterBlock<${this.length}>(${this.ops.join(this.children, ',')})`;
+		const newMiddle =
+			leftTree.middle?.appendChild(toMiddle) ??
+			this.context.innerBlock([toMiddle], toMiddle.size, 1);
+
+		return this.context.outerTree(leftTree.left, newRight, newMiddle, newSize);
 	}
 
 	_verifyStructure(
-		messages: string[] = [],
+		errors: string[] = [],
 		enforceMinChildren = false,
 	): string[] {
-		if (enforceMinChildren && !this.childrenInMin) {
-			messages.push(
-				`OuterBlock has fewer children than allowed: ${this.nrChildren} < ${this.context.minBlockSize}`,
+		if (enforceMinChildren && !this._hasEnoughChildren) {
+			errors.push(
+				`OuterBlock has fewer children than allowed: ${this._nrChildren} < ${this.context.minBlockSize}`,
 			);
 		}
-		if (!this.childrenInMax) {
-			messages.push(
-				`OuterBlock has more children than allowed: ${this.nrChildren} > ${this.context.maxBlockSize}`,
+		if (!this._notTooManyChildren) {
+			errors.push(
+				`OuterBlock has more children than allowed: ${this._nrChildren} > ${this.context.maxBlockSize}`,
 			);
 		}
 
-		return messages;
+		return errors;
 	}
 }

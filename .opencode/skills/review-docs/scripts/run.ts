@@ -40,7 +40,7 @@ function discoverPackages(): string[] {
   const entries = readdirSync(PACKAGES_ROOT, { withFileTypes: true });
   const pkgs: string[] = [];
   for (const e of entries) {
-    if (!e.isDirectory() || e.name === 'list2') continue;
+    if (!e.isDirectory()) continue;
     // include if has src/public or src/<name>.ts
     const hasPublic = existsSync(join(PACKAGES_ROOT, e.name, 'src', 'public'));
     const hasEntry = existsSync(join(PACKAGES_ROOT, e.name, 'src', `${e.name}.ts`));

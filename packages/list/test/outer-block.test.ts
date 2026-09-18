@@ -1,652 +1,1373 @@
-import { describe, expect, it, vi } from 'bun:test';
+import { describe, expect, it } from 'bun:test';
 
-import type { ListContext } from '#list/context-module';
-import type { ReversedOuterBlock } from '#list/immutable/reversed-outer-block';
+import type { Int } from '@rimbu/base';
+
+import type { ListContext } from '#list/context';
+import type { OuterBlock } from '#list/immutable/outer-block';
 
 import { List } from '@rimbu/list';
-import { Stream } from '@rimbu/stream';
 
-import { OuterBlock } from '#list/immutable/outer-block';
-import { OuterTree } from '#list/immutable/outer-tree';
-import { ListHelpers } from '#list/list-helpers';
-import { OuterBlockBuilder } from '#list/mutable/outer-block-builder';
+type BlockFactory = <T>(ctx: ListContext, values: T[]) => OuterBlock<T>;
 
-describe('OuterBlock', () => {
-	it('_mutateNormalize', () => {
-		const b3 = createBlock(1, 2, 3);
-		const b6 = createBlock(1, 2, 3, 4, 5, 6);
+type MakeBlock = <T>(values: T[], blockSizeBits?: number) => OuterBlock<T>;
 
-		expect(b3.children).toEqual([1, 2, 3]);
-		expect(b3._mutateNormalize()).toBe(b3);
-		expect(b3.children).toEqual([1, 2, 3]);
-
-		expect(b6.children).toEqual([1, 2, 3, 4, 5, 6]);
-		const bn = b6._mutateNormalize() as OuterTree<number>;
-		expect(bn).not.toBe(b6);
-		expect(b6.children).toEqual([1, 2, 3]);
-		expect(bn.left).toBe(b6);
-		expect(bn.right.children).toEqual([4, 5, 6] as any);
-	});
-
-	it('_mutateSplitRight', () => {
-		{
-			const b6 = createBlock(1, 2, 3, 4, 5, 6);
-
-			expect(b6.children).toEqual([1, 2, 3, 4, 5, 6]);
-			const bn = b6._mutateSplitRight();
-			expect(bn).not.toBe(b6);
-			expect(b6.children).toEqual([1, 2, 3]);
-			expect(bn.children).toEqual([4, 5, 6] as any);
-		}
-		{
-			const b6 = createBlock(1, 2, 3, 4, 5, 6);
-
-			expect(b6.children).toEqual([1, 2, 3, 4, 5, 6]);
-			const bn = b6._mutateSplitRight(4);
-			expect(bn).not.toBe(b6);
-			expect(b6.children).toEqual([1, 2, 3, 4]);
-			expect(bn.children).toEqual([5, 6] as any);
-		}
-	});
-
-	it('concat', () => {
-		const b0 = context.empty<number>();
-		const b2 = createBlock(1, 2);
-		const b3 = createBlock(1, 2, 3);
-
-		expect(b2.concat(b0)).toBe(b2);
-		expect(b2.concat(b2)).toBeInstanceOf(OuterBlock);
-		expect(b2.concat(b2).toArray()).toEqual([1, 2, 1, 2]);
-		expect(b2.concat(b3)).toBeInstanceOf(OuterTree);
-
-		// no mutations for original collections
-		expect(b2.children).toEqual([1, 2]);
-		expect(b3.children).toEqual([1, 2, 3]);
-	});
-
-	it('concatTree', () => {
-		{
-			const tr = createBlock(1, 2, 3, 4).concatTree(
-				context.outerTree(createBlock(5), createBlock(6, 7, 8, 9), null, 5),
-			);
-
-			expect(tr.left.toArray()).toEqual([1]);
-			expect(tr.middle?.toArray()).toEqual([2, 3, 4, 5]);
-			expect(tr.right.toArray()).toEqual([6, 7, 8, 9]);
-		}
-		{
-			const tr = createBlock(1).concatTree(
-				context.outerTree(createBlock(5), createBlock(6, 7, 8, 9), null, 5),
-			);
-			expect(tr.left.toArray()).toEqual([1, 5]);
-			expect(tr.middle).toBeNull();
-		}
-		{
-			const tr = createBlock(1).concatTree(
-				context.outerTree(createBlock(5, 6, 7, 8), createBlock(9), null, 5),
-			);
-			expect(tr.left.toArray()).toEqual([1, 5, 6]);
-			expect(tr.middle).toBeNull();
-			expect(tr.right.toArray()).toEqual([7, 8, 9]);
-		}
-	});
-});
-
-describe('ReversedOuterBlock', () => {
-	it('_mutateNormalize', () => {
-		const b3 = createRevBlock(1, 2, 3);
-		const b6 = createRevBlock(1, 2, 3, 4, 5, 6);
-
-		expect(b3.children).toEqual([3, 2, 1]);
-		expect(b3._mutateNormalize()).toBe(b3);
-		expect(b3.children).toEqual([3, 2, 1]);
-
-		expect(b6.children).toEqual([6, 5, 4, 3, 2, 1]);
-		const bn = b6._mutateNormalize() as OuterTree<number>;
-		expect(bn).not.toBe(b6);
-		expect(b6.children).toEqual([3, 2, 1]);
-		expect(bn.left).toBe(b6);
-		expect(bn.right.children).toEqual([6, 5, 4] as any);
-	});
-
-	it('_mutateSplitRight', () => {
-		{
-			const b6 = createRevBlock(1, 2, 3, 4, 5, 6);
-
-			expect(b6.children).toEqual([6, 5, 4, 3, 2, 1]);
-			const bn = b6._mutateSplitRight();
-			expect(bn).not.toBe(b6);
-			expect(b6.children).toEqual([3, 2, 1]);
-			expect(bn.children).toEqual([6, 5, 4] as any);
-		}
-		{
-			const b6 = createRevBlock(1, 2, 3, 4, 5, 6);
-			const bn = b6._mutateSplitRight(4);
-			expect(bn).not.toBe(b6);
-			expect(b6.children).toEqual([4, 3, 2, 1]);
-			expect(bn.children).toEqual([6, 5] as any);
-		}
-	});
-
-	it('concat', () => {
-		const b0 = context.empty<number>();
-		const b2 = createRevBlock(1, 2);
-		const b3 = createRevBlock(1, 2, 3);
-
-		expect(b2.concat(b0)).toBe(b2);
-		expect(b2.concat(b2)).toBeInstanceOf(OuterBlock);
-		expect(b2.concat(b2).toArray()).toEqual([1, 2, 1, 2]);
-		expect(b2.concat(b3)).toBeInstanceOf(OuterTree);
-		expect(b2.concat(b3).toArray()).toEqual([1, 2, 1, 2, 3]);
-
-		// no mutations for original collections
-		expect(b2.children).toEqual([2, 1]);
-		expect(b3.children).toEqual([3, 2, 1]);
-	});
-});
+function makeContext(blockSizeBits: number): ListContext {
+	return List.createContext({ blockSizeBits }) as ListContext;
+}
 
 function runOuterBlockTests(
-	tag: string,
-	context: ListContext,
-	createBlock: <T>(...elems: T[]) => OuterBlock<T>,
-	createRevBlock: <T>(...elems: T[]) => OuterBlock<T>,
+	factory: BlockFactory,
+	makeBlock: MakeBlock,
+	suiteName: string,
 ) {
-	describe(`${tag} common OuterBlock`, () => {
-		it('append', () => {
-			expect(createBlock(1, 2, 3).append(4)).toBeInstanceOf(OuterBlock);
-			expect(createBlock(1, 2, 3, 4).append(5)).toBeInstanceOf(OuterTree);
-		});
-
-		it('appendBlockChild', () => {
-			expect(createBlock(1, 2, 3).appendBlockChild(4).toArray()).toEqual([
-				1, 2, 3, 4,
-			]);
-			expect(createBlock(1, 2, 3, 4).appendBlockChild(5).toArray()).toEqual([
-				1, 2, 3, 4, 5,
-			]);
-		});
-
-		it('asNormal', () => {
-			const b = createBlock(1);
-			expect(b.asNormal()).toBe(b);
-		});
-
-		it('assumeNonEmpty', () => {
-			const b = createBlock(1);
-			expect(b.assumeNonEmpty()).toBe(b);
-		});
-
-		it('canAddChild', () => {
-			expect(createBlock(1, 2, 3).canAddChild).toBe(true);
-			expect(createBlock(1, 2, 3, 4).canAddChild).toBe(false);
-		});
-
-		it('childrenInMax', () => {
-			expect(createBlock(1, 2, 3).childrenInMax).toBe(true);
-			expect(createBlock(1, 2, 3, 4).childrenInMax).toBe(true);
-			expect(createBlock(1, 2, 3, 4, 5).childrenInMax).toBe(false);
-		});
-
-		it('childrenInMax', () => {
-			expect(createBlock(1).childrenInMin).toBe(false);
-			expect(createBlock(1, 2).childrenInMin).toBe(true);
-			expect(createBlock(1, 2, 3, 4, 5).childrenInMin).toBe(true);
-		});
-
-		it('collect', () => {
-			expect(
-				createBlock(1, 2, 3)
-					.collect((v) => v)
-					.toArray(),
-			).toEqual([1, 2, 3]);
-			expect(createBlock(1, 2, 3).collect((_, __, skip) => skip)).toBe(
-				context.empty(),
-			);
-			expect(
-				createBlock(1, 2, 3)
-					.collect((v, __, ___, halt) => {
-						halt();
-						return v;
-					})
-					.toArray(),
-			).toEqual([1]);
-		});
-
-		it('concatBlock', () => {
-			const b2 = createBlock(1, 2);
-			const b3 = createBlock(1, 2, 3);
-
-			expect(b2.concatBlock(b2)).toBeInstanceOf(OuterBlock);
-			expect(b2.concatBlock(b3)).toBeInstanceOf(OuterTree);
-		});
-
-		it('concatChildren', () => {
-			const b2 = createBlock(1, 2);
-			const b3 = createBlock(1, 2, 3);
-
-			expect(b2.concatChildren(b2).toArray()).toEqual([1, 2, 1, 2]);
-			expect(b2.concatChildren(b3).toArray()).toEqual([1, 2, 1, 2, 3]);
-		});
-
-		it('concatTree', () => {
-			const b1 = createBlock(10);
-			const b3 = createBlock(10, 11, 12);
-
-			const t6 = context.outerTree(
-				createBlock(1, 2, 3),
-				createBlock(4, 5, 6),
-				null,
-				6,
-			);
-
-			const tr1 = b1.concatTree(t6);
-
-			expect(tr1.left.toArray()).toEqual([10, 1, 2, 3]);
-			expect(tr1.right.toArray()).toEqual([4, 5, 6]);
-
-			const tr2 = b3.concatTree(t6);
-
-			expect(tr2.left).toBe(b3);
-			expect(tr2.middle?.toArray()).toEqual([1, 2, 3]);
-			expect(tr2.right.toArray()).toEqual([4, 5, 6]);
-		});
-
-		it('context', () => {
-			expect(createBlock(1).context).toBe(context);
-		});
-
-		it('copy', () => {
-			const b1 = createBlock(1);
-			expect(b1.copy([1] as any).children).toEqual([1] as any);
-		});
-
-		it('copy2', () => {
-			const b1 = createBlock(1);
-			expect(b1.copy2([1] as any).children).toEqual([1] as any);
-		});
-
-		it('createBlockBuilder', () => {
-			const b1 = createBlock(1);
-			expect(b1.createBlockBuilder()).toBeInstanceOf(OuterBlockBuilder);
-			expect(b1.createBlockBuilder().build()).toBe(b1);
-		});
-
-		it('drop', () => {
-			const b3 = createBlock(1, 2, 3);
-			expect(b3.drop(0)).toBe(b3);
-
-			expect(b3.drop(1).toArray()).toEqual([2, 3]);
-			expect(b3.drop(10)).toBe(context.empty());
-			expect(b3.drop(-1).toArray()).toEqual([1, 2]);
-		});
-
-		it('dropChildren', () => {
-			const b3 = createBlock(1, 2, 3);
-			expect(b3.dropChildren(0)).toBe(b3);
-
-			expect(b3.dropChildren(1).toArray()).toEqual([2, 3]);
-		});
-
-		it('filter', () => {
-			const b3 = createBlock(1, 2, 3);
-			expect(b3.filter((v) => v !== 2).toArray()).toEqual([1, 3]);
-			expect(b3.filter(() => true)).toBe(b3);
-			expect(b3.filter(() => false)).toBe(context.empty());
-		});
-
-		it('first', () => {
-			const b3 = createBlock(1, 2, 3);
-			expect(b3.first()).toBe(1);
-		});
-
-		it('flatMap', () => {
-			const b3 = createBlock(1, 2, 3);
-			expect(b3.flatMap(() => [])).toBe(context.empty());
-			expect(b3.flatMap((v) => [v]).toArray()).toEqual([1, 2, 3]);
-		});
-
-		it('flatten', () => {
-			const b3 = createBlock([1], [2], [], [3, 4]);
-			expect(List.flatten(b3).toArray()).toEqual([1, 2, 3, 4]);
-		});
-
-		it('forEach', () => {
-			const b3 = createBlock(1, 2, 3, 4);
-			const cb = vi.fn();
-			b3.forEach(cb);
-			expect(cb).toBeCalledTimes(4);
-			expect(cb.mock.calls[1][0]).toBe(2);
-			expect(cb.mock.calls[1][1]).toBe(1);
-
-			cb.mockReset();
-
-			b3.forEach(cb, { reversed: true });
-			expect(cb).toBeCalledTimes(4);
-			expect(cb.mock.calls[1][0]).toBe(3);
-			expect(cb.mock.calls[1][1]).toBe(1);
-
-			cb.mockReset();
-
-			b3.forEach((_, __, halt) => {
-				halt();
-				cb();
+	describe(suiteName, () => {
+		describe('OuterBlock.properties', () => {
+			it('context is the list context', () => {
+				const b = makeBlock([1, 2, 3]);
+				expect(b.context.blockSizeBits).toBe(5);
 			});
 
-			expect(cb).toBeCalledTimes(1);
-		});
+			it('size equals nrChildren for outer blocks', () => {
+				const b = makeBlock([1, 2, 3, 4]);
+				expect(b.size).toBe(4);
+				expect(b._nrChildren).toBe(4);
+			});
 
-		it('get', () => {
-			const b3 = createBlock(1, 2, 3);
-			expect(b3.get(1)).toBe(2);
-			expect(b3.get(1, 'a')).toBe(2);
-			expect(b3.get(1, () => 'a')).toBe(2);
+			it('size equals 1 for single-element block', () => {
+				const b = makeBlock([1]);
+				expect(b.size).toBe(1);
+				expect(b._nrChildren).toBe(1);
+			});
 
-			expect(b3.get(10)).toBe(undefined);
-			expect(b3.get(10, 'a')).toBe('a');
-			expect(b3.get(10, () => 'a')).toBe('a');
-
-			expect(b3.get(-1)).toBe(3);
-		});
-
-		it('insert', () => {
-			const b3 = createBlock(1, 2, 3);
-
-			const r1 = b3.insert(1, [10]);
-			expect(r1).toBeInstanceOf(OuterBlock);
-			expect(r1.toArray()).toEqual([1, 10, 2, 3]);
-
-			const r2 = b3.insert(1, [10, 11, 12]);
-			expect(r2).toBeInstanceOf(OuterTree);
-			expect(r2.toArray()).toEqual([1, 10, 11, 12, 2, 3]);
-		});
-
-		it('isEmpty', () => {
-			expect(createBlock(1).isEmpty).toBe(false);
-		});
-
-		it('last', () => {
-			const b3 = createBlock(1, 2, 3);
-			expect(b3.last()).toBe(3);
-		});
-
-		it('length', () => {
-			expect(createBlock(1).length).toBe(1);
-			expect(createBlock(1, 2, 3).length).toBe(3);
-		});
-
-		it('map', () => {
-			expect(
-				createBlock(1, 2, 3)
-					.map((v) => v + 1)
-					.toArray(),
-			).toEqual([2, 3, 4]);
-
-			expect(
-				createBlock(1, 2, 3)
-					.map((v) => v + 1, { reversed: true })
-					.toArray(),
-			).toEqual([4, 3, 2]);
-		});
-
-		it('mapPure', () => {
-			expect(
-				createBlock(1, 2, 3)
-					.mapPure((v) => v + 1)
-					.toArray(),
-			).toEqual([2, 3, 4]);
-			expect(
-				createBlock(1, 2, 3)
-					.mapPure((v) => v + 1, { reversed: true })
-					.toArray(),
-			).toEqual([4, 3, 2]);
-		});
-
-		it('nonEmpty', () => {
-			const b1 = createBlock(1);
-			expect(b1.nonEmpty()).toBe(true);
-		});
-
-		it('padTo', () => {
-			const b1 = createBlock(1);
-
-			expect(b1.padTo(0, 3)).toBe(b1);
-
-			expect(b1.padTo(3, 3).toArray()).toEqual([1, 3, 3]);
-
-			expect(b1.padTo(3, 3, { positionPercentage: 50 }).toArray()).toEqual([
-				3, 1, 3,
-			]);
-
-			expect(b1.padTo(10, 3)).not.toBeInstanceOf(OuterBlock);
-		});
-
-		it('prepend', () => {
-			expect(createBlock(1, 2, 3).prepend(4)).toBeInstanceOf(OuterBlock);
-			expect(createBlock(1, 2, 3, 4).prepend(5)).toBeInstanceOf(OuterTree);
-		});
-
-		it('prependBlockChild', () => {
-			expect(createBlock(1, 2, 3).prependBlockChild(4).toArray()).toEqual([
-				4, 1, 2, 3,
-			]);
-			expect(createBlock(1, 2, 3, 4).prependBlockChild(5).toArray()).toEqual([
-				5, 1, 2, 3, 4,
-			]);
-		});
-
-		it('remove', () => {
-			const b3 = createBlock(1, 2, 3);
-			expect(b3.remove(1).toArray()).toEqual([1, 3]);
-			expect(b3.remove(-1).toArray()).toEqual([1, 2]);
-			expect(b3.remove(1, { amount: 2 }).toArray()).toEqual([1]);
-			expect(b3.remove(0, { amount: 3 })).toBe(context.empty());
-			expect(b3.remove(1, { amount: 0 })).toBe(b3);
-		});
-
-		it('repeat', () => {
-			const b3 = createBlock(1, 2, 3);
-			expect(b3.repeat(1)).toBe(b3);
-			expect(b3.repeat(0)).toBe(b3);
-			expect(b3.repeat(2).toArray()).toEqual([1, 2, 3, 1, 2, 3]);
-			expect(b3.repeat(2)).toBeInstanceOf(OuterTree);
-			expect(b3.repeat(10).length).toBe(30);
-		});
-
-		it('reversed', () => {
-			const b3 = createBlock(1, 2, 3);
-			expect(b3.reversed().toArray()).toEqual([3, 2, 1]);
-			expect(b3.reversed().reversed().toArray()).toEqual([1, 2, 3]);
-		});
-
-		it('rotate', () => {
-			const b1 = createBlock(1);
-			expect(b1.rotate(5)).toBe(b1);
-
-			const b3 = createBlock(1, 2, 3);
-			expect(b3.rotate(0)).toBe(b3);
-			expect(b3.rotate(3)).toBe(b3);
-			expect(b3.rotate(-3)).toBe(b3);
-			expect(b3.rotate(1).toArray()).toEqual([3, 1, 2]);
-			expect(b3.rotate(4).toArray()).toEqual([3, 1, 2]);
-			expect(b3.rotate(-2).toArray()).toEqual([3, 1, 2]);
-		});
-
-		it('slice', () => {
-			const b5 = createBlock(1, 2, 3, 4, 5);
-			expect(b5.slice({ start: 2 }).toArray()).toEqual([3, 4, 5]);
-			expect(b5.slice({ start: 2 }, { reversed: true }).toArray()).toEqual([
-				5, 4, 3,
-			]);
-
-			expect(b5.slice({ start: -3, amount: 2 }).toArray()).toEqual([3, 4]);
-			expect(
-				b5.slice({ start: -3, amount: 2 }, { reversed: true }).toArray(),
-			).toEqual([4, 3]);
-		});
-
-		it('splice', () => {
-			const b3 = createBlock(1, 2, 3);
-			expect(b3.splice({})).toBe(b3);
-			expect(b3.splice({ remove: 1 }).toArray()).toEqual([2, 3]);
-			expect(b3.splice({ index: 1, remove: 1 }).toArray()).toEqual([1, 3]);
-			expect(b3.splice({ remove: 10 })).toBe(context.empty());
-			expect(b3.splice({ insert: [10, 11] }).toArray()).toEqual([
-				10, 11, 1, 2, 3,
-			]);
-			expect(b3.splice({ index: 1, insert: [10, 11] }).toArray()).toEqual([
-				1, 10, 11, 2, 3,
-			]);
-			expect(
-				b3.splice({ index: 1, remove: 1, insert: [10, 11] }).toArray(),
-			).toEqual([1, 10, 11, 3]);
-		});
-
-		it('stream', () => {
-			const b5 = createBlock(1, 2, 3, 4, 5);
-
-			expect(b5.stream().toArray()).toEqual([1, 2, 3, 4, 5]);
-			expect(b5.stream({ reversed: true }).toArray()).toEqual([5, 4, 3, 2, 1]);
-		});
-
-		it('streamRange', () => {
-			const b5 = createBlock(1, 2, 3, 4, 5);
-
-			expect(b5.streamRange({ amount: 0 })).toBe(Stream.empty());
-			expect(b5.streamRange({ amount: 2 }).toArray()).toEqual([1, 2]);
-			expect(
-				b5.streamRange({ amount: 2 }, { reversed: true }).toArray(),
-			).toEqual([2, 1]);
-
-			expect(b5.streamRange({ start: 2, amount: 2 }).toArray()).toEqual([3, 4]);
-			expect(
-				b5.streamRange({ start: 2, amount: 2 }, { reversed: true }).toArray(),
-			).toEqual([4, 3]);
-		});
-
-		it('structure', () => {
-			const b3 = createBlock(1, 2, 3);
-
-			const s = b3._structure();
-
-			if (b3.isReversedBlock) {
-				expect(s).toEqual('ReversedOuterBlock<3>(1,2,3)');
-			} else {
-				expect(s).toEqual('OuterBlock<3>(1,2,3)');
-			}
-		});
-
-		it('take', () => {
-			const b5 = createBlock(1, 2, 3, 4, 5);
-
-			expect(b5.take(0)).toBe(context.empty());
-			expect(b5.take(3).toArray()).toEqual([1, 2, 3]);
-			expect(b5.take(-3).toArray()).toEqual([3, 4, 5]);
-		});
-
-		it('takeChildren', () => {
-			const b5 = createBlock(1, 2, 3, 4, 5);
-
-			expect(b5.takeChildren(2).toArray()).toEqual([1, 2]);
-			expect(b5.takeChildren(5)).toBe(b5);
-		});
-
-		it('toArray', () => {
-			const b5 = createBlock(1, 2, 3, 4, 5);
-			expect(b5.toArray()).toEqual([1, 2, 3, 4, 5]);
-			expect(b5.toArray({ reversed: true })).toEqual([5, 4, 3, 2, 1]);
-			expect(b5.toArray({ range: { start: 3 } })).toEqual([4, 5]);
-			expect(b5.toArray({ range: { start: 3 }, reversed: true })).toEqual([
-				5, 4,
-			]);
-			expect(
-				b5.toArray({ range: { start: 2, amount: 2 }, reversed: true }),
-			).toEqual([4, 3]);
-		});
-
-		it('toBuilder', () => {
-			const b3 = createBlock(1, 2, 3);
-			expect(b3.toBuilder().build()).toBe(b3);
-			const builder = b3.toBuilder();
-			builder.append(4);
-			expect(builder.build().toArray()).toEqual([1, 2, 3, 4]);
-			expect(b3.toArray()).toEqual([1, 2, 3]);
-		});
-
-		it('toString', () => {
-			const b3 = createBlock(1, 2, 3);
-
-			expect(b3.toString()).toEqual('List(1, 2, 3)');
-		});
-
-		it('unzip', () => {
-			{
-				const [l1, l2] = List.unzip(createBlock<[number, string]>([1, 'a']), {
-					length: 2,
+			describe('childrenInMax', () => {
+				it('true when size <= maxBlockSize', () => {
+					const ctx = makeContext(2);
+					const b = factory(ctx, [1, 2, 3, 4]);
+					expect(b._notTooManyChildren).toBe(true);
 				});
 
-				expect(l1.toArray()).toEqual([1]);
-				expect(l2.toArray()).toEqual(['a']);
-			}
+				it('false when size > maxBlockSize', () => {
+					const ctx = makeContext(2);
+					const b = factory(ctx, [1, 2, 3, 4, 5]);
+					expect(b._notTooManyChildren).toBe(false);
+				});
 
-			{
-				const [l1, l2] = List.unzip(
-					createBlock<[number, string]>([1, 'a'], [2, 'b']),
-					{
-						length: 2,
-					},
+				it('true for partial blocks', () => {
+					const ctx = makeContext(2);
+					const b = factory(ctx, [1, 2]);
+					expect(b._notTooManyChildren).toBe(true);
+				});
+			});
+
+			describe('childrenInMin', () => {
+				it('true when size >= minBlockSize', () => {
+					const ctx = makeContext(3); // max=8, min=4
+					const b = factory(ctx, [1, 2, 3, 4]);
+					expect(b._hasEnoughChildren).toBe(true);
+				});
+
+				it('false when size < minBlockSize', () => {
+					const ctx = makeContext(3);
+					const b = factory(ctx, [1, 2, 3]);
+					expect(b._hasEnoughChildren).toBe(false);
+				});
+
+				it('min is 2 for blockSizeBits=2', () => {
+					const ctx = makeContext(2); // min=2
+					const b = factory(ctx, [1, 2]);
+					expect(b._hasEnoughChildren).toBe(true);
+				});
+
+				it('single element below min', () => {
+					const ctx = makeContext(2);
+					const b = factory(ctx, [1]);
+					expect(b._hasEnoughChildren).toBe(false);
+				});
+			});
+
+			describe('canAddChild', () => {
+				it('true when size < maxBlockSize', () => {
+					const ctx = makeContext(2);
+					const b = factory(ctx, [1, 2, 3]);
+					expect(b._canAddChild).toBe(true);
+				});
+
+				it('false when size === maxBlockSize', () => {
+					const ctx = makeContext(2);
+					const b = factory(ctx, [1, 2, 3, 4]);
+					expect(b._canAddChild).toBe(false);
+				});
+
+				it('true for single-element block', () => {
+					const b = makeBlock([1]);
+					expect(b._canAddChild).toBe(true);
+				});
+			});
+
+			describe('canRemoveChild', () => {
+				it('true when size > minBlockSize', () => {
+					const ctx = makeContext(2);
+					const b = factory(ctx, [1, 2, 3]);
+					expect(b._canRemoveChild).toBe(true);
+				});
+
+				it('false when size === minBlockSize', () => {
+					const ctx = makeContext(2);
+					const b = factory(ctx, [1]);
+					expect(b._canRemoveChild).toBe(false);
+				});
+
+				it('false for single-element with default bits', () => {
+					const b = makeBlock([1]);
+					expect(b._canRemoveChild).toBe(false);
+				});
+			});
+		});
+
+		describe('OuterBlock.read', () => {
+			describe('at', () => {
+				const b = makeBlock([10, 20, 30, 40, 50]);
+
+				it('positive index', () => {
+					expect(b.at(0)).toBe(10);
+					expect(b.at(2)).toBe(30);
+					expect(b.at(4)).toBe(50);
+				});
+
+				it('negative index', () => {
+					expect(b.at(-1)).toBe(50);
+					expect(b.at(-2)).toBe(40);
+					expect(b.at(-5)).toBe(10);
+				});
+
+				it('out of bounds returns otherwise', () => {
+					expect(b.at(5)).toBeUndefined();
+					expect(b.at(-6)).toBeUndefined();
+					expect(b.at(5, 'fallback')).toBe('fallback');
+					expect(b.at(-6, () => 'lazy')).toBe('lazy');
+				});
+
+				it('boundary: index equals size', () => {
+					expect(b.at(5)).toBeUndefined();
+				});
+
+				it('boundary: index equals -size-1', () => {
+					expect(b.at(-6)).toBeUndefined();
+				});
+
+				it('boundary: index equals -size (valid negative)', () => {
+					expect(b.at(-5)).toBe(10);
+				});
+
+				it('boundary: index equals size-1 (last)', () => {
+					expect(b.at(4)).toBe(50);
+				});
+
+				it('fractional positive index throws', () => {
+					expect(() => b.at(0.7)).toThrow();
+				});
+
+				it('fractional negative index throws', () => {
+					expect(() => b.at(-0.3)).toThrow();
+				});
+
+				it('otherwise function is not called when index is valid', () => {
+					let called = false;
+					const result = b.at(0, () => {
+						called = true;
+						return 999;
+					});
+					expect(result).toBe(10);
+					expect(called).toBe(false);
+				});
+			});
+
+			describe('get', () => {
+				const b = makeBlock([10, 20, 30]);
+
+				it('returns element at positive index', () => {
+					expect(b._get(0 as Int.AtLeastZero)).toBe(10);
+					expect(b._get(1 as Int.AtLeastZero)).toBe(20);
+					expect(b._get(2 as Int.AtLeastZero)).toBe(30);
+				});
+
+				it('at supports negative indices', () => {
+					expect(b.at(-1)).toBe(30);
+					expect(b.at(-2)).toBe(20);
+					expect(b.at(-3)).toBe(10);
+				});
+			});
+
+			describe('first', () => {
+				it('returns the first element', () => {
+					const b = makeBlock([100, 200]);
+					expect(b.first()).toBe(100);
+				});
+
+				it('works for single element', () => {
+					const b = makeBlock([7]);
+					expect(b.first()).toBe(7);
+				});
+			});
+
+			describe('last', () => {
+				it('returns the last element', () => {
+					const b = makeBlock([100, 200]);
+					expect(b.last()).toBe(200);
+				});
+
+				it('works for single element', () => {
+					const b = makeBlock([7]);
+					expect(b.last()).toBe(7);
+				});
+			});
+
+			describe('toArray', () => {
+				it('returns a non-empty array', () => {
+					const b = makeBlock([1, 2, 3]);
+					const arr = b.toArray();
+					expect(arr).toEqual([1, 2, 3]);
+					expect(arr.length).toBeGreaterThan(0);
+				});
+
+				it('single element', () => {
+					const b = makeBlock([42]);
+					expect(b.toArray()).toEqual([42]);
+				});
+			});
+
+			describe('stream', () => {
+				it('forwards', () => {
+					const b = makeBlock([1, 2, 3]);
+					const result = b.stream().toArray();
+					expect(result).toEqual([1, 2, 3]);
+				});
+
+				it('reversed', () => {
+					const b = makeBlock([1, 2, 3]);
+					const result = b.stream({ reversed: true }).toArray();
+					expect(result).toEqual([3, 2, 1]);
+				});
+			});
+
+			describe('streamSlice', () => {
+				const b = makeBlock([10, 20, 30, 40, 50]);
+
+				it('forwards', () => {
+					const result = b.streamSlice({ start: 1, amount: 3 }, {}).toArray();
+					expect(result).toEqual([20, 30, 40]);
+				});
+
+				it('reversed', () => {
+					const result = b
+						.streamSlice({ start: 0, amount: 3 }, { reversed: true })
+						.toArray();
+					expect(result).toEqual([30, 20, 10]);
+				});
+
+				it('empty slice returns empty stream', () => {
+					const result = b.streamSlice({ start: 0, amount: 0 }, {}).toArray();
+					expect(result).toEqual([]);
+				});
+
+				it('full range', () => {
+					const result = b.streamSlice({ start: 0, amount: 5 }, {}).toArray();
+					expect(result).toEqual([10, 20, 30, 40, 50]);
+				});
+			});
+		});
+
+		describe('OuterBlock.transform', () => {
+			describe('take', () => {
+				const b = makeBlock([10, 20, 30, 40, 50]);
+
+				it('positive count', () => {
+					expect(b.take(3).toArray()).toEqual([10, 20, 30]);
+				});
+
+				it('count 0 returns empty list', () => {
+					expect(b.take(0).size).toBe(0);
+				});
+
+				it('count 1 returns first element only', () => {
+					expect(b.take(1).toArray()).toEqual([10]);
+				});
+
+				it('count equals size returns same reference', () => {
+					expect(b.take(5)).toBe(b);
+				});
+
+				it('count exceeds size returns same reference', () => {
+					expect(b.take(100)).toBe(b);
+				});
+
+				it('count = size-1', () => {
+					expect(b.take(4).toArray()).toEqual([10, 20, 30, 40]);
+				});
+
+				it('count = -(size-1) returns last size-1 elements', () => {
+					expect(b.take(-4).toArray()).toEqual([20, 30, 40, 50]);
+				});
+
+				it('negative count takes from end', () => {
+					expect(b.take(-2).toArray()).toEqual([40, 50]);
+				});
+
+				it('negative count equals -size returns whole block', () => {
+					expect(b.take(-5)).toBe(b);
+				});
+
+				it('negative count exceeds size returns whole block', () => {
+					expect(b.take(-100)).toBe(b);
+				});
+
+				it('take from single-element block', () => {
+					const s = makeBlock([42]);
+					expect(s.take(0).size).toBe(0);
+					expect((s.take(0) as List<number>).toArray()).toEqual([]);
+					expect(s.take(1)).toBe(s);
+					expect(s.take(-1)).toBe(s);
+					expect(s.take(-2)).toBe(s);
+				});
+			});
+
+			describe('drop', () => {
+				const b = makeBlock([10, 20, 30, 40, 50]);
+
+				it('positive count', () => {
+					expect(b.drop(2).toArray()).toEqual([30, 40, 50]);
+				});
+
+				it('count 0 returns same reference', () => {
+					expect(b.drop(0)).toBe(b);
+				});
+
+				it('count 1 drops first element', () => {
+					expect(b.drop(1).toArray()).toEqual([20, 30, 40, 50]);
+				});
+
+				it('count equals size returns empty list', () => {
+					expect(b.drop(5).size).toBe(0);
+				});
+
+				it('count exceeds size returns empty list', () => {
+					expect(b.drop(100).size).toBe(0);
+				});
+
+				it('drop everything but last element', () => {
+					expect(b.drop(4).toArray()).toEqual([50]);
+				});
+
+				it('negative count drops from end', () => {
+					expect(b.drop(-2).toArray()).toEqual([10, 20, 30]);
+				});
+
+				it('negative count equals -size returns empty', () => {
+					expect(b.drop(-5).size).toBe(0);
+				});
+
+				it('negative count exceeds size returns empty', () => {
+					expect(b.drop(-100).size).toBe(0);
+				});
+
+				it('drop from single-element block', () => {
+					const s = makeBlock([42]);
+					expect(s.drop(0)).toBe(s);
+					expect(s.drop(1).size).toBe(0);
+					expect(s.drop(-1).size).toBe(0);
+					expect(s.drop(-2).size).toBe(0);
+				});
+			});
+
+			describe('insertAt', () => {
+				it('inserts at the beginning of a single-element block', () => {
+					const b = makeBlock([2]);
+					const result = b.insertAt(0, List.of(1));
+
+					expect(result.toArray()).toEqual([1, 2]);
+				});
+
+				it('inserts multiple elements at the end', () => {
+					const b = makeBlock([1, 2, 3]);
+					const result = b.insertAt(3, List.of(4, 5));
+
+					expect(result.toArray()).toEqual([1, 2, 3, 4, 5]);
+				});
+
+				it('inserts in the middle of a full block', () => {
+					const ctx = makeContext(2);
+					const b = factory(ctx, [1, 2, 3, 4]);
+					const result = b.insertAt(2, ctx.of(9, 10));
+
+					expect(result.toArray()).toEqual([1, 2, 9, 10, 3, 4]);
+					expect(result.size).toBe(6);
+				});
+
+				it('clamps positions beyond either end', () => {
+					const b = makeBlock([1, 2, 3]);
+
+					expect(b.insertAt(100, List.of(4)).toArray()).toEqual([1, 2, 3, 4]);
+					expect(b.insertAt(-100, List.of(0)).toArray()).toEqual([0, 1, 2, 3]);
+				});
+
+				it('inserts before the element addressed by a negative index', () => {
+					const b = makeBlock([1, 2, 3]);
+					const result = b.insertAt(-1, List.of(9));
+
+					expect(result.toArray()).toEqual([1, 2, 9, 3]);
+				});
+			});
+
+			describe('removeAt', () => {
+				it('removes the first element using the default amount', () => {
+					const b = makeBlock([1, 2, 3]);
+
+					expect(b.removeAt(0).toArray()).toEqual([2, 3]);
+				});
+
+				it('removes multiple elements from the middle of a full block', () => {
+					const ctx = makeContext(2);
+					const b = factory(ctx, [1, 2, 3, 4]);
+					const result = b.removeAt(1, 2);
+
+					expect(result.toArray()).toEqual([1, 4]);
+					expect(result.size).toBe(2);
+				});
+
+				it('removes the last element using a negative index', () => {
+					const b = makeBlock([1, 2, 3]);
+
+					expect(b.removeAt(-1).toArray()).toEqual([1, 2]);
+				});
+
+				it('clamps removal to the remaining elements', () => {
+					const b = makeBlock([1, 2, 3]);
+
+					expect(b.removeAt(1, 100).toArray()).toEqual([1]);
+					expect(b.removeAt(100).toArray()).toEqual([1, 2, 3]);
+				});
+
+				it('zero amount leaves the elements unchanged', () => {
+					const b = makeBlock([1, 2, 3]);
+
+					expect(b.removeAt(1, 0).toArray()).toEqual([1, 2, 3]);
+				});
+
+				it('removing the only element returns an empty list', () => {
+					const b = makeBlock([42]);
+
+					expect(b.removeAt(0).isEmpty).toBe(true);
+				});
+			});
+
+			describe('forEach', () => {
+				it('visits all elements in order', () => {
+					const result: number[] = [];
+					const b = makeBlock([1, 2, 3]);
+					b.forEach((v) => result.push(v));
+					expect(result).toEqual([1, 2, 3]);
+				});
+
+				it('single element', () => {
+					const result: number[] = [];
+					const b = makeBlock([7]);
+					b.forEach((v) => result.push(v));
+					expect(result).toEqual([7]);
+				});
+			});
+
+			describe('filter', () => {
+				const b = makeBlock([1, 2, 3, 4, 5, 6]);
+
+				it('keeps matching elements', () => {
+					const r = b.filter((x) => x % 2 === 0);
+					expect(r.toArray()).toEqual([2, 4, 6]);
+				});
+
+				it('keeping everything returns same reference', () => {
+					const r = b.filter(() => true);
+					expect(r).toBe(b);
+				});
+
+				it('removing everything returns empty list', () => {
+					const r = b.filter(() => false);
+					expect(r.size).toBe(0);
+					expect((r as List<number>).toArray()).toEqual([]);
+				});
+
+				it('single matching element returns in context', () => {
+					const r = b.filter((x) => x === 3);
+					expect(r.toArray()).toEqual([3]);
+				});
+
+				it('single element block keeps matching', () => {
+					const s = makeBlock([42]);
+					expect(s.filter(() => true)).toBe(s);
+				});
+
+				it('single element block removes non-matching', () => {
+					const s = makeBlock([42]);
+					expect(s.filter(() => false).size).toBe(0);
+				});
+			});
+
+			describe('filterIndexed', () => {
+				const b = makeBlock([10, 20, 30, 40]);
+
+				it('basic indexed filter', () => {
+					const r = b.filterIndexed((_v: number, i: number) => i % 2 === 0);
+					expect(r.toArray()).toEqual([10, 30]);
+				});
+
+				it('negate option', () => {
+					const r = b.filterIndexed((_v: number, i: number) => i < 2, {
+						negate: true,
+					});
+					expect(r.toArray()).toEqual([30, 40]);
+				});
+
+				it('state offsets index counter', () => {
+					const r = b.filterIndexed((_v: number, i: number) => i < 2, {
+						indexOffset: 2,
+					});
+					expect(r.toArray()).toEqual([]);
+				});
+
+				it('all pass returns self', () => {
+					const r = b.filterIndexed(() => true);
+					expect(r).toBe(b);
+				});
+
+				it('none pass returns empty', () => {
+					const r = b.filterIndexed(() => false);
+					expect(r.size).toBe(0);
+				});
+			});
+
+			describe('map', () => {
+				const b = makeBlock([1, 2, 3]);
+
+				it('transforms all elements', () => {
+					const r = b.map((x) => x * 10);
+					expect(r.toArray()).toEqual([10, 20, 30]);
+				});
+
+				it('returns an OuterBlock', () => {
+					const r = b.map((x) => x.toString());
+					expect(r.size).toBe(3);
+					expect(r.toArray()).toEqual(['1', '2', '3']);
+				});
+
+				it('single element', () => {
+					const s = makeBlock([5]);
+					const r = s.map((x) => x + 1);
+					expect(r.toArray()).toEqual([6]);
+				});
+
+				it('does not mutate original', () => {
+					b.map((x) => x * 10);
+					expect(b.toArray()).toEqual([1, 2, 3]);
+				});
+			});
+
+			describe('reversed', () => {
+				const b = makeBlock([10, 20, 30, 40, 50]);
+
+				it('returns reversed element order via toArray', () => {
+					const r = b.reversed();
+					expect(r.toArray()).toEqual([50, 40, 30, 20, 10]);
+				});
+
+				it('preserves size', () => {
+					const r = b.reversed();
+					expect(r.size).toBe(5);
+				});
+
+				it('element access works correctly', () => {
+					const r = b.reversed();
+					expect(r.at(0)).toBe(50);
+					expect(r.at(2)).toBe(30);
+					expect(r.at(4)).toBe(10);
+				});
+
+				it('negative index element access works correctly', () => {
+					const r = b.reversed();
+					expect(r.at(-1)).toBe(10);
+					expect(r.at(-3)).toBe(30);
+					expect(r.at(-5)).toBe(50);
+				});
+
+				it('forEach iterates in reversed order', () => {
+					const r = b.reversed();
+					const result: number[] = [];
+					r.forEach((v) => result.push(v));
+					expect(result).toEqual([50, 40, 30, 20, 10]);
+				});
+
+				it('double reverse returns original order', () => {
+					const r = b.reversed().reversed();
+					expect(r.toArray()).toEqual([10, 20, 30, 40, 50]);
+				});
+
+				it('does not mutate original', () => {
+					b.reversed();
+					expect(b.toArray()).toEqual([10, 20, 30, 40, 50]);
+				});
+
+				it('single-element block', () => {
+					const s = makeBlock([5]);
+					const r = s.reversed();
+					expect(r.toArray()).toEqual([5]);
+					expect(r.size).toBe(1);
+				});
+			});
+
+			describe('slice (inherited)', () => {
+				const b = makeBlock([10, 20, 30, 40, 50]);
+
+				it('positive range', () => {
+					const r = b.slice({ start: 1, amount: 3 });
+					expect(r.toArray()).toEqual([20, 30, 40]);
+				});
+
+				it('full range returns self', () => {
+					const r = b.slice({ start: 0, amount: 5 });
+					expect(r).toBe(b);
+				});
+
+				it('empty range returns empty', () => {
+					const r = b.slice({ start: 2, amount: 0 });
+					expect(r.size).toBe(0);
+				});
+
+				it('negative start counts from end', () => {
+					const r = b.slice({ start: -2, amount: 2 });
+					expect(r.toArray()).toEqual([40, 50]);
+				});
+
+				it('start after end returns empty', () => {
+					const r = b.slice({ start: 3, end: 1 });
+					expect(r.size).toBe(0);
+				});
+			});
+
+			describe('mapIndexed (inherited)', () => {
+				it('passes actual block index', () => {
+					const b = makeBlock([100, 200, 300]);
+					const r = b.mapIndexed((v: number, i: number) => `${v}:${i}`);
+					expect(r.toArray()).toEqual(['100:0', '200:1', '300:2']);
+				});
+
+				it('indexOffset shifts indices', () => {
+					const b = makeBlock([100, 200]);
+					const r = b.mapIndexed((v: number, i: number) => `${v}:${i}`, {
+						indexOffset: 10,
+					});
+					expect(r.toArray()).toEqual(['100:10', '200:11']);
+				});
+			});
+		});
+
+		describe('OuterBlock.mutation', () => {
+			describe('prependBlockChild', () => {
+				it('adds element to front', () => {
+					const b = makeBlock([2, 3, 4]);
+					const r = b._prependBlockChild(1);
+					expect(r.toArray()).toEqual([1, 2, 3, 4]);
+					expect(r.size).toBe(4);
+				});
+
+				it('does not mutate original', () => {
+					const b = makeBlock([2, 3]);
+					b._prependBlockChild(1);
+					expect(b.toArray()).toEqual([2, 3]);
+				});
+
+				it('can overflow maxBlockSize with no error', () => {
+					const ctx = makeContext(2);
+					const b = factory(ctx, [1, 2, 3, 4]);
+					const r = b._prependBlockChild(0);
+					expect(r.size).toBe(5);
+					expect(r._nrChildren).toBe(5);
+					expect(r._notTooManyChildren).toBe(false);
+				});
+
+				it('single element becomes two', () => {
+					const b = makeBlock([1]);
+					const r = b._prependBlockChild(0);
+					expect(r.toArray()).toEqual([0, 1]);
+				});
+			});
+
+			describe('appendBlockChild', () => {
+				it('adds element to back', () => {
+					const b = makeBlock([1, 2, 3]);
+					const r = b._appendBlockChild(4);
+					expect(r.toArray()).toEqual([1, 2, 3, 4]);
+					expect(r.size).toBe(4);
+				});
+
+				it('does not mutate original', () => {
+					const b = makeBlock([1, 2]);
+					b._appendBlockChild(3);
+					expect(b.toArray()).toEqual([1, 2]);
+				});
+
+				it('can overflow maxBlockSize', () => {
+					const ctx = makeContext(2);
+					const b = factory(ctx, [1, 2, 3, 4]);
+					const r = b._appendBlockChild(5);
+					expect(r.size).toBe(5);
+					expect(r._nrChildren).toBe(5);
+					expect(r._notTooManyChildren).toBe(false);
+				});
+
+				it('single element becomes two', () => {
+					const b = makeBlock([1]);
+					const r = b._appendBlockChild(2);
+					expect(r.toArray()).toEqual([1, 2]);
+				});
+			});
+
+			describe('prepend', () => {
+				it('delegates to prependBlockChild when there is room', () => {
+					const b = makeBlock([2, 3]);
+					const r = b.prepend(1);
+					expect(r.toArray()).toEqual([1, 2, 3]);
+					expect(r.size).toBe(3);
+				});
+
+				it('creates an OuterTree when block is full', () => {
+					const ctx = makeContext(2);
+					const b = factory(ctx, [2, 3, 4, 5]);
+					const r = b.prepend(1);
+					expect(r).toHaveProperty('left');
+					expect(r).toHaveProperty('right');
+					expect(r).toHaveProperty('middle');
+					expect(r.size).toBe(5);
+					expect(r.toArray()).toEqual([1, 2, 3, 4, 5]);
+				});
+
+				it('returns List.NonEmpty', () => {
+					const b = makeBlock([1]);
+					const r = b.prepend(0);
+					expect(r.size).toBeGreaterThan(0);
+				});
+			});
+
+			describe('append', () => {
+				it('delegates to appendBlockChild when there is room', () => {
+					const b = makeBlock([1, 2]);
+					const r = b.append(3);
+					expect(r.toArray()).toEqual([1, 2, 3]);
+					expect(r.size).toBe(3);
+				});
+
+				it('creates an OuterTree when block is full', () => {
+					const ctx = makeContext(2);
+					const b = factory(ctx, [1, 2, 3, 4]);
+					const r = b.append(5);
+					expect(r).toHaveProperty('left');
+					expect(r).toHaveProperty('right');
+					expect(r).toHaveProperty('middle');
+					expect(r.size).toBe(5);
+					expect(r.toArray()).toEqual([1, 2, 3, 4, 5]);
+				});
+
+				it('returns List.NonEmpty', () => {
+					const b = makeBlock([1]);
+					const r = b.append(2);
+					expect(r.size).toBeGreaterThan(0);
+				});
+			});
+		});
+
+		describe('OuterBlock.child-manipulation', () => {
+			describe('dropFirstChild', () => {
+				it('returns reduced block and the dropped element', () => {
+					const b = makeBlock([10, 20, 30, 40]);
+					const [nb, dropped] = b._dropFirstChild();
+					expect(dropped).toBe(10);
+					expect(nb.toArray()).toEqual([20, 30, 40]);
+					expect(nb.size).toBe(3);
+				});
+
+				it('does not mutate original', () => {
+					const b = makeBlock([10, 20, 30]);
+					b._dropFirstChild();
+					expect(b.toArray()).toEqual([10, 20, 30]);
+				});
+
+				it('drops single remaining element for blockSizeBits=2', () => {
+					const ctx = makeContext(2);
+					const b = factory(ctx, [42, 99]);
+					const [nb, dropped] = b._dropFirstChild();
+					expect(dropped).toBe(42);
+					expect(nb.size).toBe(1);
+					expect(nb.toArray()).toEqual([99]);
+				});
+			});
+
+			describe('dropLastChild', () => {
+				it('returns reduced block and the dropped element', () => {
+					const b = makeBlock([10, 20, 30, 40]);
+					const [nb, dropped] = b._dropLastChild();
+					expect(dropped).toBe(40);
+					expect(nb.toArray()).toEqual([10, 20, 30]);
+					expect(nb.size).toBe(3);
+				});
+
+				it('does not mutate original', () => {
+					const b = makeBlock([10, 20, 30]);
+					b._dropLastChild();
+					expect(b.toArray()).toEqual([10, 20, 30]);
+				});
+
+				it('drops single remaining element', () => {
+					const ctx = makeContext(2);
+					const b = factory(ctx, [42, 99]);
+					const [nb, dropped] = b._dropLastChild();
+					expect(dropped).toBe(99);
+					expect(nb.size).toBe(1);
+					expect(nb.toArray()).toEqual([42]);
+				});
+			});
+
+			describe('takeChildren', () => {
+				const b = makeBlock([10, 20, 30, 40, 50]);
+
+				it('positive amount takes from front', () => {
+					const r = b._takeChildren(2 as Int.AtLeastOne);
+					expect(r.toArray()).toEqual([10, 20]);
+				});
+
+				it('amount equals size takes everything', () => {
+					const r = b._takeChildren(5 as Int.AtLeastOne);
+					expect(r.toArray()).toEqual([10, 20, 30, 40, 50]);
+				});
+
+				it('does not mutate original', () => {
+					b._takeChildren(2 as Int.AtLeastOne);
+					expect(b.toArray()).toEqual([10, 20, 30, 40, 50]);
+				});
+
+				it('amount 1 returns single element', () => {
+					const r = b._takeChildren(1 as Int.AtLeastOne);
+					expect(r.toArray()).toEqual([10]);
+				});
+
+				it('amount = size-1 takes n-1 from front', () => {
+					const r = b._takeChildren(4 as Int.AtLeastOne);
+					expect(r.toArray()).toEqual([10, 20, 30, 40]);
+				});
+			});
+
+			describe('dropChildren', () => {
+				const b = makeBlock([10, 20, 30, 40, 50]);
+
+				it('positive amount drops from front', () => {
+					const r = b._dropChildren(2 as Int.AtLeastOne);
+					expect(r.toArray()).toEqual([30, 40, 50]);
+				});
+
+				it('amount equals size drops everything', () => {
+					const r = b._dropChildren(5 as Int.AtLeastOne);
+					expect(r.size).toBe(0);
+				});
+
+				it('does not mutate original', () => {
+					b._dropChildren(2 as Int.AtLeastOne);
+					expect(b.toArray()).toEqual([10, 20, 30, 40, 50]);
+				});
+
+				it('drop 1 removes first', () => {
+					const r = b._dropChildren(1 as Int.AtLeastOne);
+					expect(r.toArray()).toEqual([20, 30, 40, 50]);
+				});
+
+				it('drop size-1 leaves last element', () => {
+					const r = b._dropChildren(4 as Int.AtLeastOne);
+					expect(r.toArray()).toEqual([50]);
+				});
+			});
+
+			describe('copyChildren', () => {
+				it('returns a safe mutable copy', () => {
+					const b = makeBlock([1, 2, 3]);
+					const orig = b.toArray();
+					const copy = b._copyChildren();
+					b.context.childrenOps.mutateAppend(copy, 4);
+					expect(b.toArray()).toEqual(orig);
+				});
+
+				it('copy is safe to mutate independently', () => {
+					const b = makeBlock([1, 2, 3]);
+					const copy = b._copyChildren();
+					b.context.childrenOps.mutateAppend(copy, 4);
+					const fromCopy = b.context.childrenOps.toArray(copy);
+					expect(fromCopy).toEqual([1, 2, 3, 4]);
+					expect(b.toArray()).toEqual([1, 2, 3]);
+				});
+			});
+		});
+
+		describe('OuterBlock.conversion', () => {
+			describe('toBuilder', () => {
+				it('creates a builder with the same elements', () => {
+					const b = makeBlock([10, 20, 30]);
+					const builder = b.toNodeBuilder();
+					expect(builder.size).toBe(3);
+					expect(builder.get(0 as Int.AtLeastZero)).toBe(10);
+					expect(builder.get(1 as Int.AtLeastZero)).toBe(20);
+					expect(builder.get(2 as Int.AtLeastZero)).toBe(30);
+				});
+
+				it('builder can append and build', () => {
+					const b = makeBlock([1, 2]);
+					const builder = b.toNodeBuilder();
+					builder.append(3);
+					const built = builder.build();
+					expect(built.toArray()).toEqual([1, 2, 3]);
+				});
+
+				it('builder is independent of source', () => {
+					const b = makeBlock([1, 2]);
+					const builder = b.toNodeBuilder();
+					builder.append(3);
+					expect(b.toArray()).toEqual([1, 2]);
+				});
+			});
+		});
+
+		describe('OuterBlock.updateAtAndReturn', () => {
+			const b = makeBlock([10, 20, 30, 40, 50]);
+
+			it('updates element at positive index', () => {
+				const { collection, hasResult, result, hasChanged } =
+					b.updateAtAndReturn(2, (x) => x + 1);
+				expect(hasChanged).toBe(true);
+				expect(hasResult).toBe(true);
+				const [prev, curr] = result;
+				expect(prev).toBe(30);
+				expect(curr).toBe(31);
+				expect(collection.toArray()).toEqual([10, 20, 31, 40, 50]);
+			});
+
+			it('updates element at negative index', () => {
+				const { collection, result } = b.updateAtAndReturn(-2, (x) => x * 10);
+				const [prev, curr] = result;
+				expect(prev).toBe(40);
+				expect(curr).toBe(400);
+				expect(collection.toArray()).toEqual([10, 20, 30, 400, 50]);
+			});
+
+			it('returns unchanged block and undefined when out of bounds', () => {
+				const { collection, hasChanged, result } = b.updateAtAndReturn(
+					100,
+					(x) => x + 1,
 				);
+				expect(collection).toBe(b);
+				expect(hasChanged).toBe(false);
+				const [prev, curr] = result;
+				expect(prev).toBeUndefined();
+				expect(curr).toBeUndefined();
+			});
 
-				expect(l1.toArray()).toEqual([1, 2]);
-				expect(l2.toArray()).toEqual(['a', 'b']);
-			}
+			it('returns unchanged block and undefined for negative out of bounds', () => {
+				const { collection, hasChanged, result } = b.updateAtAndReturn(
+					-100,
+					(x) => x + 1,
+				);
+				expect(collection).toBe(b);
+				expect(hasChanged).toBe(false);
+				const [prev, curr] = result;
+				expect(prev).toBeUndefined();
+				expect(curr).toBeUndefined();
+			});
+
+			it('returns unchanged reference when function returns same value', () => {
+				const { collection, hasResult, result, hasChanged } =
+					b.updateAtAndReturn(2, (x) => x);
+				expect(collection).toBe(b);
+				expect(hasResult).toBe(true);
+				const [prev, curr] = result;
+				expect(prev).toBe(30);
+				expect(curr).toBe(30);
+				expect(hasChanged).toBe(false);
+			});
+
+			it('does not mutate original', () => {
+				b.updateAtAndReturn(0, (x) => x + 100);
+				expect(b.toArray()).toEqual([10, 20, 30, 40, 50]);
+			});
 		});
 
-		it('updateAt', () => {
-			const b3 = createBlock(1, 2, 3, 4, 5);
+		describe('OuterBlock.setAtAndReturn', () => {
+			const b = makeBlock([10, 20, 30]);
 
-			expect(b3.updateAt(3, () => 10).toArray()).toEqual([1, 2, 3, 10, 5]);
-			expect(b3.updateAt(3, (v) => v + 10).toArray()).toEqual([1, 2, 3, 14, 5]);
-			expect(b3.updateAt(-3, () => 10).toArray()).toEqual([1, 2, 10, 4, 5]);
-			expect(b3.updateAt(-3, (v) => v + 10).toArray()).toEqual([
-				1, 2, 13, 4, 5,
-			]);
-			expect(b3.updateAt(10, () => 10)).toBe(b3);
+			it('replaces element and returns previous', () => {
+				const {
+					collection,
+					hasResult,
+					result: previous,
+					hasChanged,
+				} = b.setAtAndReturn(1, 99);
+				expect(hasResult).toBe(true);
+				expect(hasChanged).toBe(true);
+				expect(previous).toBe(20);
+				expect(collection.toArray()).toEqual([10, 99, 30]);
+			});
+
+			it('returns unchanged block for out of bounds index', () => {
+				const {
+					collection,
+					hasResult,
+					result: previous,
+					hasChanged,
+				} = b.setAtAndReturn(100, 999);
+				expect(collection).toBe(b);
+				expect(hasResult).toBe(false);
+				expect(previous).toBeUndefined();
+				expect(hasChanged).toBe(false);
+			});
+
+			it('does not mutate original', () => {
+				b.setAtAndReturn(0, 999);
+				expect(b.toArray()).toEqual([10, 20, 30]);
+			});
+		});
+
+		describe('OuterBlock.concat', () => {
+			const bits = 2; // maxBlockSize=4
+
+			it('concatenating empty source returns self', () => {
+				const b = makeBlock([1, 2, 3]);
+				const ctx2 = makeContext(bits);
+				const empty = ctx2.empty<number>();
+				const r = b.concat(empty);
+				expect(r).toBe(b);
+			});
+
+			it('concatenating two blocks that fit merges into single block', () => {
+				const ctx2 = makeContext(bits);
+				const a = factory(ctx2, [1, 2]);
+				const b = factory(ctx2, [3]);
+				const r = a.concat(b);
+				expect(r.toArray()).toEqual([1, 2, 3]);
+				expect(r.size).toBe(3);
+			});
+
+			it('concatenating two blocks that overflow creates tree', () => {
+				const ctx2 = makeContext(bits);
+				const a = factory(ctx2, [1, 2, 3]);
+				const b = factory(ctx2, [4, 5, 6]);
+				const r = a.concat(b);
+				expect(r.toArray()).toEqual([1, 2, 3, 4, 5, 6]);
+				expect(r).toHaveProperty('left');
+				expect(r).toHaveProperty('right');
+				expect(r).toHaveProperty('middle');
+			});
+
+			it('self-concat creates tree when size exceeds minBlockSize', () => {
+				const ctx2 = makeContext(bits);
+				const a = factory(ctx2, [1, 2, 3]); // size=3 > minBlockSize=2
+				const r = a.concat(a);
+				expect(r.toArray()).toEqual([1, 2, 3, 1, 2, 3]);
+				expect(r).toHaveProperty('middle');
+			});
+
+			it('does not mutate original', () => {
+				const b = makeBlock([1, 2]);
+				b.concat(makeBlock([3]));
+				expect(b.toArray()).toEqual([1, 2]);
+			});
+		});
+
+		describe('OuterBlock._prependBlock', () => {
+			const bits = 2; // maxBlockSize=4
+			const ctx2 = makeContext(bits);
+
+			it('merges into single block when combined size fits', () => {
+				const b = factory(ctx2, [3, 4]);
+				const left = factory(ctx2, [1, 2]);
+				const r = b._prependBlock(left);
+				expect(r.toArray()).toEqual([1, 2, 3, 4]);
+				expect(r.size).toBe(4);
+			});
+
+			it('creates outerTree when combined size exceeds maxBlockSize', () => {
+				const b = factory(ctx2, [3, 4]);
+				const left = factory(ctx2, [1, 2, 5]);
+				// 3 + 3 = 6 > maxBlockSize=4
+				const r = b._prependBlock(left);
+				expect(r.toArray()).toEqual([1, 2, 5, 3, 4]);
+				expect(r).toHaveProperty('left');
+				expect(r).toHaveProperty('right');
+				expect(r).toHaveProperty('middle');
+			});
+
+			it('does not mutate original', () => {
+				const b = factory(ctx2, [3, 4]);
+				const left = factory(ctx2, [1, 2]);
+				b._prependBlock(left);
+				expect(b.toArray()).toEqual([3, 4]);
+				expect(left.toArray()).toEqual([1, 2]);
+			});
+		});
+
+		describe('OuterBlock._prependTree', () => {
+			const bits = 2; // maxBlockSize=4, minBlockSize=2
+			const ctx2 = makeContext(bits);
+
+			it('merges joint into single block when it fits maxBlockSize', () => {
+				const right = factory(ctx2, [5, 6]);
+				// leftTree: left=[1], right=[3,4], middle=null
+				const leftTree = ctx2.outerTree(
+					factory(ctx2, [1]),
+					factory(ctx2, [3, 4]),
+					null,
+					3,
+				);
+				// joint: [3,4] + [5,6] = 4 elements ≤ maxBlockSize=4
+				const r = right._prependTree(leftTree);
+				expect(r.toArray()).toEqual([1, 3, 4, 5, 6]);
+				expect(r.size).toBe(5);
+			});
+
+			it('pushes joint to middle when right of leftTree satisfies minBlockSize', () => {
+				const right = factory(ctx2, [9]);
+				// leftTree: left=[1,2], right=[3,4,5,6], middle=null
+				const leftTree = ctx2.outerTree(
+					factory(ctx2, [1, 2]),
+					factory(ctx2, [3, 4, 5, 6]),
+					null,
+					6,
+				);
+				// right of leftTree has 4 >= minBlockSize=2 → push to middle
+				const r = right._prependTree(leftTree);
+				expect(r.toArray()).toEqual([1, 2, 3, 4, 5, 6, 9]);
+				expect(r.size).toBe(7);
+			});
+
+			it('splits joint when neither merge nor push-to-middle applies', () => {
+				const right = factory(ctx2, [4, 5, 6, 7]);
+				// leftTree: left=[1], right=[3], middle=null
+				// right.size = 1 < minBlockSize=2 → Case 2 won't fire
+				const leftTree = ctx2.outerTree(
+					factory(ctx2, [1]),
+					factory(ctx2, [3]),
+					null,
+					2,
+				);
+				// joint: [3] + [4,5,6,7] = 5 > maxBlockSize=4 → Case 1 won't fire
+				// leftTree.right = 1 < minBlockSize=2 → Case 2 won't fire → Case 3 splits
+				const r = right._prependTree(leftTree);
+				expect(r.size).toBe(6);
+				expect(r.toArray()).toEqual([1, 3, 4, 5, 6, 7]);
+			});
+
+			it('does not mutate original', () => {
+				const right = factory(ctx2, [3, 4]);
+				const leftTree = ctx2.outerTree(
+					factory(ctx2, [1, 2]),
+					factory(ctx2, [5]),
+					null,
+					3,
+				);
+				const origRightArr = right.toArray();
+				right._prependTree(leftTree);
+				expect(right.toArray()).toEqual(origRightArr);
+			});
+		});
+
+		describe('OuterBlock.immutability', () => {
+			it('toArray returns a frozen array snapshot', () => {
+				const b = makeBlock([1, 2, 3]);
+				const arr = b.toArray();
+				expect(arr).toEqual([1, 2, 3]);
+
+				const arr2 = b.toArray();
+				expect(arr).toEqual(arr2);
+			});
+
+			it('prependBlockChild returns new instance', () => {
+				const b = makeBlock([1, 2]);
+				const r = b._prependBlockChild(0);
+				expect(r).not.toBe(b);
+			});
+
+			it('appendBlockChild returns new instance', () => {
+				const b = makeBlock([1, 2]);
+				const r = b._appendBlockChild(3);
+				expect(r).not.toBe(b);
+			});
+
+			it('filter returning all-elements returns same instance', () => {
+				const b = makeBlock([1, 2, 3]);
+				const r = b.filter(() => true);
+				expect(r).toBe(b);
+			});
+
+			it('take returning full range returns same instance', () => {
+				const b = makeBlock([1, 2, 3]);
+				const r = b.take(3);
+				expect(r).toBe(b);
+			});
+
+			it('drop 0 returns same instance', () => {
+				const b = makeBlock([1, 2, 3]);
+				const r = b.drop(0);
+				expect(r).toBe(b);
+			});
+		});
+
+		describe('OuterBlock.edge-cases', () => {
+			describe('empty block handling', () => {
+				it('take 0 on single-element returns empty list', () => {
+					const b = makeBlock([7]);
+					const r = b.take(0);
+					expect(r.size).toBe(0);
+				});
+
+				it('drop to empty on single-element', () => {
+					const b = makeBlock([7]);
+					const r = b.drop(1);
+					expect(r.size).toBe(0);
+				});
+
+				it('filter all-out on single-element', () => {
+					const b = makeBlock([7]);
+					const r = b.filter(() => false);
+					expect(r.size).toBe(0);
+				});
+
+				it('copyChildren on single-element block', () => {
+					const b = makeBlock([7]);
+					const copy = b._copyChildren();
+					expect(b.context.childrenOps.toArray(copy)).toEqual([7]);
+				});
+			});
+
+			describe('large blocks with default blockSizeBits=5', () => {
+				const values = Array.from({ length: 25 }, (_, i) => i);
+				const b = makeBlock(values);
+
+				it('at on large block', () => {
+					expect(b.at(0)).toBe(0);
+					expect(b.at(12)).toBe(12);
+					expect(b.at(24)).toBe(24);
+					expect(b.at(-1)).toBe(24);
+					expect(b.at(25)).toBeUndefined();
+				});
+
+				it('take and drop on large block', () => {
+					expect(b.take(5).toArray()).toEqual([0, 1, 2, 3, 4]);
+					expect(b.drop(5).toArray()).toEqual(values.slice(5));
+				});
+
+				it('forEach visits all 25', () => {
+					let count = 0;
+					b.forEach(() => count++);
+					expect(count).toBe(25);
+				});
+
+				it('stream reversed', () => {
+					const result = [...b.stream({ reversed: true })];
+					expect(result).toEqual(values.toReversed());
+				});
+
+				it('map over all elements', () => {
+					const r = [...b.map((x) => x * 2).stream()];
+					expect(r).toEqual(values.map((x) => x * 2));
+				});
+			});
+
+			describe('string element type', () => {
+				const b = makeBlock(['a', 'b', 'c']);
+
+				it('preserves element type', () => {
+					expect(b.at(0)).toBeTypeOf('string');
+					expect(b.first()).toBe('a');
+					expect(b.last()).toBe('c');
+				});
+
+				it('map to different type', () => {
+					const r = b.map((s) => s.length);
+					expect(r.toArray()).toEqual([1, 1, 1]);
+				});
+
+				it('stream', () => {
+					expect(b.stream().toArray()).toEqual(['a', 'b', 'c']);
+				});
+
+				it('filter with type predicate', () => {
+					const br = makeBlock(['a', '', 'b'] as const);
+					const r = br.filter((s) => s.length > 0);
+					expect(r.toArray()).toEqual(['a', 'b']);
+				});
+			});
+
+			describe('boolean element type', () => {
+				const b = makeBlock([true, false, true]);
+
+				it('preserves boolean values', () => {
+					expect(b.at(0)).toBe(true);
+					expect(b.at(1)).toBe(false);
+					expect(b.at(2)).toBe(true);
+				});
+
+				it('filter identity on booleans', () => {
+					const r = b.filter(Boolean);
+					expect(r.toArray()).toEqual([true, true]);
+				});
+			});
+
+			describe('null/undefined elements', () => {
+				it('null elements', () => {
+					const b = makeBlock([1, null, 3] as (number | null)[]);
+					expect(b.at(0)).toBe(1);
+					expect(b.at(1)).toBeNull();
+					expect(b.at(2)).toBe(3);
+				});
+
+				it('undefined elements', () => {
+					const b = makeBlock([1, undefined, 3] as (number | undefined)[]);
+					expect(b.at(0)).toBe(1);
+					expect(b.at(1)).toBeUndefined();
+					expect(b.at(2)).toBe(3);
+				});
+
+				it('otherwise fallback works with null', () => {
+					const b = makeBlock([null] as null[]);
+					expect(b.at(0)).toBeNull();
+					expect(b.at(1, 'default')).toBe('default');
+				});
+
+				it('otherwise fallback works with undefined', () => {
+					const b = makeBlock([undefined] as undefined[]);
+					expect(b.at(0)).toBeUndefined();
+					expect(b.at(1, 'fallback')).toBe('fallback');
+				});
+			});
 		});
 	});
 }
 
-const context = ListHelpers.createListContext({
-	blockSizeBits: 2,
-}) as unknown as ListContext<ListHelpers.TypesImpl>;
+runOuterBlockTests(
+	(ctx, values) => ctx.outerBlockLeftRight(ctx.childrenOps.of(values)),
+	<T>(values: T[], blockSizeBits = 5) => {
+		const ctx = makeContext(blockSizeBits);
+		return ctx.outerBlockLeftRight(ctx.childrenOps.of(values));
+	},
+	'OuterBlockLeftRight',
+);
 
-function createBlock<T>(...elems: T[]): OuterBlock<T, ListHelpers.TypesImpl> {
-	return context.outerBlock(elems) as any;
-}
-
-function createRevBlock<T>(
-	...elems: T[]
-): ReversedOuterBlock<T, ListHelpers.TypesImpl> {
-	return context.reversedOuterBlock(elems.reverse()) as any;
-}
-
-runOuterBlockTests('leaf', context, createBlock, createRevBlock);
-runOuterBlockTests('reversed leaf', context, createRevBlock, createBlock);
-
-describe('OuterBlock special cases', () => {
-	it('concatChildren', () => {
-		const b = context.outerBlock([1, 2, 3]);
-		const rb = context.reversedOuterBlock([6, 5, 4]);
-
-		const r1 = b.concatChildren(b);
-		expect(r1.toArray()).toEqual([1, 2, 3, 1, 2, 3]);
-
-		const r2 = b.concatChildren(rb);
-		expect(r2.toArray()).toEqual([1, 2, 3, 4, 5, 6]);
-
-		const r3 = rb.concatChildren(rb);
-		expect(r3.toArray()).toEqual([4, 5, 6, 4, 5, 6]);
-
-		const r4 = rb.concatChildren(b);
-		expect(r4.toArray()).toEqual([4, 5, 6, 1, 2, 3]);
-	});
-});
+runOuterBlockTests(
+	(ctx, values) =>
+		ctx.outerBlockRightLeft(ctx.childrenOps.of(values.toReversed())),
+	<T>(values: T[], blockSizeBits = 5) => {
+		const ctx = makeContext(blockSizeBits);
+		return ctx.outerBlockRightLeft(ctx.childrenOps.of(values.toReversed()));
+	},
+	'OuterBlockRightLeft',
+);

@@ -33,7 +33,7 @@ Additional triggers: after `review-api`/`review-anatomy`, before opening an ADR,
 
 ### Diagnose (read-only, default)
 
-1. Resolve target: single package `<pkg>` (e.g. `packages/list`) is the default. If `--workspace` is passed, expand to all 23 published packages (`packages/*` per `AGENTS.md:45-68`, exclude unpublished `list2`). Require `<pkg>` if no `--workspace`; error with usage if neither is given.
+1. Resolve target: single package `<pkg>` (e.g. `packages/list`) is the default. If `--workspace` is passed, expand to all 23 published packages (`packages/*` per `AGENTS.md:45-68`). Require `<pkg>` if no `--workspace`; error with usage if neither is given.
 2. Before exploring, read `CONTEXT.md` (if it exists) and any `docs/adr/*.md` that touch the target area per `docs/agents/domain.md:5-11`. If they do not exist, proceed silently per `docs/agents/domain.md:11-12`.
 3. For each target package, collect evidence **without mutating** and **without `build:seq`** (pattern-level `rg` only):
    - Use only allowed runtime: `bun`, `rg` (ripgrep), `jq` (`scripts/README.md`). Cite `rg -n "<pattern>" src --no-heading` lines verbatim as evidence.

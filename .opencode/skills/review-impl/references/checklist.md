@@ -5,7 +5,7 @@ Source: `AGENTS.md:287-478` §6, `biome.json:15-44`, `AGENTS.md:565-572`, ticket
 ## Scope
 
 - **Default:** single package `<pkg>` (`packages/<name>` with `src/`)
-- **`--workspace`:** all packages with `src/` (exclude `list2`), fast static `rg` only
+- **`--workspace`:** all packages with `src/`, fast static `rg` only
 
 ## Checks — Biome Rules (`biome.json:15-44`/`AGENTS.md:565-572`)
 

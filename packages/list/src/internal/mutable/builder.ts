@@ -1,277 +1,313 @@
-import type { WithElem } from '@rimbu/collection-types/advanced/common';
+import type { List } from '@rimbu/list';
+import type { StreamSource } from '@rimbu/stream';
 
-import type { ListContext } from '#list/context-module';
-import type { ListBase } from '#list/list-base';
-import type { ListImpl } from '#list/list-impl';
+import type { ListContext } from '#list/context';
+import type { OuterBuilder } from '#list/mutable/common';
 
-import {
-	throwInvalidStateError,
-	throwModifiedBuilderWhileLoopingOverItError,
-} from '@rimbu/base/rimbu-error';
-import { OptLazy } from '@rimbu/common/opt-lazy';
-import { TraverseState } from '@rimbu/common/traverse-state';
-import { Stream, type StreamSource } from '@rimbu/stream';
+import { Int } from '@rimbu/base';
+import { CollectionBuilderBase } from '@rimbu/collection-types/advanced/collection-base';
+import { OptLazy } from '@rimbu/common';
+import { Stream } from '@rimbu/stream';
+import { Reducer } from '@rimbu/stream/reducer';
 
-import { BuilderBase, type OuterBuilder } from '#list/mutable/builder-base';
+import { CacheMap } from '#list/immutable/cache-map';
 
-export class ListBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
-	extends BuilderBase
-	implements ListBase.Builder<T, Tp>
+export class ListBuilder<T>
+	extends CollectionBuilderBase<T>
+	implements List.Builder<T>
 {
 	constructor(
-		context: ListContext,
-		public outerBuilder?: OuterBuilder<T>,
+		readonly context: ListContext,
+		outerBuilder?: OuterBuilder<T>,
 	) {
-		super(context);
+		super();
+		this.#outerBuilder = outerBuilder;
 	}
 
-	/** Tracks active iteration depth; non-zero means mutation is forbidden. */
-	_iterationDepth = 0;
-
-	checkLock(): void {
-		if (this._iterationDepth) {
-			throwModifiedBuilderWhileLoopingOverItError();
-		}
+	get #ops() {
+		return this.context.childrenOps;
 	}
 
-	get length(): number {
-		return this.outerBuilder?.length ?? 0;
+	#outerBuilder: OuterBuilder<T> | undefined;
+
+	get size(): number {
+		return this.#outerBuilder?.size ?? 0;
 	}
 
 	get isEmpty(): boolean {
-		return this.length === 0;
+		return 0 === this.size;
 	}
 
-	at = <O = undefined>(index: number, otherwise?: OptLazy<O>): T | O => {
-		if (
-			undefined === this.outerBuilder ||
-			index >= this.length ||
-			-index > this.length
-		) {
+	at = <O>(index: number, otherwise?: OptLazy<O>): T | O => {
+		const size = this.size;
+		if (undefined === this.#outerBuilder || -index > size || index >= size) {
 			return OptLazy(otherwise) as O;
 		}
-		if (index < 0) {
-			return this.at(this.length + index, otherwise);
+
+		if (index < 0) index = size + index;
+
+		Int.checkAtLeastZero(index);
+
+		return this.#outerBuilder.get(index);
+	};
+
+	first = <O>(otherwise?: OptLazy<O>): T | O => {
+		if (undefined === this.#outerBuilder) {
+			return OptLazy(otherwise) as O;
+		}
+		return this.#outerBuilder.get(0 as Int.AtLeastZero);
+	};
+
+	last = <O>(otherwise?: OptLazy<O>): T | O => {
+		if (undefined === this.#outerBuilder) {
+			return OptLazy(otherwise) as O;
+		}
+		return this.#outerBuilder.get((this.size - 1) as Int.AtLeastZero);
+	};
+
+	setAt = <O>(index: number, value: T, otherwise?: OptLazy<O>): T | O => {
+		const notFound = Symbol();
+		const [previous] = this.updateAt(index, () => value, notFound);
+
+		if (notFound === previous) {
+			return OptLazy(otherwise) as O;
 		}
 
-		return this.outerBuilder.get(index);
+		return previous;
 	};
 
-	prepend = (value: T): void => {
-		this.addValue(value, 'prepend');
+	updateAt = <O>(
+		index: number,
+		f: (element: T) => T,
+		otherwise?: OptLazy<O>,
+	): [previous: T | O, current: T | O] => {
+		if (
+			undefined === this.#outerBuilder ||
+			-index > this.size ||
+			index >= this.size
+		) {
+			const otherwiseValue = OptLazy(otherwise) as O;
+			return [otherwiseValue, otherwiseValue];
+		}
+
+		if (index < 0) index = this.size + index;
+
+		Int.checkAtLeastZero(index);
+
+		return this.#outerBuilder.update(index, f);
 	};
 
-	append = (value: T): void => {
-		this.addValue(value, 'append');
+	swapAt = (
+		index1: number,
+		index2: number,
+	): [newValueAtIndex1: T, newValueAtIndex2: T] | undefined => {
+		if (
+			undefined === this.#outerBuilder ||
+			-index1 > this.size ||
+			index1 >= this.size ||
+			-index2 > this.size ||
+			index2 >= this.size
+		) {
+			return undefined;
+		}
+
+		if (index1 < 0) index1 = this.size + index1;
+		if (index2 < 0) index2 = this.size + index2;
+
+		Int.checkAtLeastZero(index1);
+		Int.checkAtLeastZero(index2);
+
+		return this.#outerBuilder.update(index2, (value2) => {
+			const [value1] = this.#outerBuilder!.update(index1, () => value2);
+			return value1;
+		});
 	};
 
-	private addValue(value: T, mode: 'prepend' | 'append'): void {
+	prepend = (element: T): void => {
 		this.checkLock();
 
-		if (undefined === this.outerBuilder) {
-			this.outerBuilder = this.context.outerBlockBuilder<T>(
-				this.ops.of([value]),
+		if (undefined === this.#outerBuilder) {
+			this.#outerBuilder = this.context.outerBlockBuilder<T>(
+				this.#ops.of([element]),
 			);
 			return;
 		}
 
-		this.outerBuilder[mode](value);
-		this.outerBuilder = this.outerBuilder.normalized();
-	}
+		this.#outerBuilder.prepend(element);
+		this.#outerBuilder = this.#outerBuilder.normalized();
+	};
 
-	appendAll = (values: StreamSource<T>): void => {
+	append = (element: T): void => {
 		this.checkLock();
 
-		if (Array.isArray(values)) {
-			this.appendArray(values);
+		if (undefined === this.#outerBuilder) {
+			this.#outerBuilder = this.context.outerBlockBuilder<T>(
+				this.#ops.of([element]),
+			);
 			return;
 		}
 
+		this.#outerBuilder.append(element);
+		this.#outerBuilder = this.#outerBuilder.normalized();
+	};
+
+	prependAll = (elements: StreamSource<T>): void => {
+		this.checkLock();
+
 		const token = Symbol();
-		const iterator = Stream.from(values)[Symbol.iterator]();
+		const iterator = Stream.from(elements)[Symbol.iterator]();
+		let next: T | typeof token;
+		while ((next = iterator.fastNext(token)) !== token) {
+			this.prepend(next);
+		}
+	};
+
+	appendAll = (elements: StreamSource<T>): void => {
+		this.checkLock();
+
+		// if (Array.isArray(values)) {
+		// 	this.appendArray(values);
+		// 	return;
+		// }
+
+		const token = Symbol();
+		const iterator = Stream.from(elements)[Symbol.iterator]();
 		let next: T | typeof token;
 		while ((next = iterator.fastNext(token)) !== token) {
 			this.append(next);
 		}
 	};
 
-	insert = (index: number, value: T): void => {
+	#insertSingleAt(index: number, value: T): void {
 		this.checkLock();
 
-		if (undefined === this.outerBuilder) {
-			this.outerBuilder = this.context.outerBlockBuilder<T>(
-				this.ops.of([value]),
-			);
-		} else {
-			if (index === 0) {
-				this.prepend(value);
-				return;
-			}
-			if (index > this.length || -index > this.length + 1) {
-				this.append(value);
-				return;
-			}
-			if (index < 0) {
-				this.insert(this.length + index, value);
-				return;
-			}
+		if (undefined === this.#outerBuilder || index >= this.size) {
+			this.append(value);
+			return;
+		}
+		if (index === 0 || index <= -this.size) {
+			this.prepend(value);
+			return;
+		}
 
-			this.outerBuilder.insert(index, value);
-			this.outerBuilder = this.outerBuilder.normalized();
+		if (index < 0) index = this.size + index;
+
+		Int.checkAtLeastOne(index);
+
+		this.#outerBuilder.insert(index, value);
+		this.#outerBuilder = this.#outerBuilder.normalized();
+	}
+
+	insertAt = (index: number, values: StreamSource<T>): void => {
+		const done = Symbol();
+		const iter = Stream.from(values)[Symbol.iterator]();
+		let next: T | typeof done;
+		while (done !== (next = iter.fastNext(done))) {
+			this.#insertSingleAt(index, next);
+			index++;
 		}
 	};
 
-	remove = <O>(index: number, otherwise?: OptLazy<O>): T | O => {
+	removeAt = <O>(index: number, otherwise?: OptLazy<O>): T | O => {
 		this.checkLock();
 
 		if (
-			undefined === this.outerBuilder ||
-			index >= this.length ||
-			-index > this.length
+			undefined === this.#outerBuilder ||
+			index >= this.size ||
+			-index > this.size
 		) {
 			return OptLazy(otherwise) as O;
 		}
 
-		if (index < 0) {
-			return this.remove(this.length + index);
-		}
+		if (index < 0) index = this.size + index;
 
-		const result = this.outerBuilder.remove(index);
-		this.outerBuilder = this.outerBuilder.normalized();
+		Int.checkAtLeastZero(index);
+
+		const result = this.#outerBuilder.remove(index);
+		this.#outerBuilder = this.#outerBuilder.normalized();
 
 		return result;
 	};
 
-	appendArray(array: T[]): void {
-		let index = 0;
-		const blockSize = this.context.maxBlockSize;
+	removeAmountAt = <R>(
+		index: number,
+		amount: number,
+		collector: Reducer<T, R> = Reducer.nonEmpty as Reducer<T, R>,
+	): R => {
+		const symbol = Symbol();
 
-		// fill last child
-		if (undefined !== this.outerBuilder) {
-			if (this.context.isOuterBlockBuilder(this.outerBuilder)) {
-				const remaining = blockSize - this.outerBuilder.length;
+		const removed = collector.compile();
 
-				if (remaining > 0) {
-					const slice = array.slice(0, remaining);
-					this.outerBuilder.appendValues(slice);
-					index = remaining;
-				}
-			} else if (this.context.isOuterTreeBuilder(this.outerBuilder)) {
-				this.outerBuilder.prepareMutate();
-				const left = this.outerBuilder.left;
-				const remaining = blockSize - left.length;
+		for (let i = 0; i < amount; i++) {
+			const value = this.removeAt(index, symbol);
+			if (symbol === value) break;
+			removed.next(value);
+		}
 
-				if (remaining > 0) {
-					const slice = array.slice(0, remaining);
-					left.appendValues(slice);
-					index = remaining;
-				}
+		return removed.getOutput();
+	};
+
+	removeAllAt = <R>(
+		indices: StreamSource<number>,
+		collector: Reducer<T, R> = Reducer.nonEmpty as Reducer<T, R>,
+	): R => {
+		const removed = collector.compile();
+
+		const iter = Stream.from(indices)[Symbol.iterator]();
+		let index: number | undefined;
+		const symbol = Symbol();
+
+		while (undefined !== (index = iter.fastNext())) {
+			const value = this.removeAt(index, symbol);
+			if (symbol !== value) {
+				removed.next(value);
 			}
 		}
 
-		// append blocks
-		while (index < array.length) {
-			const end = index + blockSize;
-			const window = array.slice(index, end);
-			this.appendFullOrLastWindow(window);
-			index = end;
-		}
-	}
+		return removed.getOutput();
+	};
 
-	appendFullOrLastWindow(window: T[]): void {
-		const outerBlockBuilder = this.context.outerBlockBuilder<T>(
-			this.ops.of(window),
-		);
-
-		if (undefined === this.outerBuilder) {
-			this.outerBuilder = outerBlockBuilder;
-			return;
-		}
-
-		if (this.context.isOuterBlockBuilder<T>(this.outerBuilder)) {
-			this.outerBuilder = this.context.outerTreeBuilder(
-				this.outerBuilder,
-				outerBlockBuilder,
-				undefined,
-				this.outerBuilder.length + outerBlockBuilder.length,
-			);
-			return;
-		}
-
-		if (this.context.isOuterTreeBuilder<T>(this.outerBuilder)) {
-			this.outerBuilder.appendMiddle(this.outerBuilder.right);
-			this.outerBuilder.right = outerBlockBuilder;
-			this.outerBuilder.length += outerBlockBuilder.length;
-			return;
-		}
-
-		throwInvalidStateError();
-	}
-
-	updateAt = <O>(
-		index: number,
-		update: (current: T) => T,
-		otherwise?: OptLazy<O>,
-	): T | O => {
+	clear = (): void => {
 		this.checkLock();
-
-		if (
-			undefined === this.outerBuilder ||
-			index >= this.length ||
-			-index > this.length
-		) {
-			return OptLazy(otherwise) as O;
-		}
-		if (index < 0) {
-			return this.updateAt(this.length + index, update);
-		}
-
-		return this.outerBuilder.updateAt(index, update);
+		this.#outerBuilder = undefined;
 	};
 
-	set = <O>(index: number, value: T, otherwise?: OptLazy<O>): T | O => {
-		return this.updateAt(index, () => value, otherwise);
-	};
+	forEach = (f: (value: T) => void): void => {
+		if (undefined === this.#outerBuilder) return;
 
-	forEach = (
-		f: (value: T, index: number, halt: () => void) => void,
-		options: { reversed?: boolean; state?: TraverseState } = {},
-	): void => {
-		if (undefined === this.outerBuilder) return;
-
-		const { reversed = false, state = TraverseState() } = options;
-
-		if (state.halted) return;
-
-		this._iterationDepth++;
+		this.startIteration();
 
 		try {
-			this.outerBuilder.forEach(f, { reversed, state });
+			this.#outerBuilder.forEach(f);
 		} finally {
-			this._iterationDepth--;
+			this.endIteration();
 		}
 	};
 
-	build = (): WithElem<Tp, T>['normal'] => {
-		if (undefined === this.outerBuilder) {
+	build = (): List<T> => {
+		if (undefined === this.#outerBuilder) {
 			return this.context.empty();
 		}
-		const result = this.outerBuilder.build();
-		return result;
+
+		return this.#outerBuilder.build();
 	};
 
-	buildMap = <T2>(f: (value: T) => T2): ListImpl<T2> => {
-		if (undefined === this.outerBuilder) {
+	buildMap = <T2>(f: (element: T) => T2): List<T2> => {
+		if (undefined === this.#outerBuilder) {
 			return this.context.empty();
 		}
-		return this.outerBuilder.buildMap(f);
+
+		return this.#outerBuilder.buildMap(f, new CacheMap());
 	};
 
-	_verifyStructure(messages: string[] = []): string[] {
-		if (undefined === this.outerBuilder) {
-			return [];
+	_verifyStructure(
+		errors: string[] = [],
+		enforceMinChildren = false,
+	): string[] {
+		if (undefined !== this.#outerBuilder) {
+			return this.#outerBuilder._verifyStructure(errors, enforceMinChildren);
 		}
 
-		return this.outerBuilder._verifyStructure(messages);
+		return errors;
 	}
 }

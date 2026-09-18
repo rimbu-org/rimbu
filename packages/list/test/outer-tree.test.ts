@@ -1,883 +1,1171 @@
-import { describe, expect, it, vi } from 'bun:test';
+import { describe, expect, it } from 'bun:test';
 
-import type { ListContext } from '#list/context-module';
+import type { Int } from '@rimbu/base';
+
+import type { ListContext } from '#list/context';
+import type { OuterBlock } from '#list/immutable/outer-block';
+import type { OuterTree } from '#list/immutable/outer-tree';
 
 import { List } from '@rimbu/list';
-import { Stream } from '@rimbu/stream';
 
-import { InnerBlock } from '#list/immutable/inner-block';
-import { InnerTree } from '#list/immutable/inner-tree';
-import { OuterBlock } from '#list/immutable/outer-block';
-import { OuterTree } from '#list/immutable/outer-tree';
-import { ListHelpers } from '#list/list-helpers';
-
-function runOuterTreeTests(
-	tag: string,
-	context: ListContext,
-	createBlock: <T>(values: T[]) => OuterBlock<T>,
-) {
-	describe(tag, () => {
-		it('_normalize up to InnerBlock', () => {
-			{
-				// merge to block
-				const t = context.outerTree(
-					createBlock([1, 2]),
-					createBlock([11, 12]),
-					null,
-					4,
-				);
-				const n = t._normalize();
-				expect(n).toBeInstanceOf(OuterBlock);
-				expect(n.toArray()).toEqual([1, 2, 11, 12]);
-			}
-			{
-				// not possible to merge
-				const t = context.outerTree(
-					createBlock([1, 2, 3]),
-					createBlock([3, 4]),
-					null,
-					5,
-				);
-				const n = t._normalize();
-				expect(n).toBe(t);
-			}
-			{
-				// merge left middle and right into block
-				const t = context.outerTree(
-					createBlock([1]),
-					createBlock([11]),
-					context.innerBlock([createBlock([21, 22])], 2, 1),
-					4,
-				);
-				const n = t._normalize();
-				expect(n).toBeInstanceOf(OuterBlock);
-				expect(n.toArray()).toEqual([1, 21, 22, 11]);
-			}
-			{
-				// merge middle with left
-				const t = context.outerTree(
-					createBlock([1]),
-					createBlock([11, 12]),
-					context.innerBlock([createBlock([21, 22, 23])], 3, 1),
-					6,
-				);
-				const n = t._normalize() as OuterTree<number>;
-				expect(n.left.toArray()).toEqual([1, 21, 22, 23]);
-				expect(n.middle).toBeNull();
-				expect(n.right.toArray()).toEqual([11, 12]);
-			}
-			{
-				// merge middle with right
-				const t = context.outerTree(
-					createBlock([1, 2, 3]),
-					createBlock([11]),
-					context.innerBlock([createBlock([21, 22, 23])], 3, 1),
-					7,
-				);
-				const n = t._normalize() as OuterTree<number>;
-				expect(n.left.toArray()).toEqual([1, 2, 3]);
-				expect(n.middle).toBeNull();
-				expect(n.right.toArray()).toEqual([21, 22, 23, 11]);
-			}
-		});
-
-		it('append', () => {
-			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null, 6);
-
-			const r1 = t6.append(10);
-
-			expect(r1.left).toBe(b3);
-			expect(r1.right).toBeInstanceOf(OuterBlock);
-			expect(r1.right.toArray()).toEqual([1, 2, 3, 10]);
-			expect(r1.middle).toBeNull();
-
-			const r2 = r1.append(11);
-			expect(r2.left).toBeInstanceOf(OuterBlock);
-			expect(r2.left.toArray()).toEqual([1, 2, 3, 1]);
-			expect(r2.right).toBeInstanceOf(OuterBlock);
-			expect(r2.right.toArray()).toEqual([2, 3, 10, 11]);
-			expect(r2.middle).toBeNull();
-
-			const r3 = r2.append(12);
-			expect(r3.left).toBeInstanceOf(OuterBlock);
-			expect(r3.left.toArray()).toEqual([1, 2, 3, 1]);
-			expect(r3.right).toBeInstanceOf(OuterBlock);
-			expect(r3.right.toArray()).toEqual([12]);
-			expect(r3.middle).toBeInstanceOf(InnerBlock);
-			expect(r3.middle?.toArray()).toEqual([2, 3, 10, 11]);
-		});
-
-		it('appendMiddle', () => {
-			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null, 6);
-
-			const r1 = t6.appendMiddle(b3);
-			expect(r1.toArray()).toEqual([1, 2, 3]);
-
-			const t9 = context.outerTree(b3, b3, context.innerBlock([b3], 3, 1), 9);
-
-			const r2 = t9.appendMiddle(b3);
-			expect(r2.toArray()).toEqual([1, 2, 3, 1, 2, 3]);
-
-			const t12 = context.outerTree(
-				b3,
-				b3,
-				context.innerBlock([b3, b3, b3, b3], 12, 1),
-				18,
-			);
-
-			const r3 = t12.appendMiddle(b3);
-			expect(r3).toBeInstanceOf(InnerTree);
-			expect(r3.level).toBe(1);
-		});
-
-		it('asNormal', () => {
-			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null, 5);
-			expect(t6.asNormal()).toBe(t6);
-		});
-
-		it('assumeNonEmpty', () => {
-			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null, 6);
-			expect(t6.assumeNonEmpty()).toBe(t6);
-		});
-
-		it('collect', () => {
-			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null, 6);
-
-			expect(t6.collect((v) => v).toArray()).toEqual([1, 2, 3, 1, 2, 3]);
-			expect(t6.collect((_, __, skip) => skip)).toBe(context.empty());
-			expect(
-				t6
-					.collect((v, __, ___, halt) => {
-						halt();
-						return v;
-					})
-					.toArray(),
-			).toEqual([1]);
-		});
-
-		it('concat', () => {
-			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null, 6);
-
-			expect(t6.concat(context.empty())).toBe<any>(t6);
-
-			const t7 = t6.concat(createBlock([10])) as OuterTree<number>;
-			expect(t7.left).toBe(b3);
-			expect(t7.middle).toBeNull();
-			expect(t7.right.toArray()).toEqual([1, 2, 3, 10]);
-
-			const t8 = t7.concat(b3) as OuterTree<number>;
-			expect(t8.left).toBe(b3);
-			expect(t8.middle?.toArray()).toEqual([1, 2, 3, 10]);
-			expect(t8.right).toBe(b3);
-
-			const t9 = t8.concat(t8) as OuterTree<number>;
-
-			expect(t9.left).toBe(b3);
-			expect(t9.right).toBe(b3);
-			const m = t9.middle as InnerBlock<any, any>;
-			expect(m.level).toBe(1);
-			expect(m.nrChildren).toBe(4);
-			expect(m.children[1]).toBe(b3);
-			expect(m.children[2]).toBe(b3);
-		});
-
-		it('concatBlock', () => {
-			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null, 6);
-
-			const r1 = t6.concatBlock(createBlock([10])) as OuterTree<number>;
-			expect(r1.middle).toBeNull();
-			expect(r1.left).toBe(b3);
-			expect(r1.right.toArray()).toEqual([1, 2, 3, 10]);
-
-			const r2 = t6.concatBlock(createBlock([10, 11])) as OuterTree<number>;
-			expect(r2.left).toBe(b3);
-			expect(r2.right.toArray()).toEqual([10, 11]);
-			const m2 = r2.middle as InnerBlock<any, any>;
-			expect(m2.level).toBe(1);
-			expect(m2.nrChildren).toBe(1);
-			expect(m2.children[0]).toBe(b3);
-
-			const tr = context.outerTree(
-				createBlock([1, 2, 3, 4]),
-				createBlock([5]),
-				null,
-				5,
-			);
-			const r3 = tr.concatBlock(
-				createBlock([10, 11, 12, 13]),
-			) as OuterTree<number>;
-			expect(r3.left.toArray()).toEqual([1, 2, 3, 4]);
-			expect(r3.middle?.toArray()).toEqual([5, 10, 11, 12]);
-			expect(r3.right.toArray()).toEqual([13]);
-		});
-
-		it('concatTree', () => {
-			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null, 6);
-
-			const r1 = t6.concat(t6) as OuterTree<number>;
-			const m1 = r1.middle as InnerBlock<any, any>;
-			expect(m1.level).toBe(1);
-			expect(r1.left).toBe(b3);
-			expect(r1.right).toBe(b3);
-			expect(m1.nrChildren).toBe(2);
-			expect(m1.children[0]).toBe(b3);
-			expect(m1.children[1]).toBe(b3);
-
-			const r2 = r1.concat(r1) as OuterTree<number>;
-			const m2 = r2.middle as InnerTree<any, any>;
-			expect(m2.level).toBe(1);
-			expect(m2.left.nrChildren).toBe(3);
-			expect(m2.right.nrChildren).toBe(3);
-			expect(m2.middle).toBeNull();
-		});
-
-		it('context', () => {
-			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null, 6);
-			expect(t6.context).toBe(context);
-		});
-
-		it('copy', () => {
-			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null, 6);
-			expect(t6.copy()).toBe(t6);
-			const b2 = createBlock([1, 2]);
-			const c = t6.copy(b2);
-			expect(c.left).toBe(b2);
-			expect(c.right).toBe(b3);
-			expect(c.middle).toBeNull();
-		});
-
-		it('drop', () => {
-			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null, 6);
-
-			expect(t6.drop(0)).toBe(t6);
-			expect(t6.drop(10)).toBe(context.empty());
-
-			expect(t6.drop(3)).toBe(b3);
-			expect(t6.drop(-3)).toBe(b3);
-
-			const r1 = t6.drop(2);
-			expect(r1).toBeInstanceOf(OuterBlock);
-			expect(r1.toArray()).toEqual([3, 1, 2, 3]);
-
-			const r2 = t6.drop(-2);
-			expect(r2).toBeInstanceOf(OuterBlock);
-			expect(r2.toArray()).toEqual([1, 2, 3, 1]);
-
-			const r3 = t6.drop(1) as OuterTree<number>;
-			expect(r3).toBeInstanceOf(OuterTree);
-			expect(r3.left.toArray()).toEqual([2, 3]);
-			expect(r3.right).toBe(b3);
-		});
-
-		it('filter', () => {
-			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null, 6);
-
-			expect(t6.filter(() => true)).toBe(t6);
-			expect(t6.filter(() => false)).toBe(context.empty());
-			const r1 = t6.filter((_, i) => i >= 3);
-			expect(r1).toBeInstanceOf(OuterBlock);
-			expect(r1.toArray()).toEqual([1, 2, 3]);
-		});
-
-		it('first', () => {
-			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null, 6);
-
-			expect(t6.first()).toBe(1);
-		});
-
-		it('flatMap', () => {
-			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null, 6);
-
-			expect(t6.flatMap((v) => [v]).toArray()).toEqual(t6.toArray());
-			expect(t6.flatMap(() => [])).toBe(context.empty());
-		});
-
-		it('forEach', () => {
-			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null, 6);
-
-			const cb = vi.fn();
-			t6.forEach(cb);
-			expect(cb).toBeCalledTimes(6);
-			expect(cb.mock.calls[2][0]).toBe(3);
-			expect(cb.mock.calls[2][1]).toBe(2);
-
-			cb.mockReset();
-
-			t6.forEach(cb, { reversed: true });
-			expect(cb).toBeCalledTimes(6);
-			expect(cb.mock.calls[2][0]).toBe(1);
-			expect(cb.mock.calls[2][1]).toBe(2);
-
-			cb.mockReset();
-
-			t6.forEach((_, __, halt) => {
-				halt();
-				cb();
-			});
-
-			expect(cb).toBeCalledTimes(1);
-		});
-
-		it('get', () => {
-			const b3 = createBlock([1, 2, 3]);
-			const t9 = context.outerTree(b3, b3, context.innerBlock([b3], 3, 1), 9);
-
-			expect(t9.get(1)).toBe(2);
-			expect(t9.get(1, 'a')).toBe(2);
-			expect(t9.get(1, () => 'a')).toBe(2);
-			expect(t9.get(4)).toBe(2);
-			expect(t9.get(7)).toBe(2);
-			expect(t9.get(-2)).toBe(2);
-			expect(t9.get(50)).toBeUndefined();
-			expect(t9.get(50, 'a')).toBe('a');
-			expect(t9.get(50, () => 'a')).toBe('a');
-		});
-
-		it('insert', () => {
-			const b3 = createBlock([1, 2, 3]);
-			const t9 = context.outerTree(b3, b3, context.innerBlock([b3], 3, 1), 9);
-
-			expect(t9.insert(1, [])).toBe(t9);
-			expect(t9.insert(1, [10, 11]).toArray()).toEqual([
-				1, 10, 11, 2, 3, 1, 2, 3, 1, 2, 3,
-			]);
-
-			expect(t9.insert(-1, [10, 11]).toArray()).toEqual([
-				1, 2, 3, 1, 2, 3, 1, 2, 10, 11, 3,
-			]);
-		});
-
-		it('isEmpty', () => {
-			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null, 6);
-			expect(t6.isEmpty).toBe(false);
-		});
-
-		it('first', () => {
-			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null, 6);
-
-			expect(t6.last()).toBe(3);
-		});
-
-		it('length', () => {
-			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null, 6);
-
-			expect(t6.length).toBe(6);
-			const t9 = t6.concat(b3);
-			expect(t9.length).toBe(9);
-		});
-
-		it('map', () => {
-			const b3 = createBlock([1, 2, 3]);
-			const t9 = context.outerTree(b3, b3, context.innerBlock([b3], 3, 1), 9);
-
-			expect(t9.toArray()).toEqual([1, 2, 3, 1, 2, 3, 1, 2, 3]);
-			expect(t9.map((v) => v + 1).toArray()).toEqual([
-				2, 3, 4, 2, 3, 4, 2, 3, 4,
-			]);
-			expect(t9.map((v) => v + 1, { reversed: true }).toArray()).toEqual([
-				4, 3, 2, 4, 3, 2, 4, 3, 2,
-			]);
-		});
-
-		it('mapPure', () => {
-			const b3 = createBlock([1, 2, 3]);
-			const t9 = context.outerTree(b3, b3, context.innerBlock([b3], 3, 1), 9);
-
-			expect(t9.toArray()).toEqual([1, 2, 3, 1, 2, 3, 1, 2, 3]);
-			const mapped = t9.mapPure((v) => v + 1);
-			expect(mapped.toArray()).toEqual([2, 3, 4, 2, 3, 4, 2, 3, 4]);
-			expect(mapped.left).toBe(mapped.right);
-
-			const mappedRev = t9.mapPure((v) => v + 1, { reversed: true });
-			expect(mappedRev.toArray()).toEqual([4, 3, 2, 4, 3, 2, 4, 3, 2]);
-			expect(mappedRev.left).toBe(mappedRev.right);
-		});
-
-		it('nonEmpty', () => {
-			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null, 6);
-
-			expect(t6.nonEmpty()).toBe(true);
-		});
-
-		it('padTo', () => {
-			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null, 6);
-
-			expect(t6.padTo(1, 3)).toBe(t6);
-			expect(t6.padTo(8, 9).toArray()).toEqual([1, 2, 3, 1, 2, 3, 9, 9]);
-
-			expect(t6.padTo(8, 9, { positionPercentage: 50 }).toArray()).toEqual([
-				9, 1, 2, 3, 1, 2, 3, 9,
-			]);
-		});
-
-		it('prepend', () => {
-			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null, 6);
-			const r1 = t6.prepend(10);
-
-			expect(r1.left).toBeInstanceOf(OuterBlock);
-			expect(r1.left.toArray()).toEqual([10, 1, 2, 3]);
-			expect(r1.middle).toBeNull();
-			expect(r1.right).toBe(b3);
-
-			const r2 = r1.prepend(11);
-			expect(r2.left).toBeInstanceOf(OuterBlock);
-			expect(r2.left.toArray()).toEqual([11, 10, 1, 2]);
-			expect(r2.right).toBeInstanceOf(OuterBlock);
-			expect(r2.right.toArray()).toEqual([3, 1, 2, 3]);
-			expect(r2.middle).toBeNull();
-
-			const r3 = r2.prepend(12);
-			expect(r3.left).toBeInstanceOf(OuterBlock);
-			expect(r3.left.toArray()).toEqual([12]);
-			expect(r3.middle).toBeInstanceOf(InnerBlock);
-			expect(r3.middle?.level).toBe(1);
-			expect(r3.middle?.toArray()).toEqual([11, 10, 1, 2]);
-			expect(r3.right).toBeInstanceOf(OuterBlock);
-			expect(r3.right.toArray()).toEqual([3, 1, 2, 3]);
-		});
-
-		it('prependMiddle', () => {
-			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null, 6);
-
-			const r1 = t6.prependMiddle(b3);
-			expect(r1.toArray()).toEqual([1, 2, 3]);
-
-			const t9 = context.outerTree(b3, b3, context.innerBlock([b3], 3, 1), 9);
-
-			const r2 = t9.prependMiddle(b3);
-			expect(r2.toArray()).toEqual([1, 2, 3, 1, 2, 3]);
-
-			const t12 = context.outerTree(
-				b3,
-				b3,
-				context.innerBlock([b3, b3, b3, b3], 12, 1),
-				18,
-			);
-
-			const r3 = t12.prependMiddle(b3) as InnerTree<number, any>;
-			expect(r3).toBeInstanceOf(InnerTree);
-			expect(r3.level).toBe(1);
-		});
-
-		it('remove', () => {
-			const b3 = createBlock([1, 2, 3]);
-			const t9 = context.outerTree(b3, b3, context.innerBlock([b3], 3, 1), 9);
-
-			expect(t9.remove(0, { amount: 10 })).toBe(context.empty());
-			expect(t9.remove(4, { amount: 0 })).toBe(t9);
-			expect(t9.remove(1, { amount: 2 }).toArray()).toEqual([
-				1, 1, 2, 3, 1, 2, 3,
-			]);
-		});
-
-		it('repeat', () => {
-			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null, 6);
-
-			expect(t6.repeat(0)).toBe(t6);
-			expect(t6.repeat(1)).toBe(t6);
-			expect(t6.repeat(2).toArray()).toEqual(t6.concat(t6).toArray());
-			expect(t6.repeat(10).length).toBe(60);
-		});
-
-		it('reversed', () => {
-			const b3 = createBlock([1, 2, 3]);
-			const t9 = context.outerTree(b3, b3, context.innerBlock([b3], 3, 1), 9);
-
-			expect(t9.reversed().toArray()).toEqual([3, 2, 1, 3, 2, 1, 3, 2, 1]);
-			expect(t9.reversed().reversed().toArray()).toEqual(t9.toArray());
-		});
-
-		it('rotate', () => {
-			const b3 = createBlock([1, 2, 3]);
-			const t9 = context.outerTree(b3, b3, context.innerBlock([b3], 3, 1), 9);
-
-			expect(t9.rotate(0)).toBe(t9);
-			expect(t9.rotate(9)).toBe(t9);
-			expect(t9.rotate(-9)).toBe(t9);
-			expect(t9.rotate(1).toArray()).toEqual([3, 1, 2, 3, 1, 2, 3, 1, 2]);
-			expect(t9.rotate(-2).toArray()).toEqual([3, 1, 2, 3, 1, 2, 3, 1, 2]);
-		});
-
-		it('slice', () => {
-			const b3 = createBlock([1, 2, 3]);
-			const t9 = context.outerTree(b3, b3, context.innerBlock([b3], 3, 1), 9);
-
-			expect(t9.slice({ amount: 10 })).toBe(t9);
-			expect(t9.slice({ amount: 10 }, { reversed: true }).toArray()).toEqual(
-				t9.reversed().toArray(),
-			);
-			expect(t9.slice({ amount: 3 })).toBe(b3);
-			const r1 = t9.slice({ start: 1, amount: 4 });
-			expect(r1).toBeInstanceOf(OuterBlock);
-			expect(r1.toArray()).toEqual([2, 3, 1, 2]);
-
-			const r2 = t9.slice({ start: 1, amount: 4 }, { reversed: true });
-			expect(r2).toBeInstanceOf(OuterBlock);
-			expect(r2.toArray()).toEqual([2, 1, 3, 2]);
-		});
-
-		it('splice', () => {
-			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null, 6);
-
-			expect(t6.splice({ index: 1, remove: 0 })).toBe(t6);
-			expect(t6.splice({ index: 1, remove: 2 }).toArray()).toEqual([
-				1, 1, 2, 3,
-			]);
-			expect(t6.splice({ index: 1, insert: [10, 11] }).toArray()).toEqual([
-				1, 10, 11, 2, 3, 1, 2, 3,
-			]);
-			expect(
-				t6.splice({ index: 1, remove: 2, insert: [10, 11] }).toArray(),
-			).toEqual([1, 10, 11, 1, 2, 3]);
-		});
-
-		it('stream', () => {
-			const b3 = createBlock([1, 2, 3]);
-			const t9 = context.outerTree(b3, b3, context.innerBlock([b3], 3, 1), 9);
-
-			expect(t9.stream().toArray()).toEqual([1, 2, 3, 1, 2, 3, 1, 2, 3]);
-			expect(t9.stream({ reversed: true }).toArray()).toEqual([
-				3, 2, 1, 3, 2, 1, 3, 2, 1,
-			]);
-		});
-
-		it('streamRange', () => {
-			const b3 = createBlock([1, 2, 3]);
-			const t9 = context.outerTree(b3, b3, context.innerBlock([b3], 3, 1), 9);
-
-			expect(t9.streamRange({ amount: 0 })).toBe(Stream.empty());
-			expect(t9.streamRange({ amount: 4 }).toArray()).toEqual([1, 2, 3, 1]);
-			expect(
-				t9.streamRange({ amount: 4 }, { reversed: true }).toArray(),
-			).toEqual([1, 3, 2, 1]);
-
-			expect(t9.streamRange({ start: 4, amount: 4 }).toArray()).toEqual([
-				2, 3, 1, 2,
-			]);
-			expect(
-				t9.streamRange({ start: 4, amount: 4 }, { reversed: true }).toArray(),
-			).toEqual([2, 1, 3, 2]);
-		});
-
-		it('_structure', () => {
-			const b3 = createBlock([1, 2, 3]);
-			const t9 = context.outerTree(b3, b3, context.innerBlock([b3], 3, 1), 9);
-
-			if (b3.isReversedBlock) {
-				expect(t9._structure()).toMatchInlineSnapshot(`
-				  "OuterTree(len: 9)
-				    left: (len: 3, ch: 3)
-				      ReversedOuterBlock<3>(1,2,3)
-				    middle: (len 3)
-				      InnerBlock(lev:1, len:3, ch: 1)
-				          ReversedOuterBlock<3>(1,2,3)
-				    right: (len: 3, ch: 3)
-				      ReversedOuterBlock<3>(1,2,3))"
-				`);
-			} else {
-				expect(t9._structure()).toMatchInlineSnapshot(`
-				  "OuterTree(len: 9)
-				    left: (len: 3, ch: 3)
-				      OuterBlock<3>(1,2,3)
-				    middle: (len 3)
-				      InnerBlock(lev:1, len:3, ch: 1)
-				          OuterBlock<3>(1,2,3)
-				    right: (len: 3, ch: 3)
-				      OuterBlock<3>(1,2,3))"
-				`);
-			}
-		});
-
-		it('take', () => {
-			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null, 6);
-
-			expect(t6.take(10)).toBe(t6);
-			expect(t6.take(0)).toBe(context.empty());
-
-			expect(t6.take(3)).toBe(b3);
-			expect(t6.take(-3)).toBe(b3);
-
-			const r1 = t6.take(4);
-			expect(r1).toBeInstanceOf(OuterBlock);
-			expect(r1.toArray()).toEqual([1, 2, 3, 1]);
-
-			const r2 = t6.take(-2);
-			expect(r2).toBeInstanceOf(OuterBlock);
-			expect(r2.toArray()).toEqual([2, 3]);
-
-			const r3 = t6.take(5) as OuterTree<number>;
-			console.log((r3 as any)._structure());
-			expect(r3).toBeInstanceOf(OuterTree);
-			expect(r3.left).toBe(b3);
-			expect(r3.right.toArray()).toEqual([1, 2]);
-		});
-
-		it('toArray()', () => {
-			const b3 = createBlock([1, 2, 3]);
-			const t9 = context.outerTree(b3, b3, context.innerBlock([b3], 3, 1), 9);
-
-			expect(t9.toArray()).toEqual([1, 2, 3, 1, 2, 3, 1, 2, 3]);
-			expect(t9.toArray({ range: { amount: 4 } })).toEqual([1, 2, 3, 1]);
-			expect(t9.toArray({ range: { start: 5, amount: 4 } })).toEqual([
-				3, 1, 2, 3,
-			]);
-
-			expect(t9.toArray({ reversed: true })).toEqual([
-				3, 2, 1, 3, 2, 1, 3, 2, 1,
-			]);
-			expect(t9.toArray({ range: { amount: 4 }, reversed: true })).toEqual([
-				1, 3, 2, 1,
-			]);
-			expect(
-				t9.toArray({ range: { start: 5, amount: 4 }, reversed: true }),
-			).toEqual([3, 2, 1, 3]);
-		});
-
-		it('toBuilder', () => {
-			const b3 = createBlock([1, 2, 3]);
-			const t9 = context.outerTree(b3, b3, context.innerBlock([b3], 3, 1), 9);
-
-			expect(t9.toBuilder().build()).toBe(t9);
-
-			const builder = t9.toBuilder();
-			builder.append(4);
-			expect(builder.build().toArray()).toEqual([1, 2, 3, 1, 2, 3, 1, 2, 3, 4]);
-			expect(t9.toArray()).toEqual([1, 2, 3, 1, 2, 3, 1, 2, 3]);
-		});
-
-		it('toString', () => {
-			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null, 6);
-
-			expect(t6.toString()).toBe('List(1, 2, 3, 1, 2, 3)');
-		});
-
-		it('unzip', () => {
-			const b3 = createBlock<[number, string]>([
-				[1, 'a'],
-				[2, 'b'],
-				[3, 'c'],
-			]);
-			const t6 = context.outerTree(b3, b3, null, 6);
-
-			const [l1, l2] = List.unzip(t6, { length: 2 });
-
-			expect(l1.toArray()).toEqual([1, 2, 3, 1, 2, 3]);
-			expect(l2.toArray()).toEqual(['a', 'b', 'c', 'a', 'b', 'c']);
-		});
-
-		it('updateAt', () => {
-			const b3 = createBlock([1, 2, 3]);
-			const t9 = context.outerTree(b3, b3, context.innerBlock([b3], 3, 1), 9);
-
-			expect(t9.updateAt(10, () => 1)).toBe(t9);
-			expect(t9.updateAt(10, () => 10)).toBe(t9);
-
-			expect(t9.updateAt(1, () => 10).toArray()).toEqual([
-				1, 10, 3, 1, 2, 3, 1, 2, 3,
-			]);
-			expect(t9.updateAt(1, (v) => v + 10).toArray()).toEqual([
-				1, 12, 3, 1, 2, 3, 1, 2, 3,
-			]);
-			expect(t9.updateAt(-3, () => 10).toArray()).toEqual([
-				1, 2, 3, 1, 2, 3, 10, 2, 3,
-			]);
-			expect(t9.updateAt(-3, (v) => v + 10).toArray()).toEqual([
-				1, 2, 3, 1, 2, 3, 11, 2, 3,
-			]);
-		});
-	});
+function makeContext<T>(blockSizeBits: number): ListContext<T> {
+	return List.createContext({ blockSizeBits }) as ListContext<T>;
 }
 
-const context2 = ListHelpers.createListContext({
-	blockSizeBits: 2,
-}) as unknown as ListContext<ListHelpers.TypesImpl>;
+function simpleTree(
+	leftVals: number[],
+	rightVals: number[],
+	bits = 2,
+): OuterTree<number> {
+	const ctx = makeContext<number>(bits);
+	return ctx.outerTree<number>(
+		ctx.outerBlockLeftRight(ctx.childrenOps.of(leftVals)),
+		ctx.outerBlockLeftRight(ctx.childrenOps.of(rightVals)),
+		null,
+		leftVals.length + rightVals.length,
+	);
+}
 
-runOuterTreeTests('outertree', context2, (values) =>
-	context2.outerBlock(values),
-);
-runOuterTreeTests('outertree with rev blocks', context2, (values) =>
-	context2.reversedOuterBlock(values.toReversed()),
-);
+function treeWithMiddle(
+	leftVals: number[],
+	middleVals: number[][],
+	rightVals: number[],
+	bits = 2,
+): OuterTree<number> {
+	const ctx = makeContext<number>(bits);
+	const left = ctx.outerBlockLeftRight(ctx.childrenOps.of(leftVals));
+	const right = ctx.outerBlockLeftRight(ctx.childrenOps.of(rightVals));
 
-function outerTreeBlockSize3(
-	tag: string,
-	context: ListContext,
-	createBlock: <T>(values: T[]) => OuterBlock<T>,
-) {
-	describe(tag, () => {
-		it('concatTree no middle', () => {
-			const t1 = context.outerTree(
-				createBlock([1, 2, 3, 4, 5, 6, 7, 8]),
-				createBlock([9]),
-				null,
-				9,
-			);
-			const t2 = context.outerTree(
-				createBlock([10]),
-				createBlock([11, 12, 13, 14, 15, 16, 17, 18]),
-				null,
-				9,
-			);
+	const size = left.size + right.size;
 
-			const r = t1.concatTree(t2);
+	const blocks = middleVals.map((vals) =>
+		ctx.outerBlockLeftRight(ctx.childrenOps.of(vals)),
+	);
+	const totalMiddleSize = middleVals.reduce((s, v) => s + v.length, 0);
 
-			expect(r.left.toArray()).toEqual([1, 2]);
-			expect(r.middle?.toArray()).toEqual([3, 4, 5, 6, 7, 8, 9, 10]);
-			expect(r.right.toArray()).toEqual([11, 12, 13, 14, 15, 16, 17, 18]);
+	const middle = ctx.innerBlock<number, OuterBlock<number>>(
+		blocks as OuterBlock<number>[],
+		totalMiddleSize,
+		1,
+	);
+
+	return ctx.outerTree<number>(left, right, middle, size + totalMiddleSize);
+}
+
+describe('OuterTree.structure', () => {
+	it('has left, right, size properties', () => {
+		const t = simpleTree([1, 2, 3], [4, 5]);
+
+		expect(t.left).toBeDefined();
+		expect(t.right).toBeDefined();
+		expect(t).toHaveProperty('middle');
+		expect(t.size).toBe(5);
+	});
+
+	it('context is the list context', () => {
+		const t = simpleTree([1, 2], [3, 4]);
+		expect(t.context.blockSizeBits).toBe(2);
+	});
+
+	it('simple tree has null middle', () => {
+		const t = simpleTree([1, 2], [3, 4]);
+		expect(t.middle).toBeNull();
+	});
+
+	it('tree with middle has non-null middle', () => {
+		const t = treeWithMiddle([1, 2], [[3, 4, 5, 6]], [7, 8]);
+		expect(t.middle).not.toBeNull();
+		expect(t.middle!.size).toBe(4);
+	});
+
+	it('preserves blockSizeBits in context', () => {
+		const t = simpleTree([1], [2], 3);
+		expect(t.context.blockSizeBits).toBe(3);
+	});
+});
+
+describe('OuterTree.read', () => {
+	describe('at', () => {
+		const t = simpleTree([10, 20, 30], [40, 50]);
+
+		it('reads from left block', () => {
+			expect(t.at(0)).toBe(10);
+			expect(t.at(1)).toBe(20);
+			expect(t.at(2)).toBe(30);
 		});
 
-		it('concatTree with middle, joint not in max', () => {
-			const m1 = context.innerBlock<number, OuterBlock<number>>(
-				[createBlock([11, 12, 13, 14, 15, 16, 17, 18])],
-				8,
-				1,
-			);
+		it('reads from right block', () => {
+			expect(t.at(3)).toBe(40);
+			expect(t.at(4)).toBe(50);
+		});
 
-			const t1 = context.outerTree(
-				createBlock([1, 2, 3, 4, 5, 6, 7, 8]),
-				createBlock([21]),
-				m1,
-				17,
-			);
-			const t2 = context.outerTree(
-				createBlock([31]),
-				createBlock([41, 42, 43, 44, 45, 46, 47, 48]),
-				null,
-				9,
-			);
+		it('negative indices cross block boundaries', () => {
+			expect(t.at(-1)).toBe(50);
+			expect(t.at(-2)).toBe(40);
+			expect(t.at(-3)).toBe(30);
+			expect(t.at(-4)).toBe(20);
+			expect(t.at(-5)).toBe(10);
+		});
 
-			const r = t1.concatTree(t2);
+		it('out of bounds returns otherwise', () => {
+			expect(t.at(5)).toBeUndefined();
+			expect(t.at(-6)).toBeUndefined();
+			expect(t.at(5, 'fallback')).toBe('fallback');
+			expect(t.at(-6, () => 'lazy')).toBe('lazy');
+		});
 
-			expect(r.left.toArray()).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
-			expect(r.middle?.toArray()).toEqual([
-				11, 12, 13, 14, 15, 16, 17, 18, 21, 31,
-			]);
-			expect(r.right.toArray()).toEqual([41, 42, 43, 44, 45, 46, 47, 48]);
-			const mt = r.middle as InnerBlock<number, OuterBlock<number>>;
-			expect(mt.nrChildren).toBe(2);
-			expect(mt.children[0].toArray()).toEqual([11, 12, 13, 14, 15]);
-			expect(context.isOuterBlock<number>(mt.children[0])).toBe(true);
-			expect(mt.children[1].toArray()).toEqual([16, 17, 18, 21, 31]);
-			expect(context.isOuterBlock<number>(mt.children[1])).toBe(true);
+		it('boundary: index equals size', () => {
+			expect(t.at(5)).toBeUndefined();
+		});
+
+		it('boundary: index equals -size-1', () => {
+			expect(t.at(-6)).toBeUndefined();
+		});
+
+		it('boundary: index equals -size (first element)', () => {
+			expect(t.at(-5)).toBe(10);
+		});
+
+		it('boundary: index equals size-1 (last element)', () => {
+			expect(t.at(4)).toBe(50);
+		});
+
+		it('otherwise is not called for valid index', () => {
+			let called = false;
+			expect(
+				t.at(0, () => {
+					called = true;
+					return 999;
+				}),
+			).toBe(10);
+			expect(called).toBe(false);
 		});
 	});
 
-	it('concatTree with middle, joint children in max', () => {
-		const m1 = context.innerBlock<number, OuterBlock<number>>(
-			[createBlock([11, 12, 13, 14, 15])],
+	describe('at with middle', () => {
+		const t = treeWithMiddle([1, 2], [[3, 4, 5, 6]], [7, 8]);
+
+		it('reads from left', () => {
+			expect(t.at(0)).toBe(1);
+			expect(t.at(1)).toBe(2);
+		});
+
+		it('reads from middle', () => {
+			expect(t.at(2)).toBe(3);
+			expect(t.at(3)).toBe(4);
+			expect(t.at(4)).toBe(5);
+			expect(t.at(5)).toBe(6);
+		});
+
+		it('reads from right', () => {
+			expect(t.at(6)).toBe(7);
+			expect(t.at(7)).toBe(8);
+		});
+
+		it('negative index reads correctly', () => {
+			expect(t.at(-1)).toBe(8);
+			expect(t.at(-2)).toBe(7);
+			expect(t.at(-3)).toBe(6);
+			expect(t.at(-8)).toBe(1);
+		});
+	});
+
+	describe('at on larger tree', () => {
+		const t = simpleTree(
+			[10, 20, 30],
+			[40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160],
+		);
+
+		it('handles many elements across left-right boundary', () => {
+			expect(t.at(0)).toBe(10);
+			expect(t.at(2)).toBe(30);
+			expect(t.at(3)).toBe(40);
+			expect(t.at(10)).toBe(110);
+			expect(t.at(15)).toBe(160);
+		});
+
+		it('negative indices on larger tree', () => {
+			expect(t.at(-1)).toBe(160);
+			expect(t.at(-5)).toBe(120);
+		});
+	});
+
+	describe('get', () => {
+		const t = simpleTree([10, 20], [30, 40, 50]);
+
+		it('returns element at positive index', () => {
+			expect(t._get(0 as Int.AtLeastZero)).toBe(10);
+			expect(t._get(3 as Int.AtLeastZero)).toBe(40);
+			expect(t._get(4 as Int.AtLeastZero)).toBe(50);
+		});
+
+		it('at supports negative indices', () => {
+			expect(t.at(-1)).toBe(50);
+			expect(t.at(-4)).toBe(20);
+		});
+	});
+
+	describe('first', () => {
+		it('returns first element from left block', () => {
+			const t = simpleTree([100, 200], [300]);
+			expect(t.first()).toBe(100);
+		});
+	});
+
+	describe('last', () => {
+		it('returns last element from right block', () => {
+			const t = simpleTree([100, 200], [300, 400]);
+			expect(t.last()).toBe(400);
+		});
+	});
+
+	describe('toArray', () => {
+		it('concatenates left, middle, right in order', () => {
+			const t = simpleTree([1, 2, 3], [4, 5]);
+			expect(t.toArray()).toEqual([1, 2, 3, 4, 5]);
+		});
+
+		it('includes middle block', () => {
+			const t = treeWithMiddle(
+				[1, 2],
+				[
+					[3, 4],
+					[5, 6],
+				],
+				[7, 8],
+			);
+			expect(t.toArray()).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+		});
+
+		it('single element in left', () => {
+			const t = simpleTree([1], [2, 3, 4]);
+			expect(t.toArray()).toEqual([1, 2, 3, 4]);
+		});
+	});
+});
+
+describe('OuterTree.stream', () => {
+	describe('forward', () => {
+		it('streams left, middle, right in order', () => {
+			const t = simpleTree([10, 20], [30, 40]);
+			expect([...t.stream()]).toEqual([10, 20, 30, 40]);
+		});
+
+		it('streams tree with middle', () => {
+			const t = treeWithMiddle(
+				[1],
+				[
+					[2, 3],
+					[4, 5],
+				],
+				[6],
+			);
+			expect([...t.stream()]).toEqual([1, 2, 3, 4, 5, 6]);
+		});
+	});
+
+	describe('reversed', () => {
+		it('streams right, middle, left in reverse', () => {
+			const t = simpleTree([10, 20], [30, 40]);
+			expect([...t.stream({ reversed: true })]).toEqual([40, 30, 20, 10]);
+		});
+
+		it('reversed with middle', () => {
+			const t = treeWithMiddle(
+				[1],
+				[
+					[2, 3],
+					[4, 5],
+				],
+				[6],
+			);
+			expect([...t.stream({ reversed: true })]).toEqual([6, 5, 4, 3, 2, 1]);
+		});
+	});
+});
+
+describe('OuterTree.forEach', () => {
+	it('visits left, middle, right in order', () => {
+		const t = simpleTree([1, 2], [3, 4]);
+		const result: number[] = [];
+		t.forEach((v) => result.push(v));
+		expect(result).toEqual([1, 2, 3, 4]);
+	});
+
+	it('visits tree with middle', () => {
+		const t = treeWithMiddle([10], [[20, 30]], [40]);
+		const result: number[] = [];
+		t.forEach((v) => result.push(v));
+		expect(result).toEqual([10, 20, 30, 40]);
+	});
+});
+
+describe('OuterTree.prepend', () => {
+	const bits = 2; // max=4, min=2
+
+	it('adds to left when left has room', () => {
+		const t = simpleTree([1, 2], [5, 6]);
+		const r = t.prepend(0);
+		expect(r.toArray()).toEqual([0, 1, 2, 5, 6]);
+		expect(r.size).toBe(5);
+	});
+
+	it('shifts from left to right when left full and right has room', () => {
+		// left full with 4, right has 1 with room
+		const ctx = makeContext<number>(bits);
+		const t = ctx.outerTree(
+			ctx.outerBlockLeftRight(ctx.childrenOps.of([1, 2, 3, 4])),
+			ctx.outerBlockLeftRight(ctx.childrenOps.of([5])),
+			null,
+			5,
+		);
+		const r = t.prepend(0);
+		expect(r.toArray()).toEqual([0, 1, 2, 3, 4, 5]);
+		expect(r.size).toBe(6);
+	});
+
+	it('shifts into middle when left full and middle first block has room', () => {
+		// left=[1,2,3,4], middle=[ [5,6] ], right=[7,8,9,10]
+		const t = treeWithMiddle([1, 2, 3, 4], [[5, 6]], [7, 8, 9, 10], bits);
+		const r = t.prepend(0);
+		expect(r.toArray()).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+		expect(r.size).toBe(11);
+	});
+
+	it('promotes left to middle when all are full', () => {
+		// left=[1,2,3,4], right=[5,6,7,8], no middle
+		const ctx = makeContext<number>(bits);
+		const t = ctx.outerTree(
+			ctx.outerBlockLeftRight(ctx.childrenOps.of([1, 2, 3, 4])),
+			ctx.outerBlockLeftRight(ctx.childrenOps.of([5, 6, 7, 8])),
+			null,
 			8,
-			1,
 		);
-
-		const t1 = context.outerTree(
-			createBlock([1, 2, 3, 4, 5, 6, 7, 8]),
-			createBlock([21]),
-			m1,
-			17,
-		);
-		const t2 = context.outerTree(
-			createBlock([31]),
-			createBlock([41, 42, 43, 44, 45, 46, 47, 48]),
-			null,
-			9,
-		);
-
-		const r = t1.concatTree(t2);
-
-		expect(r.left.toArray()).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
-		expect(r.middle?.toArray()).toEqual([11, 12, 13, 14, 15, 21, 31]);
-		expect(r.right.toArray()).toEqual([41, 42, 43, 44, 45, 46, 47, 48]);
-		const mt = r.middle as InnerBlock<number, OuterBlock<number>>;
-		expect(mt.nrChildren).toBe(1);
-		expect(mt.children[0].toArray()).toEqual([11, 12, 13, 14, 15, 21, 31]);
-		expect(context.isOuterBlock<number>(mt.children[0])).toBe(true);
+		const r = t.prepend(0);
+		expect(r.toArray()).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8]);
+		expect(r.size).toBe(9);
+		// left should be [0], middle should contain original left
+		expect(r.middle).not.toBeNull();
 	});
 
-	it('concatTree no middle, jointLength > min < max', () => {
-		const t1 = context.outerTree(
-			createBlock([1, 2, 3, 4, 5, 6, 7, 8]),
-			createBlock([11, 12, 13]),
-			null,
-			11,
-		);
-		const t2 = context.outerTree(
-			createBlock([21, 22, 23]),
-			createBlock([31, 32, 33, 34, 35, 36, 37, 38]),
-			null,
-			11,
-		);
-
-		const r = t1.concatTree(t2);
-
-		expect(r.left.toArray()).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
-		expect(r.middle?.toArray()).toEqual([11, 12, 13, 21, 22, 23]);
-		expect(r.right.toArray()).toEqual([31, 32, 33, 34, 35, 36, 37, 38]);
-		const mt = r.middle as InnerBlock<number, OuterBlock<number>>;
-		expect(mt.nrChildren).toBe(1);
-		expect(context.isOuterBlock<number>(mt.children[0])).toBe(true);
+	it('does not mutate original', () => {
+		const t = simpleTree([1, 2], [3, 4]);
+		t.prepend(0);
+		expect(t.toArray()).toEqual([1, 2, 3, 4]);
 	});
 
-	it('concatTree joinLength > max, right >= min && other.left >= min', () => {
-		const t1 = context.outerTree(
-			createBlock([1, 2, 3, 4, 5, 6, 7, 8]),
-			createBlock([11, 12, 13]),
-			null,
-			11,
-		);
-		const t2 = context.outerTree(
-			createBlock([21, 22, 23, 24, 25, 26]),
-			createBlock([31, 32, 33, 34, 35, 36, 37, 38]),
-			null,
-			14,
-		);
-
-		const r = t1.concatTree(t2);
-
-		expect(r.left.toArray()).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
-		expect(r.middle?.toArray()).toEqual([11, 12, 13, 21, 22, 23, 24, 25, 26]);
-		expect(r.right.toArray()).toEqual([31, 32, 33, 34, 35, 36, 37, 38]);
-		const mt = r.middle as InnerBlock<number, OuterBlock<number>>;
-		expect(mt.nrChildren).toBe(2);
-		expect(context.isOuterBlock<number>(mt.children[0])).toBe(true);
-		expect(context.isOuterBlock<number>(mt.children[1])).toBe(true);
-		expect((mt.children[0].children as any).length).toBe(4);
-		expect((mt.children[1].children as any).length).toBe(5);
+	it('returns a Tree', () => {
+		const t = simpleTree([1, 2], [3, 4]);
+		const r = t.prepend(0);
+		expect(r).toHaveProperty('left');
+		expect(r).toHaveProperty('right');
+		expect(r).toHaveProperty('middle');
 	});
-}
 
-const context3 = ListHelpers.createListContext({
-	blockSizeBits: 3,
-}) as unknown as ListContext<ListHelpers.TypesImpl>;
+	it('sequential prepends build correct tree', () => {
+		const ctx = makeContext<number>(bits);
+		let t: any = ctx.of(10);
+		for (const v of [9, 8, 7, 6, 5, 4, 3, 2, 1]) {
+			t = t.prepend(v);
+		}
+		expect(t.toArray()).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+		expect(t.size).toBe(10);
+	});
 
-outerTreeBlockSize3('outerTree blockSize 3', context3, (values) =>
-	context3.outerBlock(values),
-);
-outerTreeBlockSize3('rev outerTree blockSize 3', context3, (values) =>
-	context3.reversedOuterBlock(values.toReversed()),
-);
+	it('promotes middle to InnerTree when middle is full and left overflows', () => {
+		// middle has 4 children (at capacity), all blocks full
+		const t = treeWithMiddle(
+			[1, 2, 3, 4],
+			[
+				[5, 6, 7, 8],
+				[9, 10, 11, 12],
+				[13, 14, 15, 16],
+				[17, 18, 19, 20],
+			],
+			[21, 22, 23, 24],
+			bits,
+		);
+		const r = t.prepend(0);
+		expect(r.toArray()).toEqual([
+			0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+			21, 22, 23, 24,
+		]);
+		expect(r.size).toBe(25);
+	});
+});
+
+describe('OuterTree.append', () => {
+	const bits = 2; // max=4, min=2
+
+	it('adds to right when right has room', () => {
+		const t = simpleTree([1, 2], [4, 5]);
+		const r = t.append(6);
+		expect(r.toArray()).toEqual([1, 2, 4, 5, 6]);
+		expect(r.size).toBe(5);
+	});
+
+	it('shifts from right to left when right full and left has room', () => {
+		const ctx = makeContext<number>(bits);
+		const t = ctx.outerTree(
+			ctx.outerBlockLeftRight(ctx.childrenOps.of([1])),
+			ctx.outerBlockLeftRight(ctx.childrenOps.of([2, 3, 4, 5])),
+			null,
+			5,
+		);
+		const r = t.append(6);
+		expect(r.toArray()).toEqual([1, 2, 3, 4, 5, 6]);
+		expect(r.size).toBe(6);
+	});
+
+	it('shifts into middle when right full and middle last block has room', () => {
+		const t = treeWithMiddle([1, 2, 3, 4], [[5, 6]], [7, 8, 9, 10], bits);
+		const r = t.append(11);
+		expect(r.toArray()).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
+		expect(r.size).toBe(11);
+	});
+
+	it('promotes right to middle when all are full', () => {
+		const ctx = makeContext<number>(bits);
+		const t = ctx.outerTree(
+			ctx.outerBlockLeftRight(ctx.childrenOps.of([1, 2, 3, 4])),
+			ctx.outerBlockLeftRight(ctx.childrenOps.of([5, 6, 7, 8])),
+			null,
+			8,
+		);
+		const r = t.append(9);
+		expect(r.toArray()).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+		expect(r.size).toBe(9);
+		expect(r.middle).not.toBeNull();
+	});
+
+	it('does not mutate original', () => {
+		const t = simpleTree([1, 2], [3, 4]);
+		t.append(5);
+		expect(t.toArray()).toEqual([1, 2, 3, 4]);
+	});
+
+	it('returns a Tree', () => {
+		const t = simpleTree([1, 2], [3, 4]);
+		const r = t.append(5);
+		expect(r).toHaveProperty('left');
+		expect(r).toHaveProperty('right');
+		expect(r).toHaveProperty('middle');
+	});
+
+	it('sequential appends build correct tree', () => {
+		const ctx = makeContext<number>(bits);
+		let t: any = ctx.of(1);
+		for (let i = 2; i <= 10; i++) {
+			t = t.append(i);
+		}
+		expect(t.toArray()).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+		expect(t.size).toBe(10);
+	});
+
+	it('promotes middle to InnerTree when middle is full and right overflows', () => {
+		const t = treeWithMiddle(
+			[1, 2, 3, 4],
+			[
+				[5, 6, 7, 8],
+				[9, 10, 11, 12],
+				[13, 14, 15, 16],
+				[17, 18, 19, 20],
+			],
+			[21, 22, 23, 24],
+			bits,
+		);
+		const r = t.append(25);
+		expect(r.toArray()).toEqual([
+			1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
+			22, 23, 24, 25,
+		]);
+		expect(r.size).toBe(25);
+	});
+});
+
+describe('OuterTree.updateAtAndReturn', () => {
+	const bits = 2;
+
+	it('updates element in left block', () => {
+		const t = simpleTree([1, 2], [5, 6]);
+		const { collection, hasResult, result, hasChanged } = t.updateAtAndReturn(
+			0,
+			(x) => x + 10,
+		);
+		expect(hasResult).toBe(true);
+		expect(hasChanged).toBe(true);
+		const [prev, curr] = result;
+		expect(prev).toBe(1);
+		expect(curr).toBe(11);
+		expect(collection.toArray()).toEqual([11, 2, 5, 6]);
+	});
+
+	it('updates element in right block', () => {
+		const t = simpleTree([10, 20], [30, 40]);
+		const { collection, hasResult, result, hasChanged } = t.updateAtAndReturn(
+			3,
+			(x) => x + 1,
+		);
+		expect(hasResult).toBe(true);
+		expect(hasChanged).toBe(true);
+		const [prev, curr] = result;
+		expect(prev).toBe(40);
+		expect(curr).toBe(41);
+		expect(collection.toArray()).toEqual([10, 20, 30, 41]);
+	});
+
+	it('updates element at negative index', () => {
+		const t = simpleTree([10, 20], [30, 40]);
+		const { collection, result } = t.updateAtAndReturn(-2, (x) => x * 10);
+		const [prev, curr] = result;
+		expect(prev).toBe(30);
+		expect(curr).toBe(300);
+		expect(collection.toArray()).toEqual([10, 20, 300, 40]);
+	});
+
+	it('updates element in middle block', () => {
+		const t = treeWithMiddle([1, 2], [[3, 4]], [5, 6], bits);
+		const { collection, result } = t.updateAtAndReturn(3, (x) => x + 100);
+		const [prev, curr] = result;
+		expect(prev).toBe(4);
+		expect(curr).toBe(104);
+		expect(collection.toArray()).toEqual([1, 2, 3, 104, 5, 6]);
+	});
+
+	it('returns unchanged and no result for out-of-bounds index', () => {
+		const t = simpleTree([10, 20], [30, 40]);
+		const { collection, hasResult, result, hasChanged } = t.updateAtAndReturn(
+			100,
+			(x) => x + 1,
+		);
+		expect(collection).toBe(t);
+		expect(hasResult).toBe(false);
+		expect(hasChanged).toBe(false);
+		const [prev, curr] = result;
+		expect(prev).toBeUndefined();
+		expect(curr).toBeUndefined();
+	});
+
+	it('does not mutate original', () => {
+		const t = simpleTree([1, 2], [3, 4]);
+		t.updateAtAndReturn(0, (x) => x + 10);
+		expect(t.toArray()).toEqual([1, 2, 3, 4]);
+	});
+});
+
+describe('OuterTree.setAtAndReturn', () => {
+	it('replaces element and returns previous value', () => {
+		const t = simpleTree([10, 20], [30, 40]);
+		const {
+			collection,
+			hasResult,
+			result: previous,
+			hasChanged,
+		} = t.setAtAndReturn(1, 99);
+		expect(hasResult).toBe(true);
+		expect(hasChanged).toBe(true);
+		expect(previous).toBe(20);
+		expect(collection.toArray()).toEqual([10, 99, 30, 40]);
+	});
+
+	it('returns unchanged for out-of-bounds', () => {
+		const t = simpleTree([10, 20], [30, 40]);
+		const {
+			collection,
+			hasResult,
+			result: previous,
+			hasChanged,
+		} = t.setAtAndReturn(100, 999);
+		expect(collection).toBe(t);
+		expect(hasResult).toBe(false);
+		expect(previous).toBeUndefined();
+		expect(hasChanged).toBe(false);
+	});
+});
+
+describe('OuterTree.take', () => {
+	const bits = 2;
+
+	it('take from left block only', () => {
+		const t = simpleTree([1, 2, 3], [10, 20]);
+		const r = t.take(2);
+		expect(r.size).toBe(2);
+		expect(r.toArray()).toEqual([1, 2]);
+	});
+
+	it('take crosses into right block', () => {
+		const t = simpleTree([1, 2], [10, 20, 30]);
+		const r = t.take(3);
+		expect(r.size).toBe(3);
+		expect(r.toArray()).toEqual([1, 2, 10]);
+	});
+
+	it('take from tree with middle', () => {
+		const t = treeWithMiddle([1, 2], [[3, 4, 5, 6]], [7, 8], bits);
+		const r = t.take(4);
+		expect(r.size).toBe(4);
+		expect(r.toArray()).toEqual([1, 2, 3, 4]);
+	});
+
+	it('take zero returns empty', () => {
+		const t = simpleTree([1, 2], [3, 4]);
+		const r = t.take(0);
+		expect(r.isEmpty).toBe(true);
+	});
+
+	it('take all returns same list', () => {
+		const t = simpleTree([1, 2, 3], [4, 5]);
+		const r = t.take(5);
+		expect(r.toArray()).toEqual([1, 2, 3, 4, 5]);
+	});
+
+	it('does not mutate original', () => {
+		const t = simpleTree([1, 2], [3, 4]);
+		t.take(1);
+		expect(t.toArray()).toEqual([1, 2, 3, 4]);
+	});
+});
+
+describe('OuterTree.drop', () => {
+	it('drop from left block only', () => {
+		const t = simpleTree([1, 2, 3], [10, 20]);
+		const r = t.drop(1);
+		expect(r.size).toBe(4);
+		expect(r.toArray()).toEqual([2, 3, 10, 20]);
+	});
+
+	it('drop crosses into right block', () => {
+		const t = simpleTree([1, 2], [10, 20, 30]);
+		const r = t.drop(3);
+		expect(r.size).toBe(2);
+		expect(r.toArray()).toEqual([20, 30]);
+	});
+
+	it('drop zero returns same list', () => {
+		const t = simpleTree([1, 2], [3, 4]);
+		const r = t.drop(0);
+		expect(r.toArray()).toEqual([1, 2, 3, 4]);
+	});
+
+	it('drop all returns empty', () => {
+		const t = simpleTree([1, 2], [3, 4]);
+		const r = t.drop(4);
+		expect(r.isEmpty).toBe(true);
+	});
+
+	it('does not mutate original', () => {
+		const t = simpleTree([1, 2], [3, 4]);
+		t.drop(1);
+		expect(t.toArray()).toEqual([1, 2, 3, 4]);
+	});
+});
+
+describe('OuterTree.insertAt', () => {
+	const bits = 2;
+	const ctx = makeContext<number>(bits);
+
+	it('inserts at the left, block, and right boundaries', () => {
+		const t = simpleTree([1, 2], [3, 4], bits);
+
+		expect(t.insertAt(0, ctx.of(0)).toArray()).toEqual([0, 1, 2, 3, 4]);
+		expect(t.insertAt(2, ctx.of(9, 10)).toArray()).toEqual([1, 2, 9, 10, 3, 4]);
+		expect(t.insertAt(t.size, ctx.of(5)).toArray()).toEqual([1, 2, 3, 4, 5]);
+	});
+
+	it('inserts across the middle of a tree with middle blocks', () => {
+		const t = treeWithMiddle(
+			[1, 2],
+			[
+				[3, 4],
+				[5, 6],
+			],
+			[7, 8],
+			bits,
+		);
+
+		expect(t.insertAt(2, ctx.of(9, 10)).toArray()).toEqual([
+			1, 2, 9, 10, 3, 4, 5, 6, 7, 8,
+		]);
+		expect(t.insertAt(6, ctx.of(11)).toArray()).toEqual([
+			1, 2, 3, 4, 5, 6, 11, 7, 8,
+		]);
+	});
+
+	it('supports negative and out-of-range positions', () => {
+		const t = simpleTree([1, 2], [3, 4], bits);
+
+		expect(t.insertAt(-1, ctx.of(9)).toArray()).toEqual([1, 2, 3, 9, 4]);
+		expect(t.insertAt(-100, ctx.of(0)).toArray()).toEqual([0, 1, 2, 3, 4]);
+		expect(t.insertAt(100, ctx.of(5)).toArray()).toEqual([1, 2, 3, 4, 5]);
+	});
+
+	it('does not mutate the original tree', () => {
+		const t = simpleTree([1, 2], [3, 4], bits);
+
+		t.insertAt(2, ctx.of(9));
+
+		expect(t.toArray()).toEqual([1, 2, 3, 4]);
+	});
+});
+
+describe('OuterTree.removeAt', () => {
+	const bits = 2;
+
+	it('removes from the left, middle, and right boundaries', () => {
+		const t = simpleTree([1, 2], [3, 4], bits);
+
+		expect(t.removeAt(0).toArray()).toEqual([2, 3, 4]);
+		expect(t.removeAt(1, 2).toArray()).toEqual([1, 4]);
+		expect(t.removeAt(-1).toArray()).toEqual([1, 2, 3]);
+	});
+
+	it('removes across the middle of a tree with middle blocks', () => {
+		const t = treeWithMiddle(
+			[1, 2],
+			[
+				[3, 4],
+				[5, 6],
+			],
+			[7, 8],
+			bits,
+		);
+
+		expect(t.removeAt(2, 3).toArray()).toEqual([1, 2, 6, 7, 8]);
+		expect(t.removeAt(6, 2).toArray()).toEqual([1, 2, 3, 4, 5, 6]);
+	});
+
+	it('clamps negative and out-of-range positions', () => {
+		const t = simpleTree([1, 2], [3, 4], bits);
+
+		expect(t.removeAt(-100).toArray()).toEqual([2, 3, 4]);
+		expect(t.removeAt(100).toArray()).toEqual([1, 2, 3, 4]);
+		expect(t.removeAt(1, 100).toArray()).toEqual([1]);
+	});
+
+	it('removing all elements returns an empty list', () => {
+		const t = simpleTree([1, 2], [3, 4], bits);
+
+		expect(t.removeAt(0, t.size).isEmpty).toBe(true);
+	});
+
+	it('does not mutate the original tree', () => {
+		const t = simpleTree([1, 2], [3, 4], bits);
+
+		t.removeAt(2);
+
+		expect(t.toArray()).toEqual([1, 2, 3, 4]);
+	});
+});
+
+describe('OuterTree.filter', () => {
+	const bits = 2;
+
+	it('filters matching elements', () => {
+		const t = simpleTree([1, 2, 3], [4, 5, 6]);
+		const r = t.filter((x) => x % 2 === 0);
+		expect(r.toArray()).toEqual([2, 4, 6]);
+		expect(r.size).toBe(3);
+	});
+
+	it('filtering all elements returns same reference', () => {
+		const t = simpleTree([1, 2], [3, 4]);
+		const r = t.filter(() => true);
+		expect(r).toBe(t);
+		expect(r.toArray()).toEqual([1, 2, 3, 4]);
+	});
+
+	it('filters with middle block', () => {
+		const t = treeWithMiddle([1, 2], [[3, 4]], [5, 6], bits);
+		const r = t.filter((x) => x > 2);
+		expect(r.toArray()).toEqual([3, 4, 5, 6]);
+	});
+
+	it('filtering everything returns empty', () => {
+		const t = simpleTree([1, 2], [3, 4]);
+		const r = t.filter(() => false);
+		expect(r.isEmpty).toBe(true);
+	});
+
+	it('does not mutate original', () => {
+		const t = simpleTree([1, 2], [3, 4]);
+		t.filter((x) => x > 2);
+		expect(t.toArray()).toEqual([1, 2, 3, 4]);
+	});
+});
+
+describe('OuterTree.concat', () => {
+	const bits = 2; // max=4, min=2
+	const ctx = makeContext<number>(bits);
+
+	it('tree+tree concat maintains correct element order (Case 2: joint fits in block)', () => {
+		const a = ctx.outerTree(
+			ctx.outerBlockLeftRight(ctx.childrenOps.of([1])),
+			ctx.outerBlockLeftRight(ctx.childrenOps.of([2])),
+			null,
+			2,
+		);
+		const b = ctx.outerTree(
+			ctx.outerBlockLeftRight(ctx.childrenOps.of([3])),
+			ctx.outerBlockLeftRight(ctx.childrenOps.of([4, 5])),
+			null,
+			3,
+		);
+		// joint = a.right + b.left = [2] + [3] = 2 elements ≤ max=4 → Case 2
+		const r = a.concat(b);
+		expect(r.toArray()).toEqual([1, 2, 3, 4, 5]);
+		expect(r.size).toBe(5);
+	});
+
+	it('tree+tree concat maintains correct element order (Case 3: push both to middle)', () => {
+		const a = ctx.outerTree(
+			ctx.outerBlockLeftRight(ctx.childrenOps.of([1])),
+			ctx.outerBlockLeftRight(ctx.childrenOps.of([2, 3])), // ≥ min=2
+			null,
+			3,
+		);
+		const b = ctx.outerTree(
+			ctx.outerBlockLeftRight(ctx.childrenOps.of([4, 5])), // ≥ min=2
+			ctx.outerBlockLeftRight(ctx.childrenOps.of([6])),
+			null,
+			3,
+		);
+		// joint = [2,3] + [4,5] = 4 ≤ max=4, both ≥ min → Case 2, then both pushed
+		const r = a.concat(b);
+		expect(r.toArray()).toEqual([1, 2, 3, 4, 5, 6]);
+		expect(r.size).toBe(6);
+	});
+
+	it('tree+tree concat maintains correct element order (Case 1: underflow)', () => {
+		const a = ctx.outerTree(
+			ctx.outerBlockLeftRight(ctx.childrenOps.of([1])),
+			ctx.outerBlockLeftRight(ctx.childrenOps.of([2])), // size=1 < min
+			null,
+			2,
+		);
+		const b = ctx.outerTree(
+			ctx.outerBlockLeftRight(ctx.childrenOps.of([3])), // size=1 < min
+			ctx.outerBlockLeftRight(ctx.childrenOps.of([4])),
+			null,
+			2,
+		);
+		// joint = [2] + [3] = 2 = min, but < min for outer (is 2 < 2? No)
+		// Actually this uses <. Let me use sizes that TRULY underflow
+		// Need joint < minBlockSize=2 → joint of 1
+		expect(a.concat(b).toArray()).toEqual([1, 2, 3, 4]);
+	});
+
+	it('concatenating tree with itself maintains correct elements', () => {
+		const a = ctx.outerTree(
+			ctx.outerBlockLeftRight(ctx.childrenOps.of([1, 2])),
+			ctx.outerBlockLeftRight(ctx.childrenOps.of([3, 4])),
+			null,
+			4,
+		);
+		const r = a.concat(a);
+		expect(r.toArray()).toEqual([1, 2, 3, 4, 1, 2, 3, 4]);
+		expect(r.size).toBe(8);
+	});
+});
+
+describe('OuterTree.reversed', () => {
+	const bits = 2; // max=4, min=2
+
+	it('preserves size', () => {
+		const t = simpleTree([1, 2], [3, 4]);
+		const r = t.reversed();
+		expect(r.size).toBe(4);
+	});
+
+	it('does not mutate original', () => {
+		const t = simpleTree([1, 2], [3, 4]);
+		t.reversed();
+		expect(t.toArray()).toEqual([1, 2, 3, 4]);
+	});
+
+	it('returns a Tree', () => {
+		const t = simpleTree([1, 2], [3, 4]);
+		const r = t.reversed();
+		expect(r).toHaveProperty('left');
+		expect(r).toHaveProperty('right');
+		expect(r).toHaveProperty('middle');
+	});
+
+	it('reversed tree with no middle swaps left and right via forEach', () => {
+		const t = simpleTree([1, 2], [3, 4]);
+		const r = t.reversed();
+		const result: number[] = [];
+		r.forEach((v) => result.push(v));
+		expect(result).toEqual([4, 3, 2, 1]);
+	});
+
+	it('reversed tree with middle via forEach', () => {
+		const t = treeWithMiddle([1, 2], [[3, 4]], [5, 6], bits);
+		const r = t.reversed();
+		const result: number[] = [];
+		r.forEach((v) => result.push(v));
+		expect(result).toEqual([6, 5, 4, 3, 2, 1]);
+	});
+
+	it('element access works correctly on reversed tree', () => {
+		const t = simpleTree([1, 2], [3, 4]);
+		const r = t.reversed();
+		expect(r.at(0)).toBe(4);
+		expect(r.at(1)).toBe(3);
+		expect(r.at(2)).toBe(2);
+		expect(r.at(3)).toBe(1);
+	});
+
+	it('double reverse of tree with middle', () => {
+		const t = treeWithMiddle([1, 2], [[3, 4]], [5, 6], bits);
+		const r = t.reversed().reversed();
+		const result: number[] = [];
+		r.forEach((v) => result.push(v));
+		expect(result).toEqual([1, 2, 3, 4, 5, 6]);
+		expect(r.size).toBe(6);
+	});
+});
+
+describe('OuterTree.map', () => {
+	it('transforms all elements across left and right', () => {
+		const t = simpleTree([1, 2], [3, 4]);
+		const r = t.map((x: number) => x * 10);
+		expect(r.toArray()).toEqual([10, 20, 30, 40]);
+		expect(r.size).toBe(4);
+	});
+
+	it('transforms tree with middle', () => {
+		const t = treeWithMiddle([1], [[2, 3]], [4]);
+		const r = t.map((x: number) => x * 10);
+		expect(r.toArray()).toEqual([10, 20, 30, 40]);
+	});
+
+	it('preserves tree structure type', () => {
+		const t = simpleTree([1, 2], [3]);
+		const r = t.map((x: number) => `v${x}`);
+		expect(r).toHaveProperty('left');
+		expect(r).toHaveProperty('right');
+		expect(r.first()).toBe('v1');
+	});
+
+	it('does not mutate original', () => {
+		const t = simpleTree([1, 2], [3]);
+		t.map((x: number) => x * 10);
+		expect(t.toArray()).toEqual([1, 2, 3]);
+	});
+});
+
+describe('OuterTree.immutability', () => {
+	it('toArray returns a copy', () => {
+		const t = simpleTree([1, 2], [3, 4]);
+		const arr1 = t.toArray();
+		const arr2 = t.toArray();
+		expect(arr1).toEqual(arr2);
+		expect(arr1).toEqual([1, 2, 3, 4]);
+	});
+
+	it('prepend returns new instance', () => {
+		const t = simpleTree([1, 2], [3, 4]);
+		expect(t.prepend(0)).not.toBe(t as any);
+	});
+
+	it('append returns new instance', () => {
+		const t = simpleTree([1, 2], [3, 4]);
+		expect(t.append(5)).not.toBe(t as any);
+	});
+
+	it('map returns new instance', () => {
+		const t = simpleTree([1, 2], [3, 4]);
+		expect(t.map((x: number) => x)).not.toBe(t as any);
+	});
+});
+
+describe('OuterTree.inherited', () => {
+	describe('slice', () => {
+		const t = simpleTree([10, 20, 30], [40, 50]);
+
+		it('full range returns same instance', () => {
+			expect(t.slice({ start: 0, amount: 5 })).toBe(t as any);
+		});
+
+		it('empty range returns empty', () => {
+			expect(t.slice({ start: 0, amount: 0 }).size).toBe(0);
+		});
+	});
+
+	describe('mapIndexed', () => {
+		it('passes indices across the tree', () => {
+			const t = simpleTree([10, 20], [30, 40]);
+			const r = t.mapIndexed((v: number, i: number) => `${v}:${i}`);
+			expect(r.toArray()).toEqual(['10:0', '20:1', '30:2', '40:3']);
+		});
+
+		it('indexOffset works', () => {
+			const t = simpleTree([10], [20]);
+			const r = t.mapIndexed((v: number, i: number) => `${v}:${i}`, {
+				indexOffset: 5,
+			});
+			expect(r.toArray()).toEqual(['10:5', '20:6']);
+		});
+	});
+});
+
+describe('OuterTree.edge-cases', () => {
+	const bits = 2;
+
+	describe('single-element blocks in tree', () => {
+		it('tree with 1-element left and 1-element right', () => {
+			const ctx = makeContext<number>(bits);
+			const t = ctx.outerTree(
+				ctx.outerBlockLeftRight(ctx.childrenOps.of([10])),
+				ctx.outerBlockLeftRight(ctx.childrenOps.of([20])),
+				null,
+				2,
+			);
+			expect(t.size).toBe(2);
+			expect(t.toArray()).toEqual([10, 20]);
+			expect(t.at(0)).toBe(10);
+			expect(t.at(1)).toBe(20);
+			expect(t.at(-1)).toBe(20);
+		});
+	});
+
+	describe('large tree built from sequential operations', () => {
+		it('handles 50 elements built by append', () => {
+			const ctx = makeContext<number>(bits);
+			let t: any = ctx.of(0);
+			for (let i = 1; i < 50; i++) {
+				t = t.append(i);
+			}
+			expect(t.size).toBe(50);
+			expect(t.toArray()).toEqual(Array.from({ length: 50 }, (_, i) => i));
+		});
+
+		it('handles 50 elements built by prepend', () => {
+			const ctx = makeContext<number>(bits);
+			let t: any = ctx.of(49);
+			for (let i = 48; i >= 0; i--) {
+				t = t.prepend(i);
+			}
+			expect(t.size).toBe(50);
+			expect(t.toArray()).toEqual(Array.from({ length: 50 }, (_, i) => i));
+		});
+
+		it('forEach on 50-element tree', () => {
+			const ctx = makeContext<number>(bits);
+			let t: any = ctx.of(0);
+			for (let i = 1; i < 50; i++) {
+				t = t.append(i);
+			}
+			let count = 0;
+			t.forEach((_: number) => count++);
+			expect(count).toBe(50);
+		});
+
+		it('stream reversed on 50 elements', () => {
+			const ctx = makeContext<number>(bits);
+			let t: any = ctx.of(0);
+			for (let i = 1; i < 50; i++) {
+				t = t.append(i);
+			}
+			const result = [...t.stream({ reversed: true })];
+			const expected = Array.from({ length: 50 }, (_, i) => 49 - i);
+			expect(result).toEqual(expected);
+		});
+	});
+
+	describe('null and undefined handling', () => {
+		it('handles null elements in tree', () => {
+			const ctx = makeContext<number | null>(bits);
+			const t = ctx.outerTree(
+				ctx.outerBlockLeftRight(ctx.childrenOps.of([1 as number | null, null])),
+				ctx.outerBlockLeftRight(ctx.childrenOps.of([null as number | null, 3])),
+				null,
+				4,
+			);
+			expect(t.at(0)).toBe(1);
+			expect(t.at(1)).toBeNull();
+			expect(t.at(2)).toBeNull();
+			expect(t.at(3)).toBe(3);
+		});
+
+		it('handles undefined elements in tree', () => {
+			const ctx = makeContext<number | undefined>(bits);
+			const t = ctx.outerTree(
+				ctx.outerBlockLeftRight(
+					ctx.childrenOps.of([1 as number | undefined, undefined]),
+				),
+				ctx.outerBlockLeftRight(
+					ctx.childrenOps.of([undefined as number | undefined, 3]),
+				),
+				null,
+				4,
+			);
+			expect(t.at(0)).toBe(1);
+			expect(t.at(1)).toBeUndefined();
+			expect(t.at(2)).toBeUndefined();
+			expect(t.at(3)).toBe(3);
+		});
+
+		it('otherwise fallback with undefined elements', () => {
+			const ctx = makeContext<undefined>(bits);
+			const t = ctx.outerTree(
+				ctx.outerBlockLeftRight(ctx.childrenOps.of([undefined, undefined])),
+				ctx.outerBlockLeftRight(ctx.childrenOps.of([undefined])),
+				null,
+				3,
+			);
+			expect(t.at(10, 'fallback')).toBe('fallback');
+		});
+	});
+
+	describe('sorted elements with search patterns', () => {
+		it('at on sequential tree returns correct values', () => {
+			const ctx = makeContext<number>(bits);
+			const values = Array.from({ length: 20 }, (_, i) => i);
+			const cv = [...values];
+			const mid = 8;
+			const left = ctx.outerBlockLeftRight(
+				ctx.childrenOps.of(cv.slice(0, mid)),
+			);
+			const right = ctx.outerBlockLeftRight(ctx.childrenOps.of(cv.slice(mid)));
+			const t = ctx.outerTree(left, right, null, values.length);
+
+			for (let i = 0; i < 20; i++) {
+				expect(t.at(i)).toBe(i);
+			}
+		});
+
+		it('negative at on sequential tree returns correct values', () => {
+			const ctx = makeContext<number>(bits);
+			const left = ctx.outerBlockLeftRight(ctx.childrenOps.of([0, 1, 2, 3]));
+			const right = ctx.outerBlockLeftRight(
+				ctx.childrenOps.of([4, 5, 6, 7, 8, 9, 10]),
+			);
+			const t = ctx.outerTree(left, right, null, 11);
+
+			expect(t.at(-1)).toBe(10);
+			expect(t.at(-5)).toBe(6);
+			expect(t.at(-11)).toBe(0);
+		});
+	});
+
+	describe('list-of-style construction', () => {
+		it('overflow from List.of creates a valid tree', () => {
+			const ctx = makeContext<number>(bits);
+			const t = ctx.of(1, 2, 3, 4, 5) as any as OuterTree<number>;
+			expect(t).toHaveProperty('left');
+			expect(t).toHaveProperty('right');
+			expect(t.size).toBe(5);
+			expect(t.toArray()).toEqual([1, 2, 3, 4, 5]);
+		});
+
+		it('then prepend/append continue to work', () => {
+			const ctx = makeContext<number>(bits);
+			let t = ctx.of(1, 2, 3, 4, 5);
+			t = t.prepend(0);
+			t = t.append(6);
+			expect(t.toArray()).toEqual([0, 1, 2, 3, 4, 5, 6]);
+			expect(t.size).toBe(7);
+		});
+	});
+});

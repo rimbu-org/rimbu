@@ -1,91 +1,67 @@
-import type { TraverseState } from '@rimbu/common/traverse-state';
-
-import type { ListContext } from '#list/context-module';
+import type { ListContext } from '#list/context';
 import type { InnerBlock } from '#list/immutable/inner-block';
+import type { BlockBuilder, InnerBuilder } from '#list/mutable/common';
 
-import {
-	type BlockBuilder,
-	BuilderBase,
-	type InnerBuilder,
-} from '#list/mutable/builder-base';
+import { type Int, throwInvalidUsageError } from '@rimbu/base';
 
-/**
- * Recompute a full cumulative size table from the current mutable children.
- * Returns null if the block is regular (all children fill exactly blockSize elements).
- */
-export function recomputeSizes(
-	children: readonly { length: number }[],
-	level: number,
-	blockSizeBits: number,
-): number[] | null {
-	const levelBits = blockSizeBits * level;
-	const blockSize = 1 << levelBits;
-	const n = children.length;
-	let total = 0;
-	let irregular = false;
-	const sizes = new Array<number>(n);
-
-	for (let i = 0; i < n; i++) {
-		total += children[i].length;
-		sizes[i] = total;
-		if (children[i].length !== blockSize) irregular = true;
-	}
-
-	return irregular ? sizes : null;
-}
-
-/**
- * Update the cumulative size table in-place starting from index `from`.
- * Pass the existing sizes array (which must already be non-null).
- */
-function updateSizesFrom(
-	sizes: number[],
-	children: readonly { length: number }[],
-	from: number,
-): void {
-	const prev = from > 0 ? sizes[from - 1] : 0;
-	let total = prev;
-	for (let i = from; i < children.length; i++) {
-		total += children[i].length;
-		sizes[i] = total;
-	}
-}
+import { CacheMap } from '#list/immutable/cache-map';
+import { SizeTable } from '#list/size-table';
 
 export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
-	extends BuilderBase
 	implements InnerBuilder<T, C>, BlockBuilder<T, C>
 {
-	/** Cumulative size table; null means regular (all children full). */
-	sizes: number[] | null = null;
-
 	constructor(
-		context: ListContext,
+		readonly context: ListContext,
 		readonly level: number,
-		public source?: InnerBlock<T, any>,
-		public _children?: C[],
-		public length: number = source?.length ?? 0,
+		source?: InnerBlock<T, any>,
+		children?: C[],
+		size: number = source?.size ?? 0,
 	) {
-		super(context);
-		if (source !== undefined) {
-			// Inherit size table from source.
-			this.sizes = source.sizes;
-		} else if (_children !== undefined && _children.length > 0) {
-			// Compute size table from provided children.
-			this.sizes = recomputeSizes(_children, level, context.blockSizeBits);
+		if (undefined === source && undefined === children) {
+			throwInvalidUsageError('Either source or children must be defined');
 		}
+		if (undefined !== source && undefined !== children) {
+			throwInvalidUsageError(
+				'Either source or children must be defined, but not both',
+			);
+		}
+
+		this.#source = source;
+		this.#_children = children;
+		this.#size = size;
+		this.#_sizeTable = source?.cachedSizeTable;
 	}
 
-	/** Returns the mutable children array. Only valid after `prepareMutate()` or when constructed with `_children`. */
-	get children(): C[] {
-		return this._children!;
+	declare _self: InnerBlockBuilder<T, C>;
+
+	#source?: InnerBlock<T, any> | undefined;
+	#_children?: C[] | undefined;
+	#size: number;
+	#_sizeTable: SizeTable | undefined;
+
+	get #sizeTable(): SizeTable {
+		if (undefined === this.#_sizeTable) {
+			const maxChildSize = 1 << (this.level * this.context.blockSizeBits);
+			this.#_sizeTable = SizeTable.fromChildren(
+				this.#children,
+				maxChildSize,
+				this.size,
+			);
+		}
+
+		return this.#_sizeTable;
 	}
 
-	get readChildren(): readonly C[] {
-		return this.source?.children ?? this.children;
+	get #children(): C[] {
+		return this.#_children as C[];
+	}
+
+	get size(): number {
+		return this.#size;
 	}
 
 	get nrChildren(): number {
-		return this.source?.nrChildren ?? this.children.length;
+		return this.#source?._nrChildren ?? this.#children.length;
 	}
 
 	get canAddChild(): boolean {
@@ -96,159 +72,170 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		return this.nrChildren > this.context.minBlockSize;
 	}
 
-	get childrenInMax(): boolean {
+	get notTooManyChildren(): boolean {
 		return this.nrChildren <= this.context.maxBlockSize;
 	}
 
-	get childrenInMin(): boolean {
+	get hasEnoughChildren(): boolean {
 		return this.nrChildren >= this.context.minBlockSize;
 	}
 
-	prepareMutate(): void {
-		if (undefined === this.source) return;
+	#prepareMutate(): void {
+		if (undefined === this.#source) return;
 
-		this._children = this.source.children.map((c) => c.createBlockBuilder());
-		// Copy size table from source (already computed at construction time).
-		this.sizes = this.source.sizes ? this.source.sizes.slice() : null;
-		this.source = undefined;
+		this.#_children = this.#source.mapChildren((child) =>
+			child.toNodeBuilder(),
+		);
+		this.#source = undefined;
 	}
 
-	/**
-	 * Updates the size table after children have changed starting at `fromIndex`.
-	 * If already irregular (sizes !== null), updates in-place from `fromIndex`.
-	 * If regular (sizes === null), recomputes to detect if it became irregular.
-	 */
-	private refreshSizes(fromIndex: number): void {
-		if (this.sizes !== null) {
-			updateSizesFrom(this.sizes, this.children, fromIndex);
-		} else {
-			this.sizes = recomputeSizes(
-				this.children,
-				this.level,
-				this.context.blockSizeBits,
-			);
+	get(index: Int.AtLeastZero): T {
+		if (undefined !== this.#source) {
+			return this.#source._get(index);
+		}
+
+		const [childIndex, inChildIndex] = this.#sizeTable.getCoordinates(index);
+
+		return this.#children[childIndex].get(inChildIndex);
+	}
+
+	update(index: number, f: (element: T) => T): [previous: T, current: T] {
+		this.#prepareMutate();
+		const [childIndex, inChildIndex] = this.#sizeTable.getCoordinates(index);
+
+		return this.#children[childIndex].update(inChildIndex, f);
+	}
+
+	getChildSize(child: C): number {
+		return child.size;
+	}
+
+	forEach(f: (element: T) => void): void {
+		if (undefined !== this.#source) {
+			this.#source.forEach(f);
+			return;
+		}
+		for (const child of this.#children) {
+			child.forEach(f);
 		}
 	}
 
-	get(index: number): T {
-		if (undefined !== this.source) {
-			return this.source.get(index);
+	insert(index: Int.AtLeastZero, element: T): void {
+		this.#prepareMutate();
+		let [childIndex, inChildIndex] = this.#sizeTable.getCoordinates(index);
+
+		if (childIndex >= this.nrChildren) {
+			// insert at the end of the block: append to the last child
+			childIndex = (this.nrChildren - 1) as Int.AtLeastZero;
+			inChildIndex = this.#children[childIndex].size as Int.AtLeastZero;
 		}
 
-		const [childIndex, inChildIndex] = this.getCoordinates(index);
-
-		return this.readChildren[childIndex].get(inChildIndex);
-	}
-
-	updateAt(index: number, update: (current: T) => T): T {
-		this.prepareMutate();
-		const [childIndex, inChildIndex] = this.getCoordinates(index);
-		return this.children[childIndex].updateAt(inChildIndex, update);
-	}
-
-	insert(index: number, value: T): void {
-		this.prepareMutate();
-		const [childIndex, inChildIndex] = this.getCoordinates(index);
-
-		this.length++;
+		this.#size++;
 
 		// insert into child
-		const child = this.children[childIndex];
+		const child = this.#children[childIndex];
 
-		child.insert(inChildIndex, value);
+		child.insert(inChildIndex, element);
 
-		if (child.childrenInMax) {
+		if (child.notTooManyChildren) {
 			// child is still valid — update size table from childIndex onward
-			this.refreshSizes(childIndex);
+			this.#_sizeTable = this.#sizeTable.addChildSize(childIndex, 1);
 			return;
 		}
 
 		// child is too large
-		const leftChild = this.children[childIndex - 1];
+		const leftChild = this.#children[childIndex - 1];
 		if (leftChild?.canAddChild) {
 			// shift to leftChild
 			const shiftChild = child.dropFirstChild();
 			leftChild.appendChild(shiftChild);
 
-			// Two children changed: childIndex-1 and childIndex
-			this.refreshSizes(childIndex - 1);
+			// Two children changed: childIndex-1 gains shiftChildSize,
+			// childIndex changes by +1 (inserted) - shiftChildSize (dropped).
+			const shiftChildSize = child.getChildSize(shiftChild);
+			this.#_sizeTable = this.#sizeTable
+				.addChildSize(childIndex - 1, shiftChildSize)
+				.addChildSize(childIndex, 1 - shiftChildSize);
 			return;
 		}
 
-		const rightChild = this.children[childIndex + 1];
+		const rightChild = this.#children[childIndex + 1];
 		if (rightChild?.canAddChild) {
 			// shift to rightChild
 			const shiftChild = child.dropLastChild();
 			rightChild.prependChild(shiftChild);
 
-			this.refreshSizes(childIndex);
+			const shiftChildSize = child.getChildSize(shiftChild);
+			this.#_sizeTable = this.#sizeTable
+				.addChildSize(childIndex, 1 - shiftChildSize)
+				.addChildSize(childIndex + 1, shiftChildSize);
 			return;
 		}
 
 		// cannot shift, split child
 		const newRightChild = child.splitRight();
-		this.children.splice(childIndex + 1, 0, newRightChild as C);
+		this.#children.splice(childIndex + 1, 0, newRightChild as C);
 
-		if (this.sizes !== null) {
-			// Insert a placeholder entry at childIndex + 1, then update from childIndex.
-			this.sizes.splice(childIndex + 1, 0, 0);
-		}
-		this.refreshSizes(childIndex);
+		this.#_sizeTable = this.#sizeTable.recomputeFromChildren(
+			this.#children,
+			childIndex,
+		);
 	}
 
-	remove(index: number): T {
-		this.prepareMutate();
-		const [childIndex, inChildIndex] = this.getCoordinates(index);
+	remove(index: Int.AtLeastZero): T {
+		this.#prepareMutate();
+		const [childIndex, inChildIndex] = this.#sizeTable.getCoordinates(index);
 
-		this.length--;
+		this.#size--;
 
 		// remove from child
-		const child = this.children[childIndex];
+		const child = this.#children[childIndex];
 		const oldValue = child.remove(inChildIndex);
 
 		if (child.canRemoveChild || this.nrChildren <= 1) {
 			// no need to normalize
-			this.refreshSizes(childIndex);
+			this.#_sizeTable = this.#sizeTable.addChildSize(childIndex, -1);
 			return oldValue;
 		}
 
-		const leftChild = this.children[childIndex - 1];
+		const leftChild = this.#children[childIndex - 1];
 		if (undefined !== leftChild) {
 			if (
 				child.nrChildren + leftChild.nrChildren <=
 				this.context.maxBlockSize
 			) {
 				// merge with left: remove child at childIndex, leftChild grows
-				leftChild.appendItems(child);
-				this.children.splice(childIndex, 1);
-				if (this.sizes !== null) {
-					this.sizes.splice(childIndex, 1);
-				}
-				this.refreshSizes(childIndex - 1);
+				leftChild.appendFrom(child);
+				this.#children.splice(childIndex, 1);
+				this.#_sizeTable = this.#sizeTable.recomputeFromChildren(
+					this.#children,
+					childIndex - 1,
+				);
 				return oldValue;
 			}
 		}
 
-		const rightChild = this.children[childIndex + 1];
+		const rightChild = this.#children[childIndex + 1];
 		if (undefined !== rightChild) {
 			if (
 				child.nrChildren + rightChild.nrChildren <=
 				this.context.maxBlockSize
 			) {
 				// merge with right: remove child at childIndex, rightChild grows
-				rightChild.prependItems(child);
-				this.children.splice(childIndex, 1);
-				if (this.sizes !== null) {
-					this.sizes.splice(childIndex, 1);
-				}
-				this.refreshSizes(childIndex);
+				rightChild.prependFrom(child);
+				this.#children.splice(childIndex, 1);
+
+				this.#_sizeTable = this.#sizeTable.recomputeFromChildren(
+					this.#children,
+					childIndex,
+				);
 				return oldValue;
 			}
 		}
 
-		if (child.childrenInMin) {
+		if (child.hasEnoughChildren) {
 			// child has enough children, and left and right more than min, so all good
-			this.refreshSizes(childIndex);
+			this.#_sizeTable = this.#sizeTable.addChildSize(childIndex, -1);
 			return oldValue;
 		}
 
@@ -264,248 +251,230 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 
 		if (maxChildren === leftChild) {
 			// rebalance with left: childIndex-1 and childIndex both change
-			leftChild.appendItems(child);
-			this.children[childIndex] = leftChild.splitRight(
+			leftChild.appendFrom(child);
+			this.#children[childIndex] = leftChild.splitRight(
 				(leftChild.nrChildren + 1) >>> 1,
 			) as C;
 		} else {
 			// rebalance with right: childIndex and childIndex+1 both change
-			child.appendItems(rightChild);
-			this.children[childIndex + 1] = child.splitRight(
+			child.appendFrom(rightChild);
+			this.#children[childIndex + 1] = child.splitRight(
 				child.nrChildren >>> 1,
 			) as C;
 		}
 
-		this.refreshSizes(maxChildren === leftChild ? childIndex - 1 : childIndex);
+		this.#_sizeTable = this.#sizeTable.recomputeFromChildren(
+			this.#children,
+			maxChildren === leftChild ? childIndex - 1 : childIndex,
+		);
 		return oldValue;
 	}
 
-	forEach(
-		f: (value: T, index: number, halt: () => void) => void,
-		options: { reversed: boolean; state: TraverseState },
-	): void {
-		if (undefined !== this.source) {
-			this.source.forEach(f, options);
-			return;
-		}
-
-		const { reversed, state } = options;
-
-		if (state.halted) return;
-
-		const length = this.children.length;
-
-		if (!reversed) {
-			let i = -1;
-			while (!state.halted && ++i < length) {
-				this.children[i].forEach(f, options);
-			}
-		} else {
-			let i = length;
-			while (!state.halted && --i >= 0) {
-				this.children[i].forEach(f, options);
-			}
-		}
-	}
-
 	prependChild(child: C): void {
-		this.prepareMutate();
-		this.length += child.length;
-
-		const firstChild = this.children[0]!;
-
-		if (firstChild.nrChildren + child.nrChildren <= this.context.maxBlockSize) {
-			// can merge with first child
-			firstChild.prependItems(child);
-		} else if (!firstChild.childrenInMin) {
-			firstChild.prependItems(child);
-			const newSecondChild = firstChild.splitRight() as C;
-			this.children.splice(1, 0, newSecondChild);
-		} else {
-			this.children.unshift(child);
-		}
-
-		this.sizes = recomputeSizes(
-			this.children,
-			this.level,
-			this.context.blockSizeBits,
-		);
+		this.#prepareMutate();
+		this.#size += child.size;
+		this.#children.unshift(child);
+		this.#_sizeTable = this.#_sizeTable?.prependChildSize(child.size);
 	}
 
 	appendChild(child: C): void {
-		this.prepareMutate();
-		this.length += child.length;
-
-		const lastChild = this.children.at(-1)!;
-
-		if (lastChild.nrChildren + child.nrChildren <= this.context.maxBlockSize) {
-			// can merge with last child
-			lastChild.appendItems(child);
-		} else if (!lastChild.childrenInMin) {
-			lastChild.appendItems(child);
-			this.children.push(lastChild.splitRight() as C);
-		} else {
-			this.children.push(child);
-		}
-
-		this.sizes = recomputeSizes(
-			this.children,
-			this.level,
-			this.context.blockSizeBits,
-		);
+		this.#prepareMutate();
+		this.#size += child.size;
+		this.#children.push(child);
+		this.#_sizeTable = this.#_sizeTable?.appendChildSize(child.size);
 	}
 
 	firstChild(): C {
-		this.prepareMutate();
-		return this.children[0];
+		this.#prepareMutate();
+		return this.#children[0];
 	}
 
 	lastChild(): C {
-		this.prepareMutate();
-		return this.children.at(-1)!;
+		this.#prepareMutate();
+		return this.#children.at(-1)!;
 	}
 
 	dropFirstChild(): C {
-		this.prepareMutate();
-		const child = this.children.shift()!;
-		this.length -= child.length;
-		this.refreshSizes(0);
+		this.#prepareMutate();
+		const child = this.#children.shift()!;
+		this.#size -= child.size;
+		this.#_sizeTable = this.#_sizeTable?.dropChildren(1);
 		return child;
 	}
 
 	dropLastChild(): C {
-		this.prepareMutate();
-		const child = this.children.pop()!;
-		this.length -= child.length;
-		this.refreshSizes(0);
+		this.#prepareMutate();
+		const child = this.#children.pop()!;
+		this.#size -= child.size;
+		this.#_sizeTable = this.#_sizeTable?.takeChildren(this.nrChildren);
 		return child;
 	}
 
 	modifyFirstChild(f: (child: C) => number | undefined): number | undefined {
-		const firstChild = this.firstChild();
+		this.#prepareMutate();
+		const firstChild = this.#children[0];
 		const delta = f(firstChild);
 		if (undefined !== delta) {
-			this.length += delta;
-			this.refreshSizes(0);
+			this.#size += delta;
 		}
-
+		this.#_sizeTable = undefined;
 		return delta;
 	}
 
 	modifyLastChild(f: (child: C) => number | undefined): number | undefined {
-		const lastChild = this.lastChild();
+		this.#prepareMutate();
+		const lastChild = this.#children[this.#children.length - 1];
 		const delta = f(lastChild);
 		if (undefined !== delta) {
-			this.length += delta;
-			this.refreshSizes(this.nrChildren - 1);
+			this.#size += delta;
 		}
-
+		this.#_sizeTable = undefined;
 		return delta;
 	}
 
 	build(): InnerBlock<T, any> {
-		if (this.source) return this.source;
+		if (this.#source) return this.#source;
 
 		return this.context.innerBlock(
-			this.children.map((c) => c.build()),
-			this.length,
+			this.#children.map((c) => c.build()),
+			this.#size,
 			this.level,
-			this.sizes,
+			this.#_sizeTable,
 		);
 	}
 
-	buildMap<T2>(f: (value: T) => T2): InnerBlock<T2, any> {
-		return (
-			this.source?.map?.(f) ??
-			this.context.innerBlock<T2, any>(
-				this.children.map((c) => c.buildMap(f)),
-				this.length,
-				this.level,
-				this.sizes,
-			)
+	buildMap<T2>(
+		f: (element: T) => T2,
+		cacheMap = new CacheMap(),
+	): InnerBlock<T2, any> {
+		if (this.#source) return this.#source.map(f, cacheMap);
+
+		return this.context.innerBlock(
+			this.#children.map((c) => c.buildMap(f, cacheMap)),
+			this.#size,
+			this.level,
+			this.#_sizeTable,
+		);
+	}
+
+	_verifyStructure(
+		errors: string[] = [],
+		enforceMinChildren = false,
+	): string[] {
+		if (undefined !== this.#source) {
+			return this.#source._verifyStructure(errors, enforceMinChildren);
+		}
+
+		if (enforceMinChildren && !this.hasEnoughChildren) {
+			errors.push(
+				`InnerBlockBuilder of level ${this.level} has fewer children than allowed: ${this.nrChildren} < ${this.context.minBlockSize}`,
+			);
+		}
+		if (!this.notTooManyChildren) {
+			errors.push(
+				`InnerBlockBuilder of level ${this.level} has more children than allowed: ${this.nrChildren} > ${this.context.maxBlockSize}`,
+			);
+		}
+
+		let length = 0;
+		for (const child of this.#children) {
+			length += child.size;
+			child._verifyStructure(errors, true);
+		}
+		if (length !== this.size) {
+			errors.push(
+				`InnerBlockBuilder of level ${this.level} has size ${this.size} but sum of child lengths is ${length}.`,
+			);
+		}
+
+		if (undefined !== this.#_sizeTable) {
+			const sizeTable = SizeTable.fromChildren(
+				this.#children,
+				1 << (this.level * this.context.blockSizeBits),
+				this.size,
+			);
+
+			if (sizeTable.nrChildren !== this.#_sizeTable.nrChildren) {
+				errors.push(
+					`InnerBlockBuilder of level ${this.level} has inconsistent size table length: expected ${sizeTable.nrChildren} but found ${this.#_sizeTable.nrChildren}.`,
+				);
+			}
+
+			for (let i = 0; i < sizeTable.nrChildren; i++) {
+				if (sizeTable.sizeChildAt(i) !== this.#_sizeTable.sizeChildAt(i)) {
+					errors.push(
+						`InnerBlockBuilder of level ${this.level} has inconsistent size table entry ${i}: expected ${sizeTable.sizeChildAt(
+							i,
+						)} but found ${this.#_sizeTable.sizeChildAt(i)}.`,
+					);
+				}
+			}
+		}
+
+		return errors;
+	}
+
+	normalized(): InnerBuilder<T, C> | undefined {
+		if (this.nrChildren === 0) return undefined;
+
+		if (this.nrChildren <= this.context.maxBlockSize) {
+			return this;
+		}
+
+		const totalSize = this.#size;
+		const newRight = this.splitRight();
+
+		return this.context.innerTreeBuilder(
+			this.level,
+			this,
+			newRight,
+			undefined,
+			totalSize,
 		);
 	}
 
 	splitRight(index = this.nrChildren >>> 1): InnerBlockBuilder<T, C> {
-		this.prepareMutate();
-		const rightChildren = this.children.splice(index);
-		const oldLength = this.length;
-		this.length = 0;
-		for (let i = 0; i < this.nrChildren; i++) {
-			this.length += this.children[i].length;
-		}
-		const rightLength = oldLength - this.length;
+		this.#prepareMutate();
 
-		// Recompute size tables for both halves.
-		this.sizes = recomputeSizes(
-			this.children,
-			this.level,
-			this.context.blockSizeBits,
-		);
+		const [newThisSizeTable, rightSizeTable] = this.#sizeTable.split(index);
+		this.#_sizeTable = newThisSizeTable;
+		this.#size = newThisSizeTable.totalSize;
 
-		const right = this.context.innerBlockBuilder(
-			this.level,
-			rightChildren as C[],
-			rightLength,
-		) as InnerBlockBuilder<T, C>;
-		right.sizes = recomputeSizes(
+		const rightChildren = this.#children.splice(index);
+
+		return this.context.innerBlockBuilder(
 			rightChildren,
+			rightSizeTable.totalSize,
 			this.level,
-			this.context.blockSizeBits,
+			rightSizeTable,
 		);
-
-		return right;
 	}
 
-	normalized(): InnerBuilder<T, C> | undefined {
+	prependFrom(other: InnerBlockBuilder<T, C>): void {
+		this.#prepareMutate();
+		other.#prepareMutate();
+		this.#size += other.size;
+
 		if (this.nrChildren === 0) {
-			// empty
-			return undefined;
+			this.#_children = other.#children.slice();
+			this.#_sizeTable = other.#_sizeTable;
+			return;
 		}
 
-		const context = this.context;
-
-		const maxBlockSize = context.maxBlockSize;
-
-		if (this.nrChildren > maxBlockSize) {
-			const currentLength = this.length;
-			const newRight = this.splitRight();
-
-			// too many children, needs to split
-			const result = context.innerTreeBuilder(
-				this.level,
-				this,
-				newRight,
-				undefined,
-				currentLength,
-			);
-
-			return result;
-		}
-
-		// already normalized
-		return this;
-	}
-
-	prependItems(other: InnerBlockBuilder<T, C>): void {
-		this.prepareMutate();
-		other.prepareMutate();
-		this.length += other.length;
-
-		const firstChild = this.children[0];
+		const firstChild = this.#children[0];
 		const lastIndex = other.nrChildren - 1;
 
 		// Collect children from `other` that will be prepended as-is (all except
 		// possibly the last one which may merge into this.children[0]).
 		const toPrepend: C[] = [];
 		for (let i = 0; i < other.nrChildren; i++) {
-			const child = other.children[i];
+			const child = other.#children[i];
 			if (
 				i === lastIndex &&
 				firstChild.nrChildren + child.nrChildren <= this.context.maxBlockSize
 			) {
 				// merge boundary children instead of prepending
-				firstChild.prependItems(child);
+				firstChild.prependFrom(child);
 			} else {
 				toPrepend.push(child);
 			}
@@ -514,27 +483,29 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		// Single splice to prepend all collected children in O(n) instead of
 		// repeated unshift calls which would be O(n²).
 		if (toPrepend.length > 0) {
-			this.children.splice(0, 0, ...toPrepend);
+			this.#children.splice(0, 0, ...toPrepend);
 		}
 
-		this.sizes = recomputeSizes(
-			this.children,
-			this.level,
-			this.context.blockSizeBits,
-		);
+		this.#_sizeTable = undefined;
 	}
 
-	appendItems(other: InnerBlockBuilder<T, C>): void {
-		this.prepareMutate();
-		other.prepareMutate();
-		this.length += other.length;
+	appendFrom(other: InnerBlockBuilder<T, C>): void {
+		this.#prepareMutate();
+		other.#prepareMutate();
+		this.#size += other.size;
+
+		if (this.nrChildren === 0) {
+			this.#_children = other.#children.slice();
+			this.#_sizeTable = other.#_sizeTable;
+			return;
+		}
 
 		// Snapshot other's children before iterating in case other === this.
 		const otherChildren =
-			other === this ? this.children.slice() : other.children;
+			other === this ? this.#children.slice() : other.#children;
 		const nrOtherChildren = otherChildren.length;
 
-		const lastChild = this.children.at(-1)!;
+		const lastChild = this.#children.at(-1)!;
 		for (let i = 0; i < nrOtherChildren; i++) {
 			const child = otherChildren[i];
 			if (
@@ -542,94 +513,12 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 				lastChild.nrChildren + child.nrChildren <= this.context.maxBlockSize
 			) {
 				// can merge with last child
-				lastChild.appendItems(child);
+				lastChild.appendFrom(child);
 			} else {
-				this.children.push(child);
+				this.#children.push(child);
 			}
 		}
 
-		this.sizes = recomputeSizes(
-			this.children,
-			this.level,
-			this.context.blockSizeBits,
-		);
-	}
-
-	getCoordinates(index: number): [number, number] {
-		const readChildren = this.readChildren;
-		const nrChildren = readChildren.length;
-		const length = this.length;
-
-		if (index >= length) {
-			// always return end of last child
-			const lastChild = readChildren.at(-1)!;
-			return [nrChildren - 1, lastChild.length];
-		}
-
-		// Fast path: regular block.
-		if (this.sizes === null) {
-			const levelBits = this.context.blockSizeBits * this.level;
-			const blockSize = 1 << levelBits;
-			const childIndex = index >>> levelBits;
-			const inChildIndex = index & (blockSize - 1);
-			return [childIndex, inChildIndex];
-		}
-
-		// Irregular block — binary search on cumulative size table.
-		const sizes = this.sizes;
-		let lo = 0;
-		let hi = nrChildren - 1;
-
-		while (lo < hi) {
-			const mid = (lo + hi) >>> 1;
-			if (sizes[mid] <= index) {
-				lo = mid + 1;
-			} else {
-				hi = mid;
-			}
-		}
-
-		const childIndex = lo;
-		const prevSize = childIndex > 0 ? sizes[childIndex - 1] : 0;
-		return [childIndex, index - prevSize];
-	}
-
-	_verifyStructure(
-		messages: string[] = [],
-		enforceMinChildren = false,
-	): string[] {
-		if (undefined !== this.source) {
-			return this.source._verifyStructure(messages, enforceMinChildren);
-		}
-
-		if (enforceMinChildren && !this.childrenInMin) {
-			messages.push(
-				`InnerBlockBuilder has too few children: ${this.nrChildren} < ${this.context.minBlockSize}`,
-			);
-		}
-		if (this.nrChildren === 0) {
-			messages.push(`InnerBlockBuilder has no children.`);
-		}
-
-		if (!this.childrenInMax) {
-			messages.push(
-				`InnerBlockBuilder has too many children: ${this.nrChildren} > ${this.context.maxBlockSize}`,
-			);
-		}
-
-		let length = 0;
-
-		for (const child of this.readChildren) {
-			length += child.length;
-			child._verifyStructure(messages, true);
-		}
-
-		if (this.length !== length) {
-			messages.push(
-				`InnerBlockBuilder length ${this.length} does not match sum of children lengths ${length}.`,
-			);
-		}
-
-		return messages;
+		this.#_sizeTable = undefined;
 	}
 }

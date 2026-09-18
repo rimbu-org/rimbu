@@ -40,7 +40,7 @@ Additional triggers: after `review-docs` (09) shows `warn` `missing-jsdoc`/`miss
 
 Reuse `review-docs` (09) logic — no mutation, no `build:seq` by default, harness-independent (`bun`+`rg`+`jq` only):
 
-1. Resolve target: single package `<pkg>` (e.g. `packages/hashed`) is default. If `--workspace` is passed, expand to all 23 published packages with `src/public/` or `src/<name>.ts` (exclude `list2`). Require `<pkg>` if no `--workspace`. Be single-package-scoped and idempotent (Q6).
+1. Resolve target: single package `<pkg>` (e.g. `packages/hashed`) is default. If `--workspace` is passed, expand to all 23 published packages with `src/public/` or `src/<name>.ts`. Require `<pkg>` if no `--workspace`. Be single-package-scoped and idempotent (Q6).
 2. For each target package, collect evidence **without mutating**:
    - Enumerate public files: `src/public/**/*.ts` plus `src/<name>.ts` entry. For each file, enumerate top-level public exports via `rg -n "^\s*export\s+(type\s+)?(function|class|interface|type|const|let|var|namespace|enum)" src/public --no-heading` and file scan. Skip barrel re-exports (`export * from`, `export { X } from`).
    - For each export at `file:line`, inspect preceding 20 lines for `/**` and `@example`. Use `rg -n "@example" src/public --no-heading` for quick presence and file-read window for per-export decision. If no `/**` in window, emit `warn` `missing-jsdoc`; if `/**` present but no `@example`, emit `warn` `missing-example`. Evidence is the export line `file:line` and `rg` snippet. Severity `warn` per ticket 09 (missing JSDoc = `warn`, broken example = `error`).

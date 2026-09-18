@@ -5,7 +5,7 @@ Source: `AGENTS.md:424-463` §6.6 (`const`/`NoInfer`), `AGENTS.md:335-352` §6.2
 ## Scope
 
 - **Default:** single package `<pkg>` (`packages/<name>` with `src/public/` and `package.json`)
-- **`--workspace`:** all packages with `package.json` (exclude `list2`), audits each package's `src/public/` vs `test-d/`
+- **`--workspace`:** all packages with `package.json`, audits each package's `src/public/` vs `test-d/`
 
 ## Checks
 

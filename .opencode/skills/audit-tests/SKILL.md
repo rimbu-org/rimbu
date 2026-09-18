@@ -33,7 +33,7 @@ Additional triggers: after `review-api`/`review-anatomy`, before `write-unit-tes
 
 ### Diagnose (read-only, default)
 
-1. Resolve target: single package `<pkg>` (e.g. `packages/hashed`) is default. If `--workspace` is passed, expand to all packages with `package.json` (exclude `list2`). Require `<pkg>` if no `--workspace`.
+1. Resolve target: single package `<pkg>` (e.g. `packages/hashed`) is default. If `--workspace` is passed, expand to all packages with `package.json`. Require `<pkg>` if no `--workspace`.
 2. For each target package, collect evidence **without mutating** via `rg` + file listing:
    - Enumerate public methods: `rg -n "^\s*(readonly\s+)?\w+\(|^\s*\w+\s*\(|^\s*get\s+\w+|^\s*set\s+\w+" src/public --no-heading` and also `rg -n "export (function|const|class|interface)" src --no-heading` to list main interfaces and their methods. For each method name (e.g. `filter`, `map`, `get`, `has`, `set`, `remove`, `stream`, `toArray`), `rg -n "\b<method>\b" test --no-heading` across `test/*.test.ts` (and `test/` recursively). If `0` matches, emit `warn` (missing unit test) with `rg` command + `0 matches` and `test/` file:line where coverage *would* be.
    - Check `test/` existence: if no `test/` or no `*.test.ts`, emit `warn` per method.

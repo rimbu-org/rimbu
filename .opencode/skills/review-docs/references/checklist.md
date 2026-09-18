@@ -5,7 +5,7 @@ Source: `AGENTS.md:546-573` §9, `package.json:56-64`, `config/typedoc.json:1-16
 ## Scope
 
 - **Default:** single package `<pkg>` (`packages/<name>` with `src/public/**/*.ts` and/or `src/<name>.ts` entry)
-- **`--workspace`:** all packages with `src/public/` (or `src/<name>.ts` when `public/` tier not present, exclude `list2` unpublished)
+- **`--workspace`:** all packages with `src/public/` (or `src/<name>.ts` when `public/` tier not present)
 - **Read-only:** never mutate (Q2). Feeds `write-docs` (10).
 
 ## Checks
@@ -34,7 +34,6 @@ Every `public/` export must have `/** ... @example ... */` that is `docs:verify-
 | `README` | Explicitly not in scope per ticket 09 |
 | `test/` `test-d/` `test-random/` | Not checked (only `src/public/` + entry) |
 | `src/internal/` `src/advanced/` | Not in scope (only public surface); `advanced/` is extension API not user-facing docs |
-| `list2` | Unpublished, excluded from `--workspace` |
 
 ## Severity
 
