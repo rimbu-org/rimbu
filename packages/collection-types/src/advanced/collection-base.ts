@@ -78,6 +78,31 @@ export declare namespace ApiMixin {
 	) => CollectionNonEmpty.Base<E, Tp> & ApiMixin.Apply<C, E, Tp>;
 }
 
+/**
+ * The non-empty counterpart of {@link ApiMixin}, and the non-keyed analogue of
+ * `KeyedApiMixinNonEmpty`.
+ *
+ * `_TP` is declared here *once* so that composing several non-empty
+ * capabilities intersects identical declarations, which TypeScript collapses to
+ * a single type. When each capability instead declares its own `_TP` in terms
+ * of its own aggregate `Family`, the composed `_TP` becomes an N-way
+ * intersection, and therefore every `Tp['_NORMAL']` / `Tp['_BUILDER']` /
+ * `Tp['_CONTEXT']` read becomes an N-way intersection too. Comparing a concrete
+ * class against such an intersection defeats TypeScript's nominal fast path and
+ * is the single largest cost when type-checking a collection.
+ *
+ * Stated in terms of `FamilyBase` rather than an aggregate `Family` on purpose:
+ * a mixin only needs the HKT slots, and `FamilyBase` leaves `_NORMAL` /
+ * `_BUILDER` / `_CONTEXT` as `unknown`, so the concrete family is the only
+ * contributor that pins them — which is what lets the intersection collapse.
+ */
+export interface ApiMixinNonEmpty extends ApiMixin {
+	_TP: Collection.Advanced.TypesNonEmpty<
+		Collection.Advanced.FamilyBase<this['_E']>,
+		this['_E']
+	>;
+}
+
 export namespace CollectionEmpty {
 	export class Base<
 		E,
@@ -249,7 +274,7 @@ export namespace CollectionNonEmpty {
 		}
 	}
 
-	export interface Mixin extends ApiMixin {
+	export interface Mixin extends ApiMixinNonEmpty {
 		/**
 		 * Deliberately empty: the seed's own API is contributed by the
 		 * `CollectionNonEmpty.Base<E, Tp>` half of
