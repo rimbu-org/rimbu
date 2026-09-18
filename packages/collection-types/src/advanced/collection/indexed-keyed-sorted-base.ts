@@ -1,4 +1,7 @@
-import type { KeyedApiMixin } from '@rimbu/collection-types/advanced/collection/keyed-base';
+import type {
+	KeyedApiMixin,
+	KeyedApiMixinNonEmpty,
+} from '@rimbu/collection-types/advanced/collection/keyed-base';
 import type {
 	AbstractConstructor,
 	CollectionNonEmpty,
@@ -171,7 +174,7 @@ export namespace IndexedKeyedSortedCollectionNonEmpty {
 		K,
 		V,
 		Tp extends Collection.Advanced.TypesNonEmpty<
-			MapCollection.Advanced.Family<K, V>,
+			KeyedCollection.Advanced.FamilyBase<K, V>,
 			readonly [K, V]
 		>,
 	> extends MapCollectionNonEmpty.ApiBase<K, V, Tp>,
@@ -188,13 +191,8 @@ export namespace IndexedKeyedSortedCollectionNonEmpty {
 		max(): readonly [K, V];
 	}
 
-	export interface Mixin extends KeyedApiMixin {
+	export interface Mixin extends KeyedApiMixinNonEmpty {
 		_API: Base<this['_K'], this['_V'], this['_TP']>;
-
-		_TP: Collection.Advanced.TypesNonEmpty<
-			MapCollection.Advanced.Family<this['_K'], this['_V']>,
-			readonly [this['_K'], this['_V']]
-		>;
 	}
 
 	export function WithMixin<C extends KeyedApiMixin>(
