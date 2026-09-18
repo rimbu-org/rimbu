@@ -12,8 +12,28 @@ import { OptLazy } from '@rimbu/common';
 export interface SortedApiMixin extends ApiMixin {
 	_S: unknown;
 
-	_Tp: Collection.Advanced.Types<
-		SortedCollection.Advanced.Family<this['_E'], this['_S']>,
+	// NOTE: do not add a `_TP` override here naming an aggregate `Family`.
+	// This interface previously carried a `_Tp` slot (lowercase `p`) that was
+	// never read — a typo for `_TP`. Had it been spelled `_TP`, it would have
+	// contributed `SortedCollection.Advanced.Family` to the composed `_TP`
+	// intersection, which is exactly the pattern that makes every
+	// `Tp['_NORMAL']` / `['_BUILDER']` / `['_CONTEXT']` read an N-way
+	// intersection and defeats TypeScript's nominal fast path. The kind-specific
+	// `_TP` belongs on `SortedApiMixinEmpty` / `SortedApiMixinNonEmpty`, stated
+	// in terms of `FamilyBase`.
+}
+
+/**
+ * The empty counterpart of {@link SortedApiMixin}.
+ *
+ * As with {@link SortedApiMixinNonEmpty}, the `_TP` declaration must stay
+ * textually identical to `ApiMixinEmpty['_TP']` so the two dedupe when
+ * intersected; it cannot simply extend `ApiMixinEmpty`, because
+ * {@link SortedApiMixin} already inherits the wider `ApiMixin['_TP']`.
+ */
+export interface SortedApiMixinEmpty extends SortedApiMixin {
+	_TP: Collection.Advanced.Types<
+		Collection.Advanced.FamilyBase<this['_E']>,
 		this['_E']
 	>;
 }
@@ -78,7 +98,7 @@ export namespace SortedCollectionEmpty {
 	export interface Base<E, S, Tp extends Collection.Advanced.TypesBase>
 		extends SortedCollection.Advanced.Api<E, S, Tp> {}
 
-	export interface Mixin extends SortedApiMixin {
+	export interface Mixin extends SortedApiMixinEmpty {
 		_API: Base<this['_E'], this['_S'], this['_TP']>;
 	}
 

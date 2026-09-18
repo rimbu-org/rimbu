@@ -1,6 +1,7 @@
 import type {
 	AbstractConstructor,
 	ApiMixin,
+	ApiMixinEmpty,
 	ApiMixinNonEmpty,
 	CollectionEmpty,
 	CollectionNonEmpty,
@@ -36,13 +37,8 @@ export namespace IndexedCollectionEmpty {
 	/**
 	 * The capability contributed by {@link WithMixin}.
 	 */
-	export interface Mixin extends ApiMixin {
+	export interface Mixin extends ApiMixinEmpty {
 		_API: Base<this['_E'], this['_TP']>;
-
-		_TP: Collection.Advanced.Types<
-			IndexedCollection.Advanced.Family<this['_E']>,
-			this['_E']
-		>;
 	}
 
 	/**

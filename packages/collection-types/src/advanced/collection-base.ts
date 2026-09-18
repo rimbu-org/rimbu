@@ -79,6 +79,21 @@ export declare namespace ApiMixin {
 }
 
 /**
+ * The empty counterpart of {@link ApiMixin}.
+ *
+ * Mirrors {@link ApiMixinNonEmpty}: `_TP` is declared once, in terms of
+ * `FamilyBase`, so that composing several empty capabilities intersects
+ * identical declarations and collapses to a single type. See the note on
+ * {@link ApiMixinNonEmpty} for why that matters.
+ */
+export interface ApiMixinEmpty extends ApiMixin {
+	_TP: Collection.Advanced.Types<
+		Collection.Advanced.FamilyBase<this['_E']>,
+		this['_E']
+	>;
+}
+
+/**
  * The non-empty counterpart of {@link ApiMixin}, and the non-keyed analogue of
  * `KeyedApiMixinNonEmpty`.
  *

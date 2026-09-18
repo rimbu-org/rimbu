@@ -1,6 +1,7 @@
 import type {
 	AbstractConstructor,
 	ApiMixin,
+	ApiMixinEmpty,
 	ApiMixinNonEmpty,
 	CollectionEmpty,
 	CollectionNonEmpty,
@@ -28,7 +29,7 @@ export namespace ValuedCollectionEmpty {
 			ValuedCollection.Capability.WithRemove.Api<E, Tp>,
 			ValuedCollection.Capability.WithRemoveAll.Api<E, Tp> {}
 
-	export interface Mixin extends ApiMixin {
+	export interface Mixin extends ApiMixinEmpty {
 		_API: Base<this['_E'], this['_TP']>;
 	}
 
