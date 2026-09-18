@@ -106,6 +106,17 @@ export interface ApiMixinEmpty extends ApiMixin {
  * class against such an intersection defeats TypeScript's nominal fast path and
  * is the single largest cost when type-checking a collection.
  *
+ * `_TP` must stay on `Collection.Advanced.FamilyBase` and never narrow to
+ * `Collection.Advanced.Family`. `ApiMixin.Apply` supplies the real types record
+ * by *intersection* (`C & { _TP: Tp }`), which accumulates rather than
+ * replaces. A `Family<this['_E']>` default therefore survives into the applied
+ * record and forces every slot — notably `_CONTEXT` — to additionally satisfy
+ * the element-typed `Collection.Advanced.Family<E>` view alongside the view
+ * contributed by `Tp`. For a keyed family those two views are irreconcilable
+ * for a generic `E`, because it rebuilds the element type as
+ * `readonly [E[0], E[1]]`, which is not assignable to an unresolved `E`.
+ * `FamilyBase` is element-agnostic, so it composes harmlessly.
+ *
  * Stated in terms of `FamilyBase` rather than an aggregate `Family` on purpose:
  * a mixin only needs the HKT slots, and `FamilyBase` leaves `_NORMAL` /
  * `_BUILDER` / `_CONTEXT` as `unknown`, so the concrete family is the only
@@ -303,25 +314,6 @@ export namespace CollectionNonEmpty {
 		 * (`context`, `stream`, `forEach`, `filter`, `toArray`).
 		 */
 		_API: unknown;
-
-		/**
-		 * Only wide enough to satisfy the `Tp` constraint of {@link CollectionNonEmptyBase}.
-		 *
-		 * This must stay on {@link Collection.Advanced.FamilyBase} and never narrow to
-		 * {@link Collection.Advanced.Family}. `ApiMixin.Apply` supplies the real types
-		 * record by *intersection* (`C & { _TP: Tp }`), which accumulates rather than
-		 * replaces. A `Family<this['_E']>` default therefore survives into the applied
-		 * record and forces every slot — notably `_CONTEXT` — to additionally satisfy
-		 * the element-typed `Collection.Advanced.Family<E>` view alongside the
-		 * key/value-typed view contributed by `Tp`. Those two views are irreconcilable
-		 * for a generic `E`, because a keyed family rebuilds the element type as
-		 * `readonly [E[0], E[1]]`, which is not assignable to an unresolved `E`.
-		 * `FamilyBase` is element-agnostic, so it composes harmlessly.
-		 */
-		_TP: Collection.Advanced.TypesNonEmpty<
-			Collection.Advanced.FamilyBase<this['_E']>,
-			this['_E']
-		>;
 	}
 
 	export const Constructor =

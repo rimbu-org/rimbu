@@ -10,7 +10,7 @@ Diagnose-only skill that checks the public API of a Rimbu package against the de
 
 ## Purpose
 
-Single-concern API lint for `packages/<name>/src/public/` (and `src/<name>.ts` entry). Verifies eight contracts: (a) consistent naming `filter`/`map`/`flatMap`/`take`/`drop` across packages, (b) math-index ` -1` = last (`Stream`/`AsyncStream` `at(-1)` returns fallback), (c) `OptLazy` overload pairs, (d) `NonEmpty` overload order (`StreamSource.NonEmpty` first), (e) HKT `Types` slot, (f) `Module` pattern, (g) tier leakage `public`/`advanced`/`internal`, (h) no ad-hoc capability intersection used as a family. Scope is single package `<pkg>` by default, `--workspace` for all. This skill is **diagnose-only**.
+Single-concern API lint for `packages/<name>/src/public/` (and `src/<name>.ts` entry). Verifies nine contracts: (a) consistent naming `filter`/`map`/`flatMap`/`take`/`drop` across packages, (b) math-index ` -1` = last (`Stream`/`AsyncStream` `at(-1)` returns fallback), (c) `OptLazy` overload pairs, (d) `NonEmpty` overload order (`StreamSource.NonEmpty` first), (e) HKT `Types` slot, (f) `Module` pattern, (g) tier leakage `public`/`advanced`/`internal`, (h) no ad-hoc capability intersection used as a family, (i) capability mixins share one `_TP` declaration. Scope is single package `<pkg>` by default, `--workspace` for all. This skill is **diagnose-only**.
 
 ## Normative refs
 
@@ -42,6 +42,7 @@ Additional triggers: before publishing a new collection method (see `AGENTS.md:4
    - (e) **HKT Types** — verify concrete collections declare `interface Types extends RMapBase.Types { readonly normal: ...; readonly nonEmpty: ... }` per `AGENTS.md:375-398`
    - (f) **Module** — verify factory uses `create...ContextModule().build()` per `AGENTS.md:467-476`
    - (g) **Tier leakage** — verify `src/public/` never imports from `src/internal/` via relative path, and `src/advanced/` only re-exports from `#<pkg>/*`; flag `internal` strings in `exports` (also covered by `review-anatomy`)
+   - (i) **Mixin shared `_TP`** — every `export interface Mixin` in `src/advanced/` must extend one of the six kind-tagged shared records (`ApiMixinEmpty`/`ApiMixinNonEmpty`, `KeyedApiMixinEmpty`/`KeyedApiMixinNonEmpty`, `SortedApiMixinEmpty`/`SortedApiMixinNonEmpty`) and must **not** declare its own `_TP`. A per-capability `_TP` makes the applied `_TP` an N-way intersection, which makes every `Tp['_NORMAL']`/`['_BUILDER']`/`['_CONTEXT']` read an N-way intersection and defeats TypeScript's nominal fast path; see `AGENTS.md` §6.4 "Capability mixins must share one `_TP` declaration"
    - (h) **Ad-hoc family** — flag any `type X = ...Capability.A<...> & ...Capability.B<...>` that intersects two or more `Capability.*` families to stand in for a family record. Families must be named interfaces extending the aggregate (`interface X extends MapCollection.Advanced.Family<K, V> {}`). Scans `src/`, `test-utils/`, `test/`, `test-d/`, since these are most often hand-assembled in shared test helpers. Evidence is the `rg` line plus the intersected-member count; see `AGENTS.md` §6.4 "Always name a family"
 3. Emit report per **Output contract** to **stdout**; if `--out <path>` given, also write to that path (convention `.scratch/reports/review-api/<pkg>.md`). Never write outside repo/`/tmp`.
 4. Be idempotent and safe to re-run. No build required (static `rg` only).
@@ -73,7 +74,7 @@ API <clean|has issues> for §1.1/§6. Counts: X error, Y warn, Z info.
 
 Severity per Q9:
 
-- `error` — (a) naming inconsistency, (b) math-index contract break (`Stream.at(-1)` not fallback), (c) missing `OptLazy` overload pair, (d) `NonEmpty` overload order wrong, (g) tier leakage (`internal` exposed), (h) ad-hoc capability intersection used as a family
+- `error` — (a) naming inconsistency, (b) math-index contract break (`Stream.at(-1)` not fallback), (c) missing `OptLazy` overload pair, (d) `NonEmpty` overload order wrong, (g) tier leakage (`internal` exposed), (h) ad-hoc capability intersection used as a family, (i) capability mixin not on a shared `_TP` record
 - `warn` — (e) HKT `Types` slot missing/partial, (f) `Module` pattern not sealed
 - `info` — advisory (e.g. `Reducer` not used where it could be, `const`/`NoInfer` suggestion)
 

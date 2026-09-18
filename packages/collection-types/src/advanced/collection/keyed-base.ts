@@ -60,6 +60,17 @@ export interface KeyedApiMixin extends ApiMixin {
 }
 
 /**
+ * The empty counterpart of {@link KeyedApiMixin}.
+ *
+ * `KeyedApiMixin` already declares `_TP` in terms of `FamilyBase`, so this adds
+ * nothing structurally. It exists so that *every* capability `Mixin` extends an
+ * explicitly kind-tagged shared record, which keeps the invariant uniform and
+ * mechanically checkable (see the `mixin-shared-tp` rule in the `review-api`
+ * skill) rather than needing a special case for the keyed empty side.
+ */
+export interface KeyedApiMixinEmpty extends KeyedApiMixin {}
+
+/**
  * The non-empty counterpart of {@link KeyedApiMixin}.
  *
  * `_TP` is declared here *once* so that composing several non-empty keyed
@@ -141,7 +152,7 @@ export namespace KeyedCollectionEmpty {
 			KeyedCollection.Capability.WithMapIndexed.Api<K, V, Tp>,
 			KeyedCollection.Capability.WithRecompose.Api<K, V, Tp> {}
 
-	export interface Mixin extends KeyedApiMixin {
+	export interface Mixin extends KeyedApiMixinEmpty {
 		_API: Base<this['_K'], this['_V'], this['_TP']>;
 	}
 

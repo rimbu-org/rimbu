@@ -447,6 +447,59 @@ Note that this applies to *families*. Intersecting `Api` interfaces inside a
 family declaration (e.g. `extends IndexedCollection.Advanced.Api<...>,
 KeyedCollection.Advanced.Api<...>`) is the normal, intended pattern.
 
+#### Capability mixins must share one `_TP` declaration
+
+Every capability `Mixin` in `collection-types/src/advanced/` must extend one of
+the six kind-tagged shared records, and must **not** declare its own `_TP`:
+
+| | empty | non-empty |
+|---|---|---|
+| plain | `ApiMixinEmpty` | `ApiMixinNonEmpty` |
+| keyed | `KeyedApiMixinEmpty` | `KeyedApiMixinNonEmpty` |
+| sorted | `SortedApiMixinEmpty` | `SortedApiMixinNonEmpty` |
+
+```ts
+// CORRECT — inherits the shared _TP
+export interface Mixin extends ApiMixinNonEmpty {
+  _API: ApiBase<this['_E'], this['_TP']>;
+}
+
+// WRONG — a per-capability _TP naming an aggregate Family
+export interface Mixin extends ApiMixin {
+  _API: ApiBase<this['_E'], this['_TP']>;
+  _TP: Collection.Advanced.TypesNonEmpty<
+    IndexedCollection.Advanced.Family<this['_E']>,
+    this['_E']
+  >;
+}
+```
+
+`ApiMixin.Apply` supplies the real types record by **intersection**
+(`C & { _TP: Tp }`), which accumulates rather than replaces. So if each
+capability declares its own `_TP`, composing N capabilities makes the applied
+`_TP` an N-way intersection — and therefore makes every `Tp['_NORMAL']` /
+`Tp['_BUILDER']` / `Tp['_CONTEXT']` read an N-way intersection too. Those
+members are mutually redundant (the concrete family subsumes the abstract ones),
+but TypeScript does not reduce redundant intersections, so comparing a concrete
+class against one is a full structural walk instead of the nominal fast path the
+class would otherwise hit via its own `implements` clause.
+
+This is not a micro-optimisation. Consolidating these declarations took
+`@rimbu/sorted` from 9.38s to 2.57s cold (-73%) and 5.5GB to 2.0GB (-64%).
+
+Two consequences worth knowing:
+
+- The shared records must state `_TP` in terms of `FamilyBase`, never an
+  aggregate `Family`. `FamilyBase` leaves `_NORMAL` / `_BUILDER` / `_CONTEXT` as
+  `unknown`, so the concrete family is the only contributor that pins them —
+  which is precisely what lets the intersection collapse.
+- `SortedApiMixin{Empty,NonEmpty}` cannot simply extend `ApiMixin{Empty,NonEmpty}`;
+  TypeScript rejects the merge (TS2320) because `SortedApiMixin` already inherits
+  the wider `ApiMixin['_TP']`. They restate the declaration textually so the two
+  still resolve to the same type and dedupe. Keep them identical.
+
+The `review-api` skill enforces this as rule `mixin-shared-tp` (contract (i)).
+
 ### 6.5 Reducers
 
 `Reducer<I, O>` is a composable, stateful fold operation. Think of it as a typesafe description of a fold that can be combined with other Reducers:

@@ -374,6 +374,83 @@ function checkHKT(pkgDir: string, findings: Finding[]): void {
  * Scans src/ plus the test trees, because these records are most often
  * hand-assembled in shared test utilities.
  */
+/**
+ * (i) Capability `Mixin` records must share one `_TP` declaration.
+ *
+ * Every `export interface Mixin` must extend one of the kind-tagged shared
+ * records and must not declare its own `_TP`. When capabilities each declare
+ * `_TP` in terms of their own aggregate `Family`, composing N of them makes the
+ * applied `_TP` an N-way intersection, so every `Tp['_NORMAL']` /
+ * `['_BUILDER']` / `['_CONTEXT']` read becomes an N-way intersection too.
+ * Comparing a concrete class against that defeats TypeScript's nominal fast
+ * path — it measured as a 3.65x cold-check regression on @rimbu/sorted.
+ */
+const SHARED_MIXIN_RECORDS = [
+	'ApiMixinEmpty',
+	'ApiMixinNonEmpty',
+	'KeyedApiMixinEmpty',
+	'KeyedApiMixinNonEmpty',
+	'SortedApiMixinEmpty',
+	'SortedApiMixinNonEmpty',
+];
+
+function checkMixinSharedTp(pkgDir: string, findings: Finding[]): void {
+	const srcDir = join(pkgDir, 'src');
+	if (!existsSync(srcDir)) return;
+
+	const out = rg('export interface Mixin extends', srcDir);
+	if (!out.trim()) return;
+
+	// One rg line per match, but each file is scanned in full below — dedupe so a
+	// file with several Mixins is not reported once per match.
+	const files = new Set<string>();
+	for (const line of out.trim().split('\n')) {
+		const m = /^(.*?):(\d+):/.exec(line);
+		if (m?.[1]) files.add(m[1]);
+	}
+
+	for (const file of files) {
+		let content: string;
+		try {
+			content = readFileSync(file, 'utf-8');
+		} catch {
+			continue;
+		}
+
+		const re = /export interface Mixin extends (\w+)\s*\{([\s\S]*?)\n\t\}/g;
+		let mm: RegExpExecArray | null;
+		// biome-ignore lint/suspicious/noAssignInExpressions: standard regex exec loop
+		while ((mm = re.exec(content)) !== null) {
+			const base = mm[1] as string;
+			const body = (mm[2] as string).replace(/\/\*[\s\S]*?\*\//g, '');
+			const lineNo = content.slice(0, mm.index).split('\n').length;
+			const rel = `${toRepoRel(file)}:${lineNo}`;
+
+			if (!SHARED_MIXIN_RECORDS.includes(base)) {
+				findings.push({
+					severity: 'error',
+					rule: 'mixin-shared-tp',
+					location: rel,
+					evidence: `Mixin extends '${base}', not a kind-tagged shared record`,
+					suggestedFix: `Extend one of ${SHARED_MIXIN_RECORDS.join(' / ')} so all capabilities contribute the same _TP declaration`,
+					normativeRef: 'AGENTS.md §6.4 (shared mixin _TP rule)',
+				});
+			}
+			if (/_TP\s*:/.test(body)) {
+				findings.push({
+					severity: 'error',
+					rule: 'mixin-shared-tp',
+					location: rel,
+					evidence: `Mixin extends '${base}' but declares its own _TP`,
+					suggestedFix:
+						'Remove the _TP override and inherit it from the shared record — a per-capability _TP makes the composed _TP an N-way intersection',
+					normativeRef: 'AGENTS.md §6.4 (shared mixin _TP rule)',
+				});
+			}
+		}
+	}
+}
+
 function checkAdHocFamily(pkgDir: string, findings: Finding[]): void {
 	const scanDirs = ['src', 'test-utils', 'test', 'test-d']
 		.map((d) => join(pkgDir, d))
@@ -620,6 +697,7 @@ if (import.meta.main) {
 			checkNonEmptyOrder(dir, findings);
 			checkHKT(dir, findings);
 			checkAdHocFamily(dir, findings);
+			checkMixinSharedTp(dir, findings);
 			checkModule(dir, findings);
 			checkTierLeakage(dir, findings);
 			for (const f of findings) {
@@ -634,6 +712,7 @@ if (import.meta.main) {
 		checkNonEmptyOrder(dir, allFindings);
 		checkHKT(dir, allFindings);
 		checkAdHocFamily(dir, allFindings);
+		checkMixinSharedTp(dir, allFindings);
 		checkModule(dir, allFindings);
 		checkTierLeakage(dir, allFindings);
 		reportTarget = toRepoRel(dir);

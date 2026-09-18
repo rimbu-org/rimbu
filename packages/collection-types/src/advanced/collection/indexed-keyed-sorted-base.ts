@@ -1,5 +1,6 @@
 import type {
 	KeyedApiMixin,
+	KeyedApiMixinEmpty,
 	KeyedApiMixinNonEmpty,
 } from '@rimbu/collection-types/advanced/collection/keyed-base';
 import type {
@@ -45,7 +46,7 @@ export namespace IndexedKeyedSortedCollectionEmpty {
 			IndexedSortedCollection.Advanced.Api<readonly [K, V], K, Tp>,
 			IndexedCollection.Capability.WithRemoveAt.Api<readonly [K, V], Tp> {}
 
-	export interface Mixin extends KeyedApiMixin {
+	export interface Mixin extends KeyedApiMixinEmpty {
 		_API: Base<this['_K'], this['_V'], this['_TP']>;
 	}
 

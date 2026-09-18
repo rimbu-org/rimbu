@@ -11,6 +11,7 @@ import type { RelatedTo } from '@rimbu/common';
 import type { StreamSource } from '@rimbu/stream';
 import type {
 	KeyedApiMixin,
+	KeyedApiMixinEmpty,
 	KeyedApiMixinNonEmpty,
 	KeyedCollectionEmpty,
 } from './collection/keyed-base';
@@ -37,7 +38,7 @@ export namespace MapCollectionEmpty {
 			MapCollection.Capability.WithSet.Api<K, V, Tp>,
 			MapCollection.Capability.WithUpdateAtKey.Api<K, V, Tp> {}
 
-	export interface Mixin extends KeyedApiMixin {
+	export interface Mixin extends KeyedApiMixinEmpty {
 		_API: ApiBase<this['_K'], this['_V'], this['_TP']>;
 	}
 
