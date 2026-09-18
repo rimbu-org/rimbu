@@ -1,5 +1,6 @@
 import type { Collection } from '@rimbu/collection-types/collection';
 import type { IndexedCollection } from '@rimbu/collection-types/collection/indexed';
+import type { ValuedCollection } from '@rimbu/collection-types/collection/valued';
 
 import type { ChildrenOps } from '#advanced/children-ops';
 
@@ -54,7 +55,8 @@ export declare namespace List {
 				IndexedCollection.Capability.WithInsertAt.BuilderApi<T, Tp>,
 				IndexedCollection.Capability.WithSetAt.BuilderApi<T, Tp>,
 				IndexedCollection.Capability.WithUpdateAt.BuilderApi<T, Tp>,
-				IndexedCollection.Capability.WithRemoveAt.BuilderApi<T, Tp> {}
+				IndexedCollection.Capability.WithRemoveAt.BuilderApi<T, Tp>,
+				ValuedCollection.Capability.WithBuildMap.BuilderApi<T, Tp> {}
 
 		export interface ContextApi<F extends Collection.Advanced.FamilyBase<any>>
 			extends IndexedCollection.Advanced.ContextApi<F>,

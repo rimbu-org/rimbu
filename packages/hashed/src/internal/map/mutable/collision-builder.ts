@@ -149,8 +149,10 @@ export class HashMapCollisionBuilder<K, V> extends CollisionBuilderBase<
 
 		return this.context.collision(
 			this.entries
-				.build()
-				.map((entry): readonly [K, V2] => [entry[0], f(entry[1], entry[0])])
+				.buildMap((entry): readonly [K, V2] => [
+					entry[0],
+					f(entry[1], entry[0]),
+				])
 				.assumeNonEmpty(),
 		);
 	}

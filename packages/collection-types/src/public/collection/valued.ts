@@ -159,5 +159,20 @@ export declare namespace ValuedCollection {
 				union(other: StreamSource<E>): Tp['_SELF'];
 			}
 		}
+
+		export interface WithBuildMap<E> extends Collection.Advanced.FamilyBase<E> {
+			_BUILDER: WithBuildMap.BuilderApi<E, this['_TYPES']>;
+
+			_FAM: WithBuildMap<E>;
+			_NEW_FAMILY: WithBuildMap<this['_NEW_E']>;
+		}
+
+		export namespace WithBuildMap {
+			export interface BuilderApi<E, Tp extends Collection.Advanced.TypesBase> {
+				buildMap<E2 extends Tp['_UPPER_E']>(
+					f: (element: E) => E2,
+				): Collection.Advanced.ReTyped<Tp, E2>['_NORMAL'];
+			}
+		}
 	}
 }
