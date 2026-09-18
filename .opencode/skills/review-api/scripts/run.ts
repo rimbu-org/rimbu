@@ -362,6 +362,69 @@ function checkHKT(pkgDir: string, findings: Finding[]): void {
 	}
 }
 
+/**
+ * (h) Ad-hoc capability intersection used as a family.
+ *
+ * A family must be a named `interface X extends <Named>.Advanced.Family<...>`,
+ * never an intersection of individual `Capability.*` families. The intersection
+ * is both wrong (it does not reconstruct the aggregate `_BUILDER`, so members
+ * like `get`/`has`/`size` go missing) and uncacheable, which makes slot
+ * resolution re-intersect every member recursively.
+ *
+ * Scans src/ plus the test trees, because these records are most often
+ * hand-assembled in shared test utilities.
+ */
+function checkAdHocFamily(pkgDir: string, findings: Finding[]): void {
+	const scanDirs = ['src', 'test-utils', 'test', 'test-d']
+		.map((d) => join(pkgDir, d))
+		.filter((d) => existsSync(d));
+
+	for (const dir of scanDirs) {
+		// `type X = ...Capability.Y<...> &` — a type alias whose RHS intersects
+		// capability families. Interfaces extending a named family never match.
+		const out = rg('^\\s*(export\\s+)?type\\s+\\w+\\s*=.*Capability\\.', dir);
+		if (!out.trim()) continue;
+
+		for (const line of out.trim().split('\n')) {
+			const m = /^(.*?):(\d+):(.*)$/.exec(line);
+			if (!m) continue;
+			const [, file, lineNo, text] = m as unknown as [
+				string,
+				string,
+				string,
+				string,
+			];
+
+			// Only flag when the alias actually intersects (a single capability
+			// reference is a legitimate narrow alias, not a family).
+			let content: string;
+			try {
+				content = readFileSync(file, 'utf-8');
+			} catch {
+				continue;
+			}
+			const start = Number(lineNo) - 1;
+			const decl = content
+				.split('\n')
+				.slice(start, start + 24)
+				.join('\n');
+			const body = decl.slice(0, decl.indexOf(';') === -1 ? undefined : decl.indexOf(';') + 1);
+			const capCount = (body.match(/Capability\./g) ?? []).length;
+			if (capCount < 2) continue;
+
+			findings.push({
+				severity: 'error',
+				rule: 'family-adhoc-intersection',
+				location: `${toRepoRel(file)}:${lineNo}`,
+				evidence: `${text.trim().slice(0, 90)} … (${capCount} Capability.* members intersected)`,
+				suggestedFix:
+					'Replace with a named interface extending the aggregate family, e.g. `interface X extends MapCollection.Advanced.Family<K, V> {}` — it already aggregates these capabilities, is cacheable, and reconstructs the real _BUILDER',
+				normativeRef: 'AGENTS.md §6.4 (named family rule)',
+			});
+		}
+	}
+}
+
 function checkModule(pkgDir: string, findings: Finding[]): void {
 	const srcDir = join(pkgDir, 'src');
 	if (!existsSync(srcDir)) return;
@@ -556,6 +619,7 @@ if (import.meta.main) {
 			checkOptLazy(dir, findings);
 			checkNonEmptyOrder(dir, findings);
 			checkHKT(dir, findings);
+			checkAdHocFamily(dir, findings);
 			checkModule(dir, findings);
 			checkTierLeakage(dir, findings);
 			for (const f of findings) {
@@ -569,6 +633,7 @@ if (import.meta.main) {
 		checkOptLazy(dir, allFindings);
 		checkNonEmptyOrder(dir, allFindings);
 		checkHKT(dir, allFindings);
+		checkAdHocFamily(dir, allFindings);
 		checkModule(dir, allFindings);
 		checkTierLeakage(dir, allFindings);
 		reportTarget = toRepoRel(dir);

@@ -44,6 +44,7 @@ Additional triggers: after `review-anatomy`, before `bun test`, when `maintain-s
    - **`NonEmpty` narrowing bugs** — `rg -n "nonEmpty\(\)|assumeNonEmpty|NonEmpty" src --no-heading` and check for `!` or missing `nonEmpty()` guard before `assumeNonEmpty`
    - **`Reducer` misuse** — `rg -n "Reducer\." src --no-heading` and check for `Reducer` without `mapInput`/`combine` or direct `reduce` misuse
    - **`Token`/`RimbuError` misuse** (`packages/base`) — `rg -n "Token|RimbuError" src --no-heading` and check for `Token` without `Symbol` or `RimbuError` without `throw`
+   - **Ad-hoc family records** — if the package declares HKT families, note that the mechanical check lives in `review-api` rule `family-adhoc-intersection` (contract (h)); do not duplicate it here. A family must be a named `interface` extending the aggregate `Advanced.Family`, never an intersection of `Capability.*` families — the intersection is uncacheable and does not reconstruct the aggregate `_BUILDER`. Defer to `review-api` and cite `AGENTS.md` §6.4 "Always name a family"
 3. Emit report per **Output contract** to **stdout**; if `--out <path>` given, also write to that path (convention `.scratch/reports/review-impl/<pkg>.md`). Never write outside repo/`/tmp`. Be idempotent and fast (no `build:seq`).
 4. Severity follows `biome.json:15-44` config (see checklist). Every Biome finding cites `rule` + `file:line`.
 

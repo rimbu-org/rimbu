@@ -396,6 +396,57 @@ export namespace HashMap {
 
 When modifying abstract base methods in `collection-types`, check all concrete implementations (hashed, sorted, ordered, etc.) still satisfy the type constraints.
 
+#### Always name a family — never use an ad-hoc capability intersection
+
+A *family* (the `Advanced.Family` / `Advanced.FamilyBase` record that binds a
+collection's concrete types into the HKT slots) must always be introduced as a
+**named `interface` extending the aggregate family**:
+
+```ts
+// CORRECT — named interface extending the aggregate family
+interface Capabilities extends MapCollection.Advanced.Family<any, any> {}
+
+export interface Family<K, V> extends MapCollection.Advanced.Family<K, V> {
+  _NORMAL: SortedMap<K, V>;
+  _NON_EMPTY: SortedMap.NonEmpty<K, V>;
+  // ...
+}
+```
+
+Never assemble one by intersecting the individual `Capability.*` families:
+
+```ts
+// WRONG — ad-hoc intersection used as a family
+type Capabilities = Collection.Capability.WithAddAll<any> &
+  Collection.Capability.WithToBuilder<any> &
+  KeyedCollection.Capability.WithMapValues<any, any> &
+  /* ...six more... */;
+```
+
+Two reasons, both load-bearing:
+
+1. **Correctness.** An intersection of capability families is *not* the
+   aggregate family. Slots such as `_BUILDER` resolve to an intersection of each
+   capability's own `BuilderApi` rather than the real
+   `MapCollection.Advanced.BuilderApi`, so members that live only on the
+   aggregate (`get`, `has`, `size`, `removeKeys`, …) silently go missing and
+   every use site errors.
+2. **Compile time.** An anonymous intersection has no symbol, so it cannot be
+   cached. Every slot resolution re-intersects all members and recurses through
+   `_TYPES` / `_TYPES_NON_EMPTY`. A single nine-member offender in
+   `collection-types/test-utils` accounted for more than half of that package's
+   check time; replacing it with a named family cut `src + test-utils` from
+   3.275s to 1.370s (-58%), types -26%, instantiations -28%, and fixed 40
+   pre-existing type errors.
+
+The named form costs nothing: `interface X extends Y {}` is a cached nominal
+symbol, and it already aggregates exactly the capabilities you were trying to
+list.
+
+Note that this applies to *families*. Intersecting `Api` interfaces inside a
+family declaration (e.g. `extends IndexedCollection.Advanced.Api<...>,
+KeyedCollection.Advanced.Api<...>`) is the normal, intended pattern.
+
 ### 6.5 Reducers
 
 `Reducer<I, O>` is a composable, stateful fold operation. Think of it as a typesafe description of a fold that can be combined with other Reducers:
