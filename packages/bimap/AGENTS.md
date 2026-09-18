@@ -14,7 +14,9 @@ src/
 │   └── bimap-base.ts        # exports["./advanced/*"] — BiMapBase, BiMapBuilderBase, BiMapCollection.Capability.*
 └── internal/                # NEVER exported; "#bimap/*" only
     ├── context.ts           # BiMapCollectionContext / BiMapKeyedContext
-    ├── immutable.ts         # BiMapEmpty + abstract BiMapNonEmptyBase + BiMapImpl
+    ├── immutable/
+    │   ├── empty.ts         # BiMapEmpty
+    │   └── non-empty.ts     # BiMapNonEmpty
     └── builder.ts           # BiMapBuilder
 ```
 
@@ -68,7 +70,7 @@ keyed by `V`, backed by two inverse `MapCollection`s.
 1. Add a `BiMapCollection.Capability.WithX` `Api`/`BuilderApi` (and include it in
    `BiMapBase`/`BiMapBuilderBase`) in `src/advanced/bimap-base.ts`.
 2. Add the signature (and NonEmpty override) to `src/public/bimap.ts`.
-3. Implement in `src/internal/immutable.ts` (and `builder.ts` if relevant).
+3. Implement in `src/internal/immutable/` (`empty.ts` / `non-empty.ts`) and `builder.ts` if relevant.
 4. Propagate to `collection-types` only if it belongs on the shared map base.
 5. Add tests in `test/` and type tests in `test-d/`.
 

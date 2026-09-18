@@ -8,7 +8,8 @@ import { HashMap } from '@rimbu/hashed/map';
 import { Reducer } from '@rimbu/stream/reducer';
 
 import { BiMapBuilder } from '#bimap/builder';
-import { BiMapEmpty, BiMapImpl, BiMapNonEmptyBase } from '#bimap/immutable';
+import { BiMapEmpty } from '#bimap/immutable/empty';
+import { BiMapNonEmpty } from '#bimap/immutable/non-empty';
 
 export class BiMapCollectionContext<UK, UV>
 	extends ContextBaseWithAddAll<BiMap.Advanced.Family<UK, UV>>
@@ -140,14 +141,14 @@ export class BiMapCollectionContext<UK, UV>
 	isNonEmptyInstance<E extends readonly [UK, any]>(
 		source: unknown,
 	): source is BiMap.NonEmpty<E[0], E[1]> {
-		return source instanceof BiMapNonEmptyBase;
+		return source instanceof BiMapNonEmpty;
 	}
 
 	createNonEmptyImpl<K extends UK, V extends UV>(
 		keyValueMap: MapCollection.NonEmpty<K, V>,
 		valueKeyMap: MapCollection.NonEmpty<V, K>,
-	): BiMapImpl<K, V> {
-		return new BiMapImpl(
+	): BiMapNonEmpty<K, V> {
+		return new BiMapNonEmpty(
 			this as unknown as BiMapCollectionContext<K, V>,
 			keyValueMap,
 			valueKeyMap,
@@ -159,7 +160,7 @@ export class BiMapCollectionContext<UK, UV>
 	): BiMap.Builder<K, V> {
 		return new BiMapBuilder(
 			this as unknown as BiMapCollectionContext<K, V>,
-			source as unknown as BiMapImpl<K, V>,
+			source as unknown as BiMapNonEmpty<K, V>,
 		);
 	}
 

@@ -2,7 +2,7 @@ import type { BiMap } from '@rimbu/bimap/bimap';
 import type { MapCollection } from '@rimbu/collection-types/map';
 
 import type { BiMapCollectionContext } from '#bimap/context';
-import type { BiMapImpl } from '#bimap/immutable';
+import type { BiMapNonEmpty } from '#bimap/immutable/non-empty';
 
 import { CollectionBuilderBase } from '@rimbu/collection-types/advanced/collection-base';
 import {
@@ -18,7 +18,7 @@ export class BiMapBuilder<K, V>
 {
 	constructor(
 		readonly context: BiMapCollectionContext<K, V>,
-		public source?: BiMapImpl<K, V>,
+		public source?: BiMapNonEmpty<K, V>,
 	) {
 		super();
 	}
@@ -233,9 +233,10 @@ export class BiMapBuilder<K, V>
 		let changed = false;
 
 		const iter = Stream.from(entries)[Symbol.iterator]();
-		let entry: readonly [K, V] | undefined;
+		const token = Symbol();
+		let entry: readonly [K, V] | typeof token;
 
-		while (undefined !== (entry = iter.fastNext())) {
+		while (token !== (entry = iter.fastNext(token))) {
 			if (this.removeEntry(entry)) changed = true;
 		}
 
