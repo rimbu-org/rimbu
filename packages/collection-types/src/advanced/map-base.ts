@@ -11,6 +11,7 @@ import type { RelatedTo } from '@rimbu/common';
 import type { StreamSource } from '@rimbu/stream';
 import type {
 	KeyedApiMixin,
+	KeyedApiMixinNonEmpty,
 	KeyedCollectionEmpty,
 } from './collection/keyed-base';
 
@@ -130,7 +131,7 @@ export namespace MapCollectionNonEmpty {
 		K,
 		V,
 		Tp extends Collection.Advanced.TypesNonEmpty<
-			MapCollection.Advanced.Family<K, V>,
+			KeyedCollection.Advanced.FamilyBase<K, V>,
 			readonly [K, V]
 		>,
 	> extends MapCollection.Capability.WithSet.Api<K, V, Tp>,
@@ -162,7 +163,7 @@ export namespace MapCollectionNonEmpty {
 		K,
 		V,
 		Tp extends Collection.Advanced.TypesNonEmpty<
-			MapCollection.Advanced.Family<K, V>,
+			KeyedCollection.Advanced.FamilyBase<K, V>,
 			readonly [K, V]
 		>,
 	> implements
@@ -181,7 +182,7 @@ export namespace MapCollectionNonEmpty {
 		K,
 		V,
 		Tp extends Collection.Advanced.TypesNonEmpty<
-			MapCollection.Advanced.Family<K, V>,
+			KeyedCollection.Advanced.FamilyBase<K, V>,
 			readonly [K, V]
 		>,
 	> = RequiredClass<K, V, Tp>;
@@ -190,19 +191,14 @@ export namespace MapCollectionNonEmpty {
 		K,
 		V,
 		Tp extends Collection.Advanced.TypesNonEmpty<
-			MapCollection.Advanced.Family<K, V>,
+			KeyedCollection.Advanced.FamilyBase<K, V>,
 			readonly [K, V]
 		>,
 	> extends Implemented<K, V, Tp>,
 			RequiredClass<K, V, Tp> {}
 
-	export interface Mixin extends KeyedApiMixin {
+	export interface Mixin extends KeyedApiMixinNonEmpty {
 		_API: ApiBase<this['_K'], this['_V'], this['_TP']>;
-
-		_TP: Collection.Advanced.TypesNonEmpty<
-			MapCollection.Advanced.Family<this['_K'], this['_V']>,
-			this['_E']
-		>;
 	}
 
 	export function WithMixin<C extends KeyedApiMixin>(

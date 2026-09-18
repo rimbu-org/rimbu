@@ -38,8 +38,12 @@ export namespace SortedMap {
 		export interface Api<
 			K,
 			V,
+			// `FamilyBase`, not the aggregate `Family`: this mirrors the constraint
+			// `MapCollection.Advanced.Api` actually declares. Naming `Family` here
+			// gratuitously required — and materialised — the entire keyed API
+			// surface at every reference to this interface.
 			Tp extends Collection.Advanced.Types<
-				KeyedCollection.Advanced.Family<K, V>,
+				KeyedCollection.Advanced.FamilyBase<K, V>,
 				readonly [K, V]
 			>,
 		> extends MapCollection.Advanced.Api<K, V, Tp>,

@@ -59,6 +59,29 @@ export interface KeyedApiMixin extends ApiMixin {
 	>;
 }
 
+/**
+ * The non-empty counterpart of {@link KeyedApiMixin}.
+ *
+ * `_TP` is declared here *once* so that composing several non-empty keyed
+ * capabilities intersects identical declarations, which TypeScript collapses to
+ * a single type. Previously each capability re-declared `_TP` with its own
+ * `Family` flavour, so composing N capabilities made `_TP` an N-way
+ * intersection — and therefore made every `Tp['_CONTEXT']` / `Tp['_BUILDER']` /
+ * `Tp['_NORMAL']` read an N-way intersection as well. It also mixed kinds,
+ * since {@link KeyedApiMixin} declares `_TP` via `Types` (normal) while the
+ * non-empty capabilities overrode it with `TypesNonEmpty`.
+ *
+ * Stated in terms of `FamilyBase` rather than the aggregate `Family` on
+ * purpose: a mixin only needs the HKT slots, and naming `Family` here would
+ * force the whole keyed API surface to be materialised at every reference.
+ */
+export interface KeyedApiMixinNonEmpty extends KeyedApiMixin {
+	_TP: Collection.Advanced.TypesNonEmpty<
+		KeyedCollection.Advanced.FamilyBase<this['_K'], this['_V']>,
+		this['_E']
+	>;
+}
+
 export declare namespace KeyedApiMixin {
 	export type Apply<
 		C extends KeyedApiMixin,
@@ -243,7 +266,7 @@ export namespace KeyedCollectionNonEmpty {
 		K,
 		V,
 		Tp extends Collection.Advanced.TypesNonEmpty<
-			KeyedCollection.Advanced.Family<K, V>,
+			KeyedCollection.Advanced.FamilyBase<K, V>,
 			readonly [K, V]
 		>,
 	> extends KeyedCollection.Capability.WithHas.Api<K, V, Tp>,
@@ -267,7 +290,7 @@ export namespace KeyedCollectionNonEmpty {
 		K,
 		V,
 		Tp extends Collection.Advanced.TypesNonEmpty<
-			KeyedCollection.Advanced.Family<K, V>,
+			KeyedCollection.Advanced.FamilyBase<K, V>,
 			readonly [K, V]
 		>,
 	> implements
@@ -283,7 +306,7 @@ export namespace KeyedCollectionNonEmpty {
 		K,
 		V,
 		Tp extends Collection.Advanced.TypesNonEmpty<
-			KeyedCollection.Advanced.Family<K, V>,
+			KeyedCollection.Advanced.FamilyBase<K, V>,
 			readonly [K, V]
 		>,
 	> = RequiredClass<K, V, Tp>;
@@ -292,19 +315,14 @@ export namespace KeyedCollectionNonEmpty {
 		K,
 		V,
 		Tp extends Collection.Advanced.TypesNonEmpty<
-			KeyedCollection.Advanced.Family<K, V>,
+			KeyedCollection.Advanced.FamilyBase<K, V>,
 			readonly [K, V]
 		>,
 	> extends Implemented<K, V, Tp>,
 			RequiredClass<K, V, Tp> {}
 
-	export interface Mixin extends KeyedApiMixin {
+	export interface Mixin extends KeyedApiMixinNonEmpty {
 		_API: ApiBase<this['_K'], this['_V'], this['_TP']>;
-
-		_TP: Collection.Advanced.TypesNonEmpty<
-			KeyedCollection.Advanced.Family<this['_K'], this['_V']>,
-			this['_E']
-		>;
 	}
 
 	export function WithMixin<C extends ApiMixin>(
