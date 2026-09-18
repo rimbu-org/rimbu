@@ -369,9 +369,12 @@ export namespace IndexedCollectionNonEmpty {
 			}
 
 			recompose<E2 extends Tp['_UPPER_E']>(
+				f: (stream: Tp['_AS_STREAM']) => StreamSource.NonEmpty<E2>,
+			): Collection.Advanced.ReTyped<Tp, E2>['_NON_EMPTY'];
+			recompose<E2 extends Tp['_UPPER_E']>(
 				f: (stream: Tp['_AS_STREAM']) => StreamSource<E2>,
-			): Collection.Advanced.ReTyped<Tp, E2>['_NON_EMPTY'] {
-				return this.context.from(f(this.stream())) as any;
+			): Collection.Advanced.ReTyped<Tp, E2>['_NORMAL'] {
+				return this.context.from(f(this.stream()));
 			}
 
 			mutate(f: (builder: Tp['_BUILDER']) => void): Tp['_NORMAL'] {
