@@ -2,6 +2,9 @@ node_modules
 /lib
 /temp
 
+# incremental typecheck cache (config/tsconfig.base.json sets "incremental": true)
+*.tsbuildinfo
+
 .vscode
 coverage
 

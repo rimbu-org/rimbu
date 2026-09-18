@@ -2,6 +2,18 @@
 	"extends": "./tsconfig.common.json",
 	"compilerOptions": {
 		"noEmit": true,
-		"types": ["bun-types"]
+		"types": ["bun-types"],
+
+		// Incremental typecheck. The type-level machinery in collection-types is
+		// inherently expensive to check from cold (sorted: ~9.4s, ~5.5GB), and
+		// that cost is structural rather than accidental. Caching the program
+		// state makes re-checks effectively free (~0.06s, ~79MB) whenever the
+		// inputs are unchanged, which is the common case in a dev loop and on
+		// warm CI. Cold checks are unaffected.
+		//
+		// tsBuildInfoFile is intentionally left at its default so each package
+		// gets its own <configDir>/tsconfig.tsbuildinfo — setting it here would
+		// resolve relative to config/ and collide across packages.
+		"incremental": true
 	}
 }
