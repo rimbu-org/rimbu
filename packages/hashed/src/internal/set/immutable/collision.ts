@@ -16,7 +16,7 @@ export class HashSetCollision<T> extends HashSetNonEmptyBase<T> {
 	}
 
 	get size(): number {
-		return this.entries.length;
+		return this.entries.size;
 	}
 
 	copy(entries = this.entries): HashSetCollision<T> {
@@ -40,7 +40,7 @@ export class HashSetCollision<T> extends HashSetNonEmptyBase<T> {
 			return this.copy(this.entries.append(value));
 		}
 
-		return this.copy(this.entries.with(currentIndex, value));
+		return this.copy(this.entries.setAt(currentIndex, value));
 	}
 
 	remove(value: T, _hash?: number): HashSet<T> {
@@ -50,7 +50,7 @@ export class HashSetCollision<T> extends HashSetNonEmptyBase<T> {
 
 		if (undefined === currentIndex) return this;
 
-		const newEntries = this.entries.remove(currentIndex).assumeNonEmpty();
+		const newEntries = this.entries.removeAt(currentIndex).assumeNonEmpty();
 		return this.copy(newEntries);
 	}
 

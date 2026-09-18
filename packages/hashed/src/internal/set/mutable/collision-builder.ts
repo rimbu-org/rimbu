@@ -27,14 +27,14 @@ export class HashSetCollisionBuilder<T> {
 	get size(): number {
 		if (undefined !== this.source) return this.source.size;
 
-		return this.entries.length;
+		return this.entries.size;
 	}
 
 	hasInternal(value: T, hash?: number): boolean {
 		if (undefined !== this.source) return this.source.has(value, hash);
 
 		let result = false;
-		this.entries.forEach((v, _, halt): void => {
+		this.entries.forEachIndexed((v, _, halt): void => {
 			if (this.context.eq(v, value)) {
 				result = true;
 				halt();
@@ -45,7 +45,7 @@ export class HashSetCollisionBuilder<T> {
 
 	addInternal(value: T): boolean {
 		let index = -1;
-		this.entries.forEach((v, i, halt): void => {
+		this.entries.forEachIndexed((v, i, halt): void => {
 			if (this.context.eq(v, value)) {
 				index = i;
 				halt();
@@ -60,7 +60,7 @@ export class HashSetCollisionBuilder<T> {
 		}
 
 		const token = Symbol();
-		const oldValue = this.entries.set(index, value, token);
+		const oldValue = this.entries.setAt(index, value, token);
 
 		const changed = token === oldValue || !this.context.eq(oldValue, value);
 
@@ -72,7 +72,7 @@ export class HashSetCollisionBuilder<T> {
 	removeInternal(value: T): boolean {
 		let index = -1;
 
-		this.entries.forEach((v, i, halt): void => {
+		this.entries.forEachIndexed((v, i, halt): void => {
 			if (this.context.eq(v, value)) {
 				index = i;
 				halt();
@@ -83,7 +83,7 @@ export class HashSetCollisionBuilder<T> {
 
 		this.source = undefined;
 
-		this.entries.remove(index);
+		this.entries.removeAt(index);
 		return true;
 	}
 

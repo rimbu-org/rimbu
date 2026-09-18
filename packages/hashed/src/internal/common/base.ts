@@ -48,7 +48,7 @@ export abstract class CollisionBuilderBase<E> {
 	get size(): number {
 		if (undefined !== this.source) return this.source.size;
 
-		return this.entries.length;
+		return this.entries.size;
 	}
 
 	get entries(): List.Builder<E> {

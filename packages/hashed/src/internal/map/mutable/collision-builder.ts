@@ -35,7 +35,7 @@ export class HashMapCollisionBuilder<K, V> extends CollisionBuilderBase<
 
 		const token = Symbol();
 		let result: V | typeof token = token;
-		this.entries.forEach((e, _, halt): void => {
+		this.entries.forEachIndexed((e, _, halt): void => {
 			if (this.context.eq(key, e[0])) {
 				result = e[1];
 				halt();
@@ -53,7 +53,7 @@ export class HashMapCollisionBuilder<K, V> extends CollisionBuilderBase<
 
 	addInternal(entry: readonly [K, V]): boolean {
 		let index = -1;
-		this.entries.forEach((e, i, halt) => {
+		this.entries.forEachIndexed((e, i, halt) => {
 			if (this.context.eq(e[0], entry[0])) {
 				index = i;
 				halt();
@@ -67,7 +67,7 @@ export class HashMapCollisionBuilder<K, V> extends CollisionBuilderBase<
 			return true;
 		}
 
-		const oldEntry = this.entries.updateAt(
+		const [oldEntry] = this.entries.updateAt(
 			index,
 			(currentEntry): readonly [K, V] => {
 				if (Object.is(currentEntry[1], entry[1])) return currentEntry;
@@ -94,7 +94,7 @@ export class HashMapCollisionBuilder<K, V> extends CollisionBuilderBase<
 		let index = -1;
 		let foundEntry: readonly [K, V] | undefined;
 
-		this.entries.forEach((e, i, halt) => {
+		this.entries.forEachIndexed((e, i, halt) => {
 			if (this.context.eq(e[0], atKey)) {
 				index = i;
 				foundEntry = e;
@@ -126,11 +126,11 @@ export class HashMapCollisionBuilder<K, V> extends CollisionBuilderBase<
 		if (Object.is(newValue, foundEntry[1])) return false;
 		if (token === newValue) {
 			this.source = undefined;
-			this.entries.remove(index);
+			this.entries.removeAt(index);
 			return true;
 		}
 
-		const result = this.entries.set(index, [atKey, newValue as V]);
+		const result = this.entries.setAt(index, [atKey, newValue as V]);
 		const changed = undefined !== result;
 
 		if (changed) this.source = undefined;
@@ -149,10 +149,8 @@ export class HashMapCollisionBuilder<K, V> extends CollisionBuilderBase<
 
 		return this.context.collision(
 			this.entries
-				.buildMap((entry): readonly [K, V2] => [
-					entry[0],
-					f(entry[1], entry[0]),
-				])
+				.build()
+				.map((entry): readonly [K, V2] => [entry[0], f(entry[1], entry[0])])
 				.assumeNonEmpty(),
 		);
 	}

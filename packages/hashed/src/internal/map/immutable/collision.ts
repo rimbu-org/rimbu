@@ -23,7 +23,7 @@ export class HashMapCollision<K, V> extends HashMapNonEmptyBase<K, V> {
 	}
 
 	get size(): number {
-		return this.entries.length;
+		return this.entries.size;
 	}
 
 	copy(entries = this.entries): HashMapCollision<K, V> {
@@ -115,18 +115,18 @@ export class HashMapCollision<K, V> extends HashMapNonEmptyBase<K, V> {
 		const newValue = update !== undefined ? update(currentValue, token) : set;
 
 		if (token === newValue) {
-			const newEntries = this.entries.remove(currentIndex).assumeNonEmpty();
+			const newEntries = this.entries.removeAt(currentIndex).assumeNonEmpty();
 			// if last entry removed, this collision would be empty, but collision is always non-empty; caller will handle collapsing
 			// For consistency with block logic, if size would become 0, we need to return empty? But collision size 1 removal handled by caller.
 			// Here we just return copy; if newEntries is empty, it would throw, but that case is handled by block's collapse logic.
-			if (newEntries.length === 0) return this.context.empty();
+			if (newEntries.size === 0) return this.context.empty();
 			return this.copy(newEntries);
 		}
 
 		if (Object.is(newValue, currentValue)) return this;
 
 		const newEntry: [K, V] = [atKey, newValue as V];
-		const newEntries = this.entries.with(currentIndex, newEntry);
+		const newEntries = this.entries.setAt(currentIndex, newEntry);
 		return this.copy(newEntries);
 	}
 
