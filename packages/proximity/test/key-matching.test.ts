@@ -196,9 +196,7 @@ describe('Getting the nearest key match', () => {
 	it('should ignore NaN distances', () => {
 		const keyMatch = findNearestKeyMatch(
 			(currentKey, inputKey) =>
-				currentKey === 1
-					? Number.NaN
-					: Math.abs(currentKey - inputKey),
+				currentKey === 1 ? Number.NaN : Math.abs(currentKey - inputKey),
 			2,
 			[
 				[1, 'invalid distance'],

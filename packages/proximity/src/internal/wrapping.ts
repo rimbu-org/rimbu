@@ -1,22 +1,22 @@
 import type { HashMap } from '@rimbu/hashed/map';
 import type { ProximityMap } from '@rimbu/proximity';
 
-import type { ContextImpl } from '#proximity/context-factory';
+import type { ProximityMapContext } from '#proximity/context';
 
 import { ProximityMapNonEmpty } from '#proximity/non-empty';
 
 export function wrapHashMap<K, V>(
-	context: ContextImpl<K>,
+	context: ProximityMapContext<K>,
 	newInternalMap: HashMap.NonEmpty<K, V>,
 ): ProximityMap.NonEmpty<K, V>;
 
 export function wrapHashMap<K, V>(
-	context: ContextImpl<K>,
+	context: ProximityMapContext<K>,
 	newInternalMap: HashMap<K, V>,
 ): ProximityMap<K, V>;
 
 export function wrapHashMap<K, V>(
-	context: ContextImpl<K>,
+	context: ProximityMapContext<K>,
 	newInternalMap: HashMap<K, V>,
 ): ProximityMap<K, V> {
 	return newInternalMap.nonEmpty()

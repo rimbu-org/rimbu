@@ -1,15 +1,17 @@
-import type { ToJSON, WithValueResult } from '@rimbu/common/types';
+import type { RelatedTo } from '@rimbu/common';
 import type { ProximityMap } from '@rimbu/proximity';
+import type { NearestKeyMatch } from '@rimbu/proximity/key-matching';
 
-import type { ContextImpl } from '#proximity/context-factory';
+import type { ProximityMapContext } from '#proximity/context';
 
-import {
-	checkEmptyModifyOptions,
-	type ModifyOptions,
-} from '@rimbu/collection-types/advanced/common';
-import { EmptyBase } from '@rimbu/collection-types/advanced/common/empty-base';
+import { KeyedCollectionEmpty } from '@rimbu/collection-types/advanced/collection/keyed-base';
+import { CollectionEmpty } from '@rimbu/collection-types/advanced/collection-base';
+import { MapCollectionEmpty } from '@rimbu/collection-types/advanced/map-base';
 import { OptLazy } from '@rimbu/common/opt-lazy';
-import { Stream, type StreamSource } from '@rimbu/stream';
+
+const EmptyBase = MapCollectionEmpty.WithMixin(
+	KeyedCollectionEmpty.WithMixin(CollectionEmpty.Constructor),
+);
 
 /**
  * Concrete empty implementation of {@link ProximityMap}.<br/>
@@ -21,105 +23,37 @@ import { Stream, type StreamSource } from '@rimbu/stream';
  * @typeparam V - the value type
  */
 export class ProximityMapEmpty<K = any, V = any>
-	extends EmptyBase
+	extends EmptyBase<K, V, ProximityMap.Advanced.Family<K, V>>
 	implements ProximityMap<K, V>
 {
-	declare _NonEmptyType: ProximityMap.NonEmpty<K, V>;
-
-	constructor(readonly context: ContextImpl<K>) {
-		super();
+	constructor(readonly context: ProximityMapContext<K>) {
+		super(context);
 	}
 
-	streamKeys(): Stream<K> {
-		return Stream.empty();
+	getNearest<UK = K>(key: RelatedTo<K, UK>): V | undefined;
+	getNearest<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O;
+	getNearest<UK, O>(
+		_key: RelatedTo<K, UK>,
+		otherwise?: OptLazy<O>,
+	): V | O | undefined {
+		return OptLazy(otherwise);
 	}
 
-	streamValues(): Stream<V> {
-		return Stream.empty();
-	}
-
-	at<O>(_key: K, otherwise?: OptLazy<O>): O {
-		return OptLazy(otherwise) as O;
-	}
-
-	hasKey(): false {
-		return false;
-	}
-
-	set(key: K, value: V): ProximityMap.NonEmpty<K, V> {
-		return this.context.from([[key, value]]);
-	}
-
-	addEntry(entry: readonly [K, V]): ProximityMap.NonEmpty<K, V> {
-		return this.context.from([entry]);
-	}
-
-	addEntries(
-		entries: StreamSource<readonly [K, V]>,
-	): ProximityMap.NonEmpty<K, V> {
-		return this.context.from(entries) as ProximityMap.NonEmpty<K, V>;
-	}
-
-	removeKeyAndGet(): WithValueResult<ProximityMap<K, V>, V> {
-		return [this, undefined, false];
-	}
-
-	removeKey(): ProximityMap<K, V> {
-		return this;
-	}
-
-	removeKeys(): ProximityMap<K, V> {
-		return this;
-	}
-
-	modifyAt(atKey: K, options: ModifyOptions<V>): ProximityMap<K, V> {
-		if (checkEmptyModifyOptions(options)) return this;
-
-		const { ifNew } = options;
-		if (undefined === ifNew) return this;
-
-		const { set, create } = ifNew;
-		const token = Symbol();
-		const newValue = create !== undefined ? create(token) : set;
-
-		if (token === newValue) return this;
-		return this.set(atKey, newValue);
-	}
-
-	mapValues<V2>(): ProximityMap<K, V2> {
-		return this as any;
-	}
-
-	transform<V2, K2 extends K>(
-		transformFun: (stream: Stream<readonly [K, V]>) => StreamSource<[K2, V2]>,
-	): ProximityMap<K2, V2> {
-		return this.context.from(transformFun(this.stream()));
-	}
-
-	updateAt(): ProximityMap<K, V> {
-		return this;
-	}
-
-	updateAtAndGet(): WithValueResult<
-		ProximityMap.NonEmpty<K, V>,
-		V,
-		ProximityMap<K, V>
-	> {
-		return [this, undefined, false];
-	}
-
-	toBuilder(): ProximityMap.Builder<K, V> {
-		return this.context.builder();
+	getNearestMatch<UK = K>(
+		key: RelatedTo<K, UK>,
+	): NearestKeyMatch<K, V> | undefined;
+	getNearestMatch<UK, O>(
+		key: RelatedTo<K, UK>,
+		otherwise: OptLazy<O>,
+	): NearestKeyMatch<K, V> | O;
+	getNearestMatch<UK, O>(
+		_key: RelatedTo<K, UK>,
+		otherwise?: OptLazy<O>,
+	): NearestKeyMatch<K, V> | O | undefined {
+		return OptLazy(otherwise);
 	}
 
 	override toString(): string {
 		return `${this.context.typeTag}()`;
-	}
-
-	toJSON(): ToJSON<(readonly [K, V])[]> {
-		return {
-			dataType: this.context.typeTag,
-			value: [],
-		};
 	}
 }

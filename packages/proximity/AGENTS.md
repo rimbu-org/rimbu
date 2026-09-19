@@ -1,11 +1,12 @@
 # @rimbu/proximity — Package Agent Guide
 
-This package provides Rimbu's **immutable `ProximityMap`**: a map whose `get()`
-does a nearest-key lookup using a configurable `DistanceFunction` instead of exact
-key equality. It is backed internally by a `HashMap` of `[key, value]` entries.
+This package provides Rimbu's **immutable `ProximityMap`**: a keyed map whose
+`get`/`has` are **exact-key** lookups and which additionally supports
+**distance-based nearest-key**: `getNearest` / `getNearestMatch`. It is backed
+internally by a `HashMap` of `[key, value]` entries.
 
 > For workspace-wide conventions (biome rules, `build:seq` before typecheck/test,
-> the Interface + Namespace pattern, HKT `Types` slots, NonEmpty tracking,
+> the Interface + Namespace pattern, capability families, NonEmpty tracking,
 > `OptLazy`, `RelatedTo`, and the changeset workflow) see the **root `AGENTS.md`**.
 > This file only covers what is specific to `@rimbu/proximity`.
 
@@ -13,49 +14,65 @@ key equality. It is backed internally by a `HashMap` of `[key, value]` entries.
 
 ```
 src/
-├── proximity.ts   # exports["."]             — ProximityMap interface + creators
-├── public/        # exports["./*"]           — public subpaths (dist/public/*)
+├── proximity.ts   # exports["."]  — re-exports @rimbu/proximity/map
+├── public/        # exports["./*"]  — public subpaths (dist/public/*)
+│   ├── map.ts                # @rimbu/proximity/map — ProximityMap + Advanced namespace + const
 │   ├── distance-function.ts  # @rimbu/proximity/distance-function
-│   └── key-matching.ts      # @rimbu/proximity/key-matching
+│   └── key-matching.ts       # @rimbu/proximity/key-matching
 └── internal/        # NEVER exported; "#proximity/*" only
-    ├── builder.ts
-    ├── context-factory.ts
-    ├── creators.ts
-    ├── empty.ts
-    ├── non-empty.ts
-    └── wrapping.ts
+    ├── context.ts     # ProximityMapContext + ProximityMapKeyedContext
+    ├── empty.ts       # ProximityMapEmpty
+    ├── non-empty.ts   # ProximityMapNonEmpty
+    ├── builder.ts     # ProximityMapBuilder
+    └── wrapping.ts    # wrapHashMap helper
 ```
-
-### Restructure note
-
-Previously `distance-function.ts` and `key-matching.ts` sat at `src/` root and were
-leaked by the `"./*" → "./dist/*.js"` wildcard export (exposing every top-level
-source file, including any stray internal). They are user-facing config types
-consumed by `ProximityMap` contexts, so they were moved under `src/public/` and the
-wildcard export was repointed to `"./*" → "./dist/public/*"`. `internal/` remains
-unreachable. `tsconfig.common.json` was updated so `@rimbu/proximity/*` resolves to
-`src/public/*`.
 
 ### Key rule: imports inside `src/`
 - Use the package alias `#proximity/*` for anything in `src/internal/*`.
-- Use `@rimbu/proximity/distance-function` and `@rimbu/proximity/key-matching`
-  (package sub-paths) for the public config types, even from `proximity.ts`.
+- Use `@rimbu/proximity/map`, `@rimbu/proximity/distance-function` and
+  `@rimbu/proximity/key-matching` (package sub-paths) for public types, even
+  from `proximity.ts`.
 - Use `@rimbu/collection-types`, `@rimbu/hashed`, `@rimbu/stream`, `@rimbu/common`,
   `@rimbu/base` for dependencies.
 
 ## Architecture
 
-- **`ProximityMap<K, V>`** (`proximity.ts`) — extends `RMapBase<K, V, ProximityMap.Types>`.
-  The `get(key)` performs a linear scan via `findNearestKeyMatch`, returning the value
-  of the closest key (finite distance); optimized `DistanceFunction`s can short-circuit.
-- **`ProximityMap.Context<UK>`** holds the `DistanceFunction<UK>` and the backing
-  `HashMap.Context<UK>`.
-- **Implementations** (`internal/non-empty.ts`, `empty.ts`, `builder.ts`, `wrapping.ts`)
-  delegate storage to a `HashMap` and apply the distance function on lookup.
+`ProximityMap` is a full `MapCollection` capability family with two extra
+distance-based reads. It follows the `@rimbu/hashed`/`@rimbu/sorted` pattern:
+
+- **`ProximityMap<K, V>`** (`public/map.ts`) extends
+  `ProximityMap.Advanced.Api<K, V, Collection.Advanced.Types<Family<K, V>, readonly [K, V]>>`.
+  It is the full map surface (`get`/`has`/`add`/`addAll`/`set`/`removeKey(s)`/
+  `removeKeyAndReturn`/`updateAtKey`/`modifyAtKey`/`mapValues`/`map`/`flatMap`/
+  `recompose`/...) plus `getNearest` and `getNearestMatch`.
+- **`ProximityMap.Advanced.Api` / `BuilderApi`** add the two nearest methods
+  directly (no package-local capability — they return a value/fallback, not a
+  new collection type). **`Advanced.Family<K, V>`** pins the concrete
+  `_NORMAL`/`_NON_EMPTY`/`_BUILDER`/`_CONTEXT`/`_KEYED_CONTEXT` slots.
+- **`ProximityMap.Context<UK>`** exposes `distanceFunction` and `hashMapContext`
+  alongside the standard context surface. `ProximityMap` (the exported const) is
+  `ProximityMapContext.createDefault().keyedContext`.
+- **Implementations** (`internal/non-empty.ts`, `empty.ts`, `builder.ts`,
+  `wrapping.ts`) compose the `MapCollection`/`KeyedCollection` capability mixins
+  and delegate all exact-key storage to a backing `HashMap`; the distance
+  function is applied only by `getNearest`/`getNearestMatch`.
 - **`DistanceFunction<T>`** (`public/distance-function.ts`) — `(one: T, another: T) => number`
   with `defaultFunction` based on `===`.
 - **`findNearestKeyMatch` / `NearestKeyMatch`** (`public/key-matching.ts`) —
-  the linear nearest-key scan helper, also used directly by tests.
+  the linear nearest-key scan helper used by both the immutable collection and
+  the builder.
+
+## Semantics
+
+- `get`, `has`, `set`, `add`, `removeKey`, `updateAtKey`, `modifyAtKey`, ... are
+  **exact-key** operations.
+- `getNearest(key[, otherwise])` performs an O(n) linear scan using the context's
+  `DistanceFunction`, short-circuiting on a distance of `0`; it returns the
+  closest value (or the fallback).
+- `getNearestMatch(key[, otherwise])` returns the matching
+  `NearestKeyMatch<K, V>` (`{ key, value, distance }`).
+- The builder mirrors the immutable lookups: exact `get`/`has` plus
+  distance-based `getNearest`/`getNearestMatch` over its current contents.
 
 ## Tooling
 
@@ -67,5 +84,6 @@ All commands run from this package directory. Per the root guide, **always
 |---|---|
 | `bun run typecheck` | `tsc -p tsconfig.json --noEmit` (includes `src`, `test`, `test-d`) |
 | `bun run test` | `bun test test/* --tsconfig-override tsconfig.common.json` |
+| `bun run test:random` | `bun test test-random` (uses the shared random harness) |
 | `bun run build` | emit this package to `dist/` |
 | `bun run biome:check` / `biome:fix` | lint + format |

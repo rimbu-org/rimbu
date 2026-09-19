@@ -72,7 +72,7 @@
 	},
 	"dependencies": {
 		"@rimbu/base": "workspace:*",
-		"@rimbu/collection-types": "workspace*",
+		"@rimbu/collection-types": "workspace:*",
 		"@rimbu/common": "workspace:*",
 		"@rimbu/hashed": "workspace:*",
 		"@rimbu/stream": "workspace:*"

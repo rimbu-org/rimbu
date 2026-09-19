@@ -56,7 +56,8 @@ Examples:
 
 `ProximityMap` focuses on:
 
-- **Proximity-aware lookups** – `get` uses a `DistanceFunction` to find the nearest key.
+- **Proximity-aware lookups** – `getNearest` uses a `DistanceFunction` to find the nearest key.
+- **Exact-key `get`/`has`** – ordinary map lookups behave exactly like any other Rimbu map.
 - **Immutable operations** – all updates return new maps, with structural sharing.
 - **Configurable metric** – plug in any `DistanceFunction<T>` that returns a non‑negative number.
 - **Familiar map semantics** – insertion, removal, streaming, and builders behave like other Rimbu maps.
@@ -65,7 +66,8 @@ Examples:
 
 ## Feature Highlights
 
-- **Nearest-key lookup** – `get` returns the value whose key has the smallest distance from the query key.
+- **Nearest-key lookup** – `getNearest` returns the value whose key has the smallest distance from the query key.
+- **Match details** – `getNearestMatch` exposes the matched key, value and distance.
 - **Configurable distance** – use the default `DistanceFunction.defaultFunction` (based on `===`), or supply
   your own for numbers, vectors, dates, etc.
 - **Immutable & persistent** – efficient structural sharing, ideal for functional and reactive code.
@@ -79,21 +81,33 @@ Examples:
 
 ```ts
 import { ProximityMap } from '@rimbu/proximity';
+import type { DistanceFunction } from '@rimbu/proximity/distance-function';
 
 // Default context uses a strict equality-based distance:
 // DistanceFunction.defaultFunction: 0 if a === b, +Infinity otherwise.
-const map = ProximityMap.of<[number, string]>(
+const exact = ProximityMap.of<number, string>(
   [10, 'low'],
   [20, 'medium'],
   [30, 'high']
 );
 
 // Exact match: behaves like a normal Map
-console.log(map.get(20)); // 'medium'
+console.log(exact.get(20)); // 'medium'
+console.log(exact.get(18)); // undefined
 
-// Nearest neighbour lookup:
-// the closest stored key to 18 is 20
-console.log(map.get(18)); // 'medium'
+// Configure a numeric distance to unlock nearest-neighbour lookups:
+const numericDistance: DistanceFunction<number> = (a, b) => Math.abs(a - b);
+const NumericProximityMap = ProximityMap.createContext<number>({
+  distanceFunction: numericDistance,
+});
+const map = NumericProximityMap.of<number, string>(
+  [10, 'low'],
+  [20, 'medium'],
+  [30, 'high']
+);
+
+// Nearest neighbour lookup: the closest stored key to 18 is 20
+console.log(map.getNearest(18)); // 'medium'
 ```
 
 Try Rimbu (including `@rimbu/proximity`) live in the browser using the  
@@ -107,20 +121,25 @@ Try Rimbu (including `@rimbu/proximity`) live in the browser using the
 
 | Name                          | Description                                                                                              |
 | ----------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `ProximityMap<K, V>`          | Immutable, type‑invariant map where lookups are resolved using a `DistanceFunction` over keys.           |
+| `ProximityMap<K, V>`          | Immutable, type‑invariant map with exact-key `get`/`has` plus distance-based `getNearest`.                |
 | `ProximityMap.NonEmpty<K, V>` | Non‑empty refinement of `ProximityMap<K, V>` with stronger type guarantees.                              |
 | `ProximityMap.Context<UK>`    | Factory/context for creating proximity maps; holds the `distanceFunction` and backing `HashMap` context. |
 | `ProximityMap.Builder<K, V>`  | Mutable builder for efficiently constructing or transforming a `ProximityMap` before freezing it.        |
 
-From `@rimbu/proximity/common`:
+From `@rimbu/proximity/distance-function`:
 
 | Name                               | Description                                                                                                              |
 | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
 | `Distance`                         | A non‑negative `number` representing the distance between two values (0 = equal, `Number.POSITIVE_INFINITY` = no match). |
 | `DistanceFunction<T>`              | `(one: T, another: T) => Distance` – measures the distance between two values.                                           |
 | `DistanceFunction.defaultFunction` | Default distance function based on `===`.                                                                                |
-| `NearestKeyMatch<K, V>`            | Result object describing the closest key, its value, and the associated distance.                                        |
-| `findNearestKeyMatch`              | Utility to find the nearest key/value pair in an iterable of entries, used internally by `ProximityMap`.                 |
+
+From `@rimbu/proximity/key-matching`:
+
+| Name                    | Description                                                                              |
+| ----------------------- | ---------------------------------------------------------------------------------------- |
+| `NearestKeyMatch<K, V>` | Result object describing the closest key, its value, and the associated distance.        |
+| `findNearestKeyMatch`   | Utility to find the nearest key/value pair in an iterable of entries, used internally by `ProximityMap`. |
 
 See the full [Proximity docs](https://rimbu.org/docs/collections/map) and  
 [API reference](https://rimbu.org/api/rimbu/proximity) for all operations.
@@ -129,10 +148,16 @@ See the full [Proximity docs](https://rimbu.org/docs/collections/map) and
 
 ```ts
 import { ProximityMap } from '@rimbu/proximity';
+import type { DistanceFunction } from '@rimbu/proximity/distance-function';
+
+const numericDistance: DistanceFunction<number> = (a, b) => Math.abs(a - b);
+const NumericProximityMap = ProximityMap.createContext<number>({
+  distanceFunction: numericDistance,
+});
 
 // Construction
-const empty = ProximityMap.empty<number, string>();
-const fromEntries = ProximityMap.of<[number, string]>(
+const empty = NumericProximityMap.empty<number, string>();
+const fromEntries = NumericProximityMap.of<number, string>(
   [0, 'origin'],
   [5, 'near'],
   [10, 'far']
@@ -142,9 +167,14 @@ const fromEntries = ProximityMap.of<[number, string]>(
 empty.isEmpty; // true
 fromEntries.size; // 3
 
-// Nearest-key lookups
-fromEntries.get(4); // 'near' (closest key to 4 is 5)
-fromEntries.get(8); // 'far' (closest key to 8 is 10)
+// Exact-key lookup
+fromEntries.get(5); // 'near'
+fromEntries.get(4); // undefined
+
+// Nearest-key lookup (distance = absolute difference)
+fromEntries.getNearest(4); // 'near' (closest key to 4 is 5)
+fromEntries.getNearest(8); // 'far' (closest key to 8 is 10)
+fromEntries.getNearestMatch(8); // { key: 10, value: 'far', distance: 2 }
 
 // Updating (returns new ProximityMap)
 const updated = fromEntries.set(7, 'mid');
@@ -164,7 +194,7 @@ regular equality-based map. To unlock proximity behaviour, supply a custom `Dist
 
 ```ts
 import { ProximityMap } from '@rimbu/proximity';
-import { DistanceFunction } from '@rimbu/proximity/common';
+import type { DistanceFunction } from '@rimbu/proximity/distance-function';
 
 // Example: distance on numbers (absolute difference)
 const numericDistance: DistanceFunction<number> = (a, b) => Math.abs(a - b);
@@ -173,14 +203,16 @@ const NumericProximityMap = ProximityMap.createContext<number>({
   distanceFunction: numericDistance,
 });
 
-const numericMap = NumericProximityMap.of<[number, string]>(
+const numericMap = NumericProximityMap.of<number, string>(
   [10, 'low'],
   [20, 'medium'],
   [40, 'high']
 );
 
-numericMap.get(22); // 'medium' (closest key is 20)
-numericMap.get(35); // 'high' (closest key is 40)
+numericMap.get(20); // 'medium' (exact key)
+numericMap.get(22); // undefined (exact key)
+numericMap.getNearest(22); // 'medium' (closest key is 20)
+numericMap.getNearest(35); // 'high' (closest key is 40)
 ```
 
 You can also customize the underlying `HashMap` context via the `hashMapContext` option if you need
@@ -215,19 +247,19 @@ deno add npm:@rimbu/proximity
 ## FAQ
 
 **Q: How is a `ProximityMap` different from a regular `Map`?**  
-A `ProximityMap` doesn’t only match exact keys – it uses a `DistanceFunction` to find the _closest_ key
-and returns its value, making it ideal for numeric, temporal, or spatial data.
+`get` and `has` are ordinary exact-key lookups. On top of that, `getNearest` uses a `DistanceFunction`
+to find the _closest_ key and return its value, making it ideal for numeric, temporal, or spatial data.
 
 **Q: What distance function is used by default?**  
 By default, `DistanceFunction.defaultFunction` is used, which returns `0` when `a === b` and
-`Number.POSITIVE_INFINITY` otherwise – effectively behaving like a standard map.
+`Number.POSITIVE_INFINITY` otherwise. With that default, `getNearest` behaves like an exact lookup.
 
 **Q: Is the structure mutable?**  
 No. All updates return new `ProximityMap` instances; existing ones remain unchanged and can be shared safely.
 For batch mutations, use a `ProximityMap.Builder`.
 
 **Q: Can I iterate keys or values separately?**  
-Yes – `ProximityMap` implements the Rimbu `RMap` interfaces, so you can stream entries, keys, and values
+Yes – `ProximityMap` implements the Rimbu map interfaces, so you can stream entries, keys, and values
 using the standard Rimbu streaming utilities.
 
 ---
