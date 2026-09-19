@@ -1,153 +1,197 @@
-import type { RMap } from '@rimbu/collection-types';
-import type { RelatedTo } from '@rimbu/common/types';
+import type { MapCollection } from '@rimbu/collection-types/map';
+import type { RelatedTo } from '@rimbu/common';
 import type { OrderedSet } from '@rimbu/ordered/set';
-import type { SortedMap } from '@rimbu/sorted';
+import type { SortedMap } from '@rimbu/sorted/map';
+import type { StreamSource } from '@rimbu/stream';
 
-import type { OrderedSetBase } from '#set/base';
-import type { ContextImpl } from '#set/context-factory';
-import type { OrderedSetNonEmpty } from '#set/non-empty';
+import type { OrderedSetContext } from '#ordered/set/context';
+import type { OrderedSetNonEmpty } from '#ordered/set/non-empty';
 
-import * as RimbuError from '@rimbu/base/rimbu-error';
-import { Err } from '@rimbu/common';
-import { TraverseState } from '@rimbu/common/traverse-state';
-import { Stream, type StreamSource } from '@rimbu/stream';
+import { CollectionBuilderBase } from '@rimbu/collection-types/advanced/collection-base';
+import { Stream } from '@rimbu/stream';
 
 import { Indicator } from '#ordered/common/ordered-indicator';
 
-export class OrderedSetBuilder<T> implements OrderedSetBase.Builder<T> {
+/**
+ * Mutable builder used to efficiently construct new immutable {@link OrderedSet}
+ * instances.<br/>
+ * <br/>
+ * The builder keeps a key map builder holding the element ordering indicator and
+ * a sorted indicator map builder holding the elements. `build` wraps the two
+ * built maps into an immutable `OrderedSet`.
+ *
+ * @typeparam T - the element type
+ */
+export class OrderedSetBuilder<T>
+	extends CollectionBuilderBase<T, OrderedSet.Advanced.Family<T>>
+	implements OrderedSet.Builder<T>
+{
+	#source: OrderedSet.NonEmpty<T> | undefined;
+	_keyMapBuilder: MapCollection.Builder<T, Indicator> | undefined;
+	_indicatorMapBuilder: SortedMap.Builder<Indicator, T> | undefined;
+
 	constructor(
-		readonly context: ContextImpl<T>,
-		public source?: OrderedSetNonEmpty<T>,
-	) {}
-
-	#keyIndicatorMapBuilder?: RMap.Builder<T, Indicator>;
-	#indicatorMapBuilder?: SortedMap.Builder<Indicator, T>;
-
-	_lock = 0;
-
-	checkLock(): void {
-		if (this._lock) RimbuError.throwModifiedBuilderWhileLoopingOverItError();
+		readonly context: OrderedSetContext<T>,
+		source?: OrderedSet.NonEmpty<T>,
+	) {
+		super();
+		this.#source = source;
 	}
 
-	prepareMutate(): void {
+	#prepareMutate(): void {
 		if (
-			undefined === this.#keyIndicatorMapBuilder ||
-			undefined === this.#indicatorMapBuilder
+			undefined === this._keyMapBuilder ||
+			undefined === this._indicatorMapBuilder
 		) {
-			if (undefined !== this.source) {
-				this.#keyIndicatorMapBuilder = this.source.keyIndicatorMap.toBuilder();
-				this.#indicatorMapBuilder = this.source.indicatorKeyMap.toBuilder();
+			if (undefined !== this.#source) {
+				const source = this.#source as unknown as OrderedSetNonEmpty<T>;
+				this._keyMapBuilder =
+					source.keyIndicatorMap.toBuilder() as unknown as MapCollection.Builder<
+						T,
+						Indicator
+					>;
+				this._indicatorMapBuilder =
+					source.indicatorKeyMap.toBuilder() as unknown as SortedMap.Builder<
+						Indicator,
+						T
+					>;
 			} else {
-				this.#keyIndicatorMapBuilder = this.context.keyMapContext.builder();
-				this.#indicatorMapBuilder = this.context.indicatorMapContext.builder();
+				this._keyMapBuilder = this.context.keyMapContext.keyedContext.builder<
+					T,
+					Indicator
+				>() as unknown as MapCollection.Builder<T, Indicator>;
+				this._indicatorMapBuilder =
+					this.context.indicatorMapContext.keyedContext.builder<
+						Indicator,
+						T
+					>() as unknown as SortedMap.Builder<Indicator, T>;
 			}
 		}
 	}
 
-	get keyMapBuilder(): RMap.Builder<T, Indicator> {
-		this.prepareMutate();
-		return this.#keyIndicatorMapBuilder!;
+	get keyMapBuilder(): MapCollection.Builder<T, Indicator> {
+		this.#prepareMutate();
+		return this._keyMapBuilder!;
 	}
 
 	get indicatorMapBuilder(): SortedMap.Builder<Indicator, T> {
-		this.prepareMutate();
-		return this.#indicatorMapBuilder!;
+		this.#prepareMutate();
+		return this._indicatorMapBuilder!;
 	}
 
 	get size(): number {
-		return this.source?.size ?? this.indicatorMapBuilder.size;
+		if (undefined !== this.#source) return this.#source.size;
+		if (undefined === this._keyMapBuilder) return 0;
+		return this._keyMapBuilder.size;
 	}
 
-	get isEmpty(): boolean {
-		return this.size === 0;
-	}
-
-	has = <U>(value: RelatedTo<T, U>): boolean => {
-		return this.source?.has(value) ?? this.keyMapBuilder.hasKey(value);
+	has = <U = T>(value: RelatedTo<T, U>): boolean => {
+		if (undefined !== this.#source) return this.#source.has(value);
+		return this.keyMapBuilder.has(value);
 	};
+
+	#nextIndicator(): Indicator {
+		const last = this.indicatorMapBuilder.max();
+		if (undefined === last) return Indicator.INIT_INDICATOR;
+		return Indicator.after(last[0]);
+	}
 
 	add = (value: T): boolean => {
 		this.checkLock();
 
-		if (this.keyMapBuilder.isEmpty) {
-			this.source = undefined;
-			this.keyMapBuilder.set(value, Indicator.INIT_INDICATOR);
-			this.indicatorMapBuilder.set(Indicator.INIT_INDICATOR, value);
-			return true;
-		}
+		let appendedIndicator: Indicator | undefined;
 
-		return this.keyMapBuilder.modifyAt(value, {
+		const changed = this.keyMapBuilder.modifyAtKey(value, {
 			ifNew: {
 				create: () => {
-					this.source = undefined;
-
-					const [lastIndicator] = this.indicatorMapBuilder.max(Err);
-					const nextIndicator = Indicator.after(lastIndicator);
-					this.indicatorMapBuilder.set(nextIndicator, value);
-					return nextIndicator;
+					appendedIndicator = this.#nextIndicator();
+					return appendedIndicator;
 				},
 			},
 		});
+
+		if (!changed) return false;
+
+		this.#source = undefined;
+		this.indicatorMapBuilder.set(appendedIndicator!, value);
+
+		return true;
 	};
 
-	addAll = (source: StreamSource<T>): boolean => {
+	addAll = (elements: StreamSource<T>): boolean => {
 		this.checkLock();
 
-		return Stream.from(source).filterPure({ pred: this.add }).count() > 0;
+		let changed = false;
+		const iter = Stream.from(elements)[Symbol.iterator]();
+		const done = Symbol();
+		let element: T | typeof done;
+
+		while (done !== (element = iter.fastNext(done))) {
+			if (this.add(element)) changed = true;
+		}
+
+		return changed;
 	};
 
-	remove = <U>(value: RelatedTo<T, U>): boolean => {
+	remove = <U = T>(value: RelatedTo<T, U>): boolean => {
 		this.checkLock();
 
-		const indicator = this.keyMapBuilder.removeKey(value);
-
+		const indicator = this.keyMapBuilder.get(value as T);
 		if (undefined === indicator) return false;
 
-		this.source = undefined;
+		this.#source = undefined;
+		this.keyMapBuilder.removeKey(value as T);
 		this.indicatorMapBuilder.removeKey(indicator);
 
 		return true;
 	};
 
-	removeAll = <U>(values: StreamSource<RelatedTo<T, U>>): boolean => {
+	removeAll = <U = T>(elements: StreamSource<RelatedTo<T, U>>): boolean => {
 		this.checkLock();
 
-		return Stream.from(values).filterPure({ pred: this.remove }).count() > 0;
-	};
+		let changed = false;
+		const iter = Stream.from(elements)[Symbol.iterator]();
+		const done = Symbol();
+		let element: RelatedTo<T, U> | typeof done;
 
-	forEach = (
-		f: (value: T, index: number, halt: () => void) => void,
-		options: { reversed?: boolean; state?: TraverseState } = {},
-	): void => {
-		const { reversed = false, state = TraverseState() } = options;
-
-		if (state.halted) return;
-
-		this._lock++;
-
-		if (undefined !== this.source) {
-			this.source.forEach(f, { reversed, state });
-		} else {
-			this.indicatorMapBuilder.forEach(
-				([_, value], index, halt) => f(value, index, halt),
-				{
-					// TODO: add reversed support to map builders
-					// reversed,
-					state,
-				},
-			);
+		while (done !== (element = iter.fastNext(done))) {
+			if (this.remove(element)) changed = true;
 		}
 
-		this._lock--;
+		return changed;
+	};
+
+	forEach = (f: (element: T) => void): void => {
+		this.startIteration();
+
+		try {
+			if (undefined !== this.#source) {
+				this.#source.forEach(f);
+				return;
+			}
+
+			this.indicatorMapBuilder.forEach(([, value]) => {
+				f(value);
+			});
+		} finally {
+			this.endIteration();
+		}
 	};
 
 	build = (): OrderedSet<T> => {
-		if (undefined !== this.source) return this.source;
+		if (undefined !== this.#source) return this.#source;
 		if (this.size === 0) return this.context.empty();
 
-		const keyMap = this.keyMapBuilder.build().assumeNonEmpty();
-		const indicatorMap = this.indicatorMapBuilder.build().assumeNonEmpty();
+		return this.context.createNonEmpty<T>(
+			this.keyMapBuilder.build().assumeNonEmpty(),
+			this.indicatorMapBuilder.build().assumeNonEmpty(),
+		);
+	};
 
-		return this.context.createNonEmpty(keyMap, indicatorMap);
+	clear = (): void => {
+		this.checkLock();
+		this.#source = undefined;
+		this._keyMapBuilder = undefined;
+		this._indicatorMapBuilder = undefined;
 	};
 }

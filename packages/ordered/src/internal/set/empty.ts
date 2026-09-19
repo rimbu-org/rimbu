@@ -1,88 +1,29 @@
-import type { ToJSON } from '@rimbu/common/types';
 import type { OrderedSet } from '@rimbu/ordered/set';
-import type { Stream, StreamSource } from '@rimbu/stream';
 
-import type { OrderedSetBase } from '#set/base';
-import type { ContextImpl } from '#set/context-factory';
+import type { OrderedSetContext } from '#ordered/set/context';
 
-import { EmptyBase } from '@rimbu/collection-types/advanced/common/empty-base';
+import { ValuedCollectionEmpty } from '@rimbu/collection-types/advanced/collection/valued-base';
+import { CollectionEmpty } from '@rimbu/collection-types/advanced/collection-base';
 
-import { Indicator } from '#ordered/common/ordered-indicator';
+const EmptyBase = ValuedCollectionEmpty.WithMixin(CollectionEmpty.Constructor);
 
-export class OrderedSetEmpty<T>
-	extends EmptyBase
-	implements OrderedSetBase<T, OrderedSetBase.Types>
+/**
+ * Concrete empty implementation of {@link OrderedSet}.<br/>
+ * <br/>
+ * It represents an empty `OrderedSet` instance for a given context and
+ * efficiently creates non-empty sets when elements are added.
+ *
+ * @typeparam T - the element type
+ */
+export class OrderedSetEmpty<T = any>
+	extends EmptyBase<T, OrderedSet.Advanced.Family<T>>
+	implements OrderedSet<T>
 {
-	declare _NonEmptyType: OrderedSet.NonEmpty<T>;
-
-	constructor(readonly context: ContextImpl<T>) {
-		super();
+	constructor(readonly context: OrderedSetContext<T>) {
+		super(context);
 	}
 
-	has(): false {
-		return false;
-	}
-
-	add(value: T): OrderedSet.NonEmpty<T> {
-		return this.context.createNonEmpty<T>(
-			this.context.keyMapContext.of([value, Indicator.INIT_INDICATOR]),
-			this.context.indicatorMapContext.of([Indicator.INIT_INDICATOR, value]),
-		);
-	}
-
-	addAll(values: StreamSource<T>): any {
-		return this.context.from(values);
-	}
-
-	remove(): OrderedSet<T> {
-		return this;
-	}
-
-	removeAll(): OrderedSet<T> {
-		return this;
-	}
-
-	transform<T2 extends T>(
-		transformFun: (stream: Stream<T>) => StreamSource<T2>,
-	): any {
-		return this.context.from(transformFun(this.stream()));
-	}
-
-	union(other: StreamSource<T>): any {
-		if (
-			this.context.isNonEmptyInstance(other) &&
-			(other as any).context === this.context
-		) {
-			return other;
-		}
-
-		return this.context.from(other);
-	}
-
-	difference(): OrderedSet<T> {
-		return this.context.empty();
-	}
-
-	intersect(): OrderedSet<T> {
-		return this.context.empty();
-	}
-
-	symDifference(other: StreamSource<T>): OrderedSet<T> {
-		return this.union(other);
-	}
-
-	toBuilder(): OrderedSet.Builder<T> {
-		return this.context.builder();
-	}
-
-	toString(): string {
+	override toString(): string {
 		return 'OrderedSet()';
-	}
-
-	toJSON(): ToJSON<any[]> {
-		return {
-			dataType: this.context.typeTag,
-			value: [],
-		};
 	}
 }

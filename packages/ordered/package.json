@@ -48,14 +48,6 @@
 		"#ordered/*": {
 			"types": "./dist/internal/*.d.ts",
 			"default": "./dist/internal/*.js"
-		},
-		"#map/*": {
-			"types": "./dist/internal/map/*.d.ts",
-			"default": "./dist/internal/map/*.js"
-		},
-		"#set/*": {
-			"types": "./dist/internal/set/*.d.ts",
-			"default": "./dist/internal/set/*.js"
 		}
 	},
 	"files": [
@@ -70,8 +62,7 @@
 		"clean:build": "rimraf dist",
 		"format:check": "biome format src",
 		"lint:check": "biome lint src",
-		"test": "bun test test/*",
-		"test:random": "bun test test-random",
+		"test": "bun test test/* --tsconfig-override tsconfig.common.json",
 		"typecheck": "tsc -p tsconfig.json --noEmit"
 	},
 	"dependencies": {
@@ -79,7 +70,6 @@
 		"@rimbu/collection-types": "workspace:*",
 		"@rimbu/common": "workspace:*",
 		"@rimbu/hashed": "workspace:*",
-		"@rimbu/list": "workspace:*",
 		"@rimbu/sorted": "workspace:*",
 		"@rimbu/stream": "workspace:*"
 	},

@@ -1,44 +1,54 @@
-import type { RMap } from '@rimbu/collection-types';
-import type { TraverseState } from '@rimbu/common/traverse-state';
-import type {
-	ArrayNonEmpty,
-	RelatedTo,
-	WithValueResult,
-} from '@rimbu/common/types';
+import type { ModifyOptions } from '@rimbu/collection-types/advanced/common';
+import type { MapCollection } from '@rimbu/collection-types/map';
+import type { ArrayNonEmpty, OptLazy, RelatedTo } from '@rimbu/common';
 import type { OrderedMap } from '@rimbu/ordered/map';
-import type { SortedMap } from '@rimbu/sorted';
+import type { SortedMap } from '@rimbu/sorted/map';
+import type { Stream } from '@rimbu/stream';
 
-import type { OrderedMapBase } from '#map/base';
-import type { ContextImpl } from '#map/context-factory';
+import type { OrderedMapContext } from '#ordered/map/context';
 
-import {
-	checkEmptyModifyOptions,
-	type ModifyOptions,
-} from '@rimbu/collection-types/advanced/common';
-import { NonEmptyBase } from '@rimbu/collection-types/advanced/common/empty-base';
-import { OptLazy } from '@rimbu/common/opt-lazy';
-import { Stream, type StreamSource } from '@rimbu/stream';
+import { KeyedCollectionNonEmpty } from '@rimbu/collection-types/advanced/collection/keyed-base';
+import { CollectionNonEmpty } from '@rimbu/collection-types/advanced/collection-base';
+import { checkEmptyModifyOptions } from '@rimbu/collection-types/advanced/common';
+import { MapCollectionNonEmpty } from '@rimbu/collection-types/advanced/map-base';
+import { OptLazy as OptLazyValue } from '@rimbu/common/opt-lazy';
 
 import { Indicator } from '#ordered/common/ordered-indicator';
 
-export class OrderedMapNonEmpty<K, V>
-	extends NonEmptyBase<[K, V]>
-	implements OrderedMapBase.NonEmpty<K, V>
-{
-	declare _NonEmptyType: OrderedMap.NonEmpty<K, V>;
+const NonEmptyBase = MapCollectionNonEmpty.WithMixin(
+	KeyedCollectionNonEmpty.WithMixin(CollectionNonEmpty.Constructor),
+);
 
+/**
+ * Concrete non-empty implementation of {@link OrderedMap.NonEmpty}.<br/>
+ * <br/>
+ * Entries are stored in two maps: a key map holding `[value, indicator]` and a
+ * sorted indicator map holding `[key, value]`. The sorted map defines the
+ * insertion order and is the source of iteration. Updating an existing key's
+ * value keeps its position; adding a new key appends it.
+ *
+ * @typeparam K - the key type
+ * @typeparam V - the value type
+ */
+export class OrderedMapNonEmpty<K, V>
+	extends NonEmptyBase<K, V, OrderedMap.Advanced.Family<K, V>>
+	implements OrderedMap.NonEmpty<K, V>
+{
 	constructor(
-		readonly context: ContextImpl<K>,
-		readonly keyIndicatorMap: RMap.NonEmpty<K, [V, Indicator]>,
-		readonly indicatorKeyMap: SortedMap.NonEmpty<Indicator, [K, V]>,
+		readonly context: OrderedMapContext<K>,
+		readonly keyIndicatorMap: MapCollection.NonEmpty<
+			K,
+			readonly [V, Indicator]
+		>,
+		readonly indicatorKeyMap: SortedMap.NonEmpty<Indicator, readonly [K, V]>,
 	) {
-		super();
+		super(context);
 	}
 
 	copy(
 		keyIndicatorMap = this.keyIndicatorMap,
 		indicatorKeyMap = this.indicatorKeyMap,
-	): OrderedMapNonEmpty<K, V> {
+	): OrderedMap.NonEmpty<K, V> {
 		if (
 			keyIndicatorMap === this.keyIndicatorMap &&
 			indicatorKeyMap === this.indicatorKeyMap
@@ -53,140 +63,79 @@ export class OrderedMapNonEmpty<K, V>
 		return this.keyIndicatorMap.size;
 	}
 
-	stream(): Stream.NonEmpty<[K, V]> {
+	#nextIndicator(): Indicator {
+		return Indicator.after(this.indicatorKeyMap.max()[0]);
+	}
+
+	stream(): Stream.NonEmpty<readonly [K, V]> {
 		return this.indicatorKeyMap.streamValues();
 	}
 
-	streamKeys(): Stream.NonEmpty<K> {
-		return this.stream().map((entry) => entry[0]);
+	get<UK = K>(key: RelatedTo<K, UK>): V | undefined;
+	get<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O;
+	get<UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O | undefined {
+		const entry = this.keyIndicatorMap.get(key as K);
+		if (undefined === entry) return OptLazyValue(otherwise);
+
+		return entry[0];
 	}
 
-	streamValues(): Stream.NonEmpty<V> {
-		return this.stream().map((entry) => entry[1]);
-	}
+	add(entry: readonly [K, V]): OrderedMap.NonEmpty<K, V> {
+		const [key, value] = entry;
 
-	hasKey<UK>(key: RelatedTo<K, UK>): boolean {
-		return this.keyIndicatorMap.hasKey(key);
-	}
+		let appendedIndicator: Indicator | undefined;
+		let inPlaceIndicator: Indicator | undefined;
 
-	at<UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O {
-		const result = this.keyIndicatorMap.at(key);
-		if (undefined === result) {
-			return OptLazy(otherwise!);
-		}
-		return result[0];
-	}
-
-	#nextIndicator(): Indicator {
-		const lastIndicator = this.indicatorKeyMap.maxKey();
-		return Indicator.after(lastIndicator);
-	}
-
-	set(key: K, value: V): OrderedMap.NonEmpty<K, V> {
-		let oldIndicator: Indicator | undefined;
-		let newIndicator: Indicator | undefined;
-
-		const newKeyIndicatorMap = this.keyIndicatorMap.modifyAt(key, {
+		const newKeyIndicatorMap = this.keyIndicatorMap.modifyAtKey(key, {
 			ifNew: {
 				create: () => {
-					newIndicator = this.#nextIndicator();
-					return [value, newIndicator];
+					appendedIndicator = this.#nextIndicator();
+					return [value, appendedIndicator] as const;
 				},
 			},
 			ifExists: {
-				update: (currentEntry) => {
-					const [currentValue, currentIndicator] = currentEntry;
-					if (Object.is(currentValue, value)) return currentEntry;
+				update: (current) => {
+					const [currentValue, currentIndicator] = current;
+					if (Object.is(currentValue, value)) return current;
 
-					oldIndicator = currentIndicator;
-					newIndicator = this.#nextIndicator();
-
-					return [value, newIndicator];
+					inPlaceIndicator = currentIndicator;
+					return [value, currentIndicator] as const;
 				},
 			},
 		});
 
 		if (newKeyIndicatorMap === this.keyIndicatorMap) return this;
+		if (!newKeyIndicatorMap.nonEmpty()) return this;
 
-		const newIndicatorKeyMap1 =
-			undefined === oldIndicator
-				? this.indicatorKeyMap
-				: this.indicatorKeyMap.removeKey(oldIndicator);
-		const newIndicatorKeyMap2 = newIndicatorKeyMap1.set(newIndicator!, [
-			key,
-			value,
-		]);
+		let newIndicatorKeyMap = this.indicatorKeyMap;
 
-		return this.copy(newKeyIndicatorMap.assumeNonEmpty(), newIndicatorKeyMap2);
-	}
-
-	addEntry(entry: readonly [K, V]): OrderedMap.NonEmpty<K, V> {
-		return this.set(entry[0], entry[1]);
-	}
-
-	addEntries(
-		entries: StreamSource<readonly [K, V]>,
-	): OrderedMap.NonEmpty<K, V> {
-		if (Stream.isEmptyStreamSourceInstance(entries)) {
-			return this;
+		if (undefined !== appendedIndicator) {
+			newIndicatorKeyMap = newIndicatorKeyMap.set(appendedIndicator, [
+				key,
+				value,
+			]);
+		} else if (undefined !== inPlaceIndicator) {
+			newIndicatorKeyMap = newIndicatorKeyMap.set(inPlaceIndicator, [
+				key,
+				value,
+			]);
 		}
 
-		const builder = this.toBuilder();
-		builder.addEntries(entries);
-		return builder.build().assumeNonEmpty();
+		return this.copy(newKeyIndicatorMap.assumeNonEmpty(), newIndicatorKeyMap);
 	}
 
-	removeKey<UK>(key: RelatedTo<K, UK>): OrderedMap<K, V> {
-		const [newKeyIndicatorMap, removedEntry, wasRemoved] =
-			this.keyIndicatorMap.removeKeyAndGet(key);
-
-		if (!wasRemoved) return this;
-		if (!newKeyIndicatorMap.nonEmpty()) return this.context.empty();
-
-		const [_, removedIndicator] = removedEntry;
-		const newIndicatorKeyMap = this.indicatorKeyMap.removeKey(removedIndicator);
-
-		return this.copy(newKeyIndicatorMap, newIndicatorKeyMap.assumeNonEmpty());
-	}
-
-	removeKeys<UK>(keys: StreamSource<RelatedTo<K, UK>>): OrderedMap<K, V> {
-		if (Stream.isEmptyStreamSourceInstance(keys)) return this;
-
-		const builder = this.toBuilder();
-		builder.removeKeys(keys);
-		return builder.build();
-	}
-
-	removeKeyAndGet<UK>(
-		key: RelatedTo<K, UK>,
-	): WithValueResult<OrderedMap<K, V>, V, OrderedMap.NonEmpty<K, V>> {
-		const [newKeyIndicatorMap, removedEntry, wasRemoved] =
-			this.keyIndicatorMap.removeKeyAndGet(key);
-
-		if (!wasRemoved) return [this, undefined, false];
-		if (!newKeyIndicatorMap.nonEmpty()) {
-			return [this.context.empty(), removedEntry[0], true];
-		}
-
-		const [removedValue, removedIndicator] = removedEntry;
-		const newIndicatorKeyMap = this.indicatorKeyMap.removeKey(removedIndicator);
-
-		return [
-			this.copy(newKeyIndicatorMap, newIndicatorKeyMap.assumeNonEmpty()),
-			removedValue,
-			true,
-		];
-	}
-
-	modifyAt(key: K, options: ModifyOptions<V>): OrderedMap<K, V> {
+	modifyAtKey(atKey: K, options: ModifyOptions<V>): OrderedMap<K, V> {
 		if (checkEmptyModifyOptions(options)) return this;
 
 		const { ifNew, ifExists } = options;
 
-		const modifyOptions: ModifyOptions<[V, Indicator]> = {};
+		const modifyOptions: ModifyOptions<readonly [V, Indicator]> = {};
 
-		let previousIndicator: Indicator | undefined;
-		let newEntry: [V, Indicator] | undefined;
+		let appendedIndicator: Indicator | undefined;
+		let appendedValue: V | undefined;
+		let inPlaceIndicator: Indicator | undefined;
+		let inPlaceValue: V | undefined;
+		let removedIndicator: Indicator | undefined;
 
 		if (undefined !== ifNew) {
 			modifyOptions.ifNew = {
@@ -197,42 +146,48 @@ export class OrderedMapNonEmpty<K, V>
 						const result = create(skip);
 						if (skip === result) return skip;
 
-						newEntry = [result as V, this.#nextIndicator()];
-						return newEntry;
+						appendedIndicator = this.#nextIndicator();
+						appendedValue = result as V;
+						return [result as V, appendedIndicator] as const;
 					}
 
-					newEntry = [set!, this.#nextIndicator()];
-					return newEntry;
+					appendedIndicator = this.#nextIndicator();
+					appendedValue = set;
+					return [set, appendedIndicator] as const;
 				},
 			};
 		}
+
 		if (undefined !== ifExists) {
 			modifyOptions.ifExists = {
-				update: (currentEntry, remove) => {
+				update: (current, remove) => {
+					const [currentValue, currentIndicator] = current;
 					const { set, update } = ifExists;
-
-					const [currentValue, currentIndicator] = currentEntry;
-					previousIndicator = currentIndicator;
 
 					if (undefined !== update) {
 						const result = update(currentValue, remove);
-						if (remove === result) return remove;
-						if (Object.is(currentValue, result)) return currentEntry;
+						if (remove === result) {
+							removedIndicator = currentIndicator;
+							return remove;
+						}
+						if (Object.is(currentValue, result)) return current;
 
-						newEntry = [result as V, this.#nextIndicator()];
-						return newEntry;
+						inPlaceIndicator = currentIndicator;
+						inPlaceValue = result as V;
+						return [result as V, currentIndicator] as const;
 					}
 
-					if (Object.is(currentValue, set)) return currentEntry;
+					if (Object.is(currentValue, set)) return current;
 
-					newEntry = [set!, this.#nextIndicator()];
-					return newEntry;
+					inPlaceIndicator = currentIndicator;
+					inPlaceValue = set;
+					return [set, currentIndicator] as const;
 				},
 			};
 		}
 
-		const newKeyIndicatorMap = this.keyIndicatorMap.modifyAt(
-			key,
+		const newKeyIndicatorMap = this.keyIndicatorMap.modifyAtKey(
+			atKey,
 			modifyOptions,
 		);
 
@@ -241,95 +196,52 @@ export class OrderedMapNonEmpty<K, V>
 
 		let newIndicatorKeyMap = this.indicatorKeyMap;
 
-		if (undefined !== previousIndicator) {
+		if (undefined !== removedIndicator) {
 			newIndicatorKeyMap = newIndicatorKeyMap
-				.removeKey(previousIndicator)
+				.removeKey(removedIndicator)
 				.assumeNonEmpty();
 		}
-		if (undefined !== newEntry) {
-			const [newValue, newIndicator] = newEntry;
-			newIndicatorKeyMap = newIndicatorKeyMap.set(newIndicator, [
-				key,
-				newValue,
+
+		if (undefined !== appendedIndicator) {
+			newIndicatorKeyMap = newIndicatorKeyMap.set(appendedIndicator, [
+				atKey,
+				appendedValue as V,
+			]);
+		} else if (undefined !== inPlaceIndicator) {
+			newIndicatorKeyMap = newIndicatorKeyMap.set(inPlaceIndicator, [
+				atKey,
+				inPlaceValue as V,
 			]);
 		}
 
-		return this.copy(newKeyIndicatorMap, newIndicatorKeyMap);
+		return this.copy(newKeyIndicatorMap.assumeNonEmpty(), newIndicatorKeyMap);
 	}
 
-	forEach(
-		f: (entry: [K, V], index: number, halt: () => void) => void,
-		options: { reversed?: boolean; state?: TraverseState } = {},
-	): void {
-		this.indicatorKeyMap.forEach(([_, entry], index, halt) => {
-			f(entry, index, halt);
-		}, options);
+	mapValues<V2>(mapFun: (value: V, key: K) => V2): OrderedMap.NonEmpty<K, V2> {
+		return this.context
+			.createNonEmpty<K, V2>(
+				this.keyIndicatorMap.mapValues(([value, indicator], key) => {
+					return [mapFun(value, key), indicator] as const;
+				}),
+				this.indicatorKeyMap.mapValues(([key, value]) => {
+					return [key, mapFun(value, key)] as const;
+				}),
+			)
+			.assumeNonEmpty();
 	}
 
-	filter(
-		pred: (entry: [K, V], index: number, halt: () => void) => boolean,
-		options: { negate?: boolean } = {},
-	): OrderedMap<K, V> {
-		const { negate = false } = options;
-
-		const builder = this.context.builder<K, V>();
-
-		builder.addEntries(this.stream().filter(pred, { negate }));
-
-		if (builder.size === this.size) return this;
-
-		return builder.build();
-	}
-
-	transform<V2, K2 extends K>(
-		transformFun: (
-			stream: Stream.NonEmpty<readonly [K, V]>,
-		) => StreamSource<[K2, V2]>,
-	): any {
-		return this.context.from(transformFun(this.stream()));
-	}
-
-	mapValues<V2>(mapFun: (value: V, key: K) => V2): any {
-		return this.context.createNonEmpty<K, V2>(
-			this.keyIndicatorMap.mapValues(([value, indicator], key) => [
-				mapFun(value, key),
-				indicator,
-			]),
-			this.indicatorKeyMap.mapValues(([key, value]) => [
-				key,
-				mapFun(value, key),
-			]),
-		);
-	}
-
-	updateAt<UK>(key: RelatedTo<K, UK>, update: (value: V) => V): any {
-		if (!this.context.isValidKey(key)) return this;
-
-		return this.modifyAt(key, { ifExists: { update } });
-	}
-
-	updateAtAndGet<U>(
-		key: RelatedTo<K, U>,
-		update: (value: V) => V,
-	): WithValueResult<OrderedMap.NonEmpty<K, V>, V> {
-		const token = Symbol();
-		let oldValue: V | typeof token = token;
-
-		const newMap = this.updateAt(key, (value) => {
-			oldValue = value;
-			return update(value);
+	forEach(f: (entry: readonly [K, V]) => void): void {
+		this.indicatorKeyMap.forEach(([, entry]) => {
+			f(entry);
 		});
-
-		if (token === oldValue) return [this, undefined, false];
-		return [newMap, oldValue, true];
 	}
 
-	toArray(): ArrayNonEmpty<[K, V]> {
+	toArray(): ArrayNonEmpty<readonly [K, V]> {
 		return this.stream().toArray();
 	}
 
 	toBuilder(): OrderedMap.Builder<K, V> {
-		return this.context.createBuilder(this);
+		return this.context.createBuilder<K, V>(this);
 	}
 
 	toString(): string {
@@ -340,6 +252,4 @@ export class OrderedMapNonEmpty<K, V>
 			valueToString: (entry) => `${entry[0]} -> ${entry[1]}`,
 		});
 	}
-
-	toJSON(): any {}
 }

@@ -1,14 +1,9 @@
-import { OrderedSet } from '@rimbu/ordered';
-import { SortedSet } from '@rimbu/sorted';
-import { runSetTestsWith } from '../test-utils/set/set-standard';
+import { runSetTestsWith } from '@rimbu/collection-types/test-utils/set/set-collection-standard';
+import { OrderedSet } from '@rimbu/ordered/set';
+import { SortedSet } from '@rimbu/sorted/set';
 
 runSetTestsWith(
 	'OrderedSet default',
-	OrderedSet.createContext<number>(),
-	SortedSet.defaultContext<number>(),
+	OrderedSet.createContext<number>({}),
+	SortedSet.createContext<number>({}),
 );
-// runSetTestsWith(
-// 	'OrderedSortedSet default',
-// 	OrderedSortedSet.defaultContext<number>(),
-// 	OrderedHashSet.defaultContext<number>(),
-// );

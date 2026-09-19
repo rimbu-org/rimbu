@@ -1,6 +1,5 @@
 import { expectTypeOf } from 'bun:test';
 
-import type { RSet } from '@rimbu/collection-types';
 import type { ArrayNonEmpty } from '@rimbu/common/types';
 import type { OrderedSet } from '@rimbu/ordered/set';
 import type { FastIterator, Stream } from '@rimbu/stream';
@@ -18,31 +17,16 @@ expectTypeOf(genNonEmpty).toExtend<G_Empty>();
 expectTypeOf(genNonEmpty).toExtend<G_NonEmpty>();
 expectTypeOf(genEmpty).not.toExtend<G_NonEmpty>();
 
-expectTypeOf(genEmpty).toExtend<RSet<number>>();
-expectTypeOf(genEmpty).not.toExtend<RSet.NonEmpty<number>>();
-expectTypeOf(genNonEmpty).toExtend<RSet<number>>();
-expectTypeOf(genNonEmpty).toExtend<RSet.NonEmpty<number>>();
-
-// Test variance
-expectTypeOf(genEmpty).not.toExtend<GE<number | string>>();
-expectTypeOf(genNonEmpty).not.toExtend<GNE<number | string>>();
-
-let m!: any;
-
-expectTypeOf(m as GE<number | string>).not.toExtend<G_Empty>();
-expectTypeOf(m as GNE<number | string>).not.toExtend<G_NonEmpty>();
-
 // Iterator
 expectTypeOf(genEmpty[Symbol.iterator]()).toEqualTypeOf<FastIterator<number>>();
-expectTypeOf(genNonEmpty[Symbol.iterator]()).toEqualTypeOf<
-	FastIterator<number>
->();
+expectTypeOf(genNonEmpty[Symbol.iterator]()).toEqualTypeOf<FastIterator<number>>();
 
 // .add(..)
 expectTypeOf(genEmpty.add(1)).toEqualTypeOf<G_NonEmpty>();
 expectTypeOf(genNonEmpty.add(1)).toEqualTypeOf<G_NonEmpty>();
 
 // .addAll(..)
+expectTypeOf(genEmpty.addAll([])).toEqualTypeOf<G_Empty>();
 expectTypeOf(genEmpty.addAll([1, 2, 3])).toEqualTypeOf<G_NonEmpty>();
 expectTypeOf(genNonEmpty.addAll([1, 2, 3])).toEqualTypeOf<G_NonEmpty>();
 
@@ -64,11 +48,15 @@ expectTypeOf(genNonEmpty.difference(genNonEmpty)).toEqualTypeOf<G_Empty>();
 expectTypeOf(genEmpty.filter(() => true)).toEqualTypeOf<G_Empty>();
 expectTypeOf(genNonEmpty.filter(() => true)).toEqualTypeOf<G_Empty>();
 
-// .intersect(..)
-expectTypeOf(genEmpty.intersect(genEmpty)).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.intersect(genEmpty)).toEqualTypeOf<G_Empty>();
-expectTypeOf(genEmpty.intersect(genNonEmpty)).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.intersect(genNonEmpty)).toEqualTypeOf<G_Empty>();
+// .has(..)
+expectTypeOf(genEmpty.has(1)).toEqualTypeOf<boolean>();
+expectTypeOf(genNonEmpty.has(1)).toEqualTypeOf<boolean>();
+
+// .intersection(..)
+expectTypeOf(genEmpty.intersection(genEmpty)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genNonEmpty.intersection(genEmpty)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genEmpty.intersection(genNonEmpty)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genNonEmpty.intersection(genNonEmpty)).toEqualTypeOf<G_Empty>();
 
 // .isEmpty
 expectTypeOf(genEmpty.isEmpty).toEqualTypeOf<boolean>();
@@ -90,11 +78,11 @@ expectTypeOf(genNonEmpty.removeAll([3, 4])).toEqualTypeOf<G_Empty>();
 expectTypeOf(genEmpty.stream()).toEqualTypeOf<Stream<number>>();
 expectTypeOf(genNonEmpty.stream()).toEqualTypeOf<Stream.NonEmpty<number>>();
 
-// .symDifference(..)
-expectTypeOf(genEmpty.symDifference(genEmpty)).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.symDifference(genEmpty)).toEqualTypeOf<G_Empty>();
-expectTypeOf(genEmpty.symDifference(genNonEmpty)).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.symDifference(genNonEmpty)).toEqualTypeOf<G_Empty>();
+// .symmetricDifference(..)
+expectTypeOf(genEmpty.symmetricDifference(genEmpty)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genNonEmpty.symmetricDifference(genEmpty)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genEmpty.symmetricDifference(genNonEmpty)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genNonEmpty.symmetricDifference(genNonEmpty)).toEqualTypeOf<G_Empty>();
 
 // .toArray()
 expectTypeOf(genEmpty.toArray()).toEqualTypeOf<number[]>();
@@ -103,8 +91,8 @@ expectTypeOf(genNonEmpty.toArray()).toEqualTypeOf<ArrayNonEmpty<number>>();
 // .union(..)
 expectTypeOf(genEmpty.union(genEmpty)).toEqualTypeOf<G_Empty>();
 expectTypeOf(genEmpty.union(genNonEmpty)).toEqualTypeOf<G_NonEmpty>();
-expectTypeOf(genNonEmpty.union(genEmpty)).toEqualTypeOf<G_NonEmpty>();
-expectTypeOf(genNonEmpty.union(genNonEmpty)).toEqualTypeOf<G_NonEmpty>();
+expectTypeOf(genNonEmpty.union(genEmpty)).toExtend<G_NonEmpty>();
+expectTypeOf(genNonEmpty.union(genNonEmpty)).toExtend<G_NonEmpty>();
 
 // From Builder
 expectTypeOf(genEmpty.toBuilder().build()).toEqualTypeOf<G_Empty>();

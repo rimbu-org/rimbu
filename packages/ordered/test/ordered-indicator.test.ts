@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 
-import { Indicator } from '../src/internal/common/ordered-indicator';
+import { Indicator } from '#ordered/common/ordered-indicator';
 
 const { between, after, before, INIT_INDICATOR } = Indicator;
 

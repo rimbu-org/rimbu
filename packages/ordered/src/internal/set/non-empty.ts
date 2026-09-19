@@ -1,125 +1,116 @@
-import type { RMap } from '@rimbu/collection-types';
-import type { TraverseState } from '@rimbu/common/traverse-state';
-import type { ArrayNonEmpty, RelatedTo } from '@rimbu/common/types';
+import type { MapCollection } from '@rimbu/collection-types/map';
+import type { ArrayNonEmpty, RelatedTo } from '@rimbu/common';
 import type { OrderedSet } from '@rimbu/ordered/set';
-import type { SortedMap } from '@rimbu/sorted';
+import type { SortedMap } from '@rimbu/sorted/map';
+import type { Stream } from '@rimbu/stream';
 
-import type { OrderedSetBase } from '#set/base';
-import type { ContextImpl } from '#set/context-factory';
+import type { OrderedSetContext } from '#ordered/set/context';
 
-import { NonEmptyBase } from '@rimbu/collection-types/advanced/common/empty-base';
-import { Stream, type StreamSource } from '@rimbu/stream';
+import { ValuedCollectionNonEmpty } from '@rimbu/collection-types/advanced/collection/valued-base';
+import { CollectionNonEmpty } from '@rimbu/collection-types/advanced/collection-base';
+import { SetCollectionNonEmpty } from '@rimbu/collection-types/advanced/set-base';
 
 import { Indicator } from '#ordered/common/ordered-indicator';
 
-export class OrderedSetNonEmpty<T>
-	extends NonEmptyBase<T>
-	implements OrderedSetBase.NonEmpty<T>
-{
-	declare _NonEmptyType: OrderedSet.NonEmpty<T>;
+const NonEmptyBase = SetCollectionNonEmpty.WithMixin(
+	ValuedCollectionNonEmpty.WithMixin(CollectionNonEmpty.Constructor),
+);
 
+/**
+ * Concrete non-empty implementation of {@link OrderedSet.NonEmpty}.<br/>
+ * <br/>
+ * Elements are stored in a key map holding their ordering indicator and a
+ * sorted indicator map holding the elements. The sorted map defines the
+ * insertion order and is the source of iteration. Adding an element that is
+ * already present does not change its position.
+ *
+ * @typeparam T - the element type
+ */
+export class OrderedSetNonEmpty<T>
+	extends NonEmptyBase<T, OrderedSet.Advanced.Family<T>>
+	implements OrderedSet.NonEmpty<T>
+{
 	constructor(
-		readonly context: ContextImpl<T>,
-		readonly keyIndicatorMap: RMap.NonEmpty<T, Indicator>,
+		readonly context: OrderedSetContext<T>,
+		readonly keyIndicatorMap: MapCollection.NonEmpty<T, Indicator>,
 		readonly indicatorKeyMap: SortedMap.NonEmpty<Indicator, T>,
 	) {
-		super();
-	}
-
-	get size(): number {
-		return this.keyIndicatorMap.size;
-	}
-
-	asNormal(): this {
-		return this;
-	}
-
-	assumeNonEmpty(): this {
-		return this;
+		super(context);
 	}
 
 	copy(
 		keyIndicatorMap = this.keyIndicatorMap,
 		indicatorKeyMap = this.indicatorKeyMap,
 	): OrderedSet.NonEmpty<T> {
+		if (
+			keyIndicatorMap === this.keyIndicatorMap &&
+			indicatorKeyMap === this.indicatorKeyMap
+		) {
+			return this;
+		}
+
 		return this.context.createNonEmpty<T>(keyIndicatorMap, indicatorKeyMap);
 	}
 
-	stream(options: { reversed?: boolean } = {}): Stream.NonEmpty<T> {
-		return this.indicatorKeyMap.streamValues(options);
+	get size(): number {
+		return this.keyIndicatorMap.size;
 	}
 
-	has<U>(value: RelatedTo<T, U>): boolean {
-		return this.keyIndicatorMap.hasKey(value);
+	#nextIndicator(): Indicator {
+		return Indicator.after(this.indicatorKeyMap.max()[0]);
 	}
+
+	stream(): Stream.NonEmpty<T> {
+		return this.indicatorKeyMap.streamValues();
+	}
+
+	has = <U = T>(value: RelatedTo<T, U>): boolean => {
+		return this.keyIndicatorMap.has(value);
+	};
 
 	add(value: T): OrderedSet.NonEmpty<T> {
-		let lastIndicator: Indicator | undefined;
-		let newIndicator: Indicator | undefined;
+		let appendedIndicator: Indicator | undefined;
 
-		const newKeyIndicatorMap = this.keyIndicatorMap.modifyAt(value, {
+		const newKeyIndicatorMap = this.keyIndicatorMap.modifyAtKey(value, {
 			ifNew: {
 				create: () => {
-					lastIndicator = this.indicatorKeyMap.maxKey();
-					newIndicator = Indicator.after(lastIndicator);
-
-					return newIndicator;
+					appendedIndicator = this.#nextIndicator();
+					return appendedIndicator;
 				},
 			},
 		});
 
-		if (undefined === lastIndicator || undefined === newIndicator) return this;
+		if (undefined === appendedIndicator) return this;
 
-		const newIndicatorKeyMap = this.indicatorKeyMap.set(newIndicator, value);
+		const newIndicatorKeyMap = this.indicatorKeyMap.set(
+			appendedIndicator,
+			value,
+		);
 
 		return this.copy(newKeyIndicatorMap.assumeNonEmpty(), newIndicatorKeyMap);
 	}
 
-	addAll(values: StreamSource<T>): OrderedSet.NonEmpty<T> {
-		if (Stream.isEmptyStreamSourceInstance(values)) return this;
+	remove<U = T>(value: RelatedTo<T, U>): OrderedSet<T> {
+		const result = this.keyIndicatorMap.removeKeyAndReturn(value);
 
-		const builder = this.toBuilder();
-		builder.addAll(values);
-		return builder.build().assumeNonEmpty();
-	}
+		if (!result.hasResult) return this;
 
-	remove<U>(value: RelatedTo<T, U>): OrderedSet<T> {
-		const [newKeyIndicatorMap, removedIndicator, wasIndicatorRemoved] =
-			this.keyIndicatorMap.removeKeyAndGet(value);
+		const removedIndicator = result.result;
+		const newKeyIndicatorMap = result.collection;
 
-		if (!wasIndicatorRemoved) return this;
+		if (!newKeyIndicatorMap.nonEmpty()) return this.context.empty();
 
-		if (!newKeyIndicatorMap.nonEmpty()) {
-			return this.context.empty();
-		}
+		const newIndicatorKeyMap = this.indicatorKeyMap
+			.removeKey(removedIndicator)
+			.assumeNonEmpty();
 
-		const newIndicatorKeyMap = this.indicatorKeyMap.removeKey(removedIndicator);
-
-		return this.copy(newKeyIndicatorMap, newIndicatorKeyMap.assumeNonEmpty());
-	}
-
-	removeAll<U>(values: StreamSource<RelatedTo<T, U>>): OrderedSet<T> {
-		if (Stream.isEmptyStreamSourceInstance(values)) return this;
-
-		const builder = this.toBuilder();
-		builder.removeAll(values);
-		return builder.build();
-	}
-
-	forEach(
-		f: (value: T, index: number, halt: () => void) => void,
-		options: { reversed?: boolean; state?: TraverseState } = {},
-	): void {
-		this.indicatorKeyMap.forEach(
-			([_, value], index, halt) => f(value, index, halt),
-			options,
-		);
+		return this.copy(newKeyIndicatorMap, newIndicatorKeyMap);
 	}
 
 	filter(
-		pred: (value: T, index: number, halt: () => void) => boolean,
+		pred: (element: T) => boolean,
 		options: { negate?: boolean | undefined } = {},
-	): any {
+	): OrderedSet<T> {
 		const builder = this.context.builder<T>();
 
 		builder.addAll(this.stream().filter(pred, options));
@@ -129,61 +120,20 @@ export class OrderedSetNonEmpty<T>
 		return builder.build();
 	}
 
-	transform<T2 extends T>(
-		transformFun: (stream: Stream.NonEmpty<T>) => StreamSource<T2>,
-	): any {
-		return this.context.from(transformFun(this.stream()));
-	}
+	map<E2 extends T>(f: (element: T) => E2): OrderedSet.NonEmpty<E2> {
+		const builder = this.context.builder<E2>();
 
-	union(other: StreamSource<T>): OrderedSet.NonEmpty<T> {
-		if (other === this) return this;
-		if (Stream.isEmptyStreamSourceInstance(other)) return this;
+		this.forEach((element) => {
+			builder.add(f(element));
+		});
 
-		const builder = this.toBuilder();
-		builder.addAll(other);
 		return builder.build().assumeNonEmpty();
 	}
 
-	difference(other: StreamSource<T>): OrderedSet<T> {
-		if (other === this) return this.context.empty();
-		if (Stream.isEmptyStreamSourceInstance(other)) return this;
-
-		const builder = this.toBuilder();
-		builder.removeAll(other);
-		return builder.build();
-	}
-
-	intersect(other: StreamSource<T>): OrderedSet<T> {
-		if (other === this) return this;
-		if (Stream.isEmptyStreamSourceInstance(other)) return this.context.empty();
-
-		const builder = this.context.builder<T>();
-		const otherIter = Stream.from(other)[Symbol.iterator]();
-
-		const done = Symbol('Done');
-		let value: T | typeof done;
-
-		while (done !== (value = otherIter.fastNext(done))) {
-			if (this.has(value)) builder.add(value);
-		}
-
-		if (builder.size === this.size) return this;
-
-		return builder.build();
-	}
-
-	symDifference(other: StreamSource<T>): OrderedSet<T> {
-		if (other === this) return this.context.empty();
-
-		if (Stream.isEmptyStreamSourceInstance(other)) return this;
-
-		const builder = this.toBuilder();
-
-		Stream.from(other)
-			.filterPure({ pred: builder.remove, negate: true })
-			.forEach(builder.add);
-
-		return builder.build();
+	forEach(f: (element: T) => void): void {
+		this.indicatorKeyMap.forEach(([, value]) => {
+			f(value);
+		});
 	}
 
 	toArray(): ArrayNonEmpty<T> {
@@ -191,12 +141,10 @@ export class OrderedSetNonEmpty<T>
 	}
 
 	toBuilder(): OrderedSet.Builder<T> {
-		return this.context.createBuilder(this);
+		return this.context.createBuilder<T>(this);
 	}
 
 	toString(): string {
 		return this.stream().join({ start: 'OrderedSet(', sep: ', ', end: ')' });
 	}
-
-	toJSON(): any {}
 }

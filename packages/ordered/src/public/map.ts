@@ -1,97 +1,146 @@
-import type { Stream, Streamable } from '@rimbu/stream';
+import type { Collection } from '@rimbu/collection-types/collection';
+import type { KeyedCollection } from '@rimbu/collection-types/collection/keyed';
+import type { MapCollection } from '@rimbu/collection-types/map';
 
-import type { OrderedMapBase } from '#map/base';
-import type { OrderedMapCreators } from '#map/creators';
-
-import { createOrderedMapContextModule } from '#map/context-factory';
+import { OrderedMapContext } from '#ordered/map/context';
 
 /**
- * A type-invariant immutable Ordered Map of key type K, and value type V.
+ * A type-invariant immutable Map of key type K, and value type V that keeps
+ * its entries in key insertion order.
+ *
  * In the Map, each key has exactly one value, and the Map cannot contain
- * duplicate keys.
- * See the [Map documentation](https://rimbu.org/docs/collections/map) and the [OrderedMap API documentation](https://rimbu.org/api/rimbu/ordered/map/OrderedMap/interface)
- * @note
- * - The OrderedMap keeps the insertion order of elements, thus
- * iterators and streams will also reflect this order.
- * - The OrderedMap wraps around a Map instance, thus has mostly the same time complexity
- * as the contained Map.
- * - The OrderedMap keeps the key insertion order in a List, thus its space complexity
- * is higher than a regular Map.
+ * duplicate keys. Iteration follows the order in which keys were first added;
+ * re-setting an existing key updates its value in place without moving it.
+ *
  * @typeparam K - the key type
  * @typeparam V - the value type
  * @example
  * ```ts
- * import { OrderedHashMap } from '@rimbu/ordered/map/hashed';
- *
- * const m1 = OrderedHashMap.empty<number, string>()
- * const m2 = OrderedHashMap.of([1, 'a'], [2, 'b'])
+ * import { OrderedMap } from '@rimbu/ordered';
+ * const m = OrderedMap.of([1, 'a'], [2, 'b']);
+ * m.set(1, 'c').streamKeys().toArray(); // [1, 2]
  * ```
  */
 export interface OrderedMap<K, V>
-	extends OrderedMapBase<K, V, OrderedMap.Types> {}
+	extends OrderedMap.Advanced.Api<
+		K,
+		V,
+		Collection.Advanced.Types<OrderedMap.Advanced.Family<K, V>, readonly [K, V]>
+	> {}
 
 export namespace OrderedMap {
 	/**
-	 * A non-empty type-invariant immutable Ordered Map of key type K, and value type V.
-	 * In the Map, each key has exactly one value, and the Map cannot contain
-	 * duplicate keys.
-	 * See the [Map documentation](https://rimbu.org/docs/collections/map) and the [OrderedMap API documentation](https://rimbu.org/api/rimbu/ordered/map/OrderedMap/interface)
-	 * @note
-	 * - The OrderedMap keeps the insertion order of elements, thus
-	 * iterators and streams will also reflect this order.
-	 * - The OrderedMap wraps around a Map instance, thus has mostly the same time complexity
-	 * as the contained Map.
-	 * - The OrderedMap keeps the key insertion order in a List, thus its space complexity
-	 * is higher than a regular Map.
+	 * A **non-empty** type-invariant immutable Map of key type K, and value type V.
+	 *
 	 * @typeparam K - the key type
 	 * @typeparam V - the value type
-	 * @example
-	 * ```ts
-	 * import { OrderedHashMap } from '@rimbu/ordered/map/hashed';
-	 *
-	 * const m1 = OrderedHashMap.empty<number, string>()
-	 * const m2 = OrderedHashMap.of([1, 'a'], [2, 'b'])
-	 * ```
 	 */
 	export interface NonEmpty<K, V>
-		extends OrderedMapBase.NonEmpty<K, V, OrderedMap.Types>,
-			Omit<OrderedMap<K, V>, keyof OrderedMapBase.NonEmpty<any, any, any>>,
-			Streamable.NonEmpty<readonly [K, V]> {
-		stream(): Stream.NonEmpty<readonly [K, V]>;
-	}
+		extends Advanced.Api<
+			K,
+			V,
+			Collection.Advanced.TypesNonEmpty<Advanced.Family<K, V>, readonly [K, V]>
+		> {}
 
 	/**
-	 * A mutable `OrderedMap` builder used to efficiently create new immutable instances.
-	 * See the [Map documentation](https://rimbu.org/docs/collections/map) and the [OrderedMap.Builder API documentation](https://rimbu.org/api/rimbu/ordered/map/OrderedMap/Builder/interface)
+	 * A mutable `OrderedMap` builder used to efficiently create new immutable
+	 * instances.
+	 *
 	 * @typeparam K - the key type
 	 * @typeparam V - the value type
 	 */
 	export interface Builder<K, V>
-		extends OrderedMapBase.Builder<K, V, OrderedMap.Types> {}
+		extends Advanced.BuilderApi<
+			K,
+			V,
+			Collection.Advanced.Types<Advanced.Family<K, V>, readonly [K, V]>
+		> {}
 
 	/**
-	 * A context instance for an `OrderedMap` that acts as a factory for every instance of this
-	 * type of collection.
+	 * A context instance for an `OrderedMap` that acts as a factory for every
+	 * instance of this type of collection.
+	 *
 	 * @typeparam UK - the upper key type bound for which the context can be used
 	 */
-	export interface Context<UK> extends OrderedMapBase.Context<UK> {}
+	export interface Context<UK>
+		extends Advanced.ContextApi<UK, OrderedMap.Advanced.Family<UK, any>> {}
 
-	/**
-	 * Utility interface that provides higher-kinded types for this collection.
-	 */
-	export interface Types extends OrderedMapBase.Types {
-		readonly normal: OrderedMap<this['_K'], this['_V']>;
-		readonly nonEmpty: OrderedMap.NonEmpty<this['_K'], this['_V']>;
-		readonly context: OrderedMap.Context<this['_K']>;
-		readonly builder: OrderedMap.Builder<this['_K'], this['_V']>;
+	export namespace Advanced {
+		export interface Api<
+			K,
+			V,
+			Tp extends Collection.Advanced.Types<
+				KeyedCollection.Advanced.Family<K, V>,
+				readonly [K, V]
+			>,
+		> extends MapCollection.Advanced.Api<K, V, Tp> {}
+
+		export interface BuilderApi<
+			K,
+			V,
+			Tp extends Collection.Advanced.Types<
+				KeyedCollection.Advanced.FamilyBase<K, V>,
+				readonly [K, V]
+			>,
+		> extends MapCollection.Advanced.BuilderApi<K, V, Tp> {}
+
+		export interface ContextApi<
+			UK,
+			FAM extends KeyedCollection.Advanced.Family<UK, any>,
+		> extends MapCollection.Advanced.ContextApi<FAM> {
+			readonly typeTag: 'OrderedMap';
+
+			/**
+			 * The context used to store the keys and their associated values and
+			 * ordering indicators. Defaults to a `HashMap` context.
+			 */
+			readonly keyMapContext: MapCollection.Context<
+				MapCollection.Advanced.Family<UK, any>
+			>;
+
+			/**
+			 * The block size used by the internal sorted map that stores the
+			 * insertion ordering.
+			 */
+			readonly indicatorBlockSizeBits: number;
+		}
+
+		export interface KeyedContextApi<
+			UK,
+			FAM extends KeyedCollection.Advanced.Family<UK, any>,
+		> extends MapCollection.Advanced.KeyedContextApi<FAM> {
+			/**
+			 * Returns a new `OrderedMap` context based on the given `options`.
+			 * @param options - (optional) the key map context to use for key
+			 * storage, and the block size to use for the internal ordering map
+			 */
+			createContext<K>(options?: {
+				keyMapContext?:
+					| MapCollection.Context<MapCollection.Advanced.Family<K, any>>
+					| undefined;
+				indicatorBlockSizeBits?: number | undefined;
+			}): Context<K>;
+		}
+
+		export interface Family<K, V> extends MapCollection.Advanced.Family<K, V> {
+			_NORMAL: OrderedMap<K, V>;
+			_NON_EMPTY: OrderedMap.NonEmpty<K, V>;
+			_BUILDER: OrderedMap.Builder<K, V>;
+			_CONTEXT: OrderedMap.Context<K>;
+			_KEYED_CONTEXT: KeyedContextApi<K, this['_FAM']>;
+
+			_UPPER_E: readonly [K, any];
+
+			_FAM: Family<K, V>;
+			_NEW_FAMILY: Family<this['_NEW_K'], this['_NEW_V']>;
+		}
+
+		export type DefaultFactory = KeyedContextApi<any, Family<any, any>>;
 	}
 }
 
 /**
- * @expandType OrderedMapCreators
+ * The default `OrderedMap` context, exposed as a factory object.
  */
-export const OrderedMap: OrderedMapCreators = Object.freeze<OrderedMapCreators>(
-	{
-		createContext: (options) => createOrderedMapContextModule(options).build(),
-	},
-);
+export const OrderedMap: OrderedMap.Advanced.DefaultFactory =
+	OrderedMapContext.createDefault().keyedContext;

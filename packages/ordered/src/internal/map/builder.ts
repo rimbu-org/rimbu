@@ -1,214 +1,226 @@
-import type { RMap } from '@rimbu/collection-types';
-import type { TraverseState } from '@rimbu/common';
-import type { RelatedTo } from '@rimbu/common/types';
+import type { MapCollection } from '@rimbu/collection-types/map';
+import type { OptLazy, RelatedTo } from '@rimbu/common';
 import type { OrderedMap } from '@rimbu/ordered/map';
-import type { SortedMap } from '@rimbu/sorted';
+import type { SortedMap } from '@rimbu/sorted/map';
+import type { StreamSource } from '@rimbu/stream';
 
-import type { OrderedMapBase } from '#map/base';
-import type { ContextImpl } from '#map/context-factory';
-import type { OrderedMapNonEmpty } from '#map/non-empty';
+import type { OrderedMapContext } from '#ordered/map/context';
+import type { OrderedMapNonEmpty } from '#ordered/map/non-empty';
 
-import * as RimbuError from '@rimbu/base/rimbu-error';
+import { CollectionBuilderBase } from '@rimbu/collection-types/advanced/collection-base';
 import {
 	checkEmptyModifyOptions,
 	type ModifyOptions,
 } from '@rimbu/collection-types/advanced/common';
-import { OptLazy } from '@rimbu/common/opt-lazy';
-import { Stream, type StreamSource } from '@rimbu/stream';
+import { OptLazy as OptLazyValue } from '@rimbu/common/opt-lazy';
+import { Stream } from '@rimbu/stream';
 
 import { Indicator } from '#ordered/common/ordered-indicator';
 
-export class OrderedMapBuilder<K, V> implements OrderedMapBase.Builder<K, V> {
+/**
+ * Mutable builder used to efficiently construct new immutable {@link OrderedMap}
+ * instances.<br/>
+ * <br/>
+ * The builder keeps a key map builder holding `[value, indicator]` and a sorted
+ * indicator map builder holding `[key, value]`. `build` wraps the two built maps
+ * into an immutable `OrderedMap`.
+ *
+ * @typeparam K - the key type
+ * @typeparam V - the value type
+ */
+export class OrderedMapBuilder<K, V>
+	extends CollectionBuilderBase<
+		readonly [K, V],
+		OrderedMap.Advanced.Family<K, V>
+	>
+	implements OrderedMap.Builder<K, V>
+{
+	#source: OrderedMap.NonEmpty<K, V> | undefined;
+	_keyMapBuilder: MapCollection.Builder<K, readonly [V, Indicator]> | undefined;
+	_indicatorMapBuilder:
+		| SortedMap.Builder<Indicator, readonly [K, V]>
+		| undefined;
+
 	constructor(
-		readonly context: ContextImpl<K>,
-		public source?: OrderedMapNonEmpty<K, V>,
-	) {}
-
-	_keyMapBuilder?: RMap.Builder<K, [V, Indicator]>;
-	_indicatorMapBuilder?: SortedMap.Builder<Indicator, [K, V]>;
-
-	_lock = false;
-
-	checkLock(): void {
-		if (this._lock) RimbuError.throwModifiedBuilderWhileLoopingOverItError();
+		readonly context: OrderedMapContext<K>,
+		source?: OrderedMap.NonEmpty<K, V>,
+	) {
+		super();
+		this.#source = source;
 	}
 
-	prepareMutate(): void {
+	#prepareMutate(): void {
 		if (
 			undefined === this._keyMapBuilder ||
 			undefined === this._indicatorMapBuilder
 		) {
-			if (undefined !== this.source) {
-				this._keyMapBuilder = this.source.keyIndicatorMap.toBuilder();
-				this._indicatorMapBuilder = this.source.indicatorKeyMap.toBuilder();
-			} else if (undefined === this._keyMapBuilder) {
-				this._keyMapBuilder = this.context.keyMapContext.builder();
-				this._indicatorMapBuilder = this.context.indicatorMapContext.builder();
+			if (undefined !== this.#source) {
+				const source = this.#source as unknown as OrderedMapNonEmpty<K, V>;
+				this._keyMapBuilder =
+					source.keyIndicatorMap.toBuilder() as unknown as MapCollection.Builder<
+						K,
+						readonly [V, Indicator]
+					>;
+				this._indicatorMapBuilder =
+					source.indicatorKeyMap.toBuilder() as unknown as SortedMap.Builder<
+						Indicator,
+						readonly [K, V]
+					>;
+			} else {
+				this._keyMapBuilder = this.context.keyMapContext.keyedContext.builder<
+					K,
+					readonly [V, Indicator]
+				>() as unknown as MapCollection.Builder<K, readonly [V, Indicator]>;
+				this._indicatorMapBuilder =
+					this.context.indicatorMapContext.keyedContext.builder<
+						Indicator,
+						readonly [K, V]
+					>() as unknown as SortedMap.Builder<Indicator, readonly [K, V]>;
 			}
 		}
 	}
 
-	get keyMapBuilder(): RMap.Builder<K, [V, Indicator]> {
-		this.prepareMutate();
+	get keyMapBuilder(): MapCollection.Builder<K, readonly [V, Indicator]> {
+		this.#prepareMutate();
 		return this._keyMapBuilder!;
 	}
 
-	get indicatorMapBuilder(): SortedMap.Builder<Indicator, [K, V]> {
-		this.prepareMutate();
+	get indicatorMapBuilder(): SortedMap.Builder<Indicator, readonly [K, V]> {
+		this.#prepareMutate();
 		return this._indicatorMapBuilder!;
 	}
 
 	get size(): number {
-		return this.source?.size ?? this.keyMapBuilder.size;
+		if (undefined !== this.#source) return this.#source.size;
+		if (undefined === this._keyMapBuilder) return 0;
+		return this._keyMapBuilder.size;
 	}
 
-	get isEmpty(): boolean {
-		return this.size === 0;
-	}
+	get<UK = K>(key: RelatedTo<K, UK>): V | undefined;
+	get<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O;
+	get<UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O | undefined {
+		if (undefined !== this.#source) {
+			return this.#source.get(key, otherwise as any);
+		}
 
-	hasKey = <UK>(key: RelatedTo<K, UK>): boolean => {
-		return this.source?.hasKey(key) ?? this.keyMapBuilder.hasKey(key);
-	};
-
-	at = <UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O => {
-		if (undefined !== this.source) return this.source.at(key, otherwise!);
-
-		const entry = this.keyMapBuilder.at(key);
-		if (undefined === entry) return OptLazy(otherwise!);
+		const entry = this.keyMapBuilder.get(key as K);
+		if (undefined === entry) return OptLazyValue(otherwise);
 
 		return entry[0];
-	};
+	}
 
-	set = (key: K, value: V): boolean => {
-		return this.addEntry([key, value]);
+	has = <UK = K>(key: RelatedTo<K, UK>): boolean => {
+		if (undefined !== this.#source) return this.#source.has(key);
+		return this.keyMapBuilder.has(key);
 	};
 
 	#nextIndicator(): Indicator {
-		const lastIndicator = this.indicatorMapBuilder.max();
-		if (undefined === lastIndicator) return Indicator.INIT_INDICATOR;
-		return Indicator.after(lastIndicator[0]);
+		const last = this.indicatorMapBuilder.max();
+		if (undefined === last) return Indicator.INIT_INDICATOR;
+		return Indicator.after(last[0]);
 	}
 
-	addEntry = (entry: readonly [K, V]): boolean => {
+	set = (key: K, value: V): boolean => {
+		return this.add([key, value]);
+	};
+
+	add = (entry: readonly [K, V]): boolean => {
 		this.checkLock();
 
 		const [key, value] = entry;
 
-		let oldIndicator: Indicator | undefined;
-		let newEntry: [V, Indicator] | undefined;
+		let appendedIndicator: Indicator | undefined;
+		let inPlaceIndicator: Indicator | undefined;
 
-		const modified = this.keyMapBuilder.modifyAt(key, {
+		const changed = this.keyMapBuilder.modifyAtKey(key, {
 			ifNew: {
 				create: () => {
-					newEntry = [value, this.#nextIndicator()];
-					return newEntry;
+					appendedIndicator = this.#nextIndicator();
+					return [value, appendedIndicator] as const;
 				},
 			},
 			ifExists: {
-				update: (entry) => {
-					const [currentValue, currentIndicator] = entry;
-					if (Object.is(currentValue, value)) return entry;
+				update: (current) => {
+					const [currentValue, currentIndicator] = current;
+					if (Object.is(currentValue, value)) return current;
 
-					oldIndicator = currentIndicator;
-					newEntry = [value, this.#nextIndicator()];
-					return newEntry;
+					inPlaceIndicator = currentIndicator;
+					return [value, currentIndicator] as const;
 				},
 			},
 		});
 
-		if (!modified) {
-			return false;
-		}
+		if (!changed) return false;
 
-		this.source = undefined;
+		this.#source = undefined;
 
-		if (undefined !== oldIndicator) {
-			this.indicatorMapBuilder.removeKey(oldIndicator);
-		}
-
-		if (undefined !== newEntry) {
-			const [newValue, newIndicator] = newEntry;
-			this.indicatorMapBuilder.set(newIndicator, [key, newValue]);
+		if (undefined !== appendedIndicator) {
+			this.indicatorMapBuilder.set(appendedIndicator, [key, value]);
+		} else if (undefined !== inPlaceIndicator) {
+			this.indicatorMapBuilder.set(inPlaceIndicator, [key, value]);
 		}
 
 		return true;
 	};
 
-	addEntries = (entries: StreamSource<readonly [K, V]>): boolean => {
+	addAll = (entries: StreamSource<readonly [K, V]>): boolean => {
 		this.checkLock();
 
-		return Stream.from(entries).filterPure({ pred: this.addEntry }).count() > 0;
+		let changed = false;
+		const iter = Stream.from(entries)[Symbol.iterator]();
+		const done = Symbol();
+		let entry: readonly [K, V] | typeof done;
+
+		while (done !== (entry = iter.fastNext(done))) {
+			if (this.add(entry)) changed = true;
+		}
+
+		return changed;
 	};
 
 	removeKey = <UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O => {
 		this.checkLock();
 
-		if (!this.context.isValidKey(key)) {
-			return OptLazy(otherwise) as O;
-		}
+		const token = Symbol();
+		const entry = this.keyMapBuilder.removeKey(key, token);
 
-		const removeResult = this.keyMapBuilder.removeKey(key);
+		if (token === entry) return OptLazyValue(otherwise) as O;
 
-		if (undefined === removeResult) {
-			return OptLazy(otherwise) as O;
-		}
+		this.#source = undefined;
+		this.indicatorMapBuilder.removeKey(entry[1]);
 
-		this.source = undefined;
-		const [removedValue, removedIndicator] = removeResult;
-
-		this.indicatorMapBuilder.removeKey(removedIndicator);
-
-		return removedValue;
+		return entry[0];
 	};
 
 	removeKeys = <UK>(keys: StreamSource<RelatedTo<K, UK>>): boolean => {
 		this.checkLock();
 
-		const notFound = Symbol();
+		let changed = false;
+		const iter = Stream.from(keys)[Symbol.iterator]();
+		const token = Symbol();
+		let key: RelatedTo<K, UK> | typeof token;
 
-		return (
-			Stream.from(keys)
-				.mapPure(this.removeKey, notFound)
-				.countElement(notFound, { negate: true }) > 0
-		);
+		while (token !== (key = iter.fastNext(token))) {
+			if (token !== this.removeKey(key, token)) changed = true;
+		}
+
+		return changed;
 	};
 
-	updateAt = <O>(
-		key: K,
-		update: (value: V) => V,
-		otherwise?: OptLazy<O>,
-	): V | O => {
-		let oldValue: V;
-		let found = false;
-
-		this.modifyAt(key, {
-			ifExists: {
-				update: (value): V => {
-					oldValue = value;
-					found = true;
-					return update(value);
-				},
-			},
-		});
-
-		if (!found) return OptLazy(otherwise) as O;
-
-		this.source = undefined;
-
-		return oldValue!;
-	};
-
-	modifyAt = (key: K, options: ModifyOptions<V>): boolean => {
+	modifyAtKey = (key: K, options: ModifyOptions<V>): boolean => {
 		this.checkLock();
 
 		if (checkEmptyModifyOptions(options)) return false;
 
 		const { ifNew, ifExists } = options;
 
-		const modifyOptions: ModifyOptions<[V, Indicator]> = {};
+		const modifyOptions: ModifyOptions<readonly [V, Indicator]> = {};
 
-		let previousIndicator: Indicator | undefined;
-		let newEntry: [V, Indicator] | undefined;
+		let appendedIndicator: Indicator | undefined;
+		let appendedValue: V | undefined;
+		let inPlaceIndicator: Indicator | undefined;
+		let inPlaceValue: V | undefined;
+		let removedIndicator: Indicator | undefined;
 
 		if (undefined !== ifNew) {
 			modifyOptions.ifNew = {
@@ -216,102 +228,145 @@ export class OrderedMapBuilder<K, V> implements OrderedMapBase.Builder<K, V> {
 					const { set, create } = ifNew;
 
 					if (undefined !== create) {
-						const newValue = create(skip);
-						if (skip === newValue) return skip;
+						const result = create(skip);
+						if (skip === result) return skip;
 
-						newEntry = [newValue as V, this.#nextIndicator()];
-						return newEntry;
+						appendedIndicator = this.#nextIndicator();
+						appendedValue = result as V;
+						return [result as V, appendedIndicator] as const;
 					}
 
-					newEntry = [set!, this.#nextIndicator()];
-					return newEntry;
+					appendedIndicator = this.#nextIndicator();
+					appendedValue = set;
+					return [set, appendedIndicator] as const;
 				},
 			};
 		}
 
 		if (undefined !== ifExists) {
 			modifyOptions.ifExists = {
-				update: (currentEntry, remove) => {
-					const [currentValue, currentIndicator] = currentEntry;
-					previousIndicator = currentIndicator;
-
+				update: (current, remove) => {
+					const [currentValue, currentIndicator] = current;
 					const { set, update } = ifExists;
 
 					if (undefined !== update) {
-						const newValue = update(currentValue, remove);
-						if (remove === newValue) return remove;
-						if (Object.is(currentValue, newValue)) return currentEntry;
+						const result = update(currentValue, remove);
+						if (remove === result) {
+							removedIndicator = currentIndicator;
+							return remove;
+						}
+						if (Object.is(currentValue, result)) return current;
 
-						newEntry = [newValue as V, this.#nextIndicator()];
-						return newEntry;
+						inPlaceIndicator = currentIndicator;
+						inPlaceValue = result as V;
+						return [result as V, currentIndicator] as const;
 					}
 
-					if (Object.is(currentValue, set)) return currentEntry;
+					if (Object.is(currentValue, set)) return current;
 
-					newEntry = [set!, this.#nextIndicator()];
-					return newEntry;
+					inPlaceIndicator = currentIndicator;
+					inPlaceValue = set;
+					return [set, currentIndicator] as const;
 				},
 			};
 		}
 
-		const changed = this.keyMapBuilder.modifyAt(key, modifyOptions);
+		const changed = this.keyMapBuilder.modifyAtKey(key, modifyOptions);
 
 		if (!changed) return false;
 
-		this.source = undefined;
+		this.#source = undefined;
 
-		if (undefined !== previousIndicator) {
-			this.indicatorMapBuilder.removeKey(previousIndicator);
+		if (undefined !== removedIndicator) {
+			this.indicatorMapBuilder.removeKey(removedIndicator);
 		}
-
-		if (undefined !== newEntry) {
-			this.indicatorMapBuilder.set(newEntry[1], [key, newEntry[0]]);
+		if (undefined !== appendedIndicator) {
+			this.indicatorMapBuilder.set(appendedIndicator, [
+				key,
+				appendedValue as V,
+			]);
+		} else if (undefined !== inPlaceIndicator) {
+			this.indicatorMapBuilder.set(inPlaceIndicator, [key, inPlaceValue as V]);
 		}
 
 		return true;
 	};
 
-	forEach = (
-		f: (entry: readonly [K, V], index: number, halt: () => void) => void,
-		options?: { reversed?: boolean; state?: TraverseState },
-	): void => {
-		this._lock = true;
+	updateAtKey = <UK, O>(
+		key: RelatedTo<K, UK>,
+		update: (value: V) => V,
+		otherwise?: OptLazy<O>,
+	): [V | O, V | O] => {
+		let result: [V, V] | undefined;
 
-		if (undefined !== this.source) this.source.forEach(f, options);
-		else {
-			this.indicatorMapBuilder.forEach(([_, entry], index, halt): void => {
-				f(entry, index, halt);
-			}, options);
+		const changed = this.modifyAtKey(key as K, {
+			ifExists: {
+				update: (value, _remove) => {
+					const newValue = update(value);
+					result = [value, newValue];
+
+					return newValue;
+				},
+			},
+		});
+
+		if (changed) this.#source = undefined;
+
+		if (undefined !== result) return result;
+
+		const otherwiseValue = OptLazyValue(otherwise) as O;
+
+		return [otherwiseValue, otherwiseValue];
+	};
+
+	forEach = (f: (entry: readonly [K, V]) => void): void => {
+		this.startIteration();
+
+		try {
+			if (undefined !== this.#source) {
+				this.#source.forEach(f);
+				return;
+			}
+
+			this.indicatorMapBuilder.forEach(([, entry]) => {
+				f(entry);
+			});
+		} finally {
+			this.endIteration();
 		}
-
-		this._lock = false;
 	};
 
 	buildMapValues = <V2>(f: (value: V, key: K) => V2): OrderedMap<K, V2> => {
-		if (undefined !== this.source) return this.source.mapValues<V2>(f) as any;
-
+		if (undefined !== this.#source) return this.#source.mapValues(f);
 		if (this.size === 0) return this.context.empty();
 
-		const keyMap = this.keyMapBuilder
-			.buildMapValues(
-				([value, indicator], key) =>
-					[f(value, key), indicator] as [V2, Indicator],
-			)
-			.assumeNonEmpty();
-		const indicatorMap = this.indicatorMapBuilder
-			.buildMapValues(([key, value]) => [key, f(value, key)] as [K, V2])
-			.assumeNonEmpty();
+		const keyMap = this.keyMapBuilder.buildMapValues(
+			([value, indicator], key) => [f(value, key), indicator] as const,
+		);
+		const indicatorMap = this.indicatorMapBuilder.buildMapValues(
+			([key, value]) => [key, f(value, key)] as const,
+		);
 
-		return this.context.createNonEmpty<K, V2>(keyMap, indicatorMap) as any;
+		return this.context.createNonEmpty<K, V2>(
+			keyMap.assumeNonEmpty(),
+			indicatorMap.assumeNonEmpty(),
+		);
 	};
 
 	build = (): OrderedMap<K, V> => {
-		if (undefined !== this.source) return this.source as any;
+		if (undefined !== this.#source) return this.#source;
 		if (this.size === 0) return this.context.empty();
 
-		const keyMap = this.keyMapBuilder.build().assumeNonEmpty();
-		const indicatorMap = this.indicatorMapBuilder.build().assumeNonEmpty();
+		return this.context.createNonEmpty<K, V>(
+			this.keyMapBuilder.build().assumeNonEmpty(),
+			this.indicatorMapBuilder.build().assumeNonEmpty(),
+		);
+	};
 
-		return this.context.createNonEmpty<K, V>(keyMap, indicatorMap) as any;
+	clear = (): void => {
+		this.checkLock();
+		this.#source = undefined;
+		this._keyMapBuilder = undefined;
+		this._indicatorMapBuilder = undefined;
 	};
 }

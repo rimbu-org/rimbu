@@ -1,129 +1,33 @@
-import type { ToJSON, WithValueResult } from '@rimbu/common/types';
 import type { OrderedMap } from '@rimbu/ordered/map';
 
-import type { OrderedMapBase } from '#map/base';
-import type { ContextImpl } from '#map/context-factory';
+import type { OrderedMapContext } from '#ordered/map/context';
 
-import {
-	checkEmptyModifyOptions,
-	type ModifyOptions,
-} from '@rimbu/collection-types/advanced/common';
-import { EmptyBase } from '@rimbu/collection-types/advanced/common/empty-base';
-import { OptLazy } from '@rimbu/common/opt-lazy';
-import { Stream, type StreamSource } from '@rimbu/stream';
+import { KeyedCollectionEmpty } from '@rimbu/collection-types/advanced/collection/keyed-base';
+import { CollectionEmpty } from '@rimbu/collection-types/advanced/collection-base';
+import { MapCollectionEmpty } from '@rimbu/collection-types/advanced/map-base';
 
-import { Indicator } from '#ordered/common/ordered-indicator';
+const EmptyBase = MapCollectionEmpty.WithMixin(
+	KeyedCollectionEmpty.WithMixin(CollectionEmpty.Constructor),
+);
 
+/**
+ * Concrete empty implementation of {@link OrderedMap}.<br/>
+ * <br/>
+ * It represents an empty `OrderedMap` instance for a given context and
+ * efficiently creates non-empty maps when entries are added.
+ *
+ * @typeparam K - the key type
+ * @typeparam V - the value type
+ */
 export class OrderedMapEmpty<K = any, V = any>
-	extends EmptyBase
-	implements OrderedMapBase<K, V>
+	extends EmptyBase<K, V, OrderedMap.Advanced.Family<K, V>>
+	implements OrderedMap<K, V>
 {
-	declare _NonEmptyType: OrderedMap.NonEmpty<K, V>;
-
-	constructor(readonly context: ContextImpl<K>) {
-		super();
+	constructor(readonly context: OrderedMapContext<K>) {
+		super(context);
 	}
 
-	streamKeys(): Stream<K> {
-		return Stream.empty();
-	}
-
-	streamValues(): Stream<V> {
-		return Stream.empty();
-	}
-
-	hasKey(): false {
-		return false;
-	}
-
-	at<O>(key: K, otherwise?: OptLazy<O>): O {
-		return OptLazy(otherwise) as O;
-	}
-
-	set(key: K, value: V): OrderedMap.NonEmpty<K, V> {
-		return this.addEntry([key, value]);
-	}
-
-	addEntry(entry: [K, V]): OrderedMap.NonEmpty<K, V> {
-		return this.context.createNonEmpty<K, V>(
-			this.context.keyMapContext.of([
-				entry[0],
-				[entry[1], Indicator.INIT_INDICATOR],
-			]),
-			this.context.indicatorMapContext.of([Indicator.INIT_INDICATOR, entry]),
-		);
-	}
-
-	addEntries(
-		entries: StreamSource<readonly [K, V]>,
-	): OrderedMap.NonEmpty<K, V> {
-		if (Stream.isEmptyStreamSourceInstance(entries)) {
-			return this as any;
-		}
-
-		return this.context.from(entries) as any;
-	}
-
-	modifyAt(key: K, options: ModifyOptions<V>): OrderedMap<K, V> {
-		if (checkEmptyModifyOptions(options)) return this;
-
-		const { ifNew } = options;
-		if (undefined === ifNew) return this;
-
-		const { set, create } = ifNew;
-		const token = Symbol();
-		const newValue = create !== undefined ? create(token) : set;
-
-		if (token === newValue) return this;
-		return this.addEntry([key, newValue]);
-	}
-
-	removeKey(): OrderedMap<K, V> {
-		return this as any;
-	}
-
-	removeKeys(): OrderedMap<K, V> {
-		return this as any;
-	}
-
-	removeKeyAndGet(): WithValueResult<OrderedMap<K, V>, V> {
-		return [this, undefined, false];
-	}
-
-	mapValues<V2>(): OrderedMap<K, V2> {
-		return this as any;
-	}
-
-	transform<V2, K2 extends K>(
-		transformFun: (stream: Stream<readonly [K, V]>) => StreamSource<[K2, V2]>,
-	): OrderedMap<K2, V2> {
-		return this.context.from(transformFun(this.stream()));
-	}
-
-	updateAt(): OrderedMap<K, V> {
-		return this;
-	}
-
-	updateAtAndGet(): WithValueResult<
-		OrderedMap.NonEmpty<K, V>,
-		V,
-		OrderedMap<K, V>
-	> {
-		return [this, undefined, false];
-	}
-
-	toBuilder(): OrderedMap.Builder<K, V> {
-		return this.context.builder();
-	}
-
-	toString(): string {
+	override toString(): string {
 		return 'OrderedMap()';
-	}
-
-	toJSON(): ToJSON<any[]> {
-		return {
-			dataType: this.context.typeTag,
-			value: [],
-		};
 	}
 }
