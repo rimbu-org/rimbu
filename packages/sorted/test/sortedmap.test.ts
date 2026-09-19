@@ -2,11 +2,11 @@ import { runMapTestsWith } from '@rimbu/collection-types/test-utils/map/map-coll
 import { SortedMap } from '@rimbu/sorted/map';
 
 runMapTestsWith(
-  'SortedMap blockSize 2',
-  SortedMap.createContext({ blockSizeBits: 2 }).keyedContext as any,
+	'SortedMap blockSize 2',
+	SortedMap.createContext({ blockSizeBits: 2 }).keyedContext,
 );
 
 runMapTestsWith(
-  'SortedMap blockSize 3',
-  SortedMap.createContext({ blockSizeBits: 3 }).keyedContext as any,
+	'SortedMap blockSize 3',
+	SortedMap.createContext({ blockSizeBits: 3 }).keyedContext,
 );

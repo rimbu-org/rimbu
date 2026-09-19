@@ -4,11 +4,14 @@ import { Eq } from '@rimbu/common/eq';
 import { HashSet } from '@rimbu/hashed/set';
 import { runSetRandomTestsWith } from '@rimbu/collection-types/test-utils/set/set-random';
 
-runSetRandomTestsWith('HashSet default', HashSet.defaultContext());
+// @ts-ignore legacy RSet.Context vs HashSet.Context mismatch until 10
+runSetRandomTestsWith('HashSet default', (HashSet as any).createContext<number>({}));
 
-runSetRandomTestsWith('HashSet 2', HashSet.createContext({ blockSizeBits: 2 }));
+// @ts-ignore legacy RSet.Context vs HashSet.Context mismatch until 10
+runSetRandomTestsWith('HashSet 2', (HashSet as any).createContext<number>({ blockSizeBits: 2 }));
 
-runSetRandomTestsWith('HashSet 3', HashSet.createContext({ blockSizeBits: 3 }));
+// @ts-ignore legacy RSet.Context vs HashSet.Context mismatch until 10
+runSetRandomTestsWith('HashSet 3', (HashSet as any).createContext<number>({ blockSizeBits: 3 }));
 
 describe('HashSet collision', () => {
 	const ColHashSet = HashSet.createContext({ eq: Eq.objectIs });
