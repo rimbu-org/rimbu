@@ -1,7 +1,7 @@
 import { expectTypeOf } from 'bun:test';
 
+import type { MapCollection } from '@rimbu/collection-types/map';
 import type { ArrayNonEmpty } from '@rimbu/common/types';
-import type { HashMap } from '@rimbu/hashed/map';
 import type { HashMultiSet } from '@rimbu/multiset/hashed';
 import type { FastIterator, Stream } from '@rimbu/stream';
 
@@ -38,8 +38,7 @@ expectTypeOf(genNonEmpty.add(1)).toEqualTypeOf<G_NonEmpty>();
 expectTypeOf(genNonEmpty.add(1, 1)).toEqualTypeOf<G_NonEmpty>();
 expectTypeOf(genEmpty.add(1, 0)).toEqualTypeOf<G_Empty>();
 expectTypeOf(genNonEmpty.add(1, 0)).toEqualTypeOf<G_NonEmpty>();
-// TODO
-// expectType<G_NonEmpty>(genEmpty.add(1, 1));
+expectTypeOf(genEmpty.add(1, 1)).toEqualTypeOf<G_NonEmpty>();
 
 // .addAll(..)
 expectTypeOf(genEmpty.addAll([1, 2, 3])).toEqualTypeOf<G_NonEmpty>();
@@ -49,7 +48,9 @@ expectTypeOf(genNonEmpty.addAll([1, 2, 3])).toEqualTypeOf<G_NonEmpty>();
 expectTypeOf(genEmpty.addAllWithCounts([])).toEqualTypeOf<G_Empty>();
 expectTypeOf(genEmpty.addAllWithCounts([[1, 1]])).toEqualTypeOf<G_Empty>();
 expectTypeOf(genNonEmpty.addAllWithCounts([])).toEqualTypeOf<G_NonEmpty>();
-expectTypeOf(genNonEmpty.addAllWithCounts([[1, 1]])).toEqualTypeOf<G_NonEmpty>();
+expectTypeOf(
+	genNonEmpty.addAllWithCounts([[1, 1]]),
+).toEqualTypeOf<G_NonEmpty>();
 
 // .assumeNonEmpty()
 expectTypeOf(genEmpty.assumeNonEmpty()).toEqualTypeOf<G_NonEmpty>();
@@ -68,8 +69,10 @@ expectTypeOf(genEmpty.isEmpty).toEqualTypeOf<boolean>();
 expectTypeOf(genNonEmpty.isEmpty).toEqualTypeOf<false>();
 
 // .countMap
-expectTypeOf(genEmpty.countMap).toEqualTypeOf<HashMap<number, number>>();
-expectTypeOf(genNonEmpty.countMap).toExtend<HashMap.NonEmpty<number, number>>();
+expectTypeOf(genEmpty.countMap).toEqualTypeOf<MapCollection<number, number>>();
+expectTypeOf(genNonEmpty.countMap).toExtend<
+	MapCollection.NonEmpty<number, number>
+>();
 
 // .nonEmpty()
 expectTypeOf(genEmpty.nonEmpty()).toEqualTypeOf<boolean>();
@@ -80,18 +83,17 @@ expectTypeOf(genNonEmpty.nonEmpty()).toEqualTypeOf<boolean>();
 expectTypeOf(genEmpty.remove(3)).toEqualTypeOf<G_Empty>();
 expectTypeOf(genNonEmpty.remove(3)).toEqualTypeOf<G_Empty>();
 
-expectTypeOf(genEmpty.remove(3, { amount: 3 })).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.remove(3, { amount: 3 })).toEqualTypeOf<G_Empty>();
+expectTypeOf(genEmpty.remove(3, 3)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genNonEmpty.remove(3, 3)).toEqualTypeOf<G_Empty>();
 
 // .removeAll(..)
 expectTypeOf(genEmpty.removeAll([3, 4])).toEqualTypeOf<G_Empty>();
 expectTypeOf(genNonEmpty.removeAll([3, 4])).toEqualTypeOf<G_Empty>();
-expectTypeOf(genEmpty.removeAll([3, 4], { amount: 1 })).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.removeAll([3, 4], { amount: 1 })).toEqualTypeOf<G_Empty>();
 
 // .setCount(..)
-expectTypeOf(genEmpty.setCount(3, 3)).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.setCount(3, 3)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genEmpty.setCount(3, 0)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genEmpty.setCount(3, 3)).toEqualTypeOf<G_NonEmpty>();
+expectTypeOf(genNonEmpty.setCount(3, 3)).toEqualTypeOf<G_NonEmpty>();
 
 // .stream()
 expectTypeOf(genEmpty.stream()).toEqualTypeOf<Stream<number>>();

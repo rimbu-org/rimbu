@@ -41,6 +41,10 @@
 		"./*": {
 			"types": "./dist/public/*.d.ts",
 			"default": "./dist/public/*.js"
+		},
+		"./advanced/*": {
+			"types": "./dist/advanced/*.d.ts",
+			"default": "./dist/advanced/*.js"
 		}
 	},
 	"imports": {

@@ -82,7 +82,7 @@ better fit.
 ### Quick Start
 
 ```ts
-import { HashMultiSet } from '@rimbu/multiset';
+import { HashMultiSet } from '@rimbu/multiset/hashed';
 
 // Create from individual values
 const m = HashMultiSet.of('apple', 'banana', 'apple', 'orange');
@@ -117,8 +117,6 @@ From `@rimbu/multiset`:
 | `MultiSet.NonEmpty<T>`        | Non‑empty refinement of `MultiSet<T>` with stronger guarantees.                              |
 | `MultiSet.Context<UT>`        | Context/factory for creating `MultiSet` instances with configurable underlying map contexts. |
 | `MultiSet.Builder<T>`         | Mutable builder for efficiently constructing a `MultiSet` before freezing it.                |
-| `VariantMultiSet<T>`          | Read‑only, type‑variant multiset; supports safe type‑widening but no mutating operations.    |
-| `VariantMultiSet.NonEmpty<T>` | Non‑empty refinement of `VariantMultiSet<T>`.                                                |
 | `HashMultiSet<T>`             | Multiset backed by a `HashMap` for counts (hashed elements, fast unordered operations).      |
 | `HashMultiSet.Context<UT>`    | Context for `HashMultiSet`, exposing configuration and factories.                            |
 | `HashMultiSet.Builder<T>`     | Builder type for `HashMultiSet`.                                                             |
@@ -129,7 +127,7 @@ From `@rimbu/multiset`:
 #### Key Operations (`HashMultiSet`)
 
 ```ts
-import { HashMultiSet } from '@rimbu/multiset';
+import { HashMultiSet } from '@rimbu/multiset/hashed';
 
 // Construction
 const empty = HashMultiSet.empty<number>();
@@ -150,8 +148,8 @@ const withMore = fromValues.add(2); // add one more '2'
 const withSetCount = fromValues.setCount(3, 5); // set exact count for value 3
 
 // Removing occurrences
-const removedSome = fromValues.remove(2, { amount: 1 });
-const removedAll = fromValues.remove(2, { amount: 'ALL' });
+const removedSome = fromValues.remove(2, 1); // remove one occurrence (default)
+const removedAll = fromValues.removeAll([2]); // remove all occurrences of '2'
 ```
 
 See the full [MultiSet docs](https://rimbu.org/docs/collections/multiset) and
@@ -165,7 +163,8 @@ All concrete variants share the same `MultiSet` semantics but differ in how valu
 ordered internally:
 
 ```ts
-import { HashMultiSet, SortedMultiSet } from '@rimbu/multiset';
+import { HashMultiSet } from '@rimbu/multiset/hashed';
+import { SortedMultiSet } from '@rimbu/multiset/sorted';
 
 // Hash-based multiset (fast, unordered)
 const hashMulti = HashMultiSet.of('b', 'a', 'b');
@@ -183,17 +182,14 @@ If you need custom underlying contexts (e.g. custom hashers or comparators), you
 `HashMultiSet.createContext` or `SortedMultiSet.createContext`:
 
 ```ts
-import { HashMultiSet } from '@rimbu/multiset';
+import { HashMultiSet } from '@rimbu/multiset/hashed';
 
 const context = HashMultiSet.createContext<number>({
-  countMapContext: /* optional: custom RMap.Context<number> */,
+  countMapContext: /* optional: custom MapCollection.Context<number, number> */,
 });
 
 const multi = context.of(1, 2, 2, 3);
 ```
-
-For read‑only, type‑variant views that can be safely widened, use the `VariantMultiSet` interfaces
-exported from this package.
 
 ---
 

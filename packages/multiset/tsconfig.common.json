@@ -1,6 +1,7 @@
 {
 	"compilerOptions": {
 		"paths": {
+			"@rimbu/multiset/advanced/*": ["./src/advanced/*.ts"],
 			"@rimbu/multiset": ["./src/multiset.ts"],
 			"@rimbu/multiset/hashed": ["./src/public/hashed.ts"],
 			"@rimbu/multiset/sorted": ["./src/public/sorted.ts"],

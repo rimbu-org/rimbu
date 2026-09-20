@@ -3,5 +3,5 @@ import { runMultiSetRandomTestsWith } from './multiset-test-random';
 
 runMultiSetRandomTestsWith(
 	'SortedMultiSet default',
-	SortedMultiSet.defaultContext(),
+	SortedMultiSet.defaultContext,
 );

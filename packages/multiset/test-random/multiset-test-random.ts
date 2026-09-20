@@ -77,14 +77,14 @@ export function runMultiSetRandomTestsWith(
 				}
 			}
 			this.builder.remove(value, amount);
-			this.immm = this.immm.remove(value, { amount });
+			this.immm = this.immm.remove(value, amount);
 		}
 
 		removeAllValues(value: number): void {
 			this.addLog('removeAllValues', value);
 			this.jsmap.delete(value);
-			this.builder.remove(value, 'ALL');
-			this.immm = this.immm.remove(value, { amount: 'ALL' });
+			this.builder.remove(value, Number.MAX_SAFE_INTEGER);
+			this.immm = this.immm.removeAll([value]);
 		}
 	}
 
@@ -214,17 +214,19 @@ export function runMultiSetRandomTestsWith(
 		});
 
 		it('filterWithCounts', (): void => {
-			expect(context.empty().filterWithCounts((v) => true)).toBe(context.empty());
+			expect(context.empty().filterWithCounts((v) => true)).toBe(
+				context.empty(),
+			);
 			const m = context.from(
 				Stream.range({ amount: 4 }).concat(Stream.range({ amount: 6 })),
 			);
 			expect(m.filterWithCounts((v) => true)).toBe(m);
-			expect(m.filterWithCounts(([value, count]) => value < 3)).toEqual(
-				context.of(0, 0, 1, 1, 2, 2),
-			);
-			expect(m.filterWithCounts(([value, count]) => count > 1)).toEqual(
-				context.of(0, 0, 1, 1, 2, 2, 3, 3),
-			);
+			expect(
+				m.filterWithCounts(([value, count]) => value < 3).countMap.toArray(),
+			).toEqual(context.of(0, 0, 1, 1, 2, 2).countMap.toArray());
+			expect(
+				m.filterWithCounts(([value, count]) => count > 1).countMap.toArray(),
+			).toEqual(context.of(0, 0, 1, 1, 2, 2, 3, 3).countMap.toArray());
 		});
 
 		it('foreach', (): void => {
@@ -240,11 +242,11 @@ export function runMultiSetRandomTestsWith(
 			expect(value).toBe(21);
 
 			value = 0;
-			m.forEach((v, i) => (value += v + i));
+			m.forEachIndexed((v, i) => (value += v + i));
 			expect(value).toBe(66);
 
 			value = 0;
-			m.forEach((v, i, halt) => {
+			m.forEachIndexed((v, i, halt) => {
 				value += v + i;
 				if (i > 6) halt();
 			});
@@ -289,10 +291,14 @@ export function runMultiSetRandomTestsWith(
 			expect(context.empty().toBuilder().build()).toBe(context.empty());
 			const m = context.of(1, 2, 1, 3);
 			expect(m.toBuilder().build().countMap).toBe(m.countMap);
-			expect(m.toBuilder().build()).toEqual(m);
+			expect(m.toBuilder().build().countMap.toArray()).toEqual(
+				m.countMap.toArray(),
+			);
 			const b = m.toBuilder();
 			b.add(1);
-			expect(b.build()).toEqual(context.of(1, 2, 1, 3, 1));
+			expect(b.build().countMap.toArray()).toEqual(
+				context.of(1, 2, 1, 3, 1).countMap.toArray(),
+			);
 		});
 	});
 
@@ -319,11 +325,11 @@ export function runMultiSetRandomTestsWith(
 			expect(value).toBe(21);
 
 			value = 0;
-			b.forEach((v, i) => (value += v + i));
+			b.forEachIndexed((v, i) => (value += v + i));
 			expect(value).toBe(66);
 
 			value = 0;
-			b.forEach((v, i, halt) => {
+			b.forEachIndexed((v, i, halt) => {
 				value += v + i;
 				if (i > 6) halt();
 			});
@@ -351,7 +357,7 @@ export function runMultiSetRandomTestsWith(
 
 			expect((): void => {
 				b.forEach((): void => {
-					b.remove(1, 'ALL');
+					b.remove(1, Number.MAX_SAFE_INTEGER);
 				});
 			}).toThrow();
 
@@ -379,11 +385,15 @@ export function runMultiSetRandomTestsWith(
 			const source = context.of(1, 2, 3, 2);
 			const builder = source.toBuilder();
 			expect(builder.size).toBe(4);
-			expect(builder.build()).toEqual(source);
+			expect(builder.build().countMap.toArray()).toEqual(
+				source.countMap.toArray(),
+			);
 			builder.add(4);
 			builder.add(1);
 			expect(builder.size).toBe(6);
-			expect(builder.build()).toEqual(context.of(1, 1, 2, 2, 3, 4));
+			expect(builder.build().countMap.toArray()).toEqual(
+				context.of(1, 1, 2, 2, 3, 4).countMap.toArray(),
+			);
 		});
 	});
 }
