@@ -1,10 +1,9 @@
 import type { Collection } from '@rimbu/collection-types/collection';
-import type { MapCollection } from '@rimbu/collection-types/map';
-import type { HashMap } from '@rimbu/hashed';
-import type { MultiSet } from '@rimbu/multiset';
-import type { Stream } from '@rimbu/stream';
+import type { MultiSetCollection } from '@rimbu/multiset';
 
-import { HashMultiSetContext } from '#multiset/context-factory';
+import { HashMap } from '@rimbu/hashed';
+
+import { MultiSetContext } from '#multiset/context-factory';
 
 /**
  * A type-invariant immutable MultiSet of value type T.
@@ -23,12 +22,10 @@ import { HashMultiSetContext } from '#multiset/context-factory';
  * ```
  */
 export interface HashMultiSet<T>
-	extends HashMultiSet.Advanced.Api<
+	extends MultiSetCollection.Advanced.Api<
 		T,
 		Collection.Advanced.Types<HashMultiSet.Advanced.Family<T>, T>
-	> {
-	readonly countMap: HashMap<T, number>;
-}
+	> {}
 
 export namespace HashMultiSet {
 	/**
@@ -37,16 +34,10 @@ export namespace HashMultiSet {
 	 * @typeparam T - the value type
 	 */
 	export interface NonEmpty<T>
-		extends Advanced.Api<
+		extends MultiSetCollection.Advanced.Api<
 			T,
 			Collection.Advanced.TypesNonEmpty<Advanced.Family<T>, T>
-		> {
-		readonly countMap: HashMap.NonEmpty<T, number>;
-		asNormal(): HashMultiSet<T>;
-		stream(): Stream.NonEmpty<T>;
-		streamDistinct(): Stream.NonEmpty<T>;
-		streamWithCounts(): Stream.NonEmpty<readonly [T, number]>;
-	}
+		> {}
 
 	/**
 	 * A mutable `HashMultiSet` builder used to efficiently create new immutable instances.
@@ -54,7 +45,7 @@ export namespace HashMultiSet {
 	 * @typeparam T - the value type
 	 */
 	export interface Builder<T>
-		extends Advanced.BuilderApi<
+		extends MultiSetCollection.Advanced.BuilderApi<
 			T,
 			Collection.Advanced.Types<Advanced.Family<T>, T>
 		> {}
@@ -65,28 +56,21 @@ export namespace HashMultiSet {
 	 * @typeparam UT - the upper value type bound for which the context can be used
 	 */
 	export interface Context<UT>
-		extends Advanced.ContextApi<UT, Advanced.Family<UT>> {
+		extends MultiSetCollection.Advanced.ContextApi<UT, Advanced.Family<UT>> {
 		readonly typeTag: 'HashMultiSet';
 	}
 
 	export namespace Advanced {
-		export interface Api<T, Tp extends Collection.Advanced.TypesBase>
-			extends MultiSet.Advanced.Api<T, Tp> {}
-
-		export interface BuilderApi<T, Tp extends Collection.Advanced.TypesBase>
-			extends MultiSet.Advanced.BuilderApi<T, Tp> {}
-
-		export interface ContextApi<UT, FAM extends MultiSet.Advanced.Family<UT>>
-			extends MultiSet.Advanced.ContextApi<UT, FAM> {}
-
-		export interface Family<T> extends MultiSet.Advanced.Family<T> {
+		export interface Family<T>
+			extends MultiSetCollection.Advanced.FamilyBase<T> {
 			_NORMAL: HashMultiSet<T>;
 			_NON_EMPTY: HashMultiSet.NonEmpty<T>;
 			_BUILDER: HashMultiSet.Builder<T>;
 			_CONTEXT: HashMultiSet.Context<T>;
 
-			_UPPER_E: T;
-			_INVARIANT: (element: T) => T;
+			_COUNT_MAP_CONTEXT: HashMap.Context<T>;
+			_COUNT_MAP: HashMap<T, number>;
+			_COUNT_MAP_NON_EMPTY: HashMap.NonEmpty<T, number>;
 
 			_FAM: Family<T>;
 			_NEW_FAMILY: Family<this['_NEW_E']>;
@@ -97,9 +81,7 @@ export namespace HashMultiSet {
 			'builder' | 'defaultContext' | 'empty' | 'from' | 'of' | 'reducer'
 		> & {
 			createContext<T>(options?: {
-				countMapContext?:
-					| MapCollection.Context<MapCollection.Advanced.Family<T, number>>
-					| undefined;
+				countMapContext?: HashMap.Context<T> | undefined;
 			}): Context<T>;
 		};
 	}
@@ -112,4 +94,7 @@ export namespace HashMultiSet {
  * See the [HashMultiSet API documentation](https://rimbu.org/api/rimbu/multiset/HashMultiSet/interface).
  */
 export const HashMultiSet: HashMultiSet.Advanced.DefaultFactory =
-	HashMultiSetContext.createDefault();
+	MultiSetContext.createDefault(
+		HashMap.collectionContext,
+		'HashMultiSet',
+	) as any as HashMultiSet.Advanced.DefaultFactory;

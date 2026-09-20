@@ -1,10 +1,9 @@
 import type { Collection } from '@rimbu/collection-types/collection';
-import type { MapCollection } from '@rimbu/collection-types/map';
-import type { MultiSet } from '@rimbu/multiset';
-import type { SortedMap } from '@rimbu/sorted/map';
-import type { Stream } from '@rimbu/stream';
+import type { MultiSetCollection } from '@rimbu/multiset';
 
-import { SortedMultiSetContext } from '#multiset/context-factory';
+import { SortedMap } from '@rimbu/sorted/map';
+
+import { MultiSetContext } from '#multiset/context-factory';
 
 /**
  * A type-invariant immutable MultiSet of value type T.
@@ -23,13 +22,10 @@ import { SortedMultiSetContext } from '#multiset/context-factory';
  * ```
  */
 export interface SortedMultiSet<T>
-	extends SortedMultiSet.Advanced.Api<
+	extends MultiSetCollection.Advanced.Api<
 		T,
 		Collection.Advanced.Types<SortedMultiSet.Advanced.Family<T>, T>
-	> {
-	readonly countMap: SortedMap<T, number>;
-	stream(options?: { reversed?: boolean }): Stream<T>;
-}
+	> {}
 
 export namespace SortedMultiSet {
 	/**
@@ -38,16 +34,10 @@ export namespace SortedMultiSet {
 	 * @typeparam T - the value type
 	 */
 	export interface NonEmpty<T>
-		extends Advanced.Api<
+		extends MultiSetCollection.Advanced.Api<
 			T,
 			Collection.Advanced.TypesNonEmpty<Advanced.Family<T>, T>
-		> {
-		readonly countMap: SortedMap.NonEmpty<T, number>;
-		asNormal(): SortedMultiSet<T>;
-		stream(options?: { reversed?: boolean }): Stream.NonEmpty<T>;
-		streamDistinct(): Stream.NonEmpty<T>;
-		streamWithCounts(): Stream.NonEmpty<readonly [T, number]>;
-	}
+		> {}
 
 	/**
 	 * A mutable `SortedMultiSet` builder used to efficiently create new immutable instances.
@@ -55,7 +45,7 @@ export namespace SortedMultiSet {
 	 * @typeparam T - the value type
 	 */
 	export interface Builder<T>
-		extends Advanced.BuilderApi<
+		extends MultiSetCollection.Advanced.BuilderApi<
 			T,
 			Collection.Advanced.Types<Advanced.Family<T>, T>
 		> {}
@@ -66,28 +56,21 @@ export namespace SortedMultiSet {
 	 * @typeparam UT - the upper value type bound for which the context can be used
 	 */
 	export interface Context<UT>
-		extends Advanced.ContextApi<UT, Advanced.Family<UT>> {
+		extends MultiSetCollection.Advanced.ContextApi<UT, Advanced.Family<UT>> {
 		readonly typeTag: 'SortedMultiSet';
 	}
 
 	export namespace Advanced {
-		export interface Api<T, Tp extends Collection.Advanced.TypesBase>
-			extends MultiSet.Advanced.Api<T, Tp> {}
-
-		export interface BuilderApi<T, Tp extends Collection.Advanced.TypesBase>
-			extends MultiSet.Advanced.BuilderApi<T, Tp> {}
-
-		export interface ContextApi<UT, FAM extends MultiSet.Advanced.Family<UT>>
-			extends MultiSet.Advanced.ContextApi<UT, FAM> {}
-
-		export interface Family<T> extends MultiSet.Advanced.Family<T> {
+		export interface Family<T>
+			extends MultiSetCollection.Advanced.FamilyBase<T> {
 			_NORMAL: SortedMultiSet<T>;
 			_NON_EMPTY: SortedMultiSet.NonEmpty<T>;
 			_BUILDER: SortedMultiSet.Builder<T>;
 			_CONTEXT: SortedMultiSet.Context<T>;
 
-			_UPPER_E: T;
-			_INVARIANT: (element: T) => T;
+			_COUNT_MAP_CONTEXT: SortedMap.Context<T>;
+			_COUNT_MAP: SortedMap<T, number>;
+			_COUNT_MAP_NON_EMPTY: SortedMap.NonEmpty<T, number>;
 
 			_FAM: Family<T>;
 			_NEW_FAMILY: Family<this['_NEW_E']>;
@@ -98,9 +81,7 @@ export namespace SortedMultiSet {
 			'builder' | 'defaultContext' | 'empty' | 'from' | 'of' | 'reducer'
 		> & {
 			createContext<T>(options?: {
-				countMapContext?:
-					| MapCollection.Context<MapCollection.Advanced.Family<T, number>>
-					| undefined;
+				countMapContext?: SortedMap.Context<T> | undefined;
 			}): Context<T>;
 		};
 	}
@@ -113,4 +94,7 @@ export namespace SortedMultiSet {
  * See the [SortedMultiSet API documentation](https://rimbu.org/api/rimbu/multiset/SortedMultiSet/interface).
  */
 export const SortedMultiSet: SortedMultiSet.Advanced.DefaultFactory =
-	SortedMultiSetContext.createDefault();
+	MultiSetContext.createDefault(
+		SortedMap.collectionContext,
+		'SortedMultiSet',
+	) as any as SortedMultiSet.Advanced.DefaultFactory;
