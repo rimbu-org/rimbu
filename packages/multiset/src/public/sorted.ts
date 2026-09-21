@@ -1,10 +1,9 @@
-import type { MultiSet, MultiSetCollection } from '@rimbu/multiset';
+import type { Collection } from '@rimbu/collection-types/collection';
+import type { MultiSetCollection } from '@rimbu/multiset';
 
 import { SortedMap } from '@rimbu/sorted/map';
 
 import { MultiSetContext } from '#multiset/context-factory';
-
-type SortedMapFamily<T> = SortedMap.Advanced.Family<T, number>;
 
 /**
  * A type-invariant immutable MultiSet of value type T.
@@ -23,7 +22,12 @@ type SortedMapFamily<T> = SortedMap.Advanced.Family<T, number>;
  * ```
  */
 export interface SortedMultiSet<T>
-	extends MultiSetCollection<T, SortedMapFamily<T>> {}
+	extends MultiSetCollection.Advanced.Api<
+		T,
+		Collection.Advanced.Types<SortedMultiSet.Advanced.Family<T>, T>
+	> {
+	readonly countMap: SortedMap<T, number>;
+}
 
 export namespace SortedMultiSet {
 	/**
@@ -32,7 +36,12 @@ export namespace SortedMultiSet {
 	 * @typeparam T - the value type
 	 */
 	export interface NonEmpty<T>
-		extends MultiSetCollection.NonEmpty<T, SortedMapFamily<T>> {}
+		extends MultiSetCollection.Advanced.Api<
+			T,
+			Collection.Advanced.TypesNonEmpty<Advanced.Family<T>, T>
+		> {
+		readonly countMap: SortedMap.NonEmpty<T, number>;
+	}
 
 	/**
 	 * A mutable `SortedMultiSet` builder used to efficiently create new immutable instances.
@@ -40,7 +49,10 @@ export namespace SortedMultiSet {
 	 * @typeparam T - the value type
 	 */
 	export interface Builder<T>
-		extends MultiSetCollection.Builder<T, SortedMapFamily<T>> {}
+		extends MultiSetCollection.Advanced.BuilderApi<
+			T,
+			Collection.Advanced.Types<Advanced.Family<T>, T>
+		> {}
 
 	/**
 	 * A context instance for a `SortedMultiSet` that acts as a factory for every instance of this
@@ -48,17 +60,22 @@ export namespace SortedMultiSet {
 	 * @typeparam UT - the upper value type bound for which the context can be used
 	 */
 	export interface Context<UT>
-		extends MultiSetCollection.Context<UT, SortedMapFamily<UT>> {
+		extends MultiSetCollection.Advanced.ContextApi<UT, Advanced.Family<UT>> {
 		readonly typeTag: 'SortedMultiSet';
 		readonly countMapContext: SortedMap.Context<UT>;
 	}
 
 	export namespace Advanced {
-		/**
-		 * The `SortedMultiSet` family: the generic MultiSet family with the
-		 * count-map family pinned to `SortedMap`.
-		 */
-		export type Family<T> = MultiSet.Advanced.Family<T, SortedMapFamily<T>>;
+		export interface Family<T>
+			extends MultiSetCollection.Advanced.FamilyBase<T> {
+			_NORMAL: SortedMultiSet<T>;
+			_NON_EMPTY: SortedMultiSet.NonEmpty<T>;
+			_BUILDER: SortedMultiSet.Builder<T>;
+			_CONTEXT: SortedMultiSet.Context<T>;
+
+			_FAM: Family<T>;
+			_NEW_FAMILY: Family<this['_NEW_E']>;
+		}
 
 		export type DefaultFactory = Pick<
 			Context<any>,

@@ -1,5 +1,7 @@
+import type { Collection } from '@rimbu/collection-types/collection';
+import type { ValuedCollection } from '@rimbu/collection-types/collection/valued';
 import type { MapCollection } from '@rimbu/collection-types/map';
-import type { MultiSetCollection } from '@rimbu/multiset/advanced/multiset-collection';
+import type { MultiSetCollection } from '@rimbu/multiset/advanced/multiset-base';
 
 import { MultiSetContext } from '#multiset/context-factory';
 
@@ -10,9 +12,9 @@ import { MultiSetContext } from '#multiset/context-factory';
  * @typeparam T - the value type
  */
 export interface MultiSet<T>
-	extends MultiSetCollection<
+	extends MultiSetCollection.Advanced.Api<
 		T,
-		MultiSetCollection.Advanced.CountMapFamily<T>
+		Collection.Advanced.Types<MultiSet.Advanced.Family<T>, T>
 	> {}
 
 export namespace MultiSet {
@@ -23,9 +25,9 @@ export namespace MultiSet {
 	 * @typeparam T - the value type
 	 */
 	export interface NonEmpty<T>
-		extends MultiSetCollection.NonEmpty<
+		extends MultiSetCollection.Advanced.Api<
 			T,
-			MultiSetCollection.Advanced.CountMapFamily<T>
+			Collection.Advanced.TypesNonEmpty<Advanced.Family<T>, T>
 		> {}
 
 	/**
@@ -34,9 +36,9 @@ export namespace MultiSet {
 	 * @typeparam T - the value type
 	 */
 	export interface Builder<T>
-		extends MultiSetCollection.Builder<
+		extends MultiSetCollection.Advanced.BuilderApi<
 			T,
-			MultiSetCollection.Advanced.CountMapFamily<T>
+			Collection.Advanced.Types<Advanced.Family<T>, T>
 		> {}
 
 	/**
@@ -45,26 +47,30 @@ export namespace MultiSet {
 	 * @typeparam UT - the upper value type bound for which the context can be used
 	 */
 	export interface Context<UT>
-		extends MultiSetCollection.Context<
-			UT,
-			MultiSetCollection.Advanced.CountMapFamily<UT>
-		> {}
+		extends MultiSetCollection.Advanced.ContextApi<UT, Advanced.Family<UT>> {}
 
 	export namespace Advanced {
 		/**
-		 * The generic MultiSet family. It carries the count-map family `F` so that
-		 * the concrete `countMap`/context types are preserved through element
-		 * retyping (e.g. the `filterWithCounts` type-guard overloads) and NonEmpty
-		 * refinement.
-		 *
-		 * This is an alias of {@link MultiSetCollection.Advanced.Family}; the
-		 * concrete variants pin `F`.
+		 * The default MultiSet family. Concrete variants extend this and pin the
+		 * HKT slots to their own collection types.
 		 */
-		export type Family<
-			T,
-			F extends
-				MultiSetCollection.Advanced.AnyFamily = MultiSetCollection.Advanced.CountMapFamily<T>,
-		> = MultiSetCollection.Advanced.Family<T, F>;
+		export interface Family<T>
+			extends MultiSetCollection.Advanced.FamilyBase<T>,
+				ValuedCollection.Advanced.Family<T>,
+				Collection.Capability.WithAdd<T>,
+				Collection.Capability.WithAddAll<T>,
+				Collection.Capability.WithToBuilder<T> {
+			_NORMAL: MultiSet<T>;
+			_NON_EMPTY: MultiSet.NonEmpty<T>;
+			_BUILDER: MultiSet.Builder<T>;
+			_CONTEXT: MultiSet.Context<T>;
+
+			_UPPER_E: T;
+			_INVARIANT: (element: T) => T;
+
+			_FAM: Family<T>;
+			_NEW_FAMILY: Family<this['_NEW_E']>;
+		}
 	}
 }
 
