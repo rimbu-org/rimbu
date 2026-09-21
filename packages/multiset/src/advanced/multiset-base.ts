@@ -6,40 +6,16 @@ import type { MultiSet } from '@rimbu/multiset';
 import type { StreamSource } from '@rimbu/stream';
 
 /**
- * The full read-write MultiSet API: the generic valued-collection surface plus
- * every {@link MultiSetCollection.Capability}. The amount-carrying `add`
- * overload is declared here directly so it composes with the generic
- * `Collection.Capability.WithAdd` overload.
- */
-export interface MultiSetCollection<T>
-	extends MultiSetCollection.Advanced.Api<
-		T,
-		Collection.Advanced.Types<MultiSetCollection.Advanced.FamilyBase<T>, T>
-	> {}
-
-/**
  * The capability suite that a MultiSet contributes on top of the generic
  * {@link ValuedCollection} surface.
  *
  * Unlike the capabilities in `@rimbu/collection-types`, these are plain
- * `Api`/`BuilderApi` interfaces aggregated into {@link MultiSetCollection}: the
- * element type is not re-typed by the capability, so a full `_NORMAL` /
+ * `Api`/`BuilderApi` interfaces aggregated into `MultiSetCollection.Advanced.Api`:
+ * the element type is not re-typed by the capability, so a full `_NORMAL` /
  * `_NON_EMPTY` / `_FAM` capability family (as used for e.g. `WithAdd`) is not
  * required. This mirrors `BiMapCollection.Capability` in `@rimbu/bimap`.
  */
 export declare namespace MultiSetCollection {
-	export interface NonEmpty<T>
-		extends Advanced.Api<
-			T,
-			Collection.Advanced.TypesNonEmpty<Advanced.FamilyBase<T>, T>
-		> {}
-
-	export interface Builder<T>
-		extends MultiSetCollection.Advanced.BuilderApi<
-			T,
-			Collection.Advanced.Types<MultiSetCollection.Advanced.FamilyBase<T>, T>
-		> {}
-
 	export namespace Advanced {
 		export interface Api<
 			T,
@@ -110,31 +86,6 @@ export declare namespace MultiSetCollection {
 			_FAM: FamilyBase<T>;
 			_NEW_FAMILY: FamilyBase<this['_NEW_E']>;
 		}
-
-		/**
-		 * The default MultiSet family. Concrete variants extend this and pin the
-		 * HKT slots to their own collection types.
-		 */
-		// export interface Family<T>
-		// 	extends FamilyBase<T>,
-		// 		ValuedCollection.Advanced.Family<T>,
-		// 		Collection.Capability.WithAdd<T>,
-		// 		Collection.Capability.WithAddAll<T>,
-		// 		Collection.Capability.WithToBuilder<T> {
-		// 	_NORMAL: MultiSetCollection.Advanced.Api<T, this['_TYPES']>;
-		// 	_NON_EMPTY: MultiSetCollection.Advanced.Api<T, this['_TYPES_NON_EMPTY']>;
-		// 	_BUILDER: MultiSetCollection.Advanced.BuilderApi<T, this['_TYPES']>;
-		// 	_CONTEXT: MultiSetCollection.Advanced.ContextApi<
-		// 		this['_UPPER_E'],
-		// 		this['_FAM']
-		// 	>;
-
-		// 	_UPPER_E: T;
-		// 	_INVARIANT: (element: T) => T;
-
-		// 	_FAM: Family<T>;
-		// 	_NEW_FAMILY: Family<this['_NEW_E']>;
-		// }
 	}
 
 	export namespace Capability {

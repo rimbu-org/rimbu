@@ -50,27 +50,6 @@ export namespace MultiSet {
 		extends MultiSetCollection.Advanced.ContextApi<UT, Advanced.Family<UT>> {}
 
 	export namespace Advanced {
-		// export interface Api<
-		// 	T,
-		// 	Tp extends Collection.Advanced.Types<
-		// 		MultiSetCollection.Advanced.FamilyBase<T>,
-		// 		T
-		// 	>,
-		// > extends MultiSetCollection.Advanced.Api<T, Tp> {}
-
-		// export interface BuilderApi<
-		// 	T,
-		// 	Tp extends Collection.Advanced.Types<
-		// 		MultiSetCollection.Advanced.FamilyBase<T>,
-		// 		T
-		// 	>,
-		// > extends MultiSetCollection.Advanced.BuilderApi<T, Tp> {}
-
-		// export interface ContextApi<
-		// 	UT,
-		// 	FAM extends MultiSetCollection.Advanced.FamilyBase<UT>,
-		// > extends MultiSetCollection.Advanced.ContextApi<UT, FAM> {}
-
 		/**
 		 * The default MultiSet family. Concrete variants extend this and pin the
 		 * HKT slots to their own collection types.
