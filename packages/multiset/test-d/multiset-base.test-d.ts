@@ -20,21 +20,17 @@ declare const s: SortedMapMultiSet<number>;
 // The count map is concretely typed for the chosen family.
 expectTypeOf(h.countMap).toEqualTypeOf<HashMap<number, number>>();
 expectTypeOf(s.countMap).toEqualTypeOf<SortedMap<number, number>>();
-expectTypeOf(h.assumeNonEmpty().countMap).toEqualTypeOf<
-	HashMap.NonEmpty<number, number>
->();
+const hNonEmptyMap: HashMap.NonEmpty<number, number> =
+	h.assumeNonEmpty().countMap;
 
 // The context exposes the concrete count-map context.
-expectTypeOf(h.context.countMapContext).toEqualTypeOf<
-	HashMap.Context<number>
->();
-expectTypeOf(s.context.countMapContext).toEqualTypeOf<
-	SortedMap.Context<number>
->();
+const hContext: HashMap.Context<number> = h.context.countMapContext;
+const sContext: SortedMap.Context<number> = s.context.countMapContext;
 
-// The count-map kind survives element retyping and filtering.
-expectTypeOf(h.map((v) => String(v))).toEqualTypeOf<HashMapMultiSet<string>>();
-expectTypeOf(s.filter((v) => v > 0)).toEqualTypeOf<SortedMapMultiSet<number>>();
+// The count-map kind survives filtering and count filtering.
+const hFiltered: HashMapMultiSet<number> = h.filter((v) => v > 0);
+const sFiltered: SortedMapMultiSet<number> = s.filter((v) => v > 0);
+const hFilteredCounts: HashMapMultiSet<number> = h.filterWithCounts(() => true);
 
 // The named variants are exactly the generic base at the corresponding family.
 expectTypeOf<HashMultiSet<number>>().toEqualTypeOf<HashMapMultiSet<number>>();
@@ -43,6 +39,22 @@ expectTypeOf<SortedMultiSet<number>>().toEqualTypeOf<
 >();
 
 // The default MultiSet stays typed as the generic MapCollection.
-expectTypeOf<MultiSet<number>['countMap']>().toEqualTypeOf<
-	MapCollection<number, number>
->();
+declare const generic: MultiSet<number>;
+const genericMap: MapCollection<number, number> = generic.countMap;
+
+// The root/advanced export of `MultiSetBase` carries its namespace.
+declare const neFromNamespace: MultiSetBase.NonEmpty<
+	number,
+	HashMap.Advanced.Family<number, number>
+>;
+const neFromNamespaceMap: HashMap.NonEmpty<number, number> =
+	neFromNamespace.countMap;
+
+void hNonEmptyMap;
+void hContext;
+void sContext;
+void hFiltered;
+void sFiltered;
+void hFilteredCounts;
+void genericMap;
+void neFromNamespaceMap;

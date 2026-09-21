@@ -20,15 +20,21 @@ type MyMultiSet<T> = MultiSetBase<T, MyMap.Advanced.Family<T, number>>;
 
 - `countMap` / `countMapContext` are now concretely typed for a chosen family
   (`HashMap<T, number>` on `HashMultiSet`, `SortedMap<T, number>` on `SortedMultiSet`),
-  and the kind is preserved through `map`/`flatMap`/`filter` via the family's `_NEW_FAMILY`.
-  The default `MultiSet<T>` keeps exposing the generic `MapCollection<T, number>`.
-- `MultiSet.Advanced.Family` takes an optional second parameter, the count-map family;
-  `HashMultiSet.Advanced.Family<T>` / `SortedMultiSet.Advanced.Family<T>` are aliases that
-  pin it.
+  and the kind is preserved through `filter` / `filterWithCounts` via the family's
+  `_NEW_FAMILY`. The default `MultiSet<T>` keeps exposing the generic
+  `MapCollection<T, number>`.
+- `MultiSet.Advanced.Family` takes an optional second parameter, the count-map family, and
+  is now an alias of `MultiSetCollection.Advanced.Family<T, F>`;
+  `HashMultiSet.Advanced.Family<T>` / `SortedMultiSet.Advanced.Family<T>` are further
+  aliases that pin it.
 - `MultiSetCollection.Advanced.{FamilyBase,Api,BuilderApi,ContextApi}` are parameterised
   by the count-map family (`FamilyBase<T, F>`); the family carries
   `_COUNT_MAP_FAMILY` / `_COUNT_MAP` / `_COUNT_MAP_NON_EMPTY` / `_COUNT_MAP_CONTEXT`.
   `MultiSetCollection.Advanced.CountMapType` is unchanged.
+- `MultiSetBase<T, F>`, `MultiSetCollection.Advanced.Family<T, F>`, and the slot helpers
+  now live in `advanced/multiset-base.ts` (previously the public entry). `MultiSetBase` is
+  exported from `@rimbu/multiset` and `@rimbu/multiset/advanced/multiset-base`; it is no
+  longer re-exported from the `@rimbu/multiset/multiset` sub-path.
 
 ### Added
 

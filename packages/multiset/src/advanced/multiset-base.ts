@@ -140,6 +140,50 @@ export declare namespace MultiSetCollection {
 				Collection.Advanced.ReTypeFam<F, readonly [this['_NEW_E'], number]>
 			>;
 		}
+
+		/**
+		 * The generic MultiSet family. It extends {@link FamilyBase} with the
+		 * collection API slots and carries the count-map family `F` so that the
+		 * concrete `countMap`/context types are preserved through element retyping
+		 * (e.g. the `filterWithCounts` type-guard overloads) and NonEmpty
+		 * refinement.
+		 *
+		 * `MultiSet.Advanced.Family` and the variant families are aliases of this.
+		 */
+		export interface Family<
+			T,
+			F extends MultiSetCollection.Advanced.AnyFamily = CountMapFamily<T>,
+		> extends MultiSetCollection.Advanced.FamilyBase<T, F>,
+				ValuedCollection.Advanced.Family<T>,
+				Collection.Capability.WithAdd<T>,
+				Collection.Capability.WithAddAll<T>,
+				Collection.Capability.WithToBuilder<T> {
+			_NORMAL: MultiSetBase<
+				T,
+				F & MultiSetCollection.Advanced.CountMapFamily<T>
+			>;
+			_NON_EMPTY: MultiSetBase.NonEmpty<
+				T,
+				F & MultiSetCollection.Advanced.CountMapFamily<T>
+			>;
+			_BUILDER: MultiSetBase.Builder<
+				T,
+				F & MultiSetCollection.Advanced.CountMapFamily<T>
+			>;
+			_CONTEXT: MultiSetBase.Context<
+				T,
+				F & MultiSetCollection.Advanced.CountMapFamily<T>
+			>;
+
+			_UPPER_E: T;
+			_INVARIANT: (element: T) => T;
+
+			_FAM: Family<T, F>;
+			_NEW_FAMILY: Family<
+				this['_NEW_E'],
+				Collection.Advanced.ReTypeFam<F, readonly [this['_NEW_E'], number]>
+			>;
+		}
 	}
 
 	export namespace Capability {
@@ -282,4 +326,82 @@ export declare namespace MultiSetCollection {
 			}
 		}
 	}
+}
+
+/**
+ * A type-invariant immutable MultiSet of value type T, backed by the count-map
+ * family `F`.
+ *
+ * This is the generic entry point: `F` selects the kind of `MapCollection` used
+ * to store the value→count mapping, and the resulting `countMap` (and matching
+ * context) are concretely typed. Use `MultiSet` for the default
+ * `MapCollection`-typed variant, or alias this base directly to obtain a
+ * concretely typed MultiSet over any map:
+ *
+ * ```ts
+ * import { HashMap } from '@rimbu/hashed/map';
+ * type HashMultiSet<T> = MultiSetBase<T, HashMap.Advanced.Family<T, number>>;
+ * ```
+ *
+ * In the MultiSet, each value can occur multiple times.
+ * See the [MultiSet documentation](https://rimbu.org/docs/collections/multiset) and the [MultiSet API documentation](https://rimbu.org/api/rimbu/multiset/MultiSet/interface)
+ * @typeparam T - the value type
+ * @typeparam F - the count-map family, defaulting to the generic `MapCollection`
+ */
+export interface MultiSetBase<
+	T,
+	F extends
+		MultiSetCollection.Advanced.CountMapFamily<T> = MultiSetCollection.Advanced.CountMapFamily<T>,
+> extends MultiSetCollection.Advanced.Api<
+		T,
+		Collection.Advanced.Types<MultiSetCollection.Advanced.Family<T, F>, T>
+	> {}
+
+export namespace MultiSetBase {
+	/**
+	 * A non-empty type-invariant immutable MultiSet of value type T, backed by
+	 * the count-map family `F`.
+	 * @typeparam T - the value type
+	 * @typeparam F - the count-map family
+	 */
+	export interface NonEmpty<
+		T,
+		F extends
+			MultiSetCollection.Advanced.CountMapFamily<T> = MultiSetCollection.Advanced.CountMapFamily<T>,
+	> extends MultiSetCollection.Advanced.Api<
+			T,
+			Collection.Advanced.TypesNonEmpty<
+				MultiSetCollection.Advanced.Family<T, F>,
+				T
+			>
+		> {}
+
+	/**
+	 * A mutable `MultiSet` builder used to efficiently create new immutable instances.
+	 * @typeparam T - the value type
+	 * @typeparam F - the count-map family
+	 */
+	export interface Builder<
+		T,
+		F extends
+			MultiSetCollection.Advanced.CountMapFamily<T> = MultiSetCollection.Advanced.CountMapFamily<T>,
+	> extends MultiSetCollection.Advanced.BuilderApi<
+			T,
+			Collection.Advanced.Types<MultiSetCollection.Advanced.Family<T, F>, T>
+		> {}
+
+	/**
+	 * A context instance for `MultiSet` implementations that acts as a factory
+	 * for every instance of this type of collection.
+	 * @typeparam UT - the upper value type bound for which the context can be used
+	 * @typeparam F - the count-map family
+	 */
+	export interface Context<
+		UT,
+		F extends
+			MultiSetCollection.Advanced.CountMapFamily<UT> = MultiSetCollection.Advanced.CountMapFamily<UT>,
+	> extends MultiSetCollection.Advanced.ContextApi<
+			UT,
+			MultiSetCollection.Advanced.Family<UT, F>
+		> {}
 }

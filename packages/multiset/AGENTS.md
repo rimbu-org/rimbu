@@ -5,10 +5,10 @@ occur any number of times (its *count*). It is backed internally by a count map
 (`value → count`), so add/remove/set-count operations are O(log N) and the collection
 stays fully immutable.
 
-The generic public type is `MultiSetBase<T, F>` (`public/multiset.ts`), parameterised by
-the **count-map family** `F` — any `MapCollection.Advanced.Family<T, number>`. The default
-`MultiSet<T>` is `MultiSetBase<T, MapCollection.Advanced.Family<T, number>>`; the named
-variants pin `F` to a concrete map:
+The generic public type is `MultiSetBase<T, F>` (`advanced/multiset-base.ts`), parameterised
+by the **count-map family** `F` — any `MapCollection.Advanced.Family<T, number>`. The
+default `MultiSet<T>` is `MultiSetBase<T, MapCollection.Advanced.Family<T, number>>`; the
+named variants pin `F` to a concrete map:
 
 - `HashMultiSet<T>` — `MultiSetBase<T, HashMap.Advanced.Family<T, number>>`.
 - `SortedMultiSet<T>` — `MultiSetBase<T, SortedMap.Advanced.Family<T, number>>`.
@@ -35,9 +35,9 @@ There is no read-only type-variant base (`VariantMultiSet` was removed).
 src/
 ├── multiset.ts            # exports["."]      — re-exports advanced/multiset-base + public/multiset
 ├── advanced/             # exports["./advanced/*"] — implementer / extension API
-│   └── multiset-base.ts   # MultiSetCollection.{Advanced,Capability}.* (Api, BuilderApi, ContextApi, FamilyBase)
+│   └── multiset-base.ts   # MultiSetCollection.{Advanced,Capability}.* (Api, BuilderApi, ContextApi, FamilyBase, Family) + MultiSetBase<T, F>
 ├── public/               # exports["./*"]
-│   ├── multiset.ts        # @rimbu/multiset/multiset — generic MultiSetBase<T, F> + MultiSet + Advanced + factory const
+│   ├── multiset.ts        # @rimbu/multiset/multiset — MultiSet + Advanced.Family (alias) + factory const
 │   ├── hashed.ts          # @rimbu/multiset/hashed   — HashMultiSet (F = HashMap.Advanced.Family)
 │   └── sorted.ts          # @rimbu/multiset/sorted   — SortedMultiSet (F = SortedMap.Advanced.Family)
 └── internal/             # NEVER exported; "#multiset/*" only
@@ -54,14 +54,21 @@ src/
 
 ### Family / HKT
 
-The single generic family `MultiSet.Advanced.Family<T, F>` (`public/multiset.ts`) extends
-`MultiSetCollection.Advanced.FamilyBase<T, F>` (the count-map slot carrier in
-`advanced/multiset-base.ts`), `ValuedCollection.Advanced.Family<T>` plus
+The single generic family `MultiSetCollection.Advanced.Family<T, F>`
+(`advanced/multiset-base.ts`) extends `MultiSetCollection.Advanced.FamilyBase<T, F>` (the
+count-map slot carrier in the same file), `ValuedCollection.Advanced.Family<T>` plus
 `Collection.Capability.WithAdd`, `WithAddAll`, and `WithToBuilder`. It pins the HKT slots
 (`_NORMAL`, `_NON_EMPTY`, `_BUILDER`, `_CONTEXT`, `_UPPER_E`, `_INVARIANT`, `_FAM`,
 `_NEW_FAMILY`) and carries `_COUNT_MAP_FAMILY: F` with its derived
-`_COUNT_MAP` / `_COUNT_MAP_NON_EMPTY` / `_COUNT_MAP_CONTEXT`. `HashMultiSet.Advanced.Family<T>`
-and `SortedMultiSet.Advanced.Family<T>` are thin aliases that pin `F`.
+`_COUNT_MAP` / `_COUNT_MAP_NON_EMPTY` / `_COUNT_MAP_CONTEXT`. `MultiSet.Advanced.Family<T, F>`
+is an alias of it; `HashMultiSet.Advanced.Family<T>` and `SortedMultiSet.Advanced.Family<T>`
+are further aliases that pin `F`.
+
+`MultiSetBase` and `Family` live together in `advanced/multiset-base.ts` so the base does
+not depend on `public/multiset.ts` (a `MultiSetBase` ↔ `MultiSet.Advanced.Family` cycle
+would otherwise stop TypeScript resolving the collection API members). `MultiSetBase` is
+exported from `@rimbu/multiset` (via `export *`) and `@rimbu/multiset/advanced/multiset-base`,
+not from the `/multiset` subpath.
 
 `FamilyBase`'s `F` is deliberately constrained to the wide `AnyFamily`
 (`Collection.Advanced.FamilyBase<any>`), because TypeScript cannot prove
