@@ -34,8 +34,8 @@ export namespace SortedCollection {
 		> = F & Family<E, S>;
 
 		export interface MinMax<E, IsNonEmpty extends boolean = boolean> {
-			(): IsNonEmpty extends true ? E : E | undefined;
-			<O>(otherwise: IsNonEmpty extends true ? never : OptLazy<O>): E | O;
+			(): [IsNonEmpty] extends [true] ? E : E | undefined;
+			<O>(otherwise: [IsNonEmpty] extends [true] ? never : OptLazy<O>): E | O;
 		}
 
 		export interface Api<E, S, Tp extends Collection.Advanced.TypesBase>

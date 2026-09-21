@@ -49,10 +49,11 @@ export declare namespace KeyedCollection {
 			> = Collection.Advanced.Family<readonly [K, V]>,
 		> = F & Family<K, V>;
 
-		export type ElementStream<
-			E,
-			IsNonEmpty extends boolean = boolean,
-		> = () => IsNonEmpty extends true ? Stream.NonEmpty<E> : Stream<E>;
+		export type ElementStream<E, IsNonEmpty extends boolean = boolean> = () => [
+			IsNonEmpty,
+		] extends [true]
+			? Stream.NonEmpty<E>
+			: Stream<E>;
 
 		export interface Api<K, V, Tp extends Collection.Advanced.TypesBase>
 			extends Collection.Advanced.Api<readonly [K, V], Tp>,

@@ -127,15 +127,11 @@ expectTypeOf(bNonEmpty.stream()).toEqualTypeOf<
 >();
 
 // .streamKeys()
-expectTypeOf(bEmpty.streamKeys()).toEqualTypeOf<
-	Stream.NonEmpty<number> | Stream<number>
->();
+expectTypeOf(bEmpty.streamKeys()).toEqualTypeOf<Stream<number>>();
 expectTypeOf(bNonEmpty.streamKeys()).toEqualTypeOf<Stream.NonEmpty<number>>();
 
 // .streamValues()
-expectTypeOf(bEmpty.streamValues()).toEqualTypeOf<
-	Stream.NonEmpty<string> | Stream<string>
->();
+expectTypeOf(bEmpty.streamValues()).toEqualTypeOf<Stream<string>>();
 expectTypeOf(bNonEmpty.streamValues()).toEqualTypeOf<Stream.NonEmpty<string>>();
 
 // .toArray()

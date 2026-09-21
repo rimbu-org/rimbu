@@ -42,8 +42,8 @@ export declare namespace IndexedCollection {
 		 * the family.
 		 */
 		export interface FirstLast<E, IsNonEmpty extends boolean = boolean> {
-			(): IsNonEmpty extends true ? E : E | undefined;
-			<O>(otherwise: IsNonEmpty extends true ? never : OptLazy<O>): E | O;
+			(): [IsNonEmpty] extends [true] ? E : E | undefined;
+			<O>(otherwise: [IsNonEmpty] extends [true] ? never : OptLazy<O>): E | O;
 		}
 
 		export interface Api<E, Tp extends Collection.Advanced.TypesBase>
