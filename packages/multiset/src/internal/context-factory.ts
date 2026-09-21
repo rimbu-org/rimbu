@@ -1,6 +1,10 @@
 import type { Collection } from '@rimbu/collection-types/collection';
 import type { MapCollection } from '@rimbu/collection-types/map';
-import type { MultiSet, MultiSetCollection } from '@rimbu/multiset';
+import type {
+	MultiSet,
+	MultiSetBase,
+	MultiSetCollection,
+} from '@rimbu/multiset';
 import type { StreamSource } from '@rimbu/stream';
 
 import { ContextBaseWithAddAll } from '@rimbu/collection-types/advanced/collection-base';
@@ -12,11 +16,13 @@ import {
 	MultiSetNonEmptyBase,
 } from '#multiset/base';
 
-export interface ContextImpl<UT>
-	extends MultiSetCollection.Advanced.ContextApi<
+export interface ContextImpl<
+	UT,
+	FAM extends MultiSet.Advanced.Family<UT, any> = MultiSet.Advanced.Family<
 		UT,
-		MultiSet.Advanced.Family<UT>
-	> {
+		any
+	>,
+> extends MultiSetCollection.Advanced.ContextApi<UT, FAM> {
 	isNonEmptyInstance<T>(source: any): source is MultiSet.NonEmpty<T>;
 	createNonEmpty<T extends UT>(
 		countMap: MapCollection.NonEmpty<T, number>,
@@ -27,30 +33,35 @@ export interface ContextImpl<UT>
 	): MultiSet.Builder<T>;
 }
 
-export class MultiSetContext<UT, FAM extends MultiSet.Advanced.Family<UT>>
+export class MultiSetContext<
+		UT,
+		FAM extends MultiSet.Advanced.Family<UT, any> = MultiSet.Advanced.Family<
+			UT,
+			MultiSetCollection.Advanced.CountMapFamily<UT>
+		>,
+	>
 	extends ContextBaseWithAddAll<FAM>
 	implements MultiSetCollection.Advanced.ContextApi<UT, FAM>
 {
-	static createDefault<UT, F extends MultiSet.Advanced.Family<UT>>(
-		countMapContext: MapCollection.Context<
-			MapCollection.Advanced.Family<UT, number>
-		>,
+	static createDefault<
+		UT,
+		F extends
+			MultiSetCollection.Advanced.AnyFamily = MultiSetCollection.Advanced.CountMapFamily<UT>,
+	>(
+		countMapContext: MapCollection.Context<F>,
 		typeTag: string,
-	): MultiSetContext<UT, F> {
-		const result: MultiSetContext<UT, F> = new MultiSetContext(
-			countMapContext,
-			typeTag,
-			() => result,
-		);
+	): MultiSetContext<UT, MultiSet.Advanced.Family<UT, F>> {
+		const result: MultiSetContext<
+			UT,
+			MultiSet.Advanced.Family<UT, F>
+		> = new MultiSetContext(countMapContext as any, typeTag, () => result);
 		Object.freeze(result);
 
 		return result;
 	}
 
 	private constructor(
-		readonly countMapContext: MapCollection.Context<
-			MapCollection.Advanced.Family<UT, number>
-		>,
+		readonly countMapContext: MapCollection.Context<FAM['_COUNT_MAP_FAMILY']>,
 		readonly typeTag: string,
 		readonly getDefaultInstance: () => MultiSetContext<UT, FAM>,
 	) {
@@ -94,14 +105,14 @@ export class MultiSetContext<UT, FAM extends MultiSet.Advanced.Family<UT>>
 	createNonEmpty<T extends UT>(
 		countMap: MapCollection.NonEmpty<T, number>,
 		size: number,
-	): MultiSet.NonEmpty<T> {
+	): MultiSetBase.NonEmpty<T, FAM['_COUNT_MAP_FAMILY']> {
 		return new MultiSetNonEmptyBase<T>(this as any, countMap, size) as any;
 	}
 
 	createBuilder<T extends UT>(
 		source?: MultiSet.NonEmpty<T>,
-	): MultiSet.Builder<T> {
-		return new MultiSetBuilder<T>(this as any, source);
+	): MultiSetBase.Builder<T, FAM['_COUNT_MAP_FAMILY']> {
+		return new MultiSetBuilder<T>(this as any, source as any);
 	}
 
 	reducer = <E extends UT>(
@@ -129,10 +140,10 @@ export class MultiSetContext<UT, FAM extends MultiSet.Advanced.Family<UT>>
 			  }
 			| undefined,
 	): MultiSetContext<UT2, any> => {
-		const result = new MultiSetContext(
-			options?.countMapContext ?? this.countMapContext,
+		const result = new MultiSetContext<UT2, any>(
+			(options?.countMapContext ?? this.countMapContext) as any,
 			this.typeTag,
-			this.getDefaultInstance,
+			this.getDefaultInstance as any,
 		);
 
 		Object.freeze(result);

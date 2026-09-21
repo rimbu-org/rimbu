@@ -5,14 +5,24 @@ occur any number of times (its *count*). It is backed internally by a count map
 (`value → count`), so add/remove/set-count operations are O(log N) and the collection
 stays fully immutable.
 
-Two concrete variants exist:
-- `HashMultiSet` — count map is a `HashMap` (hash-ordered iteration).
-- `SortedMultiSet` — count map is a `SortedMap` (sorted iteration).
+The generic public type is `MultiSetBase<T, F>` (`public/multiset.ts`), parameterised by
+the **count-map family** `F` — any `MapCollection.Advanced.Family<T, number>`. The default
+`MultiSet<T>` is `MultiSetBase<T, MapCollection.Advanced.Family<T, number>>`; the named
+variants pin `F` to a concrete map:
+
+- `HashMultiSet<T>` — `MultiSetBase<T, HashMap.Advanced.Family<T, number>>`.
+- `SortedMultiSet<T>` — `MultiSetBase<T, SortedMap.Advanced.Family<T, number>>`.
+
+Any map can therefore define a concretely typed MultiSet kind with a one-line alias, e.g.
+`type MyMultiSet<T> = MultiSetBase<T, MyMap.Advanced.Family<T, number>>`. `countMap` and
+`countMapContext` resolve to the concrete map type, and the kind is preserved through
+element retyping (`map`/`flatMap`) via `Collection.Advanced.ReTypeFam` in the family's
+`_NEW_FAMILY`.
 
 The package uses the **capability-based API** from `@rimbu/collection-types`: a
 `MultiSet` is a `ValuedCollection` (element-addressed, with `has`) extended with a
 package-local `MultiSetCollection.Capability` suite for the count-aware operations.
-There is no type-variant base anymore.
+There is no read-only type-variant base (`VariantMultiSet` was removed).
 
 > For workspace-wide conventions (biome rules, `build:seq` before typecheck/test, the
 > Interface + Namespace pattern, HKT families, NonEmpty tracking, `OptLazy`, `RelatedTo`,
@@ -25,14 +35,14 @@ There is no type-variant base anymore.
 src/
 ├── multiset.ts            # exports["."]      — re-exports advanced/multiset-base + public/multiset
 ├── advanced/             # exports["./advanced/*"] — implementer / extension API
-│   └── multiset-base.ts   # MultiSetCollection.Capability.*, MultiSetBase, MultiSetBuilderBase
+│   └── multiset-base.ts   # MultiSetCollection.{Advanced,Capability}.* (Api, BuilderApi, ContextApi, FamilyBase)
 ├── public/               # exports["./*"]
-│   ├── multiset.ts        # @rimbu/multiset/multiset — generic MultiSet + Advanced + factory const
-│   ├── hashed.ts          # @rimbu/multiset/hashed   — HashMultiSet
-│   └── sorted.ts          # @rimbu/multiset/sorted   — SortedMultiSet
+│   ├── multiset.ts        # @rimbu/multiset/multiset — generic MultiSetBase<T, F> + MultiSet + Advanced + factory const
+│   ├── hashed.ts          # @rimbu/multiset/hashed   — HashMultiSet (F = HashMap.Advanced.Family)
+│   └── sorted.ts          # @rimbu/multiset/sorted   — SortedMultiSet (F = SortedMap.Advanced.Family)
 └── internal/             # NEVER exported; "#multiset/*" only
     ├── base.ts            # MultiSetEmpty, MultiSetNonEmptyBase, MultiSetBuilder
-    └── context-factory.ts # MultiSetContextBase + MultiSetContext / HashMultiSetContext / SortedMultiSetContext
+    └── context-factory.ts # MultiSetContext (generic over UT + FAM)
 ```
 
 ### Key rule: imports inside `src/`
@@ -44,23 +54,32 @@ src/
 
 ### Family / HKT
 
-Each concrete variant declares its own `Advanced.Family<T>` extending
-`MultiSet.Advanced.Family<T>`, which in turn extends
-`ValuedCollection.Advanced.Family<T>` plus `Collection.Capability.WithAdd`,
-`WithAddAll`, and `WithToBuilder`. The family pins the HKT slots
+The single generic family `MultiSet.Advanced.Family<T, F>` (`public/multiset.ts`) extends
+`MultiSetCollection.Advanced.FamilyBase<T, F>` (the count-map slot carrier in
+`advanced/multiset-base.ts`), `ValuedCollection.Advanced.Family<T>` plus
+`Collection.Capability.WithAdd`, `WithAddAll`, and `WithToBuilder`. It pins the HKT slots
 (`_NORMAL`, `_NON_EMPTY`, `_BUILDER`, `_CONTEXT`, `_UPPER_E`, `_INVARIANT`, `_FAM`,
-`_NEW_FAMILY`).
+`_NEW_FAMILY`) and carries `_COUNT_MAP_FAMILY: F` with its derived
+`_COUNT_MAP` / `_COUNT_MAP_NON_EMPTY` / `_COUNT_MAP_CONTEXT`. `HashMultiSet.Advanced.Family<T>`
+and `SortedMultiSet.Advanced.Family<T>` are thin aliases that pin `F`.
 
-The count map is exposed as the **generic** `MapCollection<T, number>` (and
-`MapCollection.NonEmpty<T, number>` on non-empty instances): the concrete `HashMap` /
-`SortedMap` backing is an implementation detail, mirroring how `BiMap` exposes its
-delegate maps.
+`FamilyBase`'s `F` is deliberately constrained to the wide `AnyFamily`
+(`Collection.Advanced.FamilyBase<any>`), because TypeScript cannot prove
+`Collection.Advanced.ReTypeFam<F, readonly [E2, number]>` satisfies a keyed-family
+constraint for a generic `F`. The faithful `CountMapFamily<T>` constraint is applied at the
+public `MultiSetBase<T, F>` entry point; the derived slot helpers
+(`CountMapFrom` / `CountMapNonEmptyFrom` / `CountMapContextFrom`) fall back to the generic
+`MapCollection` when `F` is not a concrete map family.
+
+`countMap` is exposed as the **concrete** map of `F`: `HashMap<T, number>` for
+`HashMultiSet`, `SortedMap<T, number>` for `SortedMultiSet`, and the generic
+`MapCollection<T, number>` (NonEmpty on non-empty instances) for the default `MultiSet`.
 
 ### Capability suite (`advanced/multiset-base.ts`)
 
 `MultiSetCollection.Capability.*` holds the count-aware API as plain `Api` /
 `BuilderApi` interfaces (the `BiMapCollection.Capability` shape), aggregated into
-`MultiSetBase` / `MultiSetBuilderBase`:
+`MultiSetCollection.Advanced.Api` / `BuilderApi`:
 
 | Capability | Members |
 |---|---|
@@ -75,9 +94,12 @@ delegate maps.
 | `WithUnion` / `WithIntersection` / `WithDifference` / `WithSymmetricDifference` | count-wise algebra over `MultiSet` operands |
 
 The amount-carrying `add(value, amount)` overload is declared directly on
-`MultiSetBase` on top of the generic `Collection.Capability.WithAdd`. It uses the
-literal-amount trick: `0 extends N ? Tp['_SELF'] : Tp['_NON_EMPTY']`, so
+`MultiSetCollection.Advanced.Api` on top of the generic `Collection.Capability.WithAdd`.
+It uses the literal-amount trick: `0 extends N ? Tp['_SELF'] : Tp['_NON_EMPTY']`, so
 `add(v, 0)` keeps the current kind while `add(v, n>0)` is non-empty.
+
+`Api` reads `countMap` from the family slots: `[Tp['_IS_NON_EMPTY']] extends [true] ?
+Tp['_COUNT_MAP_NON_EMPTY'] : Tp['_COUNT_MAP']`.
 
 ### Runtime classes (`internal/base.ts`)
 
@@ -88,9 +110,11 @@ literal-amount trick: `0 extends N ? Tp['_SELF'] : Tp['_NON_EMPTY']`, so
   non-empty count map and a total `size`.
 - `MultiSetBuilder<T, Tp>` extends `CollectionBuilderBase<T, Tp['_FAM'], Tp>`.
 
-Contexts (`internal/context-factory.ts`) extend `ContextBaseWithAddAll<FAM>` and
-expose `typeTag`, `countMapContext` (a `MapCollection.Context`, defaulting to
-`HashMap` / `SortedMap`), `isValidElem`, `reducer`, and memoised `empty`.
+`MultiSetContext<UT, FAM>` (`internal/context-factory.ts`) extends
+`ContextBaseWithAddAll<FAM>` and exposes `typeTag`, `countMapContext`
+(`MapCollection.Context<FAM['_COUNT_MAP_FAMILY']>`, so concretely `HashMap.Context` /
+`SortedMap.Context`), `isValidElem`, `reducer`, and memoised `empty`. Runtime storage is
+widened and cast; only the public `Context` types carry `F`.
 
 ## Core API semantics (deliberate — do not "fix")
 
@@ -143,7 +167,8 @@ All commands run from this package directory. Per the root guide, **always
 
 ## Changesets
 
-Removing `VariantMultiSet`, changing `remove`/`removeAll` signatures, and renaming
-`intersect`/`symDifference` to `intersection`/`symmetricDifference` are **breaking
-changes** and require a `major` bump. Because all Rimbu packages are lockstep-fixed, a
-single changeset listing `@rimbu/multiset` **and** `@rimbu/core` bumps both.
+Changing `remove`/`removeAll` signatures, renaming `intersect`/`symDifference` to
+`intersection`/`symmetricDifference`, and changing the `MultiSetBase<T, F>` parameter
+shape or the family `_COUNT_MAP_FAMILY` slot are **breaking changes** and require a `major`
+bump. Because all Rimbu packages are lockstep-fixed, a single changeset listing
+`@rimbu/multiset` **and** `@rimbu/core` bumps both.

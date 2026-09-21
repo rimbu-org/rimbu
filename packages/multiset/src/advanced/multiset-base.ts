@@ -17,9 +17,49 @@ import type { StreamSource } from '@rimbu/stream';
  */
 export declare namespace MultiSetCollection {
 	export namespace Advanced {
+		/**
+		 * A count-map family: any `MapCollection` family keyed by a value of type
+		 * `T` and valued by a `number` count.
+		 *
+		 * This is the type-level "kind of map" that a generic `MultiSet` is
+		 * parameterised by. Concrete map packages expose one
+		 * (`HashMap.Advanced.Family`, `SortedMap.Advanced.Family`, …), so a new
+		 * MultiSet kind is a one-line type alias:
+		 *
+		 * ```ts
+		 * type HashMultiSet<T> = MultiSetBase<T, HashMap.Advanced.Family<T, number>>;
+		 * ```
+		 */
+		export type CountMapFamily<T> = MapCollection.Advanced.Family<T, number>;
+
+		/**
+		 * The widest count-map family accepted by {@link FamilyBase}. Retyping
+		 * (`map`/`flatMap`) has to be expressible for a generic family parameter,
+		 * which TypeScript cannot prove against a keyed-family constraint, so the
+		 * faithful `CountMapFamily<T>` constraint is applied at the public
+		 * `MultiSetBase` entry point instead.
+		 */
+		export type AnyFamily = Collection.Advanced.FamilyBase<any>;
+
+		/** The concrete count map for element `T` and count-map family `F`. */
+		export type CountMapFrom<T, F> =
+			F extends CountMapFamily<T> ? F['_NORMAL'] : MapCollection<T, number>;
+
+		/** The concrete non-empty count map for element `T` and family `F`. */
+		export type CountMapNonEmptyFrom<T, F> =
+			F extends CountMapFamily<T>
+				? F['_NON_EMPTY']
+				: MapCollection.NonEmpty<T, number>;
+
+		/** The context of the count map for element `T` and family `F`. */
+		export type CountMapContextFrom<T, F> =
+			F extends CountMapFamily<T>
+				? MapCollection.Context<F>
+				: MapCollection.Context<CountMapFamily<T>>;
+
 		export interface Api<
 			T,
-			Tp extends Collection.Advanced.Types<FamilyBase<T>, T>,
+			Tp extends Collection.Advanced.Types<FamilyBase<T, any>, T>,
 		> extends ValuedCollection.Advanced.Api<T, Tp>,
 				Collection.Capability.WithAdd.Api<T, Tp>,
 				Collection.Capability.WithAddAll.Api<T, Tp>,
@@ -36,7 +76,9 @@ export declare namespace MultiSetCollection {
 				MultiSetCollection.Capability.WithIntersection.Api<T, Tp>,
 				MultiSetCollection.Capability.WithDifference.Api<T, Tp>,
 				MultiSetCollection.Capability.WithSymmetricDifference.Api<T, Tp> {
-			readonly countMap: CountMapType<T, Tp['_IS_NON_EMPTY']>;
+			readonly countMap: [Tp['_IS_NON_EMPTY']] extends [true]
+				? Tp['_COUNT_MAP_NON_EMPTY']
+				: Tp['_COUNT_MAP'];
 
 			add(value: T): Tp['_NON_EMPTY'];
 			add<const N extends number>(
@@ -51,7 +93,7 @@ export declare namespace MultiSetCollection {
 		 */
 		export interface BuilderApi<
 			T,
-			Tp extends Collection.Advanced.Types<FamilyBase<T>, T>,
+			Tp extends Collection.Advanced.Types<FamilyBase<T, any>, T>,
 		> extends ValuedCollection.Advanced.BuilderApi<T, Tp>,
 				Collection.Capability.WithAdd.BuilderApi<T, Tp>,
 				Collection.Capability.WithAddAll.BuilderApi<T, Tp>,
@@ -72,19 +114,31 @@ export declare namespace MultiSetCollection {
 
 		export interface ContextApi<
 			UT,
-			FAM extends MultiSetCollection.Advanced.FamilyBase<UT>,
+			FAM extends MultiSetCollection.Advanced.FamilyBase<UT, any>,
 		> extends ValuedCollection.Advanced.ContextApi<FAM>,
 				Collection.Capability.WithReducer.ContextApi<FAM> {
 			readonly typeTag: string;
-			readonly countMapContext: MapCollection.Context<
-				MapCollection.Advanced.Family<UT, number>
-			>;
+			readonly countMapContext: MapCollection.Context<FAM['_COUNT_MAP_FAMILY']>;
 			isValidElem(value: unknown): value is UT;
 		}
 
-		export interface FamilyBase<T> extends Collection.Advanced.FamilyBase<T> {
-			_FAM: FamilyBase<T>;
-			_NEW_FAMILY: FamilyBase<this['_NEW_E']>;
+		export interface FamilyBase<
+			T,
+			F extends MultiSetCollection.Advanced.AnyFamily = CountMapFamily<T>,
+		> extends Collection.Advanced.FamilyBase<T> {
+			/** the count-map family this MultiSet kind is backed by */
+			_COUNT_MAP_FAMILY: F;
+			/** the concrete count map (non-empty variant on non-empty instances) */
+			_COUNT_MAP: CountMapFrom<T, F>;
+			_COUNT_MAP_NON_EMPTY: CountMapNonEmptyFrom<T, F>;
+			/** the context used to build count maps */
+			_COUNT_MAP_CONTEXT: CountMapContextFrom<T, F>;
+
+			_FAM: FamilyBase<T, F>;
+			_NEW_FAMILY: FamilyBase<
+				this['_NEW_E'],
+				Collection.Advanced.ReTypeFam<F, readonly [this['_NEW_E'], number]>
+			>;
 		}
 	}
 
