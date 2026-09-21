@@ -1,8 +1,5 @@
 import type { MapCollection } from '@rimbu/collection-types/map';
-import type {
-	MultiSetBase,
-	MultiSetCollection,
-} from '@rimbu/multiset/advanced/multiset-base';
+import type { MultiSetCollection } from '@rimbu/multiset/advanced/multiset-collection';
 
 import { MultiSetContext } from '#multiset/context-factory';
 
@@ -13,7 +10,10 @@ import { MultiSetContext } from '#multiset/context-factory';
  * @typeparam T - the value type
  */
 export interface MultiSet<T>
-	extends MultiSetBase<T, MultiSetCollection.Advanced.CountMapFamily<T>> {}
+	extends MultiSetCollection<
+		T,
+		MultiSetCollection.Advanced.CountMapFamily<T>
+	> {}
 
 export namespace MultiSet {
 	/**
@@ -23,7 +23,7 @@ export namespace MultiSet {
 	 * @typeparam T - the value type
 	 */
 	export interface NonEmpty<T>
-		extends MultiSetBase.NonEmpty<
+		extends MultiSetCollection.NonEmpty<
 			T,
 			MultiSetCollection.Advanced.CountMapFamily<T>
 		> {}
@@ -34,7 +34,7 @@ export namespace MultiSet {
 	 * @typeparam T - the value type
 	 */
 	export interface Builder<T>
-		extends MultiSetBase.Builder<
+		extends MultiSetCollection.Builder<
 			T,
 			MultiSetCollection.Advanced.CountMapFamily<T>
 		> {}
@@ -45,7 +45,7 @@ export namespace MultiSet {
 	 * @typeparam UT - the upper value type bound for which the context can be used
 	 */
 	export interface Context<UT>
-		extends MultiSetBase.Context<
+		extends MultiSetCollection.Context<
 			UT,
 			MultiSetCollection.Advanced.CountMapFamily<UT>
 		> {}

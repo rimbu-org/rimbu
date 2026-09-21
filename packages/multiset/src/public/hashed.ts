@@ -1,4 +1,4 @@
-import type { MultiSet, MultiSetBase } from '@rimbu/multiset';
+import type { MultiSet, MultiSetCollection } from '@rimbu/multiset';
 
 import { HashMap } from '@rimbu/hashed';
 
@@ -22,7 +22,8 @@ type HashMapFamily<T> = HashMap.Advanced.Family<T, number>;
  * console.log(HashMultiSet.of('a', 'b', 'a', 'c').toArray()); // => [ "a", "a", "b", "c" ]
  * ```
  */
-export interface HashMultiSet<T> extends MultiSetBase<T, HashMapFamily<T>> {}
+export interface HashMultiSet<T>
+	extends MultiSetCollection<T, HashMapFamily<T>> {}
 
 export namespace HashMultiSet {
 	/**
@@ -31,7 +32,7 @@ export namespace HashMultiSet {
 	 * @typeparam T - the value type
 	 */
 	export interface NonEmpty<T>
-		extends MultiSetBase.NonEmpty<T, HashMapFamily<T>> {}
+		extends MultiSetCollection.NonEmpty<T, HashMapFamily<T>> {}
 
 	/**
 	 * A mutable `HashMultiSet` builder used to efficiently create new immutable instances.
@@ -39,7 +40,7 @@ export namespace HashMultiSet {
 	 * @typeparam T - the value type
 	 */
 	export interface Builder<T>
-		extends MultiSetBase.Builder<T, HashMapFamily<T>> {}
+		extends MultiSetCollection.Builder<T, HashMapFamily<T>> {}
 
 	/**
 	 * A context instance for a `HashMultiSet` that acts as a factory for every instance of this
@@ -47,7 +48,7 @@ export namespace HashMultiSet {
 	 * @typeparam UT - the upper value type bound for which the context can be used
 	 */
 	export interface Context<UT>
-		extends MultiSetBase.Context<UT, HashMapFamily<UT>> {
+		extends MultiSetCollection.Context<UT, HashMapFamily<UT>> {
 		readonly typeTag: 'HashMultiSet';
 		readonly countMapContext: HashMap.Context<UT>;
 	}

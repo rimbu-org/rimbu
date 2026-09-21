@@ -3,17 +3,17 @@
 '@rimbu/core': minor
 ---
 
-# Add a generic, map-kind-parameterised `MultiSetBase`
+# Add a generic, map-kind-parameterised `MultiSetCollection`
 
 `MultiSet` is now generic over the count-map family it is backed by:
-`MultiSetBase<T, F extends MapCollection.Advanced.Family<T, number>>`. The default
-`MultiSet<T>` is `MultiSetBase<T, MapCollection.Advanced.Family<T, number>>`, and the named
+`MultiSetCollection<T, F extends MapCollection.Advanced.Family<T, number>>`. The default
+`MultiSet<T>` is `MultiSetCollection<T, MapCollection.Advanced.Family<T, number>>`, and the named
 variants are thin aliases (`HashMultiSet` → `HashMap.Advanced.Family`, `SortedMultiSet` →
 `SortedMap.Advanced.Family`). This makes it possible to define a concretely typed MultiSet
 over any map with a one-line alias:
 
 ```ts
-type MyMultiSet<T> = MultiSetBase<T, MyMap.Advanced.Family<T, number>>;
+type MyMultiSet<T> = MultiSetCollection<T, MyMap.Advanced.Family<T, number>>;
 ```
 
 ### Changed
@@ -31,13 +31,15 @@ type MyMultiSet<T> = MultiSetBase<T, MyMap.Advanced.Family<T, number>>;
   by the count-map family (`FamilyBase<T, F>`); the family carries
   `_COUNT_MAP_FAMILY` / `_COUNT_MAP` / `_COUNT_MAP_NON_EMPTY` / `_COUNT_MAP_CONTEXT`.
   `MultiSetCollection.Advanced.CountMapType` is unchanged.
-- `MultiSetBase<T, F>`, `MultiSetCollection.Advanced.Family<T, F>`, and the slot helpers
-  now live in `advanced/multiset-base.ts` (previously the public entry). `MultiSetBase` is
+- `MultiSetCollection<T, F>`, `MultiSetCollection.Advanced.Family<T, F>`, and the slot helpers
+  now live in `advanced/multiset-base.ts` (previously the public entry). `MultiSetCollection` is
   exported from `@rimbu/multiset` and `@rimbu/multiset/advanced/multiset-base`; it is no
   longer re-exported from the `@rimbu/multiset/multiset` sub-path.
 
 ### Added
 
-- `MultiSetBase<T, F>` plus its `NonEmpty` / `Builder` / `Context` namespaces.
+- The `MultiSetCollection<T, F>` generic base, with its `NonEmpty` / `Builder` / `Context`
+  members merged into the existing `MultiSetCollection` namespace (alongside `Advanced` and
+  `Capability`).
 - `MultiSetCollection.Advanced.CountMapFamily`, `AnyFamily`, `CountMapFrom`,
   `CountMapNonEmptyFrom`, and `CountMapContextFrom` helpers.

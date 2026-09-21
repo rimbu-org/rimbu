@@ -5,16 +5,16 @@ occur any number of times (its *count*). It is backed internally by a count map
 (`value → count`), so add/remove/set-count operations are O(log N) and the collection
 stays fully immutable.
 
-The generic public type is `MultiSetBase<T, F>` (`advanced/multiset-base.ts`), parameterised
+The generic public type is `MultiSetCollection<T, F>` (`advanced/multiset-base.ts`), parameterised
 by the **count-map family** `F` — any `MapCollection.Advanced.Family<T, number>`. The
-default `MultiSet<T>` is `MultiSetBase<T, MapCollection.Advanced.Family<T, number>>`; the
+default `MultiSet<T>` is `MultiSetCollection<T, MapCollection.Advanced.Family<T, number>>`; the
 named variants pin `F` to a concrete map:
 
-- `HashMultiSet<T>` — `MultiSetBase<T, HashMap.Advanced.Family<T, number>>`.
-- `SortedMultiSet<T>` — `MultiSetBase<T, SortedMap.Advanced.Family<T, number>>`.
+- `HashMultiSet<T>` — `MultiSetCollection<T, HashMap.Advanced.Family<T, number>>`.
+- `SortedMultiSet<T>` — `MultiSetCollection<T, SortedMap.Advanced.Family<T, number>>`.
 
 Any map can therefore define a concretely typed MultiSet kind with a one-line alias, e.g.
-`type MyMultiSet<T> = MultiSetBase<T, MyMap.Advanced.Family<T, number>>`. `countMap` and
+`type MyMultiSet<T> = MultiSetCollection<T, MyMap.Advanced.Family<T, number>>`. `countMap` and
 `countMapContext` resolve to the concrete map type, and the kind is preserved through
 element retyping (`map`/`flatMap`) via `Collection.Advanced.ReTypeFam` in the family's
 `_NEW_FAMILY`.
@@ -35,7 +35,7 @@ There is no read-only type-variant base (`VariantMultiSet` was removed).
 src/
 ├── multiset.ts            # exports["."]      — re-exports advanced/multiset-base + public/multiset
 ├── advanced/             # exports["./advanced/*"] — implementer / extension API
-│   └── multiset-base.ts   # MultiSetCollection.{Advanced,Capability}.* (Api, BuilderApi, ContextApi, FamilyBase, Family) + MultiSetBase<T, F>
+│   └── multiset-base.ts   # MultiSetCollection<T, F> interface + MultiSetCollection namespace (NonEmpty/Builder/Context, Advanced, Capability)
 ├── public/               # exports["./*"]
 │   ├── multiset.ts        # @rimbu/multiset/multiset — MultiSet + Advanced.Family (alias) + factory const
 │   ├── hashed.ts          # @rimbu/multiset/hashed   — HashMultiSet (F = HashMap.Advanced.Family)
@@ -64,17 +64,20 @@ count-map slot carrier in the same file), `ValuedCollection.Advanced.Family<T>` 
 is an alias of it; `HashMultiSet.Advanced.Family<T>` and `SortedMultiSet.Advanced.Family<T>`
 are further aliases that pin `F`.
 
-`MultiSetBase` and `Family` live together in `advanced/multiset-base.ts` so the base does
-not depend on `public/multiset.ts` (a `MultiSetBase` ↔ `MultiSet.Advanced.Family` cycle
-would otherwise stop TypeScript resolving the collection API members). `MultiSetBase` is
-exported from `@rimbu/multiset` (via `export *`) and `@rimbu/multiset/advanced/multiset-base`,
-not from the `/multiset` subpath.
+The `MultiSetCollection` interface and its namespace (`NonEmpty` / `Builder` / `Context`,
+`Advanced`, `Capability`) merge into one symbol, and `MultiSetCollection.Advanced.Family`
+lives in the same file. Keeping the interface and the family together in
+`advanced/multiset-base.ts` avoids a `MultiSetCollection` ↔ `MultiSet.Advanced.Family` cycle
+(a public family alias referencing the advanced base and vice versa), which would otherwise
+stop TypeScript resolving the collection API members. `MultiSetCollection` is exported from
+`@rimbu/multiset` (via `export *`) and `@rimbu/multiset/advanced/multiset-base`, not from the
+`/multiset` subpath.
 
 `FamilyBase`'s `F` is deliberately constrained to the wide `AnyFamily`
 (`Collection.Advanced.FamilyBase<any>`), because TypeScript cannot prove
 `Collection.Advanced.ReTypeFam<F, readonly [E2, number]>` satisfies a keyed-family
 constraint for a generic `F`. The faithful `CountMapFamily<T>` constraint is applied at the
-public `MultiSetBase<T, F>` entry point; the derived slot helpers
+public `MultiSetCollection<T, F>` entry point; the derived slot helpers
 (`CountMapFrom` / `CountMapNonEmptyFrom` / `CountMapContextFrom`) fall back to the generic
 `MapCollection` when `F` is not a concrete map family.
 
@@ -175,7 +178,7 @@ All commands run from this package directory. Per the root guide, **always
 ## Changesets
 
 Changing `remove`/`removeAll` signatures, renaming `intersect`/`symDifference` to
-`intersection`/`symmetricDifference`, and changing the `MultiSetBase<T, F>` parameter
+`intersection`/`symmetricDifference`, and changing the `MultiSetCollection<T, F>` parameter
 shape or the family `_COUNT_MAP_FAMILY` slot are **breaking changes** and require a `major`
 bump. Because all Rimbu packages are lockstep-fixed, a single changeset listing
 `@rimbu/multiset` **and** `@rimbu/core` bumps both.

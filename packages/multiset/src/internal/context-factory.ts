@@ -1,10 +1,6 @@
 import type { Collection } from '@rimbu/collection-types/collection';
 import type { MapCollection } from '@rimbu/collection-types/map';
-import type {
-	MultiSet,
-	MultiSetBase,
-	MultiSetCollection,
-} from '@rimbu/multiset';
+import type { MultiSet, MultiSetCollection } from '@rimbu/multiset';
 import type { StreamSource } from '@rimbu/stream';
 
 import { ContextBaseWithAddAll } from '@rimbu/collection-types/advanced/collection-base';
@@ -105,13 +101,13 @@ export class MultiSetContext<
 	createNonEmpty<T extends UT>(
 		countMap: MapCollection.NonEmpty<T, number>,
 		size: number,
-	): MultiSetBase.NonEmpty<T, FAM['_COUNT_MAP_FAMILY']> {
+	): MultiSetCollection.NonEmpty<T, FAM['_COUNT_MAP_FAMILY']> {
 		return new MultiSetNonEmptyBase<T>(this as any, countMap, size) as any;
 	}
 
 	createBuilder<T extends UT>(
 		source?: MultiSet.NonEmpty<T>,
-	): MultiSetBase.Builder<T, FAM['_COUNT_MAP_FAMILY']> {
+	): MultiSetCollection.Builder<T, FAM['_COUNT_MAP_FAMILY']> {
 		return new MultiSetBuilder<T>(this as any, source as any);
 	}
 

@@ -2,14 +2,17 @@ import { expectTypeOf } from 'bun:test';
 
 import type { MapCollection } from '@rimbu/collection-types/map';
 import type { HashMap } from '@rimbu/hashed/map';
-import type { MultiSet, MultiSetBase } from '@rimbu/multiset';
+import type { MultiSet, MultiSetCollection } from '@rimbu/multiset';
 import type { HashMultiSet } from '@rimbu/multiset/hashed';
 import type { SortedMultiSet } from '@rimbu/multiset/sorted';
 import type { SortedMap } from '@rimbu/sorted/map';
 
 // Any map can define a concretely typed MultiSet kind with a one-line alias.
-type HashMapMultiSet<T> = MultiSetBase<T, HashMap.Advanced.Family<T, number>>;
-type SortedMapMultiSet<T> = MultiSetBase<
+type HashMapMultiSet<T> = MultiSetCollection<
+	T,
+	HashMap.Advanced.Family<T, number>
+>;
+type SortedMapMultiSet<T> = MultiSetCollection<
 	T,
 	SortedMap.Advanced.Family<T, number>
 >;
@@ -42,8 +45,8 @@ expectTypeOf<SortedMultiSet<number>>().toEqualTypeOf<
 declare const generic: MultiSet<number>;
 const genericMap: MapCollection<number, number> = generic.countMap;
 
-// The root/advanced export of `MultiSetBase` carries its namespace.
-declare const neFromNamespace: MultiSetBase.NonEmpty<
+// The root/advanced export of `MultiSetCollection` carries its namespace.
+declare const neFromNamespace: MultiSetCollection.NonEmpty<
 	number,
 	HashMap.Advanced.Family<number, number>
 >;

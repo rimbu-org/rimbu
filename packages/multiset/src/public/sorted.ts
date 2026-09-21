@@ -1,4 +1,4 @@
-import type { MultiSet, MultiSetBase } from '@rimbu/multiset';
+import type { MultiSet, MultiSetCollection } from '@rimbu/multiset';
 
 import { SortedMap } from '@rimbu/sorted/map';
 
@@ -23,7 +23,7 @@ type SortedMapFamily<T> = SortedMap.Advanced.Family<T, number>;
  * ```
  */
 export interface SortedMultiSet<T>
-	extends MultiSetBase<T, SortedMapFamily<T>> {}
+	extends MultiSetCollection<T, SortedMapFamily<T>> {}
 
 export namespace SortedMultiSet {
 	/**
@@ -32,7 +32,7 @@ export namespace SortedMultiSet {
 	 * @typeparam T - the value type
 	 */
 	export interface NonEmpty<T>
-		extends MultiSetBase.NonEmpty<T, SortedMapFamily<T>> {}
+		extends MultiSetCollection.NonEmpty<T, SortedMapFamily<T>> {}
 
 	/**
 	 * A mutable `SortedMultiSet` builder used to efficiently create new immutable instances.
@@ -40,7 +40,7 @@ export namespace SortedMultiSet {
 	 * @typeparam T - the value type
 	 */
 	export interface Builder<T>
-		extends MultiSetBase.Builder<T, SortedMapFamily<T>> {}
+		extends MultiSetCollection.Builder<T, SortedMapFamily<T>> {}
 
 	/**
 	 * A context instance for a `SortedMultiSet` that acts as a factory for every instance of this
@@ -48,7 +48,7 @@ export namespace SortedMultiSet {
 	 * @typeparam UT - the upper value type bound for which the context can be used
 	 */
 	export interface Context<UT>
-		extends MultiSetBase.Context<UT, SortedMapFamily<UT>> {
+		extends MultiSetCollection.Context<UT, SortedMapFamily<UT>> {
 		readonly typeTag: 'SortedMultiSet';
 		readonly countMapContext: SortedMap.Context<UT>;
 	}
