@@ -3,6 +3,7 @@ import { expectTypeOf } from 'bun:test';
 import type { MapCollection } from '@rimbu/collection-types/map';
 import type { ArrayNonEmpty } from '@rimbu/common/types';
 import type { SortedMultiSet } from '@rimbu/multiset/sorted';
+import type { SortedMap } from '@rimbu/sorted/map';
 import type { FastIterator, Stream } from '@rimbu/stream';
 
 type GE<T> = SortedMultiSet<T>;
@@ -71,7 +72,7 @@ expectTypeOf(genEmpty.isEmpty).toEqualTypeOf<boolean>();
 expectTypeOf(genNonEmpty.isEmpty).toEqualTypeOf<false>();
 
 // .countMap
-expectTypeOf(genEmpty.countMap).toEqualTypeOf<MapCollection<number, number>>();
+expectTypeOf(genEmpty.countMap).toEqualTypeOf<SortedMap<number, number>>();
 expectTypeOf(genNonEmpty.countMap).toExtend<
 	MapCollection.NonEmpty<number, number>
 >();

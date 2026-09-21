@@ -25,7 +25,9 @@ export interface SortedMultiSet<T>
 	extends MultiSetCollection.Advanced.Api<
 		T,
 		Collection.Advanced.Types<SortedMultiSet.Advanced.Family<T>, T>
-	> {}
+	> {
+	readonly countMap: SortedMap<T, number>;
+}
 
 export namespace SortedMultiSet {
 	/**
@@ -37,7 +39,9 @@ export namespace SortedMultiSet {
 		extends MultiSetCollection.Advanced.Api<
 			T,
 			Collection.Advanced.TypesNonEmpty<Advanced.Family<T>, T>
-		> {}
+		> {
+		readonly countMap: SortedMap.NonEmpty<T, number>;
+	}
 
 	/**
 	 * A mutable `SortedMultiSet` builder used to efficiently create new immutable instances.
@@ -58,6 +62,7 @@ export namespace SortedMultiSet {
 	export interface Context<UT>
 		extends MultiSetCollection.Advanced.ContextApi<UT, Advanced.Family<UT>> {
 		readonly typeTag: 'SortedMultiSet';
+		readonly countMapContext: SortedMap.Context<UT>;
 	}
 
 	export namespace Advanced {
@@ -67,10 +72,6 @@ export namespace SortedMultiSet {
 			_NON_EMPTY: SortedMultiSet.NonEmpty<T>;
 			_BUILDER: SortedMultiSet.Builder<T>;
 			_CONTEXT: SortedMultiSet.Context<T>;
-
-			_COUNT_MAP_CONTEXT: SortedMap.Context<T>;
-			_COUNT_MAP: SortedMap<T, number>;
-			_COUNT_MAP_NON_EMPTY: SortedMap.NonEmpty<T, number>;
 
 			_FAM: Family<T>;
 			_NEW_FAMILY: Family<this['_NEW_E']>;

@@ -60,7 +60,7 @@ export declare namespace MultiSetCollection {
 				MultiSetCollection.Capability.WithIntersection.Api<T, Tp>,
 				MultiSetCollection.Capability.WithDifference.Api<T, Tp>,
 				MultiSetCollection.Capability.WithSymmetricDifference.Api<T, Tp> {
-			readonly countMap: CountMapType<Tp, Tp['_IS_NON_EMPTY']>;
+			readonly countMap: CountMapType<T, Tp['_IS_NON_EMPTY']>;
 
 			add(value: T): Tp['_NON_EMPTY'];
 			add<const N extends number>(
@@ -88,12 +88,11 @@ export declare namespace MultiSetCollection {
 			add(value: T, amount: number): boolean;
 		}
 
-		export type CountMapType<
-			FAM extends MultiSetCollection.Advanced.FamilyBase<any>,
-			IsNonEmpty extends boolean = boolean,
-		> = [IsNonEmpty] extends [true]
-			? FAM['_COUNT_MAP_NON_EMPTY']
-			: FAM['_COUNT_MAP'];
+		export type CountMapType<T, IsNonEmpty extends boolean = boolean> = [
+			IsNonEmpty,
+		] extends [true]
+			? MapCollection.NonEmpty<T, number>
+			: MapCollection<T, number>;
 
 		export interface ContextApi<
 			UT,
@@ -101,17 +100,13 @@ export declare namespace MultiSetCollection {
 		> extends ValuedCollection.Advanced.ContextApi<FAM>,
 				Collection.Capability.WithReducer.ContextApi<FAM> {
 			readonly typeTag: string;
-			readonly countMapContext: FAM['_COUNT_MAP_CONTEXT'];
+			readonly countMapContext: MapCollection.Context<
+				MapCollection.Advanced.Family<UT, number>
+			>;
 			isValidElem(value: unknown): value is UT;
 		}
 
 		export interface FamilyBase<T> extends Collection.Advanced.FamilyBase<T> {
-			_COUNT_MAP_CONTEXT: MapCollection.Context<
-				MapCollection.Advanced.Family<this['_UPPER_E'], number>
-			>;
-			_COUNT_MAP: MapCollection<T, number>;
-			_COUNT_MAP_NON_EMPTY: MapCollection.NonEmpty<T, number>;
-
 			_FAM: FamilyBase<T>;
 			_NEW_FAMILY: FamilyBase<this['_NEW_E']>;
 		}
@@ -133,12 +128,6 @@ export declare namespace MultiSetCollection {
 		// 		this['_UPPER_E'],
 		// 		this['_FAM']
 		// 	>;
-
-		// 	_COUNT_MAP_CONTEXT: MapCollection.Context<
-		// 		MapCollection.Advanced.Family<this['_UPPER_E'], number>
-		// 	>;
-		// 	_COUNT_MAP: MapCollection<T, number>;
-		// 	_COUNT_MAP_NON_EMPTY: MapCollection.NonEmpty<T, number>;
 
 		// 	_UPPER_E: T;
 		// 	_INVARIANT: (element: T) => T;

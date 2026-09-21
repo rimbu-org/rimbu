@@ -25,7 +25,9 @@ export interface HashMultiSet<T>
 	extends MultiSetCollection.Advanced.Api<
 		T,
 		Collection.Advanced.Types<HashMultiSet.Advanced.Family<T>, T>
-	> {}
+	> {
+	readonly countMap: HashMap<T, number>;
+}
 
 export namespace HashMultiSet {
 	/**
@@ -37,7 +39,9 @@ export namespace HashMultiSet {
 		extends MultiSetCollection.Advanced.Api<
 			T,
 			Collection.Advanced.TypesNonEmpty<Advanced.Family<T>, T>
-		> {}
+		> {
+		readonly countMap: HashMap.NonEmpty<T, number>;
+	}
 
 	/**
 	 * A mutable `HashMultiSet` builder used to efficiently create new immutable instances.
@@ -58,6 +62,7 @@ export namespace HashMultiSet {
 	export interface Context<UT>
 		extends MultiSetCollection.Advanced.ContextApi<UT, Advanced.Family<UT>> {
 		readonly typeTag: 'HashMultiSet';
+		readonly countMapContext: HashMap.Context<UT>;
 	}
 
 	export namespace Advanced {
@@ -67,10 +72,6 @@ export namespace HashMultiSet {
 			_NON_EMPTY: HashMultiSet.NonEmpty<T>;
 			_BUILDER: HashMultiSet.Builder<T>;
 			_CONTEXT: HashMultiSet.Context<T>;
-
-			_COUNT_MAP_CONTEXT: HashMap.Context<T>;
-			_COUNT_MAP: HashMap<T, number>;
-			_COUNT_MAP_NON_EMPTY: HashMap.NonEmpty<T, number>;
 
 			_FAM: Family<T>;
 			_NEW_FAMILY: Family<this['_NEW_E']>;
