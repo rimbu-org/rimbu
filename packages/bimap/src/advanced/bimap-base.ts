@@ -117,10 +117,7 @@ export namespace BiMapCollection {
 
 		export namespace WithInvert {
 			export interface Api<K, V, Tp extends Collection.Advanced.TypesBase> {
-				invert(): Collection.Advanced.FamToTypes<
-					Tp['_FAM'],
-					readonly [V, K]
-				>['_NORMAL'];
+				invert(): Collection.Advanced.ReTyped<Tp, readonly [V, K]>['_SELF'];
 			}
 		}
 

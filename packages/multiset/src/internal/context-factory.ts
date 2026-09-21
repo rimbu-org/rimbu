@@ -31,21 +31,23 @@ export class MultiSetContext<UT, FAM extends MultiSet.Advanced.Family<UT>>
 	extends ContextBaseWithAddAll<FAM>
 	implements MultiSetCollection.Advanced.ContextApi<UT, FAM>
 {
-	static createDefault<UT>(
+	static createDefault<UT, F extends MultiSet.Advanced.Family<UT>>(
 		countMapContext: MapCollection.Context<
 			MapCollection.Advanced.Family<UT, number>
 		>,
 		typeTag: string,
-	): MultiSetContext<UT, MultiSet.Advanced.Family<UT>> {
-		const result: MultiSetContext<
-			UT,
-			MultiSet.Advanced.Family<UT>
-		> = new MultiSetContext(countMapContext, typeTag, () => result);
+	): MultiSetContext<UT, F> {
+		const result: MultiSetContext<UT, F> = new MultiSetContext(
+			countMapContext,
+			typeTag,
+			() => result,
+		);
+		Object.freeze(result);
 
 		return result;
 	}
 
-	constructor(
+	private constructor(
 		readonly countMapContext: MapCollection.Context<
 			MapCollection.Advanced.Family<UT, number>
 		>,
@@ -126,10 +128,14 @@ export class MultiSetContext<UT, FAM extends MultiSet.Advanced.Family<UT>>
 						| undefined;
 			  }
 			| undefined,
-	): MultiSetContext<UT2, any> =>
-		new MultiSetContext(
+	): MultiSetContext<UT2, any> => {
+		const result = new MultiSetContext(
 			options?.countMapContext ?? this.countMapContext,
 			this.typeTag,
 			this.getDefaultInstance,
-		) as any;
+		);
+
+		Object.freeze(result);
+		return result;
+	};
 }

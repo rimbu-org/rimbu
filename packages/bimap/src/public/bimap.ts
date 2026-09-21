@@ -25,8 +25,6 @@ export namespace BiMap {
 				readonly [K, V]
 			>
 		> {
-		asNormal(): BiMap<K, V>;
-		invert(): BiMap.NonEmpty<V, K>;
 		readonly keyValueMap: MapCollection.NonEmpty<K, V>;
 		readonly valueKeyMap: MapCollection.NonEmpty<V, K>;
 	}
