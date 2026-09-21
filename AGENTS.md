@@ -743,7 +743,7 @@ This is a single-context repo using root `CONTEXT.md` and `docs/adr/`. See `docs
 
 ### Repo-Health Skills
 
-The repo ships 12 harness-independent skills under `.opencode/skills/<kebab>/SKILL.md` (plain Markdown + Bun scripts; only `rg`/`jq`/`bun` required, no harness-specific JS APIs; file access restricted to the repo root and `/tmp` per §12 `AGENTS.md:601-625`). Each skill is idempotent, single-package-scoped (`<pkg>`), diagnose-by-default — fix/mutate only with explicit `--fix`/`--force`. Checklists stay in the skill files — this table is discovery only (Q16). `maintain-skills` is the caretaker that lints all skills against `../_template/SKILL.md` and reconciles checklist drift with `AGENTS.md`/ADRs (spec §2.5 Q5).
+The repo ships 13 harness-independent skills under `.opencode/skills/<kebab>/SKILL.md` (plain Markdown + Bun scripts; only `rg`/`jq`/`bun` required, no harness-specific JS APIs; file access restricted to the repo root and `/tmp` per §12 `AGENTS.md:601-625`). Each skill is idempotent, single-package-scoped (`<pkg>`), diagnose-by-default — fix/mutate only with explicit `--fix`/`--force`. Checklists stay in the skill files — this table is discovery only (Q16). `maintain-skills` is the caretaker that lints all skills against `../_template/SKILL.md` and reconciles checklist drift with `AGENTS.md`/ADRs (spec §2.5 Q5).
 
 | Skill | Mode | When to use | Normative refs |
 |---|---|---|---|
@@ -758,4 +758,5 @@ The repo ships 12 harness-independent skills under `.opencode/skills/<kebab>/SKI
 | [write-unit-tests](.opencode/skills/write-unit-tests/SKILL.md) | hybrid | when `audit-tests` reports missing `test/*.test.ts`, consider invoking `write-unit-tests` in diagnose mode (`--fix` to generate) | `AGENTS.md:480-518` §7 |
 | [write-type-tests](.opencode/skills/write-type-tests/SKILL.md) | hybrid | when `audit-type-tests` reports missing `expectTypeOf`, consider invoking `write-type-tests` in diagnose mode (`--fix` to generate) | `AGENTS.md:335-463` §6.2–§6.6 |
 | [scout-improvements](.opencode/skills/scout-improvements/SKILL.md) | diagnose | when you want pattern-level improvement ideas for a package, consider invoking `scout-improvements` in diagnose mode | `AGENTS.md:16-31` §1.1, §6 |
+| [tune-hkt](.opencode/skills/tune-hkt/SKILL.md) | hybrid | when you add/change an `Advanced.Family`, a capability `Mixin`, or a `Tp extends` constraint — or a package's typecheck gets slower/hungrier — consider invoking `tune-hkt` (`--probe` for the decisive slot check, `--measure` for cost) | `AGENTS.md` §6.4 HKT / named-family / shared-`_TP` rules |
 | [maintain-skills](.opencode/skills/maintain-skills/SKILL.md) | hybrid | when you edit `AGENTS.md`, add a skill, or suspect checklist drift, consider invoking `maintain-skills` in diagnose mode | `AGENTS.md:626-638`, `docs/agents/*.md` |

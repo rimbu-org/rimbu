@@ -35,7 +35,7 @@ const REPORT_TEMPLATE_PATH = join(TEMPLATE_DIR, 'references/report-template.md')
 
 const WAVE_1 = ['review-anatomy', 'review-api', 'scout-dead-code', 'audit-tests', 'audit-type-tests'] as const;
 const WAVE_2 = ['review-impl', 'review-docs', 'write-docs', 'write-unit-tests', 'write-type-tests'] as const;
-const META = ['scout-improvements', 'maintain-skills'] as const;
+const META = ['scout-improvements', 'tune-hkt', 'maintain-skills'] as const;
 const EXPECTED_SKILLS = [...WAVE_1, ...WAVE_2, ...META] as const;
 
 type Severity = 'error' | 'warn' | 'info';
