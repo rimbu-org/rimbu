@@ -81,9 +81,11 @@ literal-amount trick: `0 extends N ? Tp['_SELF'] : Tp['_NON_EMPTY']`, so
 
 ### Runtime classes (`internal/base.ts`)
 
-- `MultiSetEmpty<T, Tp>` extends `CollectionEmpty.Base<T, Tp>` directly (the valued
-  mixins are deliberately not used, since their boolean set algebra would conflict with
-  the count-wise MultiSet algebra). It implements the count API directly.
+- `MultiSetEmpty<T, Tp>` extends
+  `ValuedCollectionEmpty.WithMixin(CollectionEmpty.Constructor)` and overrides the
+  valued mixin's boolean set algebra (`add`, `addAll`, `remove`, `removeAll`,
+  `union`, `intersection`, `difference`, `symmetricDifference`) with the count-wise
+  MultiSet algebra. It implements the count API directly.
 - `MultiSetNonEmptyBase<T, Tp>` extends `CollectionNonEmpty.Base<T, Tp>`, stores a
   non-empty count map and a total `size`.
 - `MultiSetBuilder<T, Tp>` extends `CollectionBuilderBase<T, Tp['_FAM'], Tp>`.

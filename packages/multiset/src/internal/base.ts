@@ -6,6 +6,7 @@ import type { StreamSource } from '@rimbu/stream';
 
 import type { ContextImpl } from '#multiset/context-factory';
 
+import { ValuedCollectionEmpty } from '@rimbu/collection-types/advanced/collection/valued-base';
 import {
 	CollectionBuilderBase,
 	CollectionEmpty,
@@ -22,10 +23,14 @@ type MultiSetTypesNonEmpty<T> = Collection.Advanced.TypesNonEmpty<
 	T
 >;
 
+const MultiSetEmptyBase = ValuedCollectionEmpty.WithMixin(
+	CollectionEmpty.Constructor,
+);
+
 export class MultiSetEmpty<
 	T,
 	Tp extends MultiSetTypes<T> = MultiSetTypes<T>,
-> extends CollectionEmpty.Base<T, Tp> {
+> extends MultiSetEmptyBase<T, MultiSet.Advanced.Family<T>, Tp> {
 	get countMap(): MapCollection<T, number> {
 		return this.context.countMapContext.empty() as any;
 	}
@@ -93,12 +98,12 @@ export class MultiSetEmpty<
 		return builder.build() as any;
 	}
 
-	remove(): this {
-		return this;
+	remove(): Tp['_NORMAL'] {
+		return this as any;
 	}
 
-	removeAll(): this {
-		return this;
+	removeAll(): Tp['_NORMAL'] {
+		return this as any;
 	}
 
 	union<U extends T>(other: MultiSet.NonEmpty<U>): Tp['_NON_EMPTY'];
@@ -139,7 +144,7 @@ export class MultiSetEmpty<
 	}
 
 	toBuilder(): Tp['_BUILDER'] {
-		return this.context.builder<T>() as any;
+		return this.context.builder<T>();
 	}
 
 	toString(): string {

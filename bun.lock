@@ -186,7 +186,6 @@
         "@rimbu/collection-types": "workspace:*",
         "@rimbu/common": "workspace:*",
         "@rimbu/hashed": "workspace:*",
-        "@rimbu/list": "workspace:*",
         "@rimbu/sorted": "workspace:*",
         "@rimbu/stream": "workspace:*",
       },
