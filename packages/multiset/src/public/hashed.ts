@@ -3,7 +3,7 @@ import type { MultiSetCollection } from '@rimbu/multiset';
 
 import { HashMap } from '@rimbu/hashed';
 
-import { MultiSetContext } from '#multiset/context-factory';
+import { MultiSetContextImpl } from '#multiset/context-factory';
 
 /**
  * A type-invariant immutable MultiSet of value type T.
@@ -95,7 +95,7 @@ export namespace HashMultiSet {
  * See the [HashMultiSet API documentation](https://rimbu.org/api/rimbu/multiset/HashMultiSet/interface).
  */
 export const HashMultiSet: HashMultiSet.Advanced.DefaultFactory =
-	MultiSetContext.createDefault(
+	MultiSetContextImpl.createDefault(
 		HashMap.collectionContext,
 		'HashMultiSet',
 	) as any as HashMultiSet.Advanced.DefaultFactory;

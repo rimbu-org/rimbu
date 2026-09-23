@@ -3,7 +3,7 @@ import type { MultiSetCollection } from '@rimbu/multiset';
 
 import { SortedMap } from '@rimbu/sorted/map';
 
-import { MultiSetContext } from '#multiset/context-factory';
+import { MultiSetContextImpl } from '#multiset/context-factory';
 
 /**
  * A type-invariant immutable MultiSet of value type T.
@@ -95,7 +95,7 @@ export namespace SortedMultiSet {
  * See the [SortedMultiSet API documentation](https://rimbu.org/api/rimbu/multiset/SortedMultiSet/interface).
  */
 export const SortedMultiSet: SortedMultiSet.Advanced.DefaultFactory =
-	MultiSetContext.createDefault(
+	MultiSetContextImpl.createDefault(
 		SortedMap.collectionContext,
 		'SortedMultiSet',
 	) as any as SortedMultiSet.Advanced.DefaultFactory;

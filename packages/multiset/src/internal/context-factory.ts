@@ -6,13 +6,11 @@ import type { StreamSource } from '@rimbu/stream';
 import { ContextBaseWithAddAll } from '@rimbu/collection-types/advanced/collection-base';
 import { Reducer } from '@rimbu/stream/reducer';
 
-import {
-	MultiSetBuilder,
-	MultiSetEmpty,
-	MultiSetNonEmptyBase,
-} from '#multiset/base';
+import { MultiSetBuilder } from '#multiset/builder';
+import { MultiSetEmpty } from '#multiset/immutable/empty';
+import { MultiSetNonEmptyBase } from '#multiset/immutable/non-empty';
 
-export interface ContextImpl<UT>
+export interface MultiSetContext<UT>
 	extends MultiSetCollection.Advanced.ContextApi<
 		UT,
 		MultiSet.Advanced.Family<UT>
@@ -27,7 +25,7 @@ export interface ContextImpl<UT>
 	): MultiSet.Builder<T>;
 }
 
-export class MultiSetContext<UT, FAM extends MultiSet.Advanced.Family<UT>>
+export class MultiSetContextImpl<UT, FAM extends MultiSet.Advanced.Family<UT>>
 	extends ContextBaseWithAddAll<FAM>
 	implements MultiSetCollection.Advanced.ContextApi<UT, FAM>
 {
@@ -36,8 +34,8 @@ export class MultiSetContext<UT, FAM extends MultiSet.Advanced.Family<UT>>
 			MapCollection.Advanced.Family<UT, number>
 		>,
 		typeTag: string,
-	): MultiSetContext<UT, F> {
-		const result: MultiSetContext<UT, F> = new MultiSetContext(
+	): MultiSetContextImpl<UT, F> {
+		const result: MultiSetContextImpl<UT, F> = new MultiSetContextImpl(
 			countMapContext,
 			typeTag,
 			() => result,
@@ -52,7 +50,7 @@ export class MultiSetContext<UT, FAM extends MultiSet.Advanced.Family<UT>>
 			MapCollection.Advanced.Family<UT, number>
 		>,
 		readonly typeTag: string,
-		readonly getDefaultInstance: () => MultiSetContext<UT, FAM>,
+		readonly getDefaultInstance: () => MultiSetContextImpl<UT, FAM>,
 	) {
 		super();
 	}
@@ -128,8 +126,8 @@ export class MultiSetContext<UT, FAM extends MultiSet.Advanced.Family<UT>>
 						| undefined;
 			  }
 			| undefined,
-	): MultiSetContext<UT2, any> => {
-		const result = new MultiSetContext(
+	): MultiSetContextImpl<UT2, any> => {
+		const result = new MultiSetContextImpl(
 			options?.countMapContext ?? this.countMapContext,
 			this.typeTag,
 			this.getDefaultInstance,

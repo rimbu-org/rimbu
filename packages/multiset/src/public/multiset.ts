@@ -3,7 +3,7 @@ import type { ValuedCollection } from '@rimbu/collection-types/collection/valued
 import type { MapCollection } from '@rimbu/collection-types/map';
 import type { MultiSetCollection } from '@rimbu/multiset/advanced/multiset-base';
 
-import { MultiSetContext } from '#multiset/context-factory';
+import { MultiSetContextImpl } from '#multiset/context-factory';
 
 /**
  * A type-invariant immutable MultiSet of value type T.
@@ -107,7 +107,7 @@ export const MultiSet: MultiSetCreators = Object.freeze<MultiSetCreators>({
 		>;
 		typeTag: string;
 	}): MultiSet.Context<UT> {
-		return MultiSetContext.createDefault(
+		return MultiSetContextImpl.createDefault(
 			options.countMapContext,
 			options.typeTag,
 		);
