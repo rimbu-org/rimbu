@@ -6,6 +6,7 @@ import type { StreamSource } from '@rimbu/stream';
 
 import type { MultiSetContext } from '#multiset/context-factory';
 
+import { ValuedCollectionNonEmpty } from '@rimbu/collection-types/advanced/collection/valued-base';
 import { CollectionNonEmpty } from '@rimbu/collection-types/advanced/collection-base';
 import { Stream } from '@rimbu/stream';
 
@@ -14,16 +15,20 @@ type MultiSetTypesNonEmpty<T> = Collection.Advanced.TypesNonEmpty<
 	T
 >;
 
+const MultiSetNonEmptyMixin = ValuedCollectionNonEmpty.WithMixin(
+	CollectionNonEmpty.Constructor,
+);
+
 export class MultiSetNonEmptyBase<
 	T,
 	Tp extends MultiSetTypesNonEmpty<T> = MultiSetTypesNonEmpty<T>,
-> extends CollectionNonEmpty.Base<T, Tp> {
+> extends MultiSetNonEmptyMixin<T, MultiSet.Advanced.Family<T>, Tp> {
 	constructor(
 		readonly context: Tp['_CONTEXT'],
 		readonly countMap: MapCollection.NonEmpty<T, number>,
 		readonly size: number,
 	) {
-		super();
+		super(context);
 	}
 
 	get sizeDistinct(): number {

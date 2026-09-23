@@ -79,15 +79,18 @@ The amount-carrying `add(value, amount)` overload is declared directly on
 literal-amount trick: `0 extends N ? Tp['_SELF'] : Tp['_NON_EMPTY']`, so
 `add(v, 0)` keeps the current kind while `add(v, n>0)` is non-empty.
 
-### Runtime classes (`internal/base.ts`)
+### Runtime classes (`internal/immutable/*`, `internal/builder.ts`)
 
 - `MultiSetEmpty<T, Tp>` extends
   `ValuedCollectionEmpty.WithMixin(CollectionEmpty.Constructor)` and overrides the
   valued mixin's boolean set algebra (`add`, `addAll`, `remove`, `removeAll`,
   `union`, `intersection`, `difference`, `symmetricDifference`) with the count-wise
   MultiSet algebra. It implements the count API directly.
-- `MultiSetNonEmptyBase<T, Tp>` extends `CollectionNonEmpty.Base<T, Tp>`, stores a
-  non-empty count map and a total `size`.
+- `MultiSetNonEmptyBase<T, Tp>` extends
+  `ValuedCollectionNonEmpty.WithMixin(CollectionNonEmpty.Constructor)`, stores a
+  non-empty count map and a total `size`. The valued non-empty mixin only contributes
+  `mutate`/`recompose` (and requires `has`/`toBuilder`), so the count-wise algebra
+  stays on the class.
 - `MultiSetBuilder<T, Tp>` extends `CollectionBuilderBase<T, Tp['_FAM'], Tp>`.
 
 Contexts (`internal/context-factory.ts`) extend `ContextBaseWithAddAll<FAM>` and
