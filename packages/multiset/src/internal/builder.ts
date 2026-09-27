@@ -23,10 +23,10 @@ export class MultiSetBuilder<T, Tp extends MultiSetTypes<T> = MultiSetTypes<T>>
 		public source?: Tp['_NON_EMPTY'],
 	) {
 		super();
-		if (undefined !== source) this._size = source.size;
+		if (undefined !== source) this.#size = source.size;
 	}
 
-	_size = 0;
+	#size = 0;
 	#changed = false;
 	#countMap: MapCollection.Builder<T, number> | undefined = undefined;
 
@@ -44,7 +44,7 @@ export class MultiSetBuilder<T, Tp extends MultiSetTypes<T> = MultiSetTypes<T>>
 	}
 
 	get size(): number {
-		return this._size;
+		return this.#size;
 	}
 
 	get sizeDistinct(): number {
@@ -59,7 +59,7 @@ export class MultiSetBuilder<T, Tp extends MultiSetTypes<T> = MultiSetTypes<T>>
 		return this.countMap.get(value as any, 0) as number;
 	}
 
-	add(value: T, amount = 1): boolean {
+	add = (value: T, amount = 1): boolean => {
 		this.checkLock();
 
 		if (amount <= 0) return false;
@@ -68,74 +68,67 @@ export class MultiSetBuilder<T, Tp extends MultiSetTypes<T> = MultiSetTypes<T>>
 			ifNew: { set: amount },
 			ifExists: { update: (count: number): number => count + amount },
 		});
-		this._size += amount;
+		this.#size += amount;
 		this.#changed = true;
 		return true;
-	}
+	};
 
-	addAll(values: StreamSource<T>): boolean {
+	addAll = (values: StreamSource<T>): boolean => {
 		this.checkLock();
 
 		if (Stream.isEmptyStreamSourceInstance(values)) return false;
 
-		let changed = false;
+		const size = this.size;
 
-		Stream.from(values).forEach((value) => {
-			if (this.add(value)) changed = true;
-		});
+		Stream.from(values).forEachPure(this.add);
 
-		return changed;
-	}
+		return this.size !== size;
+	};
 
 	addAllWithCounts(valueCounts: StreamSource<readonly [T, number]>): boolean {
 		this.checkLock();
 
 		if (Stream.isEmptyStreamSourceInstance(valueCounts)) return false;
 
-		let changed = false;
+		const size = this.#size;
 
-		Stream.from(valueCounts).forEach(([value, count]) => {
-			if (count > 0 && this.add(value, count)) changed = true;
-		});
+		Stream.applyForEach(valueCounts, this.add);
 
-		return changed;
+		return this.size !== size;
 	}
 
-	remove<U = T>(value: RelatedTo<T, U>, amount = 1): number {
+	remove = <U = T>(value: RelatedTo<T, U>, amount = 1): number => {
 		this.checkLock();
 
-		if (amount <= 0) return 0;
+		if (amount <= 0 || !this.context.isValidElem(value)) return 0;
 
-		const current = this.count(value);
-		if (current <= 0) return 0;
+		let amountRemoved = 0;
 
-		const removed = Math.min(current, amount);
-		const result = current - removed;
+		this.countMap.modifyAtKey(value, {
+			ifExists: {
+				update: (currentAmount, removeToken) => {
+					const newAmount = Math.max(0, currentAmount - amount);
+					amountRemoved = currentAmount - newAmount;
+					return newAmount > 0 ? newAmount : removeToken;
+				},
+			},
+		});
 
-		if (result <= 0) {
-			this.countMap.removeKey(value as any);
-		} else {
-			this.countMap.set(value as any, result);
-		}
+		this.#size -= amountRemoved;
+		return amountRemoved;
+	};
 
-		this._size -= removed;
-		this.#changed = true;
-		return removed;
-	}
-
-	removeAll<U = T>(values: StreamSource<RelatedTo<T, U>>): boolean {
+	removeAll = <U = T>(values: StreamSource<RelatedTo<T, U>>): boolean => {
 		this.checkLock();
 
 		if (Stream.isEmptyStreamSourceInstance(values)) return false;
 
-		let changed = false;
+		const size = this.size;
 
-		Stream.from(values).forEach((value) => {
-			if (this.remove(value, Number.MAX_SAFE_INTEGER) > 0) changed = true;
-		});
+		Stream.from(values).forEachPure(this.remove);
 
-		return changed;
-	}
+		return this.size !== size;
+	};
 
 	setCount(value: T, amount: number): boolean {
 		this.checkLock();
@@ -145,7 +138,7 @@ export class MultiSetBuilder<T, Tp extends MultiSetTypes<T> = MultiSetTypes<T>>
 		if (amount <= 0) {
 			if (current <= 0) return false;
 			this.countMap.removeKey(value);
-			this._size -= current;
+			this.#size -= current;
 			this.#changed = true;
 			return true;
 		}
@@ -153,7 +146,7 @@ export class MultiSetBuilder<T, Tp extends MultiSetTypes<T> = MultiSetTypes<T>>
 		if (amount === current) return false;
 
 		this.countMap.set(value, amount);
-		this._size += amount - current;
+		this.#size += amount - current;
 		this.#changed = true;
 		return true;
 	}
@@ -164,13 +157,13 @@ export class MultiSetBuilder<T, Tp extends MultiSetTypes<T> = MultiSetTypes<T>>
 		return this.setCount(value, update(this.count(value)));
 	}
 
-	clear(): void {
+	clear = (): void => {
 		this.checkLock();
 
 		this.countMap.clear();
-		this._size = 0;
+		this.#size = 0;
 		this.#changed = true;
-	}
+	};
 
 	forEach(f: (value: T) => void): void {
 		this.startIteration();
@@ -191,12 +184,12 @@ export class MultiSetBuilder<T, Tp extends MultiSetTypes<T> = MultiSetTypes<T>>
 			return this.source as unknown as Tp['_NORMAL'];
 		}
 
-		if (this._size <= 0) return this.context.empty() as Tp['_NORMAL'];
+		if (this.#size <= 0) return this.context.empty() as Tp['_NORMAL'];
 
 		const context = this.context as unknown as MultiSetContext<T>;
 		return context.createNonEmpty(
 			this.countMap.build() as any,
-			this._size,
+			this.#size,
 		) as any;
 	}
 }
