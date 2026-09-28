@@ -551,9 +551,9 @@ export function runMultiSetTestsWith(name: string, MS: MultiSet.Context<any>) {
 				expect(b.removeAll(['z'])).toBe(false);
 				expect(b.removeAll(['y', 'z'])).toBe(false);
 				expect(b.removeAll(['c', 'z'])).toBe(true);
-				expect(b.count('c')).toBe(0);
+				expect(b.count('c')).toBe(1);
 				expect(b.removeAll(['a'])).toBe(true);
-				expect(b.count('a')).toBe(0);
+				expect(b.count('a')).toBe(1);
 			});
 		});
 
@@ -627,21 +627,21 @@ export function runMultiSetTestsWith(name: string, MS: MultiSet.Context<any>) {
 		it('modifyCount', () => {
 			const b = MS.builder<string>();
 
-			expect(b.modifyCount('b', () => 0)).toBe(false);
-			expect(b.modifyCount('b', () => 1)).toBe(true);
+			expect(b.modifyCount('b', () => 0)).toBe(0);
+			expect(b.modifyCount('b', () => 1)).toBe(1);
 			expect(b.count('b')).toBe(1);
-			expect(b.modifyCount('b', (v) => v + 1)).toBe(true);
+			expect(b.modifyCount('b', (v) => v + 1)).toBe(1);
 			expect(b.count('b')).toBe(2);
-			expect(b.modifyCount('b', () => 0)).toBe(true);
+			expect(b.modifyCount('b', () => 0)).toBe(-2);
 			expect(b.count('b')).toBe(0);
 
 			forEachBuilder((b) => {
-				expect(b.modifyCount('z', () => 0)).toBe(false);
-				expect(b.modifyCount('z', () => 2)).toBe(true);
+				expect(b.modifyCount('z', () => 0)).toBe(0);
+				expect(b.modifyCount('z', () => 2)).toBe(2);
 				expect(b.count('z')).toBe(2);
-				expect(b.modifyCount('z', () => 0)).toBe(true);
+				expect(b.modifyCount('z', () => 0)).toBe(-2);
 				expect(b.count('z')).toBe(0);
-				expect(b.modifyCount('b', (v) => v + 1)).toBe(true);
+				expect(b.modifyCount('b', (v) => v + 1)).toBe(1);
 				expect(b.count('b')).toBe(2);
 			});
 		});
@@ -657,14 +657,14 @@ export function runMultiSetTestsWith(name: string, MS: MultiSet.Context<any>) {
 				expect(b.remove('z', 0)).toBe(0);
 				expect(b.remove('z', 10)).toBe(0);
 
-				expect(b.remove('c')).toBe(1);
+				expect(b.remove('c')).toBe(-1);
 				expect(b.remove('c', 0)).toBe(0);
-				expect(b.remove('c', 10)).toBe(1);
-				expect(b.remove('a', 10)).toBe(2);
+				expect(b.remove('c', 10)).toBe(-1);
+				expect(b.remove('a', 10)).toBe(-2);
 			});
 		});
 
-		it.only('removeAll', () => {
+		it('removeAll', () => {
 			const b = MS.builder<string>();
 			expect(b.removeAll(['b'])).toBe(false);
 			expect(b.removeAll(['b', 'c'])).toBe(false);
@@ -683,15 +683,15 @@ export function runMultiSetTestsWith(name: string, MS: MultiSet.Context<any>) {
 
 		it('setCount', () => {
 			const b = MS.builder<string>();
-			expect(b.setCount('b', 0)).toBe(false);
-			expect(b.setCount('b', 2)).toBe(true);
-			expect(b.setCount('b', 2)).toBe(false);
+			expect(b.setCount('b', 0)).toBe(0);
+			expect(b.setCount('b', 2)).toBe(2);
+			expect(b.setCount('b', 2)).toBe(0);
 
 			forEachBuilder((b) => {
-				expect(b.setCount('z', 0)).toBe(false);
-				expect(b.setCount('b', 1)).toBe(false);
-				expect(b.setCount('b', 2)).toBe(true);
-				expect(b.setCount('b', 2)).toBe(false);
+				expect(b.setCount('z', 0)).toBe(0);
+				expect(b.setCount('b', 1)).toBe(0);
+				expect(b.setCount('b', 2)).toBe(1);
+				expect(b.setCount('b', 2)).toBe(0);
 				expect(b.size).toBe(6);
 			});
 		});

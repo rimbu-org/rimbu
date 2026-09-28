@@ -2,7 +2,6 @@ import type { Collection } from '@rimbu/collection-types/collection';
 import type { ValuedCollection } from '@rimbu/collection-types/collection/valued';
 import type { MapCollection } from '@rimbu/collection-types/map';
 import type { RelatedTo } from '@rimbu/common';
-import type { MultiSet } from '@rimbu/multiset';
 import type { StreamSource } from '@rimbu/stream';
 
 /**
@@ -135,11 +134,8 @@ export declare namespace MultiSetCollection {
 			}
 
 			export interface BuilderApi<T, Tp extends Collection.Advanced.TypesBase> {
-				setCount(value: T, amount: number): boolean;
-				modifyCount(
-					value: T,
-					update: (currentCount: number) => number,
-				): boolean;
+				setCount(value: T, amount: number): number;
+				modifyCount(value: T, update: (currentCount: number) => number): number;
 			}
 		}
 
@@ -164,21 +160,21 @@ export declare namespace MultiSetCollection {
 						valueCount: readonly [T, number],
 						index: number,
 					) => valueCount is [TF, number],
-					options?: { negate?: false | undefined },
-				): Collection.Advanced.FamToTypes<Tp['_FAM'], TF>['_NORMAL'];
+					options: { negate: true },
+				): Collection.Advanced.FamToTypes<
+					Tp['_FAM'],
+					TF extends never ? T : Exclude<T, TF>
+				>['_NORMAL'];
 				filterWithCounts<TF extends T>(
 					pred: (
 						valueCount: readonly [T, number],
 						index: number,
 					) => valueCount is [TF, number],
-					options: { negate: true },
-				): Collection.Advanced.FamToTypes<
-					Tp['_FAM'],
-					Exclude<T, TF>
-				>['_NORMAL'];
+					options?: { negate?: false | undefined } | undefined,
+				): Collection.Advanced.FamToTypes<Tp['_FAM'], TF>['_NORMAL'];
 				filterWithCounts(
 					pred: (valueCount: readonly [T, number], index: number) => boolean,
-					options?: { negate?: boolean | undefined },
+					options?: { negate?: boolean | undefined } | undefined,
 				): Tp['_NORMAL'];
 			}
 		}
@@ -205,26 +201,26 @@ export declare namespace MultiSetCollection {
 
 		export namespace WithUnion {
 			export interface Api<T, Tp extends Collection.Advanced.TypesBase> {
-				union<U extends T>(other: MultiSet.NonEmpty<U>): Tp['_NON_EMPTY'];
-				union<U extends T>(other: MultiSet<U>): Tp['_SELF'];
+				union<U extends T>(other: StreamSource.NonEmpty<U>): Tp['_NON_EMPTY'];
+				union<U extends T>(other: StreamSource<U>): Tp['_SELF'];
 			}
 		}
 
 		export namespace WithIntersection {
 			export interface Api<T, Tp extends Collection.Advanced.TypesBase> {
-				intersection<U extends T>(other: MultiSet<U>): Tp['_NORMAL'];
+				intersection<U extends T>(other: StreamSource<U>): Tp['_NORMAL'];
 			}
 		}
 
 		export namespace WithDifference {
 			export interface Api<T, Tp extends Collection.Advanced.TypesBase> {
-				difference<U extends T>(other: MultiSet<U>): Tp['_NORMAL'];
+				difference<U extends T>(other: StreamSource<U>): Tp['_NORMAL'];
 			}
 		}
 
 		export namespace WithSymmetricDifference {
 			export interface Api<T, Tp extends Collection.Advanced.TypesBase> {
-				symmetricDifference<U extends T>(other: MultiSet<U>): Tp['_NORMAL'];
+				symmetricDifference<U extends T>(other: StreamSource<U>): Tp['_NORMAL'];
 			}
 		}
 	}
