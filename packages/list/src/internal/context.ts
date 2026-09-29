@@ -194,7 +194,7 @@ export class ListContext<
 			return source;
 		} else if (!Stream.isEmptyStreamSourceInstance(source)) {
 			const builder = this.builder<T>();
-			builder.appendAll(source);
+			builder.appendEach(source);
 			return builder.build();
 		}
 
@@ -216,7 +216,7 @@ export class ListContext<
 			} else if (!Stream.isEmptyStreamSourceInstance(source)) {
 				const builder =
 					undefined === result ? this.builder<T>() : result.toBuilder();
-				builder.appendAll(source);
+				builder.appendEach(source);
 				if (!builder.isEmpty) {
 					result = builder.build().assumeNonEmpty();
 				}

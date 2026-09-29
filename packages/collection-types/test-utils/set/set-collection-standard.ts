@@ -18,7 +18,7 @@ export function runSetTestsWith(
 	context: SetCollection.Context<
 		Collection.Capability.WithToBuilder<any> &
 			Collection.Capability.WithReducer<any> &
-			Collection.Capability.WithAddAll<any> &
+			Collection.Capability.WithAddEach<any> &
 			ValuedCollection.Capability.WithDifference<any> &
 			ValuedCollection.Capability.WithIntersection<any> &
 			ValuedCollection.Capability.WithRemove<any> &
@@ -58,7 +58,7 @@ export function runSetTestsWith(
 		it('builder', () => {
 			const b = S.builder<number>();
 			expect(b.size).toBe(0);
-			b.addAll([1, 2]);
+			b.addEach([1, 2]);
 			expect(b.size).toBe(2);
 		});
 
@@ -96,13 +96,13 @@ export function runSetTestsWith(
 			expectEqual(set6_1.add(10), [10, ...arr6]);
 		});
 
-		it('addAll', () => {
-			expectEqual(setEmpty.addAll([1]), [1]);
-			expectEqual(set3_1.addAll([2]), arr3);
-			// expectEqual(set6_1.addAll([2]), arr6);
+		it('addEach', () => {
+			expectEqual(setEmpty.addEach([1]), [1]);
+			expectEqual(set3_1.addEach([2]), arr3);
+			// expectEqual(set6_1.addEach([2]), arr6);
 
-			// expectEqual(set3_1.addAll([10]), [10, ...arr3]);
-			// expectEqual(set6_1.addAll([10]), [10, ...arr6]);
+			// expectEqual(set3_1.addEach([10]), [10, ...arr3]);
+			// expectEqual(set6_1.addEach([10]), [10, ...arr6]);
 		});
 
 		it('asNormal', () => {
@@ -156,13 +156,13 @@ export function runSetTestsWith(
 			expectEqual(set6_1.add(10), [10, ...arr6]);
 		});
 
-		it('addAll', () => {
-			expectEqual(setEmpty.addAll([1]), [1]);
-			expectEqual(set3_1.addAll([2]), arr3);
-			expectEqual(set6_1.addAll([2]), arr6);
+		it('addEach', () => {
+			expectEqual(setEmpty.addEach([1]), [1]);
+			expectEqual(set3_1.addEach([2]), arr3);
+			expectEqual(set6_1.addEach([2]), arr6);
 
-			expectEqual(set3_1.addAll([10]), [10, ...arr3]);
-			expectEqual(set6_1.addAll([10]), [10, ...arr6]);
+			expectEqual(set3_1.addEach([10]), [10, ...arr3]);
+			expectEqual(set6_1.addEach([10]), [10, ...arr6]);
 		});
 
 		it('asNormal', () => {
@@ -273,13 +273,13 @@ export function runSetTestsWith(
 			expectEqual(set6_1.remove(2), [1, 3, 4, 5, 6]);
 		});
 
-		it('removeAll', () => {
-			expect(setEmpty.removeAll([10])).toBe(setEmpty);
-			expect(set3_1.removeAll([10])).toBe(set3_1);
-			expect(set6_1.removeAll([10])).toBe(set6_1);
+		it('removeEach', () => {
+			expect(setEmpty.removeEach([10])).toBe(setEmpty);
+			expect(set3_1.removeEach([10])).toBe(set3_1);
+			expect(set6_1.removeEach([10])).toBe(set6_1);
 
-			expectEqual(set3_1.removeAll([2]), [1, 3]);
-			expectEqual(set6_1.removeAll([2]), [1, 3, 4, 5, 6]);
+			expectEqual(set3_1.removeEach([2]), [1, 3]);
+			expectEqual(set6_1.removeEach([2]), [1, 3, 4, 5, 6]);
 		});
 
 		it('size', () => {

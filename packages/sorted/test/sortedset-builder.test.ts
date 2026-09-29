@@ -18,7 +18,7 @@ function runWith(name: string, context: SortedSet.Context<number>) {
 				.take(100)
 				.reduce([Reducer.min(), Reducer.toArray<number>()]);
 
-			builder.addAll(values);
+			builder.addEach(values);
 			expect(builder.min()).toBe(min);
 		});
 		it('max', () => {
@@ -30,7 +30,7 @@ function runWith(name: string, context: SortedSet.Context<number>) {
 				.take(100)
 				.reduce([Reducer.max(), Reducer.toArray<number>()]);
 
-			builder.addAll(values);
+			builder.addEach(values);
 			expect(builder.max()).toBe(min);
 		});
 		it('getAtIndex', () => {
@@ -39,7 +39,7 @@ function runWith(name: string, context: SortedSet.Context<number>) {
 			expect(builder.at(10, 1)).toBe(1);
 
 			const values = Stream.randomInt(0, 100).take(100).toArray();
-			builder.addAll(values);
+			builder.addEach(values);
 
 			values.sort();
 			const setValues = [...new Set(values.sort((a, b) => a - b))];
@@ -62,7 +62,7 @@ describe('builder specific', () => {
 
 	it('check shape', () => {
 		const builder = context.builder() as unknown as SortedSetBuilder<number>;
-		builder.addAll([2, 5, 7, 8, 10, 12, 18, 20, 22, 25, 28]);
+		builder.addEach([2, 5, 7, 8, 10, 12, 18, 20, 22, 25, 28]);
 		builder.remove(7);
 		builder.add(15);
 
@@ -76,11 +76,11 @@ describe('builder specific', () => {
 
 	it('remove borrow left', () => {
 		const builder = context.builder() as unknown as SortedSetBuilder<number>;
-		builder.addAll([2, 5, 7, 8, 10, 12, 18, 20, 22, 25, 28]);
+		builder.addEach([2, 5, 7, 8, 10, 12, 18, 20, 22, 25, 28]);
 		builder.remove(7);
 		builder.add(15);
 
-		builder.removeAll([22, 25]);
+		builder.removeEach([22, 25]);
 
 		expect(builder.size).toBe(9);
 		expect(builder.entries).toEqual([10, 18]);
@@ -92,11 +92,11 @@ describe('builder specific', () => {
 
 	it('remove borrow right', () => {
 		const builder = context.builder() as unknown as SortedSetBuilder<number>;
-		builder.addAll([2, 5, 7, 8, 10, 12, 18, 20, 22, 25, 28]);
+		builder.addEach([2, 5, 7, 8, 10, 12, 18, 20, 22, 25, 28]);
 		builder.remove(7);
 		builder.add(15);
 
-		builder.removeAll([2, 5]);
+		builder.removeEach([2, 5]);
 
 		expect(builder.size).toBe(9);
 		expect(builder.entries).toEqual([12, 20]);
@@ -108,11 +108,11 @@ describe('builder specific', () => {
 
 	it('remove join left', () => {
 		const builder = context.builder() as unknown as SortedSetBuilder<number>;
-		builder.addAll([2, 5, 7, 8, 10, 12, 18, 20, 22, 25, 28]);
+		builder.addEach([2, 5, 7, 8, 10, 12, 18, 20, 22, 25, 28]);
 		builder.remove(7);
 		builder.add(15);
 
-		builder.removeAll([22, 25, 20]);
+		builder.removeEach([22, 25, 20]);
 
 		expect(builder.size).toBe(8);
 		expect(builder.entries).toEqual([10]);
@@ -123,11 +123,11 @@ describe('builder specific', () => {
 
 	it('remove join right', () => {
 		const builder = context.builder() as unknown as SortedSetBuilder<number>;
-		builder.addAll([2, 5, 7, 8, 10, 12, 18, 20, 22, 25, 28]);
+		builder.addEach([2, 5, 7, 8, 10, 12, 18, 20, 22, 25, 28]);
 		builder.remove(7);
 		builder.add(15);
 
-		builder.removeAll([2, 5, 8]);
+		builder.removeEach([2, 5, 8]);
 
 		expect(builder.size).toBe(8);
 		expect(builder.entries).toEqual([20]);
@@ -138,11 +138,11 @@ describe('builder specific', () => {
 
 	it('add give left', () => {
 		const builder = context.builder() as unknown as SortedSetBuilder<number>;
-		builder.addAll([2, 5, 7, 8, 10, 12, 18, 20, 22, 25, 28]);
+		builder.addEach([2, 5, 7, 8, 10, 12, 18, 20, 22, 25, 28]);
 		builder.remove(7);
 		builder.add(15);
 
-		builder.addAll([30, 32]);
+		builder.addEach([30, 32]);
 
 		expect(builder.size).toBe(13);
 		expect(builder.entries).toEqual([10, 22]);
@@ -154,11 +154,11 @@ describe('builder specific', () => {
 
 	it('add give right', () => {
 		const builder = context.builder() as unknown as SortedSetBuilder<number>;
-		builder.addAll([2, 5, 7, 8, 10, 12, 18, 20, 22, 25, 28]);
+		builder.addEach([2, 5, 7, 8, 10, 12, 18, 20, 22, 25, 28]);
 		builder.remove(7);
 		builder.add(15);
 
-		builder.addAll([3, 4]);
+		builder.addEach([3, 4]);
 
 		expect(builder.size).toBe(13);
 		expect(builder.entries).toEqual([8, 20]);
@@ -170,11 +170,11 @@ describe('builder specific', () => {
 
 	it('add split left', () => {
 		const builder = context.builder() as unknown as SortedSetBuilder<number>;
-		builder.addAll([2, 5, 7, 8, 10, 12, 18, 20, 22, 25, 28]);
+		builder.addEach([2, 5, 7, 8, 10, 12, 18, 20, 22, 25, 28]);
 		builder.remove(7);
 		builder.add(15);
 
-		builder.addAll([6, 14, 3]);
+		builder.addEach([6, 14, 3]);
 
 		expect(builder.size).toBe(14);
 		expect(builder.entries).toEqual([5, 10, 20]);
@@ -187,11 +187,11 @@ describe('builder specific', () => {
 
 	it('add split right', () => {
 		const builder = context.builder() as unknown as SortedSetBuilder<number>;
-		builder.addAll([2, 5, 7, 8, 10, 12, 18, 20, 22, 25, 28]);
+		builder.addEach([2, 5, 7, 8, 10, 12, 18, 20, 22, 25, 28]);
 		builder.remove(7);
 		builder.add(15);
 
-		builder.addAll([14, 23, 24]);
+		builder.addEach([14, 23, 24]);
 
 		expect(builder.size).toBe(14);
 		expect(builder.entries).toEqual([10, 20, 24]);
@@ -204,7 +204,7 @@ describe('builder specific', () => {
 
 	it('deleteMin', () => {
 		const builder = context.builder() as unknown as SortedSetBuilder<number>;
-		builder.addAll([2, 5, 7, 8, 10, 12, 18, 20, 22, 25, 28]);
+		builder.addEach([2, 5, 7, 8, 10, 12, 18, 20, 22, 25, 28]);
 		builder.remove(7);
 		builder.add(15);
 
@@ -217,7 +217,7 @@ describe('builder specific', () => {
 
 	it('deleteMax', () => {
 		const builder = context.builder() as unknown as SortedSetBuilder<number>;
-		builder.addAll([2, 5, 7, 8, 10, 12, 18, 20, 22, 25, 28]);
+		builder.addEach([2, 5, 7, 8, 10, 12, 18, 20, 22, 25, 28]);
 		builder.remove(7);
 		builder.add(15);
 

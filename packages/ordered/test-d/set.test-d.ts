@@ -25,10 +25,10 @@ expectTypeOf(genNonEmpty[Symbol.iterator]()).toEqualTypeOf<FastIterator<number>>
 expectTypeOf(genEmpty.add(1)).toEqualTypeOf<G_NonEmpty>();
 expectTypeOf(genNonEmpty.add(1)).toEqualTypeOf<G_NonEmpty>();
 
-// .addAll(..)
-expectTypeOf(genEmpty.addAll([])).toEqualTypeOf<G_Empty>();
-expectTypeOf(genEmpty.addAll([1, 2, 3])).toEqualTypeOf<G_NonEmpty>();
-expectTypeOf(genNonEmpty.addAll([1, 2, 3])).toEqualTypeOf<G_NonEmpty>();
+// .addEach(..)
+expectTypeOf(genEmpty.addEach([])).toEqualTypeOf<G_Empty>();
+expectTypeOf(genEmpty.addEach([1, 2, 3])).toEqualTypeOf<G_NonEmpty>();
+expectTypeOf(genNonEmpty.addEach([1, 2, 3])).toEqualTypeOf<G_NonEmpty>();
 
 // .assumeNonEmpty()
 expectTypeOf(genEmpty.assumeNonEmpty()).toEqualTypeOf<G_NonEmpty>();
@@ -70,9 +70,9 @@ expectTypeOf(genNonEmpty.nonEmpty()).toEqualTypeOf<boolean>();
 expectTypeOf(genEmpty.remove(3)).toEqualTypeOf<G_Empty>();
 expectTypeOf(genNonEmpty.remove(3)).toEqualTypeOf<G_Empty>();
 
-// .removeAll(..)
-expectTypeOf(genEmpty.removeAll([3, 4])).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.removeAll([3, 4])).toEqualTypeOf<G_Empty>();
+// .removeEach(..)
+expectTypeOf(genEmpty.removeEach([3, 4])).toEqualTypeOf<G_Empty>();
+expectTypeOf(genNonEmpty.removeEach([3, 4])).toEqualTypeOf<G_Empty>();
 
 // .stream()
 expectTypeOf(genEmpty.stream()).toEqualTypeOf<Stream<number>>();

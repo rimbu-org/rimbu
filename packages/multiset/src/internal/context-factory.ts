@@ -3,7 +3,7 @@ import type { MapCollection } from '@rimbu/collection-types/map';
 import type { MultiSet, MultiSetCollection } from '@rimbu/multiset';
 import type { StreamSource } from '@rimbu/stream';
 
-import { ContextBaseWithAddAll } from '@rimbu/collection-types/advanced/collection-base';
+import { ContextBaseWithAddEach } from '@rimbu/collection-types/advanced/collection-base';
 import { Reducer } from '@rimbu/stream/reducer';
 
 import { MultiSetBuilder } from '#multiset/builder';
@@ -26,7 +26,7 @@ export interface MultiSetContext<UT>
 }
 
 export class MultiSetContextImpl<UT, FAM extends MultiSet.Advanced.Family<UT>>
-	extends ContextBaseWithAddAll<FAM>
+	extends ContextBaseWithAddEach<FAM>
 	implements MultiSetCollection.Advanced.ContextApi<UT, FAM>
 {
 	static createDefault<UT, F extends MultiSet.Advanced.Family<UT>>(

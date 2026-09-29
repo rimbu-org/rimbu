@@ -17,7 +17,7 @@ import type {
 } from './collection/keyed-base';
 
 import {
-	defaultFlatMapByAddAll,
+	defaultFlatMapByAddEach,
 	defaultFlatMapIndexed,
 	defaultMapIndexed,
 } from '@rimbu/collection-types/advanced/collection-base';
@@ -139,7 +139,7 @@ export namespace MapCollectionNonEmpty {
 			MapCollection.Capability.WithUpdateAtKey.Api<K, V, Tp>,
 			KeyedCollection.Capability.WithRemoveKey.Api<K, V, Tp>,
 			KeyedCollection.Capability.WithRemoveKeys.Api<K, V, Tp>,
-			Collection.Capability.WithAddAll.Api<readonly [K, V], Tp>,
+			Collection.Capability.WithAddEach.Api<readonly [K, V], Tp>,
 			Collection.Capability.WithFilter.Api<readonly [K, V], Tp>,
 			KeyedCollection.Capability.WithMap.Api<K, V, Tp>,
 			KeyedCollection.Capability.WithMapIndexed.Api<K, V, Tp>,
@@ -235,11 +235,11 @@ export namespace MapCollectionNonEmpty {
 				return this.add([key, value]);
 			}
 
-			addAll(entries: StreamSource<readonly [K, V]>): Tp['_NON_EMPTY'] {
+			addEach(entries: StreamSource<readonly [K, V]>): Tp['_NON_EMPTY'] {
 				if (Stream.isEmptyStreamSourceInstance(entries)) return this as any;
 
 				const builder = this.toBuilder();
-				builder.addAll(entries);
+				builder.addEach(entries);
 				return builder.build().assumeNonEmpty();
 			}
 
@@ -365,7 +365,7 @@ export namespace MapCollectionNonEmpty {
 			): Tp['_NORMAL'] {
 				const builder = this.context.builder<readonly [K, V]>();
 
-				builder.addAll(this.stream().filter(pred, options));
+				builder.addEach(this.stream().filter(pred, options));
 
 				if (builder.size === this.size) return this as any;
 
@@ -392,7 +392,7 @@ export namespace MapCollectionNonEmpty {
 			flatMap<E2 extends readonly [Tp['_UPPER_K'], Tp['_UPPER_V']]>(
 				f: (entry: readonly [K, V]) => StreamSource<E2>,
 			): Collection.Advanced.ReTyped<Tp, E2>['_SELF'] {
-				return defaultFlatMapByAddAll<readonly [K, V], E2, any, any>(
+				return defaultFlatMapByAddEach<readonly [K, V], E2, any, any>(
 					this,
 					f,
 				) as any;

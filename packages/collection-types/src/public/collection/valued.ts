@@ -108,25 +108,25 @@ export declare namespace ValuedCollection {
 			}
 		}
 
-		export interface WithRemoveAll<E>
+		export interface WithRemoveEach<E>
 			extends Collection.Advanced.FamilyBase<E> {
-			_NORMAL: WithRemoveAll.Api<E, this['_TYPES']>;
-			_NON_EMPTY: WithRemoveAll.Api<E, this['_TYPES_NON_EMPTY']>;
-			_BUILDER: WithRemoveAll.BuilderApi<E, this['_TYPES']>;
+			_NORMAL: WithRemoveEach.Api<E, this['_TYPES']>;
+			_NON_EMPTY: WithRemoveEach.Api<E, this['_TYPES_NON_EMPTY']>;
+			_BUILDER: WithRemoveEach.BuilderApi<E, this['_TYPES']>;
 
-			_FAM: WithRemoveAll<E>;
-			_NEW_FAMILY: WithRemoveAll<this['_NEW_E']>;
+			_FAM: WithRemoveEach<E>;
+			_NEW_FAMILY: WithRemoveEach<this['_NEW_E']>;
 		}
 
-		export namespace WithRemoveAll {
+		export namespace WithRemoveEach {
 			export interface Api<E, Tp extends Collection.Advanced.TypesBase> {
-				removeAll<UE = E>(
+				removeEach<UE = E>(
 					elements: StreamSource<RelatedTo<E, UE>>,
 				): Tp['_NORMAL'];
 			}
 
 			export interface BuilderApi<E, Tp extends Collection.Advanced.TypesBase> {
-				removeAll<UE = E>(elements: StreamSource<RelatedTo<E, UE>>): boolean;
+				removeEach<UE = E>(elements: StreamSource<RelatedTo<E, UE>>): boolean;
 			}
 		}
 

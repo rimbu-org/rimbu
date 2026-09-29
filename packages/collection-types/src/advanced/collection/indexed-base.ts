@@ -19,7 +19,7 @@ export namespace IndexedCollectionEmpty {
 	export interface Base<E, Tp extends Collection.Advanced.TypesBase>
 		extends IndexedCollection.Advanced.Api<E, Tp>,
 			Collection.Capability.WithAdd.Api<E, Tp>,
-			Collection.Capability.WithAddAll.Api<E, Tp>,
+			Collection.Capability.WithAddEach.Api<E, Tp>,
 			Collection.Capability.WithFlatMap.Api<E, Tp>,
 			Collection.Capability.WithFlatMapIndexed.Api<E, Tp>,
 			Collection.Capability.WithMap.Api<E, Tp>,
@@ -65,7 +65,7 @@ export namespace IndexedCollectionEmpty {
 				return this.context.of;
 			}
 
-			get addAll() {
+			get addEach() {
 				return this.context.from;
 			}
 

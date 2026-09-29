@@ -181,7 +181,7 @@ export class SortedMapBuilder<K, V>
 		return result;
 	};
 
-	addAll = (source: StreamSource<readonly [K, V]>): boolean => {
+	addEach = (source: StreamSource<readonly [K, V]>): boolean => {
 		this.checkLock();
 
 		return Stream.from(source).filterPure({ pred: this.add }).count() > 0;

@@ -63,13 +63,13 @@ export class MultiSetNonEmptyBase<
 		return this.countMap.stream();
 	}
 
-	has<U = T>(value: RelatedTo<T, U>): boolean {
+	has = <U = T>(value: RelatedTo<T, U>): boolean => {
 		return this.countMap.has(value);
-	}
+	};
 
-	count<U = T>(value: RelatedTo<T, U>): number {
+	count = <U = T>(value: RelatedTo<T, U>): number => {
 		return this.countMap.get(value, 0);
-	}
+	};
 
 	add(value: T, amount = 1): MultiSet.NonEmpty<T> {
 		if (amount <= 0) return this;
@@ -84,21 +84,22 @@ export class MultiSetNonEmptyBase<
 		return this.#copy(countMap, this.size + amount);
 	}
 
-	addAll(values: StreamSource<T>): MultiSet.NonEmpty<T> {
+	addEach(values: StreamSource<T>): MultiSet.NonEmpty<T> {
 		if (Stream.isEmptyStreamSourceInstance(values)) return this;
 
 		const builder = this.toBuilder();
-		builder.addAll(values);
+		builder.addEach(values);
+
 		return builder.build().assumeNonEmpty();
 	}
 
-	addAllWithCounts(
+	addEachWithCounts(
 		valueCounts: StreamSource<readonly [T, number]>,
 	): MultiSet.NonEmpty<T> {
 		if (Stream.isEmptyStreamSourceInstance(valueCounts)) return this;
 
 		const builder = this.toBuilder();
-		builder.addAllWithCounts(valueCounts);
+		builder.addEachWithCounts(valueCounts);
 		return builder.build().assumeNonEmpty();
 	}
 
@@ -137,6 +138,8 @@ export class MultiSetNonEmptyBase<
 			},
 		});
 
+		if (newSize === this.size) return this;
+
 		if (newCountMap.nonEmpty()) {
 			return this.#copy(newCountMap, newSize);
 		}
@@ -150,22 +153,54 @@ export class MultiSetNonEmptyBase<
 		return this.modifyCount(value, (value) => value - amount);
 	}
 
-	removeAll<U = T>(values: StreamSource<RelatedTo<T, U>>): MultiSet<T> {
+	removeEach<U = T>(values: StreamSource<RelatedTo<T, U>>): MultiSet<T> {
 		if (Stream.isEmptyStreamSourceInstance(values)) return this;
 		if (this === (values as unknown)) return this.context.empty();
 
 		const builder = this.toBuilder();
-		builder.removeAll(values);
+		builder.removeEach(values);
+
+		if (builder.size === this.size) return this;
 		return builder.build();
 	}
 
+	removeAll<U = T>(value: RelatedTo<T, U>): MultiSet<T> {
+		if (!this.context.isValidElem(value)) return this;
+
+		const removeResult = this.countMap.removeKeyAndReturn(value);
+
+		if (!removeResult.hasResult) return this;
+
+		if (removeResult.collection.nonEmpty()) {
+			return this.#copy(
+				removeResult.collection,
+				this.size - removeResult.result,
+			);
+		}
+
+		return this.context.empty();
+	}
+
+	mapCounts(f: (currentCount: number, value: T) => number): MultiSet<T> {
+		let newCount = 0;
+
+		return this.#copy(
+			this.countMap.mapValues((currentCount, value) => {
+				const result = f(currentCount, value);
+				newCount += result;
+				return result;
+			}),
+			newCount,
+		);
+	}
+
 	union<U extends T>(other: StreamSource<U>): MultiSet.NonEmpty<T> {
-		if (other instanceof MultiSetNonEmptyBase) {
-			return this.addAllWithCounts(other.countMap);
+		if (other === this) {
+			return this.mapCounts((count) => count * 2).assumeNonEmpty();
 		}
 
 		const builder = this.toBuilder();
-		builder.addAll(other);
+		builder.addEach(other);
 		return builder.build().assumeNonEmpty();
 	}
 
@@ -175,19 +210,22 @@ export class MultiSetNonEmptyBase<
 		if (other instanceof MultiSetNonEmptyBase) {
 			if (other === this) return this;
 
-			const iter = (other as MultiSet.NonEmpty<T>)
-				.streamWithCounts()
-				[Symbol.iterator]();
-
+			const iter = other.streamWithCounts()[Symbol.iterator]();
 			let entry: readonly [T, number] | undefined;
 
 			const builder = this.toBuilder();
+
 			while (undefined !== (entry = iter.fastNext())) {
 				const [value, amount] = entry;
 				builder.modifyCount(value, (currentCount) =>
 					Math.min(currentCount, amount),
 				);
 			}
+
+			this.streamDistinct()
+				.filterPure({ pred: other.has, negate: true })
+				.forEachPure(builder.removeAll);
+
 			return builder.build();
 		}
 
@@ -256,25 +294,25 @@ export class MultiSetNonEmptyBase<
 	}
 
 	filterWithCounts<TF extends T>(
-		pred: (
-			valueCount: readonly [T, number],
-			index: number,
-		) => valueCount is [TF, number],
+		pred: (valueCount: readonly [T, number]) => valueCount is [TF, number],
 		options: { negate: true },
 	): MultiSet<TF extends never ? T : Exclude<T, TF>>;
 	filterWithCounts<TF extends T>(
-		pred: (
-			valueCount: readonly [T, number],
-			index: number,
-		) => valueCount is [TF, number],
+		pred: (valueCount: readonly [T, number]) => valueCount is [TF, number],
 		options?: { negate?: false | undefined } | undefined,
 	): MultiSet<TF>;
 	filterWithCounts(
-		pred: (valueCount: readonly [T, number], index: number) => boolean,
+		pred: (valueCount: readonly [T, number]) => boolean,
 		options?: { negate?: boolean | undefined } | undefined,
 	): MultiSet<T> {
 		const builder = this.context.builder<T>();
-		Stream.applyForEach(this.streamWithCounts(), this.add);
+		Stream.applyForEach(
+			this.streamWithCounts().filterPure({
+				pred,
+				negate: options?.negate,
+			}),
+			builder.add,
+		);
 
 		if (builder.size === this.size) return this;
 

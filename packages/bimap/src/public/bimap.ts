@@ -92,8 +92,8 @@ export namespace BiMap {
 			// `_UPPER_V` — cannot be structurally satisfied. BiMap does not claim
 			// the merge surface; restate it loosely rather than drop the
 			// `MapCollection.Advanced.Family` relation.
-			mergeAllWith: (...args: any[]) => any;
-			mergeAll: (...args: any[]) => any;
+			mergeEachWith: (...args: any[]) => any;
+			mergeEach: (...args: any[]) => any;
 			mergeWith: (...args: any[]) => any;
 			merge: (...args: any[]) => any;
 		}

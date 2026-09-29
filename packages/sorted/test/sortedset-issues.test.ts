@@ -20,7 +20,7 @@ describe('SortedSet issues fixed by PRs', () => {
 
 		for (const i of Stream.range({ start: 0, end: 5 })) {
 			// add [0 .. 10], [10 .. 20], [20 .. 30] ...
-			set = set.addAll(Stream.range({ start: i * 10, amount: 10 }));
+			set = set.addEach(Stream.range({ start: i * 10, amount: 10 }));
 			expect(set.at(-1)).toBe(i * 10 + 9);
 		}
 	});

@@ -1,5 +1,6 @@
 import type { Collection } from '@rimbu/collection-types/collection';
 import type { MapCollection } from '@rimbu/collection-types/map';
+import type { RelatedTo } from '@rimbu/common';
 import type { MultiSet } from '@rimbu/multiset';
 import type { StreamSource } from '@rimbu/stream';
 
@@ -63,13 +64,13 @@ export class MultiSetEmpty<
 		return this.context.createNonEmpty(countMap, addAmount) as any;
 	}
 
-	addAllWithCounts(
+	addEachWithCounts(
 		valueCounts: StreamSource<readonly [T, number]>,
 	): Tp['_SELF'] {
 		if (Stream.isEmptyStreamSourceInstance(valueCounts)) return this as any;
 
 		const builder = this.toBuilder();
-		builder.addAllWithCounts(valueCounts);
+		builder.addEachWithCounts(valueCounts);
 		return builder.build() as any;
 	}
 
@@ -89,6 +90,10 @@ export class MultiSetEmpty<
 	}
 
 	filterWithCounts(): Tp['_NORMAL'] {
+		return this as any;
+	}
+
+	removeAll<U = T>(_value: RelatedTo<T, U>): Tp['_NORMAL'] {
 		return this as any;
 	}
 

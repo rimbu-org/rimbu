@@ -9,8 +9,8 @@ import {
 	type ApiMixin,
 	type ApiMixinNonEmpty,
 	type CollectionNonEmpty,
-	defaultAddAll,
-	defaultFlatMapByAddAll,
+	defaultAddEach,
+	defaultFlatMapByAddEach,
 	defaultFlatMapIndexed,
 } from '@rimbu/collection-types/advanced/collection-base';
 import { Stream, type StreamSource } from '@rimbu/stream';
@@ -23,11 +23,11 @@ export namespace SetCollectionNonEmpty {
 			Collection.Advanced.FamilyBase<E>,
 			E
 		>,
-	> extends Collection.Capability.WithAddAll.Api<E, Tp>,
+	> extends Collection.Capability.WithAddEach.Api<E, Tp>,
 			Collection.Capability.WithMapIndexed.Api<E, Tp>,
 			Collection.Capability.WithFlatMap.Api<E, Tp>,
 			Collection.Capability.WithFlatMapIndexed.Api<E, Tp>,
-			ValuedCollection.Capability.WithRemoveAll.Api<E, Tp>,
+			ValuedCollection.Capability.WithRemoveEach.Api<E, Tp>,
 			ValuedCollection.Capability.WithSymmetricDifference.Api<E, Tp>,
 			ValuedCollection.Capability.WithUnion.Api<E, Tp>,
 			ValuedCollection.Capability.WithDifference.Api<E, Tp>,
@@ -130,12 +130,12 @@ export namespace SetCollectionNonEmpty {
 			abstract mutate(f: (builder: Tp['_BUILDER']) => void): Tp['_NORMAL'];
 			abstract toBuilder(): Tp['_BUILDER'];
 
-			addAll(elements: StreamSource<E>): Tp['_NON_EMPTY'] {
+			addEach(elements: StreamSource<E>): Tp['_NON_EMPTY'] {
 				if (this === elements) {
 					return this;
 				}
 
-				return defaultAddAll(this, elements) as Tp['_NON_EMPTY'];
+				return defaultAddEach(this, elements) as Tp['_NON_EMPTY'];
 			}
 
 			mapIndexed<E2>(
@@ -149,7 +149,7 @@ export namespace SetCollectionNonEmpty {
 			flatMap<E2>(
 				f: (element: E) => StreamSource<E2>,
 			): Collection.Advanced.ReTyped<Tp, E2>['_SELF'] {
-				return defaultFlatMapByAddAll(this, f) as any;
+				return defaultFlatMapByAddEach(this, f) as any;
 			}
 
 			flatMapIndexed<E2>(
@@ -160,11 +160,11 @@ export namespace SetCollectionNonEmpty {
 			}
 
 			union(other: StreamSource<E>): Tp['_NON_EMPTY'] {
-				return this.addAll(other);
+				return this.addEach(other);
 			}
 
 			difference(other: StreamSource<E>): Tp['_NORMAL'] {
-				return this.removeAll(other);
+				return this.removeEach(other);
 			}
 
 			intersection(other: StreamSource<E>): Tp['_NORMAL'] {
@@ -179,13 +179,13 @@ export namespace SetCollectionNonEmpty {
 				return defaultSymDifferenceByRemove(this, other);
 			}
 
-			removeAll(elements: StreamSource<E>): Tp['_NORMAL'] {
+			removeEach(elements: StreamSource<E>): Tp['_NORMAL'] {
 				if (this === elements) {
 					return this.context.empty();
 				}
 
 				const builder = this.toBuilder();
-				builder.removeAll(elements);
+				builder.removeEach(elements);
 				if (builder.size === this.size) return this;
 				return builder.build();
 			}
@@ -219,12 +219,12 @@ export function defaultFlatMapByUnion<
 export function defaultUnionByAdd<
 	E,
 	C extends SetCollection.NonEmpty<E, FAM>,
-	FAM extends Collection.Capability.WithAddAll<E>,
+	FAM extends Collection.Capability.WithAddEach<E>,
 >(col: C, other: StreamSource<E>): FAM['_NORMAL'] {
 	if (other === col) return col;
 	if (Stream.isEmptyStreamSourceInstance(other)) return col;
 
-	return col.addAll(other);
+	return col.addEach(other);
 }
 
 export function defaultDifferenceByRemove<
@@ -235,13 +235,13 @@ export function defaultDifferenceByRemove<
 	if (other === col) return col.context.empty();
 	if (Stream.isEmptyStreamSourceInstance(other)) return col;
 
-	return col.removeAll(other);
+	return col.removeEach(other);
 }
 
 export function defaultIntersectByAdd<
 	E,
 	C extends SetCollection.NonEmpty<E, FAM>,
-	FAM extends Collection.Capability.WithAddAll<E>,
+	FAM extends Collection.Capability.WithAddEach<E>,
 >(col: C, other: StreamSource<E>): FAM['_NORMAL'] {
 	if (other === col) return col;
 	if (Stream.isEmptyStreamSourceInstance(other)) return col.context.empty();
@@ -274,7 +274,7 @@ export function defaultSymDifferenceByRemove<
 export function defaultReducerByAdd<
 	E,
 	F extends Collection.Capability.WithToBuilder<E> &
-		Collection.Capability.WithAddAll<E>,
+		Collection.Capability.WithAddEach<E>,
 >(
 	context: SetCollection.Context<F>,
 	source?: StreamSource<E>,

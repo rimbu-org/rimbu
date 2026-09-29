@@ -47,7 +47,7 @@ src/
 Each concrete variant declares its own `Advanced.Family<T>` extending
 `MultiSet.Advanced.Family<T>`, which in turn extends
 `ValuedCollection.Advanced.Family<T>` plus `Collection.Capability.WithAdd`,
-`WithAddAll`, and `WithToBuilder`. The family pins the HKT slots
+`WithAddEach`, and `WithToBuilder`. The family pins the HKT slots
 (`_NORMAL`, `_NON_EMPTY`, `_BUILDER`, `_CONTEXT`, `_UPPER_E`, `_INVARIANT`, `_FAM`,
 `_NEW_FAMILY`).
 
@@ -68,10 +68,11 @@ delegate maps.
 | `WithCountStreams` | `streamDistinct`, `streamWithCounts` |
 | `WithCountMap` | `countMap` |
 | `WithSetCount` | `setCount`, `modifyCount` |
-| `WithAddAllWithCounts` | `addAllWithCounts` |
+| `WithAddEachWithCounts` | `addEachWithCounts` |
 | `WithFilterWithCounts` | `filterWithCounts` |
 | `WithRemove` | `remove(value, amount?)` (default `1`) |
-| `WithRemoveAll` | `removeAll(values)` (all occurrences of each) |
+| `WithRemoveEach` | `removeEach(values)` (all occurrences of each) |
+| `WithRemoveAll` | `removeAll(value)` (all occurrences of a single value) |
 | `WithUnion` / `WithIntersection` / `WithDifference` / `WithSymmetricDifference` | count-wise algebra over `MultiSet` operands |
 
 The amount-carrying `add(value, amount)` overload is declared directly on
@@ -83,7 +84,7 @@ literal-amount trick: `0 extends N ? Tp['_SELF'] : Tp['_NON_EMPTY']`, so
 
 - `MultiSetEmpty<T, Tp>` extends
   `ValuedCollectionEmpty.WithMixin(CollectionEmpty.Constructor)` and overrides the
-  valued mixin's boolean set algebra (`add`, `addAll`, `remove`, `removeAll`,
+  valued mixin's boolean set algebra (`add`, `addEach`, `remove`, `removeEach`,
   `union`, `intersection`, `difference`, `symmetricDifference`) with the count-wise
   MultiSet algebra. It implements the count API directly.
 - `MultiSetNonEmptyBase<T, Tp>` extends
@@ -93,7 +94,7 @@ literal-amount trick: `0 extends N ? Tp['_SELF'] : Tp['_NON_EMPTY']`, so
   stays on the class.
 - `MultiSetBuilder<T, Tp>` extends `CollectionBuilderBase<T, Tp['_FAM'], Tp>`.
 
-Contexts (`internal/context-factory.ts`) extend `ContextBaseWithAddAll<FAM>` and
+Contexts (`internal/context-factory.ts`) extend `ContextBaseWithAddEach<FAM>` and
 expose `typeTag`, `countMapContext` (a `MapCollection.Context`, defaulting to
 `HashMap` / `SortedMap`), `isValidElem`, `reducer`, and memoised `empty`.
 
@@ -116,9 +117,13 @@ Operands are `MultiSet<U>` (`U extends T`), so cross-variant operations work
 - `symmetricDifference` → `|thisCount − otherCount|`
 
 ### Removal
-- `remove(value, amount?)` removes `amount` occurrences (default `1`).
-- `removeAll(values)` removes **all** occurrences of every value in `values`.
-There is no `'ALL'` option and no options object; `amount` is positional.
+- `remove(value, amount?)` removes `amount` occurrences (default `1`). There is no
+  `'ALL'` option and no options object; `amount` is positional.
+- `removeAll(value)` removes **all** occurrences of a single `value` (its count
+  becomes `0`). It is the count-wise analogue of the set-level `removeEach`.
+- `removeEach(values)` removes every occurrence listed in `values`. Because `values`
+  is a `StreamSource`, passing a `MultiSet` removes all of its occurrences, while
+  passing a plain array of distinct values removes one occurrence each.
 
 ### NonEmpty tracking
 `add` → non-empty; `union` returns non-empty whenever either operand is non-empty;
@@ -148,7 +153,7 @@ All commands run from this package directory. Per the root guide, **always
 
 ## Changesets
 
-Removing `VariantMultiSet`, changing `remove`/`removeAll` signatures, and renaming
+Removing `VariantMultiSet`, changing `remove`/`removeEach` signatures, and renaming
 `intersect`/`symDifference` to `intersection`/`symmetricDifference` are **breaking
 changes** and require a `major` bump. Because all Rimbu packages are lockstep-fixed, a
 single changeset listing `@rimbu/multiset` **and** `@rimbu/core` bumps both.

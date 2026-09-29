@@ -37,8 +37,10 @@ expectTypeOf(genNonEmpty.getNearestMatch(1, 'a')).toEqualTypeOf<
 // Add / set
 expectTypeOf(genEmpty.add([1, 'a'])).toEqualTypeOf<GNE<number, string>>();
 expectTypeOf(genNonEmpty.add([1, 'a'])).toEqualTypeOf<GNE<number, string>>();
-expectTypeOf(genEmpty.addAll(genEmpty)).toEqualTypeOf<GE<number, string>>();
-expectTypeOf(genEmpty.addAll(genNonEmpty)).toEqualTypeOf<GNE<number, string>>();
+expectTypeOf(genEmpty.addEach(genEmpty)).toEqualTypeOf<GE<number, string>>();
+expectTypeOf(genEmpty.addEach(genNonEmpty)).toEqualTypeOf<
+	GNE<number, string>
+>();
 expectTypeOf(genNonEmpty.set(1, 'a')).toEqualTypeOf<GNE<number, string>>();
 
 // Remove

@@ -163,7 +163,7 @@ export class OrderedMapBuilder<K, V>
 		return true;
 	};
 
-	addAll = (entries: StreamSource<readonly [K, V]>): boolean => {
+	addEach = (entries: StreamSource<readonly [K, V]>): boolean => {
 		this.checkLock();
 
 		let changed = false;

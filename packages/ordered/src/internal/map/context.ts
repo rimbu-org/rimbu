@@ -4,7 +4,7 @@ import type { SortedMap } from '@rimbu/sorted/map';
 import type { StreamSource } from '@rimbu/stream';
 
 import { KeyedCollectionContextBase } from '@rimbu/collection-types/advanced/collection/keyed-base';
-import { ContextBaseWithAddAll } from '@rimbu/collection-types/advanced/collection-base';
+import { ContextBaseWithAddEach } from '@rimbu/collection-types/advanced/collection-base';
 import { HashMap } from '@rimbu/hashed/map';
 import { SortedMap as SortedMapValue } from '@rimbu/sorted/map';
 import { Stream } from '@rimbu/stream';
@@ -22,7 +22,7 @@ import { OrderedMapNonEmpty } from '#ordered/map/non-empty';
  * @typeparam UK - the upper key type bound for which the context can be used
  */
 export class OrderedMapContext<UK>
-	extends ContextBaseWithAddAll<OrderedMap.Advanced.Family<UK, any>>
+	extends ContextBaseWithAddEach<OrderedMap.Advanced.Family<UK, any>>
 	implements
 		OrderedMap.Advanced.ContextApi<UK, OrderedMap.Advanced.Family<UK, any>>
 {
@@ -203,7 +203,7 @@ export class OrderedMapKeyedContext<UK>
 		return this.context.reducer as any;
 	}
 
-	mergeAllWith = (
+	mergeEachWith = (
 		sources: readonly StreamSource<readonly [UK, any]>[],
 		options: { fillValue?: any; merge: (key: UK, values: any) => any },
 	): OrderedMap.NonEmpty<UK, any> => {
@@ -247,11 +247,11 @@ export class OrderedMapKeyedContext<UK>
 		) as OrderedMap.NonEmpty<UK, any>;
 	};
 
-	mergeAll = (
+	mergeEach = (
 		sources: readonly StreamSource<readonly [UK, any]>[],
 		options: { fillValue?: any } = {},
 	): OrderedMap.NonEmpty<UK, any> => {
-		return this.mergeAllWith(sources, {
+		return this.mergeEachWith(sources, {
 			fillValue: options.fillValue,
 			merge: (_key, values) => values,
 		});

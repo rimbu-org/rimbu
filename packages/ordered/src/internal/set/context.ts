@@ -3,7 +3,7 @@ import type { OrderedSet } from '@rimbu/ordered/set';
 import type { SortedMap } from '@rimbu/sorted/map';
 import type { StreamSource } from '@rimbu/stream';
 
-import { ContextBaseWithAddAll } from '@rimbu/collection-types/advanced/collection-base';
+import { ContextBaseWithAddEach } from '@rimbu/collection-types/advanced/collection-base';
 import { HashMap } from '@rimbu/hashed/map';
 import { SortedMap as SortedMapValue } from '@rimbu/sorted/map';
 import { Reducer } from '@rimbu/stream/reducer';
@@ -20,7 +20,7 @@ import { OrderedSetNonEmpty } from '#ordered/set/non-empty';
  * @typeparam UE - the upper element type bound for which the context can be used
  */
 export class OrderedSetContext<UE>
-	extends ContextBaseWithAddAll<OrderedSet.Advanced.Family<UE>>
+	extends ContextBaseWithAddEach<OrderedSet.Advanced.Family<UE>>
 	implements OrderedSet.Advanced.ContextApi<UE, OrderedSet.Advanced.Family<UE>>
 {
 	static createDefault<UE>(options?: {

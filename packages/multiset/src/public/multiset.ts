@@ -58,7 +58,7 @@ export namespace MultiSet {
 			extends MultiSetCollection.Advanced.FamilyBase<T>,
 				ValuedCollection.Advanced.Family<T>,
 				Collection.Capability.WithAdd<T>,
-				Collection.Capability.WithAddAll<T>,
+				Collection.Capability.WithAddEach<T>,
 				Collection.Capability.WithToBuilder<T> {
 			_NORMAL: MultiSet<T>;
 			_NON_EMPTY: MultiSet.NonEmpty<T>;

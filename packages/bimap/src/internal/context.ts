@@ -3,7 +3,7 @@ import type { MapCollection } from '@rimbu/collection-types/map';
 import type { StreamSource } from '@rimbu/stream';
 
 import { KeyedCollectionContextBase } from '@rimbu/collection-types/advanced/collection/keyed-base';
-import { ContextBaseWithAddAll } from '@rimbu/collection-types/advanced/collection-base';
+import { ContextBaseWithAddEach } from '@rimbu/collection-types/advanced/collection-base';
 import { HashMap } from '@rimbu/hashed/map';
 import { Reducer } from '@rimbu/stream/reducer';
 
@@ -12,7 +12,7 @@ import { BiMapEmpty } from '#bimap/immutable/empty';
 import { BiMapNonEmpty } from '#bimap/immutable/non-empty';
 
 export class BiMapCollectionContext<UK, UV>
-	extends ContextBaseWithAddAll<BiMap.Advanced.Family<UK, UV>>
+	extends ContextBaseWithAddEach<BiMap.Advanced.Family<UK, UV>>
 	implements BiMap.Advanced.ContextApi<UK, UV, BiMap.Advanced.Family<UK, UV>>
 {
 	static createDefault<UK, UV>(options?: {
@@ -207,20 +207,20 @@ export class BiMapKeyedContext<UK, UV>
 		return this.context.reducer as any;
 	}
 
-	mergeAllWith = (...args: any[]): any => {
+	mergeEachWith = (...args: any[]): any => {
 		const sources = args[0] as readonly StreamSource<readonly [UK, any]>[];
 
 		const builder = this.builder<UK, any>();
 
 		for (const source of sources) {
-			builder.addAll(source);
+			builder.addEach(source);
 		}
 
 		return builder.build().assumeNonEmpty();
 	};
 
-	mergeAll = (...args: any[]): any => {
-		return this.mergeAllWith(args[0]);
+	mergeEach = (...args: any[]): any => {
+		return this.mergeEachWith(args[0]);
 	};
 
 	mergeWith = (...args: any[]): any => {
@@ -229,7 +229,7 @@ export class BiMapKeyedContext<UK, UV>
 		const builder = this.builder<UK, any>();
 
 		for (const source of sources) {
-			builder.addAll(source);
+			builder.addEach(source);
 		}
 
 		return builder.build();

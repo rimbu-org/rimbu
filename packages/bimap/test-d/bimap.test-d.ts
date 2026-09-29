@@ -23,11 +23,11 @@ expectTypeOf(bNonEmpty[Symbol.iterator]()).toEqualTypeOf<
 	FastIterator<readonly [number, string]>
 >();
 
-// .addAll(..)
-expectTypeOf(bEmpty.addAll(bEmpty)).toEqualTypeOf<B_Empty>();
-expectTypeOf(bEmpty.addAll(bNonEmpty)).toEqualTypeOf<B_NonEmpty>();
-expectTypeOf(bNonEmpty.addAll(bEmpty)).toEqualTypeOf<B_NonEmpty>();
-expectTypeOf(bNonEmpty.addAll(bNonEmpty)).toEqualTypeOf<B_NonEmpty>();
+// .addEach(..)
+expectTypeOf(bEmpty.addEach(bEmpty)).toEqualTypeOf<B_Empty>();
+expectTypeOf(bEmpty.addEach(bNonEmpty)).toEqualTypeOf<B_NonEmpty>();
+expectTypeOf(bNonEmpty.addEach(bEmpty)).toEqualTypeOf<B_NonEmpty>();
+expectTypeOf(bNonEmpty.addEach(bNonEmpty)).toEqualTypeOf<B_NonEmpty>();
 
 // .add(..)
 expectTypeOf(bEmpty.add([1, 'a'])).toEqualTypeOf<B_NonEmpty>();

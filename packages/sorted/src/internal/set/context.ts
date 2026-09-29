@@ -1,7 +1,7 @@
 import type { SortedSet } from '@rimbu/sorted/set';
 import type { StreamSource } from '@rimbu/stream';
 
-import { ContextBaseWithAddAll } from '@rimbu/collection-types/advanced/collection-base';
+import { ContextBaseWithAddEach } from '@rimbu/collection-types/advanced/collection-base';
 import { Comp } from '@rimbu/common/comp';
 import { Reducer } from '@rimbu/stream/reducer';
 import { SortedSetEmpty } from './immutable/empty';
@@ -12,7 +12,7 @@ import { SortedSetLeaf } from '#set/immutable/leaf';
 import { SortedSetNode } from '#set/immutable/node';
 
 export class SortedSetContext<UE>
-	extends ContextBaseWithAddAll<SortedSet.Advanced.Family<UE>>
+	extends ContextBaseWithAddEach<SortedSet.Advanced.Family<UE>>
 	implements SortedSet.Advanced.ContextApi<UE, SortedSet.Advanced.Family<UE>>
 {
 	static createDefault<UE>(

@@ -83,8 +83,8 @@ export function runMultiSetRandomTestsWith(
 		removeAllValues(value: number): void {
 			this.addLog('removeAllValues', value);
 			this.jsmap.delete(value);
-			this.builder.remove(value, Number.MAX_SAFE_INTEGER);
-			this.immm = this.immm.removeAll([value]);
+			this.builder.removeAll(value);
+			this.immm = this.immm.removeAll(value);
 		}
 	}
 

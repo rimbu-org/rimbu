@@ -125,7 +125,7 @@ export class HashMapBlockBuilder<K, V>
 		return this.addInternal(entry);
 	};
 
-	addAll = (entries: StreamSource<readonly [K, V]>): boolean => {
+	addEach = (entries: StreamSource<readonly [K, V]>): boolean => {
 		this.checkLock();
 
 		if (Stream.isEmptyStreamSourceInstance(entries)) return false;

@@ -16,7 +16,7 @@ export namespace ValuedCollectionEmpty {
 	export interface Base<E, Tp extends Collection.Advanced.TypesBase>
 		extends ValuedCollection.Advanced.Api<E, Tp>,
 			Collection.Capability.WithAdd.Api<E, Tp>,
-			Collection.Capability.WithAddAll.Api<E, Tp>,
+			Collection.Capability.WithAddEach.Api<E, Tp>,
 			Collection.Capability.WithFlatMap.Api<E, Tp>,
 			Collection.Capability.WithFlatMapIndexed.Api<E, Tp>,
 			Collection.Capability.WithMap.Api<E, Tp>,
@@ -27,7 +27,7 @@ export namespace ValuedCollectionEmpty {
 			ValuedCollection.Capability.WithSymmetricDifference.Api<E, Tp>,
 			ValuedCollection.Capability.WithUnion.Api<E, Tp>,
 			ValuedCollection.Capability.WithRemove.Api<E, Tp>,
-			ValuedCollection.Capability.WithRemoveAll.Api<E, Tp> {}
+			ValuedCollection.Capability.WithRemoveEach.Api<E, Tp> {}
 
 	export interface Mixin extends ApiMixinEmpty {
 		_API: Base<this['_E'], this['_TP']>;
@@ -57,7 +57,7 @@ export namespace ValuedCollectionEmpty {
 				return this.context.of;
 			}
 
-			get addAll() {
+			get addEach() {
 				return this.context.from;
 			}
 
@@ -91,7 +91,7 @@ export namespace ValuedCollectionEmpty {
 				return this;
 			}
 
-			removeAll(): FAM['_NORMAL'] {
+			removeEach(): FAM['_NORMAL'] {
 				return this;
 			}
 

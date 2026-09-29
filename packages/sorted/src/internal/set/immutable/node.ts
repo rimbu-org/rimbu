@@ -91,7 +91,7 @@ export abstract class SortedSetNode<T>
 		options: { negate?: boolean | undefined } = {},
 	): SortedSet<T> {
 		const builder = this.context.builder<T>();
-		builder.addAll(this.stream().filter(pred, options));
+		builder.addEach(this.stream().filter(pred, options));
 
 		if (builder.size === this.size) return this;
 

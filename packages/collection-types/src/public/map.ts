@@ -52,7 +52,7 @@ export declare namespace MapCollection {
 			>,
 		> extends KeyedCollection.Advanced.Api<K, V, Tp>,
 				Collection.Capability.WithAdd.Api<readonly [K, V], Tp>,
-				Collection.Capability.WithAddAll.Api<readonly [K, V], Tp>,
+				Collection.Capability.WithAddEach.Api<readonly [K, V], Tp>,
 				Collection.Capability.WithMutate.Api<readonly [K, V], Tp>,
 				Collection.Capability.WithToBuilder.Api<readonly [K, V], Tp>,
 				KeyedCollection.Capability.WithFlatMap.Api<K, V, Tp>,
@@ -77,7 +77,7 @@ export declare namespace MapCollection {
 		>
 			extends KeyedCollection.Advanced.BuilderApi<K, V, Tp>,
 				Collection.Capability.WithAdd.BuilderApi<readonly [K, V], Tp>,
-				Collection.Capability.WithAddAll.BuilderApi<readonly [K, V], Tp>,
+				Collection.Capability.WithAddEach.BuilderApi<readonly [K, V], Tp>,
 				KeyedCollection.Capability.WithMapValues.BuilderApi<K, V, Tp>,
 				KeyedCollection.Capability.WithRemoveKey.BuilderApi<K, V, Tp>,
 				KeyedCollection.Capability.WithRemoveKeys.BuilderApi<K, V, Tp>,

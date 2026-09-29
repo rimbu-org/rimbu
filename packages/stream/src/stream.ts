@@ -288,12 +288,12 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 */
 	filter<TF extends T>(
 		pred: (value: T, index: number, halt: () => void) => value is TF,
+		options: { negate: true },
+	): Stream<TF extends never ? T : Exclude<T, TF>>;
+	filter<TF extends T>(
+		pred: (value: T, index: number, halt: () => void) => value is TF,
 		options?: { negate?: false | undefined },
 	): Stream<TF>;
-	filter<TF extends T, TR extends T = Exclude<T, TF>>(
-		pred: (value: T, index: number, halt: () => void) => value is TF,
-		options: { negate: true },
-	): Stream<TR>;
 	filter(
 		pred: (value: T, index: number, halt: () => void) => boolean,
 		options?: {
@@ -319,14 +319,20 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * // => [1, 3]
 	 * ```
 	 */
-	filterPure<A extends readonly unknown[], TF extends T>(options: {
-		pred: (value: T, ...args: A) => value is TF;
-		negate?: false | undefined;
-	}): Stream<TF>;
-	filterPure<A extends readonly unknown[], TF extends T>(options: {
-		pred: (value: T, ...args: A) => value is TF;
-		negate: true;
-	}): Stream<Exclude<T, TF>>;
+	filterPure<A extends readonly unknown[], TF extends T>(
+		options: {
+			pred: (value: T, ...args: A) => value is TF;
+			negate: true;
+		},
+		...args: A
+	): Stream<TF extends never ? T : Exclude<T, TF>>;
+	filterPure<A extends readonly unknown[], TF extends T>(
+		options: {
+			pred: (value: T, ...args: A) => value is TF;
+			negate?: false | undefined;
+		},
+		...args: A
+	): Stream<TF>;
 	filterPure<A extends readonly unknown[]>(
 		options: {
 			pred: (value: T, ...args: A) => boolean;

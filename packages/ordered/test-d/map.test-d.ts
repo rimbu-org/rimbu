@@ -29,10 +29,10 @@ expectTypeOf(genNonEmpty[Symbol.iterator]()).toEqualTypeOf<
 expectTypeOf(genEmpty.add([1, 'a'])).toEqualTypeOf<G_NonEmpty>();
 expectTypeOf(genNonEmpty.add([1, 'a'])).toEqualTypeOf<G_NonEmpty>();
 
-// .addAll(..)
-expectTypeOf(genEmpty.addAll([])).toEqualTypeOf<G_Empty>();
-expectTypeOf(genEmpty.addAll([[1, 'a']])).toEqualTypeOf<G_NonEmpty>();
-expectTypeOf(genNonEmpty.addAll([[1, 'a']])).toEqualTypeOf<G_NonEmpty>();
+// .addEach(..)
+expectTypeOf(genEmpty.addEach([])).toEqualTypeOf<G_Empty>();
+expectTypeOf(genEmpty.addEach([[1, 'a']])).toEqualTypeOf<G_NonEmpty>();
+expectTypeOf(genNonEmpty.addEach([[1, 'a']])).toEqualTypeOf<G_NonEmpty>();
 
 // .assumeNonEmpty()
 expectTypeOf(genEmpty.assumeNonEmpty()).toEqualTypeOf<G_NonEmpty>();

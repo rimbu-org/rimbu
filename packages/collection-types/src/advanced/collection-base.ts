@@ -379,10 +379,10 @@ export abstract class CollectionBuilderBase<
 	}
 }
 
-export abstract class ContextBaseWithAddAll<
+export abstract class ContextBaseWithAddEach<
 	FAM extends Collection.Advanced.Family<any> &
 		Collection.Capability.WithToBuilder<any> &
-		Collection.Capability.WithAddAll<any>,
+		Collection.Capability.WithAddEach<any>,
 > implements Collection.Advanced.ContextApi<FAM>
 {
 	abstract isNonEmptyInstance<E extends FAM['_UPPER_E']>(
@@ -422,22 +422,22 @@ export abstract class ContextBaseWithAddAll<
 				builder = source.toBuilder();
 				continue;
 			}
-			builder.addAll(source);
+			builder.addEach(source);
 		}
 
 		return builder.build() as any;
 	};
 }
 
-export function defaultAddAll<
+export function defaultAddEach<
 	E,
 	C extends Collection.NonEmpty<E, FAM>,
 	FAM extends Collection.Advanced.Family<E> &
-		Collection.Capability.WithAddAll<E> &
+		Collection.Capability.WithAddEach<E> &
 		Collection.Capability.WithToBuilder<E>,
 >(col: C, elements: StreamSource<E>) {
 	const builder = col.toBuilder();
-	builder.addAll(elements);
+	builder.addEach(elements);
 	return builder.build();
 }
 
@@ -457,12 +457,12 @@ export function defaultMapIndexed<
 	return col.map((element) => mapFun(element, index++));
 }
 
-export function defaultFlatMapByAddAll<
+export function defaultFlatMapByAddEach<
 	E,
 	E2,
 	C extends Collection.NonEmpty<E, FAM>,
 	FAM extends Collection.Advanced.Family<E> &
-		Collection.Capability.WithAddAll<E>,
+		Collection.Capability.WithAddEach<E>,
 >(
 	col: C,
 	f: (element: E) => StreamSource<E2>,
@@ -474,7 +474,7 @@ export function defaultFlatMapByAddAll<
 	let element: E | typeof token;
 
 	while (token !== (element = iterator.fastNext(token))) {
-		result = result.addAll(f(element));
+		result = result.addEach(f(element));
 	}
 
 	return result;

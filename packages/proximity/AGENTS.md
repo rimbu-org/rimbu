@@ -42,7 +42,7 @@ distance-based reads. It follows the `@rimbu/hashed`/`@rimbu/sorted` pattern:
 
 - **`ProximityMap<K, V>`** (`public/map.ts`) extends
   `ProximityMap.Advanced.Api<K, V, Collection.Advanced.Types<Family<K, V>, readonly [K, V]>>`.
-  It is the full map surface (`get`/`has`/`add`/`addAll`/`set`/`removeKey(s)`/
+  It is the full map surface (`get`/`has`/`add`/`addEach`/`set`/`removeKey(s)`/
   `removeKeyAndReturn`/`updateAtKey`/`modifyAtKey`/`mapValues`/`map`/`flatMap`/
   `recompose`/...) plus `getNearest` and `getNearestMatch`.
 - **`ProximityMap.Advanced.Api` / `BuilderApi`** add the two nearest methods

@@ -58,7 +58,7 @@ export function runMultiSetTestsWith(name: string, MS: MultiSet.Context<any>) {
 			expect(b.size).toBe(0);
 			b.add('a');
 			expect(b.size).toBe(1);
-			b.addAll('aabc');
+			b.addEach('aabc');
 			expect(b.size).toBe(5);
 		});
 
@@ -110,18 +110,18 @@ export function runMultiSetTestsWith(name: string, MS: MultiSet.Context<any>) {
 			]);
 		});
 
-		it('addAll', () => {
-			expect(set_empty.addAll([])).toBe(set_empty);
-			expect(set_4.addAll([])).toBe(set_4);
-			expect(set_7.addAll([])).toBe(set_7);
+		it('addEach', () => {
+			expect(set_empty.addEach([])).toBe(set_empty);
+			expect(set_4.addEach([])).toBe(set_4);
+			expect(set_7.addEach([])).toBe(set_7);
 
-			expectEqual(set_empty.addAll('abca'), [
+			expectEqual(set_empty.addEach('abca'), [
 				['a', 2],
 				['b', 1],
 				['c', 1],
 			]);
 
-			expectEqual(set_4.addAll('abcae'), [
+			expectEqual(set_4.addEach('abcae'), [
 				['a', 3],
 				['b', 2],
 				['c', 3],
@@ -129,13 +129,13 @@ export function runMultiSetTestsWith(name: string, MS: MultiSet.Context<any>) {
 			]);
 		});
 
-		it('addAllWithCounts', () => {
-			expect(set_empty.addAllWithCounts([])).toBe(set_empty);
-			expect(set_4.addAllWithCounts([])).toBe(set_4);
-			expect(set_7.addAllWithCounts([])).toBe(set_7);
+		it('addEachWithCounts', () => {
+			expect(set_empty.addEachWithCounts([])).toBe(set_empty);
+			expect(set_4.addEachWithCounts([])).toBe(set_4);
+			expect(set_7.addEachWithCounts([])).toBe(set_7);
 
 			expectEqual(
-				set_empty.addAllWithCounts([
+				set_empty.addEachWithCounts([
 					['a', 2],
 					['b', 4],
 				]),
@@ -145,7 +145,7 @@ export function runMultiSetTestsWith(name: string, MS: MultiSet.Context<any>) {
 				],
 			);
 			expectEqual(
-				set_4.addAllWithCounts([
+				set_4.addEachWithCounts([
 					['a', 2],
 					['e', 4],
 				]),
@@ -329,14 +329,34 @@ export function runMultiSetTestsWith(name: string, MS: MultiSet.Context<any>) {
 			]);
 		});
 
-		it('removeAll', () => {
-			expect(set_empty.removeAll(['a', 'z'])).toBe(set_empty);
-			expect(set_4.removeAll(['y', 'z'])).toBe(set_4);
-			expectEqual(set_4.removeAll(['c', 'y', 'z']), [
+		it('removeEach', () => {
+			expect(set_empty.removeEach(['a', 'z'])).toBe(set_empty);
+			expect(set_4.removeEach(['y', 'z'])).toBe(set_4);
+			expectEqual(set_4.removeEach(['c', 'y', 'z']), [
 				['a', 1],
 				['b', 1],
+				['c', 1],
 			]);
-			expectEqual(set_4.removeAll(['a', 'c', 'y', 'z']), [['b', 1]]);
+			expectEqual(set_4.removeEach(['a', 'c', 'y', 'z']), [
+				['b', 1],
+				['c', 1],
+			]);
+		});
+
+		it('removeAll', () => {
+			expect(set_empty.removeAll('b')).toBe(set_empty);
+			expect(set_4.removeAll('z')).toBe(set_4);
+			expect(set_7.removeAll('z')).toBe(set_7);
+			expectEqual(set_4.removeAll('b'), [
+				['a', 1],
+				['c', 2],
+			]);
+			expectEqual(set_7.removeAll('c'), [
+				['a', 2],
+				['b', 2],
+				['f', 1],
+			]);
+			expect(set_4.removeAll('c').count('c')).toBe(0);
 		});
 
 		it('setCount', () => {
@@ -384,13 +404,13 @@ export function runMultiSetTestsWith(name: string, MS: MultiSet.Context<any>) {
 			expectEqual(set_4.union(MS.from('cdee')), [
 				['a', 1],
 				['b', 1],
-				['c', 2],
+				['c', 3],
 				['d', 1],
 				['e', 2],
 			]);
 			expectEqual(set_7.union(MS.from('aaab')), [
-				['a', 3],
-				['b', 2],
+				['a', 5],
+				['b', 3],
 				['c', 2],
 				['f', 1],
 			]);
@@ -469,7 +489,7 @@ export function runMultiSetTestsWith(name: string, MS: MultiSet.Context<any>) {
 		function forEachBuilder(f: (builder: MultiSet.Builder<string>) => void) {
 			const b1 = MS.of('a', 'b', 'a', 'c', 'c').toBuilder();
 			const b2 = MS.builder<string>();
-			b2.addAll('abacc');
+			b2.addEach('abacc');
 
 			f(b1);
 			f(b2);
@@ -493,31 +513,31 @@ export function runMultiSetTestsWith(name: string, MS: MultiSet.Context<any>) {
 			});
 		});
 
-		it('addAll', () => {
+		it('addEach', () => {
 			const b = MS.builder<string>();
-			expect(b.addAll('')).toBe(false);
-			expect(b.addAll('abac')).toBe(true);
+			expect(b.addEach('')).toBe(false);
+			expect(b.addEach('abac')).toBe(true);
 			expect(b.count('a')).toBe(2);
 			expect(b.size).toBe(4);
 			expect(b.sizeDistinct).toBe(3);
 
 			forEachBuilder((b) => {
-				expect(b.addAll('')).toBe(false);
-				expect(b.addAll('cd')).toBe(true);
+				expect(b.addEach('')).toBe(false);
+				expect(b.addEach('cd')).toBe(true);
 				expect(b.size).toBe(7);
 			});
 		});
 
-		it('addAllWithCounts', () => {
+		it('addEachWithCounts', () => {
 			const b = MS.builder<string>();
 			expect(
-				b.addAllWithCounts([
+				b.addEachWithCounts([
 					['a', 0],
 					['b', 0],
 				]),
 			).toBe(false);
 			expect(
-				b.addAllWithCounts([
+				b.addEachWithCounts([
 					['a', 3],
 					['b', 2],
 					['c', 0],
@@ -527,13 +547,13 @@ export function runMultiSetTestsWith(name: string, MS: MultiSet.Context<any>) {
 
 			forEachBuilder((b) => {
 				expect(
-					b.addAllWithCounts([
+					b.addEachWithCounts([
 						['a', 0],
 						['f', 0],
 					]),
 				).toBe(false);
 				expect(
-					b.addAllWithCounts([
+					b.addEachWithCounts([
 						['a', 3],
 						['b', 1],
 					]),
@@ -542,18 +562,34 @@ export function runMultiSetTestsWith(name: string, MS: MultiSet.Context<any>) {
 			});
 		});
 
-		it('removeAll', () => {
+		it('removeEach', () => {
 			const b = MS.builder<string>();
-			expect(b.removeAll(['b'])).toBe(false);
-			expect(b.removeAll(['b', 'c'])).toBe(false);
+			expect(b.removeEach(['b'])).toBe(false);
+			expect(b.removeEach(['b', 'c'])).toBe(false);
 
 			forEachBuilder((b) => {
-				expect(b.removeAll(['z'])).toBe(false);
-				expect(b.removeAll(['y', 'z'])).toBe(false);
-				expect(b.removeAll(['c', 'z'])).toBe(true);
+				expect(b.removeEach(['z'])).toBe(false);
+				expect(b.removeEach(['y', 'z'])).toBe(false);
+				expect(b.removeEach(['c', 'z'])).toBe(true);
 				expect(b.count('c')).toBe(1);
-				expect(b.removeAll(['a'])).toBe(true);
+				expect(b.removeEach(['a'])).toBe(true);
 				expect(b.count('a')).toBe(1);
+			});
+		});
+
+		it('removeAll', () => {
+			const b = MS.builder<string>();
+			expect(b.removeAll('b')).toBe(false);
+			expect(b.removeAll('z')).toBe(false);
+
+			forEachBuilder((b) => {
+				expect(b.removeAll('z')).toBe(false);
+				expect(b.removeAll('c')).toBe(true);
+				expect(b.count('c')).toBe(0);
+				expect(b.removeAll('c')).toBe(false);
+				expect(b.removeAll('a')).toBe(true);
+				expect(b.count('a')).toBe(0);
+				expect(b.size).toBe(1);
 			});
 		});
 
@@ -664,19 +700,19 @@ export function runMultiSetTestsWith(name: string, MS: MultiSet.Context<any>) {
 			});
 		});
 
-		it('removeAll', () => {
+		it('removeEach', () => {
 			const b = MS.builder<string>();
-			expect(b.removeAll(['b'])).toBe(false);
-			expect(b.removeAll(['b', 'c'])).toBe(false);
+			expect(b.removeEach(['b'])).toBe(false);
+			expect(b.removeEach(['b', 'c'])).toBe(false);
 
 			forEachBuilder((b) => {
-				expect(b.removeAll(['z'])).toBe(false);
-				expect(b.removeAll(['y', 'z'])).toBe(false);
+				expect(b.removeEach(['z'])).toBe(false);
+				expect(b.removeEach(['y', 'z'])).toBe(false);
 
-				expect(b.removeAll(['c', 'z'])).toBe(true);
+				expect(b.removeEach(['c', 'z'])).toBe(true);
 				expect(b.size).toBe(4);
 
-				expect(b.removeAll(['a', 'b'])).toBe(true);
+				expect(b.removeEach(['a', 'b'])).toBe(true);
 				expect(b.size).toBe(2);
 			});
 		});

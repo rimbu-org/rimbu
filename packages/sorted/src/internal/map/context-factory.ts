@@ -2,7 +2,7 @@ import type { Module } from '@rimbu/common/module';
 import type { SortedMap } from '@rimbu/sorted/map';
 
 import { KeyedCollectionContextBase } from '@rimbu/collection-types/advanced/collection/keyed-base';
-import { ContextBaseWithAddAll } from '@rimbu/collection-types/advanced/collection-base';
+import { ContextBaseWithAddEach } from '@rimbu/collection-types/advanced/collection-base';
 import { Comp } from '@rimbu/common/comp';
 import { Stream, type StreamSource } from '@rimbu/stream';
 import { Reducer } from '@rimbu/stream/reducer';
@@ -14,7 +14,7 @@ import { SortedMapLeaf } from '#map/immutable/leaf';
 import { SortedMapNode } from '#map/immutable/node';
 
 export class SortedMapContext<UK>
-	extends ContextBaseWithAddAll<SortedMap.Advanced.Family<UK, any>>
+	extends ContextBaseWithAddEach<SortedMap.Advanced.Family<UK, any>>
 	implements
 		SortedMap.Advanced.ContextApi<UK, SortedMap.Advanced.Family<UK, any>>
 {
@@ -222,7 +222,7 @@ export class SortedMapKeyedContext<UK>
 		) => Reducer<readonly [K, V], SortedMap<K, V>>;
 	}
 
-	mergeAllWith = (
+	mergeEachWith = (
 		sources: readonly StreamSource<readonly [UK, any]>[],
 		options: { fillValue?: any; merge: (key: UK, values: any) => any },
 	): SortedMap.NonEmpty<UK, any> => {
@@ -264,11 +264,11 @@ export class SortedMapKeyedContext<UK>
 		) as SortedMap.NonEmpty<UK, any>;
 	};
 
-	mergeAll = (
+	mergeEach = (
 		sources: readonly StreamSource<readonly [UK, any]>[],
 		options: { fillValue?: any } = {},
 	): SortedMap.NonEmpty<UK, any> => {
-		return this.mergeAllWith(sources, {
+		return this.mergeEachWith(sources, {
 			fillValue: options.fillValue,
 			merge: (_key: UK, values: any) => values,
 		});

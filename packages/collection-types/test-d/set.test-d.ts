@@ -13,12 +13,12 @@ declare const streamN: StreamSource<number>;
 declare const streamNE: StreamSource.NonEmpty<number>;
 declare const streamStrNE: StreamSource.NonEmpty<string>;
 
-// add / addAll (NonEmpty-first)
+// add / addEach (NonEmpty-first)
 const addN: SN = s.add(1);
 const addNE: SN = sn.add(1);
-const addAllNE: SN = s.addAll(streamNE);
-const addAllN: S = s.addAll(streamN);
-const addAllFromNE: SN = sn.addAll(streamN);
+const addEachNE: SN = s.addEach(streamNE);
+const addEachN: S = s.addEach(streamN);
+const addEachFromNE: SN = sn.addEach(streamN);
 
 expectTypeOf(s.has(1)).toEqualTypeOf<boolean>();
 
@@ -71,14 +71,14 @@ const unionNE: SN = s.union(streamNE);
 const unionN: S = s.union(streamN);
 const unionFromNE: SN = sn.union(streamN);
 const removeN: S = s.remove(1);
-const removeAllN: S = s.removeAll(streamN);
+const removeEachN: S = s.removeEach(streamN);
 
 // builder
 declare const sb: SetCollection.Builder<number>;
 expectTypeOf(sb.has(1)).toEqualTypeOf<boolean>();
 expectTypeOf(sb.add(1)).toEqualTypeOf<boolean>();
 expectTypeOf(sb.remove(1)).toEqualTypeOf<boolean>();
-expectTypeOf(sb.removeAll(streamN)).toEqualTypeOf<boolean>();
+expectTypeOf(sb.removeEach(streamN)).toEqualTypeOf<boolean>();
 const built: S = sb.build();
 
 // kind
@@ -93,9 +93,9 @@ expectTypeOf<SN<number>>().toExtend<S<number>>();
 void [
 	addN,
 	addNE,
-	addAllNE,
-	addAllN,
-	addAllFromNE,
+	addEachNE,
+	addEachN,
+	addEachFromNE,
 	mapN,
 	mapNE,
 	mapIndexedN,
@@ -118,6 +118,6 @@ void [
 	unionN,
 	unionFromNE,
 	removeN,
-	removeAllN,
+	removeEachN,
 	built,
 ];

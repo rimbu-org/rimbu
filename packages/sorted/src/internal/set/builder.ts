@@ -159,7 +159,7 @@ export class SortedSetBuilder<T> extends SortedBuilder<T> {
 		return result;
 	};
 
-	addAll = (source: StreamSource<T>): boolean => {
+	addEach = (source: StreamSource<T>): boolean => {
 		this.checkLock();
 
 		return Stream.from(source).filterPure({ pred: this.add }).count() > 0;
@@ -175,7 +175,7 @@ export class SortedSetBuilder<T> extends SortedBuilder<T> {
 		return result;
 	};
 
-	removeAll = <U>(values: StreamSource<RelatedTo<T, U>>): boolean => {
+	removeEach = <U>(values: StreamSource<RelatedTo<T, U>>): boolean => {
 		this.checkLock();
 
 		return Stream.from(values).filterPure({ pred: this.remove }).count() > 0;

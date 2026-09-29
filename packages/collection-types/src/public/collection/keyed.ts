@@ -246,7 +246,7 @@ export declare namespace KeyedCollection {
 			export interface KeyedContextApi<
 				F extends Advanced.FamilyBase<any, any>,
 			> {
-				mergeAllWith<
+				mergeEachWith<
 					const S extends readonly StreamSource<
 						readonly [F['_UPPER_K'], any]
 					>[],
@@ -270,7 +270,7 @@ export declare namespace KeyedCollection {
 					readonly [StreamSourceArrayElement<S>[0], SubOf<R, F['_UPPER_V']>]
 				>[IfAnyExtends<S, StreamSource.NonEmpty<any>, '_NON_EMPTY', '_NORMAL'>];
 
-				mergeAll<
+				mergeEach<
 					const S extends readonly StreamSource<
 						readonly [F['_UPPER_K'], any]
 					>[],

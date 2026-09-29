@@ -869,7 +869,7 @@ describe('InnerBlockBuilder.insert/remove.ListBuilder-integration', () => {
 	it('insertAt sweep on a 64-element list keeps structure valid', () => {
 		for (const index of [0, 1, 4, 15, 16, 20, 31, 32, 60, 63]) {
 			const builder = makeBuilder();
-			builder.appendAll(Array.from({ length: 64 }, (_, i) => i));
+			builder.appendEach(Array.from({ length: 64 }, (_, i) => i));
 			builder.insertAt(index, [99]);
 			const list = builder.build();
 			expect(verifyImmutableList(list), `insertAt(${index})`).toEqual([]);
@@ -885,7 +885,7 @@ describe('InnerBlockBuilder.insert/remove.ListBuilder-integration', () => {
 
 	it('insertAt splitting a tree block keeps sizes correct', () => {
 		const builder = makeBuilder();
-		builder.appendAll(Array.from({ length: 64 }, (_, i) => i));
+		builder.appendEach(Array.from({ length: 64 }, (_, i) => i));
 		builder.insertAt(15, [99]);
 		const list = builder.build();
 		expect(verifyImmutableList(list)).toEqual([]);
@@ -897,7 +897,7 @@ describe('InnerBlockBuilder.insert/remove.ListBuilder-integration', () => {
 	it('removeAt sweep on a 64-element list keeps structure valid', () => {
 		for (const index of [0, 4, 16, 20, 32, 48, 60, 63]) {
 			const builder = makeBuilder();
-			builder.appendAll(Array.from({ length: 64 }, (_, i) => i));
+			builder.appendEach(Array.from({ length: 64 }, (_, i) => i));
 			builder.removeAt(index, undefined);
 			const list = builder.build();
 			expect(verifyImmutableList(list), `removeAt(${index})`).toEqual([]);
@@ -907,7 +907,7 @@ describe('InnerBlockBuilder.insert/remove.ListBuilder-integration', () => {
 
 	it('repeated removeAt(0) keeps structure valid', () => {
 		const builder = makeBuilder();
-		builder.appendAll(Array.from({ length: 64 }, (_, i) => i));
+		builder.appendEach(Array.from({ length: 64 }, (_, i) => i));
 		for (let k = 0; k < 20; k++) {
 			builder.removeAt(0, undefined);
 			const list = builder.build();
@@ -917,7 +917,7 @@ describe('InnerBlockBuilder.insert/remove.ListBuilder-integration', () => {
 
 	it('repeated removeAt(last) keeps structure valid', () => {
 		const builder = makeBuilder();
-		builder.appendAll(Array.from({ length: 64 }, (_, i) => i));
+		builder.appendEach(Array.from({ length: 64 }, (_, i) => i));
 		for (let k = 0; k < 20; k++) {
 			builder.removeAt(builder.size - 1, undefined);
 			const list = builder.build();
@@ -927,7 +927,7 @@ describe('InnerBlockBuilder.insert/remove.ListBuilder-integration', () => {
 
 	it('alternating insertAt and removeAt keeps structure valid', () => {
 		const builder = makeBuilder();
-		builder.appendAll(Array.from({ length: 32 }, (_, i) => i));
+		builder.appendEach(Array.from({ length: 32 }, (_, i) => i));
 		builder.insertAt(10, [99]);
 		builder.removeAt(5, undefined);
 		builder.insertAt(20, [98]);

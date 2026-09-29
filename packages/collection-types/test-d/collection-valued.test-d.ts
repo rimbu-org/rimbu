@@ -28,7 +28,7 @@ type B<
 type WithDifference<E> = ValuedCollection.Capability.WithDifference<E>;
 type WithIntersection<E> = ValuedCollection.Capability.WithIntersection<E>;
 type WithRemove<E> = ValuedCollection.Capability.WithRemove<E>;
-type WithRemoveAll<E> = ValuedCollection.Capability.WithRemoveAll<E>;
+type WithRemoveEach<E> = ValuedCollection.Capability.WithRemoveEach<E>;
 type WithSymmetricDifference<E> =
 	ValuedCollection.Capability.WithSymmetricDifference<E>;
 type WithUnion<E> = ValuedCollection.Capability.WithUnion<E>;
@@ -66,12 +66,12 @@ declare const removeBuilder: B<WithRemove<number>, number>;
 expectTypeOf(remove.remove(1)).toEqualTypeOf<N<WithRemove<number>, number>>();
 expectTypeOf(removeBuilder.remove(1)).toEqualTypeOf<boolean>();
 
-declare const removeAll: N<WithRemoveAll<number>, number>;
-declare const removeAllBuilder: B<WithRemoveAll<number>, number>;
-expectTypeOf(removeAll.removeAll(streamN)).toEqualTypeOf<
-	N<WithRemoveAll<number>, number>
+declare const removeEach: N<WithRemoveEach<number>, number>;
+declare const removeEachBuilder: B<WithRemoveEach<number>, number>;
+expectTypeOf(removeEach.removeEach(streamN)).toEqualTypeOf<
+	N<WithRemoveEach<number>, number>
 >();
-expectTypeOf(removeAllBuilder.removeAll(streamN)).toEqualTypeOf<boolean>();
+expectTypeOf(removeEachBuilder.removeEach(streamN)).toEqualTypeOf<boolean>();
 
 declare const symDifference: N<WithSymmetricDifference<number>, number>;
 expectTypeOf(symDifference.symmetricDifference(streamN)).toEqualTypeOf<

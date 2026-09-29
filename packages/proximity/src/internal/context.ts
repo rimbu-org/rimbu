@@ -1,7 +1,7 @@
 import type { ProximityMap } from '@rimbu/proximity';
 
 import { KeyedCollectionContextBase } from '@rimbu/collection-types/advanced/collection/keyed-base';
-import { ContextBaseWithAddAll } from '@rimbu/collection-types/advanced/collection-base';
+import { ContextBaseWithAddEach } from '@rimbu/collection-types/advanced/collection-base';
 import { HashMap } from '@rimbu/hashed/map';
 import { DistanceFunction } from '@rimbu/proximity/distance-function';
 import { Stream, type StreamSource } from '@rimbu/stream';
@@ -18,7 +18,7 @@ import { ProximityMapNonEmpty } from '#proximity/non-empty';
  * @typeparam UK - the upper key type bound for which the context can be used
  */
 export class ProximityMapContext<UK>
-	extends ContextBaseWithAddAll<ProximityMap.Advanced.Family<UK, any>>
+	extends ContextBaseWithAddEach<ProximityMap.Advanced.Family<UK, any>>
 	implements
 		ProximityMap.Advanced.ContextApi<UK, ProximityMap.Advanced.Family<UK, any>>
 {
@@ -186,7 +186,7 @@ export class ProximityMapKeyedContext<UK>
 		return this.context.reducer as any;
 	}
 
-	mergeAllWith = (
+	mergeEachWith = (
 		sources: readonly StreamSource<readonly [UK, any]>[],
 		options: { fillValue?: any; merge: (key: UK, values: any) => any },
 	): ProximityMap.NonEmpty<UK, any> => {
@@ -230,11 +230,11 @@ export class ProximityMapKeyedContext<UK>
 		) as ProximityMap.NonEmpty<UK, any>;
 	};
 
-	mergeAll = (
+	mergeEach = (
 		sources: readonly StreamSource<readonly [UK, any]>[],
 		options: { fillValue?: any } = {},
 	): ProximityMap.NonEmpty<UK, any> => {
-		return this.mergeAllWith(sources, {
+		return this.mergeEachWith(sources, {
 			fillValue: options.fillValue,
 			merge: (_key, values) => values,
 		});

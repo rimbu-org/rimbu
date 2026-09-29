@@ -18,6 +18,7 @@ Rimbu is a TypeScript library of **immutable persistent data structures** and **
 A primary goal of Rimbu is to provide an API that is **simple, intuitive, easy to use, and predictable**. This shapes every design decision:
 
 - **Consistent naming across packages** — the same concept always uses the same name. For example, `filter`, `map`, `flatMap`, `take`, `drop` mean the same thing everywhere. Never use synonyms for the same operation in different packages.
+- **`*Each` for bulk operations, `removeAll` for MultiSet** — a method that applies a per-element operation to every element of a `StreamSource` is suffixed `*Each`: `addEach`, `removeEach`, `prependEach`, `appendEach`, `mergeEach`, `addEachWithCounts`. Never `*All`, which reads as "the whole collection" rather than "each element of this source". The single exception is `MultiSet.removeAll(value)`, where `All` is literal: it removes *all occurrences of that one value* (its count becomes `0`), as opposed to `remove(value, amount)` which removes `amount` occurrences. The corresponding capability is `MultiSetCollection.Capability.WithRemoveAll`; the bulk form is `WithRemoveEach`.
 - **Mathematical index handling** — indices follow mathematical convention throughout:
   - Non-negative indices count from the start (0-based).
   - Negative indices count from the end, mirroring JavaScript's `Array.prototype.at()`: `-1` is the last element, `-2` is second-to-last, etc.
@@ -417,7 +418,7 @@ Never assemble one by intersecting the individual `Capability.*` families:
 
 ```ts
 // WRONG — ad-hoc intersection used as a family
-type Capabilities = Collection.Capability.WithAddAll<any> &
+type Capabilities = Collection.Capability.WithAddEach<any> &
   Collection.Capability.WithToBuilder<any> &
   KeyedCollection.Capability.WithMapValues<any, any> &
   /* ...six more... */;

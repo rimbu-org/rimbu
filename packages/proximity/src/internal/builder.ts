@@ -45,7 +45,7 @@ export class ProximityMapBuilder<K, V>
 		this.internalBuilder = context.hashMapContext.builder<readonly [K, V]>();
 
 		if (undefined !== source) {
-			this.internalBuilder.addAll(source);
+			this.internalBuilder.addEach(source);
 		}
 	}
 
@@ -84,8 +84,8 @@ export class ProximityMapBuilder<K, V>
 		return this.add([key, value]);
 	};
 
-	addAll = (entries: StreamSource<readonly [K, V]>): boolean => {
-		const hasChanged = this.internalBuilder.addAll(entries);
+	addEach = (entries: StreamSource<readonly [K, V]>): boolean => {
+		const hasChanged = this.internalBuilder.addEach(entries);
 
 		if (hasChanged) {
 			this.source = undefined;

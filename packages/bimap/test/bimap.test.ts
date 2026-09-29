@@ -124,18 +124,18 @@ describe('BiMap methods', () => {
 		expect(new Map(map6_1)).toEqual(new Map(arr6));
 	});
 
-	it('addAll', () => {
-		expect(mapEmpty.addAll(mapEmpty)).toBe(mapEmpty);
-		expectEqual(mapEmpty.addAll(arr3), arr3);
-		expectEqual(mapEmpty.addAll(arr6), arr6);
+	it('addEach', () => {
+		expect(mapEmpty.addEach(mapEmpty)).toBe(mapEmpty);
+		expectEqual(mapEmpty.addEach(arr3), arr3);
+		expectEqual(mapEmpty.addEach(arr6), arr6);
 
-		expect(map3_1.addAll(mapEmpty)).toBe(map3_1);
-		expectEqual(map3_1.addAll(arr3), arr3);
-		expectEqual(map3_1.addAll(arr6), arr6);
+		expect(map3_1.addEach(mapEmpty)).toBe(map3_1);
+		expectEqual(map3_1.addEach(arr3), arr3);
+		expectEqual(map3_1.addEach(arr6), arr6);
 
-		expect(map6_1.addAll(mapEmpty)).toBe(map6_1);
-		expectEqual(map6_1.addAll(arr3), arr6);
-		expectEqual(map6_1.addAll(arr6), arr6);
+		expect(map6_1.addEach(mapEmpty)).toBe(map6_1);
+		expectEqual(map6_1.addEach(arr3), arr6);
+		expectEqual(map6_1.addEach(arr6), arr6);
 	});
 
 	it('add', () => {
@@ -635,18 +635,18 @@ describe('BiMap.Builder', () => {
 	function forEachBuilder(f: (builder: BiMap.Builder<number, string>) => void) {
 		const b1 = BiMap.from(arr3).toBuilder();
 		const b2 = BiMap.builder<number, string>();
-		b2.addAll(arr3);
+		b2.addEach(arr3);
 
 		f(b1);
 		f(b2);
 	}
 
-	it('addAll', () => {
+	it('addEach', () => {
 		const b = BiMap.builder<number, string>();
 		expect(b.size).toBe(0);
-		expect(b.addAll(arr3)).toBe(true);
+		expect(b.addEach(arr3)).toBe(true);
 		expect(b.size).toBe(3);
-		expect(b.addAll(arr3)).toBe(false);
+		expect(b.addEach(arr3)).toBe(false);
 		expect(b.size).toBe(3);
 	});
 
@@ -666,7 +666,7 @@ describe('BiMap.Builder', () => {
 	it('build', () => {
 		const b = BiMap.builder<number, string>();
 		expect(b.build()).toBe(BiMap.empty());
-		b.addAll(arr3);
+		b.addEach(arr3);
 		expect(b.build().size).toBe(3);
 		expect(b.build().get(2)).toBe('b');
 	});
@@ -674,7 +674,7 @@ describe('BiMap.Builder', () => {
 	it('removeEntries', () => {
 		const b = BiMap.builder<number, string>();
 		expect(b.removeEntries([[1, 'a']])).toBe(false);
-		b.addAll(arr3);
+		b.addEach(arr3);
 		expect(b.removeEntries([[2, 'b']])).toBe(true);
 		expect(b.build().get(2)).toBe(undefined);
 		expect(b.removeEntries([[1, 'c']])).toBe(false);
@@ -685,7 +685,7 @@ describe('BiMap.Builder', () => {
 	it('removeEntry', () => {
 		const b = BiMap.builder<number, string>();
 		expect(b.removeEntry([1, 'a'])).toBe(false);
-		b.addAll(arr3);
+		b.addEach(arr3);
 		expect(b.removeEntry([2, 'b'])).toBe(true);
 		expect(b.build().get(2)).toBe(undefined);
 		expect(b.removeEntry([1, 'c'])).toBe(false);
@@ -713,7 +713,7 @@ describe('BiMap.Builder', () => {
 
 	it('operations throw in forEach when modifying collection', () => {
 		forEachBuilder((b) => {
-			expect(() => b.forEach(() => b.addAll([[1, 'a']]))).toThrow();
+			expect(() => b.forEach(() => b.addEach([[1, 'a']]))).toThrow();
 			expect(() => b.forEach(() => b.add([1, 'a']))).toThrow();
 			expect(() => b.forEach(() => b.removeKey(1))).toThrow();
 			expect(() => b.forEach(() => b.removeKeys([1]))).toThrow();

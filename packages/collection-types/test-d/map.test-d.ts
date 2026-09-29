@@ -34,10 +34,10 @@ const setNonEmpty: MN = mn.set(1, 'a');
 const addNormal: MN = m.add([1, 'a']);
 const addNonEmpty: MN = mn.add([1, 'a']);
 
-// addAll: NonEmpty-first
-const addAllNE: MN = m.addAll(entriesNE);
-const addAllN: M = m.addAll(entries);
-const addAllFromNE: MN = mn.addAll(entries);
+// addEach: NonEmpty-first
+const addEachNE: MN = m.addEach(entriesNE);
+const addEachN: M = m.addEach(entries);
+const addEachFromNE: MN = mn.addEach(entries);
 
 // removeKey / removeKeyAndReturn / removeKeys
 const removeKeyN: M = m.removeKey(1);
@@ -125,10 +125,10 @@ const mergedWith = ctx.keyedContext.mergeWith([m, mn], {
 	merge: (k, values) => `${values[0]}${values[1]}`,
 });
 const mergedValue: [string, string] | undefined = mergedWith.get(1);
-const mergedAllWith = ctx.keyedContext.mergeAllWith([mn, mn], {
+const mergedEachWith = ctx.keyedContext.mergeEachWith([mn, mn], {
 	merge: (k, values) => `${values[0]}${values[1]}`,
 });
-expectTypeOf(mergedAllWith.isEmpty).toEqualTypeOf<false>();
+expectTypeOf(mergedEachWith.isEmpty).toEqualTypeOf<false>();
 
 // variance: MapCollection is invariant in V
 expectTypeOf<M<number, string>>().not.toExtend<M<number, string | boolean>>();
@@ -144,9 +144,9 @@ void [
 	setNonEmpty,
 	addNormal,
 	addNonEmpty,
-	addAllNE,
-	addAllN,
-	addAllFromNE,
+	addEachNE,
+	addEachN,
+	addEachFromNE,
 	removeKeyN,
 	removeKeyFromNE,
 	removeKeyAndReturnN,
@@ -174,5 +174,5 @@ void [
 	reducer,
 	mergedWith,
 	mergedValue,
-	mergedAllWith,
+	mergedEachWith,
 ];

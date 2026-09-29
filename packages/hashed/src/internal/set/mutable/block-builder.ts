@@ -113,7 +113,7 @@ export class HashSetBlockBuilder<T>
 		this.size = 0;
 	};
 
-	addAll = (source: StreamSource<T>): boolean => {
+	addEach = (source: StreamSource<T>): boolean => {
 		this.checkLock();
 
 		return Stream.from(source).filterPure({ pred: this.add }).count() > 0;
@@ -188,7 +188,7 @@ export class HashSetBlockBuilder<T>
 		return this.removeInternal(value);
 	};
 
-	removeAll = (values: StreamSource<T>): boolean => {
+	removeEach = (values: StreamSource<T>): boolean => {
 		return Stream.from(values).filterPure({ pred: this.remove }).count() > 0;
 	};
 

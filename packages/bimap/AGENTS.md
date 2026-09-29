@@ -40,7 +40,7 @@ keyed by `V`, backed by two inverse `MapCollection`s.
   with the value-direction `BiMapCollection.Capability.*` interfaces.
 - Immutable classes compose the mixins:
   `MapCollectionEmpty.WithMixin(KeyedCollectionEmpty.WithMixin(CollectionEmpty.Constructor))`
-  and the `NonEmpty` equivalent. The mixins derive `set`/`addAll`/`filter`/`map`/`recompose`
+  and the `NonEmpty` equivalent. The mixins derive `set`/`addEach`/`filter`/`map`/`recompose`
   etc. via `toBuilder()`; only `add`, `modifyAtKey`, `mapValues`, `get`, `toBuilder`, the
   collection seed members, and the value-direction members are implemented directly.
 - Delegate contexts are `MapCollection.Context`s, defaulting to `HashMap`; a custom
@@ -48,7 +48,7 @@ keyed by `V`, backed by two inverse `MapCollection`s.
 
 ## API conventions
 
-- Key direction uses the Keyed/Map names: `get`, `has`, `add`, `addAll`, `removeKey(s)`,
+- Key direction uses the Keyed/Map names: `get`, `has`, `add`, `addEach`, `removeKey(s)`,
   `updateAtKey`, `modifyAtKey`.
 - Value direction uses `getKey`, `hasValue`, `removeValue(s)`, `removeValueAndReturn`,
   `updateAtValue`, `modifyAtValue`, `removeEntry(ies)`.

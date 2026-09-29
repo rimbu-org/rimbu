@@ -1,7 +1,7 @@
 import type { HashSet } from '@rimbu/hashed';
 import type { StreamSource } from '@rimbu/stream';
 
-import { ContextBaseWithAddAll } from '@rimbu/collection-types/advanced/collection-base';
+import { ContextBaseWithAddEach } from '@rimbu/collection-types/advanced/collection-base';
 import { Eq } from '@rimbu/common';
 import { Hasher } from '@rimbu/hashed';
 import { List } from '@rimbu/list';
@@ -17,7 +17,7 @@ import {
 } from '#set/mutable/block-builder';
 
 export class HashSetContext<UE>
-	extends ContextBaseWithAddAll<HashSet.Advanced.Family<UE>>
+	extends ContextBaseWithAddEach<HashSet.Advanced.Family<UE>>
 	implements HashSet.Advanced.ContextApi<UE, HashSet.Advanced.Family<UE>>
 {
 	static createDefault<UE>(

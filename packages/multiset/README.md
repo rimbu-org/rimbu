@@ -149,7 +149,8 @@ const withSetCount = fromValues.setCount(3, 5); // set exact count for value 3
 
 // Removing occurrences
 const removedSome = fromValues.remove(2, 1); // remove one occurrence (default)
-const removedAll = fromValues.removeAll([2]); // remove all occurrences of '2'
+const removedAll = fromValues.removeAll(2); // remove all occurrences of '2'
+const removedEach = fromValues.removeEach([2, 3]); // remove all occurrences of '2' and '3'
 ```
 
 See the full [MultiSet docs](https://rimbu.org/docs/collections/multiset) and
@@ -235,8 +236,8 @@ A MultiSet allows **multiple occurrences per value** and tracks their counts, wh
 only tracks membership and stores each value at most once.
 
 **Q: What happens if I add the same value multiple times?**  
-The count for that value increases: `add`, `addAll`, or `addEntries` will raise its occurrence count
-instead of ignoring duplicates.
+The count for that value increases: `add`, `addEach`, or `addEachWithCounts` will raise its
+occurrence count instead of ignoring duplicates.
 
 **Q: Is the structure mutable?**  
 No. All updates return new MultiSet instances; existing ones remain unchanged and can be safely

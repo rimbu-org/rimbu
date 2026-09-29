@@ -118,7 +118,7 @@ export class OrderedSetBuilder<T>
 		return true;
 	};
 
-	addAll = (elements: StreamSource<T>): boolean => {
+	addEach = (elements: StreamSource<T>): boolean => {
 		this.checkLock();
 
 		let changed = false;
@@ -146,7 +146,7 @@ export class OrderedSetBuilder<T>
 		return true;
 	};
 
-	removeAll = <U = T>(elements: StreamSource<RelatedTo<T, U>>): boolean => {
+	removeEach = <U = T>(elements: StreamSource<RelatedTo<T, U>>): boolean => {
 		this.checkLock();
 
 		let changed = false;

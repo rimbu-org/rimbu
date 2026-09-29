@@ -81,7 +81,7 @@ export function runMapTestsWith(
 		it('builder', () => {
 			const b = GMap.builder<number, string>();
 			expect(b.size).toBe(0);
-			b.addAll(arr6);
+			b.addEach(arr6);
 			expect(b.size).toBe(6);
 		});
 
@@ -142,16 +142,16 @@ export function runMapTestsWith(
 			]);
 		});
 
-		it('mergeAll', () => {
-			expect(GMap.mergeAll([mapEmpty, mapEmpty])).toBe<any>(mapEmpty);
-			expect(GMap.mergeAll([map3, map3]).toArray()).toEqual<any>(
+		it('mergeEach', () => {
+			expect(GMap.mergeEach([mapEmpty, mapEmpty])).toBe<any>(mapEmpty);
+			expect(GMap.mergeEach([map3, map3]).toArray()).toEqual<any>(
 				arr3.map(([k, v]) => [k, [v, v]]),
 			);
 			expectEqual(
-				GMap.mergeAll([map6, arr6]),
+				GMap.mergeEach([map6, arr6]),
 				arr6.map(([k, v]) => [k, [v, v] as [string, string]]),
 			);
-			expectEqual(GMap.mergeAll([map3, map6]), [
+			expectEqual(GMap.mergeEach([map3, map6]), [
 				[1, ['a', 'a']],
 				[2, ['b', 'b']],
 				[3, ['c', 'c']],
@@ -159,7 +159,7 @@ export function runMapTestsWith(
 				[5, [undefined, 'e']],
 				[6, [undefined, 'f']],
 			]);
-			expectEqual(GMap.mergeAll([map6, map3]), [
+			expectEqual(GMap.mergeEach([map6, map3]), [
 				[1, ['a', 'a']],
 				[2, ['b', 'b']],
 				[3, ['c', 'c']],
@@ -169,42 +169,42 @@ export function runMapTestsWith(
 			]);
 		});
 
-		it('mergeAllWith', () => {
+		it('mergeEachWith', () => {
 			const toTuple = <A, B>(
 				_: any,
 				values: readonly [A, B],
 			): readonly [A, B] => values;
 
 			expect(
-				GMap.mergeAllWith([mapEmpty, mapEmpty], { merge: toTuple }),
+				GMap.mergeEachWith([mapEmpty, mapEmpty], { merge: toTuple }),
 			).toBe<any>(mapEmpty);
 			expectEqual(
-				GMap.mergeAllWith([mapEmpty, map3], { merge: toTuple }),
+				GMap.mergeEachWith([mapEmpty, map3], { merge: toTuple }),
 				arr3.map(([k, v]) => [
 					k,
 					[undefined, v] as [string | undefined, string | undefined],
 				]),
 			);
 			expectEqual(
-				GMap.mergeAllWith([map3, mapEmpty], { merge: toTuple }),
+				GMap.mergeEachWith([map3, mapEmpty], { merge: toTuple }),
 				arr3.map(([k, v]) => [
 					k,
 					[v, undefined] as [string | undefined, string | undefined],
 				]),
 			);
 			expectEqual(
-				GMap.mergeAllWith([map3, map3], { merge: toTuple }),
+				GMap.mergeEachWith([map3, map3], { merge: toTuple }),
 				arr3.map(([k, v]) => [
 					k,
 					[v, v] as [string | undefined, string | undefined],
 				]),
 			);
 			expectEqual(
-				GMap.mergeAllWith([map6, map6], { merge: toTuple }),
+				GMap.mergeEachWith([map6, map6], { merge: toTuple }),
 				arr6.map(([k, v]) => [k, [v, v] as [string, string]]),
 			);
 
-			expectEqual(GMap.mergeAllWith([map3, map6], { merge: toTuple }), [
+			expectEqual(GMap.mergeEachWith([map3, map6], { merge: toTuple }), [
 				[1, ['a', 'a']],
 				[2, ['b', 'b']],
 				[3, ['c', 'c']],
@@ -213,7 +213,7 @@ export function runMapTestsWith(
 				[6, [undefined, 'f']],
 			]);
 
-			expectEqual(GMap.mergeAllWith([map6, map3], { merge: toTuple }), [
+			expectEqual(GMap.mergeEachWith([map6, map3], { merge: toTuple }), [
 				[1, ['a', 'a']],
 				[2, ['b', 'b']],
 				[3, ['c', 'c']],
@@ -278,18 +278,18 @@ export function runMapTestsWith(
 		});
 
 		it('addEntries', () => {
-			expect(mapEmpty.addAll([])).toBe(mapEmpty);
-			expectEqual(mapEmpty.addAll(arr3), arr3);
-			expect(mapEmpty.addAll(map3)).toBe(map3);
-			expectEqual(mapEmpty.addAll(arr6), arr6);
+			expect(mapEmpty.addEach([])).toBe(mapEmpty);
+			expectEqual(mapEmpty.addEach(arr3), arr3);
+			expect(mapEmpty.addEach(map3)).toBe(map3);
+			expectEqual(mapEmpty.addEach(arr6), arr6);
 
-			expect(map3.addAll(mapEmpty)).toBe(map3);
-			expectEqual(map3.addAll(arr3), arr3);
-			expectEqual(map3.addAll(arr6), arr6);
+			expect(map3.addEach(mapEmpty)).toBe(map3);
+			expectEqual(map3.addEach(arr3), arr3);
+			expectEqual(map3.addEach(arr6), arr6);
 
-			expect(map6.addAll(mapEmpty)).toBe(map6);
-			expectEqual(map6.addAll(arr3), arr6);
-			expectEqual(map6.addAll(arr6), arr6);
+			expect(map6.addEach(mapEmpty)).toBe(map6);
+			expectEqual(map6.addEach(arr3), arr6);
+			expectEqual(map6.addEach(arr6), arr6);
 		});
 
 		it('add', () => {
@@ -609,7 +609,7 @@ export function runMapTestsWith(
 		): void {
 			const b1 = GMap.from(arr3).toBuilder();
 			const b2 = GMap.builder<number, string>();
-			b2.addAll(arr3);
+			b2.addEach(arr3);
 
 			f(b1);
 			f(b2);
@@ -618,9 +618,9 @@ export function runMapTestsWith(
 		it('addEntries', () => {
 			const b = GMap.builder<number, string>();
 			expect(b.size).toBe(0);
-			expect(b.addAll(arr3)).toBe(true);
+			expect(b.addEach(arr3)).toBe(true);
 			expect(b.size).toBe(3);
-			expect(b.addAll(arr3)).toBe(false);
+			expect(b.addEach(arr3)).toBe(false);
 			expect(b.size).toBe(3);
 		});
 
@@ -650,7 +650,7 @@ export function runMapTestsWith(
 		it('buildMapValues', () => {
 			const b = GMap.builder<number, string>();
 			expect(b.buildMapValues((v) => v + v)).toBe(GMap.empty<number, string>());
-			b.addAll(arr3);
+			b.addEach(arr3);
 			expect(b.buildMapValues((v) => v + v).size).toBe(3);
 			expect(b.buildMapValues((v) => v + v).get(2)).toBe('bb');
 		});
@@ -678,7 +678,7 @@ export function runMapTestsWith(
 
 		it('operations throw in forEach when modifying collection', () => {
 			forEachBuilder((b) => {
-				expect(() => b.forEach(() => b.addAll([[1, 'a']]))).toThrow();
+				expect(() => b.forEach(() => b.addEach([[1, 'a']]))).toThrow();
 				expect(() => b.forEach(() => b.add([1, 'a']))).toThrow();
 				expect(() => b.forEach(() => b.modifyAtKey(1, {}))).toThrow();
 				expect(() => b.forEach(() => b.removeKey(1))).toThrow();

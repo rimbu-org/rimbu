@@ -135,7 +135,7 @@ export class BiMapBuilder<K, V>
 		return true;
 	};
 
-	addAll = (source: StreamSource<readonly [K, V]>): boolean => {
+	addEach = (source: StreamSource<readonly [K, V]>): boolean => {
 		this.checkLock();
 
 		if (Stream.isEmptyStreamSourceInstance(source)) return false;

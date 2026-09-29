@@ -141,7 +141,7 @@ export namespace KeyedCollectionEmpty {
 		>,
 	> extends KeyedCollection.Advanced.Api<K, V, Tp>,
 			Collection.Capability.WithAdd.Api<readonly [K, V], Tp>,
-			Collection.Capability.WithAddAll.Api<readonly [K, V], Tp>,
+			Collection.Capability.WithAddEach.Api<readonly [K, V], Tp>,
 			Collection.Capability.WithMutate.Api<readonly [K, V], Tp>,
 			KeyedCollection.Capability.WithRemoveKey.Api<K, V, Tp>,
 			KeyedCollection.Capability.WithRemoveKeys.Api<K, V, Tp>,
@@ -179,7 +179,7 @@ export namespace KeyedCollectionEmpty {
 				return this.context.keyedContext.of;
 			}
 
-			get addAll() {
+			get addEach() {
 				return this.context.keyedContext.from;
 			}
 

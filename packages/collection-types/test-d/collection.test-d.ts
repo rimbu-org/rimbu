@@ -13,7 +13,7 @@ type C<
 type CNE<E = number> = Collection.NonEmpty<E>;
 
 type WithAdd<E> = Collection.Capability.WithAdd<E>;
-type WithAddAll<E> = Collection.Capability.WithAddAll<E>;
+type WithAddEach<E> = Collection.Capability.WithAddEach<E>;
 type WithToBuilder<E> = Collection.Capability.WithToBuilder<E>;
 type WithMap<E> = Collection.Capability.WithMap<E>;
 type WithMapIndexed<E> = Collection.Capability.WithMapIndexed<E>;
@@ -103,15 +103,15 @@ expectTypeOf(add.add(1)).toEqualTypeOf<NE<WithAdd<number>, number>>();
 expectTypeOf(addNE.add(1)).toEqualTypeOf<NE<WithAdd<number>, number>>();
 expectTypeOf<B<WithAdd<number>, number>>().toHaveProperty('add');
 
-// WithAddAll: NonEmpty-first overload
-declare const addAll: N<WithAddAll<number>, number>;
-declare const addAllNE: NE<WithAddAll<number>, number>;
-expectTypeOf(addAll.addAll(streamNE)).toEqualTypeOf<
-	NE<WithAddAll<number>, number>
+// WithAddEach: NonEmpty-first overload
+declare const addEach: N<WithAddEach<number>, number>;
+declare const addEachNE: NE<WithAddEach<number>, number>;
+expectTypeOf(addEach.addEach(streamNE)).toEqualTypeOf<
+	NE<WithAddEach<number>, number>
 >();
-expectTypeOf(addAll.addAll(streamN)).toEqualTypeOf<N<WithAddAll<number>, number>>();
-expectTypeOf(addAllNE.addAll(streamN)).toEqualTypeOf<
-	NE<WithAddAll<number>, number>
+expectTypeOf(addEach.addEach(streamN)).toEqualTypeOf<N<WithAddEach<number>, number>>();
+expectTypeOf(addEachNE.addEach(streamN)).toEqualTypeOf<
+	NE<WithAddEach<number>, number>
 >();
 
 // WithToBuilder
@@ -229,8 +229,8 @@ expectTypeOf<CNE<number | string>>().not.toExtend<CNE<number>>();
 expectTypeOf<Collection.Capability.WithMap<number>>().not.toExtend<
 	Collection.Capability.WithMap<number | string>
 >();
-expectTypeOf<Collection.Capability.WithAddAll<number>>().not.toExtend<
-	Collection.Capability.WithAddAll<number | string>
+expectTypeOf<Collection.Capability.WithAddEach<number>>().not.toExtend<
+	Collection.Capability.WithAddEach<number | string>
 >();
 expectTypeOf<Collection.Capability.WithFlatMap<number>>().not.toExtend<
 	Collection.Capability.WithFlatMap<number | string>

@@ -220,25 +220,25 @@ export declare namespace Collection {
 			}
 		}
 
-		export interface WithAddAll<E> extends Advanced.FamilyBase<E> {
-			_NORMAL: WithAddAll.Api<E, this['_TYPES']>;
-			_NON_EMPTY: WithAddAll.Api<E, this['_TYPES_NON_EMPTY']>;
-			_BUILDER: WithAddAll.BuilderApi<E, this['_TYPES']>;
+		export interface WithAddEach<E> extends Advanced.FamilyBase<E> {
+			_NORMAL: WithAddEach.Api<E, this['_TYPES']>;
+			_NON_EMPTY: WithAddEach.Api<E, this['_TYPES_NON_EMPTY']>;
+			_BUILDER: WithAddEach.BuilderApi<E, this['_TYPES']>;
 
 			_INVARIANT: (e: E) => E;
 
-			_FAM: WithAddAll<E>;
-			_NEW_FAMILY: WithAddAll<this['_NEW_E']>;
+			_FAM: WithAddEach<E>;
+			_NEW_FAMILY: WithAddEach<this['_NEW_E']>;
 		}
 
-		export namespace WithAddAll {
+		export namespace WithAddEach {
 			export interface Api<E, Tp extends Collection.Advanced.TypesBase> {
-				addAll(elements: StreamSource.NonEmpty<E>): Tp['_NON_EMPTY'];
-				addAll(elements: StreamSource<E>): Tp['_SELF'];
+				addEach(elements: StreamSource.NonEmpty<E>): Tp['_NON_EMPTY'];
+				addEach(elements: StreamSource<E>): Tp['_SELF'];
 			}
 
 			export interface BuilderApi<E, Tp extends Collection.Advanced.TypesBase> {
-				addAll(elements: StreamSource<E>): boolean;
+				addEach(elements: StreamSource<E>): boolean;
 			}
 		}
 

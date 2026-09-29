@@ -21,15 +21,16 @@ export declare namespace MultiSetCollection {
 			Tp extends Collection.Advanced.Types<FamilyBase<T>, T>,
 		> extends ValuedCollection.Advanced.Api<T, Tp>,
 				Collection.Capability.WithAdd.Api<T, Tp>,
-				Collection.Capability.WithAddAll.Api<T, Tp>,
+				Collection.Capability.WithAddEach.Api<T, Tp>,
 				Collection.Capability.WithToBuilder.Api<T, Tp>,
 				MultiSetCollection.Capability.WithCount.Api<T, Tp>,
 				MultiSetCollection.Capability.WithCountStreams.Api<T, Tp>,
 				MultiSetCollection.Capability.WithCountMap.Api<T, Tp>,
 				MultiSetCollection.Capability.WithSetCount.Api<T, Tp>,
-				MultiSetCollection.Capability.WithAddAllWithCounts.Api<T, Tp>,
+				MultiSetCollection.Capability.WithAddEachWithCounts.Api<T, Tp>,
 				MultiSetCollection.Capability.WithFilterWithCounts.Api<T, Tp>,
 				MultiSetCollection.Capability.WithRemove.Api<T, Tp>,
+				MultiSetCollection.Capability.WithRemoveEach.Api<T, Tp>,
 				MultiSetCollection.Capability.WithRemoveAll.Api<T, Tp>,
 				MultiSetCollection.Capability.WithUnion.Api<T, Tp>,
 				MultiSetCollection.Capability.WithIntersection.Api<T, Tp>,
@@ -53,11 +54,12 @@ export declare namespace MultiSetCollection {
 			Tp extends Collection.Advanced.Types<FamilyBase<T>, T>,
 		> extends ValuedCollection.Advanced.BuilderApi<T, Tp>,
 				Collection.Capability.WithAdd.BuilderApi<T, Tp>,
-				Collection.Capability.WithAddAll.BuilderApi<T, Tp>,
+				Collection.Capability.WithAddEach.BuilderApi<T, Tp>,
 				MultiSetCollection.Capability.WithCount.BuilderApi<T, Tp>,
 				MultiSetCollection.Capability.WithSetCount.BuilderApi<T, Tp>,
-				MultiSetCollection.Capability.WithAddAllWithCounts.BuilderApi<T, Tp>,
+				MultiSetCollection.Capability.WithAddEachWithCounts.BuilderApi<T, Tp>,
 				MultiSetCollection.Capability.WithRemove.BuilderApi<T, Tp>,
+				MultiSetCollection.Capability.WithRemoveEach.BuilderApi<T, Tp>,
 				MultiSetCollection.Capability.WithRemoveAll.BuilderApi<T, Tp> {
 			add(value: T): boolean;
 			add(value: T, amount: number): boolean;
@@ -139,15 +141,15 @@ export declare namespace MultiSetCollection {
 			}
 		}
 
-		export namespace WithAddAllWithCounts {
+		export namespace WithAddEachWithCounts {
 			export interface Api<T, Tp extends Collection.Advanced.TypesBase> {
-				addAllWithCounts(
+				addEachWithCounts(
 					valueCounts: StreamSource<readonly [T, number]>,
 				): Tp['_SELF'];
 			}
 
 			export interface BuilderApi<T, Tp extends Collection.Advanced.TypesBase> {
-				addAllWithCounts(
+				addEachWithCounts(
 					valueCounts: StreamSource<readonly [T, number]>,
 				): boolean;
 			}
@@ -158,7 +160,6 @@ export declare namespace MultiSetCollection {
 				filterWithCounts<TF extends T>(
 					pred: (
 						valueCount: readonly [T, number],
-						index: number,
 					) => valueCount is [TF, number],
 					options: { negate: true },
 				): Collection.Advanced.FamToTypes<
@@ -168,12 +169,11 @@ export declare namespace MultiSetCollection {
 				filterWithCounts<TF extends T>(
 					pred: (
 						valueCount: readonly [T, number],
-						index: number,
 					) => valueCount is [TF, number],
 					options?: { negate?: false | undefined } | undefined,
 				): Collection.Advanced.FamToTypes<Tp['_FAM'], TF>['_NORMAL'];
 				filterWithCounts(
-					pred: (valueCount: readonly [T, number], index: number) => boolean,
+					pred: (valueCount: readonly [T, number]) => boolean,
 					options?: { negate?: boolean | undefined } | undefined,
 				): Tp['_NORMAL'];
 			}
@@ -189,13 +189,35 @@ export declare namespace MultiSetCollection {
 			}
 		}
 
-		export namespace WithRemoveAll {
+		/**
+		 * Removes every occurrence of each of the given `values`.
+		 *
+		 * The MultiSet counterpart of `ValuedCollection`'s `removeEach`; the
+		 * count-wise algebra (`union`, `intersection`, `difference`,
+		 * `symmetricDifference`) is defined on top of it.
+		 */
+		export namespace WithRemoveEach {
 			export interface Api<T, Tp extends Collection.Advanced.TypesBase> {
-				removeAll<U = T>(values: StreamSource<RelatedTo<T, U>>): Tp['_NORMAL'];
+				removeEach<U = T>(values: StreamSource<RelatedTo<T, U>>): Tp['_NORMAL'];
 			}
 
 			export interface BuilderApi<T, Tp extends Collection.Advanced.TypesBase> {
-				removeAll<U = T>(values: StreamSource<RelatedTo<T, U>>): boolean;
+				removeEach<U = T>(values: StreamSource<RelatedTo<T, U>>): boolean;
+			}
+		}
+
+		/**
+		 * Removes every occurrence of a single `value`, i.e. sets its count to
+		 * zero. Equivalent to `remove(value, count(value))`, but without having to
+		 * look the count up first.
+		 */
+		export namespace WithRemoveAll {
+			export interface Api<T, Tp extends Collection.Advanced.TypesBase> {
+				removeAll<U = T>(value: RelatedTo<T, U>): Tp['_NORMAL'];
+			}
+
+			export interface BuilderApi<T, Tp extends Collection.Advanced.TypesBase> {
+				removeAll<U = T>(value: RelatedTo<T, U>): boolean;
 			}
 		}
 

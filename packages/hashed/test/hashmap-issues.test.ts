@@ -43,7 +43,7 @@ describe('HashMap issues fixed by PRs', () => {
 
 	it('issue #186 for builder: HashMap "forgets" about colliding keys, unlike HashSet', () => {
 		const hm = HashMap.builder<[number, number], string>();
-		hm.addAll([
+		hm.addEach([
 			[[6, 29], 'a'],
 			[[2, 91], 'b'],
 		]);

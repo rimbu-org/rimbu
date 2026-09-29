@@ -156,10 +156,10 @@ describe('ListBuilder.prepend', () => {
 	});
 });
 
-describe('ListBuilder.appendAll', () => {
+describe('ListBuilder.appendEach', () => {
 	it('appends array elements', () => {
 		const b = builder<number>();
-		b.appendAll([1, 2, 3]);
+		b.appendEach([1, 2, 3]);
 		expect(b.size).toBe(3);
 		expect(b.build().toArray()).toEqual([1, 2, 3]);
 	});
@@ -167,36 +167,36 @@ describe('ListBuilder.appendAll', () => {
 	it('appends after existing elements', () => {
 		const b = builder<number>();
 		b.append(1);
-		b.appendAll([2, 3, 4]);
+		b.appendEach([2, 3, 4]);
 		expect(b.build().toArray()).toEqual([1, 2, 3, 4]);
 	});
 
-	it('appendAll from empty array does nothing', () => {
+	it('appendEach from empty array does nothing', () => {
 		const b = builder<number>();
 		b.append(1);
-		b.appendAll([]);
+		b.appendEach([]);
 		expect(b.size).toBe(1);
 	});
 
-	it('appendAll from another list', () => {
+	it('appendEach from another list', () => {
 		const b = builder<number>();
 		const source = ctx().of(10, 20, 30);
 		b.append(1);
-		b.appendAll(source);
+		b.appendEach(source);
 		b.append(99);
 		expect(b.build().toArray()).toEqual([1, 10, 20, 30, 99]);
 	});
 
-	it('appendAll from a stream', () => {
+	it('appendEach from a stream', () => {
 		const b = builder<number>();
-		b.appendAll([1, 2, 3].values());
+		b.appendEach([1, 2, 3].values());
 		expect(b.build().toArray()).toEqual([1, 2, 3]);
 	});
 
-	it('chained appendAll calls', () => {
+	it('chained appendEach calls', () => {
 		const b = builder<number>();
-		b.appendAll([1, 2]);
-		b.appendAll([3, 4, 5]);
+		b.appendEach([1, 2]);
+		b.appendEach([3, 4, 5]);
 		expect(b.build().toArray()).toEqual([1, 2, 3, 4, 5]);
 	});
 });

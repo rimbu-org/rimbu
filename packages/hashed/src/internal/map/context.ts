@@ -1,7 +1,7 @@
 import type { HashMap } from '@rimbu/hashed/map';
 
 import { KeyedCollectionContextBase } from '@rimbu/collection-types/advanced/collection/keyed-base';
-import { ContextBaseWithAddAll } from '@rimbu/collection-types/advanced/collection-base';
+import { ContextBaseWithAddEach } from '@rimbu/collection-types/advanced/collection-base';
 import { Eq } from '@rimbu/common';
 import { Hasher } from '@rimbu/hashed';
 import { List } from '@rimbu/list';
@@ -18,7 +18,7 @@ import {
 } from '#map/mutable/block-builder';
 
 export class HashMapCollectionContext<UK>
-	extends ContextBaseWithAddAll<HashMap.Advanced.Family<UK, any>>
+	extends ContextBaseWithAddEach<HashMap.Advanced.Family<UK, any>>
 	implements HashMap.Advanced.ContextApi<UK, HashMap.Advanced.Family<UK, any>>
 {
 	static createDefault<UK>(
@@ -219,7 +219,7 @@ export class HashMapKeyedContext<UK>
 		return this.context.reducer as any;
 	}
 
-	mergeAllWith = (
+	mergeEachWith = (
 		sources: readonly StreamSource<readonly [UK, any]>[],
 		options: { fillValue?: any; merge: (key: UK, values: any) => any },
 	): HashMap.NonEmpty<UK, any> => {
@@ -263,11 +263,11 @@ export class HashMapKeyedContext<UK>
 		) as HashMap.NonEmpty<UK, any>;
 	};
 
-	mergeAll = (
+	mergeEach = (
 		sources: readonly StreamSource<readonly [UK, any]>[],
 		options: { fillValue?: any } = {},
 	): HashMap.NonEmpty<UK, any> => {
-		return this.mergeAllWith(sources, {
+		return this.mergeEachWith(sources, {
 			fillValue: options.fillValue,
 			merge: (_key, values) => values,
 		});

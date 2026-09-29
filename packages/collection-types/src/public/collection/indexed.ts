@@ -161,8 +161,8 @@ export declare namespace IndexedCollection {
 				prepend(element: E): void;
 				append(element: E): void;
 
-				prependAll(source: StreamSource<E>): void;
-				appendAll(source: StreamSource<E>): void;
+				prependEach(source: StreamSource<E>): void;
+				appendEach(source: StreamSource<E>): void;
 			}
 		}
 

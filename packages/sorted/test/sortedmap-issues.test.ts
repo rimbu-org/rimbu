@@ -20,7 +20,7 @@ describe('SortedMap issues fixed by PRs', () => {
 
 		for (const i of Stream.range({ start: 0, end: 5 })) {
 			// add [0 .. 10], [10 .. 20], [20 .. 30] ...
-			map = map.addAll(
+			map = map.addEach(
 				Stream.range({ start: i * 10, amount: 10 }).map((v) => [v, -v]),
 			);
 			expect(map.at(-1)).toEqual([i * 10 + 9, -(i * 10 + 9)]);

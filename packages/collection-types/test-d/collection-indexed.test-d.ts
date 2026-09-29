@@ -117,7 +117,7 @@ const prependNE: NE<WithPrependAppend<number>, number> =
 const appendNE: NE<WithPrependAppend<number>, number> = prependAppend.append(1);
 declare const paBuilder: B<WithPrependAppend<number>, number>;
 expectTypeOf(paBuilder.prepend(1)).toEqualTypeOf<void>();
-expectTypeOf(paBuilder.appendAll(srcN)).toEqualTypeOf<void>();
+expectTypeOf(paBuilder.appendEach(srcN)).toEqualTypeOf<void>();
 
 // WithSpliceAt
 declare const splice: N<WithSpliceAt<number>, number>;

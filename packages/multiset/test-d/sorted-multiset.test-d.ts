@@ -41,16 +41,16 @@ expectTypeOf(genEmpty.add(1, 0)).toEqualTypeOf<G_Empty>();
 expectTypeOf(genNonEmpty.add(1, 0)).toEqualTypeOf<G_NonEmpty>();
 expectTypeOf(genEmpty.add(1, 1)).toEqualTypeOf<G_NonEmpty>();
 
-// .addAll(..)
-expectTypeOf(genEmpty.addAll([1, 2, 3])).toEqualTypeOf<G_NonEmpty>();
-expectTypeOf(genNonEmpty.addAll([1, 2, 3])).toEqualTypeOf<G_NonEmpty>();
+// .addEach(..)
+expectTypeOf(genEmpty.addEach([1, 2, 3])).toEqualTypeOf<G_NonEmpty>();
+expectTypeOf(genNonEmpty.addEach([1, 2, 3])).toEqualTypeOf<G_NonEmpty>();
 
-// .addAllWithCounts(..)
-expectTypeOf(genEmpty.addAllWithCounts([])).toEqualTypeOf<G_Empty>();
-expectTypeOf(genEmpty.addAllWithCounts([[1, 1]])).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.addAllWithCounts([])).toEqualTypeOf<G_NonEmpty>();
+// .addEachWithCounts(..)
+expectTypeOf(genEmpty.addEachWithCounts([])).toEqualTypeOf<G_Empty>();
+expectTypeOf(genEmpty.addEachWithCounts([[1, 1]])).toEqualTypeOf<G_Empty>();
+expectTypeOf(genNonEmpty.addEachWithCounts([])).toEqualTypeOf<G_NonEmpty>();
 expectTypeOf(
-	genNonEmpty.addAllWithCounts([[1, 1]]),
+	genNonEmpty.addEachWithCounts([[1, 1]]),
 ).toEqualTypeOf<G_NonEmpty>();
 
 // .assumeNonEmpty()
@@ -88,9 +88,15 @@ expectTypeOf(genNonEmpty.remove(3)).toEqualTypeOf<G_Empty>();
 expectTypeOf(genEmpty.remove(3, 3)).toEqualTypeOf<G_Empty>();
 expectTypeOf(genNonEmpty.remove(3, 3)).toEqualTypeOf<G_Empty>();
 
+// .removeEach(..)
+expectTypeOf(genEmpty.removeEach([3, 4])).toEqualTypeOf<G_Empty>();
+expectTypeOf(genNonEmpty.removeEach([3, 4])).toEqualTypeOf<G_Empty>();
+
 // .removeAll(..)
-expectTypeOf(genEmpty.removeAll([3, 4])).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.removeAll([3, 4])).toEqualTypeOf<G_Empty>();
+expectTypeOf(genEmpty.removeAll(3)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genNonEmpty.removeAll(3)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genEmpty.toBuilder().removeAll(3)).toEqualTypeOf<boolean>();
+expectTypeOf(genNonEmpty.toBuilder().removeAll(3)).toEqualTypeOf<boolean>();
 
 // .setCount(..)
 expectTypeOf(genEmpty.setCount(3, 0)).toEqualTypeOf<G_Empty>();

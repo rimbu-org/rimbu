@@ -151,7 +151,7 @@ export class ListBuilder<T>
 		this.#outerBuilder = this.#outerBuilder.normalized();
 	};
 
-	prependAll = (elements: StreamSource<T>): void => {
+	prependEach = (elements: StreamSource<T>): void => {
 		this.checkLock();
 
 		const token = Symbol();
@@ -162,7 +162,7 @@ export class ListBuilder<T>
 		}
 	};
 
-	appendAll = (elements: StreamSource<T>): void => {
+	appendEach = (elements: StreamSource<T>): void => {
 		this.checkLock();
 
 		// if (Array.isArray(values)) {
