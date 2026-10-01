@@ -74,8 +74,7 @@ export declare namespace MapCollection {
 				KeyedCollection.Advanced.FamilyBase<K, V>,
 				readonly [K, V]
 			>,
-		>
-			extends KeyedCollection.Advanced.BuilderApi<K, V, Tp>,
+		> extends KeyedCollection.Advanced.BuilderApi<K, V, Tp>,
 				Collection.Capability.WithAdd.BuilderApi<readonly [K, V], Tp>,
 				Collection.Capability.WithAddEach.BuilderApi<readonly [K, V], Tp>,
 				KeyedCollection.Capability.WithMapValues.BuilderApi<K, V, Tp>,

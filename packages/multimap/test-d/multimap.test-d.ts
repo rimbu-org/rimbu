@@ -1,318 +1,258 @@
 import { expectTypeOf } from 'bun:test';
 
-import type {
-	RMap,
-	RSet,
-	VariantMap,
-	VariantSet,
-} from '@rimbu/collection-types';
-import type { ArrayNonEmpty, WithValueResult } from '@rimbu/common/types';
+import type { MapCollection } from '@rimbu/collection-types/map';
+import type { SetCollection } from '@rimbu/collection-types/set';
+import type { Op } from '@rimbu/collection-types/types';
 import type { MultiMap } from '@rimbu/multimap';
-import type { VariantMultiMap } from '@rimbu/multimap/variant';
+import type { MultiMapCollection } from '@rimbu/multimap/advanced/multimap-base';
+import type { ArrayNonEmpty } from '@rimbu/common';
 import type { FastIterator, Stream } from '@rimbu/stream';
+import type { Reducer } from '@rimbu/stream/reducer';
 
-type VE<K, V> = VariantMultiMap<K, V>;
-type VNE<K, V> = VariantMultiMap.NonEmpty<K, V>;
+import { Stream as StreamImpl } from '@rimbu/stream';
+
+import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+
 type GE<K, V> = MultiMap<K, V>;
 type GNE<K, V> = MultiMap.NonEmpty<K, V>;
 
-type V_Empty = VE<number, string>;
-type V_NonEmpty = VNE<number, string>;
 type G_Empty = GE<number, string>;
 type G_NonEmpty = GNE<number, string>;
-
-const varEmpty: V_Empty = undefined as any;
-const varNonEmpty: V_NonEmpty = undefined as any;
 
 const genEmpty: G_Empty = undefined as any;
 const genNonEmpty: G_NonEmpty = undefined as any;
 
-expectTypeOf(varNonEmpty).toExtend<V_Empty>();
-expectTypeOf(genEmpty).toExtend<V_Empty>();
-expectTypeOf(genNonEmpty).toExtend<V_Empty>();
-
-expectTypeOf(genNonEmpty).toExtend<V_NonEmpty>();
-expectTypeOf(varEmpty).not.toExtend<V_NonEmpty>();
-expectTypeOf(genEmpty).not.toExtend<V_NonEmpty>();
-
-expectTypeOf(genNonEmpty).toExtend<G_Empty>();
-expectTypeOf(varEmpty).not.toExtend<G_Empty>();
-expectTypeOf(genNonEmpty).toExtend<G_NonEmpty>();
-expectTypeOf(varEmpty).not.toExtend<G_NonEmpty>();
-
-// Test variance
-expectTypeOf(varEmpty).toExtend<VE<number | string, string>>();
-expectTypeOf(varEmpty).toExtend<VE<number, string | boolean>>();
-expectTypeOf(varEmpty).toExtend<VE<number | string, string | boolean>>();
-expectTypeOf(varNonEmpty).toExtend<VNE<number | string, string>>();
-expectTypeOf(varNonEmpty).toExtend<VNE<number, string | boolean>>();
-expectTypeOf(varNonEmpty).toExtend<VNE<number | string, string | boolean>>();
-
-expectTypeOf(genEmpty).toExtend<VE<number | string, string | boolean>>();
-expectTypeOf(genNonEmpty).toExtend<VE<number | string, string | boolean>>();
-expectTypeOf(genNonEmpty).toExtend<VNE<number | string, string | boolean>>();
-
+// A MultiMap is invariant in `readonly [K, V]`: `addTo`, `mapValues`,
+// `flatMapValues` and `flatMapValues`-style callbacks all take a
+// `(value: V, key: K) => …`, which is contravariant in `V`.
 expectTypeOf(genEmpty).not.toExtend<GE<number | string, string>>();
 expectTypeOf(genEmpty).not.toExtend<GE<number, string | boolean>>();
 expectTypeOf(genNonEmpty).not.toExtend<GNE<number | string, string>>();
 expectTypeOf(genNonEmpty).not.toExtend<GNE<number, string | boolean>>();
 
 let m!: any;
-expectTypeOf(m as VE<number | string, string>).not.toExtend<V_Empty>();
-expectTypeOf(m as VE<number | string, string>).not.toExtend<V_Empty>();
-expectTypeOf(m as VNE<number | string, string>).not.toExtend<V_NonEmpty>();
-expectTypeOf(m as VNE<number | string, string>).not.toExtend<V_NonEmpty>();
-
 expectTypeOf(m as GE<number | string, string>).not.toExtend<G_Empty>();
-expectTypeOf(m as GE<number, string | number>).not.toExtend<G_Empty>();
 expectTypeOf(m as GNE<number | string, string>).not.toExtend<G_NonEmpty>();
-expectTypeOf(m as GNE<number, string | number>).not.toExtend<G_NonEmpty>();
 
-// Iterator
-expectTypeOf(varEmpty[Symbol.iterator]()).toEqualTypeOf<
-	FastIterator<[number, string]>
->();
-expectTypeOf(varNonEmpty[Symbol.iterator]()).toEqualTypeOf<
-	FastIterator<[number, string]>
->();
+// Subtyping: NonEmpty extends normal, and nothing extends NonEmpty.
+expectTypeOf(genNonEmpty).toExtend<G_Empty>();
+expectTypeOf(genEmpty).not.toExtend<G_NonEmpty>();
+expectTypeOf(genNonEmpty).toExtend<G_NonEmpty>();
+
+// Iterator — the element is now a `readonly` tuple.
 expectTypeOf(genEmpty[Symbol.iterator]()).toEqualTypeOf<
-	FastIterator<[number, string]>
+	FastIterator<readonly [number, string]>
 >();
 expectTypeOf(genNonEmpty[Symbol.iterator]()).toEqualTypeOf<
-	FastIterator<[number, string]>
+	FastIterator<readonly [number, string]>
 >();
 
-// .add(..)
-expectTypeOf(genEmpty.add(1, 'a')).toEqualTypeOf<G_NonEmpty>();
-expectTypeOf(genNonEmpty.add(1, 'a')).toEqualTypeOf<G_NonEmpty>();
-
-// .addEntries(..)
-expectTypeOf(genEmpty.addEntries([])).toEqualTypeOf<G_Empty>();
-expectTypeOf(genEmpty.addEntries([[1, 'a']])).toEqualTypeOf<G_NonEmpty>();
-expectTypeOf(genNonEmpty.addEntries([])).toEqualTypeOf<G_NonEmpty>();
-expectTypeOf(genNonEmpty.addEntries([[1, 'a']])).toEqualTypeOf<G_NonEmpty>();
-
-// .assumeNonEmpty()
-expectTypeOf(varEmpty.assumeNonEmpty()).toEqualTypeOf<V_NonEmpty>();
-expectTypeOf(varNonEmpty.assumeNonEmpty()).toEqualTypeOf<V_NonEmpty>();
-expectTypeOf(genEmpty.assumeNonEmpty()).toEqualTypeOf<G_NonEmpty>();
-expectTypeOf(genNonEmpty.assumeNonEmpty()).toEqualTypeOf<G_NonEmpty>();
-
-// .context
-expectTypeOf(genEmpty.context).toEqualTypeOf<
-	MultiMap.Context<number, string>
->();
-expectTypeOf(genNonEmpty.context).toEqualTypeOf<
-	MultiMap.Context<number, string>
->();
-
-// .filter(..)
-expectTypeOf(varEmpty.filter(() => true)).toEqualTypeOf<V_Empty>();
-expectTypeOf(varNonEmpty.filter(() => true)).toEqualTypeOf<V_Empty>();
-expectTypeOf(genEmpty.filter(() => true)).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.filter(() => true)).toEqualTypeOf<G_Empty>();
-
-// .transform(..)
-// Normal overload: a plain StreamSource result yields a (possibly empty) collection.
-const tVarEmpty: V_Empty = varEmpty.transform((s) =>
-	s.map(([k, v]) => [k, v] as [number, string]),
-);
-const tVarNonEmpty: V_Empty = varNonEmpty.transform((s) =>
-	s.map(([k, v]) => [k, v] as [number, string]),
-);
-const tGenEmpty: G_Empty = genEmpty.transform((s) =>
-	s.map(([k, v]) => [k, v] as [number, string]),
-);
-const tGenNonEmpty: G_Empty = genNonEmpty.transform((s) =>
-	s.map(([k, v]) => [k, v] as [number, string]),
-);
-// The NonEmpty overload must be declared FIRST: when transformFun returns a
-// StreamSource.NonEmpty, TypeScript must select it so the result keeps its
-// NonEmpty type. If the overloads are reordered, these assignments fail to
-// compile (the result would be the possibly-empty G_Empty instead).
-const tGenNonEmptyNE: G_NonEmpty = genNonEmpty.transform((s) =>
-	s.map(([k, v]) => [k, v] as [number, string]).assumeNonEmpty(),
-);
-const tGenNonEmptyStreamNE: G_NonEmpty = genNonEmpty.transform((s) =>
-	s.assumeNonEmpty(),
-);
-
-void [
-	tVarEmpty,
-	tVarNonEmpty,
-	tGenEmpty,
-	tGenNonEmpty,
-	tGenNonEmptyNE,
-	tGenNonEmptyStreamNE,
-];
-
-// .getValues(..)
-expectTypeOf(genEmpty.valuesAt(1)).toEqualTypeOf<RSet<string>>();
-expectTypeOf(genNonEmpty.valuesAt(1)).toEqualTypeOf<RSet<string>>();
-
-// .isEmpty
-expectTypeOf(varEmpty.isEmpty).toEqualTypeOf<boolean>();
-expectTypeOf(varNonEmpty.isEmpty).toEqualTypeOf<false>();
+// .isEmpty / .size / .keySize
 expectTypeOf(genEmpty.isEmpty).toEqualTypeOf<boolean>();
 expectTypeOf(genNonEmpty.isEmpty).toEqualTypeOf<false>();
+expectTypeOf(genEmpty.size).toEqualTypeOf<number>();
+expectTypeOf(genEmpty.keySize).toEqualTypeOf<number>();
 
-// .keyMap
-expectTypeOf(varEmpty.keyMap).toEqualTypeOf<
-	VariantMap<number, VariantSet.NonEmpty<string>>
+// .stream() — non-empty is refined
+expectTypeOf(genEmpty.stream()).toEqualTypeOf<Stream<readonly [number, string]>>();
+expectTypeOf(genNonEmpty.stream()).toEqualTypeOf<
+	Stream.NonEmpty<readonly [number, string]>
 >();
-expectTypeOf(varNonEmpty.keyMap).toEqualTypeOf<
-	VariantMap.NonEmpty<number, VariantSet.NonEmpty<string>>
->();
-expectTypeOf(genEmpty.keyMap).toEqualTypeOf<
-	RMap<number, RSet.NonEmpty<string>>
->();
-expectTypeOf(genNonEmpty.keyMap).toExtend<
-	RMap.NonEmpty<number, RSet.NonEmpty<string>>
->();
+expectTypeOf(genEmpty.streamKeys()).toEqualTypeOf<Stream<number>>();
+expectTypeOf(genNonEmpty.streamKeys()).toEqualTypeOf<Stream.NonEmpty<number>>();
+expectTypeOf(genEmpty.streamValues()).toEqualTypeOf<Stream<string>>();
+expectTypeOf(genNonEmpty.streamValues()).toEqualTypeOf<Stream.NonEmpty<string>>();
 
-// .nonEmpty()
-expectTypeOf(varEmpty.nonEmpty()).toEqualTypeOf<boolean>();
-expectTypeOf(varNonEmpty.nonEmpty()).toEqualTypeOf<boolean>();
-expectTypeOf(genEmpty.nonEmpty()).toEqualTypeOf<boolean>();
-expectTypeOf(genNonEmpty.nonEmpty()).toEqualTypeOf<boolean>();
-
-// .removeKey(..)
-expectTypeOf(varEmpty.removeEntries([[3, 'a']])).toEqualTypeOf<V_Empty>();
-expectTypeOf(varNonEmpty.removeEntries([[3, 'a']])).toEqualTypeOf<V_Empty>();
-expectTypeOf(genEmpty.removeEntries([[3, 'a']])).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.removeEntries([[3, 'a']])).toEqualTypeOf<G_Empty>();
-
-// .removeEntry(..)
-expectTypeOf(varEmpty.removeEntry(3, 'a')).toEqualTypeOf<V_Empty>();
-expectTypeOf(varNonEmpty.removeEntry(3, 'a')).toEqualTypeOf<V_Empty>();
-expectTypeOf(genEmpty.removeEntry(3, 'a')).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.removeEntry(3, 'a')).toEqualTypeOf<G_Empty>();
-
-// .removeKey(..)
-expectTypeOf(varEmpty.removeKey(3)).toEqualTypeOf<V_Empty>();
-expectTypeOf(varNonEmpty.removeKey(3)).toEqualTypeOf<V_Empty>();
-expectTypeOf(genEmpty.removeKey(3)).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.removeKey(3)).toEqualTypeOf<G_Empty>();
-
-// .removeKeyAndGet(..)
-expectTypeOf(varEmpty.removeKeyAndGet(3)).toEqualTypeOf<
-	WithValueResult<V_Empty, VariantSet.NonEmpty<string>>
->();
-expectTypeOf(varNonEmpty.removeKeyAndGet(3)).toEqualTypeOf<
-	WithValueResult<V_Empty, VariantSet.NonEmpty<string>, V_NonEmpty>
->();
-expectTypeOf(genEmpty.removeKeyAndGet(3)).toEqualTypeOf<
-	WithValueResult<G_Empty, RSet.NonEmpty<string>>
->();
-expectTypeOf(genNonEmpty.removeKeyAndGet(3)).toEqualTypeOf<
-	WithValueResult<G_Empty, RSet.NonEmpty<string>, G_NonEmpty>
+// .toArray() — non-empty is refined
+expectTypeOf(genEmpty.toArray()).toEqualTypeOf<Array<readonly [number, string]>>();
+expectTypeOf(genNonEmpty.toArray()).toEqualTypeOf<
+	ArrayNonEmpty<readonly [number, string]>
 >();
 
-// .removeKeys(..)
-expectTypeOf(varEmpty.removeKeys([3, 4])).toEqualTypeOf<V_Empty>();
-expectTypeOf(varNonEmpty.removeKeys([3, 4])).toEqualTypeOf<V_Empty>();
-expectTypeOf(genEmpty.removeKeys([3, 4])).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.removeKeys([3, 4])).toEqualTypeOf<G_Empty>();
+// .assumeNonEmpty() / .asNormal()
+expectTypeOf(genEmpty.assumeNonEmpty()).toEqualTypeOf<G_NonEmpty>();
+expectTypeOf(genNonEmpty.assumeNonEmpty()).toEqualTypeOf<G_NonEmpty>();
+expectTypeOf(genNonEmpty.asNormal()).toEqualTypeOf<G_Empty>();
 
-// .setValues(..)
-expectTypeOf(genEmpty.setValues(1, [])).toEqualTypeOf<G_Empty>();
-expectTypeOf(genEmpty.setValues(1, ['a'])).toEqualTypeOf<G_NonEmpty>();
-expectTypeOf(genNonEmpty.setValues(1, [])).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.setValues(1, ['a'])).toEqualTypeOf<G_NonEmpty>();
+// .addTo(key, value) — renamed from `add`; always non-empty
+expectTypeOf(genEmpty.addTo(1, 'a')).toEqualTypeOf<G_NonEmpty>();
+expectTypeOf(genNonEmpty.addTo(1, 'a')).toEqualTypeOf<G_NonEmpty>();
 
-// .addValues(..)
-expectTypeOf(genEmpty.addValues(1, [] as string[])).toEqualTypeOf<G_Empty>();
-expectTypeOf(genEmpty.addValues(1, ['a'])).toEqualTypeOf<G_NonEmpty>();
-expectTypeOf(
-	genNonEmpty.addValues(1, [] as string[]),
-).toEqualTypeOf<G_NonEmpty>();
-expectTypeOf(genNonEmpty.addValues(1, ['a'])).toEqualTypeOf<G_NonEmpty>();
-expectTypeOf(
-	genNonEmpty.addValues(1, ['a'] as const),
-).toEqualTypeOf<G_NonEmpty>();
+// .addEach(entries) — renamed from `addEntries`; NonEmpty source first
+expectTypeOf(genEmpty.addEach([])).toEqualTypeOf<G_Empty>();
+expectTypeOf(genEmpty.addEach([[1, 'a']])).toEqualTypeOf<G_NonEmpty>();
+expectTypeOf(genNonEmpty.addEach([[1, 'a']])).toEqualTypeOf<G_NonEmpty>();
+expectTypeOf(genNonEmpty.addEach([])).toEqualTypeOf<G_NonEmpty>();
 
-// .count(..)
+// .getValues(key) — renamed from `valuesAt`; an absent key yields the EMPTY set,
+// never `undefined`.
+expectTypeOf(genEmpty.getValues(1)).toEqualTypeOf<SetCollection<string>>();
+expectTypeOf(genNonEmpty.getValues(1)).toEqualTypeOf<SetCollection<string>>();
+
+// .has(key) — renamed from `hasKey`
+expectTypeOf(genEmpty.has(1)).toEqualTypeOf<boolean>();
+expectTypeOf(genNonEmpty.has(1)).toEqualTypeOf<boolean>();
+// .hasEntry(key, value) — kept; a second, distinct predicate
+expectTypeOf(genEmpty.hasEntry(1, 'a')).toEqualTypeOf<boolean>();
+expectTypeOf(genNonEmpty.hasEntry(1, 'a')).toEqualTypeOf<boolean>();
+
+// .count(key) — set cardinality, NOT `MultiSet`'s multiplicity
 expectTypeOf(genEmpty.count(1)).toEqualTypeOf<number>();
 expectTypeOf(genNonEmpty.count(1)).toEqualTypeOf<number>();
 
-// .mapValues(..)
-expectTypeOf(genEmpty.mapValues((v) => v.toUpperCase())).toEqualTypeOf<
-	GE<number, string>
+// .keyMap — generic `MapCollection` of non-empty value sets; narrowed on NonEmpty
+expectTypeOf(genEmpty.keyMap).toEqualTypeOf<
+	MapCollection<number, SetCollection.NonEmpty<string>>
 >();
-expectTypeOf(genNonEmpty.mapValues((v) => v.toUpperCase())).toEqualTypeOf<
-	GNE<number, string>
->();
-
-// .flatMapValues(..)
-expectTypeOf(
-	genEmpty.flatMapValues((v) => [v, v.toUpperCase()] as string[]),
-).toEqualTypeOf<GE<number, string>>();
-expectTypeOf(
-	genNonEmpty.flatMapValues((v) => [v, v.toUpperCase()] as string[]),
-).toEqualTypeOf<GE<number, string>>();
-
-// .flatMap(..)
-expectTypeOf(
-	genEmpty.flatMap(([k, v]) => [[k, v]] as [number, string][]),
-).toEqualTypeOf<GE<number, string>>();
-expectTypeOf(genNonEmpty.flatMap(([k, v]) => [[k, v]])).toEqualTypeOf<
-	GNE<number, string>
+expectTypeOf(genNonEmpty.keyMap).toEqualTypeOf<
+	MapCollection.NonEmpty<number, SetCollection.NonEmpty<string>>
 >();
 
-// set algebra
+// .removeKeyAndReturn(key) — renamed from `removeKeyAndGet`; an `Op.DynamicResult`
+// whose found value is the whole value SET.
+expectTypeOf(genEmpty.removeKeyAndReturn(1)).toEqualTypeOf<
+	DynamicResultOf<G_Empty>
+>();
+expectTypeOf(genNonEmpty.removeKeyAndReturn(1)).toEqualTypeOf<
+	DynamicResultOf<G_NonEmpty>
+>();
+expectTypeOf(genNonEmpty.removeKeyAndReturn(1, 'fallback')).toEqualTypeOf<
+	DynamicResultOf<G_NonEmpty, string>
+>();
+
+// .removeKey — the collection-level one still returns the normal type
+expectTypeOf(genEmpty.removeKey(1)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genNonEmpty.removeKey(1)).toEqualTypeOf<G_Empty>();
+
+// .addEachValue / .setEachValue — renamed from `addValues` / `setValues`
+expectTypeOf(genEmpty.addEachValue(1, [])).toEqualTypeOf<G_Empty>();
+expectTypeOf(genEmpty.addEachValue(1, ['a'])).toEqualTypeOf<G_NonEmpty>();
+expectTypeOf(genEmpty.setEachValue(1, [])).toEqualTypeOf<G_Empty>();
+expectTypeOf(genEmpty.setEachValue(1, ['a'])).toEqualTypeOf<G_NonEmpty>();
+expectTypeOf(genNonEmpty.addEachValue(1, ['a'])).toEqualTypeOf<G_NonEmpty>();
+expectTypeOf(genNonEmpty.setEachValue(1, ['a'])).toEqualTypeOf<G_NonEmpty>();
+
+// .mapValues — the result is built in the SAME context, so `V2` is constrained
+// to a subtype of `V`: mapping to an unrelated type is not representable.
+expectTypeOf(genEmpty.mapValues((v) => v)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genNonEmpty.mapValues((v) => v)).toEqualTypeOf<G_NonEmpty>();
+expectTypeOf(genEmpty.mapValues((v) => v as 'a')).toEqualTypeOf<GE<number, 'a'>>();
+// @ts-expect-error the result value must be a subtype of V
+expectTypeOf(genEmpty.mapValues((_v) => 1));
+
+// .flatMapValues — same same-context constraint, and may empty a key
+expectTypeOf(genEmpty.flatMapValues((v) => [v])).toEqualTypeOf<G_Empty>();
+expectTypeOf(genEmpty.flatMapValues((v) => [v, v])).toEqualTypeOf<G_Empty>();
+
+// .modifyValuesAt — renamed from `modifyAt`; keeps the StreamSource payload
+expectTypeOf(genEmpty.modifyValuesAt(1, { ifNew: { set: ['a'] } })).toEqualTypeOf<
+	G_Empty
+>();
+expectTypeOf(
+	genEmpty.modifyValuesAt(1, { ifNew: { create: () => ['a'] } }),
+).toEqualTypeOf<G_Empty>();
+expectTypeOf(
+	genNonEmpty.modifyValuesAt(1, {
+		ifExists: { update: (current) => current },
+	}),
+).toEqualTypeOf<G_Empty>();
+
+// Set algebra — `intersection` / `symmetricDifference` renamed from
+// `intersect` / `symDifference` to match the shared vocabulary.
+expectTypeOf(genEmpty.union(genNonEmpty)).toEqualTypeOf<G_NonEmpty>();
 expectTypeOf(genEmpty.union(genEmpty)).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.union(genEmpty)).toEqualTypeOf<G_NonEmpty>();
-expectTypeOf(genNonEmpty.union(genNonEmpty)).toEqualTypeOf<G_NonEmpty>();
-expectTypeOf(genEmpty.intersect(genEmpty)).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.intersect(genEmpty)).toEqualTypeOf<G_Empty>();
-expectTypeOf(genEmpty.difference(genEmpty)).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.difference(genEmpty)).toEqualTypeOf<G_Empty>();
-expectTypeOf(genEmpty.symDifference(genEmpty)).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.symDifference(genEmpty)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genEmpty.intersection(genNonEmpty)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genEmpty.difference(genNonEmpty)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genEmpty.symmetricDifference(genNonEmpty)).toEqualTypeOf<G_Empty>();
+// The operand is the abstract `MultiMapCollection.Collection`, not any
+// `MapCollection` — the two are not interchangeable.
+// @ts-expect-error a plain `MapCollection` is not a MultiMap operand
+genEmpty.union(undefined as unknown as MapCollection<number, string>);
 
-// .stream()
-expectTypeOf(varEmpty.stream()).toEqualTypeOf<Stream<[number, string]>>();
-expectTypeOf(varNonEmpty.stream()).toEqualTypeOf<
-	Stream.NonEmpty<[number, string]>
->();
-expectTypeOf(genEmpty.stream()).toEqualTypeOf<Stream<[number, string]>>();
-expectTypeOf(genNonEmpty.stream()).toEqualTypeOf<
-	Stream.NonEmpty<[number, string]>
->();
+// .filterIndexed — the 3-parameter (entry, index, halt) form was `filter`.
+// The inherited `filterIndexed` has no `halt`.
+expectTypeOf(genEmpty.filterIndexed((_e, i) => i < 1)).toEqualTypeOf<G_Empty>();
+// .filter — the 1-parameter form, including the type-guard overloads
+expectTypeOf(genEmpty.filter(() => true)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genEmpty.filter(() => true, { negate: true })).toEqualTypeOf<G_Empty>();
+// the type-guard overload narrows the value type
+expectTypeOf(
+	genEmpty.filter((e): e is readonly [number, 'a'] => e[1] === 'a'),
+).toEqualTypeOf<GE<number, 'a'>>();
 
-// .streamKeys()
-expectTypeOf(varEmpty.streamKeys()).toEqualTypeOf<Stream<number>>();
-expectTypeOf(varNonEmpty.streamKeys()).toEqualTypeOf<Stream.NonEmpty<number>>();
-expectTypeOf(genEmpty.streamKeys()).toEqualTypeOf<Stream<number>>();
-expectTypeOf(genNonEmpty.streamKeys()).toEqualTypeOf<Stream.NonEmpty<number>>();
+// .recompose — renamed from `transform`
+expectTypeOf(genEmpty.recompose((s) => s)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genNonEmpty.recompose((s) => s)).toEqualTypeOf<G_NonEmpty>();
 
-// .streamValues()
-expectTypeOf(varEmpty.streamValues()).toEqualTypeOf<Stream<string>>();
-expectTypeOf(varNonEmpty.streamValues()).toEqualTypeOf<
-	Stream.NonEmpty<string>
->();
-expectTypeOf(genEmpty.streamValues()).toEqualTypeOf<Stream<string>>();
-expectTypeOf(genNonEmpty.streamValues()).toEqualTypeOf<
-	Stream.NonEmpty<string>
->();
-
-// .toArray()
-expectTypeOf(varEmpty.toArray()).toEqualTypeOf<[number, string][]>();
-expectTypeOf(varNonEmpty.toArray()).toEqualTypeOf<
-	ArrayNonEmpty<[number, string]>
->();
-expectTypeOf(genEmpty.toArray()).toEqualTypeOf<[number, string][]>();
-expectTypeOf(genNonEmpty.toArray()).toEqualTypeOf<
-	ArrayNonEmpty<[number, string]>
->();
+// Gained by adopting the capability style (see the migration plan, Q18).
+expectTypeOf(genEmpty.map((e) => e)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genNonEmpty.map((e) => e)).toEqualTypeOf<G_NonEmpty>();
+expectTypeOf(genEmpty.mapIndexed((e) => e)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genEmpty.flatMap((e) => StreamImpl.of(e))).toEqualTypeOf<G_Empty>();
+// `flatMapIndexed`'s `options` is a *required* parameter in the shared
+// capability, so it must be passed (possibly `undefined`).
+expectTypeOf(
+	genEmpty.flatMapIndexed((e) => StreamImpl.of(e), undefined),
+).toEqualTypeOf<G_Empty>();
+expectTypeOf(genEmpty.mutate(() => {})).toEqualTypeOf<G_Empty>();
 
 // .toBuilder()
-expectTypeOf(genEmpty.toBuilder()).toEqualTypeOf<
+expectTypeOf(genEmpty.toBuilder()).toEqualTypeOf<MultiMap.Builder<number, string>>();
+
+// MultiMap.Builder
+const builder = undefined as unknown as MultiMap.Builder<number, string>;
+expectTypeOf(builder.isEmpty).toEqualTypeOf<boolean>();
+expectTypeOf(builder.size).toEqualTypeOf<number>();
+expectTypeOf(builder.build()).toEqualTypeOf<G_Empty>();
+expectTypeOf(builder.addTo(1, 'a')).toEqualTypeOf<boolean>();
+expectTypeOf(builder.addEach([[1, 'a']])).toEqualTypeOf<boolean>();
+expectTypeOf(builder.getValues(1)).toEqualTypeOf<SetCollection<string>>();
+expectTypeOf(builder.has(1)).toEqualTypeOf<boolean>();
+expectTypeOf(builder.hasEntry(1, 'a')).toEqualTypeOf<boolean>();
+expectTypeOf(builder.count(1)).toEqualTypeOf<number>();
+expectTypeOf(builder.addEachValue(1, ['a'])).toEqualTypeOf<boolean>();
+expectTypeOf(builder.setEachValue(1, ['a'])).toEqualTypeOf<boolean>();
+expectTypeOf(builder.removeEntry(1, 'a')).toEqualTypeOf<boolean>();
+expectTypeOf(builder.removeEntries([[1, 'a']])).toEqualTypeOf<boolean>();
+// `removeKey` on the builder hands back the removed VALUE SET: an empty set
+// means "this key was not present", where a map would return `undefined`.
+expectTypeOf(builder.removeKey(1)).toEqualTypeOf<SetCollection<string>>();
+expectTypeOf(builder.removeKey(1, 'fallback')).toEqualTypeOf<
+	SetCollection<string> | string
+>();
+// `clear` is inherited from the shared builder API
+expectTypeOf(builder.clear()).toEqualTypeOf<void>();
+
+// MultiMap.Context
+const context = undefined as unknown as MultiMap.Context<number, string>;
+expectTypeOf(context.typeTag).toEqualTypeOf<'MultiMap'>();
+expectTypeOf(context.empty<readonly [number, string]>()).toEqualTypeOf<G_Empty>();
+expectTypeOf(context.of<readonly [number, string]>([1, 'a'])).toEqualTypeOf<
+	G_NonEmpty
+>();
+expectTypeOf(context.from<readonly [number, string]>([])).toEqualTypeOf<G_Empty>();
+expectTypeOf(context.builder<readonly [number, string]>()).toEqualTypeOf<
 	MultiMap.Builder<number, string>
 >();
-expectTypeOf(genNonEmpty.toBuilder()).toEqualTypeOf<
-	MultiMap.Builder<number, string>
+expectTypeOf(context.reducer<number, string>()).toEqualTypeOf<
+	Reducer<readonly [number, string], G_Empty>
+>();
+expectTypeOf(context.keyMapContext).toExtend<MapCollection.Context<any>>();
+expectTypeOf(context.keyMapValuesContext).toExtend<SetCollection.Context<any>>();
+
+// The four historical variants are contexts now, not types.
+expectTypeOf(HashMultiMapHashValue).toExtend<MultiMap.Context<any, any>>();
+
+// The abstract MultiMap, used to type cross-variant operands.
+expectTypeOf(genEmpty).toExtend<
+	MultiMapCollection.Collection<number, string>
+>();
+expectTypeOf(genNonEmpty).toExtend<
+	MultiMapCollection.CollectionNonEmpty<number, string>
 >();
 
-// From Builder
-expectTypeOf(genEmpty.toBuilder().build()).toEqualTypeOf<G_Empty>();
+/** The `Op.DynamicResult` shape produced by `removeKeyAndReturn`. */
+type DynamicResultOf<
+	Col extends G_Empty,
+	O = undefined,
+> = Op.DynamicResult<Col, O, SetCollection<string>, G_Empty>;

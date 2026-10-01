@@ -101,6 +101,14 @@ export declare namespace KeyedCollection {
 
 			_KEYED_CONTEXT: unknown;
 
+			/**
+			 * What `BuilderApi.removeKey` hands back, and what
+			 * `removeKeyAndReturn` reports when the key was present. See
+			 * {@link Collection.Advanced.FamilyBase._REMOVED_AT_KEY} and
+			 * {@link Collection.Advanced.FamilyBase._FOUND_AT_KEY}.
+			 */
+			_REMOVED_AT_KEY: unknown;
+			_FOUND_AT_KEY: unknown;
 			_UPPER_K: this['_UPPER_E'][0];
 			_UPPER_V: this['_UPPER_E'][1];
 
@@ -127,6 +135,9 @@ export declare namespace KeyedCollection {
 			_UPPER_E: readonly [unknown, unknown];
 			_NEW_E: readonly [unknown, unknown];
 
+			_REMOVED_AT_KEY: V | undefined;
+			_FOUND_AT_KEY: V;
+
 			_FAM: Family<K, V>;
 			_NEW_FAMILY: Family<this['_NEW_K'], this['_NEW_V']>;
 		}
@@ -148,11 +159,16 @@ export declare namespace KeyedCollection {
 
 				removeKeyAndReturn<UK = K>(
 					key: RelatedTo<K, UK>,
-				): Op.DynamicResult<Tp['_SELF'], undefined, V, Tp['_NORMAL']>;
+				): Op.DynamicResult<
+					Tp['_SELF'],
+					undefined,
+					Tp['_FOUND_AT_KEY'],
+					Tp['_NORMAL']
+				>;
 				removeKeyAndReturn<UK, O>(
 					key: RelatedTo<K, UK>,
 					otherwise: OptLazy<O>,
-				): Op.DynamicResult<Tp['_SELF'], O, V, Tp['_NORMAL']>;
+				): Op.DynamicResult<Tp['_SELF'], O, Tp['_FOUND_AT_KEY'], Tp['_NORMAL']>;
 			}
 
 			export interface BuilderApi<
@@ -160,8 +176,11 @@ export declare namespace KeyedCollection {
 				V,
 				Tp extends Collection.Advanced.TypesBase,
 			> {
-				removeKey<UK = K>(key: RelatedTo<K, UK>): V | undefined;
-				removeKey<UK, O>(key: RelatedTo<K, UK>, otherwise: O): V | O;
+				removeKey<UK = K>(key: RelatedTo<K, UK>): Tp['_REMOVED_AT_KEY'];
+				removeKey<UK, O>(
+					key: RelatedTo<K, UK>,
+					otherwise: OptLazy<O>,
+				): Tp['_FOUND_AT_KEY'] | O;
 			}
 		}
 
@@ -461,9 +480,7 @@ export declare namespace KeyedCollection {
 				>,
 			> {
 				flatMap<E2 extends readonly [Tp['_UPPER_K'], Tp['_UPPER_V']]>(
-					f: (
-						entry: readonly [K, V],
-					) => StreamSource.NonEmpty<E2>,
+					f: (entry: readonly [K, V]) => StreamSource.NonEmpty<E2>,
 				): Collection.Advanced.ReTyped<Tp, E2>['_SELF'];
 				flatMap<E2 extends readonly [Tp['_UPPER_K'], Tp['_UPPER_V']]>(
 					f: (entry: readonly [K, V]) => StreamSource<E2>,
@@ -491,22 +508,15 @@ export declare namespace KeyedCollection {
 					readonly [K, V]
 				>,
 			> {
-				flatMapIndexed<
-					E2 extends readonly [Tp['_UPPER_K'], Tp['_UPPER_V']],
-				>(
+				flatMapIndexed<E2 extends readonly [Tp['_UPPER_K'], Tp['_UPPER_V']]>(
 					f: (
 						entry: readonly [K, V],
 						index: number,
 					) => StreamSource.NonEmpty<E2>,
 					options: { indexOffset?: number | undefined } | undefined,
 				): Collection.Advanced.ReTyped<Tp, E2>['_SELF'];
-				flatMapIndexed<
-					E2 extends readonly [Tp['_UPPER_K'], Tp['_UPPER_V']],
-				>(
-					f: (
-						entry: readonly [K, V],
-						index: number,
-					) => StreamSource<E2>,
+				flatMapIndexed<E2 extends readonly [Tp['_UPPER_K'], Tp['_UPPER_V']]>(
+					f: (entry: readonly [K, V], index: number) => StreamSource<E2>,
 					options: { indexOffset?: number | undefined } | undefined,
 				): Collection.Advanced.ReTyped<Tp, E2>['_NORMAL'];
 			}

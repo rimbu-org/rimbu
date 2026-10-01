@@ -1,8 +1,8 @@
-import type { RSet } from '@rimbu/collection-types';
 import type {
 	KeyValue,
 	WithKeyValue,
 } from '@rimbu/collection-types/advanced/common';
+import type { SetCollection } from '@rimbu/collection-types/set';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
 import type { MultiMap } from '@rimbu/multimap';
@@ -954,10 +954,10 @@ export namespace BiMultiMapBase {
 		/**
 		 * The value set collection type (higher-kinded type).
 		 */
-		readonly keyMultiMapValues: RSet<this['_V']>;
+		readonly keyMultiMapValues: SetCollection<this['_V']>;
 		/**
 		 * The key set collection type (higher-kinded type).
 		 */
-		readonly valueMultiMapValues: RSet<this['_K']>;
+		readonly valueMultiMapValues: SetCollection<this['_K']>;
 	}
 }

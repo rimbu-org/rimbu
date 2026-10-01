@@ -1,3 +1,4 @@
+import type { MultiMap } from '@rimbu/multimap';
 import type { SortedSet } from '@rimbu/sorted/set';
 import type { Streamable } from '@rimbu/stream';
 
@@ -68,27 +69,15 @@ export namespace SortedBiMultiMap {
 		readonly normal: SortedBiMultiMap<this['_K'], this['_V']>;
 		readonly nonEmpty: SortedBiMultiMap.NonEmpty<this['_K'], this['_V']>;
 		readonly builder: SortedBiMultiMap.Builder<this['_K'], this['_V']>;
-		readonly keyValueMultiMapContext: SortedMultiMapSortedValue.Context<
+		readonly keyValueMultiMapContext: MultiMap.Context<this['_K'], this['_V']>;
+		readonly valueKeyMultiMapContext: MultiMap.Context<this['_V'], this['_K']>;
+		readonly keyValueMultiMap: MultiMap<this['_K'], this['_V']>;
+		readonly valueKeyMultiMap: MultiMap<this['_V'], this['_K']>;
+		readonly keyValueMultiMapNonEmpty: MultiMap.NonEmpty<
 			this['_K'],
 			this['_V']
 		>;
-		readonly valueKeyMultiMapContext: SortedMultiMapSortedValue.Context<
-			this['_V'],
-			this['_K']
-		>;
-		readonly keyValueMultiMap: SortedMultiMapSortedValue<
-			this['_K'],
-			this['_V']
-		>;
-		readonly valueKeyMultiMap: SortedMultiMapSortedValue<
-			this['_V'],
-			this['_K']
-		>;
-		readonly keyValueMultiMapNonEmpty: SortedMultiMapSortedValue.NonEmpty<
-			this['_K'],
-			this['_V']
-		>;
-		readonly valueKeyMultiMapNonEmpty: SortedMultiMapSortedValue.NonEmpty<
+		readonly valueKeyMultiMapNonEmpty: MultiMap.NonEmpty<
 			this['_V'],
 			this['_K']
 		>;
@@ -103,9 +92,9 @@ export namespace SortedBiMultiMap {
 export const SortedBiMultiMap: BiMultiMapSorted.Creators =
 	createBiMultiMapContextModule('SortedBiMultiMap', {
 		get keyValueMultiMapContext() {
-			return SortedMultiMapSortedValue.defaultContext();
+			return SortedMultiMapSortedValue;
 		},
 		get valueKeyMultiMapContext() {
-			return SortedMultiMapSortedValue.defaultContext();
+			return SortedMultiMapSortedValue;
 		},
 	}).build();

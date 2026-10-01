@@ -74,6 +74,26 @@ export declare namespace Collection {
 			_UPPER_E: unknown;
 			_IS_NON_EMPTY: boolean;
 
+			/**
+			 * The type `BuilderApi.removeKey` hands back: the value that was
+			 * stored at the key, **or the family's marker for "not present"**.
+			 *
+			 * Declared `unknown` here and narrowed by the keyed families, exactly
+			 * as `_UPPER_E` is. A collection that stores one value per key pins it
+			 * to `V | undefined`. A collection whose key holds a *collection* of
+			 * values (a multimap) pins it to that collection type instead, where
+			 * an empty collection takes the role `undefined` plays for a map.
+			 */
+			_REMOVED_AT_KEY: unknown;
+
+			/**
+			 * The type `removeKeyAndReturn` reports as `result` when the key **was**
+			 * present — i.e. {@link _REMOVED_AT_KEY} with the absence marker
+			 * removed. Absence itself is signalled by the separate "no result"
+			 * arm of the returned `Op.DynamicResult`, so this slot never carries it.
+			 */
+			_FOUND_AT_KEY: unknown;
+
 			_NEW_E: unknown;
 			_NEW_FAMILY: FamilyBase<this['_NEW_E']>;
 

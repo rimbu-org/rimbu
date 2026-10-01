@@ -1,5 +1,5 @@
 import type { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
-import type { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+import type { MultiMap } from '@rimbu/multimap';
 
 import type { BiMultiMapBase } from '#bimultimap/base';
 
@@ -20,8 +20,8 @@ export namespace BiMultiMapHashed {
 		 * @returns a new `HashBiMultiMap.Context` configured with the provided options
 		 */
 		createContext<UK, UV>(options?: {
-			keyValueMultiMapContext?: HashMultiMapHashValue.Context<UK, UV>;
-			valueKeyMultiMapContext?: HashMultiMapHashValue.Context<UV, UK>;
+			keyValueMultiMapContext?: MultiMap.Context<UK, UV>;
+			valueKeyMultiMapContext?: MultiMap.Context<UV, UK>;
 		}): HashBiMultiMap.Context<UK, UV>;
 		/**
 		 * Returns the default context for HashBiMultiMaps.

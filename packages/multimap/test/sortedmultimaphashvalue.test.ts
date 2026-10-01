@@ -3,5 +3,5 @@ import { runMultiMapTestsWith } from './multimap-test-standard';
 
 runMultiMapTestsWith(
 	'SortedMultiMapHashValue',
-	SortedMultiMapHashValue.defaultContext(),
+	SortedMultiMapHashValue,
 );

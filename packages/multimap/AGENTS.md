@@ -1,103 +1,57 @@
 # @rimbu/multimap — Package Agent Guide
 
-An immutable `Map` where each key is associated with **one or more** values. Each key maps to a non-empty value `Set`, so the collection always has at least one value per key. Four concrete variants combine a **hashed or sorted** key map with a **hashed or sorted** value set.
+An immutable map where each key is associated with **one or more** values. A key maps to a
+non-empty value `Set`, so a MultiMap never stores a key without at least one value.
+
+The package is built on the **capability system** of `@rimbu/collection-types`: a
+`MultiMap<K, V>` is a *keyed* collection whose element is a `readonly [K, V]` entry, extended
+with a package-local `MultiMapCollection.Capability` suite for the value-set-aware
+operations. There is no type-variant base and no `Types` HKT interface anymore.
+
+> For workspace-wide conventions (biome rules, `build:seq` before typecheck/test, the
+> Interface + Namespace pattern, capability families, `NonEmpty` tracking, `OptLazy`, and the
+> changeset workflow) see the **root `AGENTS.md`**. This file covers only what is specific
+> to `@rimbu/multimap`. The design decisions behind the current shape, with the full
+> method-by-method table, are in `.scratch/multimap-migration-plan.md`.
 
 ## Source layout
 
 ```
 src/
-├── multimap.ts                # exports["."]       — type-invariant MultiMap API (main entry)
-├── public/                    # exports["./*"]    — public subpaths (dist/public/*)
-│   ├── variant.ts            # @rimbu/multimap/variant — type-VARIANT MultiMap API
+├── multimap.ts                 # exports["."]      — re-exports advanced + public
+├── advanced/                   # exports["./advanced/*"] — extension API
+│   └── multimap-base.ts        # MultiMapCollection.Capability.*, Advanced.{Api,BuilderApi,ContextApi,FamilyBase,Family}
+├── public/                     # exports["./*"]
+│   ├── multimap.ts             # @rimbu/multimap/multimap — MultiMap + NonEmpty/Builder/Context/Advanced + const
 │   ├── hash-key/
-│   │   ├── hash-value.ts     # @rimbu/multimap/hash-key/hash-value    — HashMultiMapHashValue
-│   │   └── sorted-value.ts  # @rimbu/multimap/hash-key/sorted-value  — HashMultiMapSortedValue
+│   │   ├── hash-value.ts       # @rimbu/multimap/hash-key/hash-value    — HashMultiMapHashValue
+│   │   └── sorted-value.ts     # @rimbu/multimap/hash-key/sorted-value  — HashMultiMapSortedValue
 │   └── sorted-key/
-│       ├── hash-value.ts     # @rimbu/multimap/sorted-key/hash-value  — SortedMultiMapHashValue
-│       └── sorted-value.ts  # @rimbu/multimap/sorted-key/sorted-value — SortedMultiMapSortedValue
-└── internal/                  # NEVER exported; "#multimap/*" only
-    ├── types.ts               # ALL interface declarations (VariantMultiMapBase, MultiMapBase, NonEmpty, Builder, Types)
-    ├── base.ts                # ALL implementations (MultiMapEmpty, MultiMapNonEmpty, MultiMapBuilder)
-    ├── context-factory.ts     # createMultiMapContextModule() — the sealed factory/Module
-    └── creators.ts           # Creators interfaces for the 4 concrete variants
+│       ├── hash-value.ts       # @rimbu/multimap/sorted-key/hash-value  — SortedMultiMapHashValue
+│       └── sorted-value.ts     # @rimbu/multimap/sorted-key/sorted-value — SortedMultiMapSortedValue
+└── internal/                   # NEVER exported; "#multimap/*" only
+    ├── builder.ts              # MultiMapBuilder
+    ├── context-factory.ts      # MultiMapContextImpl
+    └── immutable/
+        ├── empty.ts            # MultiMapEmpty
+        └── non-empty.ts        # MultiMapNonEmpty
 ```
 
-### Restructure note (deviation from draft plan)
+### Key rule: imports inside `src/`
 
-The draft `plans/multimap.md` proposed moving the four `hash-key/*` / `sorted-key/*` variant
-entries to `internal/` and `variant.ts` to `advanced/`. **This was not followed**, because the
-dependency graph proves they are genuinely public:
+- `@rimbu/multimap/advanced/*` for anything in `src/advanced/*`.
+- `#multimap/*` for anything in `src/internal/*`.
+- `@rimbu/multimap` (and sub-paths) for the public types.
+- **Never** relative imports — banned by Biome.
 
-- `@rimbu/core` re-exports all five (`@rimbu/multimap/hash-key/hash-value`,
-  `.../sorted-value`, `.../sorted-key/hash-value`, `.../sorted-key/sorted-value`,
-  `@rimbu/multimap/variant`).
-- `@rimbu/bimultimap` imports `HashMultiMapHashValue` and `SortedMultiMapSortedValue`
-  directly from `@rimbu/multimap/hash-key/hash-value` and `.../sorted-key/sorted-value`.
+## Architecture
 
-Moving them to `internal/`/`advanced/` would break both consumers. Instead, the only change made
-was to relocate the five public subpaths under `public/` and repoint the leaking
-`"./*" → "./dist/*.js"` export at `"./*" → "./dist/public/*"`, so `internal/` (base,
-context-factory, creators, types) is no longer reachable. No `./advanced/*` tier was added.
+### One collection type, four contexts
 
-### Key rule: where declarations live
-
-- **`internal/types.ts`** holds every interface: `VariantMultiMapBase`, `MultiMapBase` and their `NonEmpty` namespaces, `Builder`, and the HKT `Types` interfaces.
-- **`internal/base.ts`** holds the three concrete classes that implement those interfaces: `MultiMapEmpty` (the `isEmpty` case), `MultiMapNonEmpty` (the non-empty case), and `MultiMapBuilder`.
-- The per-variant entry files (`hash-key/hash-value.ts`, etc.) only **declare** the variant-specific `Types`/`Context`/`keyMap*` slots and call `createMultiMapContextModule(typeTag, {keyMapContext, keyMapValuesContext}).build()`. They contain almost no logic.
-
-## Package imports (`#` paths)
-
-```jsonc
-"#multimap/*": "./dist/internal/*.{js,d.ts}"   // internal implementations
-```
-
-Inside `src/` use package paths, never relative paths:
-```ts
-import type { MultiMapBase } from '#multimap/types';
-import { MultiMapEmpty } from '#multimap/base';
-```
-
-## The data model
-
-A `MultiMap` is stored as a single `keyMap`:
-
-```
-keyMap: RMap<K, RSet.NonEmpty<V>>
-```
-
-- Each key points to a **non-empty** value `Set`. A key is only present when it has ≥ 1 value.
-- `size` = total number of key-value **pairs** (not number of keys). `keySize` = number of distinct keys.
-- `getValues(key)` returns the value set (empty `RSet` if the key is absent — never `undefined`).
-- Adding a `(key, value)` that already exists is a **no-op**: it returns the same instance (referential equality), and `size` is unchanged.
-
-This is the central invariant to respect in every method: **never store an empty value set**, and keep `size` exact by diffing old/new `RSet.size` whenever you mutate a value set.
-
-## Key types
-
-| Type | File | Purpose |
-|---|---|---|
-| `VariantMultiMap<K, V>` | `variant.ts` | Type-**variant** (covariant) read/filter API |
-| `MultiMap<K, V>` | `multimap.ts` | Type-**invariant** full API (add/transform) |
-| `*.NonEmpty<K, V>` | same file | Refinement: compiler knows ≥ 1 entry |
-| `*.Context<UK, UV>` | same file | Factory for instances + builders |
-| `*.Builder<K, V>` | same file | Mutable accumulator |
-| `VariantMultiMapBase` / `MultiMapBase` | `internal/types.ts` | Shared abstract interfaces + `Types` HKT |
-| `MultiMapEmpty` / `MultiMapNonEmpty` / `MultiMapBuilder` | `internal/base.ts` | Implementations |
-
-## Variant vs invariant — the single most important design rule
-
-There are **two** base interfaces, and the split is deliberate:
-
-- **`VariantMultiMapBase<K, V>` is covariant** in both `K` and `V`. Because of this it can only expose **read** and **filter** operations — anything that takes a `(value: V, key: K) => …` callback would be *contravariant* in `V` and break covariance.
-  - Lives here: `stream`, `streamKeys`, `streamValues`, `getValues`, `hasKey`, `hasEntry`, `filter`, `transform` (the read side), `count`, `remove*` (removing only narrows), `toArray`, `keyMap`.
-- **`MultiMapBase<K, V>` extends `VariantMultiMapBase` and adds the operations that can *add or rewrite* values.** It is invariant.
-  - Lives here: `add`, `addEntries`, `setValues`, `addValues`, `mapValues`, `flatMapValues`, `flatMap`, `modifyAt`, `union`, `intersect`, `difference`, `symDifference`.
-
-> **Variance caveat:** methods that take a `(value: V, key: K) => W` callback — `mapValues`, `flatMapValues` — MUST be declared on `MultiMapBase` (invariant) only. If you put them on `VariantMultiMapBase` the covariant `V` collides with the contravariant callback param and the build fails. `count` is safe on `VariantMultiMapBase` because its only parameter is `(key)` (covariant).
-
-## The four concrete variants
-
-All four are produced by the same machinery with different `keyMapContext` / `keyMapValuesContext`:
+There is a **single** `MultiMap<K, V>` type. The former four variants
+(`HashMultiMapHashValue` and friends) are no longer distinct types — they are
+`MultiMap.Context` instances differing only in which map backs the keys and which set backs
+the values:
 
 | Export | Key map | Value set |
 |---|---|---|
@@ -106,51 +60,231 @@ All four are produced by the same machinery with different `keyMapContext` / `ke
 | `SortedMultiMapHashValue` | `SortedMap` | `HashSet` |
 | `SortedMultiMapSortedValue` | `SortedMap` | `SortedSet` |
 
-A `Context` carries exactly two sub-contexts: `keyMapContext` (an `RMap.Context`) and `keyMapValuesContext` (an `RSet.Context`). Any value operation delegates to the value set's own context, which is why `mapValues`/`flatMapValues` must build results **in the same context** (see below).
+So `HashMultiMapHashValue.of([1, 'a'])` still works verbatim, but it *returns* a
+`MultiMap<number, string>`. The collection type is no longer narrowed per variant, and
+`keyMap` is always the generic `MapCollection<K, SetCollection.NonEmpty<V>>` — the loss of
+the per-variant `keyMap` narrowing is deliberate (one type instead of four), and it is what
+lets `@rimbu/bimultimap` typecheck again.
 
-## Module / factory pattern
+`MultiMap.typeTag` is therefore uniformly `'MultiMap'`: the tag describes the collection,
+not the backing. The backing choice is no longer visible in `toString()`; the four names
+remain as ergonomic defaults.
 
-`createMultiMapContextModule(typeTag, { keyMapContext, keyMapValuesContext })` returns a `Module.Definition`; `.build()` yields the exported constant (e.g. `HashMultiMapHashValue`). The module implements `empty`, `of`, `from`, `builder`, `reducer`, `createContext`, `defaultContext`, plus the internal `createNonEmpty` / `createBuilder` / `isNonEmptyInstance` used by `base.ts`. **Add factory behavior in `context-factory.ts`, not in the entry files.**
+Any other combination is `MultiMap.createContext({ keyMapContext, keyMapValuesContext })`.
 
-## Higher-kinded `Types` interface
+### Why a MultiMap is not a `MapCollection`
 
-Both bases expose a `Types` interface that carries the concrete slots used by return types:
+A MultiMap's value slot is a *set*, so the shared keyed capabilities that accept or return a
+single `V` would lie about the shape of what is stored:
 
-```ts
-export interface Types extends KeyValue {
-  readonly normal: MultiMapBase<this['_K'], this['_V']>;
-  readonly nonEmpty: MultiMapBase.NonEmpty<this['_K'], this['_V']>;
-  readonly context: MultiMapBase.Context<this['_K'], this['_V']>;
-  readonly builder: MultiMapBase.Builder<this['_K'], this['_V']>;
-  readonly keyMap: RMap<this['_K'], RSet.NonEmpty<this['_V']>>;
-  readonly keyMapContext: RMap.Context<this['_K']>;
-  readonly keyMapValuesContext: RSet.Context<this['_V']>;
-  readonly keyMapValues: RSet<this['_V']>;
-  readonly keyMapValuesNonEmpty: RSet.NonEmpty<this['_V']>;
-}
-```
+| Capability | Why not adopted |
+|---|---|
+| `WithGet` | `get(key): V \| undefined` — we need the whole value set |
+| `MapCollection.Capability.WithSet` | `set(key, value: V)` would mean "replace the set with a singleton" |
+| `MapCollection.Capability.WithUpdateAtKey` | updates one value; a MultiMap updates a set |
+| `MapCollection.Capability.WithModifyAtKey` | its sentinel `ModifyOptions<T>` carries one value |
+| `ValuedCollection.Capability.*` | `StreamSource<E>` operands and `has(element)` describe no MultiMap operation |
 
-Return types in the interfaces use the `WithKeyValue<Tp, K, V>['slot']` helper so a method on `HashMultiMapHashValue` returns `HashMultiMapHashValue`, not the generic base.
+`KeyedCollection.Capability.WithRemoveKey` **is** adopted wholesale — see the slots below.
 
-## How to add a new method
+### Family / HKT
 
-1. **Decide the base interface** by variance:
-   - pure read/filter → `VariantMultiMapBase`
-   - adds/rewrites values, or takes a `(value: V, key: K) => …` callback → `MultiMapBase`
-2. **Declare it** in `internal/types.ts` on the interface and on `MultiMapBase.NonEmpty` if the result can be proved non-empty.
-3. **Overload order for NonEmpty variants:** when a method has two overloads (one returning `normal`, one returning `nonEmpty`), the `nonEmpty`-returning overload MUST be **first** (see `transform` at `types.ts:400`, `union` at `types.ts:614`). TS picks the first matching overload; if the `normal` one comes first, a callback returning a `StreamSource.NonEmpty` is matched by it and the precise type is lost.
-4. **Implement** in `MultiMapEmpty` and `MultiMapNonEmpty` in `internal/base.ts`. Return `any` from the empty-class methods that need to satisfy both normal and NonEmpty overloads (mirrors `addEntries`/`transform`).
-5. **Same-context building:** any method that produces new values (`mapValues`, `flatMapValues`, `modifyAt`, `union`, …) MUST build the new value sets through `this.context.keyMapValuesContext.from(...)` / `.builder()`, because the value set has its own context/equality. The resulting `keyMap` is built via the context's `keyMap` APIs, and turned into an instance with `this.context.createNonEmpty(keyMap, size)`.
-6. **Preserve `size` exactly.** When mutating a value set from `oldSize` to `newSize`, adjust `this.size` by `newSize - oldSize`, never recompute from scratch.
-7. **Empty-key guarantee.** A key whose value set becomes empty must be *removed* (returning the parent map, possibly unchanged). `difference` reuses `removeEntries` for exactly this reason.
-8. **Add to `Builder`** if it makes sense for the mutable accumulator (`base.ts`, `MultiMapBuilder`), returning `boolean` for changed-or-not.
-9. **Tests:** add runtime coverage to `test/multimap-test-standard.ts` (the `runMultiMapTestsWith` helper already runs against all 4 variants) and type assertions to `test-d/multimap.test-d.ts` (it checks the variant/invariant/NonEmpty return-type matrix for every method).
-10. **Export:** if the method belongs to the public `MultiMap` API, nothing extra is needed — `@rimbu/core` re-exports `@rimbu/multimap` via `export *`.
+`MultiMapCollection.Advanced.Family<K, V>` (in `advanced/`) is the default family and the
+one place the slots are pinned; `MultiMap.Advanced.Family<K, V>` (in `public/`) extends it
+and narrows the four API slots (`_NORMAL`, `_NON_EMPTY`, `_BUILDER`, `_CONTEXT`,
+`_KEYED_CONTEXT`) to the concrete `MultiMap` types.
 
-## Common pitfalls
+Two pins are load-bearing:
 
-- **Don't return `undefined` from `getValues`** — return the empty `RSet` (`base.ts:114`).
-- **`<W extends V>` / `<K2 extends K, V2 extends V>`, not free type params.** New values are built in the *same* context, so `W`/`V2` must be subtypes of `V`; you cannot map to an unrelated value type without building a fresh collection explicitly (see the `transform`/`flatMap` docs, which tell callers to use `MultiMap.from(stream.map(...))`).
-- **Referential equality for no-ops.** `add` of an existing pair, `removeKey` of an absent key, etc., must return the same instance (`return this`), so callers can rely on `===` for "did it change".
-- **Builder locking.** Mutating a builder while iterating it (`forEach`) throws `RimbuError.ModifiedBuilderWhileLoopingOverItError` — set `this._lock` around the loop (`base.ts:819`).
-- **Typecheck OOM.** `bun run typecheck` on this package can be killed by the container OOM killer. To check the `test-d` files, typecheck them in isolation (they resolve `@rimbu/*` against `dist`, which `bun run build:seq` has already produced) — do NOT include `src` or `test`, which pull in the whole monorepo type graph.
+- **`_UPPER_K`/`_UPPER_V` are pinned to `K`/`V`**, not widened to `any`. Methods that build
+  new values in the *same* context — `mapValues`, `flatMapValues` — must constrain their
+  result to a subtype of `V`, which is what keeps the "result is built by the same context"
+  guarantee checkable. Widening would permit mapping to an unrelated value type, which the
+  backing value set cannot represent.
+- **`_INVARIANT: (e: readonly [K, V]) => readonly [K, V]`** — a MultiMap is invariant in
+  `readonly [K, V]`, because `addTo`, `mapValues` and friends take
+  `(value: V, key: K) => …` callbacks.
+
+#### Only the *non-invariant* keyed capabilities are in the family `extends` clause
+
+This is a constraint of the capability system, not a style choice. A capability that makes
+its collection invariant declares `_INVARIANT: (e: readonly [K, V]) => readonly [K, V]`;
+a covariant one does not declare it at all (it inherits `(e: any) => any`). Two bases in one
+`extends` clause must agree on every shared property *identically*, so mixing the two kinds
+is a `TS2320`. The family therefore lists only `WithStreamKeys`, `WithStreamValues`,
+`WithHas`, `WithRemoveKey`, `WithRemoveKeys`, `WithMapValues` and `WithRecompose`.
+
+The invariant capabilities — keyed `WithMap`, `WithMapIndexed`, `WithFlatMap`,
+`WithFlatMapIndexed`, and the element-level `WithAddEach`/`WithToBuilder`/`WithMutate` —
+are claimed through the `Api`/`BuilderApi` aggregates in `MultiMapCollection.Advanced`,
+which is where the method surface they contribute is actually typed. `MultiMap.Advanced.Family`
+still declares `_INVARIANT` explicitly so the invariance is visible where it is pinned.
+
+### The two keyed remove slots
+
+`MultiMap.Advanced.Family` overrides two slots added to
+`KeyedCollection.Advanced.FamilyBase` in this change:
+
+| Slot | MultiMap value | A `MapCollection` value |
+|---|---|---|
+| `_REMOVED_AT_KEY` | `SetCollection<V>` | `V \| undefined` |
+| `_FOUND_AT_KEY` | `SetCollection<V>` | `V` |
+
+`_REMOVED_AT_KEY` is what `Builder.removeKey` hands back; `_FOUND_AT_KEY` is what
+`removeKeyAndReturn` reports as `result` when the key **was** present. Absence itself is
+signalled by the separate "no result" arm of the `Op.DynamicResult`.
+
+This is what lets a MultiMap adopt `KeyedCollection.Capability.WithRemoveKey` **instead of
+shadowing it**, and it encodes the rule that **an empty value set plays the role `undefined`
+plays for a map**: it means "this key was not present".
+
+## Core API semantics (deliberate — do not "fix")
+
+### Data model
+
+- `keyMap: MapCollection<K, SetCollection.NonEmpty<V>>`. **Never store an empty value set**:
+  a key whose value set empties is removed.
+- `size` = number of **entries**; `keySize` = number of **distinct keys**. Both are kept,
+  because `size` is what `Collection.Advanced.Api` means by "size" for an element-addressed
+  collection, and `keySize` is the natural companion.
+- Adding an existing `(key, value)` pair is a **no-op returning the same instance**;
+  callers rely on `===`.
+- `getValues(key)` returns the **empty** set for an absent key, never `undefined`.
+- Value-producing methods (`mapValues`, `flatMapValues`, `modifyValuesAt`, `union`, …)
+  build new value sets through `context.keyMapValuesContext`, because the value set has its
+  own context and equality.
+- `flatMapValues` **drops** a key whose values all map away, rather than storing an empty
+  set.
+- `size` is maintained incrementally (`newSize - oldSize` on every value-set mutation),
+  never recomputed from scratch.
+
+### `modifyValuesAt` options
+
+Keeps its own `MultiMapCollection.Advanced.ModifyValuesOptions` — deliberately **not** the
+shared `ModifyOptions<T>`, which carries a single value plus `skip`/`remove` sentinels,
+whereas a MultiMap replaces a whole *set* of values.
+
+**Returning an empty `StreamSource` from `create`/`update` removes the key.** That is the
+preserved pre-refactor semantic, and it is why the sentinels of the shared shape would only
+duplicate it.
+
+### `setEachValue` reports *replacement*, not "the contents differ"
+
+Writing the values a key already has still reports `true`. Only an absent key reports
+`false`. This is long-standing behaviour, deliberately preserved: a refactor should not
+silently change what a `boolean` return means.
+
+### Set algebra
+
+Operands are the abstract `MultiMapCollection.Collection<K, U>` (and `…CollectionNonEmpty`
+for `union`), so any two MultiMaps interoperate, hashed or sorted. All four operate per key
+on the value sets. `union` is the only one with a non-empty-preserving overload; the other
+three return the normal type.
+
+### Naming deviations from the shared vocabulary
+
+`addTo` and `addEachValue`/`setEachValue` are singular-noun methods taking a
+`StreamSource`; `addTo(key, value)` adds one value, `addEachValue(key, values)` adds each of
+many, `setEachValue(key, values)` replaces. `count(key)` is *set cardinality* — it shares a
+name with `MultiSet`'s `count(value)` (multiplicity) but is a different concept, and
+renaming it to match would be the opposite of consistency.
+
+## Deliberate shadows
+
+Each is intentional and documented so `review-api` does not read as a defect:
+
+1. **`addTo` vs `Collection.Capability.WithAdd.add(element)`.** The adoptable form is
+   `add([k, v])`; a two-argument call is the overwhelmingly common case and a tuple
+   allocation per call is a bad trade. `MultiMap.Advanced.Family` simply does not include
+   `WithAdd`.
+2. **The four algebra ops vs `ValuedCollection.Capability.*`.** Banned entirely; their
+   `StreamSource<E>` operands describe no MultiMap operation.
+3. **`removeEntry`/`removeEntries` stay local** while `addEach` is adopted. The asymmetry is
+   forced by shape: `ValuedCollection.Capability.WithRemoveEach` takes
+   `StreamSource<RelatedTo<readonly [K, V], UE>>`, which is *narrower* than multimap's
+   `StreamSource<[RelatedTo<K, UK>, RelatedTo<V, UV>]>` — adopting it would lose the
+   independent inference of the tuple's halves.
+4. **`count`** — see above.
+
+## Known deviations in `@rimbu/collection-types`
+
+- `MultiMapContextImpl` implements `of`/`from` itself instead of extending
+  `ContextBaseWithAddEach`, whose constraint requires the family to extend
+  `Collection.Advanced.Family` — an `extends` clause that cannot also carry the capability
+  families, because their `_BUILDER` slots are narrower and the two bases disagree
+  (`TS2320`).
+- `MultiMapContextImpl` also does **not** use a capability mixin for its immutable classes.
+  `KeyedCollectionNonEmpty` requires `get` and `MapCollectionNonEmpty` requires
+  `get`/`add(element)`/`modifyAtKey` — all single-value, all of which a MultiMap must not
+  expose. So `MultiMapEmpty`/`MultiMapNonEmpty` compose only the `Collection` seeds and
+  implement the rest directly.
+- `Advanced.ContextApi` restates the inherited `merge*` members loosely, exactly as `BiMap`
+  does: a MultiMap pins `_UPPER_E` to `readonly [K, V]`, so the `WithMerge` return types
+  (which recurse through `_UPPER_V`) cannot be structurally satisfied. The members *are*
+  implemented at runtime (as a union of the given sources); only the declared types are
+  widened.
+
+## Testing
+
+| Directory | Purpose |
+|---|---|
+| `test/` | Runtime tests — `runMultiMapTestsWith(name, context)`, shared by all four contexts |
+| `test-d/` | Type-level tests (`expectTypeOf`), one file |
+| `test-random/` | Randomized differential tests against a `Map` model |
+
+The runtime runner takes a `MultiMap.Context`, so it exercises all four contexts unchanged.
+`test-d` asserts **invariance** (there is no covariant `Variant` tier to compare against
+any more) and covers the renamed methods, the `NonEmpty` refinements, the builder's
+value-set-returning `removeKey`, and the same-context constraint on `mapValues`.
+
+The randomized cases verify the whole collection on each of 1000 operations, so they are
+O(n²) by construction and carry an explicit 30s timeout. Note that `test-random` was
+**broken before this refactor** (its shims called `.defaultContext()` as a function, which is
+not one) — it now runs.
+
+## Tooling
+
+Always `bun run build:seq` (from the repo root) before `typecheck`/`test`.
+
+| Command | Purpose |
+|---|---|
+| `bun run typecheck` | `tsc -p tsconfig.json --noEmit` (src + test + test-d) |
+| `bun run test` | `bun test test/*` |
+| `bun run test:random` | `bun test test-random` (requires a build) |
+| `bun run build` | emit this package to `dist/` |
+| `bun run biome:check` / `biome:fix` | lint + format `src` |
+
+The `noExplicitAny` warnings from `MultiMap.Context<any, any>` in the four context entries
+are the same pattern `bimap` and `bimultimap` use for a polymorphic context, and are
+accepted.
+
+## How to add a method
+
+1. Decide where it belongs: an existing shared capability, or a new
+   `MultiMapCollection.Capability.WithX` in `advanced/multimap-base.ts`.
+2. Add the `Api` (and `BuilderApi` if the builder can do it) to that capability, and
+   include it in `MultiMapCollection.Advanced.Api` / `.BuilderApi`.
+3. If it is a **non-invariant keyed** capability, also add it to
+   `MultiMapCollection.Advanced.Family`'s `extends` clause. If it is invariant, do **not** —
+   see "Only the non-invariant keyed capabilities…".
+4. Implement it in `internal/immutable/empty.ts` and `non-empty.ts`, and in `internal/builder.ts`
+   if it belongs on the builder. `empty.ts` needs an entry for every collection method;
+   `non-empty.ts` needs the `NonEmpty` overloads, with the **non-empty-preserving overload
+   first** (see root `AGENTS.md` §1.1).
+5. Preserve the data-model invariants above: never store an empty value set, keep `size`
+   exact by diffing, return the same instance for a no-op, build value-producing results in
+   the same context.
+6. Add runtime coverage to `test/multimap-test-standard.ts` and type coverage to
+   `test-d/multimap.test-d.ts`.
+7. If a new capability is needed, add a row to the capability table in this file.
+
+## Changesets
+
+Renaming `add`/`addEntries`/`valuesAt`/`hasKey`/`transform`/`intersect`/`symDifference`/
+`modifyAt`/`setValues`/`addValues`/`removeKeyAndGet`, replacing `filter`'s 3-parameter form
+with `filterIndexed`, changing `forEach` to 1-parameter, switching the element type to
+`readonly [K, V]`, removing `VariantMultiMap`, removing `@rimbu/multimap/variant`, and
+turning the four variant *types* into contexts are **breaking** and require a `major` bump.
+Because all Rimbu packages are lockstep-fixed, a single changeset listing
+`@rimbu/multimap`, `@rimbu/bimultimap`, `@rimbu/core`, `@rimbu/collection-types` and
+`@rimbu/stream` bumps them all.

@@ -1,5 +1,5 @@
 import type { BiMultiMap } from '@rimbu/bimultimap';
-import type { RSet } from '@rimbu/collection-types';
+import type { SetCollection } from '@rimbu/collection-types/set';
 import type { RelatedTo } from '@rimbu/common/types';
 import type { MultiMap } from '@rimbu/multimap';
 
@@ -63,11 +63,11 @@ export class BiMultiMapBuilder<K, V> implements BiMultiMapBase.Builder<K, V> {
 	}
 
 	hasKey = <UK = K>(key: RelatedTo<K, UK>): boolean => {
-		return this.source?.hasKey(key) ?? this.keyValueMultiMap.hasKey(key);
+		return this.source?.hasKey(key) ?? this.keyValueMultiMap.has(key);
 	};
 
 	hasValue = <UV = V>(value: RelatedTo<V, UV>): boolean => {
-		return this.source?.hasValue(value) ?? this.valueKeyMultiMap.hasKey(value);
+		return this.source?.hasValue(value) ?? this.valueKeyMultiMap.has(value);
 	};
 
 	hasEntry = <UK = K, UV = V>(
@@ -80,20 +80,20 @@ export class BiMultiMapBuilder<K, V> implements BiMultiMapBase.Builder<K, V> {
 		);
 	};
 
-	valuesAt = <UK = K>(key: RelatedTo<K, UK>): RSet<V> => {
+	valuesAt = <UK = K>(key: RelatedTo<K, UK>): SetCollection<V> => {
 		if (undefined !== this.source) {
 			return this.source.valuesAt(key);
 		}
 
-		return this.keyValueMultiMap.valuesAt(key);
+		return this.keyValueMultiMap.getValues(key);
 	};
 
-	keysAt = <UV = V>(value: RelatedTo<V, UV>): RSet<K> => {
+	keysAt = <UV = V>(value: RelatedTo<V, UV>): SetCollection<K> => {
 		if (undefined !== this.source) {
 			return this.source.keysAt(value);
 		}
 
-		return this.valueKeyMultiMap.valuesAt(value);
+		return this.valueKeyMultiMap.getValues(value);
 	};
 
 	setValues = (key: K, values: StreamSource<V>): boolean => {
@@ -119,9 +119,9 @@ export class BiMultiMapBuilder<K, V> implements BiMultiMapBase.Builder<K, V> {
 	add = (key: K, value: V): boolean => {
 		this.checkLock();
 
-		if (!this.keyValueMultiMap.add(key, value)) return false;
+		if (!this.keyValueMultiMap.addTo(key, value)) return false;
 		this.source = undefined;
-		return this.valueKeyMultiMap.add(value, key);
+		return this.valueKeyMultiMap.addTo(value, key);
 	};
 
 	addEntries = (entries: StreamSource<readonly [K, V]>): boolean => {
@@ -205,7 +205,10 @@ export class BiMultiMapBuilder<K, V> implements BiMultiMapBase.Builder<K, V> {
 
 		this._lock++;
 
-		this.keyValueMultiMap.forEach(f, { state });
+		this.keyValueMultiMap.forEachIndexed(
+			f as (entry: readonly [K, V], index: number, halt: () => void) => void,
+			{ state },
+		);
 
 		this._lock--;
 	};

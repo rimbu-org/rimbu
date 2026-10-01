@@ -65,8 +65,7 @@ export namespace SortedMap {
 				KeyedCollection.Advanced.FamilyBase<K, V>,
 				readonly [K, V]
 			>,
-		>
-			extends MapCollection.Advanced.BuilderApi<K, V, Tp>,
+		> extends MapCollection.Advanced.BuilderApi<K, V, Tp>,
 				IndexedSortedCollection.Advanced.BuilderApi<readonly [K, V], K, Tp> {}
 
 		export interface ContextApi<

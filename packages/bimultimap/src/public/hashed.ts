@@ -1,4 +1,5 @@
 import type { HashSet } from '@rimbu/hashed/set';
+import type { MultiMap } from '@rimbu/multimap';
 import type { Streamable } from '@rimbu/stream';
 
 import type { BiMultiMapBase } from '#bimultimap/base';
@@ -65,8 +66,8 @@ export namespace HashBiMultiMap {
 		readonly normal: HashBiMultiMap<this['_K'], this['_V']>;
 		readonly nonEmpty: HashBiMultiMap.NonEmpty<this['_K'], this['_V']>;
 		readonly builder: HashBiMultiMap.Builder<this['_K'], this['_V']>;
-		readonly keyValueMultiMap: HashMultiMapHashValue<this['_K'], this['_V']>;
-		readonly valueKeyMultiMap: HashMultiMapHashValue<this['_V'], this['_K']>;
+		readonly keyValueMultiMap: MultiMap<this['_K'], this['_V']>;
+		readonly valueKeyMultiMap: MultiMap<this['_V'], this['_K']>;
 		readonly keyMultiMapValues: HashSet<this['_V']>;
 		readonly valueMultiMapValues: HashSet<this['_K']>;
 	}
@@ -78,9 +79,9 @@ export namespace HashBiMultiMap {
 export const HashBiMultiMap: BiMultiMapHashed.Creators =
 	createBiMultiMapContextModule('HashBiMultiMap', {
 		get keyValueMultiMapContext() {
-			return HashMultiMapHashValue.defaultContext();
+			return HashMultiMapHashValue;
 		},
 		get valueKeyMultiMapContext() {
-			return HashMultiMapHashValue.defaultContext();
+			return HashMultiMapHashValue;
 		},
 	}).build();

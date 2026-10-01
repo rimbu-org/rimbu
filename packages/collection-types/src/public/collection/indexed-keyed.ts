@@ -72,6 +72,9 @@ export declare namespace IndexedKeyedCollection {
 			_UPPER_E: readonly [K, V];
 			_NEW_E: readonly [unknown, unknown];
 
+			_REMOVED_AT_KEY: V | undefined;
+			_FOUND_AT_KEY: V;
+
 			_FAM: Family<K, V>;
 			_NEW_FAMILY: Family<this['_NEW_K'], this['_NEW_V']>;
 		}

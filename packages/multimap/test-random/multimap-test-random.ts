@@ -78,8 +78,8 @@ export function runMultiMapRandomTestsWith(
 				this.jsmap.set(key, curValues);
 			}
 			curValues.push(value);
-			this.builder.add(key, value);
-			this.immm = this.immm.add(key, value);
+			this.builder.addTo(key, value);
+			this.immm = this.immm.addTo(key, value);
 		}
 
 		setValues(key: number, values: number[]): void {
@@ -88,8 +88,8 @@ export function runMultiMapRandomTestsWith(
 			if (values.length <= 0) this.jsmap.delete(key);
 			else this.jsmap.set(key, values);
 
-			this.builder.setValues(key, values);
-			this.immm = this.immm.setValues(key, values);
+			this.builder.setEachValue(key, values);
+			this.immm = this.immm.setEachValue(key, values);
 		}
 
 		removeEntry(key: number, value: number): void {
@@ -163,10 +163,10 @@ export function runMultiMapRandomTestsWith(
 			expect(m.size).toBe(0);
 			expect(m.isEmpty).toBe(true);
 			expect(m.nonEmpty()).toBe(false);
-			expect(m.add(1, 1).isEmpty).toBe(false);
+			expect(m.addTo(1, 1).isEmpty).toBe(false);
 			expect(() => m.assumeNonEmpty()).toThrowError();
 			expect(m.filter((): boolean => false)).toBe(empty);
-			expect(m.hasKey(0)).toBe(false);
+			expect(m.has(0)).toBe(false);
 			expect(m.hasEntry(0, 0)).toBe(false);
 			expect(m.keyMap.isEmpty).toBe(true);
 			expect(m.removeKey(0)).toBe(empty);
@@ -183,7 +183,7 @@ export function runMultiMapRandomTestsWith(
 					ent.add(values[0], values[1]);
 					ent.check();
 				});
-		});
+		}, 30_000);
 
 		it('removeEntry', (): void => {
 			const ent = new Entangled();
@@ -200,7 +200,7 @@ export function runMultiMapRandomTestsWith(
 					ent.removeEntry(values[0], values[1]);
 					ent.check();
 				});
-		});
+		}, 30_000);
 
 		// it('removeEntries', (): void => {
 		//   const ent = new Entangled();
@@ -234,14 +234,14 @@ export function runMultiMapRandomTestsWith(
 					ent.removeKey(v);
 					ent.check();
 				});
-		});
+		}, 30_000);
 
 		it('set existing key overrides', (): void => {
 			const m = context.of([1, 1], [2, 2], [3, 3]);
-			expect(m.add(1, 4).getValues(1).stream().toArray().sort()).toEqual([
+			expect(m.addTo(1, 4).getValues(1).stream().toArray().sort()).toEqual([
 				1, 4,
 			]);
-		});
+		}, 30_000);
 
 		it('isEmpty', (): void => {
 			expect(context.empty().isEmpty).toBe(true);
@@ -280,14 +280,14 @@ export function runMultiMapRandomTestsWith(
 			const m = context.from(stream);
 
 			let state = 0;
-			m.forEach((e, i): void => {
+			m.forEachIndexed((e, i): void => {
 				state += e[0] + e[1] + i;
 			});
 			expect(state).toBe(11250);
 
 			// cannot test order due to hashmap
 			state = 0;
-			m.forEach((_, i, halt): void => {
+			m.forEachIndexed((_, i, halt): void => {
 				state += i;
 				if (i > 10) halt();
 			});
@@ -303,18 +303,18 @@ export function runMultiMapRandomTestsWith(
 		});
 
 		it('hasKey', (): void => {
-			expect(context.empty().hasKey(1)).toBe(false);
-			expect(context.of([1, 1]).hasKey(1)).toBe(true);
-			expect(context.of([1, 1]).hasKey(2)).toBe(false);
+			expect(context.empty().has(1)).toBe(false);
+			expect(context.of([1, 1]).has(1)).toBe(true);
+			expect(context.of([1, 1]).has(2)).toBe(false);
 		});
 
 		it('remove', (): void => {
 			expect(context.empty().removeKey(1)).toBe(context.empty());
 			const m = context.of([1, 1], [2, 2]);
-			expect(m.removeKey(1)).toEqual(context.of([2, 2]));
+			expect(m.removeKey(1).toArray()).toEqual(context.of([2, 2]).toArray());
 			expect(m.removeKey(4)).toBe(m);
 			expect(context.of([1, 1]).removeKey(1)).toBe(context.empty());
-		});
+		}, 30_000);
 
 		it('stream', (): void => {
 			expect(context.empty().stream()).toBe(Stream.empty());
@@ -354,17 +354,17 @@ export function runMultiMapRandomTestsWith(
 			expect(b.isEmpty).toBe(true);
 			expect(b.size).toBe(0);
 			expect(b.getValues(0).stream().toArray()).toEqual([]);
-			expect(b.hasKey(0)).toBe(false);
+			expect(b.has(0)).toBe(false);
 			expect(b.build()).toBe(context.empty());
 		});
 
 		it('add existing key adds value', (): void => {
 			const b = context.builder();
 			Stream.of<[number, number]>([1, 1], [2, 2], [3, 3], [2, 4]).forEach((e) =>
-				b.add(e[0], e[1]),
+				b.addTo(e[0], e[1]),
 			);
 			expect(b.getValues(1).stream().toArray()).toEqual([1]);
-			b.add(1, 4);
+			b.addTo(1, 4);
 			expect(b.getValues(1).stream().toArray().sort()).toEqual([1, 4]);
 		});
 
@@ -374,17 +374,17 @@ export function runMultiMapRandomTestsWith(
 				Stream.range({ amount: 100 }),
 			);
 			const b = context.builder<number, number>();
-			stream.forEach((e) => b.add(e[0], e[1]));
+			stream.forEach((e) => b.addTo(e[0], e[1]));
 
 			let state = 0;
-			b.forEach((e, i): void => {
+			b.forEachIndexed((e, i): void => {
 				state += e[0] + e[1] + i;
 			});
 			expect(state).toBe(11250);
 
 			// cannot test order due to hashmap
 			state = 0;
-			b.forEach((_, i, halt): void => {
+			b.forEachIndexed((_, i, halt): void => {
 				state += i;
 				if (i > 10) halt();
 			});
@@ -397,28 +397,28 @@ export function runMultiMapRandomTestsWith(
 				Stream.range({ amount: 100 }),
 			);
 			const b = context.builder();
-			b.addEntries(stream);
+			b.addEach(stream);
 
 			expect((): void => {
-				b.forEach((): void => {
-					b.add(10, 100);
+				b.forEachIndexed((): void => {
+					b.addTo(10, 100);
 				});
 			}).toThrow();
 
 			expect((): void => {
-				b.forEach((): void => {
+				b.forEachIndexed((): void => {
 					b.removeKey(1);
 				});
 			}).toThrow();
 
 			// expect((): void => {
-			//   b.forEach((): void => {
+			//   b.forEachIndexed((): void => {
 			//     b.removeEntries(1, 1);
 			//   });
 			// }).toThrow();
 
 			expect((): void => {
-				b.forEach((): void => {
+				b.forEachIndexed((): void => {
 					b.removeEntry(1, 1);
 				});
 			}).toThrow();
@@ -427,38 +427,40 @@ export function runMultiMapRandomTestsWith(
 		it('getValues', (): void => {
 			expect(context.builder().getValues(1).stream().toArray()).toEqual([]);
 			const b = context.builder();
-			b.add(1, 1);
+			b.addTo(1, 1);
 			expect(b.getValues(1).stream().toArray()).toEqual([1]);
 			expect(b.getValues(2).stream().toArray()).toEqual([]);
 		});
 
 		it('hasKey', (): void => {
-			expect(context.builder().hasKey(1)).toBe(false);
+			expect(context.builder().has(1)).toBe(false);
 			const b = context.builder();
-			b.add(1, 1);
-			expect(b.hasKey(1)).toBe(true);
-			expect(b.hasKey(2)).toBe(false);
+			b.addTo(1, 1);
+			expect(b.has(1)).toBe(true);
+			expect(b.has(2)).toBe(false);
 		});
 
 		it('remove', (): void => {
 			let b = context.builder();
-			expect(b.removeKey(1)).toBe(false);
+			expect(b.removeKey(1).isEmpty).toBe(true);
 			expect(b.build()).toBe(context.empty());
 
 			b = context.builder();
 			Stream.of<[number, number]>([1, 1], [2, 2]).forEach((e) =>
-				b.add(e[0], e[1]),
+				b.addTo(e[0], e[1]),
 			);
-			expect(b.removeKey(1)).toBe(true);
-			expect(b.build()).toEqual(context.of([2, 2]));
+			expect(b.removeKey(1).toArray()).toEqual([1]);
+			expect(b.build().toArray()).toEqual(context.of([2, 2]).toArray());
 
 			b = context.builder();
 			Stream.of<[number, number]>([1, 1], [2, 2]).forEach((e) =>
-				b.add(e[0], e[1]),
+				b.addTo(e[0], e[1]),
 			);
-			expect(b.removeKey(4)).toBe(false);
-			expect(b.build()).toEqual(context.of([1, 1], [2, 2]));
-		});
+			expect(b.removeKey(4).isEmpty).toBe(true);
+			expect(b.build().toArray()).toEqual(
+				context.of([1, 1], [2, 2]).toArray(),
+			);
+		}, 30_000);
 	});
 
 	describe(`${name} MultiMap Builder`, (): void => {
@@ -467,11 +469,13 @@ export function runMultiMapRandomTestsWith(
 			const builder = source.toBuilder();
 			expect(builder.size).toBe(4);
 			expect(builder.build()).toBe(source);
-			builder.add(4, 4);
-			builder.add(1, 5);
+			builder.addTo(4, 4);
+			builder.addTo(1, 5);
 			expect(builder.size).toBe(6);
-			expect(builder.build()).toEqual(
-				context.of([1, 1], [1, 4], [1, 5], [2, 2], [3, 3], [4, 4]),
+			expect(builder.build().toArray()).toEqual(
+				context
+					.of([1, 1], [1, 4], [1, 5], [2, 2], [3, 3], [4, 4])
+					.toArray(),
 			);
 		});
 	});

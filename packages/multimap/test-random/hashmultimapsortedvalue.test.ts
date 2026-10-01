@@ -4,7 +4,7 @@ import { runMultiMapRandomTestsWith } from './multimap-test-random';
 
 runMultiMapRandomTestsWith(
 	'HashMultiMapSortedValue default',
-	HashMultiMapSortedValue.defaultContext<number, number>(),
-	HashSet.defaultContext<number>(),
+	HashMultiMapSortedValue,
+	HashSet,
 	true,
 );

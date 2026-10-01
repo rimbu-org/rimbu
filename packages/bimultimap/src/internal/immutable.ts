@@ -1,5 +1,5 @@
 import type { BiMultiMap } from '@rimbu/bimultimap';
-import type { RSet } from '@rimbu/collection-types';
+import type { SetCollection } from '@rimbu/collection-types/set';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { RelatedTo, ToJSON } from '@rimbu/common/types';
 import type { MultiMap } from '@rimbu/multimap';
@@ -80,11 +80,11 @@ export class BiMultiMapEmpty<K, V>
 		) as BiMultiMap.NonEmpty<K, V>;
 	}
 
-	valuesAt(): RSet<V> {
+	valuesAt(): SetCollection<V> {
 		return this.context.keyValueMultiMapContext.keyMapValuesContext.empty();
 	}
 
-	keysAt(): RSet<K> {
+	keysAt(): SetCollection<K> {
 		return this.context.valueKeyMultiMapContext.keyMapValuesContext.empty();
 	}
 
@@ -159,7 +159,7 @@ export class BiMultiMapNonEmpty<K, V>
 	}
 
 	stream(): Stream.NonEmpty<[K, V]> {
-		return this.keyValueMultiMap.stream();
+		return this.keyValueMultiMap.stream() as unknown as Stream.NonEmpty<[K, V]>;
 	}
 
 	streamKeys(): Stream.NonEmpty<K> {
@@ -171,11 +171,11 @@ export class BiMultiMapNonEmpty<K, V>
 	}
 
 	hasKey<UK = K>(key: RelatedTo<K, UK>): boolean {
-		return this.keyValueMultiMap.hasKey(key);
+		return this.keyValueMultiMap.has(key);
 	}
 
 	hasValue<UV = V>(key: RelatedTo<V, UV>): boolean {
-		return this.valueKeyMultiMap.hasKey(key);
+		return this.valueKeyMultiMap.has(key);
 	}
 
 	hasEntry<UK = K, UV = V>(
@@ -186,11 +186,11 @@ export class BiMultiMapNonEmpty<K, V>
 	}
 
 	add(key: K, value: V): BiMultiMap.NonEmpty<K, V> {
-		const newKeyValueMultiMap = this.keyValueMultiMap.add(key, value);
+		const newKeyValueMultiMap = this.keyValueMultiMap.addTo(key, value);
 
 		if (newKeyValueMultiMap === this.keyValueMultiMap) return this;
 
-		const newValueKeyMultiMap = this.valueKeyMultiMap.add(value, key);
+		const newValueKeyMultiMap = this.valueKeyMultiMap.addTo(value, key);
 
 		return this.context.createNonEmpty<K, V>(
 			newKeyValueMultiMap,
@@ -218,28 +218,30 @@ export class BiMultiMapNonEmpty<K, V>
 		return builder.build().assumeNonEmpty();
 	}
 
-	valuesAt<UK = K>(key: RelatedTo<K, UK>): RSet<V> {
-		return this.keyValueMultiMap.valuesAt(key);
+	valuesAt<UK = K>(key: RelatedTo<K, UK>): SetCollection<V> {
+		return this.keyValueMultiMap.getValues(key);
 	}
 
-	keysAt<UV = V>(value: RelatedTo<V, UV>): RSet<K> {
-		return this.valueKeyMultiMap.valuesAt(value);
+	keysAt<UV = V>(value: RelatedTo<V, UV>): SetCollection<K> {
+		return this.valueKeyMultiMap.getValues(value);
 	}
 
 	removeKey<UK = K>(key: RelatedTo<K, UK>): BiMultiMap<K, V> {
-		const [newKeyValueMultiMap, oldValues, hasOldValues] =
-			this.keyValueMultiMap.removeKeyAndGet(key);
+		const { collection, result, hasResult } =
+			this.keyValueMultiMap.removeKeyAndReturn(key);
 
-		if (!hasOldValues) return this;
+		if (!hasResult) return this;
 
-		if (!newKeyValueMultiMap.nonEmpty()) return this.context.empty();
+		const oldValues = result as SetCollection<V>;
+
+		if (!collection.nonEmpty()) return this.context.empty();
 
 		const newValueKeyMultiMap = this.valueKeyMultiMap
 			.removeEntries(oldValues.stream().map((value) => [value, key] as [V, K]))
 			.assumeNonEmpty();
 
 		return this.context.createNonEmpty<K, V>(
-			newKeyValueMultiMap,
+			collection as MultiMap.NonEmpty<K, V>,
 			newValueKeyMultiMap,
 		);
 	}
@@ -252,12 +254,14 @@ export class BiMultiMapNonEmpty<K, V>
 	}
 
 	removeValue<UV = V>(value: RelatedTo<V, UV>): BiMultiMap<K, V> {
-		const [newValueKeyMultiMap, oldKeys, hasOldKeys] =
-			this.valueKeyMultiMap.removeKeyAndGet(value);
+		const { collection, result, hasResult } =
+			this.valueKeyMultiMap.removeKeyAndReturn(value);
 
-		if (!hasOldKeys) return this;
+		if (!hasResult) return this;
 
-		if (!newValueKeyMultiMap.nonEmpty()) return this.context.empty();
+		const oldKeys = result as SetCollection<K>;
+
+		if (!collection.nonEmpty()) return this.context.empty();
 
 		const newKeyValueMultiMap = this.keyValueMultiMap
 			.removeEntries(oldKeys.stream().map((key) => [key, value] as [K, V]))
@@ -265,7 +269,7 @@ export class BiMultiMapNonEmpty<K, V>
 
 		return this.context.createNonEmpty<K, V>(
 			newKeyValueMultiMap,
-			newValueKeyMultiMap,
+			this.valueKeyMultiMap,
 		);
 	}
 
@@ -306,7 +310,10 @@ export class BiMultiMapNonEmpty<K, V>
 		f: (entry: [K, V], index: number, halt: () => void) => void,
 		options: { state?: TraverseState } = {},
 	): void {
-		this.keyValueMultiMap.forEach(f, options);
+		this.keyValueMultiMap.forEachIndexed(
+			f as (entry: readonly [K, V], index: number, halt: () => void) => void,
+			options,
+		);
 	}
 
 	filter(
@@ -323,7 +330,7 @@ export class BiMultiMapNonEmpty<K, V>
 	}
 
 	toArray(): [K, V][] {
-		return this.keyValueMultiMap.toArray();
+		return this.keyValueMultiMap.toArray() as unknown as [K, V][];
 	}
 
 	toString(): string {
@@ -333,7 +340,7 @@ export class BiMultiMapNonEmpty<K, V>
 			end: ')',
 			valueToString: (key: K) => {
 				return `${key} <-> ${this.keyValueMultiMap
-					.valuesAt(key)
+					.getValues(key)
 					.stream()
 					.join({ start: '(', sep: ', ', end: ')' })}`;
 			},
@@ -341,9 +348,16 @@ export class BiMultiMapNonEmpty<K, V>
 	}
 
 	toJSON(): ToJSON<[K, V[]][], this['context']['typeTag']> {
+		// Built here rather than delegated: a MultiMap no longer exposes `toJSON`.
 		return {
 			dataType: this.context.typeTag,
-			value: this.keyValueMultiMap.toJSON().value,
+			value: this.keyValueMultiMap
+				.streamKeys()
+				.map(
+					(key) =>
+						[key, this.keyValueMultiMap.getValues(key).toArray()] as [K, V[]],
+				)
+				.toArray(),
 		};
 	}
 

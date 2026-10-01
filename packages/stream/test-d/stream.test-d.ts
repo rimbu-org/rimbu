@@ -4,7 +4,7 @@ import type { ArrayNonEmpty } from '@rimbu/common/types';
 import type { Transformer } from '@rimbu/stream/transformer';
 
 import { HashMap } from '@rimbu/hashed/map';
-import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
+import { MultiMap } from '@rimbu/multimap';
 import { type FastIterator, Stream } from '@rimbu/stream';
 import { Reducer } from '@rimbu/stream/reducer';
 
@@ -482,9 +482,9 @@ expectTypeOf(
 expectTypeOf(
 	Stream.empty<string>().groupBy((v) => v.length)({
 		// accepts normal tuples
-		collector: HashMultiMapHashValue.reducer(),
+		collector: MultiMap.reducer<number, string>(),
 	}),
-).toEqualTypeOf<HashMultiMapHashValue<number, string>>();
+).toEqualTypeOf<MultiMap<number, string>>();
 
 // .indexed()
 expectTypeOf(Stream.empty<string>().indexed()).toEqualTypeOf<

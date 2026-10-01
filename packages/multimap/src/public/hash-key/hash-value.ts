@@ -1,123 +1,17 @@
-import type { Stream, Streamable } from '@rimbu/stream';
-
-import type { HashMultiMapHashValueCreators } from '#multimap/creators';
-import type { MultiMapBase } from '#multimap/types';
-
 import { HashMap } from '@rimbu/hashed/map';
 import { HashSet } from '@rimbu/hashed/set';
-
-import { createMultiMapContextModule } from '#multimap/context-factory';
-
-/**
- * A type-invariant immutable MultiMap of key type K, and value type V.
- * In the MultiMap, each key has at least one value.
- * See the [MultiMap documentation](https://rimbu.org/docs/collections/multimap) and the [HashMultiMapHashValue API documentation](https://rimbu.org/api/rimbu/multimap/HashMultiMapHashValue/interface)
- * @typeparam K - the key type
- * @typeparam V - the value type
- * @note
- * - The `HashMultiMapHashValue` uses the contexts' `HashMap` `keyContext` to hash
- * the keys
- * - The `HashMultiMapHashValue` uses the contexts' `HashSet` `valueContext` to collect
- * the values for each key.
- * @example
- * ```ts
- * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
- * const m1 = HashMultiMapHashValue.empty<number, string>()
- * const m2 = HashMultiMapHashValue.of([1, 'a'], [1, 'b'], [2, 'a'])
- * console.log(m2.toArray()); // => [ [ 1, "a" ], [ 1, "b" ], [ 2, "a" ] ]
- * ```
- */
-export interface HashMultiMapHashValue<K, V>
-	extends MultiMapBase<K, V, HashMultiMapHashValue.Types> {}
-
-export namespace HashMultiMapHashValue {
-	/**
-	 * A non-empty type-invariant immutable MultiMap of key type K, and value type V.
-	 * In the MultiMap, each key has at least one value.
-	 * See the [MultiMap documentation](https://rimbu.org/docs/collections/multimap) and the [HashMultiMapHashValue API documentation](https://rimbu.org/api/rimbu/multimap/HashMultiMapHashValue/interface)
-	 * @typeparam K - the key type
-	 * @typeparam V - the value type
-	 * @note
-	 * - The `HashMultiMapHashValue` uses the contexts' `HashMap` `keyContext` to hash
-	 * the keys
-	 * - The `HashMultiMapHashValue` uses the contexts' `HashSet` `valueContext` to collect
-	 * the values for each key.
-	 * @example
-	 * ```ts
-	 * import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
-	 * const m1 = HashMultiMapHashValue.empty<number, string>()
-	 * const m2 = HashMultiMapHashValue.of([1, 'a'], [1, 'b'], [2, 'a'])
-	 * console.log(m2.toArray()); // => [ [ 1, "a" ], [ 1, "b" ], [ 2, "a" ] ]
-	 * ```
-	 */
-	export interface NonEmpty<K, V>
-		extends MultiMapBase.NonEmpty<K, V, HashMultiMapHashValue.Types>,
-			Omit<
-				HashMultiMapHashValue<K, V>,
-				keyof MultiMapBase.NonEmpty<any, any, any>
-			>,
-			Streamable.NonEmpty<[K, V]> {
-		stream(): Stream.NonEmpty<[K, V]>;
-	}
-
-	/**
-	 * A context instance for an `HashMultiMapHashValue` that acts as a factory for every instance of this
-	 * type of collection.
-	 * @typeparam UK - the upper key type bound for which the context can be used
-	 * @typeparam UV - the upper value type bound for which the context can be used
-	 */
-	export interface Context<UK, UV>
-		extends MultiMapBase.Context<UK, UV, HashMultiMapHashValue.Types> {
-		readonly typeTag: 'HashMultiMapHashValue';
-
-		/**
-		 * The `HashMap` context used to create HashMaps to the key to value maps.
-		 */
-		readonly keyMapContext: HashMap.Context<UK>;
-		/**
-		 * The `HashSet` context used to create HashSets for the value sets.
-		 */
-		readonly keyMapValuesContext: HashSet.Context<UV>;
-	}
-
-	/**
-	 * A mutable `HashMultiMapHashValue` builder used to efficiently create new immutable instances.
-	 * See the [MultiMap documentation](https://rimbu.org/docs/collections/multimap) and the [HashMultiMapHashValue.Builder API documentation](https://rimbu.org/api/rimbu/multimap/HashMultiMapHashValue/Builder/interface)
-	 * @typeparam K - the key type
-	 * @typeparam V - the value type
-	 */
-	export interface Builder<K, V>
-		extends MultiMapBase.Builder<K, V, HashMultiMapHashValue.Types> {}
-
-	/**
-	 * Utility interface that provides higher-kinded types for this collection.
-	 */
-	export interface Types extends MultiMapBase.Types {
-		readonly normal: HashMultiMapHashValue<this['_K'], this['_V']>;
-		readonly nonEmpty: HashMultiMapHashValue.NonEmpty<this['_K'], this['_V']>;
-		readonly context: HashMultiMapHashValue.Context<this['_K'], this['_V']>;
-		readonly builder: HashMultiMapHashValue.Builder<this['_K'], this['_V']>;
-		readonly keyMap: HashMap<this['_K'], HashSet.NonEmpty<this['_V']>>;
-		readonly keyMapNonEmpty: HashMap.NonEmpty<
-			this['_K'],
-			HashSet.NonEmpty<this['_V']>
-		>;
-		readonly keyMapContext: HashMap.Context<this['_K']>;
-		readonly keyMapValuesContext: HashSet.Context<this['_V']>;
-		readonly keyMapValues: HashSet<this['_V']>;
-		readonly keyMapValuesNonEmpty: HashSet.NonEmpty<this['_V']>;
-	}
-}
+import { MultiMap } from '@rimbu/multimap';
 
 /**
- * @expandType HashMultiMapHashValueCreators
+ * A `MultiMap` with hash keys, hash values.
+ *
+ * This is a {@link MultiMap.Context}, **not** a distinct collection type: the
+ * collection type is `MultiMap<K, V>` whichever backing is chosen, and the
+ * backing is fixed by the context. The four historical variants are now four
+ * preconfigured contexts.
  */
-export const HashMultiMapHashValue: HashMultiMapHashValueCreators =
-	createMultiMapContextModule('HashMultiMapHashValue', {
-		get keyMapContext() {
-			return HashMap.defaultContext();
-		},
-		get keyMapValuesContext() {
-			return HashSet.defaultContext();
-		},
-	}).build();
+export const HashMultiMapHashValue: MultiMap.Context<any, any> =
+	MultiMap.createContext({
+		keyMapContext: HashMap.collectionContext,
+		keyMapValuesContext: HashSet.createContext({}),
+	});

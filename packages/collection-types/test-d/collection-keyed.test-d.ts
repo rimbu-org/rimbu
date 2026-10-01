@@ -34,7 +34,32 @@ type KCtx<
 	E,
 > = Tp<F, E>['_KEYED_CONTEXT'];
 
-type WithRemoveKey<K, V> = KeyedCollection.Capability.WithRemoveKey<K, V>;
+/**
+ * A family that claims `WithRemoveKey`.
+ *
+ * `WithRemoveKey` reads two family slots for what it hands back, and it closes
+ * over its *own* `this['_TYPES']` — so a family that uses it has to pin those
+ * slots itself. Every concrete map gets them for free from
+ * `KeyedCollection.Advanced.Family`; this stands in for that.
+ */
+interface WithRemoveKey<K, V>
+	extends KeyedCollection.Advanced.FamilyBase<K, V> {
+	_NORMAL: KeyedCollection.Capability.WithRemoveKey.Api<
+		K,
+		V,
+		this['_TYPES']
+	>;
+	_BUILDER: KeyedCollection.Capability.WithRemoveKey.BuilderApi<
+		K,
+		V,
+		this['_TYPES']
+	>;
+	_REMOVED_AT_KEY: V | undefined;
+	_FOUND_AT_KEY: V;
+
+	_FAM: WithRemoveKey<K, V>;
+	_NEW_FAMILY: WithRemoveKey<this['_NEW_K'], this['_NEW_V']>;
+}
 type WithRemoveKeys<K, V> = KeyedCollection.Capability.WithRemoveKeys<K, V>;
 type WithMapValues<K, V> = KeyedCollection.Capability.WithMapValues<K, V>;
 type WithMerge<K, V> = KeyedCollection.Capability.WithMerge<K, V>;

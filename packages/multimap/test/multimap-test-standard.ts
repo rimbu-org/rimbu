@@ -39,7 +39,7 @@ export function runMultiMapTestsWith(
 ) {
 	describe(`${name} creators`, () => {
 		it('empty', () => {
-			expect(MM.empty<number, string>()).toBe<any>(MM.empty<boolean, symbol>());
+			expect(MM.empty<readonly [number, string]>()).toBe<any>(MM.empty<readonly [boolean, symbol]>());
 		});
 
 		it('of', () => {
@@ -65,9 +65,9 @@ export function runMultiMapTestsWith(
 		});
 
 		it('builder', () => {
-			const b = MM.builder<number, string>();
+			const b = MM.builder<readonly [number, string]>();
 			expect(b.size).toBe(0);
-			b.addEntries(arr6);
+			b.addEach(arr6);
 			expect(b.size).toBe(6);
 		});
 
@@ -101,7 +101,7 @@ export function runMultiMapTestsWith(
 	});
 
 	describe(`${name} methods`, () => {
-		const mapEmpty = MM.empty<number, string>();
+		const mapEmpty = MM.empty<readonly [number, string]>();
 		const map3_1 = MM.from(arr3);
 		const map6_1 = MM.from(arr6);
 		const mapDouble = MM.from(arrDouble);
@@ -113,33 +113,33 @@ export function runMultiMapTestsWith(
 			expect(new Set(mapDouble)).toEqual(new Set(arrDouble));
 		});
 
-		it('add', () => {
-			expectEqual(mapEmpty.add(1, 'a'), [[1, 'a']]);
-			expectEqual(mapEmpty.add(1, 'a').add(1, 'b'), [
+		it('addTo', () => {
+			expectEqual(mapEmpty.addTo(1, 'a'), [[1, 'a']]);
+			expectEqual(mapEmpty.addTo(1, 'a').addTo(1, 'b'), [
 				[1, 'a'],
 				[1, 'b'],
 			]);
-			expect(new Set(map3_1.add(1, 'z').valuesAt(1))).toEqual(
+			expect(new Set(map3_1.addTo(1, 'z').getValues(1))).toEqual(
 				new Set(['a', 'z']),
 			);
-			expect(new Set(mapDouble.add(1, 'z').valuesAt(1))).toEqual(
+			expect(new Set(mapDouble.addTo(1, 'z').getValues(1))).toEqual(
 				new Set(['a', 'b', 'z']),
 			);
 		});
 
-		it('addEntries', () => {
-			expect(mapEmpty.addEntries(mapEmpty)).toBe(mapEmpty);
-			expectEqual(mapEmpty.addEntries(arr3), arr3);
-			expectEqual(mapEmpty.addEntries(arr6), arr6);
-			expectEqual(mapEmpty.addEntries(arrDouble), arrDouble);
+		it('addEach', () => {
+			expect(mapEmpty.addEach(mapEmpty)).toBe(mapEmpty);
+			expectEqual(mapEmpty.addEach(arr3), arr3);
+			expectEqual(mapEmpty.addEach(arr6), arr6);
+			expectEqual(mapEmpty.addEach(arrDouble), arrDouble);
 
-			expect(map3_1.addEntries(mapEmpty)).toBe(map3_1);
-			expect(map3_1.addEntries(arr3)).toBe(map3_1);
-			expectEqual(map3_1.addEntries(arr6), arr6);
+			expect(map3_1.addEach(mapEmpty)).toBe(map3_1);
+			expect(map3_1.addEach(arr3)).toBe(map3_1);
+			expectEqual(map3_1.addEach(arr6), arr6);
 
-			expect(map6_1.addEntries(mapEmpty)).toBe(map6_1);
-			expect(map6_1.addEntries(arr3)).toBe(map6_1);
-			expect(map6_1.addEntries(arr6)).toBe(map6_1);
+			expect(map6_1.addEach(mapEmpty)).toBe(map6_1);
+			expect(map6_1.addEach(arr3)).toBe(map6_1);
+			expect(map6_1.addEach(arr6)).toBe(map6_1);
 		});
 
 		it('assumeNoneEmpty', () => {
@@ -165,18 +165,18 @@ export function runMultiMapTestsWith(
 				return entry[0] % 2 === 0;
 			}
 
+			// `filterIndexed` takes `(entry, index)` — it has no `halt`; to stop
+			// early, return `false` for everything past the wanted prefix.
 			function first2(
 				_: readonly [number, string],
 				index: number,
-				halt: () => void,
 			): boolean {
-				if (index > 0) halt();
-				return true;
+				return index < 2;
 			}
 
 			expect(mapEmpty.filter(isEvenKey)).toBe(mapEmpty);
 			expectEqual(map3_1.filter(isEvenKey), [[2, 'b']]);
-			expectEqual(map3_1.filter(first2), [
+			expectEqual(map3_1.filterIndexed(first2), [
 				[1, 'a'],
 				[2, 'b'],
 			]);
@@ -186,17 +186,17 @@ export function runMultiMapTestsWith(
 				[4, 'd'],
 				[6, 'f'],
 			]);
-			expect(map6_1.filter(first2).size).toBe(2);
+			expect(map6_1.filterIndexed(first2).size).toBe(2);
 		});
 
-		it('transform', () => {
+		it('recompose', () => {
 			expect(
-				mapEmpty.transform((s) =>
+				mapEmpty.recompose((s) =>
 					s.map(([k, v]) => [k, v] as [number, string]),
 				),
 			).toBe(mapEmpty);
 			expectEqual(
-				map3_1.transform((s) =>
+				map3_1.recompose((s) =>
 					s.map(([k, v]) => [k, v.toUpperCase()] as [number, string]),
 				),
 				[
@@ -206,7 +206,7 @@ export function runMultiMapTestsWith(
 				],
 			);
 			expectEqual(
-				map6_1.transform((s) => s.filter(([k]) => k % 2 === 0)),
+				map6_1.recompose((s) => s.filter(([k]) => k % 2 === 0)),
 				[
 					[2, 'b'],
 					[4, 'd'],
@@ -214,7 +214,7 @@ export function runMultiMapTestsWith(
 				],
 			);
 			expectEqual(
-				map3_1.transform((s) =>
+				map3_1.recompose((s) =>
 					s.flatMap(
 						([k, v]) =>
 							[
@@ -237,23 +237,23 @@ export function runMultiMapTestsWith(
 		it('forEach', () => {
 			let result = new Set<number>();
 
-			mapEmpty.forEach((entry) => result.add(entry[0]));
+			mapEmpty.forEachIndexed((entry) => result.add(entry[0]));
 			expect(result).toEqual(new Set());
 
 			result = new Set();
-			map3_1.forEach((entry) => result.add(entry[0]));
+			map3_1.forEachIndexed((entry) => result.add(entry[0]));
 			expect(result).toEqual(new Set([1, 2, 3]));
 
 			result = new Set();
-			map6_1.forEach((entry) => result.add(entry[0]));
+			map6_1.forEachIndexed((entry) => result.add(entry[0]));
 			expect(result).toEqual(new Set([1, 2, 3, 4, 5, 6]));
 		});
 
 		it('getValues', () => {
-			expect(mapEmpty.valuesAt(2).toArray()).toEqual([]);
-			expect(map3_1.valuesAt(2).toArray()).toEqual(['b']);
-			expect(map6_1.valuesAt(2).toArray()).toEqual(['b']);
-			expect(mapDouble.valuesAt(2).toArray()).toEqual(['a', 'b']);
+			expect(mapEmpty.getValues(2).toArray()).toEqual([]);
+			expect(map3_1.getValues(2).toArray()).toEqual(['b']);
+			expect(map6_1.getValues(2).toArray()).toEqual(['b']);
+			expect(mapDouble.getValues(2).toArray()).toEqual(['a', 'b']);
 		});
 
 		it('hasEntry', () => {
@@ -273,17 +273,17 @@ export function runMultiMapTestsWith(
 			expect(mapDouble.hasEntry(9, 'b')).toBe(false);
 		});
 
-		it('hasKey', () => {
-			expect(mapEmpty.hasKey(2)).toBe(false);
+		it('has', () => {
+			expect(mapEmpty.has(2)).toBe(false);
 
-			expect(map3_1.hasKey(2)).toBe(true);
-			expect(map3_1.hasKey(9)).toBe(false);
+			expect(map3_1.has(2)).toBe(true);
+			expect(map3_1.has(9)).toBe(false);
 
-			expect(map6_1.hasKey(2)).toBe(true);
-			expect(map6_1.hasKey(9)).toBe(false);
+			expect(map6_1.has(2)).toBe(true);
+			expect(map6_1.has(9)).toBe(false);
 
-			expect(mapDouble.hasKey(2)).toBe(true);
-			expect(mapDouble.hasKey(9)).toBe(false);
+			expect(mapDouble.has(2)).toBe(true);
+			expect(mapDouble.has(9)).toBe(false);
 		});
 
 		it('isEmpty', () => {
@@ -300,9 +300,17 @@ export function runMultiMapTestsWith(
 		});
 
 		it('keyMap', () => {
-			expect(mapEmpty.keyMap.context).toBe(mapEmpty.context.keyMapContext);
-			expect(map3_1.keyMap.context).toBe(map3_1.context.keyMapContext);
-			expect(map6_1.keyMap.context).toBe(map6_1.context.keyMapContext);
+			// The same object at runtime; the two properties have deliberately
+			// different types (see `WithKeyMap`), so compare them as `unknown`.
+			expect<unknown>(mapEmpty.keyMap.context).toBe<unknown>(
+				mapEmpty.context.keyMapContext,
+			);
+			expect<unknown>(map3_1.keyMap.context).toBe<unknown>(
+				map3_1.context.keyMapContext,
+			);
+			expect<unknown>(map6_1.keyMap.context).toBe<unknown>(
+				map6_1.context.keyMapContext,
+			);
 		});
 
 		it('nonEmpty', () => {
@@ -312,21 +320,21 @@ export function runMultiMapTestsWith(
 			expect(mapDouble.nonEmpty()).toBe(true);
 		});
 
-		it('modifyAt', () => {
-			expect(mapEmpty.modifyAt(2, { ifExists: { update: (v) => v } })).toBe(
+		it('modifyValuesAt', () => {
+			expect(mapEmpty.modifyValuesAt(2, { ifExists: { update: (v) => v } })).toBe(
 				mapEmpty,
 			);
-			expectEqual(mapEmpty.modifyAt(2, { ifNew: { set: ['z'] } }), [[2, 'z']]);
-			expectEqual(mapEmpty.modifyAt(2, { ifNew: { create: () => ['z'] } }), [
+			expectEqual(mapEmpty.modifyValuesAt(2, { ifNew: { set: ['z'] } }), [[2, 'z']]);
+			expectEqual(mapEmpty.modifyValuesAt(2, { ifNew: { create: () => ['z'] } }), [
 				[2, 'z'],
 			]);
 
-			expect(map3_1.modifyAt(2, { ifNew: { set: ['z'] } })).toBe(map3_1);
-			expect(map3_1.modifyAt(5, { ifExists: { update: () => ['z'] } })).toBe(
+			expect(map3_1.modifyValuesAt(2, { ifNew: { set: ['z'] } })).toBe(map3_1);
+			expect(map3_1.modifyValuesAt(5, { ifExists: { update: () => ['z'] } })).toBe(
 				map3_1,
 			);
 			expectEqual(
-				map3_1.modifyAt(2, { ifExists: { update: (v) => [...v, 'z'] } }),
+				map3_1.modifyValuesAt(2, { ifExists: { update: (v) => [...v, 'z'] } }),
 				[
 					[1, 'a'],
 					[2, 'b'],
@@ -334,11 +342,11 @@ export function runMultiMapTestsWith(
 					[3, 'c'],
 				],
 			);
-			expectEqual(map3_1.modifyAt(2, { ifExists: { update: () => [] } }), [
+			expectEqual(map3_1.modifyValuesAt(2, { ifExists: { update: () => [] } }), [
 				[1, 'a'],
 				[3, 'c'],
 			]);
-			expectEqual(map3_1.modifyAt(5, { ifNew: { set: ['z'] } }), [
+			expectEqual(map3_1.modifyValuesAt(5, { ifNew: { set: ['z'] } }), [
 				...arr3,
 				[5, 'z'],
 			]);
@@ -456,16 +464,18 @@ export function runMultiMapTestsWith(
 			]);
 		});
 
-		it('removeKeyAndGet', () => {
-			expect(mapEmpty.removeKeyAndGet(2)[2]).toBe(false);
-			expect(map3_1.removeKeyAndGet(10)[2]).toBe(false);
-			const r = map3_1.removeKeyAndGet(2);
-			expect(r[2]).toBe(true);
-			expectEqual(r[0], [
+		it('removeKeyAndReturn', () => {
+			expect(mapEmpty.removeKeyAndReturn(2).hasResult).toBe(false);
+			expect(map3_1.removeKeyAndReturn(10).hasResult).toBe(false);
+			const r = map3_1.removeKeyAndReturn(2);
+			expect(r.hasResult).toBe(true);
+			if (!r.hasResult) throw new Error('expected a result');
+			expect(r.hasChanged).toBe(true);
+			expectEqual(r.collection, [
 				[1, 'a'],
 				[3, 'c'],
 			]);
-			expect(r[1]!.toArray()).toEqual(['b']);
+			expect(r.result.toArray()).toEqual(['b']);
 		});
 
 		it('removeKeys', () => {
@@ -493,38 +503,38 @@ export function runMultiMapTestsWith(
 			]);
 		});
 
-		it('setValues', () => {
-			expect(mapEmpty.setValues(2, [])).toBe(mapEmpty);
-			expectEqual(mapEmpty.setValues(2, ['b', 'c']), [
+		it('setEachValue', () => {
+			expect(mapEmpty.setEachValue(2, [])).toBe(mapEmpty);
+			expectEqual(mapEmpty.setEachValue(2, ['b', 'c']), [
 				[2, 'b'],
 				[2, 'c'],
 			]);
-			expectEqual(map3_1.setValues(2, ['b']), arr3);
-			expectEqual(map3_1.setValues(2, []), [
+			expectEqual(map3_1.setEachValue(2, ['b']), arr3);
+			expectEqual(map3_1.setEachValue(2, []), [
 				[1, 'a'],
 				[3, 'c'],
 			]);
-			expectEqual(map3_1.setValues(4, ['a']), [...arr3, [4, 'a']]);
-			expectEqual(mapDouble.setValues(1, ['d']), [
+			expectEqual(map3_1.setEachValue(4, ['a']), [...arr3, [4, 'a']]);
+			expectEqual(mapDouble.setEachValue(1, ['d']), [
 				[1, 'd'],
 				[2, 'a'],
 				[2, 'b'],
 			]);
 		});
 
-		it('addValues', () => {
-			expect(mapEmpty.addValues(2, [])).toBe(mapEmpty);
-			expectEqual(mapEmpty.addValues(2, ['b', 'c']), [
+		it('addEachValue', () => {
+			expect(mapEmpty.addEachValue(2, [])).toBe(mapEmpty);
+			expectEqual(mapEmpty.addEachValue(2, ['b', 'c']), [
 				[2, 'b'],
 				[2, 'c'],
 			]);
-			expectEqual(map3_1.addValues(2, ['z']), [
+			expectEqual(map3_1.addEachValue(2, ['z']), [
 				[1, 'a'],
 				[2, 'b'],
 				[2, 'z'],
 				[3, 'c'],
 			]);
-			expectEqual(mapDouble.addValues(1, ['z']), [
+			expectEqual(mapDouble.addEachValue(1, ['z']), [
 				[1, 'a'],
 				[1, 'b'],
 				[1, 'z'],
@@ -603,11 +613,11 @@ export function runMultiMapTestsWith(
 			);
 		});
 
-		it('intersect', () => {
-			expect(mapEmpty.intersect(mapEmpty)).toBe(mapEmpty);
-			expectEqual(map3_1.intersect(mapEmpty), []);
+		it('intersection', () => {
+			expect(mapEmpty.intersection(mapEmpty)).toBe(mapEmpty);
+			expectEqual(map3_1.intersection(mapEmpty), []);
 			expectEqual(
-				mapDouble.intersect(HashMultiMapHashValue.of([1, 'a'], [2, 'b'])),
+				mapDouble.intersection(HashMultiMapHashValue.of([1, 'a'], [2, 'b'])),
 				[
 					[1, 'a'],
 					[2, 'b'],
@@ -627,11 +637,11 @@ export function runMultiMapTestsWith(
 			);
 		});
 
-		it('symDifference', () => {
-			expect(mapEmpty.symDifference(mapEmpty)).toBe(mapEmpty);
-			expectEqual(map3_1.symDifference(mapEmpty), arr3);
+		it('symmetricDifference', () => {
+			expect(mapEmpty.symmetricDifference(mapEmpty)).toBe(mapEmpty);
+			expectEqual(map3_1.symmetricDifference(mapEmpty), arr3);
 			expectEqual(
-				mapDouble.symDifference(
+				mapDouble.symmetricDifference(
 					HashMultiMapHashValue.of([1, 'b'], [2, 'a'], [3, 'z']),
 				),
 				[
@@ -700,18 +710,18 @@ export function runMultiMapTestsWith(
 			}
 			{
 				const b = map3_1.toBuilder();
-				expect(b.valuesAt(2).toArray()).toEqual(['b']);
-				expect(b.valuesAt(10).toArray()).toEqual([]);
+				expect(b.getValues(2).toArray()).toEqual(['b']);
+				expect(b.getValues(10).toArray()).toEqual([]);
 			}
 			{
 				const b = map6_1.toBuilder();
-				expect(b.valuesAt(2).toArray()).toEqual(['b']);
-				expect(b.valuesAt(10).toArray()).toEqual([]);
+				expect(b.getValues(2).toArray()).toEqual(['b']);
+				expect(b.getValues(10).toArray()).toEqual([]);
 			}
 			{
 				const b = mapDouble.toBuilder();
-				expect(b.valuesAt(2).toArray()).toEqual(['a', 'b']);
-				expect(b.valuesAt(10).toArray()).toEqual([]);
+				expect(b.getValues(2).toArray()).toEqual(['a', 'b']);
+				expect(b.getValues(10).toArray()).toEqual([]);
 			}
 		});
 
@@ -737,68 +747,68 @@ export function runMultiMapTestsWith(
 			f: (builder: MultiMap.Builder<number, string>) => void,
 		) {
 			const b1 = MM.from(arr3).toBuilder();
-			const b2 = MM.builder<number, string>();
-			b2.addEntries(arr3);
+			const b2 = MM.builder<readonly [number, string]>();
+			b2.addEach(arr3);
 
 			f(b1);
 			f(b2);
 		}
 
-		it('add', () => {
-			const b = MM.builder<number, string>();
+		it('addTo', () => {
+			const b = MM.builder<readonly [number, string]>();
 			expect(b.size).toBe(0);
-			expect(b.add(1, 'a')).toBe(true);
+			expect(b.addTo(1, 'a')).toBe(true);
 			expect(b.size).toBe(1);
-			expect(b.add(2, 'b')).toBe(true);
+			expect(b.addTo(2, 'b')).toBe(true);
 			expect(b.size).toBe(2);
-			expect(b.add(2, 'c')).toBe(true);
+			expect(b.addTo(2, 'c')).toBe(true);
 			expect(b.size).toBe(3);
-			expect(b.add(2, 'c')).toBe(false);
+			expect(b.addTo(2, 'c')).toBe(false);
 			expect(b.size).toBe(3);
 		});
 
-		it('addEntries', () => {
-			const b = MM.builder<number, string>();
+		it('addEach', () => {
+			const b = MM.builder<readonly [number, string]>();
 			expect(b.size).toBe(0);
-			expect(b.addEntries(arr3)).toBe(true);
+			expect(b.addEach(arr3)).toBe(true);
 			expect(b.size).toBe(3);
-			expect(b.addEntries(arr3)).toBe(false);
+			expect(b.addEach(arr3)).toBe(false);
 			expect(b.size).toBe(3);
 		});
 
 		it('build', () => {
-			const b = MM.builder<number, string>();
+			const b = MM.builder<readonly [number, string]>();
 			expect(b.build()).toBe(MM.empty());
-			b.addEntries(arr3);
+			b.addEach(arr3);
 			expect(b.build().size).toBe(3);
-			expect(b.build().valuesAt(2).toArray()).toEqual(['b']);
+			expect(b.build().getValues(2).toArray()).toEqual(['b']);
 		});
 
 		it('forEach', () => {
-			const b = MM.builder<number, string>();
+			const b = MM.builder<readonly [number, string]>();
 
 			const result = new Set<number>();
 
-			b.forEach((entry) => result.add(entry[0]));
+			b.forEachIndexed((entry) => result.add(entry[0]));
 			expect(result).toEqual(new Set());
 
 			forEachBuilder((b) => {
 				const result = new Set<number>();
 
-				b.forEach((entry) => result.add(entry[0]));
+				b.forEachIndexed((entry) => result.add(entry[0]));
 				expect(result).toEqual(new Set([1, 2, 3]));
 			});
 		});
 
 		it('operations throw in forEach when modifying collection', () => {
 			forEachBuilder((b) => {
-				expect(() => b.forEach(() => b.add(1, 'a'))).toThrow();
-				expect(() => b.forEach(() => b.addEntries([[1, 'a']]))).toThrow();
-				expect(() => b.forEach(() => b.removeEntries([[1, 'a']]))).toThrow();
-				expect(() => b.forEach(() => b.removeEntry(1, 'a'))).toThrow();
-				expect(() => b.forEach(() => b.removeKey(1))).toThrow();
-				expect(() => b.forEach(() => b.removeKeys([1]))).toThrow();
-				expect(() => b.forEach(() => b.setValues(1, ['a']))).toThrow();
+				expect(() => b.forEachIndexed(() => b.addTo(1, 'a'))).toThrow();
+				expect(() => b.forEachIndexed(() => b.addEach([[1, 'a']]))).toThrow();
+				expect(() => b.forEachIndexed(() => b.removeEntries([[1, 'a']]))).toThrow();
+				expect(() => b.forEachIndexed(() => b.removeEntry(1, 'a'))).toThrow();
+				expect(() => b.forEachIndexed(() => b.removeKey(1))).toThrow();
+				expect(() => b.forEachIndexed(() => b.removeKeys([1]))).toThrow();
+				expect(() => b.forEachIndexed(() => b.setEachValue(1, ['a']))).toThrow();
 			});
 		});
 
@@ -836,11 +846,13 @@ export function runMultiMapTestsWith(
 
 		it('removeKey', () => {
 			forEachBuilder((b) => {
-				expect(b.removeKey(10)).toBe(false);
+				// `removeKey` hands back the value set that was stored at the key;
+				// an empty set means the key was not present.
+				expect(b.removeKey(10).isEmpty).toBe(true);
 				expect(b.size).toBe(3);
-				expect(b.removeKey(2)).toBe(true);
+				expect(b.removeKey(2).toArray()).toEqual(['b']);
 				expect(b.size).toBe(2);
-				expect(b.removeKey(3)).toBe(true);
+				expect(b.removeKey(3).toArray()).toEqual(['c']);
 				expect(b.size).toBe(1);
 			});
 		});
@@ -854,26 +866,26 @@ export function runMultiMapTestsWith(
 			});
 		});
 
-		it('setValues', () => {
+		it('setEachValue', () => {
 			forEachBuilder((b) => {
-				expect(b.setValues(10, [])).toBe(false);
-				expect(b.setValues(2, ['b'])).toBe(true);
-				expect(b.setValues(2, ['b', 'c'])).toBe(true);
+				expect(b.setEachValue(10, [])).toBe(false);
+				expect(b.setEachValue(2, ['b'])).toBe(true);
+				expect(b.setEachValue(2, ['b', 'c'])).toBe(true);
 				expect(b.size).toBe(4);
-				expect(b.setValues(2, [])).toBe(true);
+				expect(b.setEachValue(2, [])).toBe(true);
 				expect(b.size).toBe(2);
-				expect(b.setValues(10, ['z']));
+				expect(b.setEachValue(10, ['z']));
 				expect(b.size).toBe(3);
 			});
 		});
 
-		it('addValues', () => {
+		it('addEachValue', () => {
 			forEachBuilder((b) => {
-				expect(b.addValues(10, [])).toBe(false);
-				expect(b.addValues(2, ['b'])).toBe(false);
-				expect(b.addValues(2, ['z'])).toBe(true);
+				expect(b.addEachValue(10, [])).toBe(false);
+				expect(b.addEachValue(2, ['b'])).toBe(false);
+				expect(b.addEachValue(2, ['z'])).toBe(true);
 				expect(b.size).toBe(4);
-				expect(b.addValues(1, ['x', 'y'])).toBe(true);
+				expect(b.addEachValue(1, ['x', 'y'])).toBe(true);
 				expect(b.size).toBe(6);
 			});
 		});

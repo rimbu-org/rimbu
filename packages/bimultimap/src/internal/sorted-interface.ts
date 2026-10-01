@@ -1,5 +1,5 @@
 import type { SortedBiMultiMap } from '@rimbu/bimultimap/sorted';
-import type { SortedMultiMapSortedValue } from '@rimbu/multimap/sorted-key/sorted-value';
+import type { MultiMap } from '@rimbu/multimap';
 
 import type { BiMultiMapBase } from '#bimultimap/base';
 
@@ -20,8 +20,8 @@ export namespace BiMultiMapSorted {
 		 * @returns a new `SortedBiMultiMap.Context` configured with the provided options
 		 */
 		createContext<UK, UV>(options?: {
-			keyValueMultiMapContext?: SortedMultiMapSortedValue.Context<UK, UV>;
-			valueKeyMultiMapContext?: SortedMultiMapSortedValue.Context<UV, UK>;
+			keyValueMultiMapContext?: MultiMap.Context<UK, UV>;
+			valueKeyMultiMapContext?: MultiMap.Context<UV, UK>;
 		}): SortedBiMultiMap.Context<UK, UV>;
 		/**
 		 * Returns the default context for SortedBiMultiMap.
