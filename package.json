@@ -49,7 +49,7 @@
 		"biome:check": "bun --workspaces --if-present run biome:check",
 		"biome:fix": "bun --workspaces --if-present run biome:fix",
 		"build": "bun --workspaces --if-present run build",
-		"build:seq": "bun --sequential --workspaces --if-present run build",
+		"build:seq": "bun ./scripts/run-workspace-serial.ts build",
 		"clean": "bun --workspaces --if-present run clean && rimraf node_modules",
 		"clean:build": "bun --workspaces --if-present run clean:build",
 		"commit": "git-cz",
@@ -70,7 +70,7 @@
 		"test:types": "bun --workspaces --if-present run test:types",
 		"test:random": "bun --workspaces --if-present run test:random",
 		"typecheck": "bun --workspaces --if-present run typecheck",
-		"typecheck:seq": "bun --sequential --workspaces --if-present run typecheck",
+		"typecheck:seq": "bun ./scripts/run-workspace-serial.ts typecheck",
 		"version": "bunx changeset version"
 	},
 	"workspaces": {

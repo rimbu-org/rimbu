@@ -198,17 +198,20 @@ export declare namespace KeyedCollection {
 				removeKeys<UK = K>(keys: StreamSource<RelatedTo<K, UK>>): Tp['_NORMAL'];
 			}
 
-			export interface BuilderApi<
-				K,
-				V,
-				Tp extends Collection.Advanced.TypesBase,
-			> {
-				removeKeys<UK = K>(keys: StreamSource<RelatedTo<K, UK>>): boolean;
-				removeKeys<UK, R>(
-					keys: StreamSource<RelatedTo<K, UK>>,
-					collector: Reducer<[UK, V], R>,
-				): R;
-			}
+		export interface BuilderApi<
+			K,
+			V,
+			Tp extends Collection.Advanced.TypesBase,
+		> {
+			// Only the single-argument form is declared. A `removeKeys(keys, collector)`
+			// overload used to sit here, but no implementation ever honoured it: every
+			// builder that adopts this capability takes only `keys` and returns a
+			// boolean, so a two-argument call silently dropped the collector and
+			// returned `boolean` where the signature promised `R`. Declaring it was a
+			// lie that the type system could not catch. Implementations that do want to
+			// collect the removed entries should expose their own overload.
+			removeKeys<UK = K>(keys: StreamSource<RelatedTo<K, UK>>): boolean;
+		}
 		}
 
 		export interface WithMapValues<K, V> extends Advanced.FamilyBase<K, V> {

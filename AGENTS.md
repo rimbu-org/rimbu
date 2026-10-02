@@ -665,7 +665,14 @@ Example: adding `mapValues<W>(f: (v: V) => W): HashMap<K, W>` to HashMap.
 
 **Always run `bun run build:seq` before `bun run typecheck:seq` or `bun run test`.** The build catches emit-specific diagnostics that `--noEmit` suppresses (notably TS2731: implicit symbol-to-string coercion in template literals, introduced in TS 5.5). Running typecheck or tests against a stale `dist/` can produce misleading errors.
 
-**Use `build:seq`, never the per-package `build`.** Running `bun run build` (which build every workspace package in parallel) exhausts the container's CPU/memory limits and can hang or be killed. `build:seq` builds all packages sequentially with the same end result and stays within the container's resource constraints.
+**Use `build:seq`, never the root `build`.** Running `bun run build` (which builds every workspace package in parallel) exhausts the container's CPU/memory limits and can hang or be killed. `build:seq` builds all packages sequentially with the same end result and stays within the container's resource constraints.
+
+`build:seq` and `typecheck:seq` are both driven by `scripts/run-workspace-serial.ts`, which topologically sorts the workspaces by their runtime `dependencies` and then runs `bun run <script>` in each package directory, one at a time, aborting on the first failure. This is hand-rolled on purpose:
+
+- `bun --workspaces run <script>` has no serial mode on Bun 1.3.8 (the version this repo is pinned to). `bun run --parallel` / `--sequential` landed in **1.3.9**, so `bun --sequential --workspaces --if-present run build` silently ran every package in parallel. `--concurrent-scripts` only bounds install lifecycle scripts.
+- Order is load-bearing here, not cosmetic: each package's `tsconfig.common.json` maps only its *own* `@rimbu/<pkg>` paths, so cross-package imports resolve through `node_modules` symlinks into `dist/*.d.ts`, which must already exist. Bun's sequential runner sorts workspace packages **by name**, which would build `@rimbu/deep` before `@rimbu/sorted`, so it does not reproduce the topological order this repo needs.
+
+Add `--dry-run` to print the computed order without running anything.
 
 ### Lint rules enforced by Biome
 
