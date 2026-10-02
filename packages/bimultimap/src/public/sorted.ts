@@ -1,100 +1,26 @@
-import type { MultiMap } from '@rimbu/multimap';
-import type { SortedSet } from '@rimbu/sorted/set';
-import type { Streamable } from '@rimbu/stream';
-
-import type { BiMultiMapBase } from '#bimultimap/base';
-import type { BiMultiMapSorted } from '#bimultimap/sorted-interface';
-
+import { BiMultiMap } from '@rimbu/bimultimap';
 import { SortedMultiMapSortedValue } from '@rimbu/multimap/sorted-key/sorted-value';
 
-import { createBiMultiMapContextModule } from '#bimultimap/context-factory';
-
 /**
- * A type-invariant immutable bi-directional MultiMap where keys and values have a
- * many-to-many mapping. Its keys and values are sorted.
- * See the [BiMultiMap documentation](https://rimbu.org/docs/collections/bimultimap) and the [SortedBiMultiMap API documentation](https://rimbu.org/api/rimbu/bimultimap/SortedBiMultiMap/interface)
- * @typeparam K - the key type
- * @typeparam V - the value type
+ * A sorted BiMultiMap context: the factory for `BiMultiMap` instances whose keys
+ * and values are sorted in both directions.
+ *
+ * This is a {@link BiMultiMap.Context}, **not** a distinct collection type: the
+ * collection type is `BiMultiMap<K, V>` whichever backing is chosen, and the
+ * backing is fixed by the context. The two historical variants are now two
+ * preconfigured contexts.
  * @example
  * ```ts
  * import { SortedBiMultiMap } from '@rimbu/bimultimap/sorted';
- * const h1 = SortedBiMultiMap.empty<number, string>()
- * const h2 = SortedBiMultiMap.of([1, 'a'], [1, 'b'])
- * console.log(h2.toArray()); // => [ [ 1, "a" ], [ 1, "b" ] ]
+ * const s1 = SortedBiMultiMap.empty<number, string>();
+ * const s2 = SortedBiMultiMap.of([1, 'a'], [1, 'b']);
+ * console.log(s2.toArray()); // => [ [ 1, "a" ], [ 1, "b" ] ]
+ * console.log(s2.getValues(1).toArray()); // => [ "a", "b" ]
+ * console.log(s2.getKeys('a').toArray()); // => [ 1 ]
  * ```
  */
-export interface SortedBiMultiMap<K, V>
-	extends BiMultiMapBase<K, V, SortedBiMultiMap.Types> {}
-
-export namespace SortedBiMultiMap {
-	/**
-	 * A non-empty type-invariant immutable bi-directional MultiMap where keys and values have a
-	 * many-to-many mapping. Its keys and values are sorted.
-	 * See the [BiMultiMap documentation](https://rimbu.org/docs/collections/bimultimap) and the [SortedBiMultiMap API documentation](https://rimbu.org/api/rimbu/bimultimap/SortedBiMultiMap/interface)
-	 * @typeparam K - the key type
-	 * @typeparam V - the value type
-	 */
-	export interface NonEmpty<K, V>
-		extends BiMultiMapBase.NonEmpty<K, V, SortedBiMultiMap.Types>,
-			Omit<
-				SortedBiMultiMap<K, V>,
-				keyof BiMultiMapBase.NonEmpty<any, any, any>
-			>,
-			Streamable.NonEmpty<[K, V]> {}
-
-	/**
-	 * The SortedBiMultiMap's Context instance that serves as a factory for all related immutable instances and builders.
-	 * @typeparam UK - the upper type limit for key types for which this context can create instances
-	 * @typeparam UV - the upper type limit for value types for which this context can create instances
-	 */
-	export interface Context<UK, UV>
-		extends BiMultiMapBase.Context<UK, UV, SortedBiMultiMap.Types> {
-		readonly typeTag: 'SortedBiMultiMap';
-	}
-
-	/**
-	 * A mutable `SortedBiMultiMap` builder used to efficiently create new immutable instances.
-	 * See the [BiMultiMap documentation](https://rimbu.org/docs/collections/bimultimap) and the [SortedBiMultiMap.Builder API documentation](https://rimbu.org/api/rimbu/bimultimap/SortedBiMultiMap/Builder/interface)
-	 * @typeparam K - the key type
-	 * @typeparam V - the value type
-	 */
-	export interface Builder<K, V>
-		extends BiMultiMapBase.Builder<K, V, SortedBiMultiMap.Types> {}
-
-	/**
-	 * Utility interface that provides higher-kinded types for this collection.
-	 */
-	export interface Types extends BiMultiMapBase.Types {
-		readonly context: SortedBiMultiMap.Context<this['_K'], this['_V']>;
-		readonly normal: SortedBiMultiMap<this['_K'], this['_V']>;
-		readonly nonEmpty: SortedBiMultiMap.NonEmpty<this['_K'], this['_V']>;
-		readonly builder: SortedBiMultiMap.Builder<this['_K'], this['_V']>;
-		readonly keyValueMultiMapContext: MultiMap.Context<this['_K'], this['_V']>;
-		readonly valueKeyMultiMapContext: MultiMap.Context<this['_V'], this['_K']>;
-		readonly keyValueMultiMap: MultiMap<this['_K'], this['_V']>;
-		readonly valueKeyMultiMap: MultiMap<this['_V'], this['_K']>;
-		readonly keyValueMultiMapNonEmpty: MultiMap.NonEmpty<
-			this['_K'],
-			this['_V']
-		>;
-		readonly valueKeyMultiMapNonEmpty: MultiMap.NonEmpty<
-			this['_V'],
-			this['_K']
-		>;
-		readonly keyMultiMapValues: SortedSet<this['_V']>;
-		readonly valueMultiMapValues: SortedSet<this['_K']>;
-	}
-}
-
-/**
- * @expandType Creators
- */
-export const SortedBiMultiMap: BiMultiMapSorted.Creators =
-	createBiMultiMapContextModule('SortedBiMultiMap', {
-		get keyValueMultiMapContext() {
-			return SortedMultiMapSortedValue;
-		},
-		get valueKeyMultiMapContext() {
-			return SortedMultiMapSortedValue;
-		},
-	}).build();
+export const SortedBiMultiMap: BiMultiMap.Context<any, any> =
+	BiMultiMap.createContext({
+		keyValueMultiMapContext: SortedMultiMapSortedValue,
+		valueKeyMultiMapContext: SortedMultiMapSortedValue,
+	});

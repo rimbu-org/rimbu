@@ -1,87 +1,26 @@
-import type { HashSet } from '@rimbu/hashed/set';
-import type { MultiMap } from '@rimbu/multimap';
-import type { Streamable } from '@rimbu/stream';
-
-import type { BiMultiMapBase } from '#bimultimap/base';
-import type { BiMultiMapHashed } from '#bimultimap/hashed-interface';
-
+import { BiMultiMap } from '@rimbu/bimultimap';
 import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
 
-import { createBiMultiMapContextModule } from '#bimultimap/context-factory';
-
 /**
- * A type-invariant immutable bi-directional MultiMap where keys and values have a
- * many-to-many mapping. Its keys and values are hashed.
- * See the [BiMultiMap documentation](https://rimbu.org/docs/collections/bimultimap) and the [HashBiMultiMap API documentation](https://rimbu.org/api/rimbu/bimultimap/HashBiMultiMap/interface)
- * @typeparam K - the key type
- * @typeparam V - the value type
+ * A hashed BiMultiMap context: the factory for `BiMultiMap` instances whose keys
+ * and values are hashed in both directions.
+ *
+ * This is a {@link BiMultiMap.Context}, **not** a distinct collection type: the
+ * collection type is `BiMultiMap<K, V>` whichever backing is chosen, and the
+ * backing is fixed by the context. The two historical variants are now two
+ * preconfigured contexts.
  * @example
  * ```ts
  * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
- * const h1 = HashBiMultiMap.empty<number, string>()
- * const h2 = HashBiMultiMap.of([1, 'a'], [1, 'b'])
+ * const h1 = HashBiMultiMap.empty<number, string>();
+ * const h2 = HashBiMultiMap.of([1, 'a'], [1, 'b']);
  * console.log(h2.toArray()); // => [ [ 1, "a" ], [ 1, "b" ] ]
+ * console.log(h2.getValues(1).toArray()); // => [ "a", "b" ]
+ * console.log(h2.getKeys('a').toArray()); // => [ 1 ]
  * ```
  */
-export interface HashBiMultiMap<K, V>
-	extends BiMultiMapBase<K, V, HashBiMultiMap.Types> {}
-
-export namespace HashBiMultiMap {
-	/**
-	 * A non-empty type-invariant immutable bi-directional MultiMap where keys and values have a
-	 * many-to-many mapping. Its keys and values are hashed.
-	 * See the [BiMultiMap documentation](https://rimbu.org/docs/collections/bimultimap) and the [HashBiMultiMap API documentation](https://rimbu.org/api/rimbu/bimultimap/HashBiMultiMap/interface)
-	 * @typeparam K - the key type
-	 * @typeparam V - the value type
-	 */
-	export interface NonEmpty<K, V>
-		extends BiMultiMapBase.NonEmpty<K, V, HashBiMultiMap.Types>,
-			Omit<HashBiMultiMap<K, V>, keyof BiMultiMapBase<any, any, any>>,
-			Streamable.NonEmpty<[K, V]> {}
-
-	/**
-	 * The HashBiMultiMap's Context instance that serves as a factory for all related immutable instances and builders.
-	 * @typeparam UK - the upper type limit for key types for which this context can create instances
-	 * @typeparam UV - the upper type limit for value types for which this context can create instances
-	 */
-	export interface Context<UK, UV>
-		extends BiMultiMapBase.Context<UK, UV, HashBiMultiMap.Types> {
-		readonly typeTag: 'HashBiMultiMap';
-	}
-
-	/**
-	 * A mutable `HashBiMultiMap` builder used to efficiently create new immutable instances.
-	 * See the [BiMultiMap documentation](https://rimbu.org/docs/collections/bimultimap) and the [HashBiMultiMap.Builder API documentation](https://rimbu.org/api/rimbu/bimultimap/HashBiMultiMap/Builder/interface)
-	 * @typeparam K - the key type
-	 * @typeparam V - the value type
-	 */
-	export interface Builder<K, V>
-		extends BiMultiMapBase.Builder<K, V, HashBiMultiMap.Types> {}
-
-	/**
-	 * Utility interface that provides higher-kinded types for this collection.
-	 */
-	export interface Types extends BiMultiMapBase.Types {
-		readonly context: HashBiMultiMap.Context<this['_K'], this['_V']>;
-		readonly normal: HashBiMultiMap<this['_K'], this['_V']>;
-		readonly nonEmpty: HashBiMultiMap.NonEmpty<this['_K'], this['_V']>;
-		readonly builder: HashBiMultiMap.Builder<this['_K'], this['_V']>;
-		readonly keyValueMultiMap: MultiMap<this['_K'], this['_V']>;
-		readonly valueKeyMultiMap: MultiMap<this['_V'], this['_K']>;
-		readonly keyMultiMapValues: HashSet<this['_V']>;
-		readonly valueMultiMapValues: HashSet<this['_K']>;
-	}
-}
-
-/**
- * @expandType Creators
- */
-export const HashBiMultiMap: BiMultiMapHashed.Creators =
-	createBiMultiMapContextModule('HashBiMultiMap', {
-		get keyValueMultiMapContext() {
-			return HashMultiMapHashValue;
-		},
-		get valueKeyMultiMapContext() {
-			return HashMultiMapHashValue;
-		},
-	}).build();
+export const HashBiMultiMap: BiMultiMap.Context<any, any> =
+	BiMultiMap.createContext({
+		keyValueMultiMapContext: HashMultiMapHashValue,
+		valueKeyMultiMapContext: HashMultiMapHashValue,
+	});

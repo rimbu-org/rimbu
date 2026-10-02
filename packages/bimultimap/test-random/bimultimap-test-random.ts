@@ -54,14 +54,14 @@ class Model {
 		this.link(key, value);
 	}
 
-	setValues(key: number, values: number[]): void {
+	setEachValue(key: number, values: number[]): void {
 		const previous = this.fwd.get(key);
 		if (undefined !== previous)
 			for (const value of previous) this.unlink(key, value);
 		for (const value of values) this.link(key, value);
 	}
 
-	setKeys(value: number, keys: number[]): void {
+	setEachKey(value: number, keys: number[]): void {
 		const previous = this.rev.get(value);
 		if (undefined !== previous)
 			for (const key of previous) this.unlink(key, value);
@@ -134,9 +134,9 @@ export function runBiMultiMapRandomTestsWith(
 	class Entangled {
 		model = new Model();
 
-		builder = context.builder<number, number>();
+		builder = context.builder<readonly [number, number]>();
 
-		immm = context.empty<number, number>();
+		immm = context.empty<readonly [number, number]>();
 
 		ops: string[] = [];
 
@@ -201,7 +201,7 @@ export function runBiMultiMapRandomTestsWith(
 					expect(this.immm.hasEntry(key, value)).toBe(true);
 					expect(built.hasEntry(key, value)).toBe(true);
 					expect(
-						[...this.immm.keysAt(value).stream().toArray()].sort(),
+						[...this.immm.getKeys(value).stream().toArray()].sort(),
 					).toContain(key);
 				}
 			}
@@ -210,22 +210,22 @@ export function runBiMultiMapRandomTestsWith(
 		add(key: number, value: number): void {
 			this.trace('add', key, value);
 			this.model.add(key, value);
-			this.builder.add(key, value);
-			this.immm = this.immm.add(key, value);
+			this.builder.addTo(key, value);
+			this.immm = this.immm.addTo(key, value);
 		}
 
-		setValues(key: number, values: number[]): void {
-			this.trace('setValues', key, values);
-			this.model.setValues(key, values);
-			this.builder.setValues(key, values);
-			this.immm = this.immm.setValues(key, values);
+		setEachValue(key: number, values: number[]): void {
+			this.trace('setEachValue', key, values);
+			this.model.setEachValue(key, values);
+			this.builder.setEachValue(key, values);
+			this.immm = this.immm.setEachValue(key, values);
 		}
 
-		setKeys(value: number, keys: number[]): void {
-			this.trace('setKeys', value, keys);
-			this.model.setKeys(value, keys);
-			this.builder.setKeys(value, keys);
-			this.immm = this.immm.setKeys(value, keys);
+		setEachKey(value: number, keys: number[]): void {
+			this.trace('setEachKey', value, keys);
+			this.model.setEachKey(value, keys);
+			this.builder.setEachKey(value, keys);
+			this.immm = this.immm.setEachKey(value, keys);
 		}
 
 		removeEntry(key: number, value: number): void {
@@ -263,14 +263,14 @@ export function runBiMultiMapRandomTestsWith(
 			const r = m.removeValue('b');
 
 			expect(r.hasValue('b')).toBe(false);
-			expect(r.keysAt('b').stream().toArray()).toEqual([]);
+			expect(r.getKeys('b').stream().toArray()).toEqual([]);
 			expect(r.streamValues().toArray()).not.toContain('b');
 			expect(r.keyValueMultiMap.size).toBe(r.valueKeyMultiMap.size);
 			expect(r.size).toBe(2);
 
 			// Singular and plural must agree.
-			expect(r.keysAt('b').toArray()).toEqual(
-				m.removeValues(['b']).keysAt('b').toArray(),
+			expect(r.getKeys('b').toArray()).toEqual(
+				m.removeValues(['b']).getKeys('b').toArray(),
 			);
 		});
 
@@ -301,7 +301,7 @@ export function runBiMultiMapRandomTestsWith(
 			expect(m.hasEntry(2, 'b')).toBe(true);
 
 			// The builder must agree, with and without a source.
-			expect(context.builder<number, string>().hasEntry(1, 'b')).toBe(false);
+			expect(context.builder<readonly [number, string]>().hasEntry(1, 'b')).toBe(false);
 			expect(m.toBuilder().hasEntry(1, 'b')).toBe(false);
 			expect(m.toBuilder().hasEntry(1, 'a')).toBe(true);
 		});
@@ -316,7 +316,7 @@ export function runBiMultiMapRandomTestsWith(
 			}).toThrow('boom');
 
 			// Must remain usable.
-			expect(b.add(3, 'c')).toBe(true);
+			expect(b.addTo(3, 'c')).toBe(true);
 			expect(b.size).toBe(3);
 			expect(b.build().hasEntry(3, 'c')).toBe(true);
 
@@ -325,28 +325,28 @@ export function runBiMultiMapRandomTestsWith(
 			b2.forEach(() => {
 				/* no mutation */
 			});
-			expect(b2.add(4, 'd')).toBe(true);
+			expect(b2.addTo(4, 'd')).toBe(true);
 		});
 
-		it('B4: setValues and setKeys may empty the collection', (): void => {
-			expect(context.of([1, 'a']).setValues(1, []).isEmpty).toBe(true);
-			expect(context.of([1, 'a']).setKeys('a', []).isEmpty).toBe(true);
+		it('B4: setEachValue and setEachKey may empty the collection', (): void => {
+			expect(context.of([1, 'a']).setEachValue(1, []).isEmpty).toBe(true);
+			expect(context.of([1, 'a']).setEachKey('a', []).isEmpty).toBe(true);
 
 			const m = context.of([1, 'a'], [2, 'b']);
-			const r = m.setValues(1, []);
+			const r = m.setEachValue(1, []);
 			expect(r.isEmpty).toBe(false);
-			expect(r.hasKey(1)).toBe(false);
+			expect(r.has(1)).toBe(false);
 			expect(r.size).toBe(1);
 
-			const r2 = m.setKeys('a', []);
+			const r2 = m.setEachKey('a', []);
 			expect(r2.hasValue('a')).toBe(false);
 			expect(r2.size).toBe(1);
 
 			// Matches what removeKey/removeValue already do.
-			expect(context.of([1, 'a']).setValues(1, []).isEmpty).toBe(
+			expect(context.of([1, 'a']).setEachValue(1, []).isEmpty).toBe(
 				context.of([1, 'a']).removeKey(1).isEmpty,
 			);
-			expect(context.of([1, 'a']).setKeys('a', []).isEmpty).toBe(
+			expect(context.of([1, 'a']).setEachKey('a', []).isEmpty).toBe(
 				context.of([1, 'a']).removeValue('a').isEmpty,
 			);
 		});
@@ -434,7 +434,7 @@ export function runBiMultiMapRandomTestsWith(
 				});
 		}, 30_000);
 
-		it('setValues', (): void => {
+		it('setEachValue', (): void => {
 			const ent = new Entangled();
 
 			Stream.zip(Stream.randomInt(0, 20), Stream.randomInt(0, 10))
@@ -448,12 +448,12 @@ export function runBiMultiMapRandomTestsWith(
 				.forEach(([key, count]): void => {
 					const values: number[] = [];
 					for (let i = 0; i < count; ++i) values.push((key + i) % 10);
-					ent.setValues(key, values);
+					ent.setEachValue(key, values);
 					ent.check();
 				});
 		}, 30_000);
 
-		it('setKeys', (): void => {
+		it('setEachKey', (): void => {
 			const ent = new Entangled();
 
 			Stream.zip(Stream.randomInt(0, 20), Stream.randomInt(0, 10))
@@ -467,7 +467,7 @@ export function runBiMultiMapRandomTestsWith(
 				.forEach(([value, count]): void => {
 					const keys: number[] = [];
 					for (let i = 0; i < count; ++i) keys.push((value + i) % 20);
-					ent.setKeys(value, keys);
+					ent.setEachKey(value, keys);
 					ent.check();
 				});
 		}, 30_000);
@@ -494,10 +494,10 @@ export function runBiMultiMapRandomTestsWith(
 							ent.removeEntry(key, value);
 							break;
 						case 4:
-							ent.setValues(key, [value, (value + 3) % 10]);
+							ent.setEachValue(key, [value, (value + 3) % 10]);
 							break;
 						case 5:
-							ent.setKeys(value, [key, (key + 3) % 20]);
+							ent.setEachKey(value, [key, (key + 3) % 20]);
 							break;
 						default:
 							ent.removeValues([value]);

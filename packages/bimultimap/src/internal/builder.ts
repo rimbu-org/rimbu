@@ -3,51 +3,55 @@ import type { SetCollection } from '@rimbu/collection-types/set';
 import type { RelatedTo } from '@rimbu/common/types';
 import type { MultiMap } from '@rimbu/multimap';
 
-import type { BiMultiMapBase } from '#bimultimap/base';
-import type { ContextImpl } from '#bimultimap/context-factory';
+import type { BiMultiMapContextImpl } from '#bimultimap/context-factory';
 
 import * as RimbuError from '@rimbu/base/rimbu-error';
 import { TraverseState } from '@rimbu/common/traverse-state';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
-export class BiMultiMapBuilder<K, V> implements BiMultiMapBase.Builder<K, V> {
+export class BiMultiMapBuilder<K, V> implements BiMultiMap.Builder<K, V> {
 	_lock = 0;
 
 	constructor(
-		readonly context: ContextImpl<K, V>,
-		public source?: BiMultiMap.NonEmpty<K, V>,
+		readonly context: BiMultiMapContextImpl<K, V>,
+		private source?: BiMultiMap.NonEmpty<K, V>,
 	) {}
 
-	_keyValueMultiMap?: MultiMap.Builder<K, V>;
+	private _keyValueMultiMap?: MultiMap.Builder<K, V> | undefined;
 
-	_valueKeyMultiMap?: MultiMap.Builder<V, K>;
+	private _valueKeyMultiMap?: MultiMap.Builder<V, K> | undefined;
 
-	get keyValueMultiMap(): MultiMap.Builder<K, V> {
-		if (undefined === this._keyValueMultiMap) {
-			if (undefined === this.source) {
-				this._keyValueMultiMap = this.context.keyValueMultiMapContext.builder();
-				this._valueKeyMultiMap = this.context.valueKeyMultiMapContext.builder();
-			} else {
-				this._keyValueMultiMap = this.source.keyValueMultiMap.toBuilder();
-				this._valueKeyMultiMap = this.source.valueKeyMultiMap.toBuilder();
-			}
+	/**
+	 * Initializes **both** builders together.
+	 *
+	 * The pre-migration builder had two getters with byte-identical bodies, each
+	 * assigning a field it did not guard. That was correct only by accident: it
+	 * relied on every write setting both fields, so a single initializer is the
+	 * only safe shape — a getter that assigns the *other* field would silently
+	 * discard reverse-map mutations.
+	 */
+	private initialize(): void {
+		if (undefined !== this._keyValueMultiMap) return;
+
+		if (undefined === this.source) {
+			this._keyValueMultiMap =
+				this.context.keyValueMultiMapContext.builder<readonly [K, V]>();
+			this._valueKeyMultiMap =
+				this.context.valueKeyMultiMapContext.builder<readonly [V, K]>();
+		} else {
+			this._keyValueMultiMap = this.source.keyValueMultiMap.toBuilder();
+			this._valueKeyMultiMap = this.source.valueKeyMultiMap.toBuilder();
 		}
-
-		return this._keyValueMultiMap;
 	}
 
-	get valueKeyMultiMap(): MultiMap.Builder<V, K> {
-		if (undefined === this._valueKeyMultiMap) {
-			if (undefined === this.source) {
-				this._keyValueMultiMap = this.context.keyValueMultiMapContext.builder();
-				this._valueKeyMultiMap = this.context.valueKeyMultiMapContext.builder();
-			} else {
-				this._keyValueMultiMap = this.source.keyValueMultiMap.toBuilder();
-				this._valueKeyMultiMap = this.source.valueKeyMultiMap.toBuilder();
-			}
-		}
+	private get forward(): MultiMap.Builder<K, V> {
+		this.initialize();
+		return this._keyValueMultiMap as MultiMap.Builder<K, V>;
+	}
 
-		return this._valueKeyMultiMap;
+	private get reverse(): MultiMap.Builder<V, K> {
+		this.initialize();
+		return this._valueKeyMultiMap as MultiMap.Builder<V, K>;
 	}
 
 	checkLock(): void {
@@ -55,125 +59,139 @@ export class BiMultiMapBuilder<K, V> implements BiMultiMapBase.Builder<K, V> {
 	}
 
 	get size(): number {
-		return this.source?.size ?? this.keyValueMultiMap.size;
+		return this.source?.size ?? this.forward.size;
 	}
 
 	get isEmpty(): boolean {
 		return this.size === 0;
 	}
 
-	hasKey = <UK = K>(key: RelatedTo<K, UK>): boolean => {
-		return this.source?.hasKey(key) ?? this.keyValueMultiMap.has(key);
+	has = <UK = K>(key: RelatedTo<K, UK>): boolean => {
+		return this.source?.has(key) ?? this.forward.has(key);
 	};
 
 	hasValue = <UV = V>(value: RelatedTo<V, UV>): boolean => {
-		return this.source?.hasValue(value) ?? this.valueKeyMultiMap.has(value);
+		return this.source?.hasValue(value) ?? this.reverse.has(value);
 	};
 
 	hasEntry = <UK = K, UV = V>(
 		key: RelatedTo<K, UK>,
 		value: RelatedTo<V, UV>,
 	): boolean => {
-		return (
-			this.source?.hasEntry(key, value) ??
-			this.keyValueMultiMap.hasEntry(key, value as V)
-		);
+		return this.forward.hasEntry(key, value as V);
 	};
 
-	valuesAt = <UK = K>(key: RelatedTo<K, UK>): SetCollection<V> => {
-		if (undefined !== this.source) {
-			return this.source.valuesAt(key);
-		}
-
-		return this.keyValueMultiMap.getValues(key);
+	getValues = <UK = K>(key: RelatedTo<K, UK>): SetCollection<V> => {
+		if (undefined !== this.source) return this.source.getValues(key);
+		return this.forward.getValues(key);
 	};
 
-	keysAt = <UV = V>(value: RelatedTo<V, UV>): SetCollection<K> => {
-		if (undefined !== this.source) {
-			return this.source.keysAt(value);
-		}
-
-		return this.valueKeyMultiMap.getValues(value);
+	getKeys = <UV = V>(value: RelatedTo<V, UV>): SetCollection<K> => {
+		if (undefined !== this.source) return this.source.getKeys(value);
+		return this.reverse.getValues(value);
 	};
 
-	setValues = (key: K, values: StreamSource<V>): boolean => {
+	setEachValue = (key: K, values: StreamSource<V>): boolean => {
 		this.checkLock();
 
-		const removed = this.removeKey(key);
-		const added = this.addEntries(
-			Stream.from(values).map((value) => [key, value]),
+		const removed = !this.removeKey(key).isEmpty;
+		const added = this.addEach(
+			Stream.from(values).map((value) => [key, value] as [K, V]),
 		);
 
 		return removed || added;
 	};
 
-	setKeys = (value: V, keys: StreamSource<K>): boolean => {
+	setEachKey = (value: V, keys: StreamSource<K>): boolean => {
 		this.checkLock();
 
-		const removed = this.removeValue(value);
-		const added = this.addEntries(Stream.from(keys).map((key) => [key, value]));
+		const removed = !this.removeValue(value).isEmpty;
+		const added = this.addEach(
+			Stream.from(keys).map((key) => [key, value] as [K, V]),
+		);
 
 		return removed || added;
 	};
 
-	add = (key: K, value: V): boolean => {
+	addTo = (key: K, value: V): boolean => {
 		this.checkLock();
 
-		if (!this.keyValueMultiMap.addTo(key, value)) return false;
+		if (!this.forward.addTo(key, value)) return false;
 		this.source = undefined;
-		return this.valueKeyMultiMap.addTo(value, key);
+		return this.reverse.addTo(value, key);
 	};
 
-	addEntries = (entries: StreamSource<readonly [K, V]>): boolean => {
+	addEach = (entries: StreamSource<readonly [K, V]>): boolean => {
 		this.checkLock();
 
-		return Stream.applyFilter(entries, { pred: this.add }).count() > 0;
+		return Stream.applyFilter(entries, { pred: this.addTo }).count() > 0;
 	};
 
-	removeKey = <UK = K>(key: RelatedTo<K, UK>): boolean => {
+	/**
+	 * Returns the values that were removed, using the **empty** set in place of
+	 * `undefined` to mean "this key was not present". This is the value-set
+	 * reading of the shared `_REMOVED_AT_KEY` slot.
+	 */
+	removeKey = <UK = K>(key: RelatedTo<K, UK>): SetCollection<V> => {
 		this.checkLock();
 
-		const values = this.valuesAt(key);
+		const values = this.getValues(key);
 
-		if (values.isEmpty) return false;
+		if (values.isEmpty) return values;
 
-		this.keyValueMultiMap.removeKey(key);
+		this.forward.removeKey(key);
 
 		this.source = undefined;
 
-		return this.valueKeyMultiMap.removeEntries<V, UK>(
-			values.stream().map((value) => [value, key]),
+		this.reverse.removeEntries(
+			values.stream().map((value) => [value, key] as [V, K]),
 		);
+
+		return values;
 	};
 
 	removeKeys = <UK = K>(keys: StreamSource<RelatedTo<K, UK>>): boolean => {
 		this.checkLock();
 
-		return Stream.from(keys).filterPure({ pred: this.removeKey }).count() > 0;
+		let removedCount = 0;
+		Stream.from(keys).forEach((key): void => {
+			if (!this.removeKey(key).isEmpty) ++removedCount;
+		});
+
+		return removedCount > 0;
 	};
 
-	removeValue = <UV = V>(value: RelatedTo<V, UV>): boolean => {
+	/**
+	 * The value-direction counterpart of {@link removeKey}: returns the keys that
+	 * referenced the value, empty meaning "not present".
+	 */
+	removeValue = <UV = V>(value: RelatedTo<V, UV>): SetCollection<K> => {
 		this.checkLock();
 
-		const keys = this.keysAt(value);
+		const keys = this.getKeys(value);
 
-		if (keys.isEmpty) return false;
+		if (keys.isEmpty) return keys;
 
-		this.valueKeyMultiMap.removeKey(value);
+		this.reverse.removeKey(value);
 
 		this.source = undefined;
 
-		return this.keyValueMultiMap.removeEntries(
-			keys.stream().map((key) => [key, value]),
+		this.forward.removeEntries(
+			keys.stream().map((key) => [key, value] as [K, V]),
 		);
+
+		return keys;
 	};
 
 	removeValues = <UV = V>(values: StreamSource<RelatedTo<V, UV>>): boolean => {
 		this.checkLock();
 
-		return (
-			Stream.from(values).filterPure({ pred: this.removeValue }).count() > 0
-		);
+		let removedCount = 0;
+		Stream.from(values).forEach((value): void => {
+			if (!this.removeValue(value).isEmpty) ++removedCount;
+		});
+
+		return removedCount > 0;
 	};
 
 	removeEntry = <UK = K, UV = V>(
@@ -182,11 +200,11 @@ export class BiMultiMapBuilder<K, V> implements BiMultiMapBase.Builder<K, V> {
 	): boolean => {
 		this.checkLock();
 
-		if (!this.keyValueMultiMap.removeEntry(key, value)) return false;
+		if (!this.forward.removeEntry(key, value)) return false;
 
 		this.source = undefined;
 
-		return this.valueKeyMultiMap.removeEntry(value, key);
+		return this.reverse.removeEntry(value, key as K);
 	};
 
 	removeEntries = <UK = K, UV = V>(
@@ -197,33 +215,58 @@ export class BiMultiMapBuilder<K, V> implements BiMultiMapBase.Builder<K, V> {
 		return Stream.applyFilter(entries, { pred: this.removeEntry }).count() > 0;
 	};
 
+	invert = (): BiMultiMap.Builder<V, K> => this.build().invert().toBuilder();
+
 	forEach = (
-		f: (entry: [K, V], index: number, halt: () => void) => void,
-		options: { state?: TraverseState } = {},
+		f: (entry: readonly [K, V]) => void,
+		options?: { state?: TraverseState },
 	): void => {
-		const { state = TraverseState() } = options;
+		this.lockedTraverse(options, f);
+	};
+
+	forEachIndexed = (
+		f: (entry: readonly [K, V], index: number, halt: () => void) => void,
+		options?: { state?: TraverseState },
+	): void => {
+		this.lockedTraverse(options, f);
+	};
+
+	/**
+	 * `try`/`finally` is load-bearing: without it a throwing callback strands
+	 * `_lock` at 1 and every later mutation throws
+	 * `ModifiedBuilderWhileLoopingOverItError` on a builder that is otherwise
+	 * perfectly healthy.
+	 */
+	private lockedTraverse(
+		options: { state?: TraverseState } | undefined,
+		f: (entry: readonly [K, V], index: number, halt: () => void) => void,
+	): void {
+		const { state = TraverseState() } = options ?? {};
 
 		this._lock++;
 
 		try {
-			this.keyValueMultiMap.forEachIndexed(
-				f as (entry: readonly [K, V], index: number, halt: () => void) => void,
-				{ state },
-			);
+			this.forward.forEachIndexed(f, { state });
 		} finally {
 			this._lock--;
 		}
+	}
+
+	clear = (): void => {
+		this.checkLock();
+
+		this.source = undefined;
+		this._keyValueMultiMap = undefined;
+		this._valueKeyMultiMap = undefined;
 	};
 
 	build = (): BiMultiMap<K, V> => {
 		if (undefined !== this.source) return this.source;
 
-		if (this.isEmpty) {
-			return this.context.empty();
-		}
+		if (this.isEmpty) return this.context.empty<readonly [K, V]>();
 
-		const keyValueMultiMap = this.keyValueMultiMap.build().assumeNonEmpty();
-		const valueKeyMultiMap = this.valueKeyMultiMap.build().assumeNonEmpty();
+		const keyValueMultiMap = this.forward.build().assumeNonEmpty();
+		const valueKeyMultiMap = this.reverse.build().assumeNonEmpty();
 
 		return this.context.createNonEmpty(keyValueMultiMap, valueKeyMultiMap);
 	};

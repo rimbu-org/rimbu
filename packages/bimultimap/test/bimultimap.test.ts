@@ -37,8 +37,8 @@ const arrDouble = [
 function runWith(name: string, BMM: BiMultiMap.Context<any, any>) {
 	describe(`${name} creators`, () => {
 		it('empty', () => {
-			expect(BMM.empty<number, string>()).toBe<any>(
-				BMM.empty<boolean, symbol>(),
+			expect(BMM.empty<readonly [number, string]>()).toBe<any>(
+				BMM.empty<readonly [boolean, symbol]>(),
 			);
 		});
 
@@ -70,9 +70,9 @@ function runWith(name: string, BMM: BiMultiMap.Context<any, any>) {
 		});
 
 		it('builder', () => {
-			const b = BMM.builder<number, string>();
+			const b = BMM.builder<readonly [number, string]>();
 			expect(b.size).toBe(0);
-			b.addEntries(arr6);
+			b.addEach(arr6);
 			expect(b.size).toBe(6);
 		});
 
@@ -106,7 +106,7 @@ function runWith(name: string, BMM: BiMultiMap.Context<any, any>) {
 	});
 
 	describe(`${name} methods`, () => {
-		const mapEmpty = BMM.empty<number, string>();
+		const mapEmpty = BMM.empty<readonly [number, string]>();
 		const map3_1 = BMM.from(arr3);
 		const map6_1 = BMM.from(arr6);
 		const mapDouble = BMM.from(arrDouble);
@@ -119,32 +119,32 @@ function runWith(name: string, BMM: BiMultiMap.Context<any, any>) {
 		});
 
 		it('add', () => {
-			expectEqual(mapEmpty.add(1, 'a'), [[1, 'a']]);
-			expectEqual(mapEmpty.add(1, 'a').add(1, 'b'), [
+			expectEqual(mapEmpty.addTo(1, 'a'), [[1, 'a']]);
+			expectEqual(mapEmpty.addTo(1, 'a').addTo(1, 'b'), [
 				[1, 'a'],
 				[1, 'b'],
 			]);
-			expect(new Set(map3_1.add(1, 'z').valuesAt(1))).toEqual(
+			expect(new Set(map3_1.addTo(1, 'z').getValues(1))).toEqual(
 				new Set(['a', 'z']),
 			);
-			expect(new Set(mapDouble.add(1, 'z').valuesAt(1))).toEqual(
+			expect(new Set(mapDouble.addTo(1, 'z').getValues(1))).toEqual(
 				new Set(['a', 'b', 'z']),
 			);
 		});
 
 		it('addEntries', () => {
-			expect(mapEmpty.addEntries(mapEmpty)).toBe(mapEmpty);
-			expectEqual(mapEmpty.addEntries(arr3), arr3);
-			expectEqual(mapEmpty.addEntries(arr6), arr6);
-			expectEqual(mapEmpty.addEntries(arrDouble), arrDouble);
+			expect(mapEmpty.addEach(mapEmpty)).toBe(mapEmpty);
+			expectEqual(mapEmpty.addEach(arr3), arr3);
+			expectEqual(mapEmpty.addEach(arr6), arr6);
+			expectEqual(mapEmpty.addEach(arrDouble), arrDouble);
 
-			expect(map3_1.addEntries(mapEmpty)).toBe(map3_1);
-			expect(map3_1.addEntries(arr3)).toBe(map3_1);
-			expectEqual(map3_1.addEntries(arr6), arr6);
+			expect(map3_1.addEach(mapEmpty)).toBe(map3_1);
+			expect(map3_1.addEach(arr3)).toBe(map3_1);
+			expectEqual(map3_1.addEach(arr6), arr6);
 
-			expect(map6_1.addEntries(mapEmpty)).toBe(map6_1);
-			expect(map6_1.addEntries(arr3)).toBe(map6_1);
-			expect(map6_1.addEntries(arr6)).toBe(map6_1);
+			expect(map6_1.addEach(mapEmpty)).toBe(map6_1);
+			expect(map6_1.addEach(arr3)).toBe(map6_1);
+			expect(map6_1.addEach(arr6)).toBe(map6_1);
 		});
 
 		it('assumeNoneEmpty', () => {
@@ -170,18 +170,18 @@ function runWith(name: string, BMM: BiMultiMap.Context<any, any>) {
 				return entry[0] % 2 === 0;
 			}
 
+			// `filterIndexed` takes `(entry, index)` — it has no `halt`; to stop
+			// early, return `false` for everything past the wanted prefix.
 			function first2(
 				_: readonly [number, string],
 				index: number,
-				halt: () => void,
 			): boolean {
-				if (index > 0) halt();
-				return true;
+				return index < 2;
 			}
 
 			expect(mapEmpty.filter(isEvenKey)).toBe(mapEmpty);
 			expectEqual(map3_1.filter(isEvenKey), [[2, 'b']]);
-			expectEqual(map3_1.filter(first2), [
+			expectEqual(map3_1.filterIndexed(first2), [
 				[1, 'a'],
 				[2, 'b'],
 			]);
@@ -191,21 +191,18 @@ function runWith(name: string, BMM: BiMultiMap.Context<any, any>) {
 				[4, 'd'],
 				[6, 'f'],
 			]);
-			expect(map6_1.filter(first2).size).toBe(2);
+			expect(map6_1.filterIndexed(first2).size).toBe(2);
 
 			expect(mapEmpty.filter(isEvenKey, { negate: true })).toBe(mapEmpty);
 			expectEqual(map3_1.filter(isEvenKey, { negate: true }), [
 				[1, 'a'],
 				[3, 'c'],
 			]);
-			expectEqual(map3_1.filter(first2, { negate: true }), []);
-
 			expectEqual(map6_1.filter(isEvenKey, { negate: true }), [
 				[1, 'a'],
 				[3, 'c'],
 				[5, 'e'],
 			]);
-			expect(map6_1.filter(first2, { negate: true }).size).toBe(0);
 		});
 
 		it('forEach', () => {
@@ -224,17 +221,17 @@ function runWith(name: string, BMM: BiMultiMap.Context<any, any>) {
 		});
 
 		it('keysAt', () => {
-			expect(mapEmpty.keysAt('b').toArray()).toEqual([]);
-			expect(map3_1.keysAt('b').toArray()).toEqual([2]);
-			expect(map6_1.keysAt('b').toArray()).toEqual([2]);
-			expect(mapDouble.keysAt('b').toArray()).toEqual([1, 2]);
+			expect(mapEmpty.getKeys('b').toArray()).toEqual([]);
+			expect(map3_1.getKeys('b').toArray()).toEqual([2]);
+			expect(map6_1.getKeys('b').toArray()).toEqual([2]);
+			expect(mapDouble.getKeys('b').toArray()).toEqual([1, 2]);
 		});
 
 		it('valuesAt', () => {
-			expect(mapEmpty.valuesAt(2).toArray()).toEqual([]);
-			expect(map3_1.valuesAt(2).toArray()).toEqual(['b']);
-			expect(map6_1.valuesAt(2).toArray()).toEqual(['b']);
-			expect(mapDouble.valuesAt(2).toArray()).toEqual(['a', 'b']);
+			expect(mapEmpty.getValues(2).toArray()).toEqual([]);
+			expect(map3_1.getValues(2).toArray()).toEqual(['b']);
+			expect(map6_1.getValues(2).toArray()).toEqual(['b']);
+			expect(mapDouble.getValues(2).toArray()).toEqual(['a', 'b']);
 		});
 
 		it('hasEntry', () => {
@@ -255,16 +252,16 @@ function runWith(name: string, BMM: BiMultiMap.Context<any, any>) {
 		});
 
 		it('hasKey', () => {
-			expect(mapEmpty.hasKey(2)).toBe(false);
+			expect(mapEmpty.has(2)).toBe(false);
 
-			expect(map3_1.hasKey(2)).toBe(true);
-			expect(map3_1.hasKey(9)).toBe(false);
+			expect(map3_1.has(2)).toBe(true);
+			expect(map3_1.has(9)).toBe(false);
 
-			expect(map6_1.hasKey(2)).toBe(true);
-			expect(map6_1.hasKey(9)).toBe(false);
+			expect(map6_1.has(2)).toBe(true);
+			expect(map6_1.has(9)).toBe(false);
 
-			expect(mapDouble.hasKey(2)).toBe(true);
-			expect(mapDouble.hasKey(9)).toBe(false);
+			expect(mapDouble.has(2)).toBe(true);
+			expect(mapDouble.has(9)).toBe(false);
 		});
 
 		it('hasValue', () => {
@@ -504,31 +501,31 @@ function runWith(name: string, BMM: BiMultiMap.Context<any, any>) {
 		});
 
 		it('setKeys', () => {
-			expect(mapEmpty.setKeys('b', [])).toBe(mapEmpty);
-			expectEqual(mapEmpty.setKeys('b', [1, 2]), [
+			expect(mapEmpty.setEachKey('b', [])).toBe(mapEmpty);
+			expectEqual(mapEmpty.setEachKey('b', [1, 2]), [
 				[1, 'b'],
 				[2, 'b'],
 			]);
 
-			expectEqual(map3_1.setKeys('b', [2]), arr3);
-			expectEqual(map3_1.setKeys('b', []), [
+			expectEqual(map3_1.setEachKey('b', [2]), arr3);
+			expectEqual(map3_1.setEachKey('b', []), [
 				[1, 'a'],
 				[3, 'c'],
 			]);
-			expectEqual(map3_1.setKeys('d', [5, 6]), [...arr3, [5, 'd'], [6, 'd']]);
+			expectEqual(map3_1.setEachKey('d', [5, 6]), [...arr3, [5, 'd'], [6, 'd']]);
 		});
 
-		expectEqual(mapDouble.setKeys('b', [1, 2]), arrDouble);
-		expectEqual(mapDouble.setKeys('b', [2]), [
+		expectEqual(mapDouble.setEachKey('b', [1, 2]), arrDouble);
+		expectEqual(mapDouble.setEachKey('b', [2]), [
 			[1, 'a'],
 			[2, 'a'],
 			[2, 'b'],
 		]);
-		expectEqual(mapDouble.setKeys('b', []), [
+		expectEqual(mapDouble.setEachKey('b', []), [
 			[1, 'a'],
 			[2, 'a'],
 		]);
-		expectEqual(mapDouble.setKeys('b', [3, 4]), [
+		expectEqual(mapDouble.setEachKey('b', [3, 4]), [
 			[1, 'a'],
 			[2, 'a'],
 			[3, 'b'],
@@ -536,35 +533,35 @@ function runWith(name: string, BMM: BiMultiMap.Context<any, any>) {
 		]);
 
 		it('setValues', () => {
-			expect(mapEmpty.setValues(2, [])).toBe(mapEmpty);
-			expectEqual(mapEmpty.setValues(2, ['a', 'b']), [
+			expect(mapEmpty.setEachValue(2, [])).toBe(mapEmpty);
+			expectEqual(mapEmpty.setEachValue(2, ['a', 'b']), [
 				[2, 'a'],
 				[2, 'b'],
 			]);
 
-			expectEqual(map3_1.setValues(2, ['b']), arr3);
-			expectEqual(map3_1.setValues(2, []), [
+			expectEqual(map3_1.setEachValue(2, ['b']), arr3);
+			expectEqual(map3_1.setEachValue(2, []), [
 				[1, 'a'],
 				[3, 'c'],
 			]);
-			expectEqual(map3_1.setValues(4, ['e', 'f']), [
+			expectEqual(map3_1.setEachValue(4, ['e', 'f']), [
 				...arr3,
 				[4, 'e'],
 				[4, 'f'],
 			]);
 		});
 
-		expectEqual(mapDouble.setValues(2, ['a', 'b']), arrDouble);
-		expectEqual(mapDouble.setValues(2, ['b']), [
+		expectEqual(mapDouble.setEachValue(2, ['a', 'b']), arrDouble);
+		expectEqual(mapDouble.setEachValue(2, ['b']), [
 			[1, 'a'],
 			[1, 'b'],
 			[2, 'b'],
 		]);
-		expectEqual(mapDouble.setValues(2, []), [
+		expectEqual(mapDouble.setEachValue(2, []), [
 			[1, 'a'],
 			[1, 'b'],
 		]);
-		expectEqual(mapDouble.setValues(2, ['c', 'd']), [
+		expectEqual(mapDouble.setEachValue(2, ['c', 'd']), [
 			[1, 'a'],
 			[1, 'b'],
 			[2, 'c'],
@@ -629,18 +626,18 @@ function runWith(name: string, BMM: BiMultiMap.Context<any, any>) {
 			}
 			{
 				const b = map3_1.toBuilder();
-				expect(b.valuesAt(2).toArray()).toEqual(['b']);
-				expect(b.valuesAt(10).toArray()).toEqual([]);
+				expect(b.getValues(2).toArray()).toEqual(['b']);
+				expect(b.getValues(10).toArray()).toEqual([]);
 			}
 			{
 				const b = map6_1.toBuilder();
-				expect(b.valuesAt(2).toArray()).toEqual(['b']);
-				expect(b.valuesAt(10).toArray()).toEqual([]);
+				expect(b.getValues(2).toArray()).toEqual(['b']);
+				expect(b.getValues(10).toArray()).toEqual([]);
 			}
 			{
 				const b = mapDouble.toBuilder();
-				expect(b.valuesAt(2).toArray()).toEqual(['a', 'b']);
-				expect(b.valuesAt(10).toArray()).toEqual([]);
+				expect(b.getValues(2).toArray()).toEqual(['a', 'b']);
+				expect(b.getValues(10).toArray()).toEqual([]);
 			}
 		});
 
@@ -678,46 +675,46 @@ function runWith(name: string, BMM: BiMultiMap.Context<any, any>) {
 			f: (builder: BiMultiMap.Builder<number, string>) => void,
 		) {
 			const b1 = BMM.from(arr3).toBuilder();
-			const b2 = BMM.builder<number, string>();
-			b2.addEntries(arr3);
+			const b2 = BMM.builder<readonly [number, string]>();
+			b2.addEach(arr3);
 
 			f(b1);
 			f(b2);
 		}
 
 		it('add', () => {
-			const b = BMM.builder<number, string>();
+			const b = BMM.builder<readonly [number, string]>();
 			expect(b.size).toBe(0);
-			expect(b.add(1, 'a')).toBe(true);
+			expect(b.addTo(1, 'a')).toBe(true);
 			expect(b.size).toBe(1);
-			expect(b.add(2, 'b')).toBe(true);
+			expect(b.addTo(2, 'b')).toBe(true);
 			expect(b.size).toBe(2);
-			expect(b.add(2, 'c')).toBe(true);
+			expect(b.addTo(2, 'c')).toBe(true);
 			expect(b.size).toBe(3);
-			expect(b.add(2, 'c')).toBe(false);
+			expect(b.addTo(2, 'c')).toBe(false);
 			expect(b.size).toBe(3);
 		});
 
 		it('addEntries', () => {
-			const b = BMM.builder<number, string>();
+			const b = BMM.builder<readonly [number, string]>();
 			expect(b.size).toBe(0);
-			expect(b.addEntries(arr3)).toBe(true);
+			expect(b.addEach(arr3)).toBe(true);
 			expect(b.size).toBe(3);
-			expect(b.addEntries(arr3)).toBe(false);
+			expect(b.addEach(arr3)).toBe(false);
 			expect(b.size).toBe(3);
 		});
 
 		it('build', () => {
-			const b = BMM.builder<number, string>();
+			const b = BMM.builder<readonly [number, string]>();
 			expect(b.build()).toBe(BMM.empty());
-			b.addEntries(arr3);
+			b.addEach(arr3);
 			expect(b.build().size).toBe(3);
-			expect(b.build().valuesAt(2).toArray()).toEqual(['b']);
+			expect(b.build().getValues(2).toArray()).toEqual(['b']);
 		});
 
 		it('forEach', () => {
 			{
-				const b = BMM.builder<number, string>();
+				const b = BMM.builder<readonly [number, string]>();
 
 				const result = new Set<number>();
 
@@ -735,30 +732,30 @@ function runWith(name: string, BMM: BiMultiMap.Context<any, any>) {
 
 		it('operations throw in forEach when modifying collection', () => {
 			forEachBuilder((b) => {
-				expect(() => b.forEach(() => b.add(1, 'a'))).toThrow();
-				expect(() => b.forEach(() => b.addEntries([[1, 'a']]))).toThrow();
+				expect(() => b.forEach(() => b.addTo(1, 'a'))).toThrow();
+				expect(() => b.forEach(() => b.addEach([[1, 'a']]))).toThrow();
 				expect(() => b.forEach(() => b.removeEntry(1, 'a'))).toThrow();
 				expect(() => b.forEach(() => b.removeEntries([[1, 'a']]))).toThrow();
 				expect(() => b.forEach(() => b.removeKey(1))).toThrow();
 				expect(() => b.forEach(() => b.removeKeys([1]))).toThrow();
 				expect(() => b.forEach(() => b.removeValue('b'))).toThrow();
 				expect(() => b.forEach(() => b.removeValues(['b']))).toThrow();
-				expect(() => b.forEach(() => b.setKeys('a', [1]))).toThrow();
-				expect(() => b.forEach(() => b.setValues(1, ['a']))).toThrow();
+				expect(() => b.forEach(() => b.setEachKey('a', [1]))).toThrow();
+				expect(() => b.forEach(() => b.setEachValue(1, ['a']))).toThrow();
 			});
 		});
 
 		it('keysAt', () => {
 			forEachBuilder((b) => {
-				expect(b.keysAt('b').toArray()).toEqual([2]);
-				expect(b.keysAt('z').isEmpty).toBe(true);
+				expect(b.getKeys('b').toArray()).toEqual([2]);
+				expect(b.getKeys('z').isEmpty).toBe(true);
 			});
 		});
 
 		it('valuesAt', () => {
 			forEachBuilder((b) => {
-				expect(b.valuesAt(2).toArray()).toEqual(['b']);
-				expect(b.valuesAt(10).isEmpty).toBe(true);
+				expect(b.getValues(2).toArray()).toEqual(['b']);
+				expect(b.getValues(10).isEmpty).toBe(true);
 			});
 		});
 
@@ -772,8 +769,8 @@ function runWith(name: string, BMM: BiMultiMap.Context<any, any>) {
 
 		it('hasKey', () => {
 			forEachBuilder((b) => {
-				expect(b.hasKey(2)).toBe(true);
-				expect(b.hasKey(10)).toBe(false);
+				expect(b.has(2)).toBe(true);
+				expect(b.has(10)).toBe(false);
 			});
 		});
 
@@ -785,15 +782,15 @@ function runWith(name: string, BMM: BiMultiMap.Context<any, any>) {
 		});
 
 		it('isEmpty', () => {
-			const b = BMM.builder<number, string>();
+			const b = BMM.builder<readonly [number, string]>();
 
 			expect(b.isEmpty).toBe(true);
-			b.add(1, 'a');
+			b.addTo(1, 'a');
 			expect(b.isEmpty).toBe(false);
 		});
 
 		it('removeEntries', () => {
-			const be = BMM.builder<number, string>();
+			const be = BMM.builder<readonly [number, string]>();
 			expect(be.removeEntries([[1, 'a']])).toBe(false);
 
 			forEachBuilder((b) => {
@@ -820,7 +817,7 @@ function runWith(name: string, BMM: BiMultiMap.Context<any, any>) {
 		});
 
 		it('removeEntry', () => {
-			const be = BMM.builder<number, string>();
+			const be = BMM.builder<readonly [number, string]>();
 			expect(be.removeEntry(1, 'a')).toBe(false);
 
 			forEachBuilder((b) => {
@@ -832,18 +829,18 @@ function runWith(name: string, BMM: BiMultiMap.Context<any, any>) {
 		});
 
 		it('removeKey', () => {
-			const be = BMM.builder<number, string>();
-			expect(be.removeKey(1)).toBe(false);
+			const be = BMM.builder<readonly [number, string]>();
+			expect(be.removeKey(1).isEmpty).toBe(true);
 
 			forEachBuilder((b) => {
-				expect(b.removeKey(10)).toBe(false);
-				expect(b.removeKey(2)).toBe(true);
-				expect(b.removeKey(2)).toBe(false);
+				expect(b.removeKey(10).isEmpty).toBe(true);
+				expect(b.removeKey(2).isEmpty).toBe(false);
+				expect(b.removeKey(2).isEmpty).toBe(true);
 			});
 		});
 
 		it('removeKeys', () => {
-			const be = BMM.builder<number, string>();
+			const be = BMM.builder<readonly [number, string]>();
 			expect(be.removeKeys([1, 10])).toBe(false);
 
 			forEachBuilder((b) => {
@@ -854,18 +851,18 @@ function runWith(name: string, BMM: BiMultiMap.Context<any, any>) {
 		});
 
 		it('removeValue', () => {
-			const be = BMM.builder<number, string>();
-			expect(be.removeValue('a')).toBe(false);
+			const be = BMM.builder<readonly [number, string]>();
+			expect(be.removeValue('a').isEmpty).toBe(true);
 
 			forEachBuilder((b) => {
-				expect(b.removeValue('z')).toBe(false);
-				expect(b.removeValue('b')).toBe(true);
-				expect(b.removeValue('b')).toBe(false);
+				expect(b.removeValue('z').isEmpty).toBe(true);
+				expect(b.removeValue('b').isEmpty).toBe(false);
+				expect(b.removeValue('b').isEmpty).toBe(true);
 			});
 		});
 
 		it('removeValues', () => {
-			const be = BMM.builder<number, string>();
+			const be = BMM.builder<readonly [number, string]>();
 			expect(be.removeValues(['a', 'z'])).toBe(false);
 
 			forEachBuilder((b) => {
@@ -876,31 +873,31 @@ function runWith(name: string, BMM: BiMultiMap.Context<any, any>) {
 		});
 
 		it('setKeys', () => {
-			const be = BMM.builder<number, string>();
-			expect(be.setKeys('b', [])).toBe(false);
-			expect(be.setKeys('b', [1, 2, 2])).toBe(true);
+			const be = BMM.builder<readonly [number, string]>();
+			expect(be.setEachKey('b', [])).toBe(false);
+			expect(be.setEachKey('b', [1, 2, 2])).toBe(true);
 			expect(be.size).toBe(2);
 
 			forEachBuilder((b) => {
-				expect(b.setKeys('z', [])).toBe(false);
-				expect(b.setKeys('b', [])).toBe(true);
+				expect(b.setEachKey('z', [])).toBe(false);
+				expect(b.setEachKey('b', [])).toBe(true);
 				expect(b.size).toBe(2);
-				expect(b.setKeys('b', [2, 1, 2])).toBe(true);
+				expect(b.setEachKey('b', [2, 1, 2])).toBe(true);
 				expect(b.size).toBe(4);
 			});
 		});
 
 		it('setValues', () => {
-			const be = BMM.builder<number, string>();
-			expect(be.setValues(2, [])).toBe(false);
-			expect(be.setValues(2, ['a', 'b', 'b'])).toBe(true);
+			const be = BMM.builder<readonly [number, string]>();
+			expect(be.setEachValue(2, [])).toBe(false);
+			expect(be.setEachValue(2, ['a', 'b', 'b'])).toBe(true);
 			expect(be.size).toBe(2);
 
 			forEachBuilder((b) => {
-				expect(b.setValues(10, [])).toBe(false);
-				expect(b.setValues(2, [])).toBe(true);
+				expect(b.setEachValue(10, [])).toBe(false);
+				expect(b.setEachValue(2, [])).toBe(true);
 				expect(b.size).toBe(2);
-				expect(b.setValues(2, ['b', 'a', 'b'])).toBe(true);
+				expect(b.setEachValue(2, ['b', 'a', 'b'])).toBe(true);
 				expect(b.size).toBe(4);
 			});
 		});
@@ -910,12 +907,12 @@ function runWith(name: string, BMM: BiMultiMap.Context<any, any>) {
 
 			forEachBuilder((b) => {
 				expect(b.size).toBe(3);
-				b.add(2, 'c');
+				b.addTo(2, 'c');
 				expect(b.size).toBe(4);
 			});
 		});
 	});
 }
 
-runWith('HashBiMultiMap', HashBiMultiMap.defaultContext());
-runWith('SortedBiMultiMap', SortedBiMultiMap.defaultContext());
+runWith('HashBiMultiMap', HashBiMultiMap);
+runWith('SortedBiMultiMap', SortedBiMultiMap);

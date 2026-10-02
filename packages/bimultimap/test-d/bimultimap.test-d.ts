@@ -66,10 +66,10 @@ expectTypeOf(bmmEmpty.keySize).toEqualTypeOf<number>();
 expectTypeOf(bmmNonEmpty.keySize).toEqualTypeOf<number>();
 
 // Per-direction lookups return a set, never undefined.
-expectTypeOf(bmmEmpty.valuesAt(1)).toEqualTypeOf<SetCollection<string>>();
-expectTypeOf(bmmNonEmpty.valuesAt(1)).toEqualTypeOf<SetCollection<string>>();
-expectTypeOf(bmmEmpty.keysAt('a')).toEqualTypeOf<SetCollection<number>>();
-expectTypeOf(bmmNonEmpty.keysAt('a')).toEqualTypeOf<SetCollection<number>>();
+expectTypeOf(bmmEmpty.getValues(1)).toEqualTypeOf<SetCollection<string>>();
+expectTypeOf(bmmNonEmpty.getValues(1)).toEqualTypeOf<SetCollection<string>>();
+expectTypeOf(bmmEmpty.getKeys('a')).toEqualTypeOf<SetCollection<number>>();
+expectTypeOf(bmmNonEmpty.getKeys('a')).toEqualTypeOf<SetCollection<number>>();
 
 // .streamKeys / .streamValues
 expectTypeOf(bmmEmpty.streamKeys()).toEqualTypeOf<Stream<number>>();
@@ -96,11 +96,13 @@ expectTypeOf(bmmNonEmpty.toBuilder().build()).toEqualTypeOf<BMM_Empty>();
  */
 declare const context: BiMultiMap.Context<number, string>;
 expectTypeOf(context.empty()).toEqualTypeOf<BMM_Empty>();
-// `of` infers literal type arguments from the entries it is given.
-expectTypeOf(context.of([1, 'a'])).toEqualTypeOf<BiMultiMap.NonEmpty<1, 'a'>>();
-expectTypeOf(context.of([1, 'a'], [2, 'b'])).toEqualTypeOf<
-	BiMultiMap.NonEmpty<1 | 2, 'a' | 'b'>
+// The element type is explicit; the entries widen to the context's bounds.
+expectTypeOf(context.of<readonly [number, string]>([1, 'a'])).toEqualTypeOf<
+	BMM_NonEmpty
 >();
+expectTypeOf(
+	context.of<readonly [number, string]>([1, 'a'], [2, 'b']),
+).toEqualTypeOf<BMM_NonEmpty>();
 expectTypeOf(context.from(bmmNonEmpty)).toEqualTypeOf<BMM_NonEmpty>();
 expectTypeOf(context.from(bmmEmpty)).toEqualTypeOf<BMM_Empty>();
 expectTypeOf(context.builder()).toEqualTypeOf<
@@ -118,26 +120,26 @@ expectTypeOf(context.builder()).toEqualTypeOf<
  * (`setEachValue`/`setEachKey`); this block needs the mechanical rename with it.
  */
 expectTypeOf(
-	bmmEmpty.setValues(1, Stream.of('a')),
+	bmmEmpty.setEachValue(1, Stream.of('a')),
 ).toEqualTypeOf<BMM_NonEmpty>();
 expectTypeOf(
-	bmmEmpty.setValues(1, Stream.empty<string>()),
+	bmmEmpty.setEachValue(1, Stream.empty<string>()),
 ).toEqualTypeOf<BMM_Empty>();
 expectTypeOf(
-	bmmNonEmpty.setValues(1, Stream.of('a')),
+	bmmNonEmpty.setEachValue(1, Stream.of('a')),
 ).toEqualTypeOf<BMM_NonEmpty>();
 expectTypeOf(
-	bmmNonEmpty.setValues(1, Stream.empty<string>()),
+	bmmNonEmpty.setEachValue(1, Stream.empty<string>()),
 ).toEqualTypeOf<BMM_Empty>();
-expectTypeOf(bmmEmpty.setKeys('a', Stream.of(1))).toEqualTypeOf<BMM_NonEmpty>();
+expectTypeOf(bmmEmpty.setEachKey('a', Stream.of(1))).toEqualTypeOf<BMM_NonEmpty>();
 expectTypeOf(
-	bmmEmpty.setKeys('a', Stream.empty<number>()),
+	bmmEmpty.setEachKey('a', Stream.empty<number>()),
 ).toEqualTypeOf<BMM_Empty>();
 expectTypeOf(
-	bmmNonEmpty.setKeys('a', Stream.of(1)),
+	bmmNonEmpty.setEachKey('a', Stream.of(1)),
 ).toEqualTypeOf<BMM_NonEmpty>();
 expectTypeOf(
-	bmmNonEmpty.setKeys('a', Stream.empty<number>()),
+	bmmNonEmpty.setEachKey('a', Stream.empty<number>()),
 ).toEqualTypeOf<BMM_Empty>();
 
 // The context carries the two multimap contexts it was built from.

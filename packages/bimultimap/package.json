@@ -39,12 +39,20 @@
 		"./*": {
 			"types": "./dist/public/*.d.ts",
 			"default": "./dist/public/*.js"
+		},
+		"./advanced/*": {
+			"types": "./dist/advanced/*.d.ts",
+			"default": "./dist/advanced/*.js"
 		}
 	},
 	"imports": {
 		"#bimultimap/*": {
 			"types": "./dist/internal/*.d.ts",
 			"default": "./dist/internal/*.js"
+		},
+		"#bimultimap/immutable/*": {
+			"types": "./dist/internal/immutable/*.d.ts",
+			"default": "./dist/internal/immutable/*.js"
 		}
 	},
 	"files": [

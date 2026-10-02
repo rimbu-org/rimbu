@@ -3,5 +3,5 @@ import { runBiMultiMapRandomTestsWith } from './bimultimap-test-random';
 
 runBiMultiMapRandomTestsWith(
 	'SortedBiMultiMap',
-	SortedBiMultiMap.defaultContext(),
+	SortedBiMultiMap,
 );
