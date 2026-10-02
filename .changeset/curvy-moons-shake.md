@@ -67,10 +67,43 @@ keyed collection whose key holds a *collection* of values adopt
 `KeyedCollection.Capability.WithRemoveKey` with the right types. No existing signature
 changed.
 
-**`@rimbu/bimultimap`** is updated for the new multimap surface (including
-`RSet` → `SetCollection` in its own type vocabulary), which also fixes a pre-existing
-typecheck failure. Its own API is unchanged.
+**`@rimbu/bimultimap`** gets the same treatment: one `BiMultiMap<K, V>` type plus two
+contexts (`HashBiMultiMap`, `SortedBiMultiMap`), its own
+`BiMultiMapCollection.Capability` suite in `advanced/`, and the `internal/immutable/`
+empty/non-empty split. `typeTag` is uniformly `'BiMultiMap'`.
+
+**BiMultiMap renames** (big bang, no aliases):
+
+| before | after |
+|---|---|
+| `hasKey(key)` | `has(key)` |
+| `add(key, value)` | `addTo(key, value)` |
+| `addEntries(entries)` | `addEach(entries)` |
+| `setValues(key, values)` | `setEachValue(key, values)` |
+| `setKeys(value, keys)` | `setEachKey(value, keys)` |
+| `valuesAt(key)` | `getValues(key)` |
+| `keysAt(value)` | `getKeys(value)` |
+| `forEach(f)` (3 params) | `forEachIndexed(f)` |
+| `filter(f)` (3 params) | `filterIndexed(f)` |
+
+**`BiMultiMap.Builder.removeKey` / `removeValue` now return the removed set**
+(`SetCollection<V>` / `SetCollection<K>`), where an empty set means "not present" — the same
+convention multimap adopted. **Gained:** `modifyValuesAt`, `modifyKeysAt`, `invert`, and —
+by adopting the shared keyed capabilities — `map`, `mapIndexed`, `flatMap`,
+`flatMapIndexed`, `mutate` and a 1-parameter `filter` with type-guard overloads. **Removed:**
+`toJSON`, and the per-variant `defaultContext<UK, UV>()` factory (the context still exposes
+the inherited `defaultContext` self-reference). `HashBiMultiMap` and `SortedBiMultiMap` are
+contexts, not types.
+
+**Four defects fixed** in the process (all pre-existing, all with test coverage):
+
+- `removeValue` returned the stale reverse map rather than the pruned one.
+- `hasEntry(k, v)` reported `true` for any pair whose key *and* value were both present — a
+  cross-product check, not a membership check.
+- `Builder.forEach` leaked its reentrancy lock when the callback threw.
+- `setValues` / `setKeys` threw instead of returning an empty collection when the new value
+  set emptied the map.
 
 The full design record, including every deliberate shadow, is in
-`packages/multimap/AGENTS.md`; the decision log and method table are in
-`.scratch/multimap-migration-plan.md`.
+`packages/multimap/AGENTS.md` and `packages/bimultimap/AGENTS.md`; the decision logs are in
+`.scratch/multimap-migration-plan.md` and `.scratch/bimultimap-migration-plan.md`.
