@@ -80,6 +80,19 @@
 					}
 				}
 			}
+		},
+		{
+			"includes": ["**/test-random/**"],
+			"linter": {
+				"rules": {
+					"style": {
+						"noRestrictedImports": "off"
+					},
+					"suspicious": {
+						"noConsole": "off"
+					}
+				}
+			}
 		}
 	]
 }

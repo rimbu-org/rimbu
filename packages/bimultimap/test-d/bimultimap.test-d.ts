@@ -3,7 +3,8 @@ import { expectTypeOf } from 'bun:test';
 import type { BiMultiMap } from '@rimbu/bimultimap';
 import type { SetCollection } from '@rimbu/collection-types/set';
 import type { MultiMap } from '@rimbu/multimap';
-import type { Stream } from '@rimbu/stream';
+
+import { Stream } from '@rimbu/stream';
 
 /**
  * Name-independent type contract.
@@ -105,6 +106,39 @@ expectTypeOf(context.from(bmmEmpty)).toEqualTypeOf<BMM_Empty>();
 expectTypeOf(context.builder()).toEqualTypeOf<
 	BiMultiMap.Builder<number, string>
 >();
+
+/**
+ * Replacing a key's whole value set may empty the collection, so the
+ * non-empty-preserving overload is only chosen when the source is itself
+ * non-empty. This is the type-level half of bug B4, where the declared
+ * overload said `NonEmpty` but the implementation called `assumeNonEmpty()`
+ * and threw.
+ *
+ * NOTE: `setValues`/`setKeys` are renamed by the capability migration
+ * (`setEachValue`/`setEachKey`); this block needs the mechanical rename with it.
+ */
+expectTypeOf(
+	bmmEmpty.setValues(1, Stream.of('a')),
+).toEqualTypeOf<BMM_NonEmpty>();
+expectTypeOf(
+	bmmEmpty.setValues(1, Stream.empty<string>()),
+).toEqualTypeOf<BMM_Empty>();
+expectTypeOf(
+	bmmNonEmpty.setValues(1, Stream.of('a')),
+).toEqualTypeOf<BMM_NonEmpty>();
+expectTypeOf(
+	bmmNonEmpty.setValues(1, Stream.empty<string>()),
+).toEqualTypeOf<BMM_Empty>();
+expectTypeOf(bmmEmpty.setKeys('a', Stream.of(1))).toEqualTypeOf<BMM_NonEmpty>();
+expectTypeOf(
+	bmmEmpty.setKeys('a', Stream.empty<number>()),
+).toEqualTypeOf<BMM_Empty>();
+expectTypeOf(
+	bmmNonEmpty.setKeys('a', Stream.of(1)),
+).toEqualTypeOf<BMM_NonEmpty>();
+expectTypeOf(
+	bmmNonEmpty.setKeys('a', Stream.empty<number>()),
+).toEqualTypeOf<BMM_Empty>();
 
 // The context carries the two multimap contexts it was built from.
 expectTypeOf(context.keyValueMultiMapContext).toEqualTypeOf<

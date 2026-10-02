@@ -182,7 +182,7 @@ export class BiMultiMapNonEmpty<K, V>
 		key: RelatedTo<K, UK>,
 		value: RelatedTo<V, UV>,
 	): boolean {
-		return this.hasKey(key) && this.hasValue(value);
+		return this.keyValueMultiMap.hasEntry(key, value as V);
 	}
 
 	add(key: K, value: V): BiMultiMap.NonEmpty<K, V> {
@@ -206,16 +206,23 @@ export class BiMultiMapNonEmpty<K, V>
 		return builder.build().assumeNonEmpty();
 	}
 
-	setValues(key: K, values: StreamSource<V>): BiMultiMap.NonEmpty<K, V> {
+	setValues(
+		key: K,
+		values: StreamSource.NonEmpty<V>,
+	): BiMultiMap.NonEmpty<K, V>;
+	setValues(key: K, values: StreamSource<V>): BiMultiMap<K, V>;
+	setValues(key: K, values: StreamSource<V>): BiMultiMap<K, V> {
 		const builder = this.toBuilder();
 		builder.setValues(key, values);
-		return builder.build().assumeNonEmpty();
+		return builder.build();
 	}
 
-	setKeys(value: V, keys: StreamSource<K>): BiMultiMap.NonEmpty<K, V> {
+	setKeys(value: V, keys: StreamSource.NonEmpty<K>): BiMultiMap.NonEmpty<K, V>;
+	setKeys(value: V, keys: StreamSource<K>): BiMultiMap<K, V>;
+	setKeys(value: V, keys: StreamSource<K>): BiMultiMap<K, V> {
 		const builder = this.toBuilder();
 		builder.setKeys(value, keys);
-		return builder.build().assumeNonEmpty();
+		return builder.build();
 	}
 
 	valuesAt<UK = K>(key: RelatedTo<K, UK>): SetCollection<V> {
@@ -269,7 +276,7 @@ export class BiMultiMapNonEmpty<K, V>
 
 		return this.context.createNonEmpty<K, V>(
 			newKeyValueMultiMap,
-			this.valueKeyMultiMap,
+			collection as MultiMap.NonEmpty<V, K>,
 		);
 	}
 

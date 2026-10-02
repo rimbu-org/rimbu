@@ -205,12 +205,14 @@ export class BiMultiMapBuilder<K, V> implements BiMultiMapBase.Builder<K, V> {
 
 		this._lock++;
 
-		this.keyValueMultiMap.forEachIndexed(
-			f as (entry: readonly [K, V], index: number, halt: () => void) => void,
-			{ state },
-		);
-
-		this._lock--;
+		try {
+			this.keyValueMultiMap.forEachIndexed(
+				f as (entry: readonly [K, V], index: number, halt: () => void) => void,
+				{ state },
+			);
+		} finally {
+			this._lock--;
+		}
 	};
 
 	build = (): BiMultiMap<K, V> => {
