@@ -31,6 +31,6 @@ with a package-local `MultiSetCollection.Capability` suite for the count-aware A
   instances) rather than the concrete `HashMap`/`SortedMap`; `HashMultiSet`/`SortedMultiSet`
   still default their `countMapContext` to `HashMap`/`SortedMap`.
 - `forEach` now takes only the element; indexed iteration moved to `forEachIndexed`.
-- `HashMultiSet`/`SortedMultiSet` contexts and factories follow the `HashMap`/`SortedMap`
-  shape (`defaultContext`, `createContext`, `reducer`), and their `Advanced.Family`
-  replaces the old `Types` record.
+- `HashMultiSet`/`SortedMultiSet` become `MultiSet.Context` instances with the
+  `HashMap`/`SortedMap` count-map backing (see `multiset-variant-collapse.md` for the
+  full collapse, including uniform `typeTag`).
