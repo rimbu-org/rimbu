@@ -221,7 +221,7 @@ Every package's `package.json` must follow this shape exactly:
     "lint:check": "biome lint src",
     "test": "bun test test/* --tsconfig-override tsconfig.common.json",
     "typecheck": "tsc -p tsconfig.json --noEmit"
-    // Optional: "test:random": "bun test test-random"
+    // Optional: "test:random": "bun test ./test-random --tsconfig-override tsconfig.common.json"
   },
 
   "dependencies": {
@@ -269,6 +269,11 @@ Every package's `package.json` must follow this shape exactly:
   }
 }
 ```
+
+A `test-random/` suite must be runnable. It needs a `test:random` script that
+passes `--tsconfig-override tsconfig.common.json`, otherwise cross-package
+`@rimbu/<pkg>/…` imports fail to resolve at runtime and the suite exits with
+`Cannot find module` before running a single test.
 
 ### `tsconfig.esm.json` — for build (`bun run build`)
 
@@ -658,7 +663,8 @@ Example: adding `mapValues<W>(f: (v: V) => W): HashMap<K, W>` to HashMap.
 | TypeScript | `bun run typecheck:seq` | Type-check (no emit) — run after build |
 | Biome | `bun run biome:check` | Lint + format check |
 | Biome | `bun run biome:fix` | Auto-fix lint + format |
-| Bun test | `bun run test` | Run tests — run after build |
+| Bun test | `bun run test` | Run unit tests — run after build |
+| Bun test | `bun run test:random` | Run `test-random/` suites, one package at a time |
 | Changesets | `bunx changeset` | Create a changeset for a release |
 | Changesets | `bun run version` | Apply changeset version bumps |
 | Changesets | `bun run release` | Full release: prerelease checks + publish |
@@ -667,9 +673,22 @@ Example: adding `mapValues<W>(f: (v: V) => W): HashMap<K, W>` to HashMap.
 
 **Use `build:seq`, never the root `build`.** Running `bun run build` (which builds every workspace package in parallel) exhausts the container's CPU/memory limits and can hang or be killed. `build:seq` builds all packages sequentially with the same end result and stays within the container's resource constraints.
 
-`build:seq` and `typecheck:seq` are both driven by `scripts/run-workspace-serial.ts`, which topologically sorts the workspaces by their runtime `dependencies` and then runs `bun run <script>` in each package directory, one at a time, aborting on the first failure. This is hand-rolled on purpose:
+**Use `bun run test:random`, not `bun test:random` and not `bun test test-random`.**
 
-- `bun --workspaces run <script>` has no serial mode on Bun 1.3.8 (the version this repo is pinned to). `bun run --parallel` / `--sequential` landed in **1.3.9**, so `bun --sequential --workspaces --if-present run build` silently ran every package in parallel. `--concurrent-scripts` only bounds install lifecycle scripts.
+- `bun test:random` resolves the root script, which runs the workspaces **serially** (see below). Running the suites in parallel made a single `multimap` suite dominate: ~47 s and ~1.15 GB resident while the terminal stayed silent for the whole run, which reads as a hang.
+- `bun test` — with no `run` — invokes the **built-in test runner**, not the `test` script. From the repo root that collects `**/*.test.ts`, which includes every `test-random/` suite, so `bun test` runs the expensive randomized suites *in addition to* `bun run test:random`. Use `bun run test` for the unit suites.
+
+**Do not rely on a per-test timeout to stop a hang.** Bun's `it(name, fn, timeout)` cannot interrupt synchronous code — it is only checked once `fn` returns. A `while (true)` in a test body with a 1 s timeout runs until something external kills the process. If you need a hard wall-clock bound, wrap the run in an external `timeout`.
+
+**Keep the randomized suites sub-quadratic.** Differential harnesses that re-verify the *whole* collection after every one of ~1000 operations are O(n²) by construction, and they dominated the entire `test:random` runtime. The pattern to use instead: check the O(1) invariants (sizes) after every operation, run the O(n) full re-verification every `CHECK_FULL_EVERY` operations, and finish each case with an explicit `checkFull()`. That took `multimap` from 46.8 s / 1.15 GB to 2.8 s / 254 MB with no loss of coverage.
+
+**Give every `checklock` test a fresh builder and a post-condition.** These assert that mutating a builder from inside its own `forEach` throws. If they share one builder across several `expect(…).toThrow()` blocks, the first block leaks the traversal lock and every later block passes for the wrong reason — once the lock is stuck, *all* mutators throw. Assert afterwards that a plain mutation still succeeds, and add a separate case for `halt()` (which `forEachIndexed` implements with a thrown sentinel, so it leaks the lock silently).
+
+**Lock discipline for builder `forEach`.** `_lock++` / `_lock--` must be wrapped in `try`/`finally`. `f` is user code, and `CollectionBuilderBase.forEachIndexed` implements `halt()` by throwing a sentinel that it then swallows — so without `finally`, an entirely legal `halt()` call leaves the builder permanently rejecting every mutation. See `SortedBuilder.forEach` and `HashSetBlockBuilder.forEach` for the shape.
+
+`build:seq`, `typecheck:seq` and `test:random` are all driven by `scripts/run-workspace-serial.ts`, which topologically sorts the workspaces by their runtime `dependencies` and then runs `bun run <script>` in each package directory, one at a time, aborting on the first failure. This is hand-rolled on purpose:
+
+- `bun --workspaces run <script>` has no serial mode on Bun 1.3.8 (the version this repo is pinned to), and it starts every workspace **in parallel**. `bun run --parallel` / `--sequential` landed in **1.3.9**. `--concurrent-scripts` only bounds install lifecycle scripts.
 - Order is load-bearing here, not cosmetic: each package's `tsconfig.common.json` maps only its *own* `@rimbu/<pkg>` paths, so cross-package imports resolve through `node_modules` symlinks into `dist/*.d.ts`, which must already exist. Bun's sequential runner sorts workspace packages **by name**, which would build `@rimbu/deep` before `@rimbu/sorted`, so it does not reproduce the topological order this repo needs.
 
 Add `--dry-run` to print the computed order without running anything.

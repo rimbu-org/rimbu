@@ -260,19 +260,26 @@ export class HashSetBlockBuilder<T>
 	forEach = (f: (value: T) => void): void => {
 		this._lock++;
 
-		if (undefined !== this.source) {
-			this.source.forEach(f);
-		} else {
-			this._entries?.forEach(f);
+		// `finally` is load-bearing: `f` is user code, and `CollectionBuilderBase
+		// .forEachIndexed` implements `halt()` by throwing a sentinel that it then
+		// swallows. Without this, any throw from `f` -- including that sentinel --
+		// escapes with `_lock` still raised and leaves the builder permanently
+		// rejecting every mutation.
+		try {
+			if (undefined !== this.source) {
+				this.source.forEach(f);
+			} else {
+				this._entries?.forEach(f);
 
-			if (undefined !== this._entrySets) {
-				for (const entrySet of this._entrySets) {
-					entrySet.forEach(f);
+				if (undefined !== this._entrySets) {
+					for (const entrySet of this._entrySets) {
+						entrySet.forEach(f);
+					}
 				}
 			}
+		} finally {
+			this._lock--;
 		}
-
-		this._lock--;
 	};
 
 	build = (): HashSet<T> => {

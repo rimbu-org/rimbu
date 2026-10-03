@@ -215,11 +215,15 @@ export const streamFactoryModule = Module.create<StreamFactory>((mod) => ({
 			(): FastIterator<T> => new RandomIterator(next),
 		).assumeNonEmpty();
 	},
-	randomInt: (min: number, max: number): Stream.NonEmpty<number> => {
+	randomInt: (
+		min: number,
+		max: number,
+		next: () => number = Math.random,
+	): Stream.NonEmpty<number> => {
 		if (min >= max) ErrBase.msg('min should be smaller than max');
 
 		return new FromStream(
-			(): FastIterator<number> => new RandomIntIterator(min, max),
+			(): FastIterator<number> => new RandomIntIterator(min, max, next),
 		) as unknown as Stream.NonEmpty<number>;
 	},
 	unfold: <T>(

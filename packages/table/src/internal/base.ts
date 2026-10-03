@@ -834,23 +834,28 @@ export class TableBuilder<R, C, V> implements TableBase.Builder<R, C, V> {
 
 		this._lock++;
 
-		if (undefined !== this.source) {
-			this.source.forEach(f, { state });
-		} else {
-			const { halt } = state;
+		// `finally` is load-bearing: `f` is user code and may throw, including via
+		// the `halt` plumbing. Without it the lock leaks and every later mutation
+		// on this builder is rejected forever.
+		try {
+			if (undefined !== this.source) {
+				this.source.forEach(f, { state });
+			} else {
+				const { halt } = state;
 
-			this.rowMap.forEach(([rowKey, column], _, rowHalt): void => {
-				column.forEach(([columnKey, value], _, columnHalt): void => {
-					f([rowKey, columnKey, value], state.nextIndex(), halt);
-					if (state.halted) {
-						rowHalt();
-						columnHalt();
-					}
+				this.rowMap.forEach(([rowKey, column], _, rowHalt): void => {
+					column.forEach(([columnKey, value], _, columnHalt): void => {
+						f([rowKey, columnKey, value], state.nextIndex(), halt);
+						if (state.halted) {
+							rowHalt();
+							columnHalt();
+						}
+					});
 				});
-			});
+			}
+		} finally {
+			this._lock--;
 		}
-
-		this._lock--;
 	};
 
 	build = (): Table<R, C, V> => {

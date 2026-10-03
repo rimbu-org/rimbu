@@ -1,39 +1,85 @@
 import { describe, expect, it } from 'bun:test';
 
-import type { RSet } from '@rimbu/collection-types';
+import type { Collection } from '@rimbu/collection-types/collection';
+import type { ValuedCollection } from '@rimbu/collection-types/collection/valued';
+import type { SetCollection } from '@rimbu/collection-types/set';
 
 import { Stream } from '@rimbu/stream';
 
-function expectSet(s: RSet<any>): any {
+function byNumber(a: number, b: number): number {
+	return a - b;
+}
+
+/**
+ * Structural on purpose: the sets under test are typed by the capability
+ * intersection above, whose `Types` record is not the same `Types` as a bare
+ * `SetCollection<number>`, so naming that type here would reject every call.
+ */
+function expectSet<T extends number>(s: {
+	toArray(): T[];
+}): {
+	toEqual(i: Iterable<T>): void;
+} {
 	return {
-		toEqual(i: Iterable<any>): void {
-			const arrS = s.toArray().sort();
-			const arrI = [...i].sort();
-			expect(arrS).toEqual(arrI);
+		toEqual(i: Iterable<T>): void {
+			expect(s.toArray().sort(byNumber)).toEqual([...i].sort(byNumber));
 		},
 	};
 }
 
-export function runSetRandomTestsWith(
-	name: string,
-	context: RSet.Context<any>,
-): void {
+/**
+ * The family these random tests run against.
+ *
+ * Passed as a type argument rather than through an `extends` clause: an
+ * interface cannot extend both the aggregate `SetCollection.Advanced.Family` and
+ * an individual `Capability.*` family, because their `_BUILDER` / `_CONTEXT` /
+ * `_NORMAL` / … slots are not identical (TS2320). See root `AGENTS.md` §6.4.
+ */
+type Context = SetCollection.Context<
+	Collection.Capability.WithToBuilder<any> &
+		Collection.Capability.WithReducer<any> &
+		Collection.Capability.WithAddEach<any> &
+		ValuedCollection.Capability.WithDifference<any> &
+		ValuedCollection.Capability.WithIntersection<any> &
+		ValuedCollection.Capability.WithRemove<any> &
+		ValuedCollection.Capability.WithSymmetricDifference<any> &
+		ValuedCollection.Capability.WithUnion<any>
+>;
+
+/**
+ * How many operations may pass between two full re-verifications. See
+ * `Entangled.check`.
+ */
+const CHECK_FULL_EVERY = 20;
+
+export function runSetRandomTestsWith(name: string, context: Context): void {
 	class Entangled {
 		jsset = new Set<number>();
 		builder = context.builder();
-		immm = context.empty();
+		immm = context.empty<number>();
 		log: string[] = [];
+		sinceCheckFull = 0;
 
 		check(): void {
+			// O(1) invariants run after every operation.
+			expect(this.builder.size).toEqual(this.jsset.size);
+			expect(this.immm.size).toEqual(this.jsset.size);
+
+			// The full re-verification is O(size), so running it after each of
+			// ~1000 operations makes the case O(n^2). Every case finishes with an
+			// explicit `checkFull()`.
+			if (++this.sinceCheckFull < CHECK_FULL_EVERY) return;
+			this.checkFull();
+		}
+
+		checkFull(): void {
 			try {
-				expect(this.builder.size).toEqual(this.jsset.size);
-				expect(this.immm.size).toEqual(this.jsset.size);
+				this.sinceCheckFull = 0;
 				this.jsset.forEach((key): void => {
 					expect(this.builder.has(key)).toBe(true);
 					expect(this.immm.has(key)).toBe(true);
 				});
 			} catch (e) {
-				console.log(this.log);
 				console.log(
 					'sizes',
 					this.jsset.size,
@@ -66,21 +112,21 @@ export function runSetRandomTestsWith(
 
 	describe(`${name} RSet`, (): void => {
 		it('create', (): void => {
-			context.empty();
-			context.of(1);
+			context.empty<number>();
+			context.of<number>(1);
 			context.from([1, 1]);
 		});
 
 		it('empty', (): void => {
-			const m = context.empty();
-			const empty = context.empty();
+			const m = context.empty<number>();
+			const empty = context.empty<number>();
 
 			expect(m).toBe(empty);
 			expect(m.size).toBe(0);
 			expect(m.isEmpty).toBe(true);
 			expect(m.nonEmpty()).toBe(false);
 			expect(m.add(1).isEmpty).toBe(false);
-			expect(m.assumeNonEmpty).toThrowError();
+			expect((): any => m.assumeNonEmpty()).toThrowError();
 			expect(m.filter((v): boolean => false)).toBe(empty);
 			expect(m.has(0)).toBe(false);
 			// expect(m.keySet().isEmpty).toBe(true);
@@ -98,6 +144,8 @@ export function runSetRandomTestsWith(
 					ent.add(v);
 					ent.check();
 				});
+
+			ent.checkFull();
 		});
 
 		it('remove', (): void => {
@@ -116,85 +164,103 @@ export function runSetRandomTestsWith(
 				ent.remove(r);
 				ent.check();
 			});
+
+			ent.checkFull();
 		});
 
 		it('isEmpty', (): void => {
-			expect(context.empty().isEmpty).toBe(true);
-			expect(context.of(1).isEmpty).toBe(false);
+			expect(context.empty<number>().isEmpty).toBe(true);
+			expect(context.of<number>(1).isEmpty).toBe(false);
 		});
 
 		it('nonEmpty', (): void => {
-			expect(context.empty().nonEmpty()).toBe(false);
-			expect(context.of(1).nonEmpty()).toBe(true);
+			expect(context.empty<number>().nonEmpty()).toBe(false);
+			expect(context.of<number>(1).nonEmpty()).toBe(true);
 		});
 
 		it('assumeNonEmpty', (): void => {
-			expect((): any => context.empty().assumeNonEmpty()).toThrow();
-			const m = context.of(1);
+			expect((): any => context.empty<number>().assumeNonEmpty()).toThrow();
+			const m = context.of<number>(1);
 			expect(m.assumeNonEmpty()).toBe(m);
 		});
 
 		it('removes duplicates', (): void => {
-			expect(context.of(1, 2, 2, 3, 3, 3)).toEqual(context.of(1, 2, 3));
+			expectSet(context.of<number>(1, 2, 2, 3, 3, 3)).toEqual([1, 2, 3]);
 		});
 
 		it('difference', (): void => {
-			const s1 = context.of(1, 2, 3, 4, 5);
-			const s2 = context.of(4, 5, 6, 7, 8);
-			const s3 = context.of(10, 11);
-			expect(context.empty().difference(context.empty())).toBe(context.empty());
-			expect(s1.difference(context.empty())).toBe(s1);
-			expect(context.empty().difference(s1)).toBe(context.empty());
-			expect(s1.difference(s1)).toBe(context.empty());
-			expect(s1.difference(s2)).toEqual(context.of(1, 2, 3));
-			expect(s2.difference(s1)).toEqual(context.of(6, 7, 8));
+			const s1 = context.of<number>(1, 2, 3, 4, 5);
+			const s2 = context.of<number>(4, 5, 6, 7, 8);
+			const s3 = context.of<number>(10, 11);
+			expect(context.empty<number>().difference(context.empty<number>())).toBe(
+				context.empty<number>(),
+			);
+			expect(s1.difference(context.empty<number>())).toBe(s1);
+			expect(context.empty<number>().difference(s1)).toBe(
+				context.empty<number>(),
+			);
+			expect(s1.difference(s1)).toBe(context.empty<number>());
+			expectSet(s1.difference(s2)).toEqual([1, 2, 3]);
+			expectSet(s2.difference(s1)).toEqual([6, 7, 8]);
 			expect(s1.difference(s3)).toBe(s1);
-			expect(s3.difference(context.of(10, 11))).toBe(context.empty());
+			expect(s3.difference(context.of<number>(10, 11))).toBe(
+				context.empty<number>(),
+			);
 		});
 
 		it('union', (): void => {
-			const s1 = context.of(1, 2, 3, 4, 5);
-			const s2 = context.of(4, 5, 6, 7, 8);
-			const s3 = context.of(10, 11);
-			expect(context.empty().union(context.empty())).toBe(context.empty());
-			expect(s1.union(context.empty())).toBe(s1);
-			expect(context.empty().union(s1)).toBe(s1);
+			const s1 = context.of<number>(1, 2, 3, 4, 5);
+			const s2 = context.of<number>(4, 5, 6, 7, 8);
+			const s3 = context.of<number>(10, 11);
+			expect(context.empty<number>().union(context.empty<number>())).toBe(
+				context.empty<number>(),
+			);
+			expect(s1.union(context.empty<number>())).toBe(s1);
+			expect(context.empty<number>().union(s1)).toBe(s1);
 			expect(s1.union(s1)).toBe(s1);
 			expectSet(s1.union(s2)).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
 			expectSet(s2.union(s1)).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
 			expectSet(s1.union(s3)).toEqual([1, 2, 3, 4, 5, 10, 11]);
-			expect(s3.union(context.of(10, 11))).toBe(s3);
+			expect(s3.union(context.of<number>(10, 11))).toBe(s3);
 		});
 
-		it('intersect', (): void => {
-			const s1 = context.of(1, 2, 3, 4, 5);
-			const s2 = context.of(4, 5, 6, 7, 8);
-			const s3 = context.of(10, 11);
-			expect(context.empty().intersect(context.empty())).toBe(context.empty());
-			expect(s1.intersect(context.empty())).toBe(context.empty());
-			expect(context.empty().intersect(s1)).toBe(context.empty());
-			expect(s1.intersect(s1)).toBe(s1);
-			expect(s1.intersect(s2)).toEqual(context.of(4, 5));
-			expect(s1.intersect([4, 5, 6, 7, 8])).toEqual(context.of(4, 5));
-			expect(s2.intersect(s1)).toEqual(context.of(4, 5));
-			expect(s1.intersect(s3)).toBe(context.empty());
-			expect(s3.intersect(context.of(10, 11))).toBe(s3);
-		});
-
-		it('symDifference', (): void => {
-			const s1 = context.of(1, 2, 3, 4, 5);
-			const s2 = context.of(4, 5, 6, 7, 8);
-			const s3 = context.of(10, 11);
-			expect(context.empty().symDifference(context.empty())).toBe(
-				context.empty(),
+		it('intersection', (): void => {
+			const s1 = context.of<number>(1, 2, 3, 4, 5);
+			const s2 = context.of<number>(4, 5, 6, 7, 8);
+			const s3 = context.of<number>(10, 11);
+			expect(
+				context.empty<number>().intersection(context.empty<number>()),
+			).toBe(context.empty<number>());
+			expect(s1.intersection(context.empty<number>())).toBe(
+				context.empty<number>(),
 			);
-			expect(s1.symDifference(context.empty())).toBe(s1);
-			expect(context.empty().symDifference(s1)).toBe(s1);
-			expect(s1.symDifference(s1)).toBe(context.empty());
-			expectSet(s1.symDifference(s2)).toEqual([1, 2, 3, 6, 7, 8]);
-			expectSet(s2.symDifference(s1)).toEqual([1, 2, 3, 6, 7, 8]);
-			expectSet(s1.symDifference(s3)).toEqual([1, 2, 3, 4, 5, 10, 11]);
-			expect(s3.symDifference(context.of(10, 11))).toBe(context.empty());
+			expect(context.empty<number>().intersection(s1)).toBe(
+				context.empty<number>(),
+			);
+			expect(s1.intersection(s1)).toBe(s1);
+			expectSet(s1.intersection(s2)).toEqual([4, 5]);
+			expectSet(s1.intersection([4, 5, 6, 7, 8])).toEqual([4, 5]);
+			expectSet(s2.intersection(s1)).toEqual([4, 5]);
+			expect(s1.intersection(s3)).toBe(context.empty<number>());
+			expect(s3.intersection(context.of<number>(10, 11))).toBe(s3);
+		});
+
+		it('symmetricDifference', (): void => {
+			const s1 = context.of<number>(1, 2, 3, 4, 5);
+			const s2 = context.of<number>(4, 5, 6, 7, 8);
+			const s3 = context.of<number>(10, 11);
+			expect(
+				context.empty<number>().symmetricDifference(context.empty<number>()),
+			).toBe(context.empty<number>());
+			expect(s1.symmetricDifference(context.empty<number>())).toBe(s1);
+			expect(context.empty<number>().symmetricDifference(s1)).toBe(s1);
+			expect(s1.symmetricDifference(s1)).toBe(context.empty<number>());
+			expectSet(s1.symmetricDifference(s2)).toEqual([1, 2, 3, 6, 7, 8]);
+			expectSet(s2.symmetricDifference(s1)).toEqual([1, 2, 3, 6, 7, 8]);
+			expectSet(s1.symmetricDifference(s3)).toEqual([1, 2, 3, 4, 5, 10, 11]);
+			expect(s3.symmetricDifference(context.of<number>(10, 11))).toBe(
+				context.empty<number>(),
+			);
 		});
 
 		it('filter', (): void => {
@@ -209,14 +275,14 @@ export function runSetRandomTestsWith(
 			const m = context.from(Stream.range({ amount: 100 }));
 
 			let state = 0;
-			m.forEach((v, i, halt): void => {
+			m.forEachIndexed((v, i): void => {
 				state += v + i;
 			});
 			expect(state).toBe(9900);
 
 			// cannot test order due to hashset
 			state = 0;
-			m.forEach((_, i, halt): void => {
+			m.forEachIndexed((_, i, halt): void => {
 				state += i;
 				if (i > 10) halt();
 			});
@@ -224,68 +290,70 @@ export function runSetRandomTestsWith(
 		});
 
 		it('has', (): void => {
-			expect(context.empty().has(1)).toBe(false);
-			expect(context.of(1, 2, 3).has(1)).toBe(true);
-			expect(context.of(1, 2, 3).has(8)).toBe(false);
+			expect(context.empty<number>().has(1)).toBe(false);
+			expect(context.of<number>(1, 2, 3).has(1)).toBe(true);
+			expect(context.of<number>(1, 2, 3).has(8)).toBe(false);
 		});
 
 		it('remove', (): void => {
-			expect(context.empty().remove(1)).toBe(context.empty());
-			const m = context.of(1, 2, 3);
-			expect(m.remove(2)).toEqual(context.of(1, 3));
+			expect(context.empty<number>().remove(1)).toBe(context.empty<number>());
+			const m = context.of<number>(1, 2, 3);
+			expectSet(m.remove(2)).toEqual([1, 3]);
 			expect(m.remove(4)).toBe(m);
 		});
 
 		it('stream', (): void => {
-			expect(context.empty().stream().toArray()).toEqual([]);
+			expect(context.empty<number>().stream().toArray()).toEqual([]);
 
-			expect(context.of(1, 2, 3).stream().toArray()).toEqual([1, 2, 3]);
+			expectSet(context.of<number>(1, 2, 3)).toEqual([1, 2, 3]);
 		});
 	});
 
 	describe(`${name} RSet builder`, (): void => {
 		it('empty', (): void => {
-			const b = context.builder();
+			const b = context.builder<number>();
 
-			expect(b.build()).toBe(context.empty());
+			expect(b.build()).toBe(context.empty<number>());
 			expect(b.size).toBe(0);
 			expect(b.isEmpty).toBe(true);
 			expect(b.has(0)).toBe(false);
 			b.remove(0);
-			expect(b.build()).toBe(context.empty());
+			expect(b.build()).toBe(context.empty<number>());
 			b.add(1);
 			expect(b.isEmpty).toBe(false);
 		});
 
 		it('isEmpty', (): void => {
 			expect(context.builder().isEmpty).toBe(true);
-			expect(context.of(1).toBuilder().isEmpty).toBe(false);
+			expect(context.of<number>(1).toBuilder().isEmpty).toBe(false);
 		});
 
 		it('removes duplicates', (): void => {
-			const b = context.builder();
+			const b = context.builder<number>();
 			expect(b.add(1)).toBe(true);
 			expect(b.add(2)).toBe(true);
 			expect(b.add(2)).toBe(false);
 			expect(b.add(3)).toBe(true);
 			expect(b.add(3)).toBe(false);
 			expect(b.add(3)).toBe(false);
-			expect(b.build()).toEqual(context.of(1, 2, 3));
+			expectSet(b.build()).toEqual([1, 2, 3]);
 		});
 
 		it('foreach', (): void => {
-			const b = context.builder();
-			Stream.range({ amount: 100 }).forEach(b.add);
+			const b = context.builder<number>();
+			Stream.range({ amount: 100 }).forEach((v): void => {
+				b.add(v);
+			});
 
 			let state = 0;
-			b.forEach((v, i, halt): void => {
+			b.forEachIndexed((v, i): void => {
 				state += v + i;
 			});
 			expect(state).toBe(9900);
 
 			// cannot test order due to hashset
 			state = 0;
-			b.forEach((_, i, halt): void => {
+			b.forEachIndexed((_, i, halt): void => {
 				state += i;
 				if (i > 10) halt();
 			});
@@ -293,51 +361,82 @@ export function runSetRandomTestsWith(
 		});
 
 		it('foreach checklock', (): void => {
-			const b = context.builder();
-			Stream.range({ amount: 100 }).forEach(b.add);
+			// Each case gets a fresh builder, and asserts the builder is still
+			// usable afterwards. Reusing one builder makes every case after the
+			// first pass for the wrong reason: once the lock leaks, all later
+			// mutators throw regardless of whether they are guarded.
+			const filled = (): SetCollection.Builder<number> => {
+				const b = context.builder<number>();
+				b.addEach(Stream.range({ amount: 100 }));
+				return b;
+			};
+
+			for (const mutate of [
+				(b: SetCollection.Builder<number>): void => {
+					b.forEach((): void => {
+						b.add(5);
+					});
+				},
+				(b: SetCollection.Builder<number>): void => {
+					b.forEach((): void => {
+						b.remove(5);
+					});
+				},
+			]) {
+				const b = filled();
+				expect((): void => {
+					mutate(b);
+				}).toThrow();
+
+				// The lock must have been released, or the builder is bricked.
+				expect((): void => {
+					b.add(1000);
+				}).not.toThrow();
+			}
+		});
+
+		it('halt does not leak the lock', (): void => {
+			const b = context.builder<number>();
+			b.addEach(Stream.range({ amount: 100 }));
+
+			b.forEachIndexed((_, _i, halt): void => {
+				halt();
+			});
 
 			expect((): void => {
-				b.forEach((): void => {
-					b.add(5);
-				});
-			}).toThrow();
-
-			expect((): void => {
-				b.forEach((): void => {
-					b.remove(5);
-				});
-			}).toThrow();
+				b.add(1000);
+			}).not.toThrow();
 		});
 
 		it('has', (): void => {
-			const b = context.builder();
+			const b = context.builder<number>();
 			expect(b.has(1)).toBe(false);
 
-			b.addAll(Stream.range({ start: 1, end: 4 }));
+			b.addEach(Stream.range({ start: 1, end: 4 }));
 			expect(b.has(1)).toBe(true);
 			expect(b.has(8)).toBe(false);
 		});
 
 		it('remove', (): void => {
-			const b = context.builder();
+			const b = context.builder<number>();
 			expect(b.remove(1)).toBe(false);
 
-			b.addAll(Stream.range({ start: 1, end: 3 }));
-			expect(b.remove(2)).toEqual(true);
+			b.addEach(Stream.range({ start: 1, end: 3 }));
+			expect(b.remove(2)).toBe(true);
 			expect(b.remove(4)).toBe(false);
 		});
 	});
 
 	describe(`${name} RSet Builder`, (): void => {
 		it('builds from existing set', () => {
-			const source = context.of(1, 2, 3);
+			const source = context.of<number>(1, 2, 3);
 			const builder = source.toBuilder();
 			expect(builder.size).toBe(3);
 			expect(builder.build()).toBe(source);
 			builder.add(4);
 			builder.add(1);
 			expect(builder.size).toBe(4);
-			expect(builder.build()).toEqual(context.of(1, 2, 3, 4));
+			expectSet(builder.build()).toEqual([1, 2, 3, 4]);
 		});
 	});
 }

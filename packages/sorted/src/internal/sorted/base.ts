@@ -1083,6 +1083,13 @@ export namespace SortedNode {
 	}
 }
 
+/** Shared traversal state for {@link SortedBuilder.forEach}. */
+interface SortedBuilderForEachState {
+	index: number;
+	halted: boolean;
+	halt: () => void;
+}
+
 /**
  * Abstract base class for mutable sorted builders used by the sorted map
  * and set implementations.<br/>
@@ -1211,35 +1218,72 @@ export abstract class SortedBuilder<E> {
 	/**
 	 * Calls the given function `f` for every entry in the builder in key
 	 * sort‑order, passing in the entry, its zero‑based index and a `halt`
-	 * function that can be used to stop iteration early.
+	 * function that can be used to stop iteration early.<br/>
+	 * <br/>
+	 * The index is threaded through the whole tree rather than restarting per
+	 * node, and `halt` is a flag check rather than a thrown sentinel: a sentinel
+	 * would escape the recursive traversal of the child nodes, and `finally` on
+	 * the lock below is load-bearing for the same reason it is on the hashed
+	 * builders — `f` is user code and may throw.
 	 * @param f - the callback function to invoke for each entry
 	 */
-	forEach(f: (entry: E) => void): void {
+	forEach(f: (entry: E, index: number, halt: () => void) => void): void {
 		if (this.isEmpty) return;
 
 		this._lock++;
 
-		if (undefined !== this.source) {
-			this.source.forEach(f);
-		} else {
-			if (!this.hasChildren) {
-				this.entries.forEach(f);
-			} else {
-				let i = -1;
-				const entryLength = this.entries.length;
+		const state = {
+			index: 0,
+			halted: false,
+			halt: (): void => {
+				state.halted = true;
+			},
+		};
 
-				while (i < entryLength) {
-					if (i >= 0) f(this.entries[i]);
-					else {
-						const childIndex = SortedIndex.next(i);
-						this.children[childIndex].forEach(f);
-					}
-					i = SortedIndex.next(i);
-				}
+		try {
+			if (undefined !== this.source) {
+				this.source.forEach((entry: E): void => {
+					this.#callForEach(entry, f, state);
+				});
+			} else {
+				this.#traverseForEach(f, state);
 			}
+		} finally {
+			this._lock--;
+		}
+	}
+
+	#callForEach(
+		entry: E,
+		f: (entry: E, index: number, halt: () => void) => void,
+		state: SortedBuilderForEachState,
+	): void {
+		if (state.halted) return;
+		f(entry, state.index++, state.halt);
+	}
+
+	#traverseForEach(
+		f: (entry: E, index: number, halt: () => void) => void,
+		state: SortedBuilderForEachState,
+	): void {
+		if (!this.hasChildren) {
+			for (const entry of this.entries) this.#callForEach(entry, f, state);
+			return;
 		}
 
-		this._lock--;
+		const children: SortedBuilder<E>[] = this.children;
+		const entries: E[] = this.entries;
+		const entryLength = entries.length;
+
+		let i = -1;
+		while (i < entryLength && !state.halted) {
+			if (i >= 0) {
+				this.#callForEach(entries[i], f, state);
+			} else {
+				children[SortedIndex.next(i)].#traverseForEach(f, state);
+			}
+			i = SortedIndex.next(i);
+		}
 	}
 
 	/**

@@ -64,11 +64,11 @@
 		"docs:build": "bun run docs && bun run docs:examples && bun run docs:markdown && bun run docs:site",
 		"format:check": "bun --workspaces --if-present run format:check",
 		"lint:check": "bun --workspaces --if-present run lint:check",
-		"prerelease": "bun typecheck && bun test:types && bun test && bun test:random",
+		"prerelease": "bun run typecheck:seq && bun test:types && bun run test && bun run test:random",
 		"release": "bun prerelease && bunx changeset publish",
 		"test": "bun --workspaces --if-present run test",
 		"test:types": "bun --workspaces --if-present run test:types",
-		"test:random": "bun --workspaces --if-present run test:random",
+		"test:random": "bun ./scripts/run-workspace-serial.ts test:random",
 		"typecheck": "bun --workspaces --if-present run typecheck",
 		"typecheck:seq": "bun ./scripts/run-workspace-serial.ts typecheck",
 		"version": "bunx changeset version"

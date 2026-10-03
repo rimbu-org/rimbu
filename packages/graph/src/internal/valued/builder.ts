@@ -456,19 +456,27 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 
 		const { state = TraverseState() } = options;
 
-		this.linkMap.forEach(
-			([source, targets]) => {
-				f([source], state.nextIndex(), state.halt);
+		// `finally` is load-bearing: `f` is user code and may throw, including via
+		// `halt`. Without it the lock leaks and every later mutation on this
+		// builder is rejected forever.
+		this._lock++;
+		try {
+			this.linkMap.forEach(
+				([source, targets]) => {
+					f([source], state.nextIndex(), state.halt);
 
-				targets.forEach(
-					([target, value]) => {
-						f([source, target, value], state.nextIndex(), state.halt);
-					},
-					{ state },
-				);
-			},
-			{ state },
-		);
+					targets.forEach(
+						([target, value]) => {
+							f([source, target, value], state.nextIndex(), state.halt);
+						},
+						{ state },
+					);
+				},
+				{ state },
+			);
+		} finally {
+			this._lock--;
+		}
 	}
 
 	build = (): ValuedGraph<N, V> => {

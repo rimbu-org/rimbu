@@ -201,6 +201,29 @@ describe('Stream constructors', () => {
 		expect(arr.length).toBe(5);
 	});
 
+	it('randomInt is reproducible with a seeded generator', () => {
+		// A tiny LCG, so the test does not depend on the PRNG the caller uses.
+		const seeded = (seed: number): (() => number) => {
+			let state = seed;
+			return () => {
+				state = (state * 1_664_525 + 1_013_904_223) % 4_294_967_296;
+				return state / 4_294_967_296;
+			};
+		};
+
+		const first = Stream.randomInt(0, 1000, seeded(42)).take(20).toArray();
+		const replay = Stream.randomInt(0, 1000, seeded(42)).take(20).toArray();
+		const other = Stream.randomInt(0, 1000, seeded(43)).take(20).toArray();
+
+		expect(replay).toEqual(first);
+		expect(other).not.toEqual(first);
+
+		for (const value of first) {
+			expect(value).toBeGreaterThanOrEqual(0);
+			expect(value).toBeLessThanOrEqual(1000);
+		}
+	});
+
 	it('unfold', () => {
 		expect(Stream.unfold(0, (c, n, stop) => stop).toArray()).toEqual([0]);
 		expect(

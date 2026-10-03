@@ -80,5 +80,5 @@ keyed by `V`, backed by two inverse `MapCollection`s.
 bunx tsc -p packages/bimap/tsconfig.esm.json
 bunx tsc -p packages/bimap/tsconfig.json --noEmit
 bun test test/* --tsconfig-override tsconfig.common.json
-bun test test-random --tsconfig-override tsconfig.common.json
+bun test ./test-random --tsconfig-override tsconfig.common.json
 ```

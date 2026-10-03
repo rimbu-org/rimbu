@@ -1961,6 +1961,9 @@ export namespace Stream {
 		range(range: IndexRange, options?: { delta?: number }): Stream<number>;
 		/**
 		 * Returns an infinite Stream containing random numbers between 0 and 1.
+		 * @param next - (default: `Math.random`) the source of randomness. Pass a
+		 * seeded generator to make the stream reproducible — the property-based
+		 * suites in `test-random/` rely on being able to replay a failing run.
 		 * @example
 		 * ```ts
 		 * import { Stream } from '@rimbu/stream';
@@ -1968,11 +1971,15 @@ export namespace Stream {
 		 * console.log(Stream.random().take(3).toArray()); // => [0.3243..., 0.19524...., 0.78324...]
 		 * ```
 		 */
-		random(): Stream.NonEmpty<number>;
+		random<T = number>(next?: () => T): Stream.NonEmpty<T>;
 		/**
 		 * Returns an infinite Stream containing random integer numbers between given `min` and `max`
 		 * @param min - the minimum value
 		 * @param max - the maximum value
+		 * @param next - (default: `Math.random`) the source of randomness, returning a
+		 * value in `[0, 1)`. Pass a seeded generator to make the stream
+		 * reproducible — the property-based suites in `test-random/` rely on being
+		 * able to replay a failing run.
 		 * @example
 		 * ```ts
 		 * import { Stream } from '@rimbu/stream';
@@ -1980,7 +1987,11 @@ export namespace Stream {
 		 * console.log(Stream.randomInt(0, 10).take(3).toArray()); // => [4, 9, 3]
 		 * ```
 		 */
-		randomInt(min: number, max: number): Stream.NonEmpty<number>;
+		randomInt(
+			min: number,
+			max: number,
+			next?: () => number,
+		): Stream.NonEmpty<number>;
 		/**
 		 * Returns a possibly infinite Stream starting with given `init` value, followed by applying given `next` function to the previous value.
 		 * @param init - an initial value

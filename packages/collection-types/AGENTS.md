@@ -87,3 +87,46 @@ import type { RMapBase } from '@rimbu/collection-types/advanced/map/base';
 ```
 
 The `advanced` sub-path holds the implementer-facing base interfaces and context modules. HKT slot types are package-private under `internal/` and surfaced only through `advanced/`.
+
+## `test-utils/` — the shared cross-package harnesses
+
+```
+test-utils/
+├── map/
+│   ├── map-collection-standard.ts  # runMapTestsWith       — hashed, sorted, proximity, ordered
+│   ├── map-random.ts               # runMapRandomTestsWith — hashed, sorted, proximity
+│   └── map-standard.ts             # legacy single-collection runner
+└── set/
+    ├── set-collection-standard.ts  # runSetTestsWith       — hashed, sorted, ordered
+    ├── set-random.ts               # runSetRandomTestsWith — hashed, sorted
+    └── set-standard.ts             # legacy single-collection runner
+```
+
+This directory is deliberately **outside `src/`**, so it is not emitted to `dist/` and is not in
+`package.json` `exports`. It is resolved by consumers through two mechanisms, both of which are
+required:
+
+- `tsconfig.common.json` in each consuming package maps `"@rimbu/collection-types/*"` into this
+  directory, and
+- the consuming package's `test:random` script must pass
+  `--tsconfig-override tsconfig.common.json`.
+
+Omit the override and the suites exit immediately with
+`Cannot find module '@rimbu/collection-types/test-utils/...'`. That is not hypothetical: `hashed`,
+`sorted` and `proximity` all shipped a `test:random` script without it, so their randomized suites
+had never run. `map-random.ts` also carried a `// @ts-nocheck`, which hid the same drift from
+`tsc`; it has been removed.
+
+**These files rot silently, so keep them compiling.** They call the concrete collections, not the
+abstract bases, so a capability rename (`intersect` → `intersection`, `addEntry` → `set`,
+`modifyAt` → `modifyAtKey`, `removeKeyAndGet` → `removeKeyAndReturn`) breaks them without
+breaking any package's `src`. Two rules keep that visible:
+
+- Type the harness's context as the capability family the way
+  `map-collection-standard.ts` does — a **named** interface extending the aggregate
+  `MapCollection.Advanced.Family`, then `MapCollection.Context<Capabilities>['keyedContext']` —
+  and compare contents through a **structural** helper (`expectMap` / `expectSet`) rather than
+  `expect(collection).toEqual(collection)`, which walks internal representation and fails on
+  structurally equal collections.
+- Every `checklock` case gets a fresh builder plus a post-condition, and the random cases use the
+  `CHECK_FULL_EVERY` schedule plus a final `ent.checkFull()`. See root `AGENTS.md` §9.

@@ -34,10 +34,16 @@ jobs:
         run: bun lint:check
 
       - name: Build
-        run: bun build
+        run: bun build:seq
 
+      # `bun test` (the runner) would also collect every `test-random/` suite,
+      # duplicating `bun run test:random` below. `bun run test` runs the
+      # per-package scripts, which target `test/*` only.
       - name: Test
-        run: bun test
+        run: bun run test
+
+      - name: Randomized tests
+        run: bun run test:random
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3

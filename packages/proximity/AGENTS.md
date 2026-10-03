@@ -84,6 +84,6 @@ All commands run from this package directory. Per the root guide, **always
 |---|---|
 | `bun run typecheck` | `tsc -p tsconfig.json --noEmit` (includes `src`, `test`, `test-d`) |
 | `bun run test` | `bun test test/* --tsconfig-override tsconfig.common.json` |
-| `bun run test:random` | `bun test test-random` (uses the shared random harness) |
+| `bun run test:random` | `bun test ./test-random` (uses the shared random harness) |
 | `bun run build` | emit this package to `dist/` |
 | `bun run biome:check` / `biome:fix` | lint + format |

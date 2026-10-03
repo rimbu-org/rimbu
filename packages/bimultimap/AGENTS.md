@@ -230,10 +230,12 @@ Each is intentional and documented so `review-api` does not read as a defect:
 | `test-random/` | Randomized differential tests against an independent `Model`, plus bidirectional-invariant checks |
 
 The randomized harness is the important one. `Model` is a plain `Map`-backed reference
-implementation and `Entangled` mirrors the collection; each run applies a thousand operations
-and re-verifies the **whole collection** afterwards, including the inverse invariant, so the
-cases are O(n²) by construction and carry an explicit timeout. Regression cases for the four
-fixed defects are named `B1`–`B4`.
+implementation and `Entangled` mirrors the collection. Each run applies six hundred operations:
+the O(1) size invariants are checked after **every** one, the O(n) full re-verification
+(including the inverse invariant) runs every `CHECK_FULL_EVERY` operations, and each case ends
+with an explicit `ent.checkFull()`. Verifying the whole collection after each operation made
+the suite O(n²) and dominated the repo-wide `test:random` runtime. Regression cases for the
+four fixed defects are named `B1`–`B4`.
 
 ## Tooling
 
@@ -253,11 +255,8 @@ Always `bun run build:seq` (from the repo root) before `typecheck`/`test`.
 
 Without a leading `./`, `test-random` is a **filter**, not a path: Bun then matches that
 substring against test files in the whole repository. From `packages/bimultimap` that is
-harmless, but from the repo root it pulls in **18 files across 8 packages** (bimap, bimultimap,
-hashed, multimap, multiset, proximity, sorted, table). Those suites are each O(n²) by
-construction — a thousand operations, re-verifying the whole collection after each — so the run
-takes minutes and looks exactly like a hang. Use `./test-random` (which the `test:random`
-script does) or pass explicit files.
+harmless, but from the repo root it pulls in every package's randomized suite. Use
+`./test-random` (which the `test:random` script does) or pass explicit files.
 
 The `noExplicitAny` warnings from `BiMultiMap.Context<any, any>` in the two context entries
 are the same pattern `bimap` and `multimap` use for a polymorphic context, and are accepted.

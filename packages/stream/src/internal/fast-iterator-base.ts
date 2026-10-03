@@ -547,6 +547,7 @@ export class RandomIntIterator extends FastIteratorBase<number> {
 	constructor(
 		readonly min: number,
 		readonly max: number,
+		readonly nextValue: () => number = Math.random,
 	) {
 		super();
 
@@ -554,7 +555,7 @@ export class RandomIntIterator extends FastIteratorBase<number> {
 	}
 
 	fastNext(): number {
-		return this.min + Math.round(Math.random() * this.width);
+		return this.min + Math.round(this.nextValue() * this.width);
 	}
 }
 

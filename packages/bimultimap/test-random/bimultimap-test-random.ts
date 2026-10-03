@@ -122,6 +122,12 @@ function readSide(
 	]);
 }
 
+/**
+ * How many operations may pass between two full re-verifications. See
+ * `Entangled.check`.
+ */
+const CHECK_FULL_EVERY = 20;
+
 export function runBiMultiMapRandomTestsWith(
 	name: string,
 	context: BiMultiMap.Context<any, any>,
@@ -140,12 +146,27 @@ export function runBiMultiMapRandomTestsWith(
 
 		ops: string[] = [];
 
+		sinceCheckFull = 0;
+
 		trace(...parts: unknown[]): void {
 			this.ops.push(parts.map((p) => JSON.stringify(p)).join(' '));
 			if (this.ops.length > 12) this.ops.shift();
 		}
 
 		check(): void {
+			// O(1) invariants run after every operation.
+			expect(this.immm.keySize).toBe(this.model.fwd.size);
+			expect(this.builder.build().keySize).toBe(this.model.fwd.size);
+
+			// The full re-verification is O(size) and rebuilds both directions, so
+			// running it after each of ~600 operations makes the case O(n^2). Every
+			// case finishes with an explicit `checkFull()`.
+			if (++this.sinceCheckFull < CHECK_FULL_EVERY) return;
+			this.checkFull();
+		}
+
+		checkFull(): void {
+			this.sinceCheckFull = 0;
 			this.model.checkSelfConsistent();
 
 			const keys = [...this.model.fwd.keys()].sort((a, b) => a - b);
@@ -301,7 +322,9 @@ export function runBiMultiMapRandomTestsWith(
 			expect(m.hasEntry(2, 'b')).toBe(true);
 
 			// The builder must agree, with and without a source.
-			expect(context.builder<readonly [number, string]>().hasEntry(1, 'b')).toBe(false);
+			expect(
+				context.builder<readonly [number, string]>().hasEntry(1, 'b'),
+			).toBe(false);
 			expect(m.toBuilder().hasEntry(1, 'b')).toBe(false);
 			expect(m.toBuilder().hasEntry(1, 'a')).toBe(true);
 		});
@@ -362,7 +385,9 @@ export function runBiMultiMapRandomTestsWith(
 					ent.add(key, value);
 					ent.check();
 				});
-		}, 30_000);
+
+			ent.checkFull();
+		});
 
 		it('removeEntry', (): void => {
 			const ent = new Entangled();
@@ -379,7 +404,9 @@ export function runBiMultiMapRandomTestsWith(
 					ent.removeEntry(key, value);
 					ent.check();
 				});
-		}, 30_000);
+
+			ent.checkFull();
+		});
 
 		it('removeKey', (): void => {
 			const ent = new Entangled();
@@ -396,7 +423,9 @@ export function runBiMultiMapRandomTestsWith(
 					ent.removeKey(key);
 					ent.check();
 				});
-		}, 30_000);
+
+			ent.checkFull();
+		});
 
 		it('removeValue', (): void => {
 			const ent = new Entangled();
@@ -413,7 +442,9 @@ export function runBiMultiMapRandomTestsWith(
 					ent.removeValue(value);
 					ent.check();
 				});
-		}, 30_000);
+
+			ent.checkFull();
+		});
 
 		it('removeValues', (): void => {
 			const ent = new Entangled();
@@ -432,7 +463,9 @@ export function runBiMultiMapRandomTestsWith(
 					ent.removeValues(values);
 					ent.check();
 				});
-		}, 30_000);
+
+			ent.checkFull();
+		});
 
 		it('setEachValue', (): void => {
 			const ent = new Entangled();
@@ -451,7 +484,9 @@ export function runBiMultiMapRandomTestsWith(
 					ent.setEachValue(key, values);
 					ent.check();
 				});
-		}, 30_000);
+
+			ent.checkFull();
+		});
 
 		it('setEachKey', (): void => {
 			const ent = new Entangled();
@@ -470,7 +505,9 @@ export function runBiMultiMapRandomTestsWith(
 					ent.setEachKey(value, keys);
 					ent.check();
 				});
-		}, 30_000);
+
+			ent.checkFull();
+		});
 
 		it('mixed operations preserve the inverse invariant', (): void => {
 			const ent = new Entangled();
@@ -505,6 +542,8 @@ export function runBiMultiMapRandomTestsWith(
 					}
 					ent.check();
 				});
-		}, 30_000);
+
+			ent.checkFull();
+		});
 	});
 }

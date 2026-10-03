@@ -19,6 +19,12 @@ function expectMultiMap(s: MultiMap<number, number>): {
 	};
 }
 
+/**
+ * How many operations may pass between two full re-verifications. See
+ * `Entangled.check`.
+ */
+const CHECK_FULL_EVERY = 20;
+
 export function runMultiMapRandomTestsWith(
 	name: string,
 	context: MultiMap.Context<any, any>,
@@ -30,11 +36,25 @@ export function runMultiMapRandomTestsWith(
 		builder = context.builder<number, number>();
 		immm = context.empty<number, number>();
 		log: string[] = [];
+		sinceCheckFull = 0;
 
 		check(): void {
+			// O(1) invariants run after every operation.
+			expect(this.immm.keySize).toEqual(this.jsmap.size);
+			expect(this.builder.size).toEqual(this.immm.size);
+
+			// The full re-verification is O(size), so running it after each of
+			// ~1000 operations makes the case O(n^2) -- it used to account for
+			// essentially the whole `test:random` runtime. The size checks above
+			// still catch a divergence on the very next operation, and every case
+			// finishes with an explicit `checkFull()`.
+			if (++this.sinceCheckFull < CHECK_FULL_EVERY) return;
+			this.checkFull();
+		}
+
+		checkFull(): void {
 			try {
-				expect(this.immm.keySize).toEqual(this.jsmap.size);
-				expect(this.builder.size).toEqual(this.immm.size);
+				this.sinceCheckFull = 0;
 				this.jsmap.forEach((values, key): void => {
 					const bValuesSet = GSet.from(this.builder.getValues(key));
 					const iValuesSet = GSet.from(this.immm.getValues(key));
@@ -52,15 +72,12 @@ export function runMultiMapRandomTestsWith(
 					}
 				});
 			} catch (e) {
-				// console.log(this.log);
 				console.log(
 					'sizes',
 					this.jsmap.size,
 					this.immm.size,
 					this.builder.size,
 				);
-				// console.log(this.jsmap);
-				// console.log(...this.immm.keyMap.mapValues(v => v.stream().toArray()));
 				throw e;
 			}
 		}
@@ -183,7 +200,9 @@ export function runMultiMapRandomTestsWith(
 					ent.add(values[0], values[1]);
 					ent.check();
 				});
-		}, 30_000);
+
+			ent.checkFull();
+		});
 
 		it('removeEntry', (): void => {
 			const ent = new Entangled();
@@ -200,7 +219,9 @@ export function runMultiMapRandomTestsWith(
 					ent.removeEntry(values[0], values[1]);
 					ent.check();
 				});
-		}, 30_000);
+
+			ent.checkFull();
+		});
 
 		// it('removeEntries', (): void => {
 		//   const ent = new Entangled();
@@ -234,7 +255,9 @@ export function runMultiMapRandomTestsWith(
 					ent.removeKey(v);
 					ent.check();
 				});
-		}, 30_000);
+
+			ent.checkFull();
+		});
 
 		it('set existing key overrides', (): void => {
 			const m = context.of([1, 1], [2, 2], [3, 3]);
@@ -396,32 +419,62 @@ export function runMultiMapRandomTestsWith(
 				Stream.range({ amount: 30 }).repeat(),
 				Stream.range({ amount: 100 }),
 			);
-			const b = context.builder();
-			b.addEach(stream);
+
+			// Each case gets a fresh builder, and asserts the builder is still
+			// usable afterwards. Reusing one builder makes every case after the
+			// first pass for the wrong reason: once the lock leaks, all later
+			// mutators throw regardless of whether they are guarded.
+			const filled = (): MultiMap.Builder<number, number> => {
+				const b = context.builder<number, number>();
+				b.addEach(stream);
+				return b;
+			};
+
+			for (const mutate of [
+				(b: MultiMap.Builder<number, number>): void => {
+					b.forEachIndexed((): void => {
+						b.addTo(10, 100);
+					});
+				},
+				(b: MultiMap.Builder<number, number>): void => {
+					b.forEachIndexed((): void => {
+						b.removeKey(1);
+					});
+				},
+				(b: MultiMap.Builder<number, number>): void => {
+					b.forEachIndexed((): void => {
+						b.removeEntry(1, 1);
+					});
+				},
+			]) {
+				const b = filled();
+				expect((): void => {
+					mutate(b);
+				}).toThrow();
+
+				// The lock must have been released, or the builder is bricked.
+				expect((): void => {
+					b.addTo(1000, 1000);
+				}).not.toThrow();
+			}
+		});
+
+		it('halt does not leak the lock', (): void => {
+			const b = context.builder<number, number>();
+			b.addEach(
+				Stream.zip(
+					Stream.range({ amount: 30 }).repeat(),
+					Stream.range({ amount: 100 }),
+				),
+			);
+
+			b.forEachIndexed((_, _i, halt): void => {
+				halt();
+			});
 
 			expect((): void => {
-				b.forEachIndexed((): void => {
-					b.addTo(10, 100);
-				});
-			}).toThrow();
-
-			expect((): void => {
-				b.forEachIndexed((): void => {
-					b.removeKey(1);
-				});
-			}).toThrow();
-
-			// expect((): void => {
-			//   b.forEachIndexed((): void => {
-			//     b.removeEntries(1, 1);
-			//   });
-			// }).toThrow();
-
-			expect((): void => {
-				b.forEachIndexed((): void => {
-					b.removeEntry(1, 1);
-				});
-			}).toThrow();
+				b.addTo(1000, 1000);
+			}).not.toThrow();
 		});
 
 		it('getValues', (): void => {
@@ -457,9 +510,7 @@ export function runMultiMapRandomTestsWith(
 				b.addTo(e[0], e[1]),
 			);
 			expect(b.removeKey(4).isEmpty).toBe(true);
-			expect(b.build().toArray()).toEqual(
-				context.of([1, 1], [2, 2]).toArray(),
-			);
+			expect(b.build().toArray()).toEqual(context.of([1, 1], [2, 2]).toArray());
 		}, 30_000);
 	});
 
@@ -473,9 +524,7 @@ export function runMultiMapRandomTestsWith(
 			builder.addTo(1, 5);
 			expect(builder.size).toBe(6);
 			expect(builder.build().toArray()).toEqual(
-				context
-					.of([1, 1], [1, 4], [1, 5], [2, 2], [3, 3], [4, 4])
-					.toArray(),
+				context.of([1, 1], [1, 4], [1, 5], [2, 2], [3, 3], [4, 4]).toArray(),
 			);
 		});
 	});

@@ -340,32 +340,66 @@ export function runMultiSetRandomTestsWith(
 			const stream = Stream.range({ amount: 4 }).concat(
 				Stream.range({ amount: 6 }),
 			);
-			const b = context.builder();
-			stream.forEach((v) => b.add(v));
+
+			// Each case gets a fresh builder, and asserts the builder is still
+			// usable afterwards. Reusing one builder makes every case after the
+			// first pass for the wrong reason: once the lock leaks, all later
+			// mutators throw regardless of whether they are guarded.
+			const filled = (): MultiSet.Builder<number> => {
+				const b = context.builder<number>();
+				stream.forEach((v) => {
+					b.add(v);
+				});
+				return b;
+			};
+
+			for (const mutate of [
+				(b: MultiSet.Builder<number>): void => {
+					b.forEach((): void => {
+						b.add(10, 100);
+					});
+				},
+				(b: MultiSet.Builder<number>): void => {
+					b.forEach((): void => {
+						b.remove(1);
+					});
+				},
+				(b: MultiSet.Builder<number>): void => {
+					b.forEach((): void => {
+						b.remove(1, Number.MAX_SAFE_INTEGER);
+					});
+				},
+				(b: MultiSet.Builder<number>): void => {
+					b.forEach((): void => {
+						b.setCount(1, 1);
+					});
+				},
+			]) {
+				const b = filled();
+				expect((): void => {
+					mutate(b);
+				}).toThrow();
+
+				// The lock must have been released, or the builder is bricked.
+				expect((): void => {
+					b.add(1000);
+				}).not.toThrow();
+			}
+		});
+
+		it('halt does not leak the lock', (): void => {
+			const b = context.builder<number>();
+			Stream.range({ amount: 10 }).forEach((v) => {
+				b.add(v);
+			});
+
+			b.forEachIndexed((_, _i, halt): void => {
+				halt();
+			});
 
 			expect((): void => {
-				b.forEach((): void => {
-					b.add(10, 100);
-				});
-			}).toThrow();
-
-			expect((): void => {
-				b.forEach((): void => {
-					b.remove(1);
-				});
-			}).toThrow();
-
-			expect((): void => {
-				b.forEach((): void => {
-					b.remove(1, Number.MAX_SAFE_INTEGER);
-				});
-			}).toThrow();
-
-			expect((): void => {
-				b.forEach((): void => {
-					b.setCount(1, 1);
-				});
-			}).toThrow();
+				b.add(1000);
+			}).not.toThrow();
 		});
 
 		it('has', (): void => {

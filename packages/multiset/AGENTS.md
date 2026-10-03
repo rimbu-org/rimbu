@@ -210,7 +210,7 @@ Always `bun run build:seq` (from the repo root) before `typecheck`/`test`.
 |---|---|
 | `bun run typecheck` | `tsc -p tsconfig.json --noEmit` (src + test + test-d) |
 | `bun run test` | `bun test test/* --tsconfig-override tsconfig.common.json` |
-| `bun run test:random` | `bun test test-random` (requires a build) |
+| `bun run test:random` | `bun test ./test-random` (requires a build) |
 | `bun run build` | emit this package to `dist/` |
 | `bun run biome:check` / `biome:fix` | lint + format `src` |
 

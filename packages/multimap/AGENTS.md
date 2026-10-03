@@ -237,10 +237,13 @@ The runtime runner takes a `MultiMap.Context`, so it exercises all four contexts
 any more) and covers the renamed methods, the `NonEmpty` refinements, the builder's
 value-set-returning `removeKey`, and the same-context constraint on `mapValues`.
 
-The randomized cases verify the whole collection on each of 1000 operations, so they are
-O(n²) by construction and carry an explicit 30s timeout. Note that `test-random` was
-**broken before this refactor** (its shims called `.defaultContext()` as a function, which is
-not one) — it now runs.
+The randomized cases check the O(1) size invariants on each of 1000 operations and re-verify
+the whole collection every `CHECK_FULL_EVERY` operations, finishing each case with an explicit
+`ent.checkFull()`. Verifying everything after every operation made the suite O(n²) and it
+dominated the repo-wide `test:random` runtime (46.8 s and 1.15 GB for this package alone,
+across its four contexts); scheduled verification brought it to 2.8 s and 254 MB with no loss of
+coverage. Note that `test-random` was **broken before this refactor** (its shims called
+`.defaultContext()` as a function, which is not one) — it now runs.
 
 ## Tooling
 
@@ -250,7 +253,7 @@ Always `bun run build:seq` (from the repo root) before `typecheck`/`test`.
 |---|---|
 | `bun run typecheck` | `tsc -p tsconfig.json --noEmit` (src + test + test-d) |
 | `bun run test` | `bun test test/*` |
-| `bun run test:random` | `bun test test-random` (requires a build) |
+| `bun run test:random` | `bun test ./test-random` (requires a build) |
 | `bun run build` | emit this package to `dist/` |
 | `bun run biome:check` / `biome:fix` | lint + format `src` |
 
