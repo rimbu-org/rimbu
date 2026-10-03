@@ -1,7 +1,7 @@
 import { expectTypeOf } from 'bun:test';
 
-import type { ArrayNonEmpty } from '@rimbu/common/types';
 import type { MapCollection } from '@rimbu/collection-types/map';
+import type { ArrayNonEmpty } from '@rimbu/common/types';
 import type { MultiSet } from '@rimbu/multiset';
 import type { FastIterator, Stream } from '@rimbu/stream';
 

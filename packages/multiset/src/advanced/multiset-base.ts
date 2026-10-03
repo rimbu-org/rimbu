@@ -76,11 +76,31 @@ export declare namespace MultiSetCollection {
 			FAM extends MultiSetCollection.Advanced.FamilyBase<UT>,
 		> extends ValuedCollection.Advanced.ContextApi<FAM>,
 				Collection.Capability.WithReducer.ContextApi<FAM> {
-			readonly typeTag: string;
+			/**
+			 * Uniformly `'MultiSet'`: the tag describes the collection, not the
+			 * backing. The backing is chosen by `countMapContext` and is no longer
+			 * visible in `toString()`.
+			 */
+			readonly typeTag: 'MultiSet';
 			readonly countMapContext: MapCollection.Context<
 				MapCollection.Advanced.Family<UT, number>
 			>;
 			isValidElem(value: unknown): value is UT;
+
+			/**
+			 * Derives a sibling context that differs only in its count-map
+			 * backing. Options are optional; an omitted `countMapContext`
+			 * inherits this context's own.
+			 *
+			 * Note the returned context is *not* validated against this one:
+			 * the backing is an implementation choice, and the `MultiSet`
+			 * surface is identical either way.
+			 */
+			createContext<UT2>(options?: {
+				countMapContext?:
+					| MapCollection.Context<MapCollection.Advanced.Family<UT2, number>>
+					| undefined;
+			}): ContextApi<UT2, any>;
 		}
 
 		export interface FamilyBase<T> extends Collection.Advanced.FamilyBase<T> {

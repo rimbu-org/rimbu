@@ -1,7 +1,8 @@
 import type { Collection } from '@rimbu/collection-types/collection';
 import type { ValuedCollection } from '@rimbu/collection-types/collection/valued';
-import type { MapCollection } from '@rimbu/collection-types/map';
 import type { MultiSetCollection } from '@rimbu/multiset/advanced/multiset-base';
+
+import { HashMap } from '@rimbu/hashed';
 
 import { MultiSetContextImpl } from '#multiset/context-factory';
 
@@ -75,41 +76,22 @@ export namespace MultiSet {
 }
 
 /**
- * The factory interface implemented by the root `MultiSet` value.
- */
-export interface MultiSetCreators {
-	/**
-	 * Returns a new `MultiSet` context instance based on the given `options`.
-	 * @typeparam UT - the upper element type for which the context can create instances
-	 * @param options - an object containing the following properties:<br/>
-	 * - countMapContext: the map context to use for value to count mapping
-	 */
-	createContext<UT>(options: {
-		countMapContext: MapCollection.Context<
-			MapCollection.Advanced.Family<UT, number>
-		>;
-	}): MultiSet.Context<UT>;
-}
-
-/**
- * The `MultiSet` creators and context.
+ * The `MultiSet` creators and default context.
  *
- * Use this exported value to create and work with a generic immutable
- * `MultiSet` instance backed by any `MapCollection` count map.
+ * Use this exported value to create and work with an immutable `MultiSet`. It is a
+ * complete {@link MultiSet.Context}, backed by a `HashMap` count map — the same
+ * default `MultiMap` and `BiMultiMap` use for their root const.
  * See the [MultiSet documentation](https://rimbu.org/docs/collections/multiset) and the
  * [MultiSet API documentation](https://rimbu.org/api/rimbu/multiset/MultiSet/interface).
  * @expandType MultiSetCreators
  */
-export const MultiSet: MultiSetCreators = Object.freeze<MultiSetCreators>({
-	createContext<UT>(options: {
-		countMapContext: MapCollection.Context<
-			MapCollection.Advanced.Family<UT, number>
-		>;
-		typeTag: string;
-	}): MultiSet.Context<UT> {
-		return MultiSetContextImpl.createDefault(
-			options.countMapContext,
-			options.typeTag,
-		);
-	},
-});
+export const MultiSet: MultiSet.Context<any> =
+	MultiSetContextImpl.createDefault(HashMap.collectionContext);
+
+/**
+ * @deprecated `createContext` moved onto the shared
+ * {@link MultiSetCollection.Advanced.ContextApi}, so every `MultiSet` context exposes
+ * it and the root const is now an ordinary context. This alias is kept so existing
+ * references keep resolving; it is just the context type.
+ */
+export type MultiSetCreators = MultiSet.Context<any>;

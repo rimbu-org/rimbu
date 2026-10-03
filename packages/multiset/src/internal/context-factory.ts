@@ -33,11 +33,9 @@ export class MultiSetContextImpl<UT, FAM extends MultiSet.Advanced.Family<UT>>
 		countMapContext: MapCollection.Context<
 			MapCollection.Advanced.Family<UT, number>
 		>,
-		typeTag: string,
 	): MultiSetContextImpl<UT, F> {
 		const result: MultiSetContextImpl<UT, F> = new MultiSetContextImpl(
 			countMapContext,
-			typeTag,
 			() => result,
 		);
 		Object.freeze(result);
@@ -49,11 +47,16 @@ export class MultiSetContextImpl<UT, FAM extends MultiSet.Advanced.Family<UT>>
 		readonly countMapContext: MapCollection.Context<
 			MapCollection.Advanced.Family<UT, number>
 		>,
-		readonly typeTag: string,
 		readonly getDefaultInstance: () => MultiSetContextImpl<UT, FAM>,
 	) {
 		super();
 	}
+
+	/**
+	 * Fixed rather than a constructor parameter: the tag describes the
+	 * collection, and there is only one collection type.
+	 */
+	readonly typeTag: 'MultiSet' = 'MultiSet';
 
 	get defaultContext(): FAM['_CONTEXT'] {
 		return this.getDefaultInstance() as any;
@@ -129,7 +132,6 @@ export class MultiSetContextImpl<UT, FAM extends MultiSet.Advanced.Family<UT>>
 	): MultiSetContextImpl<UT2, any> => {
 		const result = new MultiSetContextImpl(
 			options?.countMapContext ?? this.countMapContext,
-			this.typeTag,
 			this.getDefaultInstance,
 		);
 

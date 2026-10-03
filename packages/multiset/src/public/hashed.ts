@@ -1,101 +1,27 @@
-import type { Collection } from '@rimbu/collection-types/collection';
-import type { MultiSetCollection } from '@rimbu/multiset';
-
-import { HashMap } from '@rimbu/hashed';
-
-import { MultiSetContextImpl } from '#multiset/context-factory';
+import { HashMap } from '@rimbu/hashed/map';
+import { MultiSet } from '@rimbu/multiset';
 
 /**
- * A type-invariant immutable MultiSet of value type T.
- * In the MultiSet, each value can occur multiple times.
- * See the [MultiSet documentation](https://rimbu.org/docs/collections/multiset) and the [HashMultiSet API documentation](https://rimbu.org/api/rimbu/multiset/HashMultiSet/interface)
- * @typeparam T - the value type
- * @note
- * - The `HashMultiSet` uses the contexts' `HashMap` `countMapContext` to hash
- * the values.
+ * A `MultiSet` backed by a `HashMap` count map.
+ *
+ * This is a {@link MultiSet.Context}, **not** a distinct collection type: the
+ * collection type is `MultiSet<T>` whichever backing is chosen, and the backing
+ * is fixed by the context. The two historical variants are now two preconfigured
+ * contexts.
+ *
+ * Note that `countMap` is the **generic** `MapCollection<T, number>` on every
+ * variant — the concrete `HashMap` backing is an implementation detail, exactly
+ * as `BiMap` exposes its delegate maps generically. Use
+ * `MultiSet.createContext({ countMapContext })` for any other backing.
  * @example
  * ```ts
  * import { HashMultiSet } from '@rimbu/multiset/hashed';
  *
  * console.log(HashMultiSet.empty<string>().toArray()); // => []
  * console.log(HashMultiSet.of('a', 'b', 'a', 'c').toArray()); // => [ "a", "a", "b", "c" ]
+ * console.log(HashMultiSet.of('a', 'a').count('a')); // => 2
  * ```
  */
-export interface HashMultiSet<T>
-	extends MultiSetCollection.Advanced.Api<
-		T,
-		Collection.Advanced.Types<HashMultiSet.Advanced.Family<T>, T>
-	> {
-	readonly countMap: HashMap<T, number>;
-}
-
-export namespace HashMultiSet {
-	/**
-	 * A non-empty type-invariant immutable MultiSet of value type T.
-	 * See the [HashMultiSet API documentation](https://rimbu.org/api/rimbu/multiset/HashMultiSet/interface)
-	 * @typeparam T - the value type
-	 */
-	export interface NonEmpty<T>
-		extends MultiSetCollection.Advanced.Api<
-			T,
-			Collection.Advanced.TypesNonEmpty<Advanced.Family<T>, T>
-		> {
-		readonly countMap: HashMap.NonEmpty<T, number>;
-	}
-
-	/**
-	 * A mutable `HashMultiSet` builder used to efficiently create new immutable instances.
-	 * See the [HashMultiSet.Builder API documentation](https://rimbu.org/api/rimbu/multiset/HashMultiSet/Builder/interface)
-	 * @typeparam T - the value type
-	 */
-	export interface Builder<T>
-		extends MultiSetCollection.Advanced.BuilderApi<
-			T,
-			Collection.Advanced.Types<Advanced.Family<T>, T>
-		> {}
-
-	/**
-	 * A context instance for a `HashMultiSet` that acts as a factory for every instance of this
-	 * type of collection.
-	 * @typeparam UT - the upper value type bound for which the context can be used
-	 */
-	export interface Context<UT>
-		extends MultiSetCollection.Advanced.ContextApi<UT, Advanced.Family<UT>> {
-		readonly typeTag: 'HashMultiSet';
-		readonly countMapContext: HashMap.Context<UT>;
-	}
-
-	export namespace Advanced {
-		export interface Family<T>
-			extends MultiSetCollection.Advanced.FamilyBase<T> {
-			_NORMAL: HashMultiSet<T>;
-			_NON_EMPTY: HashMultiSet.NonEmpty<T>;
-			_BUILDER: HashMultiSet.Builder<T>;
-			_CONTEXT: HashMultiSet.Context<T>;
-
-			_FAM: Family<T>;
-			_NEW_FAMILY: Family<this['_NEW_E']>;
-		}
-
-		export type DefaultFactory = Pick<
-			Context<any>,
-			'builder' | 'defaultContext' | 'empty' | 'from' | 'of' | 'reducer'
-		> & {
-			createContext<T>(options?: {
-				countMapContext?: HashMap.Context<T> | undefined;
-			}): Context<T>;
-		};
-	}
-}
-
-/**
- * The default `HashMultiSet` creators and context.
- *
- * Use this exported value to create and work with immutable `HashMultiSet` instances.
- * See the [HashMultiSet API documentation](https://rimbu.org/api/rimbu/multiset/HashMultiSet/interface).
- */
-export const HashMultiSet: HashMultiSet.Advanced.DefaultFactory =
-	MultiSetContextImpl.createDefault(
-		HashMap.collectionContext,
-		'HashMultiSet',
-	) as any as HashMultiSet.Advanced.DefaultFactory;
+export const HashMultiSet: MultiSet.Context<any> = MultiSet.createContext({
+	countMapContext: HashMap.collectionContext,
+});
