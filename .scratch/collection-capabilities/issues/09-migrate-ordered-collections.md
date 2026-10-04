@@ -12,3 +12,22 @@
 - [ ] Bulk position options and duplicate-source rules are implemented for ordered maps and sets.
 - [ ] Mutable builders mirror the ordered vocabulary and position options.
 - [ ] Deterministic boundary tests and randomized model tests pass for every Ordered variant.
+
+> **Correction (verified 2026-10-04).** This issue was previously left at
+> `ready-for-agent`, which understated the position: the *structural* migration has
+> landed, but the *ordered-specific* work has not started at all.
+>
+> Landed: `OrderedMap.Advanced.Family` / `OrderedSet.Advanced.Family`
+> (`packages/ordered/src/public/{map,set}.ts:91`), `WithMixin` chains, and both
+> packages typechecking.
+>
+> Not started: `OrderedMap.Advanced.Api` extends `MapCollection.Advanced.Api` and
+> nothing else (`public/map.ts:76`) — no `IndexedCollection`, no order-edit
+> capability. No `swapAt`, `moveTo`, `placeAt`, `prepend`/`append` appears in the
+> ordered public surface, and `OrderedBulkOptions` does not exist. There is no
+> `test-random/` directory for ordered, so the model-test requirement is entirely
+> outstanding.
+>
+> The plan's Phase 6 gates this on "all Ordered variants pass shared capability
+> suites, model tests, and existing generic map/set suites" — none of the
+> order-edit half of that has been built.

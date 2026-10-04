@@ -12,3 +12,9 @@
 - [x] `removeAt` uses order-statistic access and identity removal with correct no-op behavior. (`SortedEmpty`/`SortedNonEmptyBase` + `Builder` `removeAt`/`removeAmountAt`/`removeAllAt` via `atIndex`+`remove`/`removeKey`, `map/immutable.ts:636`)
 - [x] Negative indexing, ranges, `NonEmpty` returns, and complexity paths have runtime and type coverage. (`atIndex(-1)`, `IndexRange.getIndicesFor`, `addEntry→NonEmpty`, `355 pass` + `56 random`)
 - [ ] Removed sorted aliases and min/max projection APIs are absent from the public surface. — **deferred to 10** (kept `@deprecated` `findIndex`/`atIndex`/`sliceIndex`/`hasKey`/`addEntry`/`minKey` etc. for compatibility; `review-api` 0 errors, `audit-tests` 17/17)
+
+> **Re-verified 2026-10-04.** `atIndex`, `minKey`, `maxKey`, `hasKey`, `addEntry` are
+> now gone from `packages/sorted/src` (0 files each), but **`sliceIndex` (2 files)
+> and `findIndex` (8 files) remain**. The deferral to issue 10 is therefore still
+> live and this checkbox stays open. `minKey`/`maxKey` need no further work —
+> their replacement (`first`/`last`) already landed.
