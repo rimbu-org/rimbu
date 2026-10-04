@@ -2,7 +2,7 @@
 import { expectTypeOf } from 'bun:test';
 
 import type { RMap } from '@rimbu/collection-types';
-import type { ArrayNonEmpty, WithValueResult } from '@rimbu/common/types';
+import type { ArrayNonEmpty } from '@rimbu/common/types';
 import type { SortedMap } from '@rimbu/sorted/map';
 import type { FastIterator, Stream } from '@rimbu/stream';
 
@@ -103,12 +103,10 @@ expectTypeOf(genEmpty.removeKey(3)).toEqualTypeOf<G_Empty>();
 expectTypeOf(genNonEmpty.removeKey(3)).toEqualTypeOf<G_Empty>();
 
 // .removeKeyAndReturn(..)
-expectTypeOf(genEmpty.removeKeyAndReturn(3)).toEqualTypeOf<
-	WithValueResult<G_Empty, string>
->();
-expectTypeOf(genNonEmpty.removeKeyAndReturn(3)).toEqualTypeOf<
-	WithValueResult<G_Empty, string>
->();
+// TODO(issue 10): assert `Op.DynamicResult<...>` here. Dropped when `WithValueResult`
+// was deleted — this file is `@ts-nocheck`ed, so the assertion never ran anyway and
+// its stated return type no longer exists. Do not restore it until the suppression
+// is lifted and the real `Op.DynamicResult` shape can be checked.
 
 // .removeKeys(..)
 expectTypeOf(genEmpty.removeKeys([3, 4])).toEqualTypeOf<G_Empty>();

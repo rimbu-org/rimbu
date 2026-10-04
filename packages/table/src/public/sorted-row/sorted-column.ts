@@ -1,114 +1,30 @@
-import type { Streamable } from '@rimbu/stream';
-
-import type { SortedTableSortedColumnCreators } from '#table/creators';
-import type { TableBase } from '#table/types';
+import type { Table } from '@rimbu/table';
 
 import { SortedMap } from '@rimbu/sorted/map';
 
-import { createTableContextModule } from '#table/context-factory';
+import { TableCollectionContext } from '#table/context-factory';
 
 /**
- * A type-invariant immutable Table of row key type R, column key type C, and value type V.
- * In the Table, a combination of a row and column key has exactly one value.
- * See the [Table documentation](https://rimbu.org/docs/collections/table) and the [SortedTableSortedColumn API documentation](https://rimbu.org/api/rimbu/table/sorted-row/SortedTableSortedColumn/interface)
- * @note
- * - The SortedTableSortedColumn uses a SortedMap to map row keys to column.
- * - The SortedTableSortedColumn uses SortedMaps to map column keys to values.
- * @typeparam R - the row key type
- * @typeparam C - the column key type
- * @typeparam V - the value type
+ * A `Table` whose rows **and** columns are both backed by a `SortedMap`.
+ *
+ * This is a {@link Table.Context}, **not** a distinct collection type: the
+ * collection type is `Table<R, C, V>` whichever backing is chosen. Both
+ * `streamRows()` and the columns of `getRow(row)` come out in comparator order.
+ * Use `Table.createContext({ rowContext, columnContext })` for any other
+ * combination.
  * @example
  * ```ts
- * import { SortedTableSortedColumn } from '@rimbu/table/sorted-row/sorted-column'
- * const t1 = SortedTableSortedColumn.empty<number, string, boolean>()
- * const t2 = SortedTableSortedColumn.of([1, 'a', true], [2, 'a', false])
+ * import { SortedTableSortedColumn } from '@rimbu/table/sorted-row/sorted-column';
+ *
+ * const table = SortedTableSortedColumn.of<number, string, boolean>([1, 'a', true]);
+ * console.log(table.get(1, 'a')); // => true
+ * console.log(table.amountRows); // => 1
  * ```
  */
-export interface SortedTableSortedColumn<R, C, V>
-	extends TableBase<R, C, V, SortedTableSortedColumn.Types> {}
-
-export namespace SortedTableSortedColumn {
-	/**
-	 * A non-empty type-invariant immutable Table of row key type R, column key type C, and value type V.
-	 * In the Table, a combination of a row and column key has exactly one value.
-	 * See the [Table documentation](https://rimbu.org/docs/collections/table) and the [SortedTableSortedColumn API documentation](https://rimbu.org/api/rimbu/table/sorted-row/SortedTableSortedColumn/interface)
-	 * @note
-	 * - The SortedTableSortedColumn uses a SortedMap to map row keys to column.
-	 * - The SortedTableSortedColumn uses SortedMaps to map column keys to values.
-	 * @typeparam R - the row key type
-	 * @typeparam C - the column key type
-	 * @typeparam V - the value type
-	 * @example
-	 * ```ts
-	 * import { SortedTableSortedColumn } from '@rimbu/table/sorted-row/sorted-column'
-	 * const t1 = SortedTableSortedColumn.empty<number, string, boolean>()
-	 * const t2 = SortedTableSortedColumn.of([1, 'a', true], [2, 'a', false])
-	 * ```
-	 */
-	export interface NonEmpty<R, C, V>
-		extends TableBase.NonEmpty<R, C, V, SortedTableSortedColumn.Types>,
-			Omit<
-				SortedTableSortedColumn<R, C, V>,
-				keyof TableBase.NonEmpty<any, any, any, any>
-			>,
-			Streamable.NonEmpty<[R, C, V]> {}
-
-	export interface Context<UR, UC>
-		extends TableBase.Context<UR, UC, SortedTableSortedColumn.Types> {
-		readonly typeTag: 'SortedTableSortedColumn';
-	}
-
-	export interface Builder<R, C, V>
-		extends TableBase.Builder<R, C, V, SortedTableSortedColumn.Types> {}
-
-	/**
-	 * Utility interface that provides higher-kinded types for this collection.
-	 */
-	export interface Types extends TableBase.Types {
-		readonly normal: SortedTableSortedColumn<
-			this['_R'],
-			this['_C'],
-			this['_V']
-		>;
-		readonly nonEmpty: SortedTableSortedColumn.NonEmpty<
-			this['_R'],
-			this['_C'],
-			this['_V']
-		>;
-		readonly row: SortedMap<this['_C'], this['_V']>;
-		readonly rowNonEmpty: SortedMap.NonEmpty<this['_C'], this['_V']>;
-		readonly rowMap: SortedMap<
-			this['_R'],
-			SortedMap.NonEmpty<this['_C'], this['_V']>
-		>;
-		readonly rowMapNonEmpty: SortedMap.NonEmpty<
-			this['_R'],
-			SortedMap.NonEmpty<this['_C'], this['_V']>
-		>;
-		readonly context: SortedTableSortedColumn.Context<this['_R'], this['_C']>;
-		readonly builder: SortedTableSortedColumn.Builder<
-			this['_R'],
-			this['_C'],
-			this['_V']
-		>;
-		readonly rowContext: SortedMap.Context<this['_R']>;
-		readonly columnContext: SortedMap.Context<this['_C']>;
-	}
-}
-
-/**
- * The default `SortedTableSortedColumn` creators and context.
- *
- * Use this exported value to create and work with immutable `SortedTableSortedColumn` instances.
- * See the [SortedTableSortedColumn API documentation](https://rimbu.org/api/rimbu/table/sorted-row/SortedTableSortedColumn/interface).
- * @expandType SortedTableSortedColumnCreators
- */
-export const SortedTableSortedColumn: SortedTableSortedColumnCreators =
-	createTableContextModule('SortedTableSortedColumn', {
-		get rowContext() {
-			return SortedMap.defaultContext();
+export const SortedTableSortedColumn: Table.CollectionContext<any, any> =
+	TableCollectionContext.create<any, any, Table.Advanced.Family<any, any, any>>(
+		{
+			rowContext: SortedMap.collectionContext,
+			columnContext: SortedMap.collectionContext,
 		},
-		get columnContext() {
-			return SortedMap.defaultContext();
-		},
-	}).build();
+	);

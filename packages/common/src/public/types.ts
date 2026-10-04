@@ -45,26 +45,6 @@ export interface ToJSON<V, D extends string = string> {
 	readonly value: V;
 }
 
-/**
- * Utility type to represent the result of an operation that may or may not have a value.
- *
- * The third element (`hasValue`) is a discriminant that indicates whether the operation
- * had a value to return because the relevant key/value was **present**. It does **not**
- * indicate whether the collection changed: when an operation is a no-op (e.g. an
- * `update` that yields the same value, or re-setting an already-present identical entry),
- * `hasValue` is still `true` and the value is returned, while the result (first element)
- * is the unchanged collection (`this`). To detect whether the collection actually changed,
- * compare the result with the original collection via `result[0] === this`.
- * @typeparam R - the result type when a value is present
- * @typeparam V - the value type when a value is present
- * @typeparam RNoValue - the result type when no value is present (default: `R`)
- * @typeparam VNoValue - the value type when no value is present (default: `undefined`)
- * @docExpand
- */
-export type WithValueResult<R, V, RNoValue = R, VNoValue = undefined> =
-	| [result: R, value: V, hasValue: true]
-	| [result: RNoValue, value: VNoValue, hasValue: false];
-
 export type IfAnyExtends<T extends readonly unknown[], M, A, B> =
 	Extract<T[number], M> extends never ? B : A;
 

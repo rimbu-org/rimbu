@@ -39,33 +39,3 @@ export interface KeyValue<K = unknown, V = unknown> {
  * @typeparam V - the value type to set on `Tp`
  */
 export type WithKeyValue<Tp, K, V> = Tp & KeyValue<K, V>;
-
-/**
- * A higher-kind utility type providing access to a row type R, a column type C, and a value type V.
- * @typeparam R - the row key type
- * @typeparam C - the column key type
- * @typeparam V - the value type
- */
-export interface Row<R = unknown, C = unknown, V = unknown> {
-	/**
-	 * The row key type.
-	 */
-	readonly _R: R;
-	/**
-	 * The column key type.
-	 */
-	readonly _C: C;
-	/**
-	 * The value type.
-	 */
-	readonly _V: V;
-}
-
-/**
- * A utility type to set row/column/value types on a target type.
- * @typeparam Tp - the target type to augment with row/column/value types
- * @typeparam R - the row key type to set on `Tp`
- * @typeparam C - the column key type to set on `Tp`
- * @typeparam V - the value type to set on `Tp`
- */
-export type WithRow<Tp, R, C, V> = Tp & Row<R, C, V>;

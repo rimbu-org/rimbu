@@ -6,12 +6,7 @@ import type {
 } from '@rimbu/collection-types/advanced/common';
 import type { OptLazy } from '@rimbu/common/opt-lazy';
 import type { TraverseState } from '@rimbu/common/traverse-state';
-import type {
-	ArrayNonEmpty,
-	RelatedTo,
-	ToJSON,
-	WithValueResult,
-} from '@rimbu/common/types';
+import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
 import type {
 	FastIterable,
 	Stream,
@@ -173,25 +168,6 @@ export interface VariantMapBase<
 	removeKeys<UK = K>(
 		keys: StreamSource<RelatedTo<K, UK>>,
 	): WithKeyValue<Tp, K, V>['normal'];
-	/**
-	 * Returns a tuple `[newMap, value, hasValue]` containing the collection of which the entry associated with given `key`
-	 * is removed, the value that was associated with that key, and a `hasValue` flag indicating whether the key was
-	 * present. If the key is not present, `newMap` is unchanged and `hasValue` is `false`.
-	 * @typeparam UK - the type of key to look for, a related type to K
-	 * @param key - the key of the entry to remove
-	 * @example
-	 * ```ts
-	 * import { HashMap } from '@rimbu/hashed';
-	 *
-	 * const source = HashMap.of([1, 'a'], [2, 'b']);
-	 * const [newMap, value, hasValue] = source.removeKeyAndGet(2);
-	 * console.log([newMap.toString(), value, hasValue]); // => [ "HashMap(1 -> a)", "b", true ]
-	 * console.log(source.removeKeyAndGet(3)[2]); // => false
-	 * ```
-	 */
-	removeKeyAndGet<UK = K>(
-		key: RelatedTo<K, UK>,
-	): WithValueResult<WithKeyValue<Tp, K, V>['normal'], V>;
 	/**
 	 * Performs given function `f` for each entry of the collection, using given `state` as initial traversal state.
 	 * @param f - the function to perform for each entry, receiving:<br/>
@@ -553,35 +529,6 @@ export interface RMapBase<K, V, Tp extends RMapBase.Types = RMapBase.Types>
 		update: (value: V) => V,
 	): WithKeyValue<Tp, K, V>['normal'];
 	/**
-	 * Returns a tuple `[newMap, value, hasValue]` containing the collection where the value associated with given `key` is
-	 * updated with the given `update` value or update function, the value that was previously associated with that key, and
-	 * a `hasValue` flag indicating whether the `key` was present.
-	 * If the key is present, `value` is the previous value and `hasValue` is `true`, even when the update yields the same
-	 * value (a no-op): in that case `newMap` is unchanged and `result[0] === this`. If the key is not present, `newMap` is
-	 * unchanged, `value` is `undefined`, and `hasValue` is `false`.
-	 * @typeparam UK - the type of key to look for, a related type to K
-	 * @param key - the key of the entry to update
-	 * @param update - a new value or function taking the current value and returning a new value
-	 * @example
-	 * ```ts
-	 * import { HashMap } from '@rimbu/hashed';
-	 *
-	 * const source = HashMap.of([1, 'a'], [2, 'b']);
-	 * const [newMap, value, hasValue] = source.updateAtAndGet(2, (v) => v + 'c');
-	 * console.log([newMap.toArray(), value, hasValue]); // => [ [ [ 1, "a" ], [ 2, "bc" ] ], "b", true ]
-	 * console.log(source.updateAtAndGet(3, (v) => v + 'c')[2]); // => false
-	 * console.log(source.updateAtAndGet(2, (v) => v)[2]); // => true
-	 * ```
-	 */
-	updateAtAndGet<UK = K>(
-		key: RelatedTo<K, UK>,
-		update: VariantUpdate<V>,
-	): WithValueResult<
-		WithKeyValue<Tp, K, V>['nonEmpty'],
-		V,
-		WithKeyValue<Tp, K, V>['normal']
-	>;
-	/**
 	 * Returns a builder object containing the entries of this collection.
 	 * @example
 	 * ```ts
@@ -642,30 +589,6 @@ export namespace RMapBase {
 			key: RelatedTo<K, UK>,
 			update: (value: V) => V,
 		): WithKeyValue<Tp, K, V>['nonEmpty'];
-		/**
-		 * Returns a tuple `[newMap, value, hasValue]` containing the collection where the value associated with given `key` is
-		 * updated with the given `update` value or update function, the value that was previously associated with that key, and
-		 * a `hasValue` flag indicating whether the `key` was present. Since this collection is non-empty, `newMap` is always
-		 * non-empty; if the key is present, `value` is the previous value and `hasValue` is `true`, even when the update yields
-		 * the same value (a no-op, where `newMap` is unchanged and `result[0] === this`). If the key is not present, `newMap`
-		 * is unchanged, `value` is `undefined`, and `hasValue` is `false`.
-		 * @typeparam UK - the type of key to look for, a related type to K
-		 * @param key - the key of the entry to update
-		 * @param update - a new value or function taking the current value and returning a new value
-		 * @example
-		 * ```ts
-		 * import { HashMap } from '@rimbu/hashed';
-		 *
-		 * const source = HashMap.of([1, 'a'], [2, 'b']);
-		 * const [newMap, value, hasValue] = source.updateAtAndGet(2, (v) => v + 'c');
-		 * console.log([newMap.toArray(), value, hasValue]); // => [ [ [ 1, "a" ], [ 2, "bc" ] ], "b", true ]
-		 * console.log(source.updateAtAndGet(2, (v) => v)[2]); // => true
-		 * ```
-		 */
-		updateAtAndGet<UK = K>(
-			key: RelatedTo<K, UK>,
-			update: VariantUpdate<V>,
-		): WithValueResult<WithKeyValue<Tp, K, V>['nonEmpty'], V>;
 	}
 
 	export interface Factory<Tp extends RMapBase.Types, UK = unknown> {

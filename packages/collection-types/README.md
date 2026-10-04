@@ -73,8 +73,6 @@ The `@rimbu/collection-types/common` module exposes reusable higher‑kind helpe
 | `WithElem<Tp, T>`        | Binds a higher‑kind `Tp` to a concrete element type `T`.                                  |
 | `KeyValue<K, V>`         | Describes a collection that has key type `K` and value type `V` (used by map‑like types). |
 | `WithKeyValue<Tp, K, V>` | Binds a higher‑kind `Tp` to concrete key and value types.                                 |
-| `Row<R, C, V>`           | Describes row/column/value types (used by table‑like collections).                        |
-| `WithRow<Tp, R, C, V>`   | Binds a higher‑kind `Tp` to concrete row, column, and value types.                        |
 
 These types are used to express **higher‑kinded collection families**, such as the `Types` helpers on `RMap`, `VariantMap`, `RSet`, and `VariantSet`.
 

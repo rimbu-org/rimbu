@@ -1,320 +1,267 @@
 import { expectTypeOf } from 'bun:test';
 
-import type { RMap, VariantMap } from '@rimbu/collection-types';
-import type { ArrayNonEmpty, WithValueResult } from '@rimbu/common/types';
+import type { MapCollection } from '@rimbu/collection-types/map';
+import type { ArrayNonEmpty, RelatedTo } from '@rimbu/common/types';
+import { Table } from '@rimbu/table';
 import type { FastIterator, Stream } from '@rimbu/stream';
-import type { Table, VariantTable } from '@rimbu/table';
 
-type VE<R, C, V> = VariantTable<R, C, V>;
-type VNE<R, C, V> = VariantTable.NonEmpty<R, C, V>;
-type GE<R, C, V> = Table<R, C, V>;
-type GNE<R, C, V> = Table.NonEmpty<R, C, V>;
+type Cell = readonly [number, string, boolean];
 
-type V_Empty = VE<number, string, boolean>;
-type V_NonEmpty = VNE<number, string, boolean>;
-type G_Empty = GE<number, string, boolean>;
-type G_NonEmpty = GNE<number, string, boolean>;
+type TE = Table<number, string, boolean>;
+type TNE = Table.NonEmpty<number, string, boolean>;
 
-const varEmpty: V_Empty = undefined as any;
-const varNonEmpty: V_NonEmpty = undefined as any;
+const genEmpty: TE = undefined as any;
+const genNonEmpty: TNE = undefined as any;
 
-const genEmpty: G_Empty = undefined as any;
-const genNonEmpty: G_NonEmpty = undefined as any;
-
-expectTypeOf(varNonEmpty).toExtend<V_Empty>();
-expectTypeOf(genEmpty).toExtend<V_Empty>();
-expectTypeOf(genNonEmpty).toExtend<V_Empty>();
-
-expectTypeOf(genNonEmpty).toExtend<V_NonEmpty>();
-expectTypeOf(varEmpty).not.toExtend<V_NonEmpty>();
-expectTypeOf(genEmpty).not.toExtend<V_NonEmpty>();
-
-expectTypeOf(genNonEmpty).toExtend<G_Empty>();
-expectTypeOf(varEmpty).not.toExtend<G_Empty>();
-expectTypeOf(genNonEmpty).toExtend<G_NonEmpty>();
-expectTypeOf(varEmpty).not.toExtend<G_NonEmpty>();
-expectTypeOf(genEmpty).not.toExtend<G_NonEmpty>();
-
-// Test variance
-expectTypeOf(varEmpty).toExtend<VE<number | string, string, boolean>>();
-expectTypeOf(varEmpty).toExtend<VE<number, string | boolean, boolean>>();
-expectTypeOf(varEmpty).toExtend<
-	VE<number | string, string, boolean | number>
->();
-expectTypeOf(varEmpty).toExtend<
-	VE<number | string, string | boolean, boolean | number>
->();
-expectTypeOf(varNonEmpty).toExtend<VNE<number | string, string, boolean>>();
-expectTypeOf(varNonEmpty).toExtend<VNE<number, string | boolean, boolean>>();
-expectTypeOf(varNonEmpty).toExtend<
-	VNE<number | string, string | boolean, boolean>
->();
-
-expectTypeOf(genEmpty).toExtend<
-	VE<number | string, string | boolean, boolean>
->();
-expectTypeOf(genNonEmpty).toExtend<
-	VE<number | string, string | boolean, boolean>
->();
-expectTypeOf(genNonEmpty).toExtend<
-	VNE<number | string, string | boolean, boolean>
->();
-
-expectTypeOf(genEmpty).not.toExtend<GE<number | string, string, boolean>>();
-expectTypeOf(genEmpty).not.toExtend<GE<number, string | boolean, boolean>>();
-expectTypeOf(genEmpty).not.toExtend<GE<number, string, boolean | number>>();
-expectTypeOf(genNonEmpty).not.toExtend<GNE<number | string, string, boolean>>();
-expectTypeOf(genNonEmpty).not.toExtend<
-	GNE<number, string | boolean, boolean>
->();
-expectTypeOf(genNonEmpty).not.toExtend<GNE<number, string, boolean | number>>();
-
-let m!: any;
-expectTypeOf(m as VE<number | string, string, boolean>).not.toExtend<V_Empty>();
-expectTypeOf(m as VE<number, string | number, boolean>).not.toExtend<V_Empty>();
-expectTypeOf(m as VE<number, string, boolean | number>).not.toExtend<V_Empty>();
-expectTypeOf(
-	m as VNE<number | string, string, boolean>,
-).not.toExtend<V_NonEmpty>();
-expectTypeOf(
-	m as VNE<number, string | number, boolean>,
-).not.toExtend<V_NonEmpty>();
-expectTypeOf(
-	m as VNE<number, string, boolean | number>,
-).not.toExtend<V_NonEmpty>();
-
-expectTypeOf(m as GE<number | string, string, boolean>).not.toExtend<G_Empty>();
-expectTypeOf(m as GE<number, string | number, boolean>).not.toExtend<G_Empty>();
-expectTypeOf(m as GE<number, string, boolean | number>).not.toExtend<G_Empty>();
-expectTypeOf(
-	m as GNE<number | string, string, boolean>,
-).not.toExtend<G_NonEmpty>();
-expectTypeOf(
-	m as GNE<number, string | number, boolean>,
-).not.toExtend<G_NonEmpty>();
-expectTypeOf(
-	m as GNE<number, string, boolean | number>,
-).not.toExtend<G_NonEmpty>();
-
-// Iterator
-expectTypeOf(varEmpty[Symbol.iterator]()).toEqualTypeOf<
-	FastIterator<[number, string, boolean]>
->();
-expectTypeOf(varNonEmpty[Symbol.iterator]()).toEqualTypeOf<
-	FastIterator<[number, string, boolean]>
->();
-expectTypeOf(genEmpty[Symbol.iterator]()).toEqualTypeOf<
-	FastIterator<[number, string, boolean]>
->();
-expectTypeOf(genNonEmpty[Symbol.iterator]()).toEqualTypeOf<
-	FastIterator<[number, string, boolean]>
->();
-
-// .addEntries(..)
-expectTypeOf(genEmpty.addEntries(genEmpty)).toEqualTypeOf<G_Empty>();
-expectTypeOf(genEmpty.addEntries(genNonEmpty)).toEqualTypeOf<G_NonEmpty>();
-expectTypeOf(genNonEmpty.addEntries(genEmpty)).toEqualTypeOf<G_NonEmpty>();
-expectTypeOf(genNonEmpty.addEntries(genNonEmpty)).toEqualTypeOf<G_NonEmpty>();
-
-// .addEntry(..)
-expectTypeOf(genEmpty.addEntry([1, 'a', true])).toEqualTypeOf<G_NonEmpty>();
-expectTypeOf(genNonEmpty.addEntry([1, 'a', true])).toEqualTypeOf<G_NonEmpty>();
-
-// .context
-expectTypeOf(genEmpty.context).toEqualTypeOf<Table.Context<number, string>>();
-expectTypeOf(genNonEmpty.context).toEqualTypeOf<
-	Table.Context<number, string>
->();
-
-// .filter(..)
-expectTypeOf(varEmpty.filter(() => true)).toEqualTypeOf<V_Empty>();
-expectTypeOf(varNonEmpty.filter(() => true)).toEqualTypeOf<V_Empty>();
-expectTypeOf(genEmpty.filter(() => true)).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.filter(() => true)).toEqualTypeOf<G_Empty>();
-
-// .filterRows(..)
-expectTypeOf(varEmpty.filterRows(() => true)).toEqualTypeOf<V_Empty>();
-expectTypeOf(varNonEmpty.filterRows(() => true)).toEqualTypeOf<V_Empty>();
-expectTypeOf(genEmpty.filterRows(() => true)).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.filterRows(() => true)).toEqualTypeOf<G_Empty>();
-
-// .get(..)
-
-expectTypeOf(varEmpty.at(2, 'a')).toEqualTypeOf<boolean | undefined>();
-expectTypeOf(varNonEmpty.at(2, 'a')).toEqualTypeOf<boolean | undefined>();
-expectTypeOf(varEmpty.at(2, 'a', false)).toEqualTypeOf<boolean>();
-expectTypeOf(varNonEmpty.at(2, 'a', false)).toEqualTypeOf<boolean>();
-expectTypeOf(genEmpty.at(2, 'a')).toEqualTypeOf<boolean | undefined>();
-expectTypeOf(genNonEmpty.at(2, 'a')).toEqualTypeOf<boolean | undefined>();
-expectTypeOf(genEmpty.at(2, 'a', false)).toEqualTypeOf<boolean>();
-expectTypeOf(genNonEmpty.at(2, 'a', false)).toEqualTypeOf<boolean>();
-
-expectTypeOf(varEmpty.at(2, 'a', 'b' as string)).toEqualTypeOf<
-	boolean | string
->();
-expectTypeOf(varNonEmpty.at(2, 'a', 'b' as string)).toEqualTypeOf<
-	boolean | string
->();
-expectTypeOf(genEmpty.at(2, 'a', 'b' as string)).toEqualTypeOf<
-	boolean | string
->();
-expectTypeOf(genNonEmpty.at(2, 'a', 'b' as string)).toEqualTypeOf<
-	boolean | string
->();
-
-// .getRow(..)
-expectTypeOf(varEmpty.rowAt(2)).toEqualTypeOf<VariantMap<string, boolean>>();
-expectTypeOf(varNonEmpty.rowAt(2)).toEqualTypeOf<VariantMap<string, boolean>>();
-expectTypeOf(genEmpty.rowAt(2)).toEqualTypeOf<RMap<string, boolean>>();
-expectTypeOf(genNonEmpty.rowAt(2)).toEqualTypeOf<RMap<string, boolean>>();
+// NonEmpty is a subtype of the normal form, and the two are distinct.
+expectTypeOf(genNonEmpty).toExtend<TE>();
+expectTypeOf(genNonEmpty).toExtend<TNE>();
+expectTypeOf(genEmpty).not.toExtend<TNE>();
 
 // .isEmpty
-expectTypeOf(varEmpty.isEmpty).toEqualTypeOf<boolean>();
-expectTypeOf(varNonEmpty.isEmpty).toEqualTypeOf<false>();
 expectTypeOf(genEmpty.isEmpty).toEqualTypeOf<boolean>();
 expectTypeOf(genNonEmpty.isEmpty).toEqualTypeOf<false>();
 
-// .mapValues(..)
-expectTypeOf(varEmpty.mapValues(() => 10)).toEqualTypeOf<
-	VariantTable<number, string, number>
->();
-expectTypeOf(varNonEmpty.mapValues(() => 10)).toEqualTypeOf<
-	VariantTable.NonEmpty<number, string, number>
->();
-expectTypeOf(genEmpty.mapValues(() => 10)).toEqualTypeOf<
-	Table<number, string, number>
->();
-expectTypeOf(genNonEmpty.mapValues(() => 10)).toEqualTypeOf<
-	Table.NonEmpty<number, string, number>
->();
-
-// .modifyAt(..)
-expectTypeOf(genEmpty.modifyAt(2, 'a', {})).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.modifyAt(2, 'a', {})).toEqualTypeOf<G_Empty>();
-
-// .nonEmpty()
-expectTypeOf(varEmpty.nonEmpty()).toEqualTypeOf<boolean>();
-expectTypeOf(varNonEmpty.nonEmpty()).toEqualTypeOf<boolean>();
-expectTypeOf(genEmpty.nonEmpty()).toEqualTypeOf<boolean>();
-expectTypeOf(genNonEmpty.nonEmpty()).toEqualTypeOf<boolean>();
-
-// .remove(..)
-expectTypeOf(varEmpty.remove(3, 'a')).toEqualTypeOf<V_Empty>();
-expectTypeOf(varNonEmpty.remove(3, 'a')).toEqualTypeOf<V_Empty>();
-expectTypeOf(genEmpty.remove(3, 'a')).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.remove(3, 'a')).toEqualTypeOf<G_Empty>();
-
-// .removeAndGet(..)
-expectTypeOf(varEmpty.removeAndGet(3, 'a')).toEqualTypeOf<
-	WithValueResult<V_Empty, boolean>
->();
-expectTypeOf(varNonEmpty.removeAndGet(3, 'a')).toEqualTypeOf<
-	WithValueResult<V_Empty, boolean, V_NonEmpty>
->();
-expectTypeOf(genEmpty.removeAndGet(3, 'a')).toEqualTypeOf<
-	WithValueResult<G_Empty, boolean>
->();
-expectTypeOf(genNonEmpty.removeAndGet(3, 'a')).toEqualTypeOf<
-	WithValueResult<G_Empty, boolean, G_NonEmpty>
->();
-
-// .removeEntries(..)
-expectTypeOf(varEmpty.removeEntries([[3, 'a']])).toEqualTypeOf<V_Empty>();
-expectTypeOf(varNonEmpty.removeEntries([[3, 'a']])).toEqualTypeOf<V_Empty>();
-expectTypeOf(genEmpty.removeEntries([[3, 'a']])).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.removeEntries([[3, 'a']])).toEqualTypeOf<G_Empty>();
-
-// .removeRow(..)
-expectTypeOf(varEmpty.removeRow(3)).toEqualTypeOf<V_Empty>();
-expectTypeOf(varNonEmpty.removeRow(3)).toEqualTypeOf<V_Empty>();
-expectTypeOf(genEmpty.removeRow(3)).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.removeRow(3)).toEqualTypeOf<G_Empty>();
-
-// .removeRowAndGet(..)
-expectTypeOf(varEmpty.removeRowAndGet(3)).toEqualTypeOf<
-	WithValueResult<V_Empty, VariantMap.NonEmpty<string, boolean>>
->();
-expectTypeOf(varNonEmpty.removeRowAndGet(3)).toEqualTypeOf<
-	WithValueResult<V_Empty, VariantMap.NonEmpty<string, boolean>, V_NonEmpty>
->();
-expectTypeOf(genEmpty.removeRowAndGet(3)).toEqualTypeOf<
-	WithValueResult<G_Empty, RMap.NonEmpty<string, boolean>>
->();
-expectTypeOf(genNonEmpty.removeRowAndGet(3)).toEqualTypeOf<
-	WithValueResult<G_Empty, RMap.NonEmpty<string, boolean>, G_NonEmpty>
->();
-
-// .removeRows(..)
-expectTypeOf(varEmpty.removeRows([3])).toEqualTypeOf<V_Empty>();
-expectTypeOf(varNonEmpty.removeRows([3])).toEqualTypeOf<V_Empty>();
-expectTypeOf(genEmpty.removeRows([3])).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.removeRows([3])).toEqualTypeOf<G_Empty>();
-
-// .rowMap
-expectTypeOf(genEmpty.rowMap).toEqualTypeOf<
-	RMap<number, RMap.NonEmpty<string, boolean>>
->();
-expectTypeOf(genNonEmpty.rowMap).toExtend<
-	RMap.NonEmpty<number, RMap.NonEmpty<string, boolean>>
->();
-
-// .set(..)
-expectTypeOf(genEmpty.set(1, 'a', true)).toEqualTypeOf<G_NonEmpty>();
-expectTypeOf(genNonEmpty.set(1, 'a', true)).toEqualTypeOf<G_NonEmpty>();
+// .size / .amountRows
+expectTypeOf(genEmpty.size).toEqualTypeOf<number>();
+expectTypeOf(genNonEmpty.size).toEqualTypeOf<number>();
+expectTypeOf(genEmpty.amountRows).toEqualTypeOf<number>();
+expectTypeOf(genNonEmpty.amountRows).toEqualTypeOf<number>();
 
 // .stream()
-expectTypeOf(varEmpty.stream()).toEqualTypeOf<
-	Stream<[number, string, boolean]>
->();
-expectTypeOf(varNonEmpty.stream()).toEqualTypeOf<
-	Stream.NonEmpty<[number, string, boolean]>
->();
-expectTypeOf(genEmpty.stream()).toEqualTypeOf<
-	Stream<[number, string, boolean]>
->();
-expectTypeOf(genNonEmpty.stream()).toEqualTypeOf<
-	Stream.NonEmpty<[number, string, boolean]>
->();
+expectTypeOf(genEmpty.stream()).toEqualTypeOf<Stream<Cell>>();
+expectTypeOf(genNonEmpty.stream()).toEqualTypeOf<Stream.NonEmpty<Cell>>();
 
-// .streamRows()
-expectTypeOf(varEmpty.streamRows()).toEqualTypeOf<Stream<number>>();
-expectTypeOf(varNonEmpty.streamRows()).toEqualTypeOf<Stream.NonEmpty<number>>();
+// .streamRows() narrows on the non-empty form.
 expectTypeOf(genEmpty.streamRows()).toEqualTypeOf<Stream<number>>();
 expectTypeOf(genNonEmpty.streamRows()).toEqualTypeOf<Stream.NonEmpty<number>>();
 
-// .streamValues()
-expectTypeOf(varEmpty.streamValues()).toEqualTypeOf<Stream<boolean>>();
-expectTypeOf(varNonEmpty.streamValues()).toEqualTypeOf<
-	Stream.NonEmpty<boolean>
->();
+// .streamValues() likewise.
 expectTypeOf(genEmpty.streamValues()).toEqualTypeOf<Stream<boolean>>();
-expectTypeOf(genNonEmpty.streamValues()).toEqualTypeOf<
-	Stream.NonEmpty<boolean>
+expectTypeOf(genNonEmpty.streamValues()).toEqualTypeOf<Stream.NonEmpty<boolean>>();
+
+// .rowMap narrows to a non-empty map on the non-empty form, and the inner map is
+// always non-empty — that is an invariant of the storage, not a refinement.
+expectTypeOf(genEmpty.rowMap).toEqualTypeOf<
+	MapCollection<number, MapCollection.NonEmpty<string, boolean>>
+>();
+expectTypeOf(genNonEmpty.rowMap).toEqualTypeOf<
+	MapCollection.NonEmpty<number, MapCollection.NonEmpty<string, boolean>>
 >();
 
-// .toArray()
-expectTypeOf(varEmpty.toArray()).toEqualTypeOf<[number, string, boolean][]>();
-expectTypeOf(varNonEmpty.toArray()).toEqualTypeOf<
-	ArrayNonEmpty<[number, string, boolean]>
+// .get(row, column)
+expectTypeOf(genEmpty.get(1, 'a')).toEqualTypeOf<boolean | undefined>();
+expectTypeOf(genNonEmpty.get(1, 'a')).toEqualTypeOf<boolean | undefined>();
+// The `OptLazy` overload.
+expectTypeOf(genEmpty.get(1, 'a', 'fallback')).toEqualTypeOf<boolean | string>();
+expectTypeOf(genEmpty.get(1, 'a', () => 'lazy')).toEqualTypeOf<boolean | string>();
+// `RelatedTo` widening: a wider row key type is accepted.
+expectTypeOf(genEmpty.get(1 as RelatedTo<number, number | string>, 'a')).toEqualTypeOf<
+	boolean | undefined
 >();
-expectTypeOf(genEmpty.toArray()).toEqualTypeOf<[number, string, boolean][]>();
-expectTypeOf(genNonEmpty.toArray()).toEqualTypeOf<
-	ArrayNonEmpty<[number, string, boolean]>
->();
+
+// .has(..) / .hasRow(..)
+expectTypeOf(genEmpty.has(1, 'a')).toEqualTypeOf<boolean>();
+expectTypeOf(genEmpty.hasRow(1)).toEqualTypeOf<boolean>();
+
+// .getRow(..)
+expectTypeOf(genEmpty.getRow(1)).toEqualTypeOf<MapCollection<string, boolean>>();
+
+// .set(..) always yields a non-empty table.
+expectTypeOf(genEmpty.set(1, 'a', true)).toEqualTypeOf<TNE>();
+expectTypeOf(genNonEmpty.set(1, 'a', true)).toEqualTypeOf<TNE>();
+
+// .add(..) is the adopted `WithAdd`, and also always non-empty.
+expectTypeOf(genEmpty.add([1, 'a', true])).toEqualTypeOf<TNE>();
+expectTypeOf(genNonEmpty.add([1, 'a', true])).toEqualTypeOf<TNE>();
+
+// .addEach(..) — `StreamSource.NonEmpty` overload first, per root AGENTS.md §1.1.
+expectTypeOf(genEmpty.addEach([[1, 'a', true]])).toEqualTypeOf<TNE>();
+expectTypeOf(genNonEmpty.addEach([[1, 'a', true]])).toEqualTypeOf<TNE>();
+expectTypeOf(genEmpty.addEach([] as Cell[])).toEqualTypeOf<TE>();
+
+// .update(..) may empty the table, even on a non-empty source.
+expectTypeOf(genEmpty.update(1, 'a', (v) => !v)).toEqualTypeOf<TE>();
+expectTypeOf(genNonEmpty.update(1, 'a', (v) => !v)).toEqualTypeOf<TE>();
+
+// .modify(..)
+expectTypeOf(genEmpty.modify(1, 'a', {})).toEqualTypeOf<TE>();
+expectTypeOf(genNonEmpty.modify(1, 'a', {})).toEqualTypeOf<TE>();
+
+// .remove(..) / .removeRow(..) / .removeRows(..) / .removeEach(..) all may empty.
+expectTypeOf(genEmpty.remove(1, 'a')).toEqualTypeOf<TE>();
+expectTypeOf(genNonEmpty.remove(1, 'a')).toEqualTypeOf<TE>();
+expectTypeOf(genEmpty.removeRow(1)).toEqualTypeOf<TE>();
+expectTypeOf(genEmpty.removeRows([1])).toEqualTypeOf<TE>();
+expectTypeOf(genEmpty.removeEach([[1, 'a']])).toEqualTypeOf<TE>();
+
+// .filter(..) — 1-arity, per the adopted `WithFilter`.
+expectTypeOf(genEmpty.filter(() => true)).toEqualTypeOf<TE>();
+expectTypeOf(genNonEmpty.filter(() => true)).toEqualTypeOf<TE>();
+expectTypeOf(genEmpty.filter(() => true, { negate: true })).toEqualTypeOf<TE>();
+
+// .filterIndexed(..) comes from the shared base.
+expectTypeOf(genEmpty.filterIndexed(() => true)).toEqualTypeOf<TE>();
+expectTypeOf(genNonEmpty.filterIndexed(() => true)).toEqualTypeOf<TE>();
+
+// .filterRows(..)
+expectTypeOf(genEmpty.filterRows(() => true)).toEqualTypeOf<TE>();
+expectTypeOf(genNonEmpty.filterRows(() => true)).toEqualTypeOf<TE>();
+
+// .mapValues(..) refines only V; R and C are untouched.
+//
+// `toExtend` rather than `toEqualTypeOf` for the whole-interface comparison: `Table`
+// is a recursive generic interface, so `expectTypeOf` cannot prove two
+// instantiations structurally identical even when they are (it reports
+// "Expected: function, Actual: function"). The migrated packages
+// (`hashed/test-d`, `multiset/test-d`) assert these relations with `toExtend` for
+// the same reason. The per-member assertions below pin the re-typing exactly.
+
+// .mutate(..) comes from the adopted `WithMutate`.
+expectTypeOf(genEmpty.mutate(() => {})).toEqualTypeOf<TE>();
+expectTypeOf(genNonEmpty.mutate(() => {})).toEqualTypeOf<TE>();
+
+// .toArray() narrows to a non-empty array.
+expectTypeOf(genEmpty.toArray()).toEqualTypeOf<Cell[]>();
+expectTypeOf(genNonEmpty.toArray()).toEqualTypeOf<ArrayNonEmpty<Cell>>();
 
 // .toBuilder()
-expectTypeOf(genEmpty.toBuilder()).toEqualTypeOf<
-	Table.Builder<number, string, boolean>
->();
+expectTypeOf(genEmpty.toBuilder()).toEqualTypeOf<Table.Builder<number, string, boolean>>();
 expectTypeOf(genNonEmpty.toBuilder()).toEqualTypeOf<
 	Table.Builder<number, string, boolean>
 >();
 
-// .updateAt(..)
-expectTypeOf(genEmpty.updateAt(2, 'b', () => true)).toEqualTypeOf<G_Empty>();
-expectTypeOf(
-	genNonEmpty.updateAt(2, 'b', () => true),
-).toEqualTypeOf<G_NonEmpty>();
+// .context
+expectTypeOf(genEmpty.context).toEqualTypeOf<Table.Context<number, string>>();
 
-// From Builder
-expectTypeOf(genEmpty.toBuilder().build()).toEqualTypeOf<G_Empty>();
+// .asNormal()
+expectTypeOf(genNonEmpty.asNormal()).toEqualTypeOf<TE>();
+expectTypeOf(genNonEmpty.assumeNonEmpty()).toEqualTypeOf<TNE>();
+expectTypeOf(genEmpty.nonEmpty()).toEqualTypeOf<boolean>();
+
+// Iterator
+expectTypeOf(genEmpty[Symbol.iterator]()).toEqualTypeOf<FastIterator<Cell>>();
+expectTypeOf(genNonEmpty[Symbol.iterator]()).toEqualTypeOf<FastIterator<Cell>>();
+
+// A Table is invariant in all three coordinates: `set` puts them in
+// contravariant position, `stream` in covariant.
+type TWider = Table<number | string, string, boolean>;
+expectTypeOf(genEmpty).not.toExtend<TWider>();
+expectTypeOf(genEmpty).not.toExtend<Table<number, string | number, boolean>>();
+expectTypeOf(genEmpty).not.toExtend<Table<number, string, boolean | number>>();
+
+let m!: any;
+expectTypeOf(m as TWider).not.toExtend<TE>();
+expectTypeOf(
+	m as Table<number, string | number, boolean>,
+).not.toExtend<TE>();
+expectTypeOf(
+	m as Table<number, string, boolean | number>,
+).not.toExtend<TE>();
+
+// The Builder. Whole-interface comparisons use `toExtend` for the reason given
+// above; per-member assertions pin the exact types.
+type TB = Table.Builder<number, string, boolean>;
+declare const bEmpty: TB;
+
+expectTypeOf(bEmpty.context).toEqualTypeOf<Table.Context<number, string>>();
+expectTypeOf(bEmpty.isEmpty).toEqualTypeOf<boolean>();
+expectTypeOf(bEmpty.size).toEqualTypeOf<number>();
+expectTypeOf(bEmpty.amountRows).toEqualTypeOf<number>();
+expectTypeOf(bEmpty.build()).toExtend<TE>();
+
+expectTypeOf(bEmpty.get(1, 'a')).toEqualTypeOf<boolean | undefined>();
+expectTypeOf(bEmpty.get(1, 'a', 'fallback')).toEqualTypeOf<boolean | string>();
+expectTypeOf(bEmpty.getRow(1)).toEqualTypeOf<MapCollection<string, boolean>>();
+expectTypeOf(bEmpty.has(1, 'a')).toEqualTypeOf<boolean>();
+expectTypeOf(bEmpty.hasRow(1)).toEqualTypeOf<boolean>();
+
+// Mutators report whether anything changed.
+expectTypeOf(bEmpty.set(1, 'a', true)).toEqualTypeOf<boolean>();
+expectTypeOf(bEmpty.add([1, 'a', true])).toEqualTypeOf<boolean>();
+expectTypeOf(bEmpty.addEach([[1, 'a', true]])).toEqualTypeOf<boolean>();
+expectTypeOf(bEmpty.modify(1, 'a', {})).toEqualTypeOf<boolean>();
+expectTypeOf(bEmpty.removeRow(1)).toEqualTypeOf<boolean>();
+expectTypeOf(bEmpty.removeRows([1])).toEqualTypeOf<boolean>();
+expectTypeOf(bEmpty.removeEach([[1, 'a']])).toEqualTypeOf<boolean>();
+expectTypeOf(bEmpty.clear()).toEqualTypeOf<void>();
+
+// The builder's `remove` returns the removed value — unlike the collection's,
+// which returns nothing. A mutable builder has no result collection to return.
+expectTypeOf(bEmpty.remove(1, 'a')).toEqualTypeOf<boolean | undefined>();
+expectTypeOf(bEmpty.remove(1, 'a', 'fallback')).toEqualTypeOf<boolean | string>();
+expectTypeOf(bEmpty.update(1, 'a', (v) => !v)).toEqualTypeOf<boolean | undefined>();
+
+// `forEach` is 1-arity; `forEachIndexed` carries index and halt.
+expectTypeOf(bEmpty.forEach(() => {})).toEqualTypeOf<void>();
+expectTypeOf(
+	bEmpty.forEachIndexed((cell, index, halt) => {
+		expectTypeOf(cell).toEqualTypeOf<Cell>();
+		expectTypeOf(index).toEqualTypeOf<number>();
+		expectTypeOf(halt).toEqualTypeOf<() => void>();
+	}),
+).toEqualTypeOf<void>();
+
+// `buildMapValues` refines only V.
+expectTypeOf(bEmpty.buildMapValues((value) => `${value}`)).toExtend<
+	Table<number, string, string>
+>();
+
+// The Context. `Table.Context` is the interface; `Table.CollectionContext` is the
+// concrete class the four exported constants are typed as. Assert the interface.
+type TC = Table.Context<number, string>;
+declare const ctx: TC;
+
+expectTypeOf(ctx.typeTag).toEqualTypeOf<'Table'>();
+expectTypeOf(ctx.empty<Cell>()).toExtend<TE>();
+expectTypeOf(ctx.of<Cell>([1, 'a', true])).toExtend<TNE>();
+expectTypeOf(ctx.builder<Cell>()).toExtend<TB>();
+expectTypeOf(ctx.defaultContext).toExtend<TC>();
+// `createContext` returns a context typed by the *base* family, not by `TC`, so
+// assert the members that matter rather than the whole interface.
+const derived = ctx.createContext({
+	rowContext: ctx.rowContext,
+	columnContext: ctx.columnContext,
+});
+expectTypeOf(derived.typeTag).toEqualTypeOf<'Table'>();
+// `empty`/`of` on the derived context produce concrete Tables. The whole-interface
+// comparison hits the recursive-interface limit, so assert per member. Note
+// `get` returns `unknown` here: `createContext` is typed by the *generic*
+// `RowMapContext` / `ColumnMapContext` aliases, whose value type is `any`-shaped.
+// A typed table comes from a *variant* context (see `HashTableHashColumn`), which
+// is the type users actually hold.
+expectTypeOf(derived.empty<Cell>().size).toEqualTypeOf<number>();
+expectTypeOf(derived.empty<Cell>().isEmpty).toEqualTypeOf<boolean>();
+expectTypeOf(derived.of<Cell>([1, 'a', true]).isEmpty).toEqualTypeOf<false>();
+expectTypeOf(derived.of<Cell>([1, 'a', true]).size).toEqualTypeOf<number>();
+expectTypeOf(derived.builder<Cell>().build().size).toEqualTypeOf<number>();
+
+// The root `Table` value exposes only `createContext`: a table has no default
+// backing, because which map backs rows and which backs columns are independent.
+// The root `Table` value is `createContext`-only: a table has no default backing.
+expectTypeOf(
+	Table.createContext({
+		rowContext: ctx.rowContext,
+		columnContext: ctx.columnContext,
+	}).typeTag,
+).toEqualTypeOf<'Table'>();
+
+// .mapValues(..) re-typing, asserted per member (see the note above on why the
+// whole-interface comparison uses `toExtend`).
+const mapped = genNonEmpty.mapValues((value) => `${value}`);
+expectTypeOf(mapped.get(1, 'a')).toExtend<string | undefined>();
+expectTypeOf(mapped.size).toEqualTypeOf<number>();
+expectTypeOf(mapped.amountRows).toEqualTypeOf<number>();
+expectTypeOf(mapped.has(1, 'a')).toEqualTypeOf<boolean>();
+expectTypeOf(mapped.stream().toArray).toBeFunction();
+expectTypeOf(mapped.isEmpty).toEqualTypeOf<false>();
+// R and C are untouched by a value-level map.
+expectTypeOf(mapped.getRow(1)).toExtend<MapCollection<string, string>>();
+expectTypeOf(mapped.rowMap).toExtend<
+	MapCollection<number, MapCollection.NonEmpty<string, string>>
+>();
+
+// The mapped form is itself usable as a Table: it can be re-mapped and built from.
+expectTypeOf(mapped.mapValues((value) => value.length)).toExtend<
+	Table<number, string, number>
+>();

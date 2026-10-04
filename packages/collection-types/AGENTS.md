@@ -94,13 +94,18 @@ The `advanced` sub-path holds the implementer-facing base interfaces and context
 test-utils/
 ├── map/
 │   ├── map-collection-standard.ts  # runMapTestsWith       — hashed, sorted, proximity, ordered
-│   ├── map-random.ts               # runMapRandomTestsWith — hashed, sorted, proximity
-│   └── map-standard.ts             # legacy single-collection runner
+│   └── map-random.ts               # runMapRandomTestsWith — hashed, sorted, proximity
 └── set/
     ├── set-collection-standard.ts  # runSetTestsWith       — hashed, sorted, ordered
-    ├── set-random.ts               # runSetRandomTestsWith — hashed, sorted
-    └── set-standard.ts             # legacy single-collection runner
+    └── set-random.ts               # runSetRandomTestsWith — hashed, sorted
 ```
+
+The two `*-standard.ts` legacy single-collection runners (`map/map-standard.ts`,
+`set/set-standard.ts`) were **deleted** with the `WithValueResult` removal. Both
+were orphans — nothing imported their module paths — and both were typed against
+the legacy `RMap`/`RSet`, so their `removeKeyAndGet` / `updateAtAndGet` cases
+tested methods that no longer exist. The capability-based
+`map-collection-standard.ts` / `set-collection-standard.ts` are the live runners.
 
 This directory is deliberately **outside `src/`**, so it is not emitted to `dist/` and is not in
 `package.json` `exports`. It is resolved by consumers through two mechanisms, both of which are

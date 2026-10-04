@@ -898,6 +898,28 @@ Document the capability matrix explicitly:
 | OrderedSet variants | yes | yes | valued | no | yes | yes | yes | yes |
 | OrderedMap variants | yes | yes | keyed | no | yes | yes | yes | yes |
 | ProximityMap | yes | no | keyed | no | yes | no | no | no |
+| MultiSet | yes | no | valued | no | yes | no | no | no |
+| MultiMap | yes | no | keyed † | no | yes | no | no | no |
+| BiMap | yes | no | keyed | no | yes | no | no | no |
+| BiMultiMap | yes | no | keyed † | no | yes | no | no | no |
+| Table | yes | no | **neither** ‡ | no | yes | no | no | no |
+| Graph | *pending migration* | | | | | | | |
+
+† Bi-directional and multi-valued collections adopt the keyed **family** but
+refuse the single-value capabilities: a MultiMap's `get` would have to return a
+set, and a BiMultiMap's would return a set in each of two directions. See
+`multimap/AGENTS.md` §"Family / HKT" and `bimultimap/AGENTS.md` §3.
+
+‡ **A Table is neither keyed nor valued.** Its element is the *cell*
+`readonly [R, C, V]` — three coordinates — and `KeyedCollection<K, V>` binds its
+element to `readonly [K, V]` unconditionally. It adopts the plain `Collection`
+contract plus `WithFilter`, `WithAdd`, `WithAddEach`, `WithToBuilder`,
+`WithMutate`, `WithReducer` and `WithRecompose` — only the capabilities whose
+operand is a cell or a stream of cells — and supplies every 2-dimensional
+operation through a package-local `TableCollection.Capability.*` suite.
+`ValuedCollection` and `IndexedCollection` are banned outright: there is no
+single value type, and a table has no positional order. Rationale in
+`packages/table/AGENTS.md`; design in `.scratch/table-migration-plan.md`.
 
 The migration guide must include before/after snippets for List, Map, Sorted, Set
 algebra, Ordered reordering, and Proximity exact/nearest lookup.

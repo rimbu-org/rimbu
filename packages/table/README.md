@@ -62,9 +62,9 @@ If you find yourself nesting maps or objects to simulate a grid, a `Table` is us
 
 - **2D lookups** – efficient `(row, column) → value` access.
 - **Row‑level operations** – get, filter, or remove entire rows at once.
-- **Hash or sorted variants** – choose between hashed or ordered semantics for rows and columns.
+- **Hash or sorted contexts** – choose between hashed or ordered semantics for rows and columns, independently.
 - **Immutable & persistent** – structural sharing for fast copies and diffs.
-- **Configurable contexts** – use `Table.createContext` or concrete table variants to control underlying map types.
+- **Configurable contexts** – use `Table.createContext` or one of the four ready-made contexts to control the underlying map types.
 - **Builder support** – mutable builders for efficient bulk construction.
 
 ---
@@ -72,43 +72,50 @@ If you find yourself nesting maps or objects to simulate a grid, a `Table` is us
 ## Quick Start
 
 ```ts
-import { HashTableHashColumn } from '@rimbu/table/hash-row';
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column';
 
-// Create a hash-based table: hashed rows, hashed columns
-const table = HashTableHashColumn.of<[number, string, boolean]>(
+// Create a hash-based table: hashed rows, hashed columns.
+// The type parameter is the *cell* type: `readonly [row, column, value]`.
+const table = HashTableHashColumn.of<readonly [number, string, boolean]>(
   [1, 'a', true],
   [1, 'b', false],
-  [2, 'a', false]
+  [2, 'a', false],
 );
 
 // Look up a single cell
-console.log(table.get(1, 'a')); // true
+console.log(table.get(1, 'a')); // => true
+console.log(table.get(1, 'z', 'fallback')); // => 'fallback'
 
-// Check presence
-table.hasRowKey(2); // true
-table.hasValueAt(1, 'c'); // false
+// Check presence — of a cell, and of a row
+console.log(table.hasRow(2)); // => true
+console.log(table.has(1, 'c')); // => false
 
 // Immutable updates
 const updated = table.set(2, 'b', true);
-console.log(updated.get(2, 'b')); // true
+console.log(updated.get(2, 'b')); // => true
+
+// `size` counts cells; `amountRows` counts rows holding at least one cell
+console.log(table.size); // => 3
+console.log(table.amountRows); // => 2
 ```
 
-You can also work with the generic `Table` interface via a custom context:
+You can also work with the generic `Table` value via a custom context:
 
 ```ts
-import { HashMap } from '@rimbu/hashed';
+import { HashMap } from '@rimbu/hashed/map';
 import { Table } from '@rimbu/table';
 
-// Create a generic Table context using hash maps for rows and columns
-const ctx = Table.createContext<number, string>({
-  rowContext: HashMap.defaultContext<number>(),
-  columnContext: HashMap.defaultContext<string>(),
+// A table needs a context for rows *and* one for columns; both are required,
+// because which map backs which axis is an independent choice.
+const ctx = Table.createContext({
+  rowContext: HashMap.collectionContext,
+  columnContext: HashMap.collectionContext,
 });
 
-const t = ctx.of<[number, string, boolean]>([1, 'a', true], [2, 'b', false]);
+const t = ctx.of<readonly [number, string, boolean]>([1, 'a', true], [2, 'b', false]);
 
-console.log(t.get(2, 'b')); // false
-console.log(t.amountRows); // 2
+console.log(t.get(2, 'b')); // => false
+console.log(t.amountRows); // => 2
 ```
 
 Try Rimbu (including `@rimbu/table`) live in the browser using the
@@ -128,8 +135,11 @@ From `@rimbu/table`:
 | `Table.NonEmpty<R, C, V>`        | Non‑empty refinement of `Table<R, C, V>` with stronger guarantees.                                             |
 | `Table.Context<UR, UC>`          | Factory/context for creating `Table` instances for upper row type `UR` and upper column type `UC`.             |
 | `Table.Builder<R, C, V>`         | Mutable builder for efficiently constructing or mutating a `Table` before freezing it into an immutable value. |
-| `VariantTable<R, C, V>`          | Type‑variant view over a table; allows safe type‑widening of keys/values without mutation operations.          |
-| `VariantTable.NonEmpty<R, C, V>` | Non‑empty refinement of `VariantTable<R, C, V>`.                                                               |
+| `Table.CollectionContext<UR, UC>` | A ready-made context value — the type of the four exported constants and of `Table.createContext`.             |
+
+There is a single collection type. Which map backs the rows and which backs the
+columns is chosen by the **context**, not by the type, so there are no variant
+collection types and no type‑variant (covariant) view.
 
 See the full [Table docs](https://rimbu.org/docs/collections/table) and
 [API reference](https://rimbu.org/api/rimbu/table) for all operations.
@@ -138,32 +148,45 @@ See the full [Table docs](https://rimbu.org/docs/collections/table) and
 
 ## Working with Hash & Sorted Tables
 
-The package also exports specialized table types from sub‑packages:
+The package exports four ready-made **contexts** from sub-paths:
 
-- `@rimbu/table/hash-row`
-  - `HashTableHashColumn<R, C, V>` – **hashed rows**, **hashed columns**.
-  - `HashTableSortedColumn<R, C, V>` – **hashed rows**, **sorted columns**.
-- `@rimbu/table/sorted-row`
-  - `SortedTableHashColumn<R, C, V>` – **sorted rows**, **hashed columns**.
-  - `SortedTableSortedColumn<R, C, V>` – **sorted rows**, **sorted columns**.
+- `@rimbu/table/hash-row/hash-column` — `HashTableHashColumn`: **hashed rows**, **hashed columns**.
+- `@rimbu/table/hash-row/sorted-column` — `HashTableSortedColumn`: **hashed rows**, **sorted columns**.
+- `@rimbu/table/sorted-row/hash-column` — `SortedTableHashColumn`: **sorted rows**, **hashed columns**.
+- `@rimbu/table/sorted-row/sorted-column` — `SortedTableSortedColumn`: **sorted rows**, **sorted columns**.
 
-Each of these types exports:
-
-- `*.NonEmpty<R, C, V>` – non‑empty refinements.
-- `*.Context<UR, UC>` – context types.
-- `*.Builder<R, C, V>` – table builders.
-
-And each has a corresponding creators object:
+Each is a `Table.CollectionContext`, so each carries the full factory surface
+(`empty`, `of`, `from`, `builder`, `reducer`, `defaultContext`,
+`createContext`). They differ only in ordering — and ordering is the only thing
+they *promise*: `rowMap` is the generic
+`MapCollection<R, MapCollection.NonEmpty<C, V>>`, so the concrete backing is an
+implementation detail.
 
 ```ts
-import {
-  HashTableHashColumn,
-  HashTableSortedColumn,
-} from '@rimbu/table/hash-row';
-import {
-  SortedTableHashColumn,
-  SortedTableSortedColumn,
-} from '@rimbu/table/sorted-row';
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column';
+import { HashTableSortedColumn } from '@rimbu/table/hash-row/sorted-column';
+import { SortedTableHashColumn } from '@rimbu/table/sorted-row/hash-column';
+import { SortedTableSortedColumn } from '@rimbu/table/sorted-row/sorted-column';
+
+// Hash rows + hash columns
+const hh = HashTableHashColumn.empty<readonly [number, string, boolean]>();
+
+// Hash rows + sorted columns
+const hs = HashTableSortedColumn.of<readonly [number, string, number]>(
+  [1, 'a', 1],
+  [1, 'b', 2],
+);
+
+// Sorted rows + hash columns
+const sh = SortedTableHashColumn.from<readonly [number, string, boolean]>([
+  [1, 'a', true],
+  [2, 'b', false],
+]);
+
+// Sorted rows + sorted columns — `streamRows()` is now in comparator order
+const ss = SortedTableSortedColumn.builder<readonly [number, string, number]>();
+```
+
 
 // Hash rows + hash columns
 const hh = HashTableHashColumn.empty<number, string, boolean>();
@@ -184,7 +207,7 @@ const sh = SortedTableHashColumn.from([
 const ss = SortedTableSortedColumn.builder<number, string, number>();
 ```
 
-Choose the variant based on whether you need **ordering** for rows and/or columns (use sorted) or just **fast hash‑based lookup** (use hashed).
+Choose the context based on whether you need **ordering** for rows and/or columns (use sorted) or just **fast hash‑based lookup** (use hashed). Note that with hashed backings the *order* of `streamRows()` and of `getRow(row)` is unspecified, even though `rowMap` still reports a stable `size`.
 
 ---
 

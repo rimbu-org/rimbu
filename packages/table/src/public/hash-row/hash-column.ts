@@ -1,108 +1,34 @@
-import type { Streamable } from '@rimbu/stream';
-
-import type { HashTableHashColumnCreators } from '#table/creators';
-import type { TableBase } from '#table/types';
+import type { Table } from '@rimbu/table';
 
 import { HashMap } from '@rimbu/hashed/map';
 
-import { createTableContextModule } from '#table/context-factory';
+import { TableCollectionContext } from '#table/context-factory';
 
 /**
- * A type-invariant immutable Table of row key type R, column key type C, and value type V.
- * In the Table, a combination of a row and column key has exactly one value.
- * See the [Table documentation](https://rimbu.org/docs/collections/table) and the [HashTableHashColumn API documentation](https://rimbu.org/api/rimbu/table/hash-row/HashTableHashColumn/interface)
- * @note
- * - The HashTableHashColumn uses a HashMap to map row keys to column.
- * - The HashTableHashColumn uses HashMaps to map column keys to values.
- * @typeparam R - the row key type
- * @typeparam C - the column key type
- * @typeparam V - the value type
+ * A `Table` whose rows **and** columns are both backed by a `HashMap`.
+ *
+ * This is a {@link Table.Context}, **not** a distinct collection type: the
+ * collection type is `Table<R, C, V>` whichever backing is chosen, and the
+ * backing is fixed by the context. Row order and column order are both
+ * unspecified. Use `Table.createContext({ rowContext, columnContext })` for any
+ * other combination.
+ *
+ * Note that `rowMap` is the **generic** `MapCollection<R, MapCollection.NonEmpty<C, V>>`
+ * — the concrete `HashMap` backing is an implementation detail.
  * @example
  * ```ts
- * import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
- * const t1 = HashTableHashColumn.empty<number, string, boolean>()
- * const t2 = HashTableHashColumn.of([1, 'a', true], [2, 'a', false])
+ * import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column';
+ *
+ * const table = HashTableHashColumn.of<number, string, boolean>([1, 'a', true]);
+ * console.log(table.get(1, 'a')); // => true
+ * console.log(table.get(1, 'b', 'fallback')); // => 'fallback'
+ * console.log(table.amountRows); // => 1
  * ```
  */
-export interface HashTableHashColumn<R, C, V>
-	extends TableBase<R, C, V, HashTableHashColumn.Types> {}
-
-export namespace HashTableHashColumn {
-	/**
-	 * A non-empty type-invariant immutable Table of row key type R, column key type C, and value type V.
-	 * In the Table, a combination of a row and column key has exactly one value.
-	 * See the [Table documentation](https://rimbu.org/docs/collections/table) and the [HashTableHashColumn API documentation](https://rimbu.org/api/rimbu/table/hash-row/HashTableHashColumn/interface)
-	 * @note
-	 * - The HashTableHashColumn uses a HashMap to map row keys to column.
-	 * - The HashTableHashColumn uses HashMaps to map column keys to values.
-	 * @typeparam R - the row key type
-	 * @typeparam C - the column key type
-	 * @typeparam V - the value type
-	 * @example
-	 * ```ts
-	 * import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column'
-	 * const t1 = HashTableHashColumn.empty<number, string, boolean>()
-	 * const t2 = HashTableHashColumn.of([1, 'a', true], [2, 'a', false])
-	 * ```
-	 */
-	export interface NonEmpty<R, C, V>
-		extends TableBase.NonEmpty<R, C, V, HashTableHashColumn.Types>,
-			Omit<
-				HashTableHashColumn<R, C, V>,
-				keyof TableBase.NonEmpty<any, any, any, any>
-			>,
-			Streamable.NonEmpty<[R, C, V]> {}
-
-	export interface Context<UR, UC>
-		extends TableBase.Context<UR, UC, HashTableHashColumn.Types> {}
-
-	export interface Builder<R, C, V>
-		extends TableBase.Builder<R, C, V, HashTableHashColumn.Types> {}
-
-	/**
-	 * Utility interface that provides higher-kinded types for this collection.
-	 */
-	export interface Types extends TableBase.Types {
-		readonly normal: HashTableHashColumn<this['_R'], this['_C'], this['_V']>;
-		readonly nonEmpty: HashTableHashColumn.NonEmpty<
-			this['_R'],
-			this['_C'],
-			this['_V']
-		>;
-		readonly row: HashMap<this['_C'], this['_V']>;
-		readonly rowNonEmpty: HashMap.NonEmpty<this['_C'], this['_V']>;
-		readonly rowMap: HashMap<
-			this['_R'],
-			HashMap.NonEmpty<this['_C'], this['_V']>
-		>;
-		readonly rowMapNonEmpty: HashMap.NonEmpty<
-			this['_R'],
-			HashMap.NonEmpty<this['_C'], this['_V']>
-		>;
-		readonly context: HashTableHashColumn.Context<this['_R'], this['_C']>;
-		readonly builder: HashTableHashColumn.Builder<
-			this['_R'],
-			this['_C'],
-			this['_V']
-		>;
-		readonly rowContext: HashMap.Context<this['_R']>;
-		readonly columnContext: HashMap.Context<this['_C']>;
-	}
-}
-
-/**
- * The default `HashTableHashColumn` creators and context.
- *
- * Use this exported value to create and work with immutable `HashTableHashColumn` instances.
- * See the [HashTableHashColumn API documentation](https://rimbu.org/api/rimbu/table/hash-row/HashTableHashColumn/interface).
- * @expandType HashTableHashColumnCreators
- */
-export const HashTableHashColumn: HashTableHashColumnCreators =
-	createTableContextModule('HashTableHashColumn', {
-		get rowContext() {
-			return HashMap.defaultContext();
+export const HashTableHashColumn: Table.CollectionContext<any, any> =
+	TableCollectionContext.create<any, any, Table.Advanced.Family<any, any, any>>(
+		{
+			rowContext: HashMap.collectionContext,
+			columnContext: HashMap.collectionContext,
 		},
-		get columnContext() {
-			return HashMap.defaultContext();
-		},
-	}).build();
+	);

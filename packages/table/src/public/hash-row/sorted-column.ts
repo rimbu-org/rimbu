@@ -1,111 +1,33 @@
-import type { Streamable } from '@rimbu/stream';
-
-import type { HashTableSortedColumnCreators } from '#table/creators';
-import type { TableBase } from '#table/types';
+import type { Table } from '@rimbu/table';
 
 import { HashMap } from '@rimbu/hashed/map';
 import { SortedMap } from '@rimbu/sorted/map';
 
-import { createTableContextModule } from '#table/context-factory';
+import { TableCollectionContext } from '#table/context-factory';
 
 /**
- * A type-invariant immutable Table of row key type R, column key type C, and value type V.
- * In the Table, a combination of a row and column key has exactly one value.
- * See the [Table documentation](https://rimbu.org/docs/collections/table) and the [HashTableSortedColumn API documentation](https://rimbu.org/api/rimbu/table/hash-row/HashTableSortedColumn/interface)
- * @note
- * - The HashTableSortedColumn uses a HashMap to map row keys to column.
- * - The HashTableSortedColumn uses SortedMaps to map column keys to values.
- * @typeparam R - the row key type
- * @typeparam C - the column key type
- * @typeparam V - the value type
+ * A `Table` whose rows are backed by a `HashMap` and whose columns are backed by
+ * a `SortedMap`.
+ *
+ * This is a {@link Table.Context}, **not** a distinct collection type: the
+ * collection type is `Table<R, C, V>` whichever backing is chosen. Row order is
+ * unspecified; column order within each row is the comparator's order, so
+ * `getRow(row)` returns columns in sorted order. Use
+ * `Table.createContext({ rowContext, columnContext })` for any other
+ * combination.
  * @example
  * ```ts
- * import { HashTableSortedColumn } from '@rimbu/table/hash-row/sorted-column'
- * const t1 = HashTableSortedColumn.empty<number, string, boolean>()
- * const t2 = HashTableSortedColumn.of([1, 'a', true], [2, 'a', false])
+ * import { HashTableSortedColumn } from '@rimbu/table/hash-row/sorted-column';
+ *
+ * const table = HashTableSortedColumn.of<number, string, boolean>([1, 'b', true]);
+ * console.log(table.get(1, 'b')); // => true
+ * console.log(table.getRow(1).size); // => 1
  * ```
  */
-export interface HashTableSortedColumn<R, C, V>
-	extends TableBase<R, C, V, HashTableSortedColumn.Types> {}
-
-export namespace HashTableSortedColumn {
-	/**
-	 * A non-empty type-invariant immutable Table of row key type R, column key type C, and value type V.
-	 * In the Table, a combination of a row and column key has exactly one value.
-	 * See the [Table documentation](https://rimbu.org/docs/collections/table) and the [HashTableSortedColumn API documentation](https://rimbu.org/api/rimbu/table/hash-row/HashTableSortedColumn/interface)
-	 * @note
-	 * - The HashTableSortedColumn uses a HashMap to map row keys to column.
-	 * - The HashTableSortedColumn uses SortedMaps to map column keys to values.
-	 * @typeparam R - the row key type
-	 * @typeparam C - the column key type
-	 * @typeparam V - the value type
-	 * @example
-	 * ```ts
-	 * import { HashTableSortedColumn } from '@rimbu/table/hash-row/sorted-column'
-	 * const t1 = HashTableSortedColumn.empty<number, string, boolean>()
-	 * const t2 = HashTableSortedColumn.of([1, 'a', true], [2, 'a', false])
-	 * ```
-	 */
-	export interface NonEmpty<R, C, V>
-		extends TableBase.NonEmpty<R, C, V, HashTableSortedColumn.Types>,
-			Omit<
-				HashTableSortedColumn<R, C, V>,
-				keyof TableBase.NonEmpty<any, any, any, any>
-			>,
-			Streamable.NonEmpty<[R, C, V]> {}
-
-	export interface Context<UR, UC>
-		extends TableBase.Context<UR, UC, HashTableSortedColumn.Types> {
-		readonly typeTag: 'HashTableSortedColumn';
-	}
-
-	export interface Builder<R, C, V>
-		extends TableBase.Builder<R, C, V, HashTableSortedColumn.Types> {}
-
-	/**
-	 * Utility interface that provides higher-kinded types for this collection.
-	 */
-	export interface Types extends TableBase.Types {
-		readonly normal: HashTableSortedColumn<this['_R'], this['_C'], this['_V']>;
-		readonly nonEmpty: HashTableSortedColumn.NonEmpty<
-			this['_R'],
-			this['_C'],
-			this['_V']
-		>;
-		readonly row: SortedMap<this['_C'], this['_V']>;
-		readonly rowNonEmpty: SortedMap.NonEmpty<this['_C'], this['_V']>;
-		readonly rowMap: HashMap<
-			this['_R'],
-			SortedMap.NonEmpty<this['_C'], this['_V']>
-		>;
-		readonly rowMapNonEmpty: HashMap.NonEmpty<
-			this['_R'],
-			SortedMap.NonEmpty<this['_C'], this['_V']>
-		>;
-		readonly context: HashTableSortedColumn.Context<this['_R'], this['_C']>;
-		readonly builder: HashTableSortedColumn.Builder<
-			this['_R'],
-			this['_C'],
-			this['_V']
-		>;
-		readonly rowContext: HashMap.Context<this['_R']>;
-		readonly columnContext: SortedMap.Context<this['_C']>;
-	}
-}
-
-/**
- * The default `HashTableSortedColumn` creators and context.
- *
- * Use this exported value to create and work with immutable `HashTableSortedColumn` instances.
- * See the [HashTableSortedColumn API documentation](https://rimbu.org/api/rimbu/table/hash-row/HashTableSortedColumn/interface).
- * @expandType HashTableSortedColumnCreators
- */
-export const HashTableSortedColumn: HashTableSortedColumnCreators =
-	createTableContextModule('HashTableSortedColumn', {
-		get rowContext() {
-			return HashMap.defaultContext();
+export const HashTableSortedColumn: Table.CollectionContext<any, any> =
+	TableCollectionContext.create<any, any, Table.Advanced.Family<any, any, any>>(
+		{
+			rowContext: HashMap.collectionContext,
+			columnContext: SortedMap.collectionContext,
 		},
-		get columnContext() {
-			return SortedMap.defaultContext();
-		},
-	}).build();
+	);
