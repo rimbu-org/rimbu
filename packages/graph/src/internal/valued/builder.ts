@@ -59,7 +59,7 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 
 	hasNode = <UN>(node: RelatedTo<N, UN>): boolean => {
 		if (this.source) return this.source.hasNode(node);
-		return this.linkMap.hasKey(node);
+		return this.linkMap.has(node);
 	};
 
 	hasConnection = <UN>(
@@ -68,9 +68,9 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 	): boolean => {
 		if (this.source) return this.source.hasConnection(node1, node2);
 
-		const targets = this.linkMap.at(node1);
+		const targets = this.linkMap.get(node1);
 
-		return targets?.hasKey(node2) ?? false;
+		return targets?.has(node2) ?? false;
 	};
 
 	getValue = <UN, O>(
@@ -82,15 +82,15 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 			return this.source.getValue(node1, node2, otherwise!);
 		}
 
-		const targets = this.linkMap.at(node1);
+		const targets = this.linkMap.get(node1);
 
 		if (undefined === targets) return OptLazy(otherwise!);
 
-		return targets.at(node2, otherwise!);
+		return targets.get(node2, otherwise!);
 	};
 
 	addNodeInternal = (node: N): boolean => {
-		const changed = this.linkMap.modifyAt(node, {
+		const changed = this.linkMap.modifyAtKey(node, {
 			ifNew: { create: this.context.linkConnectionsContext.builder },
 		});
 
@@ -130,7 +130,7 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 			this.connectionSize -= targets.size;
 
 			targets.forEach(([target]) => {
-				this.linkMap.updateAt(target, (values) => {
+				this.linkMap.updateAtKey(target, (values) => {
 					values.removeKey(node);
 					return values;
 				});
@@ -158,7 +158,7 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 	connectInternal = (node1: N, node2: N, value: V): boolean => {
 		let changed = false;
 
-		this.linkMap.modifyAt(node1, {
+		this.linkMap.modifyAtKey(node1, {
 			ifNew: {
 				create: () => {
 					const targetBuilder = this.context.linkConnectionsContext.builder<
@@ -186,7 +186,7 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 		if (changed) this.source = undefined;
 
 		if (changed && node1 !== node2) {
-			this.linkMap.modifyAt(node2, {
+			this.linkMap.modifyAtKey(node2, {
 				ifNew: {
 					create: () => {
 						const targetBuilder = this.context.linkConnectionsContext.builder<
@@ -278,7 +278,7 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 		if (undefined !== ifExists) {
 			linkMapOptions.ifExists = {
 				update: (valueMap) => {
-					valueMap.modifyAt(node2, {
+					valueMap.modifyAtKey(node2, {
 						ifNew: {
 							create: (skip) => {
 								if (undefined === ifNew) return skip;
@@ -323,7 +323,7 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 			};
 		}
 
-		this.linkMap.modifyAt(node1, linkMapOptions);
+		this.linkMap.modifyAtKey(node1, linkMapOptions);
 
 		if (!changed) return false;
 		if (this.isDirected) return true;
@@ -332,7 +332,7 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 
 		if (this.connectionSize === preConnectionSize) {
 			// value was updated
-			this.linkMap.modifyAt(node2, {
+			this.linkMap.modifyAtKey(node2, {
 				ifNew: {
 					create: () => {
 						const builder = this.context.linkMapContext.builder<N, V>();
@@ -353,7 +353,7 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 
 		if (this.connectionSize < preConnectionSize) {
 			// value was removed
-			this.linkMap.modifyAt(node2, {
+			this.linkMap.modifyAtKey(node2, {
 				ifExists: {
 					update: (valueMap) => {
 						valueMap.removeKey(node1);
@@ -366,7 +366,7 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 		}
 
 		// value was added
-		this.linkMap.modifyAt(node2, {
+		this.linkMap.modifyAtKey(node2, {
 			ifNew: {
 				create: () => {
 					const builder = this.context.linkMapContext.builder<N, V>();
@@ -400,7 +400,7 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 
 		const token = Symbol();
 
-		this.linkMap.updateAt(node1, (targets) => {
+		this.linkMap.updateAtKey(node1, (targets) => {
 			if (token !== targets.removeKey(node2, token)) {
 				this.connectionSize--;
 				changed = true;
@@ -411,7 +411,7 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 		if (changed) this.source = undefined;
 
 		if (changed && node1 !== node2 && !this.isDirected) {
-			this.linkMap.updateAt(node2, (targets) => {
+			this.linkMap.updateAtKey(node2, (targets) => {
 				targets.removeKey(node1);
 				return targets;
 			});

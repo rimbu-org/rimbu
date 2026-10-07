@@ -125,16 +125,16 @@ export class ValuedGraphNonEmpty<N, V>
 	}
 
 	hasNode<UN = N>(node: RelatedTo<N, UN>): boolean {
-		return this.linkMap.hasKey(node);
+		return this.linkMap.has(node);
 	}
 
 	hasConnection<UN = N>(
 		node1: RelatedTo<N, UN>,
 		node2: RelatedTo<N, UN>,
 	): boolean {
-		const targets = this.linkMap.at(node1);
+		const targets = this.linkMap.get(node1);
 
-		return targets?.hasKey(node2) ?? false;
+		return targets?.has(node2) ?? false;
 	}
 
 	getValue<UN, O>(
@@ -142,17 +142,17 @@ export class ValuedGraphNonEmpty<N, V>
 		node2: RelatedTo<N, UN>,
 		otherwise?: OptLazy<O>,
 	): V | O {
-		const targets = this.linkMap.at(node1);
+		const targets = this.linkMap.get(node1);
 
 		if (undefined === targets) return OptLazy(otherwise!);
 
-		return targets.at(node2, otherwise!);
+		return targets.get(node2, otherwise!);
 	}
 
 	getConnectionStreamFrom<UN = N>(
 		node1: RelatedTo<N, UN>,
 	): Stream<ValuedLink<N, V>> {
-		const targets = this.linkMap.at(node1);
+		const targets = this.linkMap.get(node1);
 
 		if (undefined === targets) return Stream.empty();
 
@@ -168,7 +168,7 @@ export class ValuedGraphNonEmpty<N, V>
 			return this.streamConnections().filter(([_, node2]) => node2 === node);
 		}
 
-		const targets = this.linkMap.at(node);
+		const targets = this.linkMap.get(node);
 
 		if (undefined === targets) return Stream.empty();
 
@@ -178,26 +178,26 @@ export class ValuedGraphNonEmpty<N, V>
 	}
 
 	getConnectionsFrom<UN = N>(node1: RelatedTo<N, UN>): RMap<N, V> {
-		return this.linkMap.at(node1, this.context.linkConnectionsContext.empty());
+		return this.linkMap.get(node1, this.context.linkConnectionsContext.empty());
 	}
 
 	isSink<UN = N>(node: RelatedTo<N, UN>): boolean {
-		const targets = this.linkMap.at(node);
+		const targets = this.linkMap.get(node);
 
 		return targets?.isEmpty ?? false;
 	}
 
 	isSource<UN = N>(node: RelatedTo<N, UN>): boolean {
 		return (
-			this.linkMap.hasKey(node) &&
-			this.linkMap.streamValues().every((targets) => !targets.hasKey(node))
+			this.linkMap.has(node) &&
+			this.linkMap.streamValues().every((targets) => !targets.has(node))
 		);
 	}
 
 	addNode(node: N): ValuedGraph.NonEmpty<N, V> {
 		return this.copy(
 			this.linkMap
-				.modifyAt(node, {
+				.modifyAtKey(node, {
 					ifNew: { create: this.context.linkConnectionsContext.empty },
 				})
 				.assumeNonEmpty(),
@@ -224,7 +224,7 @@ export class ValuedGraphNonEmpty<N, V>
 	}
 
 	connect(node1: N, node2: N, value: V): ValuedGraph.NonEmpty<N, V> {
-		const newLinkMap = this.linkMap.modifyAt(node1, {
+		const newLinkMap = this.linkMap.modifyAtKey(node1, {
 			ifNew: {
 				create: () => this.context.linkConnectionsContext.of([node2, value]),
 			},
@@ -244,7 +244,7 @@ export class ValuedGraphNonEmpty<N, V>
 
 		return this.copy(
 			newLinkMap
-				.modifyAt(node2, {
+				.modifyAtKey(node2, {
 					ifNew: {
 						create: () => {
 							if (this.isDirected) {
@@ -300,7 +300,7 @@ export class ValuedGraphNonEmpty<N, V>
 		if (undefined !== ifExists) {
 			linkMapOptions.ifExists = {
 				update: (valueMap) => {
-					return valueMap.modifyAt(node2, {
+					return valueMap.modifyAtKey(node2, {
 						ifNew: {
 							create: (skip) => {
 								if (undefined === ifNew) return skip;
@@ -340,7 +340,7 @@ export class ValuedGraphNonEmpty<N, V>
 			};
 		}
 
-		const newLinkMap = this.linkMap.modifyAt(node1, linkMapOptions);
+		const newLinkMap = this.linkMap.modifyAtKey(node1, linkMapOptions);
 
 		if (newLinkMap === this.linkMap) return this;
 
@@ -352,7 +352,7 @@ export class ValuedGraphNonEmpty<N, V>
 
 		if (newConnectionSize === this.connectionSize) {
 			// value was updated
-			const newLinkMap2 = newLinkMap.modifyAt(node2, {
+			const newLinkMap2 = newLinkMap.modifyAtKey(node2, {
 				ifNew: {
 					create: () =>
 						this.context.linkMapContext.of([node1, addedOrUpdatedValue]),
@@ -367,7 +367,7 @@ export class ValuedGraphNonEmpty<N, V>
 
 		if (newConnectionSize < this.connectionSize) {
 			// value was removed
-			const newLinkMap2 = newLinkMap.modifyAt(node2, {
+			const newLinkMap2 = newLinkMap.modifyAtKey(node2, {
 				ifExists: { update: (valueMap) => valueMap.removeKey(node1) },
 			});
 
@@ -375,7 +375,7 @@ export class ValuedGraphNonEmpty<N, V>
 		}
 
 		// value was added
-		const newLinkMap2 = newLinkMap.modifyAt(node2, {
+		const newLinkMap2 = newLinkMap.modifyAtKey(node2, {
 			ifNew: {
 				create: () =>
 					this.context.linkMapContext.of([node1, addedOrUpdatedValue]),
@@ -398,7 +398,7 @@ export class ValuedGraphNonEmpty<N, V>
 		)
 			return this;
 
-		const newLinkMap = this.linkMap.updateAt(node1, (targets) =>
+		const newLinkMap = this.linkMap.updateAtKey(node1, (targets) =>
 			targets.removeKey(node2),
 		);
 
@@ -409,7 +409,7 @@ export class ValuedGraphNonEmpty<N, V>
 		if (this.isDirected) return this.copy(newLinkMap, newConnectionSize);
 
 		return this.copy(
-			newLinkMap.updateAt(node2, (targets) => targets.removeKey(node1)),
+			newLinkMap.updateAtKey(node2, (targets) => targets.removeKey(node1)),
 			newConnectionSize,
 		);
 	}
@@ -435,7 +435,7 @@ export class ValuedGraphNonEmpty<N, V>
 			.collect(([source, targets], _, skip) => {
 				if (
 					targets.isEmpty &&
-					!this.linkMap.streamValues().some((t) => t.hasKey(source))
+					!this.linkMap.streamValues().some((t) => t.has(source))
 				) {
 					return source;
 				}

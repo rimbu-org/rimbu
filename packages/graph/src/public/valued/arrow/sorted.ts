@@ -100,9 +100,9 @@ import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 export const ArrowValuedGraphSorted: ArrowValuedGraphSortedCreators =
 	createValuedGraphContextModule('ArrowValuedGraphSorted', true, {
 		get linkMapContext() {
-			return SortedMap.defaultContext();
+			return SortedMap;
 		},
 		get linkConnectionsContext() {
-			return SortedMap.defaultContext();
+			return SortedMap;
 		},
 	}).build();

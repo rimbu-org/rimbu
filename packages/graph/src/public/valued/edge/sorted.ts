@@ -100,9 +100,9 @@ import { EdgeValuedGraphHashed } from '@rimbu/graph/valued/edge/hashed'
 export const EdgeValuedGraphSorted: EdgeValuedGraphSortedCreators =
 	createValuedGraphContextModule('EdgeValuedGraphSorted', false, {
 		get linkMapContext() {
-			return SortedMap.defaultContext();
+			return SortedMap;
 		},
 		get linkConnectionsContext() {
-			return SortedMap.defaultContext();
+			return SortedMap;
 		},
 	}).build();

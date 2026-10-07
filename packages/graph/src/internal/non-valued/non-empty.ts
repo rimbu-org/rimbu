@@ -102,20 +102,20 @@ export class GraphNonEmpty<N>
 	}
 
 	hasNode<UN = N>(node: RelatedTo<N, UN>): boolean {
-		return this.linkMap.hasKey(node);
+		return this.linkMap.has(node);
 	}
 
 	hasConnection<UN = N>(
 		node1: RelatedTo<N, UN>,
 		node2: RelatedTo<N, UN>,
 	): boolean {
-		const targets = this.linkMap.at(node1);
+		const targets = this.linkMap.get(node1);
 
 		return targets?.has(node2) ?? false;
 	}
 
 	getConnectionStreamFrom<UN = N>(node1: RelatedTo<N, UN>): Stream<Link<N>> {
-		const targets = this.linkMap.at(node1);
+		const targets = this.linkMap.get(node1);
 
 		if (undefined === targets) return Stream.empty();
 
@@ -130,7 +130,7 @@ export class GraphNonEmpty<N>
 			});
 		}
 
-		const targets = this.linkMap.at(node);
+		const targets = this.linkMap.get(node);
 
 		if (undefined === targets) return Stream.empty();
 
@@ -138,21 +138,21 @@ export class GraphNonEmpty<N>
 	}
 
 	getConnectionsFrom<UN = N>(node1: RelatedTo<N, UN>): RSet<N> {
-		return this.linkMap.at(
+		return this.linkMap.get(
 			node1,
 			this.context.linkConnectionsContext.empty<N>(),
 		);
 	}
 
 	isSink<UN = N>(node: RelatedTo<N, UN>): boolean {
-		const targets = this.linkMap.at(node);
+		const targets = this.linkMap.get(node);
 
 		return targets?.isEmpty ?? false;
 	}
 
 	isSource<UN>(node: RelatedTo<N, UN>): boolean {
 		return (
-			this.linkMap.hasKey(node) &&
+			this.linkMap.has(node) &&
 			this.linkMap.streamValues().every((targets) => !targets.has(node))
 		);
 	}
@@ -160,7 +160,7 @@ export class GraphNonEmpty<N>
 	addNode(node: N): Graph.NonEmpty<N> {
 		return this.copy(
 			this.linkMap
-				.modifyAt(node, {
+				.modifyAtKey(node, {
 					ifNew: { create: this.context.linkConnectionsContext.empty },
 				})
 				.assumeNonEmpty(),
@@ -187,7 +187,7 @@ export class GraphNonEmpty<N>
 	}
 
 	connect(node1: N, node2: N): Graph.NonEmpty<N> {
-		const newLinkMap = this.linkMap.modifyAt(node1, {
+		const newLinkMap = this.linkMap.modifyAtKey(node1, {
 			ifNew: { create: () => this.context.linkConnectionsContext.of(node2) },
 			ifExists: { update: (targets) => targets.add(node2) },
 		});
@@ -206,7 +206,7 @@ export class GraphNonEmpty<N>
 		if (this.isDirected) {
 			return this.copy(
 				newLinkMap
-					.modifyAt(node2, {
+					.modifyAtKey(node2, {
 						ifNew: {
 							create: () => this.context.linkConnectionsContext.empty(),
 						},
@@ -218,7 +218,7 @@ export class GraphNonEmpty<N>
 
 		return this.copy(
 			newLinkMap
-				.modifyAt(node2, {
+				.modifyAtKey(node2, {
 					ifNew: {
 						create: () => this.context.linkConnectionsContext.of(node1),
 					},
@@ -245,7 +245,7 @@ export class GraphNonEmpty<N>
 		)
 			return this;
 
-		const newLinkMap = this.linkMap.updateAt(node1, (targets) =>
+		const newLinkMap = this.linkMap.updateAtKey(node1, (targets) =>
 			targets.remove(node2),
 		);
 
@@ -258,7 +258,7 @@ export class GraphNonEmpty<N>
 		}
 
 		return this.copy(
-			newLinkMap.updateAt(node2, (targets) => targets.remove(node1)),
+			newLinkMap.updateAtKey(node2, (targets) => targets.remove(node1)),
 			newConnectionSize,
 		);
 	}

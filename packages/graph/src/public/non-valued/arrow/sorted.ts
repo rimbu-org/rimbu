@@ -95,9 +95,9 @@ import { ArrowGraphSorted } from '@rimbu/graph/non-valued/arrow/sorted'
 export const ArrowGraphSorted: ArrowGraphSortedCreators =
 	createGraphContextModule('ArrowGraphSorted', true, {
 		get linkMapContext() {
-			return SortedMap.defaultContext();
+			return SortedMap;
 		},
 		get linkConnectionsContext() {
-			return SortedSet.defaultContext();
+			return SortedSet;
 		},
 	}).build();

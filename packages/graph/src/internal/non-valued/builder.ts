@@ -50,7 +50,7 @@ export class GraphBuilder<N> implements Graph.Builder<N> {
 	}
 
 	hasNode = <UN>(node: RelatedTo<N, UN>): boolean => {
-		return this.source?.hasNode(node) ?? this.linkMap.hasKey(node);
+		return this.source?.hasNode(node) ?? this.linkMap.has(node);
 	};
 
 	hasConnection = <UN>(
@@ -61,12 +61,12 @@ export class GraphBuilder<N> implements Graph.Builder<N> {
 			return this.source.hasConnection(node1, node2);
 		}
 
-		const targets = this.linkMap.at(node1);
+		const targets = this.linkMap.get(node1);
 		return targets?.has(node2) ?? false;
 	};
 
 	addNodeInternal = (node: N): boolean => {
-		const changed = this.linkMap.modifyAt(node, {
+		const changed = this.linkMap.modifyAtKey(node, {
 			ifNew: { create: this.context.linkConnectionsContext.builder },
 		});
 
@@ -105,7 +105,7 @@ export class GraphBuilder<N> implements Graph.Builder<N> {
 		} else {
 			this.connectionSize -= targets.size;
 			targets.forEach((target) => {
-				this.linkMap.updateAt(target, (values) => {
+				this.linkMap.updateAtKey(target, (values) => {
 					values.remove(node);
 					return values;
 				});
@@ -133,7 +133,7 @@ export class GraphBuilder<N> implements Graph.Builder<N> {
 	connectInternal = (node1: N, node2: N): boolean => {
 		let changed = false;
 
-		this.linkMap.modifyAt(node1, {
+		this.linkMap.modifyAtKey(node1, {
 			ifNew: {
 				create: () => {
 					const targetBuilder = this.context.linkConnectionsContext.builder();
@@ -157,7 +157,7 @@ export class GraphBuilder<N> implements Graph.Builder<N> {
 		if (changed) this.source = undefined;
 
 		if (changed && node1 !== node2) {
-			this.linkMap.modifyAt(node2, {
+			this.linkMap.modifyAtKey(node2, {
 				ifNew: {
 					create: () => {
 						const targetBuilder = this.context.linkConnectionsContext.builder();
@@ -198,8 +198,8 @@ export class GraphBuilder<N> implements Graph.Builder<N> {
 
 		let changed = false;
 
-		this.linkMap.updateAt(node1, (targets) => {
-			if (this.linkMap.hasKey(node2) && targets.add(node2)) {
+		this.linkMap.updateAtKey(node1, (targets) => {
+			if (this.linkMap.has(node2) && targets.add(node2)) {
 				this.connectionSize++;
 				changed = true;
 			}
@@ -209,7 +209,7 @@ export class GraphBuilder<N> implements Graph.Builder<N> {
 		if (changed && !this.isDirected) {
 			this.source = undefined;
 
-			this.linkMap.updateAt(node2, (targets) => {
+			this.linkMap.updateAtKey(node2, (targets) => {
 				targets.add(node1);
 				return targets;
 			});
@@ -246,7 +246,7 @@ export class GraphBuilder<N> implements Graph.Builder<N> {
 
 		let changed = false;
 
-		this.linkMap.updateAt(node1, (targets) => {
+		this.linkMap.updateAtKey(node1, (targets) => {
 			if (targets.remove(node2)) {
 				this.connectionSize--;
 				changed = true;
@@ -257,7 +257,7 @@ export class GraphBuilder<N> implements Graph.Builder<N> {
 		if (changed) this.source = undefined;
 
 		if (changed && node1 !== node2 && !this.isDirected) {
-			this.linkMap.updateAt(node2, (targets) => {
+			this.linkMap.updateAtKey(node2, (targets) => {
 				targets.remove(node1);
 				return targets;
 			});
