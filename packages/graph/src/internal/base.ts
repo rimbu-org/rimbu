@@ -346,6 +346,24 @@ import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 			connections: StreamSource<Link<RelatedTo<N, UN>>>,
 		): boolean;
 		/**
+		 * Performs given function `f` for each graph element in this builder.
+		 *
+		 * Use {@link forEachIndexed} when you need the index or want to stop early.
+		 * @param f - the function to perform for each graph element
+		 * @example
+		 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
+const b = ArrowGraphHashed.of([1], [2, 3], [4]).toBuilder()
+b.forEach((entry) => {
+ *   console.log([entry])
+ * })
+		 * ```
+		 * @note O(N)
+		 */
+		forEach(
+			f: (entry: [N] | WithGraphValues<Tp, N, unknown>['link']) => void,
+		): void;
+		/**
 		 * Performs given function `f` for each entry of the collection, using given `state` as initial traversal state.
 		 * @param f - the function to perform for each entry, receiving:<br/>
 		 * - `entry`: the next graph element<br/>
@@ -357,32 +375,11 @@ import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 		 * ```ts
 import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 		 * const b = ArrowGraphHashed.of([1], [2, 3], [4]).toBuilder();
-		 * b.forEach((entry, i, halt) => {
+		 * b.forEachIndexed((entry, i, halt) => {
 		 *   console.log([entry]);
 		 *   if (i >= 1) halt();
 		 * })
 		 * // => logs [1]  [2, 3]
-		 * ```
-		 * @note O(N)
-		 */
-		forEach(
-			f: (
-				entry: [N] | WithGraphValues<Tp, N, unknown>['link'],
-				index: number,
-				halt: () => void,
-			) => void,
-			options?: { state?: TraverseState },
-		): void;
-		/**
-		 * Like {@link forEach}, but under the name the shared collection vocabulary
-		 * reserves for the indexed traversal form.
-		 * @example
-		 * ```ts
-import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
-const b = ArrowGraphHashed.of([1], [2, 3], [4]).toBuilder()
-b.forEachIndexed((entry, i, halt) => {
- *   if (i >= 1) halt()
- * })
 		 * ```
 		 * @note O(N)
 		 */

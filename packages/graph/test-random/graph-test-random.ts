@@ -321,7 +321,7 @@ export function runGraphRandomTestsWith(
 		it('halt does not leak the lock', (): void => {
 			const b = filled();
 
-			b.forEach((_element, _index, halt): void => {
+			b.forEachIndexed((_element, _index, halt): void => {
 				halt();
 			});
 

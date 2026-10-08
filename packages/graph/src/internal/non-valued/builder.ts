@@ -305,11 +305,10 @@ export class GraphBuilder<N> implements Graph.Builder<N> {
 		);
 	};
 
-	forEach(
-		f: (entry: GraphElement<N>, index: number, halt: () => void) => void,
-		options: { state?: TraverseState } = {},
-	): void {
-		this.forEachIndexed(f, options);
+	forEach(f: (element: GraphElement<N>) => void): void {
+		this.forEachIndexed((element) => {
+			f(element);
+		});
 	}
 
 	forEachIndexed(
@@ -317,7 +316,7 @@ export class GraphBuilder<N> implements Graph.Builder<N> {
 		options: { state?: TraverseState } = {},
 	): void {
 		if (undefined !== this.source) {
-			this.source.forEach(f, options);
+			this.source.forEachIndexed(f, options);
 			return;
 		}
 

@@ -67,15 +67,10 @@ export class ValuedGraphNonEmpty<N, V>
 		return this;
 	}
 
-	forEach(
-		f: (
-			entry: ValuedGraphElement<N, V>,
-			index: number,
-			halt: () => void,
-		) => void,
-		options: { state?: TraverseState } = {},
-	): void {
-		this.forEachIndexed(f, options);
+	forEach(f: (element: ValuedGraphElement<N, V>) => void): void {
+		this.forEachIndexed((element) => {
+			f(element);
+		});
 	}
 
 	forEachIndexed(

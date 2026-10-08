@@ -54,11 +54,10 @@ export class GraphNonEmpty<N>
 		return this;
 	}
 
-	forEach(
-		f: (node: GraphElement<N>, index: number, halt: () => void) => void,
-		options: { state?: TraverseState } = {},
-	): void {
-		this.forEachIndexed(f, options);
+	forEach(f: (element: GraphElement<N>) => void): void {
+		this.forEachIndexed((element) => {
+			f(element);
+		});
 	}
 
 	forEachIndexed(

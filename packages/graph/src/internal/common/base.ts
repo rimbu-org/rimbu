@@ -124,7 +124,19 @@ export abstract class GraphEmptyBase<N, E = GraphElement<N>> extends EmptyBase {
 
 	/**
 	 * No elements, so nothing is visited. `f` is still accepted so the empty class
-	 * satisfies the same signature as the non-empty one.
+	 * satisfies the same signature as the non-empty one. Without this the class
+	 * would inherit `EmptyBase.forEach()`, which is declared with **zero**
+	 * parameters, and `empty.forEach(f)` would not typecheck.
+	 *
+	 * `f` is optional only because that inherited declaration admits none — the
+	 * capability `Api` types it as required. This goes away with `EmptyBase`.
+	 */
+	forEach(f?: (element: E) => void): void {
+		//
+	}
+
+	/**
+	 * No elements, so nothing is visited. See {@link forEach}.
 	 */
 	forEachIndexed(
 		f: (element: E, index: number, halt: () => void) => void,

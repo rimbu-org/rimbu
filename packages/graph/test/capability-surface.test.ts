@@ -207,3 +207,88 @@ describe('empty asNormal', () => {
 		});
 	}
 });
+describe('forEach vs forEachIndexed', () => {
+	it('forEach receives only the element', () => {
+		const g = ArrowGraphHashed.of([1], [2, 3], [4]);
+
+		const arity: number[] = [];
+		const elements: unknown[] = [];
+		g.forEach(function (this: unknown, ...args: unknown[]) {
+			arity.push(args.length);
+			elements.push(args[0]);
+		});
+
+		// The callback is handed the element and nothing else — no index, no halt.
+		expect(arity).toEqual([1, 1, 1, 1]);
+		expect(elements).toHaveLength(g.toArray().length);
+	});
+
+	it('forEachIndexed receives element, index and halt', () => {
+		const g = ArrowGraphHashed.of([1], [2, 3], [4]);
+
+		const arity: number[] = [];
+		g.forEachIndexed(function (...args: unknown[]) {
+			arity.push(args.length);
+		});
+
+		expect(arity).toEqual([3, 3, 3, 3]);
+	});
+
+	it('both visit exactly the same elements, in the same order', () => {
+		const g = ArrowGraphHashed.of([1], [2, 3], [4], [5, 6]);
+
+		const viaForEach: unknown[] = [];
+		const viaIndexed: unknown[] = [];
+		g.forEach((element) => {
+			viaForEach.push(element);
+		});
+		g.forEachIndexed((element) => {
+			viaIndexed.push(element);
+		});
+
+		expect(viaForEach).toEqual(viaIndexed);
+	});
+
+	it('halt is only available on forEachIndexed', () => {
+		const g = ArrowGraphHashed.of([1], [2, 3], [4]);
+
+		const viaForEach: unknown[] = [];
+		g.forEach((element) => {
+			viaForEach.push(element);
+		});
+		expect(viaForEach).toHaveLength(4);
+
+		const viaIndexed: unknown[] = [];
+		g.forEachIndexed((element, _index, halt) => {
+			viaIndexed.push(element);
+			halt();
+		});
+		expect(viaIndexed).toHaveLength(1);
+	});
+
+	it('the builder follows the same split', () => {
+		const builder = ArrowGraphHashed.builder<number>();
+		for (let i = 0; i < 3; i++) builder.connect(i, i + 1);
+
+		const viaForEach: unknown[] = [];
+		builder.forEach((element) => {
+			viaForEach.push(element);
+		});
+
+		const viaIndexed: unknown[] = [];
+		builder.forEachIndexed((element) => {
+			viaIndexed.push(element);
+		});
+
+		expect(viaForEach).toEqual(viaIndexed);
+		expect(viaForEach.length).toBeGreaterThan(0);
+	});
+
+	it('forEach on an empty graph visits nothing', () => {
+		let called = false;
+		ArrowGraphHashed.empty<number>().forEach(() => {
+			called = true;
+		});
+		expect(called).toBe(false);
+	});
+});

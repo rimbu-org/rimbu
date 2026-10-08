@@ -1,5 +1,9 @@
 import { expectTypeOf } from 'bun:test';
 
+import type { TraverseState } from '@rimbu/common/traverse-state';
+import type { GraphElement } from '@rimbu/graph/link';
+import type { ValuedGraphElement } from '@rimbu/graph/valued-link';
+
 import type { HashMap } from '@rimbu/hashed/map';
 import type { HashSet } from '@rimbu/hashed/set';
 import type { SortedMap } from '@rimbu/sorted/map';
@@ -166,3 +170,36 @@ expectTypeOf(arrowHashedBuilder.connectIfNodesExist).toEqualTypeOf<
 // @ts-expect-error -- builder-only; the immutable form would be
 // indistinguishable from `connect`.
 arrowHashed.connectIfNodesExist;
+
+// ---------------------------------------------------------------------------
+// `forEach` takes the element only; `forEachIndexed` is the indexed form.
+// Root `AGENTS.md` §1.1 and every other migrated package's vocabulary.
+// ---------------------------------------------------------------------------
+
+expectTypeOf(arrowHashed.forEach).toEqualTypeOf<
+	(f: (element: GraphElement<number>) => void) => void
+>();
+expectTypeOf(arrowHashed.forEachIndexed).toEqualTypeOf<
+	(
+		f: (element: GraphElement<number>, index: number, halt: () => void) => void,
+		options?: { state?: TraverseState },
+	) => void
+>();
+expectTypeOf(arrowValuedHashed.forEach).toEqualTypeOf<
+	(f: (element: ValuedGraphElement<number, string>) => void) => void
+>();
+
+expectTypeOf(arrowHashedBuilder.forEach).toEqualTypeOf<
+	(f: (element: GraphElement<number>) => void) => void
+>();
+expectTypeOf(arrowHashedBuilder.forEachIndexed).toEqualTypeOf<
+	(
+		f: (element: GraphElement<number>, index: number, halt: () => void) => void,
+		options?: { state?: TraverseState },
+	) => void
+>();
+
+// @ts-expect-error -- `forEachIndexed` is the only form that takes an index.
+arrowHashed.forEach((_element, _index) => {});
+// @ts-expect-error -- `forEach` takes no traversal-state option.
+arrowHashed.forEach(() => {}, { state: TraverseState() });

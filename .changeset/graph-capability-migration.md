@@ -30,6 +30,28 @@ shared capability suite.
   would be that third number (`size + connectionSize`), which is not a size
   anyone wants. Use `size`, `nodeSize`, or `connectionSize` explicitly.
 
+### Changed (breaking)
+
+- **`forEach` now takes only the graph element.** It previously received
+  `(element, index, halt)` and accepted a `{ state }` option. The indexed
+  traversal is now spelled `forEachIndexed` and keeps both — `f(element, index,
+  halt)` plus the `{ state }` option. This matches every other Rimbu collection
+  and the shared vocabulary, where `forEach` is the one-argument form and
+  `forEachIndexed` is the indexed one.
+
+  ```ts
+  // before
+  g.forEach((element, index, halt) => { if (index >= 1) halt(); });
+  // after
+  g.forEachIndexed((element, index, halt) => { if (index >= 1) halt(); });
+  g.forEach((element) => { /* … */ });
+  ```
+
+  Affects the collections and both builders. Callers that only ever passed a
+  one-argument (or zero-argument) callback need no change. Note that the two
+  forms still take the *same* `state` option, so the migration is a pure rename
+  for callers that were already using the indexed behaviour.
+
 ### Renamed
 
 - `connectAll` → `connectEach`

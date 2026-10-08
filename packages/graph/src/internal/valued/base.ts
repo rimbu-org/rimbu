@@ -430,24 +430,39 @@ import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 		 * ```
 		 * @note O(N)
 		 */
-		forEach(
-			f: (
-				entry: [N] | WithGraphValues<Tp, N, V>['link'],
-				index: number,
-				halt: () => void,
-			) => void,
-			options?: { state?: TraverseState },
-		): void;
 		/**
-		 * Like {@link forEach}, but under the name the shared collection vocabulary
-		 * reserves for the indexed traversal form.
+		 * Performs given function `f` for each graph element in this builder.
+		 *
+		 * Use {@link forEachIndexed} when you need the index or want to stop early.
+		 * @param f - the function to perform for each graph element
+		 * @example
+		 * ```ts
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
+const b = ArrowValuedGraphHashed.of([1, 2, 'a']).toBuilder()
+b.forEach((entry) => {
+ *   console.log([entry])
+ * })
+		 * ```
+		 * @note O(N)
+		 */
+		forEach(f: (entry: [N] | WithGraphValues<Tp, N, V>['link']) => void): void;
+		/**
+		 * Performs given function `f` for each entry of the collection, using given `state` as initial traversal state.
+		 * @param f - the function to perform for each entry, receiving:<br/>
+		 * - `entry`: the next graph element<br/>
+		 * - `index`: the index of the element<br/>
+		 * - `halt`: a function that, if called, ensures that no new elements are passed
+		 * @param options - object containing the following<br/>
+		 * - state: (optional) the traverse state
 		 * @example
 		 * ```ts
 import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 const b = ArrowValuedGraphHashed.of([1, 2, 'a']).toBuilder()
 b.forEachIndexed((entry, i, halt) => {
- *   if (i >= 1) halt()
+ *   console.log([entry]);
+ *   if (i >= 1) halt();
  * })
+		 * // => logs the elements
 		 * ```
 		 * @note O(N)
 		 */

@@ -120,12 +120,11 @@ reads as "connect everything".
   `connectionSize`. `length` is not offered: it is a banned name, and its only
   possible meaning here would be that third number.
 - **`size` is the node count**, identical to `nodeSize`.
-- **`forEach` and `forEachIndexed` are currently the same traversal** — both take
-  `(element, index, halt)`. The split is deliberate-but-pending: the rewiring
-  step narrows `forEach` to the one-argument form the shared collection
-  vocabulary uses and leaves the three-argument form to `forEachIndexed`. Until
-  then do not add a one-argument behaviour to either name; see "Still
-  outstanding".
+- **`forEach` takes the element only; `forEachIndexed` is the indexed form.**
+  `forEachIndexed(f, options?)` receives `(element, index, halt)` and is the only
+  traversal that can stop early — the collections and both builders. This split
+  matches the rest of Rimbu, so a callback written for another collection's
+  `forEach` works here unchanged.
 - **Undirected iteration double-counts.** `EdgeGraph`'s `stream()` / `forEach()` /
   `streamConnections()` emit each edge **twice**, because `connect` writes both
   directions. `connectionSize` counts once. This is kept (a dedup needs a

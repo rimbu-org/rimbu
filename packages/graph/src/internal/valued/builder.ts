@@ -458,15 +458,10 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 		);
 	};
 
-	forEach(
-		f: (
-			entry: ValuedGraphElement<N, V>,
-			index: number,
-			halt: () => void,
-		) => void,
-		options: { state?: TraverseState } = {},
-	): void {
-		this.forEachIndexed(f, options);
+	forEach(f: (element: ValuedGraphElement<N, V>) => void): void {
+		this.forEachIndexed((element) => {
+			f(element);
+		});
 	}
 
 	forEachIndexed(
@@ -478,7 +473,7 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 		options: { state?: TraverseState } = {},
 	): void {
 		if (undefined !== this.source) {
-			this.source.forEach(f, options);
+			this.source.forEachIndexed(f, options);
 			return;
 		}
 
