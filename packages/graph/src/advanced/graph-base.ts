@@ -241,7 +241,7 @@ export declare namespace GraphCollection {
 			readonly typeTag: string;
 			/** The context the internal link maps are created with. */
 			readonly linkMapContext: MapCollection.Context<
-				LinkMapFamily<FAM['_N'], LinkConnectionsFamily<FAM['_N']>>
+				LinkMapFamily<FAM['_N'], LinkConnectionsFamily<FAM['_N']>['_NORMAL']>
 			>;
 			/** The context a node's connection sets are created with. */
 			readonly linkConnectionsContext: SetCollection.Context<
@@ -268,7 +268,9 @@ export declare namespace GraphCollection {
 			 */
 			createContext<N>(options?: {
 				linkMapContext?:
-					| MapCollection.Context<LinkMapFamily<N, LinkConnectionsFamily<N>>>
+					| MapCollection.Context<
+							LinkMapFamily<N, LinkConnectionsFamily<N>['_NORMAL']>
+					  >
 					| undefined;
 				linkConnectionsContext?:
 					| SetCollection.Context<LinkConnectionsFamily<N>>
@@ -690,7 +692,10 @@ export declare namespace ValuedGraphCollection {
 			createContext<N, V>(options?: {
 				linkMapContext?:
 					| MapCollection.Context<
-							GraphCollection.Advanced.LinkMapFamily<N, LinkValuesFamily<N, V>>
+							GraphCollection.Advanced.LinkMapFamily<
+								N,
+								LinkValuesFamily<N, V>['_NORMAL']
+							>
 					  >
 					| undefined;
 				linkConnectionsContext?:
