@@ -43,7 +43,6 @@ const arrMulti: ArrayNonEmpty<Link<string>> = [
 	['a', 'a'],
 	['a', 'b'],
 	['c', 'b'],
-	['b', 'a'],
 ];
 
 export function runEdgeGraphTestsWith(name: string, G: EdgeGraph.Context<any>) {

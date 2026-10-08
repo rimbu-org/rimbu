@@ -59,7 +59,7 @@ const edgeValuedGraphEmpty = EdgeValuedGraphSorted.empty<string, number>();
 const edgeValuedGraph6 = EdgeValuedGraphSorted.from(valuedArr6);
 const edgeValuedGraphMulti = EdgeValuedGraphSorted.from(valuedArrMulti);
 
-describe('traverseBreadthFirst ArrowGraphs', () => {
+describe('traverseDepthFirst ArrowGraphs', () => {
 	it('empty', () => {
 		expect(traverseDepthFirstSorted(arrowGraphEmpty, 'a')).toBe(Stream.empty());
 		expect(traverseDepthFirstSorted(arrowValuedGraphEmpty, 'a')).toBe(
@@ -135,7 +135,7 @@ describe('traverseBreadthFirst ArrowGraphs', () => {
 	});
 });
 
-describe('traverseBreadthFirst EdgeGraphs', () => {
+describe('traverseDepthFirst EdgeGraphs', () => {
 	it('empty', () => {
 		expect(traverseDepthFirstSorted(edgeGraphEmpty, 'a')).toBe(Stream.empty());
 		expect(traverseDepthFirstSorted(edgeValuedGraphEmpty, 'a')).toBe(

@@ -43,6 +43,12 @@ const arrMulti: ArrayNonEmpty<ValuedLink<string, number>> = [
 	['a', 'a', 1],
 	['a', 'b', 2],
 	['c', 'b', 3],
+	// Deliberately includes the reverse of ['a', 'b', 2] with a different
+	// value: connecting an already-connected pair overwrites the value, and the
+	// getConnectionStreamTo('a') case below asserts that (it expects
+	// ['b', 'a', 4], not 2). Not a fixture mistake -- but it is why
+	// symmetric(arrMulti) cannot be compared against this graph.
+	['b', 'a', 4],
 	['b', 'a', 4],
 ];
 

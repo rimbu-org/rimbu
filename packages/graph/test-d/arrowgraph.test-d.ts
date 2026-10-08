@@ -1,6 +1,6 @@
 import { expectTypeOf } from 'bun:test';
 
-import type { RSet } from '@rimbu/collection-types';
+import type { SetCollection } from '@rimbu/collection-types/set';
 import type { ArrowGraph } from '@rimbu/graph/arrow-graph';
 import type { GraphElement, Link } from '@rimbu/graph/link';
 import type { FastIterator, Stream } from '@rimbu/stream';
@@ -32,6 +32,12 @@ expectTypeOf(genNonEmpty[Symbol.iterator]()).toEqualTypeOf<
 	FastIterator<GraphElement<number>>
 >();
 
+// .size / .nodeSize / .connectionSize
+expectTypeOf(genEmpty.size).toEqualTypeOf<number>();
+expectTypeOf(genNonEmpty.size).toEqualTypeOf<number>();
+expectTypeOf(genEmpty.nodeSize).toEqualTypeOf<number>();
+expectTypeOf(genEmpty.connectionSize).toEqualTypeOf<number>();
+
 // .addNode(..)
 expectTypeOf(genEmpty.addNode(1)).toEqualTypeOf<G_NonEmpty>();
 expectTypeOf(genNonEmpty.addNode(1)).toEqualTypeOf<G_NonEmpty>();
@@ -57,36 +63,40 @@ expectTypeOf(genEmpty.connectEach([[1, 2]])).toEqualTypeOf<G_NonEmpty>();
 expectTypeOf(genNonEmpty.connectEach([])).toEqualTypeOf<G_NonEmpty>();
 expectTypeOf(genNonEmpty.connectEach([[1, 2]])).toEqualTypeOf<G_NonEmpty>();
 
-// .connectIfNodesExist(..)
-// expectType<G_Empty>(genEmpty.connectIfNodesExist(1, 2));
-// expectType<G_NonEmpty>(genNonEmpty.connectIfNodesExist(1, 2));
-
-// .connectionSource
-// expectAssignable<RMap<number, RSet<number>>>(genEmpty.sourceMap);
-// expectAssignable<RMap.NonEmpty<number, RSet<number>>>(
-//   genNonEmpty.sourceMap
-// );
-
-// .disconnect
+// .disconnect(..)
 expectTypeOf(genEmpty.disconnect(1, 2)).toEqualTypeOf<G_Empty>();
 expectTypeOf(genNonEmpty.disconnect(1, 2)).toEqualTypeOf<G_Empty>();
 
-// .disconnectEach
+// .disconnectEach(..)
 expectTypeOf(genEmpty.disconnectEach([])).toEqualTypeOf<G_Empty>();
 expectTypeOf(genNonEmpty.disconnectEach([[1, 2]])).toEqualTypeOf<G_Empty>();
 
-// .getConnectionSetFrom(..)
-expectTypeOf(genEmpty.getConnectionsFrom(1)).toEqualTypeOf<RSet<number>>();
-expectTypeOf(genNonEmpty.getConnectionsFrom(1)).toEqualTypeOf<RSet<number>>();
+// .getConnectionsFrom(..)
+//
+// Asserted as `toExtend<SetCollection<number>>` rather than `toEqualTypeOf`:
+// this is the abstract `ArrowGraph` family, whose inner connection family is
+// left open, so the exact resolved type is a generic set API rather than a
+// concrete `HashSet`/`SortedSet`. The per-variant precision is asserted in the
+// variant suites.
+expectTypeOf(genEmpty.getConnectionsFrom(1)).toExtend<
+	SetCollection<number>
+>();
+expectTypeOf(genNonEmpty.getConnectionsFrom(1)).toExtend<
+	SetCollection<number>
+>();
 
 // .getConnectionStreamFrom(..)
-expectTypeOf<Stream<Link<number>>>(genEmpty.getConnectionStreamFrom(1));
-expectTypeOf<Stream<Link<number>>>(genNonEmpty.getConnectionStreamFrom(1));
+expectTypeOf(genEmpty.getConnectionStreamFrom(1)).toEqualTypeOf<
+	Stream<Link<number>>
+>();
+expectTypeOf(genNonEmpty.getConnectionStreamFrom(1)).toEqualTypeOf<
+	Stream<Link<number>>
+>();
 
 // .getConnectionStreamTo(..)
-expectTypeOf<Stream<Link<number>>>(genEmpty.getConnectionStreamTo(1));
-expectTypeOf<Stream<Link<number>>>(genNonEmpty.getConnectionStreamTo(1));
-
-// genNonEmpty.
-// expectTypeOf<ArrowGraph<number>>(ArrowGraph.empty<number>());
-// expectType<ArrowGraph.NonEmpty<number>>(ArrowGraph.of([1, 2]));
+expectTypeOf(genEmpty.getConnectionStreamTo(1)).toEqualTypeOf<
+	Stream<Link<number>>
+>();
+expectTypeOf(genNonEmpty.getConnectionStreamTo(1)).toEqualTypeOf<
+	Stream<Link<number>>
+>();
