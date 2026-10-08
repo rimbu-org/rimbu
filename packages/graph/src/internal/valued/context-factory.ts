@@ -19,7 +19,7 @@ export interface ValuedGraphContextImpl<UN> extends ValuedGraph.Context<UN> {
 		source?: ValuedGraph.NonEmpty<N, V>,
 	): ValuedGraph.Builder<N, V>;
 	createNonEmpty<N extends UN, V>(
-		linkMap: MapCollection.NonEmpty<N, MapCollection<N, V>>,
+		linkMap: MapCollection.NonEmpty<N, MapCollection<N, V>, MapCollection.Advanced.Family<N, MapCollection<N, V>>>,
 		connectionSize: number,
 	): ValuedGraph.NonEmpty<N, V>;
 	createContext<N extends UN>(options: {
@@ -139,7 +139,7 @@ export function createValuedGraphContextModule<UN>(
 			);
 		},
 		createNonEmpty<N extends UN, V>(
-			linkMap: MapCollection.NonEmpty<N, MapCollection<N, V>>,
+			linkMap: MapCollection.NonEmpty<N, MapCollection<N, V>, MapCollection.Advanced.Family<N, MapCollection<N, V>>>,
 			connectionSize: number,
 		): ValuedGraph.NonEmpty<N, V> {
 			return new ValuedGraphNonEmpty<N, V>(

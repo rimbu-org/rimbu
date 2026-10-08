@@ -251,7 +251,11 @@ export declare namespace GraphCollection {
 			readonly isDirected: boolean;
 
 			createNonEmpty<N extends FAM['_UPPER_N']>(
-				linkMap: MapCollection.NonEmpty<N, SetCollection<N>>,
+				linkMap: MapCollection.NonEmpty<
+					N,
+					SetCollection<N>,
+					LinkMapFamily<N, LinkConnectionsFamily<N>['_NORMAL']>
+				>,
 				connectionSize: number,
 			): Collection.Advanced.FamToTypes<FAM, GraphElement<N>>['_NON_EMPTY'];
 			createBuilder<N extends FAM['_UPPER_N']>(
