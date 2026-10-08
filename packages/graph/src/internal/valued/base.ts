@@ -586,7 +586,7 @@ import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 		 * built from. Pinned per variant; every storage member below is derived
 		 * from it rather than restated.
 		 */
-		readonly _LINK_CONNECTIONS_FAM: GraphCollection.Advanced.LinkValuesFamily<
+		readonly _LINK_CONNECTIONS_FAM: ValuedGraphCollection.Advanced.LinkValuesFamily<
 			this['_N'],
 			this['_V']
 		>;
