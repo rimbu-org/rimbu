@@ -86,9 +86,9 @@ import { EdgeGraphSorted } from '@rimbu/graph/non-valued/edge/sorted'
 export const EdgeGraphSorted: EdgeGraphSortedCreators =
 	createGraphContextModule('EdgeGraphSorted', false, {
 		get linkMapContext() {
-			return SortedMap;
+			return SortedMap.collectionContext;
 		},
 		get linkConnectionsContext() {
-			return SortedSet;
+			return SortedSet.createContext({});
 		},
 	}).build();

@@ -124,7 +124,7 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 		this.source = undefined;
 
 		if (this.isDirected) {
-			this.linkMap.forEach(([sourceNode, targets]) => {
+			this.linkMap.forEachIndexed(([sourceNode, targets]) => {
 				if (targets.removeKey(node)) {
 					if (sourceNode !== node) this.connectionSize--;
 				}
@@ -164,7 +164,8 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 		this.linkMap.modifyAtKey(node1, {
 			ifNew: {
 				create: () => {
-					const targetBuilder = this.context.linkConnectionsContext.builder();
+					const targetBuilder =
+						this.context.linkConnectionsContext.builder<[N, V]>();
 					targetBuilder.set(node2, value);
 					this.connectionSize++;
 					changed = true;
@@ -189,7 +190,8 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 			this.linkMap.modifyAtKey(node2, {
 				ifNew: {
 					create: () => {
-						const targetBuilder = this.context.linkConnectionsContext.builder();
+						const targetBuilder =
+							this.context.linkConnectionsContext.builder<[N, V]>();
 						if (!this.isDirected) targetBuilder.set(node1, value);
 						return targetBuilder;
 					},
@@ -458,11 +460,11 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 		// builder is rejected forever.
 		this._lock++;
 		try {
-			this.linkMap.forEach(
+			this.linkMap.forEachIndexed(
 				([source, targets]) => {
 					f([source], state.nextIndex(), state.halt);
 
-					targets.forEach(
+					targets.forEachIndexed(
 						([target, value]) => {
 							f([source, target, value], state.nextIndex(), state.halt);
 						},

@@ -95,9 +95,9 @@ import { EdgeValuedGraphHashed } from '@rimbu/graph/valued/edge/hashed'
 export const EdgeValuedGraphHashed: EdgeValuedGraphHashedCreators =
 	createValuedGraphContextModule('EdgeValuedGraphHashed', false, {
 		get linkMapContext() {
-			return HashMap;
+			return HashMap.collectionContext;
 		},
 		get linkConnectionsContext() {
-			return HashMap;
+			return HashMap.collectionContext;
 		},
 	}).build();

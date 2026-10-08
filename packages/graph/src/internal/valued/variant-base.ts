@@ -1,6 +1,9 @@
-import type { VariantMap } from '@rimbu/collection-types';
 import type { OptLazy } from '@rimbu/common/opt-lazy';
 import type { RelatedTo } from '@rimbu/common/types';
+import type {
+	GraphCollection,
+	ValuedGraphCollection,
+} from '@rimbu/graph/advanced/graph-base';
 import type { ValuedGraphElement, ValuedLink } from '@rimbu/graph/valued-link';
 import type { Stream, Streamable } from '@rimbu/stream';
 
@@ -118,13 +121,12 @@ import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 		readonly nonEmpty: VariantValuedGraphBase.NonEmpty<this['_N'], this['_V']>;
 		readonly link: ValuedLink<this['_N'], this['_V']>;
 		readonly linkTarget: ValuedLink.Target<this['_N'], this['_V']>;
-		readonly linkMap: VariantMap<
-			this['_N'],
-			VariantMap<this['_N'], this['_V']>
+		readonly _LINK_CONNECTIONS_FAM: ValuedGraphCollection.Advanced.LinkValuesFamily<
+			any,
+			any
 		>;
-		readonly linkMapNonEmpty: VariantMap.NonEmpty<
-			this['_N'],
-			VariantMap<this['_N'], this['_V']>
-		>;
+		readonly _LINK_MAP_FAM: GraphCollection.Advanced.LinkMapFamily<any, any>;
+		readonly linkMap: this['_LINK_MAP_FAM']['_NORMAL'];
+		readonly linkMapNonEmpty: this['_LINK_MAP_FAM']['_NON_EMPTY'];
 	}
 }

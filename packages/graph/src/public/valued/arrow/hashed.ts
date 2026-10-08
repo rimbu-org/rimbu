@@ -95,9 +95,9 @@ import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 export const ArrowValuedGraphHashed: ArrowValuedGraphHashedCreators =
 	createValuedGraphContextModule('ArrowValuedGraphHashed', true, {
 		get linkMapContext() {
-			return HashMap;
+			return HashMap.collectionContext;
 		},
 		get linkConnectionsContext() {
-			return HashMap;
+			return HashMap.collectionContext;
 		},
 	}).build();

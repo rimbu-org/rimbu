@@ -86,9 +86,9 @@ import { EdgeGraphHashed } from '@rimbu/graph/non-valued/edge/hashed'
 export const EdgeGraphHashed: EdgeGraphHashedCreators =
 	createGraphContextModule('EdgeGraphHashed', false, {
 		get linkMapContext() {
-			return HashMap;
+			return HashMap.collectionContext;
 		},
 		get linkConnectionsContext() {
-			return HashSet;
+			return HashSet.createContext({});
 		},
 	}).build();

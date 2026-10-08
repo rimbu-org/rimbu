@@ -101,7 +101,7 @@ export class GraphBuilder<N> implements Graph.Builder<N> {
 		this.source = undefined;
 
 		if (this.isDirected) {
-			this.linkMap.forEach(([sourceNode, targets]) => {
+			this.linkMap.forEachIndexed(([sourceNode, targets]) => {
 				if (targets.remove(node)) {
 					if (sourceNode !== node) this.connectionSize--;
 				}
@@ -140,7 +140,8 @@ export class GraphBuilder<N> implements Graph.Builder<N> {
 		this.linkMap.modifyAtKey(node1, {
 			ifNew: {
 				create: () => {
-					const targetBuilder = this.context.linkConnectionsContext.builder();
+					const targetBuilder =
+						this.context.linkConnectionsContext.builder<N>();
 					targetBuilder.add(node2);
 					this.connectionSize++;
 					changed = true;
@@ -164,7 +165,8 @@ export class GraphBuilder<N> implements Graph.Builder<N> {
 			this.linkMap.modifyAtKey(node2, {
 				ifNew: {
 					create: () => {
-						const targetBuilder = this.context.linkConnectionsContext.builder();
+						const targetBuilder =
+							this.context.linkConnectionsContext.builder<N>();
 						if (!this.isDirected) targetBuilder.add(node1);
 						return targetBuilder;
 					},
@@ -308,11 +310,11 @@ export class GraphBuilder<N> implements Graph.Builder<N> {
 		// builder is rejected forever.
 		this._lock++;
 		try {
-			this.linkMap.forEach(
+			this.linkMap.forEachIndexed(
 				([source, targets]) => {
 					f([source], state.nextIndex(), state.halt);
 
-					targets.forEach(
+					targets.forEachIndexed(
 						(target) => {
 							f([source, target], state.nextIndex(), state.halt);
 						},

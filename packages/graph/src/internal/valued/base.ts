@@ -2,7 +2,10 @@ import type { ModifyOptions } from '@rimbu/collection-types/advanced/common';
 import type { OptLazy } from '@rimbu/common/opt-lazy';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { ArrayNonEmpty, RelatedTo } from '@rimbu/common/types';
-import type { GraphCollection } from '@rimbu/graph/advanced/graph-base';
+import type {
+	GraphCollection,
+	ValuedGraphCollection,
+} from '@rimbu/graph/advanced/graph-base';
 import type { Link } from '@rimbu/graph/link';
 import type { ValuedGraphElement } from '@rimbu/graph/valued-link';
 import type { Stream, Streamable, StreamSource } from '@rimbu/stream';
@@ -587,18 +590,20 @@ import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 		 * from it rather than restated.
 		 */
 		readonly _LINK_CONNECTIONS_FAM: ValuedGraphCollection.Advanced.LinkValuesFamily<
-			this['_N'],
-			this['_V']
+			any,
+			any
 		>;
 		/**
 		 * The family the outer link map is built from. Its value type is derived
 		 * from {@link Types._LINK_CONNECTIONS_FAM} so each fact is named once per
 		 * variant instead of seven times.
+		 *
+		 * Declared with `any` parameters; the leaf variants narrow it. See the note
+		 * on `GraphBase.Types._LINK_MAP_FAM` — `ModifyOptions` makes a map
+		 * invariant in its value type, so a narrow declaration here would make
+		 * every leaf `Types` fail its `extends` constraint.
 		 */
-		readonly _LINK_MAP_FAM: GraphCollection.Advanced.LinkMapFamily<
-			this['_N'],
-			this['_LINK_CONNECTIONS_FAM']['_NORMAL']
-		>;
+		readonly _LINK_MAP_FAM: GraphCollection.Advanced.LinkMapFamily<any, any>;
 
 		readonly linkMap: this['_LINK_MAP_FAM']['_NORMAL'];
 		readonly linkMapNonEmpty: this['_LINK_MAP_FAM']['_NON_EMPTY'];

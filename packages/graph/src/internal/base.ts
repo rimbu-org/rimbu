@@ -505,18 +505,20 @@ import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 		 * The family a node's connection set is built from. Pinned per variant;
 		 * every storage member below is derived from it rather than restated.
 		 */
-		readonly _LINK_CONNECTIONS_FAM: GraphCollection.Advanced.LinkConnectionsFamily<
-			this['_N']
-		>;
+		readonly _LINK_CONNECTIONS_FAM: GraphCollection.Advanced.LinkConnectionsFamily<any>;
 		/**
 		 * The family the outer link map is built from. Its value type is derived
 		 * from {@link Types._LINK_CONNECTIONS_FAM} so each fact is named once per
 		 * variant instead of seven times.
+		 *
+		 * The slot is declared with `any` parameters here — the leaf variants
+		 * narrow it to the concrete family. Widening is required, not cosmetic:
+		 * `ModifyOptions` makes a map invariant in its value type, so a concrete
+		 * `HashMap<N, HashSet<N>>` is *not* assignable to the abstract
+		 * `MapCollection.Advanced.Api`, and a narrow declaration would make every
+		 * leaf `Types` fail its `extends` constraint.
 		 */
-		readonly _LINK_MAP_FAM: GraphCollection.Advanced.LinkMapFamily<
-			this['_N'],
-			this['_LINK_CONNECTIONS_FAM']['_NORMAL']
-		>;
+		readonly _LINK_MAP_FAM: GraphCollection.Advanced.LinkMapFamily<any, any>;
 
 		readonly linkMap: this['_LINK_MAP_FAM']['_NORMAL'];
 		readonly linkMapNonEmpty: this['_LINK_MAP_FAM']['_NON_EMPTY'];
