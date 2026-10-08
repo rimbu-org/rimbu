@@ -133,11 +133,11 @@ export class GraphNonEmpty<N>
 		return targets.stream().map((node2) => [node1, node2] as [N, N]);
 	}
 
-	getConnectionStreamTo<UN = N>(node: RelatedTo<N, UN>): any {
+	getConnectionStreamTo<UN = N>(node: RelatedTo<N, UN>): Stream<Link<N>> {
 		if (this.isDirected) {
 			return this.linkMap.stream().collect(([source, targets], _, skip) => {
 				if (!targets?.has(node)) return skip;
-				return [source, node];
+				return [source, node] as [N, N];
 			});
 		}
 
@@ -145,7 +145,7 @@ export class GraphNonEmpty<N>
 
 		if (undefined === targets) return Stream.empty();
 
-		return targets.stream().map((node1) => [node1, node]);
+		return targets.stream().map((node1) => [node1, node] as [N, N]);
 	}
 
 	getConnectionsFrom<UN = N>(node1: RelatedTo<N, UN>): SetCollection<N> {

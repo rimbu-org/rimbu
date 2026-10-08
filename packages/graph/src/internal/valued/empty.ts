@@ -16,7 +16,7 @@ import { Stream, type StreamSource } from '@rimbu/stream';
 import { GraphEmptyBase } from '#graph/common/base';
 
 export class ValuedGraphEmpty<N, V>
-	extends GraphEmptyBase
+	extends GraphEmptyBase<N>
 	implements ValuedGraphBase<N, V>
 {
 	declare _NonEmptyType: ValuedGraph.NonEmpty<N, V>;
@@ -114,7 +114,7 @@ export class ValuedGraphEmpty<N, V>
 		return `${this.context.typeTag}()`;
 	}
 
-	toJSON(): ToJSON<any[]> {
+	toJSON(): ToJSON<[N, ValuedLink.Target<N, V>[]][]> {
 		return {
 			dataType: this.context.typeTag,
 			value: [],

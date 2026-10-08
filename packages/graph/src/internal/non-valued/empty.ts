@@ -11,7 +11,7 @@ import { Stream, type StreamSource } from '@rimbu/stream';
 
 import { GraphEmptyBase } from '#graph/common/base';
 
-export class GraphEmpty<N> extends GraphEmptyBase implements GraphBase<N> {
+export class GraphEmpty<N> extends GraphEmptyBase<N> implements GraphBase<N> {
 	declare _NonEmptyType: Graph.NonEmpty<N>;
 
 	get isDirected(): boolean {
@@ -76,7 +76,7 @@ export class GraphEmpty<N> extends GraphEmptyBase implements GraphBase<N> {
 		return `${this.context.typeTag}()`;
 	}
 
-	toJSON(): ToJSON<any[]> {
+	toJSON(): ToJSON<[N, Link.Target<N>[]][]> {
 		return {
 			dataType: this.context.typeTag,
 			value: [],

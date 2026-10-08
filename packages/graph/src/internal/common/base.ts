@@ -94,7 +94,7 @@ import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 	): WithGraphValues<Tp, N, V>['nonEmpty'];
 }
 
-export abstract class GraphEmptyBase extends EmptyBase {
+export abstract class GraphEmptyBase<N> extends EmptyBase {
 	get nodeSize(): 0 {
 		return 0;
 	}
@@ -103,11 +103,11 @@ export abstract class GraphEmptyBase extends EmptyBase {
 		return 0;
 	}
 
-	streamNodes(): Stream<any> {
+	streamNodes(): Stream<N> {
 		return Stream.empty();
 	}
 
-	streamConnections(): Stream<any> {
+	streamConnections(): Stream<never> {
 		return Stream.empty();
 	}
 
@@ -127,31 +127,31 @@ export abstract class GraphEmptyBase extends EmptyBase {
 		return false;
 	}
 
-	removeNode(): any {
+	removeNode(): this {
 		return this;
 	}
 
-	removeNodes(): any {
+	removeNodes(): this {
 		return this;
 	}
 
-	getConnectionStreamFrom(): Stream<any> {
+	getConnectionStreamFrom(): Stream<never> {
 		return Stream.empty();
 	}
 
-	getConnectionStreamTo(): Stream<any> {
+	getConnectionStreamTo(): Stream<never> {
 		return Stream.empty();
 	}
 
-	disconnect(): any {
+	disconnect(): this {
 		return this;
 	}
 
-	disconnectEach(): any {
+	disconnectEach(): this {
 		return this;
 	}
 
-	removeUnconnectedNodes(): any {
+	removeUnconnectedNodes(): this {
 		return this;
 	}
 }
