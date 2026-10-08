@@ -439,6 +439,40 @@ import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 			options?: { state?: TraverseState },
 		): void;
 		/**
+		 * Like {@link forEach}, but under the name the shared collection vocabulary
+		 * reserves for the indexed traversal form.
+		 * @example
+		 * ```ts
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
+const b = ArrowValuedGraphHashed.of([1, 2, 'a']).toBuilder()
+b.forEachIndexed((entry, i, halt) => {
+ *   if (i >= 1) halt()
+ * })
+		 * ```
+		 * @note O(N)
+		 */
+		forEachIndexed(
+			f: (
+				entry: [N] | WithGraphValues<Tp, N, V>['link'],
+				index: number,
+				halt: () => void,
+			) => void,
+			options?: { state?: TraverseState },
+		): void;
+		/**
+		 * Removes every node and connection from this builder, returning it to the
+		 * empty state. The builder stays usable afterwards.
+		 * @example
+		 * ```ts
+import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
+const b = ArrowValuedGraphHashed.of([1, 2, 'a']).toBuilder()
+b.clear()
+b.isEmpty    // => true
+		 * ```
+		 * @note O(1)
+		 */
+		clear(): void;
+		/**
 		 * Returns an immutable graph containing the nodes and connections of this builder.
 		 * @example
 		 * ```ts

@@ -1,6 +1,6 @@
 import type { RelatedTo, ToJSON } from '@rimbu/common/types';
 import type { ValuedGraphCollection } from '@rimbu/graph/advanced/graph-base';
-import type { ValuedLink } from '@rimbu/graph/valued-link';
+import type { ValuedGraphElement, ValuedLink } from '@rimbu/graph/valued-link';
 
 import type { ValuedGraphBase } from '#graph/valued/base';
 import type { ValuedGraphContextImpl } from '#graph/valued/context-factory';
@@ -16,7 +16,7 @@ import { Stream, type StreamSource } from '@rimbu/stream';
 import { GraphEmptyBase } from '#graph/common/base';
 
 export class ValuedGraphEmpty<N, V>
-	extends GraphEmptyBase<N>
+	extends GraphEmptyBase<N, ValuedGraphElement<N, V>>
 	implements ValuedGraphBase<N, V>
 {
 	declare _NonEmptyType: ValuedGraph.NonEmpty<N, V>;

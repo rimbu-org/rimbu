@@ -33,7 +33,7 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 	// `build()` converts the inner builders back with `buildMapValues`. This is
 	// why the value type is a *builder* and not `LinkValuesType`: it is what the
 	// builder genuinely stores, not a shorthand for the immutable form.
-	_linkMap?: MapCollection.Builder<N, MapCollection.Builder<N, V>>;
+	_linkMap?: MapCollection.Builder<N, MapCollection.Builder<N, V>> | undefined;
 	_lock = 0;
 
 	checkLock(): void {
@@ -466,6 +466,17 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 		) => void,
 		options: { state?: TraverseState } = {},
 	): void {
+		this.forEachIndexed(f, options);
+	}
+
+	forEachIndexed(
+		f: (
+			entry: ValuedGraphElement<N, V>,
+			index: number,
+			halt: () => void,
+		) => void,
+		options: { state?: TraverseState } = {},
+	): void {
 		if (undefined !== this.source) {
 			this.source.forEach(f, options);
 			return;
@@ -500,6 +511,13 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 			this._lock--;
 		}
 	}
+
+	clear = (): void => {
+		this.checkLock();
+		this.source = undefined;
+		this._linkMap = undefined;
+		this.connectionSize = 0;
+	};
 
 	build = (): ValuedGraph<N, V> => {
 		if (undefined !== this.source) return this.source;

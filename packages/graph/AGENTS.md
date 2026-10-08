@@ -113,18 +113,19 @@ reads as "connect everything".
 
 ## Deliberate semantics
 
-- **There is no `toArray()`.** A graph's elements are its isolated nodes **and**
-  its links, and nothing on the public surface collects them into an array — use
-  `stream().toArray()`. (The capability `Api` in `advanced/graph-base.ts`
-  declares `toArray()` and `forEachIndexed()`, but the public variant interfaces
-  still extend the internal `VariantGraphBase` hierarchy instead of that
-  `Api`, so neither member is reachable. Wiring the public families onto the
-  capability aggregates is the outstanding follow-up; see the "Still
-  outstanding" note below before adding either method.)
-- **`size` is the node count**, identical to `nodeSize`. It is *not* the element
-  count, which equals neither `size` nor `connectionSize`. `length` is not
-  offered — it is a banned name, and its only meaning here would be that third
-  number.
+- **`toArray()` returns elements, not `size`.** A graph's elements are its
+  isolated nodes **and** its links, so `of([1], [2, 3]).toArray()` is
+  `[[1], [2, 3], [3]]` — note the trailing `[3]`, because `connect(2, 3)` also
+  creates `3` as a node. `toArray().length` equals neither `size` nor
+  `connectionSize`. `length` is not offered: it is a banned name, and its only
+  possible meaning here would be that third number.
+- **`size` is the node count**, identical to `nodeSize`.
+- **`forEach` and `forEachIndexed` are currently the same traversal** — both take
+  `(element, index, halt)`. The split is deliberate-but-pending: the rewiring
+  step narrows `forEach` to the one-argument form the shared collection
+  vocabulary uses and leaves the three-argument form to `forEachIndexed`. Until
+  then do not add a one-argument behaviour to either name; see "Still
+  outstanding".
 - **Undirected iteration double-counts.** `EdgeGraph`'s `stream()` / `forEach()` /
   `streamConnections()` emit each edge **twice**, because `connect` writes both
   directions. `connectionSize` counts once. This is kept (a dedup needs a
@@ -203,8 +204,11 @@ only partly wired in: the storage aliases and family slots are used, but its
 `Api` / `NonEmptyApi` / `BuilderApi` / `ContextApi` aggregates are not yet the
 public surface. Consequences and follow-ups:
 
-- `toArray()` and `forEachIndexed()` are declared on the capability `Api` but
-  unreachable; do not add members there expecting them to become public.
+- The capability `Api` declares `toArray()` and `forEachIndexed()`, and so does
+  the legacy tier they will be merged into. The members are implemented and
+  tested; what is missing is only that the *public* families still point at the
+  legacy hierarchy. Do not add members to the capability `Api` expecting them to
+  become public without rewiring.
 - The `Variant*` tier (`internal/variant-base.ts`, `internal/valued/variant-base.ts`)
   still exists and is slated for deletion once the families are rewired.
 

@@ -1,3 +1,4 @@
+import type { ArrayNonEmpty } from '@rimbu/common';
 import type { RelatedTo, ToJSON } from '@rimbu/common/types';
 import type { ValuedGraphCollection } from '@rimbu/graph/advanced/graph-base';
 import type { Link } from '@rimbu/graph/link';
@@ -74,6 +75,17 @@ export class ValuedGraphNonEmpty<N, V>
 		) => void,
 		options: { state?: TraverseState } = {},
 	): void {
+		this.forEachIndexed(f, options);
+	}
+
+	forEachIndexed(
+		f: (
+			entry: ValuedGraphElement<N, V>,
+			index: number,
+			halt: () => void,
+		) => void,
+		options: { state?: TraverseState } = {},
+	): void {
 		const { state = TraverseState() } = options;
 
 		const mapIter = this.linkMap[Symbol.iterator]();
@@ -112,6 +124,10 @@ export class ValuedGraphNonEmpty<N, V>
 						[node, target, value] as ValuedGraphElement<N, V>,
 				);
 		});
+	}
+
+	toArray(): ArrayNonEmpty<ValuedGraphElement<N, V>> {
+		return this.stream().toArray();
 	}
 
 	get size(): number {

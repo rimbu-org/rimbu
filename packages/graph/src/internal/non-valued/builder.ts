@@ -24,7 +24,7 @@ export class GraphBuilder<N> implements Graph.Builder<N> {
 		if (undefined !== source) this.connectionSize = source.connectionSize;
 	}
 
-	_linkMap?: MapCollection.Builder<N, SetCollection.Builder<N>>;
+	_linkMap?: MapCollection.Builder<N, SetCollection.Builder<N>> | undefined;
 	_lock = 0;
 
 	checkLock(): void {
@@ -309,6 +309,13 @@ export class GraphBuilder<N> implements Graph.Builder<N> {
 		f: (entry: GraphElement<N>, index: number, halt: () => void) => void,
 		options: { state?: TraverseState } = {},
 	): void {
+		this.forEachIndexed(f, options);
+	}
+
+	forEachIndexed(
+		f: (entry: GraphElement<N>, index: number, halt: () => void) => void,
+		options: { state?: TraverseState } = {},
+	): void {
 		if (undefined !== this.source) {
 			this.source.forEach(f, options);
 			return;
@@ -343,6 +350,13 @@ export class GraphBuilder<N> implements Graph.Builder<N> {
 			this._lock--;
 		}
 	}
+
+	clear = (): void => {
+		this.checkLock();
+		this.source = undefined;
+		this._linkMap = undefined;
+		this.connectionSize = 0;
+	};
 
 	build = (): Graph<N> => {
 		if (undefined !== this.source) return this.source;

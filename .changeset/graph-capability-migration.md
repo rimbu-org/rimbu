@@ -9,6 +9,16 @@ shared capability suite.
 
 ### Added
 
+- `toArray()` on every family. A graph's elements are its isolated nodes **and**
+  its links, so this returns 1-tuples and link tuples — it is *not* `size`.
+  Previously graphs had no `toArray()` at all; use `stream().toArray()`.
+- `forEachIndexed(f, options?)` on the collections and the builders — the same
+  traversal `forEach` already provided (receiving `element`, `index`, `halt`),
+  under the name the shared collection vocabulary reserves for the indexed form.
+- `clear()` on both builders, returning them to the empty state and leaving them
+  usable. It respects the traversal lock like every other builder mutator.
+- `asNormal()` on the (possibly empty) form. On the empty form it returns `this`,
+  since an empty graph is already the normal form.
 - `size` on every family, equal to `nodeSize`. It is the node count, and is
   deliberately **not** `toArray().length` — a graph's elements are its isolated
   nodes *and* its links, so that number equals neither `size` nor
@@ -69,11 +79,11 @@ these do. The singulars `connect` and `disconnect` are unchanged.
 - **Still outstanding:** the `VariantGraph`, `VariantValuedGraph`,
   `VariantGraphBase` and `VariantValuedGraphBase` internal tiers have *not* been
   deleted yet, and the public variant interfaces still extend them rather than
-  `GraphCollection.Advanced.Api`. One consequence is visible to users: the
-  capability `Api` declares `toArray()` and `forEachIndexed()`, but because it is
-  not yet the public surface, **graphs have no `toArray()`** — use
-  `stream().toArray()`. Wiring the public families onto the capability aggregates
-  is tracked as the follow-up in `.scratch/graph-migration-plan.md` §2.3/§2.7.
+  `GraphCollection.Advanced.Api`. They have been widened to declare the members
+  the capability aggregates require (`toArray`, `forEachIndexed`, `clear`,
+  `asNormal`) so that rewiring is a pure move rather than a rewrite — but until
+  that happens the capability `Api` in `advanced/graph-base.ts` is still not the
+  public surface. Tracked in `.scratch/graph-migration-plan.md` §2.3/§2.7.
 
 ### Deviations from repo naming conventions
 

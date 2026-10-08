@@ -570,6 +570,44 @@ Neither blocks `build:seq` (both are outside `src/`), but both block
 > `Builder.forEach` emitted a spurious isolated-node element for every *connected*
 > node, disagreeing with `Builder.build().stream()`.
 
+> **Status: 2026-10-08 — commits 1 and 3 landed; step 1 of the rewiring landed.**
+>
+> `bun run build:seq` builds all 23 packages (it used to abort at graph, position
+> 16), `bun run typecheck:seq` is clean across all 22, and `bun run test` /
+> `test:random` / `biome:check` all exit 0. Graph contributes 512 runtime tests,
+> a per-variant `test-d`, and a `test-random/` suite.
+>
+> **Rewiring step 1 of 2 (done): the capability surface now exists at runtime and
+> in the public types.** `toArray()`, `forEachIndexed()`, `Builder.clear()` and
+> `asNormal()` were declared by `GraphCollection.Advanced.Api` / `.BuilderApi` but
+> had no implementation and no public declaration. All four are now implemented on
+> the classes *and* declared on the legacy bases, so the rewiring below is a pure
+> move rather than a rewrite. Covered by `test/capability-surface.test.ts`.
+>
+> **What actually got done differs from the plan below. Three corrections matter:**
+>
+> 1. **§2.3/§2.7 are half-done.** `advanced/graph-base.ts` and its
+>    family-carrying storage aliases are in place and used by all eight concrete
+>    families — `linkMap` resolves to `HashMap<N, HashSet<N>>` and friends. But the
+>    public variant interfaces still extend the internal `VariantGraphBase` /
+>    `GraphConnect` hierarchy, **not** `GraphCollection.Advanced.Api`. So the
+>    capability aggregates do not yet reach users. **This is step 2, the main
+>    remaining piece of work.**
+> 2. **§2.5's `toArray()` claim was wrong** when written: graphs had no `toArray()`
+>    at all. Step 1 added it, so the claim is now true.
+> 3. **§6 commit 3 turned out to be much wider than "two unrelated failures."**
+>    Fixing graph exposed three further *build* failures it had been hiding
+>    (multimap, multiset, bimultimap) plus 30 errors in `list/test/`. All are fixed;
+>    §6 commit 3 is therefore done and §1's "pre-existing failures" note is stale.
+>
+> **The `test-random/` suite earned its place immediately** (§5 predicted this):
+> it found two defects the set-comparison harnesses could not reach, both now
+> fixed and pinned in `packages/graph/test/regression.test.ts` —
+> `connectionSize` drifted upwards after `removeNode` on a directed graph (only
+> incoming arcs were subtracted, outgoing ones silently ignored), and
+> `Builder.forEach` emitted a spurious isolated-node element for every *connected*
+> node, disagreeing with `Builder.build().stream()`.
+
 ## 9. Definition of done
 
 - `bun run build:seq` passes all 23 packages (currently aborts at 16).

@@ -1,3 +1,6 @@
+import type { TraverseState } from '@rimbu/common/traverse-state';
+import type { GraphElement } from '@rimbu/graph/link';
+
 import type { VariantGraphBase } from '#graph/variant-base';
 
 import { EmptyBase } from '@rimbu/collection-types/advanced/common/empty-base';
@@ -94,7 +97,7 @@ import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 	): WithGraphValues<Tp, N, V>['nonEmpty'];
 }
 
-export abstract class GraphEmptyBase<N> extends EmptyBase {
+export abstract class GraphEmptyBase<N, E = GraphElement<N>> extends EmptyBase {
 	get nodeSize(): 0 {
 		return 0;
 	}
@@ -103,12 +106,31 @@ export abstract class GraphEmptyBase<N> extends EmptyBase {
 		return 0;
 	}
 
+	/**
+	 * An empty graph is already the "possibly empty" form, so this returns
+	 * `this`. Declared here because `EmptyBase` only provides it on `NonEmptyBase`.
+	 */
+	asNormal(): this {
+		return this;
+	}
+
 	streamNodes(): Stream<N> {
 		return Stream.empty();
 	}
 
 	streamConnections(): Stream<never> {
 		return Stream.empty();
+	}
+
+	/**
+	 * No elements, so nothing is visited. `f` is still accepted so the empty class
+	 * satisfies the same signature as the non-empty one.
+	 */
+	forEachIndexed(
+		f: (element: E, index: number, halt: () => void) => void,
+		options?: { state?: TraverseState },
+	): void {
+		//
 	}
 
 	hasNode(): false {

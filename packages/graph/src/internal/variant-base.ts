@@ -1,3 +1,4 @@
+import type { ArrayNonEmpty } from '@rimbu/common';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { RelatedTo, ToJSON } from '@rimbu/common/types';
 import type { Link } from '@rimbu/graph/link';
@@ -79,6 +80,18 @@ import { Stream } from '@rimbu/stream'
 	 * ```
 	 */
 	nonEmpty(): this is WithGraphValues<Tp, N, V>['nonEmpty'];
+	/**
+	 * Returns this collection typed as a 'possibly empty' collection. On the
+	 * non-empty form see {@link VariantGraphBase.NonEmpty.asNormal}; the empty
+	 * form returns `this`.
+	 * @example
+	 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
+const g = ArrowGraphHashed.empty<number>()
+g.asNormal() === g   // => true
+	 * ```
+	 */
+	asNormal(): WithGraphValues<Tp, N, V>['normal'];
 	/**
 	 * Returns the collection as a .NonEmpty type
 	 * @throws RimbuError.EmptyCollectionAssumedNonEmptyError if the collection is empty
@@ -273,6 +286,40 @@ import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 		options?: { state?: TraverseState },
 	): void;
 	/**
+	 * Like {@link forEach}, but under the name the shared collection vocabulary
+	 * reserves for the indexed traversal form.
+	 * @example
+	 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
+import { ArrowGraphHashed as AGH } from '@rimbu/graph/non-valued/arrow/hashed'
+const g = AGH.of([1], [2, 3], [4])
+g.forEachIndexed((entry, i, halt) => {
+ *   if (i >= 1) halt()
+ * })
+	 * ```
+	 */
+	forEachIndexed(
+		f: (
+			entry: [N] | WithGraphValues<Tp, N, V>['link'],
+			index: number,
+			halt: () => void,
+		) => void,
+		options?: { state?: TraverseState },
+	): void;
+	/**
+	 * Returns an array of all graph elements: a 1-tuple per isolated node and a
+	 * link tuple per connection.
+	 *
+	 * Note this is **not** {@link size} — see that member for why.
+	 * @example
+	 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
+import { ArrowGraphHashed as AGH } from '@rimbu/graph/non-valued/arrow/hashed'
+AGH.of([1], [2, 3]).toArray()  // => [[1], [2, 3], [3]]
+	 * ```
+	 */
+	toArray(): ([N] | WithGraphValues<Tp, N, V>['link'])[];
+	/**
 	 * Returns a string representation of this collection.
 	 * @example
 	 * ```ts
@@ -320,6 +367,18 @@ import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 		 */
 		nonEmpty(): this is WithGraphValues<Tp, N, V>['nonEmpty'];
 		/**
+	 * Returns this collection typed as a 'possibly empty' collection. On the
+	 * non-empty form see {@link VariantGraphBase.NonEmpty.asNormal}; the empty
+	 * form returns `this`.
+	 * @example
+	 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
+const g = ArrowGraphHashed.empty<number>()
+g.asNormal() === g   // => true
+	 * ```
+	 */
+		asNormal(): WithGraphValues<Tp, N, V>['normal'];
+		/**
 		 * Returns this collection typed as a 'possibly empty' collection.
 		 * @example
 		 * ```ts
@@ -328,6 +387,10 @@ import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 		 * ```
 		 */
 		asNormal(): WithGraphValues<Tp, N, V>['normal'];
+		/**
+		 * Returns a non-empty array of all graph elements. See {@link toArray}.
+		 */
+		toArray(): ArrayNonEmpty<[N] | WithGraphValues<Tp, N, V>['link']>;
 		/**
 		 * Returns a non-empty `Stream` containing all graph elements of this collection as single tuples for isolated nodes
 		 * and 2-valued tuples of nodes for connections.
