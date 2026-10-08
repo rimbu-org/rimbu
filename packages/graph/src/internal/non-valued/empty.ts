@@ -68,7 +68,7 @@ export class GraphEmpty<N> extends GraphEmptyBase implements GraphBase<N> {
 		return this.context.createNonEmpty(linkMap.set(node2, linkConnections), 1);
 	}
 
-	connectAll(links: StreamSource<Link<N>>): any {
+	connectEach(links: StreamSource<Link<N>>): any {
 		return this.context.from(links);
 	}
 

@@ -49,6 +49,10 @@ export class GraphBuilder<N> implements Graph.Builder<N> {
 		return this.source?.isEmpty ?? this.linkMap.isEmpty;
 	}
 
+	get size(): number {
+		return this.nodeSize;
+	}
+
 	get nodeSize(): number {
 		return this.source?.nodeSize ?? this.linkMap.size;
 	}
@@ -189,7 +193,7 @@ export class GraphBuilder<N> implements Graph.Builder<N> {
 		return this.connectInternal(node1, node2);
 	};
 
-	connectAll = (connections: StreamSource<[N, N]>): boolean => {
+	connectEach = (connections: StreamSource<[N, N]>): boolean => {
 		this.checkLock();
 
 		return (
@@ -281,7 +285,7 @@ export class GraphBuilder<N> implements Graph.Builder<N> {
 		return this.disconnectInternal(node1, node2);
 	};
 
-	disconnectAll = <UN>(
+	disconnectEach = <UN>(
 		connections: StreamSource<Link<RelatedTo<N, UN>>>,
 	): boolean => {
 		this.checkLock();

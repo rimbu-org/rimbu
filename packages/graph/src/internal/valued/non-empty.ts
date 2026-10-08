@@ -109,6 +109,10 @@ export class ValuedGraphNonEmpty<N, V>
 		});
 	}
 
+	get size(): number {
+		return this.nodeSize;
+	}
+
 	get nodeSize(): number {
 		return this.linkMap.size;
 	}
@@ -262,11 +266,11 @@ export class ValuedGraphNonEmpty<N, V>
 		);
 	}
 
-	connectAll(
+	connectEach(
 		links: StreamSource<ValuedLink<N, V>>,
 	): ValuedGraph.NonEmpty<N, V> {
 		const builder = this.toBuilder();
-		builder.connectAll(links);
+		builder.connectEach(links);
 		return builder.build().assumeNonEmpty();
 	}
 
@@ -417,11 +421,11 @@ export class ValuedGraphNonEmpty<N, V>
 		);
 	}
 
-	disconnectAll<UN = N>(
+	disconnectEach<UN = N>(
 		links: StreamSource<Link<RelatedTo<N, UN>>>,
 	): ValuedGraph.NonEmpty<N, V> {
 		const builder = this.toBuilder();
-		builder.disconnectAll(links);
+		builder.disconnectEach(links);
 		return builder.build().assumeNonEmpty();
 	}
 

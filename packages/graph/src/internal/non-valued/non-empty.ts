@@ -92,6 +92,10 @@ export class GraphNonEmpty<N>
 		});
 	}
 
+	get size(): number {
+		return this.nodeSize;
+	}
+
 	get nodeSize(): number {
 		return this.linkMap.size;
 	}
@@ -236,9 +240,9 @@ export class GraphNonEmpty<N>
 		);
 	}
 
-	connectAll(links: StreamSource<Link<N>>): Graph.NonEmpty<N> {
+	connectEach(links: StreamSource<Link<N>>): Graph.NonEmpty<N> {
 		const builder = this.toBuilder();
-		builder.connectAll(links);
+		builder.connectEach(links);
 		return builder.build().assumeNonEmpty();
 	}
 
@@ -270,11 +274,11 @@ export class GraphNonEmpty<N>
 		);
 	}
 
-	disconnectAll<UN>(
+	disconnectEach<UN>(
 		links: StreamSource<Link<RelatedTo<N, UN>>>,
 	): Graph.NonEmpty<N> {
 		const builder = this.toBuilder();
-		builder.disconnectAll(links);
+		builder.disconnectEach(links);
 		return builder.build().assumeNonEmpty();
 	}
 

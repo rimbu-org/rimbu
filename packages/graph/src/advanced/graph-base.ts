@@ -283,6 +283,38 @@ export declare namespace GraphCollection {
 			LinkConnectionsFamily<N>['_BUILDER'];
 		/** A builder over the graph's outer link map. */
 		export type LinkMapBuilder<N, C> = LinkMapFamily<N, C>['_BUILDER'];
+
+		/**
+		 * A node's connection set: the non-valued inner collection.
+		 *
+		 * The concrete family is passed as the `F` argument rather than left to
+		 * the default. `ExtendFamily` is conditional (see
+		 * `MapCollection.Advanced.ExtendFamily`), so passing it collapses to the
+		 * single `Api` a concrete family and `Context.builder()` both produce —
+		 * where the default would give the redundant `Api & Api` intersection.
+		 */
+		export type LinkConnectionsType<N> = SetCollection<
+			N,
+			LinkConnectionsFamily<N>
+		>;
+		/** The non-empty form of {@link LinkConnectionsType}. */
+		export type LinkConnectionsTypeNonEmpty<N> = SetCollection.NonEmpty<
+			N,
+			LinkConnectionsFamily<N>
+		>;
+
+		/** The outer link map of a non-valued graph: node to connection set. */
+		export type LinkMapType<N> = MapCollection<
+			N,
+			LinkConnectionsType<N>,
+			LinkMapFamily<N, LinkConnectionsType<N>>
+		>;
+		/** The non-empty form of {@link LinkMapType}. */
+		export type LinkMapTypeNonEmpty<N> = MapCollection.NonEmpty<
+			N,
+			LinkConnectionsType<N>,
+			LinkMapFamily<N, LinkConnectionsType<N>>
+		>;
 	}
 
 	export namespace Capability {
@@ -392,7 +424,7 @@ export declare namespace GraphCollection {
 		/**
 		 * Adding connections.
 		 *
-		 * The bulk form is `connectEach` — never `connectAll`, which reads as
+		 * The bulk form is `connectEach` — never `connectEach`, which reads as
 		 * "connect everything" (root `AGENTS.md` §1.1's `*All` ban).
 		 */
 		export namespace WithConnect {

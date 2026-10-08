@@ -343,11 +343,11 @@ import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 		 * const b = ArrowValuedGraphHashed
 		 *  .builder<number, string>()
-		 * b.connectAll([[1, 2, 'a'], [3, 1, 'c']]) // => true
-		 * b.connectAll([[1, 2, 'a']])              // => false
+		 * b.connectEach([[1, 2, 'a'], [3, 1, 'c']]) // => true
+		 * b.connectEach([[1, 2, 'a']])              // => false
 		 * ```
 		 */
-		connectAll(
+		connectEach(
 			connections: StreamSource<WithGraphValues<Tp, N, V>['link']>,
 		): boolean;
 		/**
@@ -403,11 +403,11 @@ import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 		 * const b = ArrowValuedGraphHashed
 		 *  .builder<number, string>()
-		 * b.disconnectAll([[1, 2], [3, 4]])  // => true
-		 * b.disconnectAll([[3, 4], [5, 6]])  // => false
+		 * b.disconnectEach([[1, 2], [3, 4]])  // => true
+		 * b.disconnectEach([[3, 4], [5, 6]])  // => false
 		 * ```
 		 */
-		disconnectAll<UN = N>(
+		disconnectEach<UN = N>(
 			connections: StreamSource<Link<RelatedTo<N, UN>>>,
 		): boolean;
 		/**

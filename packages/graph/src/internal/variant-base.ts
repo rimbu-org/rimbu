@@ -30,6 +30,22 @@ import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 	 */
 	readonly isEmpty: boolean;
 	/**
+	 * The number of **nodes** in the graph — identical to {@link nodeSize}.
+	 *
+	 * Note the divergence from every other Rimbu collection: this is *not*
+	 * `toArray().length`. A graph's elements are its isolated nodes **and** its
+	 * links, so `toArray().length` equals neither `size` nor
+	 * {@link connectionSize}. `length` is not offered — it is a banned name, and
+	 * its only meaning here would be that third number.
+	 * @example
+	 * ```ts
+import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
+	 * ArrowGraphHashed.empty<number>().size   // => 0
+	 * ArrowGraphHashed.of([1], [2, 3]).size  // => 3
+	 * ```
+	 */
+	readonly size: number;
+	/**
 	 * Returns the amount of nodes in the graph.
 	 * @example
 	 * ```ts
@@ -211,11 +227,11 @@ import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 	 * ```ts
 import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 	 * const g = ArrowGraphHashed.of([1], [2, 3])
-	 * g.disconnectAll([[1, 2], [3, 4]]).stream().toArray() // => [[1], [2, 3]]
-	 * g.disconnectAll([[2, 3], [3, 4]]).stream().toArray() // => [[1], [2], [3]]
+	 * g.disconnectEach([[1, 2], [3, 4]]).stream().toArray() // => [[1], [2, 3]]
+	 * g.disconnectEach([[2, 3], [3, 4]]).stream().toArray() // => [[1], [2], [3]]
 	 * ```
 	 */
-	disconnectAll<UN = N>(
+	disconnectEach<UN = N>(
 		links: StreamSource<Link<RelatedTo<N, UN>>>,
 	): WithGraphValues<Tp, N, V>['normal'];
 	/**

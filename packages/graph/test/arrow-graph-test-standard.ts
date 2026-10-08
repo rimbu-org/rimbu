@@ -69,7 +69,7 @@ export function runArrowGraphTestsWith(
 			const b = G.builder<string>();
 			expect(b.nodeSize).toBe(0);
 			expect(b.connectionSize).toBe(0);
-			b.connectAll(arr6);
+			b.connectEach(arr6);
 			expect(b.nodeSize).toBe(7);
 			expect(b.connectionSize).toBe(6);
 		});
@@ -150,12 +150,12 @@ export function runArrowGraphTestsWith(
 			expectEqual(graph3.connect('f', 'g'), [...arr3, ['f', 'g']]);
 		});
 
-		it('connectAll', () => {
-			expect(graphEmpty.connectAll([])).toBe(graphEmpty);
-			expectEqual(graphEmpty.connectAll(arr3), arr3);
-			expect(graph3.connectAll(arr3)).toBe(graph3);
+		it('connectEach', () => {
+			expect(graphEmpty.connectEach([])).toBe(graphEmpty);
+			expectEqual(graphEmpty.connectEach(arr3), arr3);
+			expect(graph3.connectEach(arr3)).toBe(graph3);
 			expectEqual(
-				graph3.connectAll([
+				graph3.connectEach([
 					['a', 'a'],
 					['e', 'f'],
 				]),
@@ -184,23 +184,23 @@ export function runArrowGraphTestsWith(
 			]);
 		});
 
-		it('disconnectAll', () => {
+		it('disconnectEach', () => {
 			expect(
-				graphEmpty.disconnectAll([
+				graphEmpty.disconnectEach([
 					['a', 'b'],
 					['c', 'd'],
 				]),
 			).toBe(graphEmpty);
-			expect(graph3.disconnectAll([['z', 'z']])).toBe(graph3);
+			expect(graph3.disconnectEach([['z', 'z']])).toBe(graph3);
 			expectEqual(
-				graph3.disconnectAll([
+				graph3.disconnectEach([
 					['b', 'c'],
 					['c', 'a'],
 				]),
 				[['a', 'b']],
 			);
-			expectEqual(graph3.disconnectAll(arr3), []);
-			expect(graph3.disconnectAll(arr3).nodeSize).toBe(3);
+			expectEqual(graph3.disconnectEach(arr3), []);
+			expect(graph3.disconnectEach(arr3).nodeSize).toBe(3);
 		});
 
 		it('forEach', () => {
@@ -415,7 +415,7 @@ export function runArrowGraphTestsWith(
 		function forEachBuilder(f: (builder: ArrowGraph.Builder<string>) => void) {
 			const b1 = G.from(arr3).toBuilder();
 			const b2 = G.builder<string>();
-			b2.connectAll(arr3);
+			b2.connectEach(arr3);
 
 			f(b1);
 			f(b2);
@@ -465,14 +465,14 @@ export function runArrowGraphTestsWith(
 			expect(b.connectionSize).toBe(2);
 		});
 
-		it('connectAll', () => {
+		it('connectEach', () => {
 			const b = G.builder<string>();
 			expect(b.nodeSize).toBe(0);
-			expect(b.connectAll([])).toBe(false);
+			expect(b.connectEach([])).toBe(false);
 			expect(b.nodeSize).toBe(0);
 			expect(b.connectionSize).toBe(0);
 			expect(
-				b.connectAll([
+				b.connectEach([
 					['a', 'b'],
 					['a', 'a'],
 				]),
@@ -480,7 +480,7 @@ export function runArrowGraphTestsWith(
 			expect(b.nodeSize).toBe(2);
 			expect(b.connectionSize).toBe(2);
 			expect(
-				b.connectAll([
+				b.connectEach([
 					['a', 'b'],
 					['a', 'a'],
 				]),
@@ -527,16 +527,16 @@ export function runArrowGraphTestsWith(
 			});
 		});
 
-		it('disconnectAll', () => {
+		it('disconnectEach', () => {
 			const b = G.builder<string>();
-			expect(b.disconnectAll([])).toBe(false);
-			expect(b.disconnectAll([['a', 'b']])).toBe(false);
+			expect(b.disconnectEach([])).toBe(false);
+			expect(b.disconnectEach([['a', 'b']])).toBe(false);
 
 			forEachBuilder((b) => {
-				expect(b.disconnectAll([])).toBe(false);
-				expect(b.disconnectAll([['x', 'y']])).toBe(false);
+				expect(b.disconnectEach([])).toBe(false);
+				expect(b.disconnectEach([['x', 'y']])).toBe(false);
 				expect(
-					b.disconnectAll([
+					b.disconnectEach([
 						['x', 'y'],
 						['a', 'b'],
 					]),

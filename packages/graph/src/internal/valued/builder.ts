@@ -55,6 +55,10 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 		return this.linkMap.isEmpty;
 	}
 
+	get size(): number {
+		return this.nodeSize;
+	}
+
 	get nodeSize(): number {
 		if (this.source) return this.source.nodeSize;
 		return this.linkMap.size;
@@ -214,7 +218,7 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 		return this.connectInternal(node1, node2, value);
 	};
 
-	connectAll = (
+	connectEach = (
 		connections: StreamSource<ValuedGraphElement<N, V>>,
 	): boolean => {
 		this.checkLock();
@@ -428,7 +432,7 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 		return this.disconnectInternal(node1, node2);
 	};
 
-	disconnectAll = <UN>(
+	disconnectEach = <UN>(
 		connections: StreamSource<Link<RelatedTo<N, UN>>>,
 	): boolean => {
 		this.checkLock();

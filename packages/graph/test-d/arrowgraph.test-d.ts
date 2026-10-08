@@ -51,11 +51,11 @@ expectTypeOf(genNonEmpty.assumeNonEmpty()).toEqualTypeOf<G_NonEmpty>();
 expectTypeOf(genEmpty.connect(1, 2)).toEqualTypeOf<G_NonEmpty>();
 expectTypeOf(genNonEmpty.connect(1, 2)).toEqualTypeOf<G_NonEmpty>();
 
-// .connectAll(..)
-expectTypeOf(genEmpty.connectAll([])).toEqualTypeOf<G_Empty>();
-expectTypeOf(genEmpty.connectAll([[1, 2]])).toEqualTypeOf<G_NonEmpty>();
-expectTypeOf(genNonEmpty.connectAll([])).toEqualTypeOf<G_NonEmpty>();
-expectTypeOf(genNonEmpty.connectAll([[1, 2]])).toEqualTypeOf<G_NonEmpty>();
+// .connectEach(..)
+expectTypeOf(genEmpty.connectEach([])).toEqualTypeOf<G_Empty>();
+expectTypeOf(genEmpty.connectEach([[1, 2]])).toEqualTypeOf<G_NonEmpty>();
+expectTypeOf(genNonEmpty.connectEach([])).toEqualTypeOf<G_NonEmpty>();
+expectTypeOf(genNonEmpty.connectEach([[1, 2]])).toEqualTypeOf<G_NonEmpty>();
 
 // .connectIfNodesExist(..)
 // expectType<G_Empty>(genEmpty.connectIfNodesExist(1, 2));
@@ -71,9 +71,9 @@ expectTypeOf(genNonEmpty.connectAll([[1, 2]])).toEqualTypeOf<G_NonEmpty>();
 expectTypeOf(genEmpty.disconnect(1, 2)).toEqualTypeOf<G_Empty>();
 expectTypeOf(genNonEmpty.disconnect(1, 2)).toEqualTypeOf<G_Empty>();
 
-// .disconnectAll
-expectTypeOf(genEmpty.disconnectAll([])).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.disconnectAll([[1, 2]])).toEqualTypeOf<G_Empty>();
+// .disconnectEach
+expectTypeOf(genEmpty.disconnectEach([])).toEqualTypeOf<G_Empty>();
+expectTypeOf(genNonEmpty.disconnectEach([[1, 2]])).toEqualTypeOf<G_Empty>();
 
 // .getConnectionSetFrom(..)
 expectTypeOf(genEmpty.getConnectionsFrom(1)).toEqualTypeOf<RSet<number>>();

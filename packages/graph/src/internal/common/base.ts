@@ -47,16 +47,16 @@ import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 	 * const g = ArrowGraphHashed.of([1], [2, 3])
-	 * g.connectAll([[1, 2], [3, 1]]).stream().toArray()  // => [[1, 2], [2, 3], [3, 1]]
+	 * g.connectEach([[1, 2], [3, 1]]).stream().toArray()  // => [[1, 2], [2, 3], [3, 1]]
 	 * const g2 = ArrowValuedGraphHashed.of([1], [2, 3, 'a'])
-	 * g2.connectAll([[1, 2, 'b'], [2, 3, 'c']]).stream().toArray()
+	 * g2.connectEach([[1, 2, 'b'], [2, 3, 'c']]).stream().toArray()
 	 * // => [[1, 2, 'b'], [2, 3, 'c']]
 	 * ```
 	 */
-	connectAll(
+	connectEach(
 		connections: StreamSource.NonEmpty<WithGraphValues<Tp, N, V>['link']>,
 	): WithGraphValues<Tp, N, V>['nonEmpty'];
-	connectAll(
+	connectEach(
 		connections: StreamSource<WithGraphValues<Tp, N, V>['link']>,
 	): WithGraphValues<Tp, N, V>['normal'];
 }
@@ -83,13 +83,13 @@ import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 	 * const g = ArrowGraphHashed.of([1], [2, 3])
-	 * g.connectAll([[1, 2], [3, 1]]).stream().toArray()  // => [[1, 2], [2, 3], [3, 1]]
+	 * g.connectEach([[1, 2], [3, 1]]).stream().toArray()  // => [[1, 2], [2, 3], [3, 1]]
 	 * const g2 = ArrowValuedGraphHashed.of([1], [2, 3, 'a'])
-	 * g2.connectAll([[1, 2, 'b'], [2, 3, 'c']]).stream().toArray()
+	 * g2.connectEach([[1, 2, 'b'], [2, 3, 'c']]).stream().toArray()
 	 * // => [[1, 2, 'b'], [2, 3, 'c']]
 	 * ```
 	 */
-	connectAll(
+	connectEach(
 		links: StreamSource<WithGraphValues<Tp, N, V>['link']>,
 	): WithGraphValues<Tp, N, V>['nonEmpty'];
 }
@@ -147,7 +147,7 @@ export abstract class GraphEmptyBase extends EmptyBase {
 		return this;
 	}
 
-	disconnectAll(): any {
+	disconnectEach(): any {
 		return this;
 	}
 

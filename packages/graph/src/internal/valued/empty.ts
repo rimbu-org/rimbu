@@ -87,7 +87,7 @@ export class ValuedGraphEmpty<N, V>
 		return this.context.createNonEmpty(linkMap.set(node2, linkConnections), 1);
 	}
 
-	connectAll(links: StreamSource<ValuedLink<N, V>>): any {
+	connectEach(links: StreamSource<ValuedLink<N, V>>): any {
 		return this.context.from(links);
 	}
 
