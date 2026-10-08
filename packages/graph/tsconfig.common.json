@@ -2,6 +2,7 @@
 	"compilerOptions": {
 		"paths": {
 			"@rimbu/graph": ["./src/graph.ts"],
+			"@rimbu/graph/advanced/*": ["./src/advanced/*.ts"],
 			"@rimbu/graph/*": ["./src/public/*.ts"],
 			"@rimbu/graph/arrow-graph": ["./src/public/arrow-graph.ts"],
 			"@rimbu/graph/arrow-valued-graph": ["./src/public/arrow-valued-graph.ts"],

@@ -1,4 +1,4 @@
-import type { RMap } from '@rimbu/collection-types';
+import type { MapCollection } from '@rimbu/collection-types/map';
 import type { RelatedTo } from '@rimbu/common/types';
 import type { Link } from '@rimbu/graph/link';
 
@@ -26,14 +26,14 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 		if (undefined !== source) this.connectionSize = source.connectionSize;
 	}
 
-	_linkMap?: RMap.Builder<N, RMap.Builder<N, V>>;
+	_linkMap?: MapCollection.Builder<N, MapCollection.Builder<N, V>>;
 	_lock = 0;
 
 	checkLock(): void {
 		if (this._lock) RimbuError.throwModifiedBuilderWhileLoopingOverItError();
 	}
 
-	get linkMap(): RMap.Builder<N, RMap.Builder<N, V>> {
+	get linkMap(): MapCollection.Builder<N, MapCollection.Builder<N, V>> {
 		if (undefined === this._linkMap) {
 			if (undefined === this.source) {
 				this._linkMap = this.context.linkMapContext.builder();
@@ -161,10 +161,7 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 		this.linkMap.modifyAtKey(node1, {
 			ifNew: {
 				create: () => {
-					const targetBuilder = this.context.linkConnectionsContext.builder<
-						N,
-						V
-					>();
+					const targetBuilder = this.context.linkConnectionsContext.builder();
 					targetBuilder.set(node2, value);
 					this.connectionSize++;
 					changed = true;
@@ -189,10 +186,7 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 			this.linkMap.modifyAtKey(node2, {
 				ifNew: {
 					create: () => {
-						const targetBuilder = this.context.linkConnectionsContext.builder<
-							N,
-							V
-						>();
+						const targetBuilder = this.context.linkConnectionsContext.builder();
 						if (!this.isDirected) targetBuilder.set(node1, value);
 						return targetBuilder;
 					},
@@ -253,7 +247,7 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 		let addedOrUpdatedValue: V;
 		const { ifNew, ifExists } = options;
 
-		const linkMapOptions: ModifyOptions<RMap.Builder<N, V>> = {};
+		const linkMapOptions: ModifyOptions<MapCollection.Builder<N, V>> = {};
 		if (undefined !== ifNew) {
 			linkMapOptions.ifNew = {
 				create: (skip) => {
@@ -267,7 +261,7 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 					addedOrUpdatedValue = newValue;
 					this.connectionSize++;
 
-					const builder = this.context.linkMapContext.builder<N, V>();
+					const builder = this.context.linkMapContext.builder();
 
 					builder.set(node2, newValue);
 
@@ -335,7 +329,7 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 			this.linkMap.modifyAtKey(node2, {
 				ifNew: {
 					create: () => {
-						const builder = this.context.linkMapContext.builder<N, V>();
+						const builder = this.context.linkMapContext.builder();
 						builder.set(node1, addedOrUpdatedValue);
 						return builder;
 					},
@@ -369,7 +363,7 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 		this.linkMap.modifyAtKey(node2, {
 			ifNew: {
 				create: () => {
-					const builder = this.context.linkMapContext.builder<N, V>();
+					const builder = this.context.linkMapContext.builder();
 					builder.set(node1, addedOrUpdatedValue);
 					return builder;
 				},

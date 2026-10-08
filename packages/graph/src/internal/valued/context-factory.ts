@@ -1,4 +1,4 @@
-import type { RMap } from '@rimbu/collection-types';
+import type { MapCollection } from '@rimbu/collection-types/map';
 import type { ValuedGraphElement } from '@rimbu/graph/valued-link';
 
 import type { ValuedGraph } from '#graph/valued/valued-graph';
@@ -19,12 +19,16 @@ export interface ValuedGraphContextImpl<UN> extends ValuedGraph.Context<UN> {
 		source?: ValuedGraph.NonEmpty<N, V>,
 	): ValuedGraph.Builder<N, V>;
 	createNonEmpty<N extends UN, V>(
-		linkMap: RMap.NonEmpty<N, RMap<N, V>>,
+		linkMap: MapCollection.NonEmpty<N, MapCollection<N, V>>,
 		connectionSize: number,
 	): ValuedGraph.NonEmpty<N, V>;
 	createContext<N extends UN>(options: {
-		linkMapContext?: RMap.Context<N>;
-		linkConnectionsContext?: RMap.Context<N>;
+		linkMapContext?: MapCollection.Context<
+			MapCollection.Advanced.Family<N, any>
+		>;
+		linkConnectionsContext?: MapCollection.Context<
+			MapCollection.Advanced.Family<N, any>
+		>;
 	}): ValuedGraph.Context<N>;
 	defaultContext<N extends UN>(): ValuedGraph.Context<N>;
 }
@@ -33,8 +37,12 @@ export function createValuedGraphContextModule<UN>(
 	typeTag: string,
 	isDirected: boolean,
 	options: {
-		linkMapContext: RMap.Context<UN>;
-		linkConnectionsContext: RMap.Context<UN>;
+		linkMapContext: MapCollection.Context<
+			MapCollection.Advanced.Family<UN, any>
+		>;
+		linkConnectionsContext: MapCollection.Context<
+			MapCollection.Advanced.Family<UN, any>
+		>;
 	},
 	_defaultContext?: ValuedGraphContextImpl<UN> | undefined,
 ): Module<ValuedGraphContextImpl<UN>> {
@@ -136,7 +144,7 @@ export function createValuedGraphContextModule<UN>(
 			);
 		},
 		createNonEmpty<N extends UN, V>(
-			linkMap: RMap.NonEmpty<N, RMap<N, V>>,
+			linkMap: MapCollection.NonEmpty<N, MapCollection<N, V>>,
 			connectionSize: number,
 		): ValuedGraph.NonEmpty<N, V> {
 			return new ValuedGraphNonEmpty<N, V>(

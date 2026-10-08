@@ -1,4 +1,5 @@
-import type { RMap, RSet } from '@rimbu/collection-types';
+import type { MapCollection } from '@rimbu/collection-types/map';
+import type { SetCollection } from '@rimbu/collection-types/set';
 import type { GraphElement } from '@rimbu/graph/link';
 import type { Stream, Streamable } from '@rimbu/stream';
 
@@ -67,8 +68,12 @@ import { EdgeGraphHashed } from '@rimbu/graph/non-valued/edge/hashed'
  */
 export const EdgeGraph: EdgeGraphCreators = Object.freeze({
 	createContext<UN>(options: {
-		linkMapContext: RMap.Context<UN>;
-		linkConnectionsContext: RSet.Context<UN>;
+		linkMapContext: MapCollection.Context<
+			MapCollection.Advanced.Family<UN, any>
+		>;
+		linkConnectionsContext: SetCollection.Context<
+			SetCollection.Advanced.Family<UN>
+		>;
 	}): EdgeGraph.Context<UN> {
 		return createGraphContextModule('EdgeGraph', false, options).build();
 	},

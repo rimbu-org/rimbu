@@ -1,4 +1,4 @@
-import type { RMap } from '@rimbu/collection-types';
+import type { MapCollection } from '@rimbu/collection-types/map';
 import type { ValuedGraphElement } from '@rimbu/graph/valued-link';
 import type { Stream, Streamable } from '@rimbu/stream';
 
@@ -75,8 +75,12 @@ import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
  */
 export const ArrowValuedGraph: ArrowValuedGraphCreators = Object.freeze({
 	createContext<UN>(options: {
-		linkMapContext: RMap.Context<UN>;
-		linkConnectionsContext: RMap.Context<UN>;
+		linkMapContext: MapCollection.Context<
+			MapCollection.Advanced.Family<UN, any>
+		>;
+		linkConnectionsContext: MapCollection.Context<
+			MapCollection.Advanced.Family<UN, any>
+		>;
 	}): ArrowValuedGraph.Context<UN> {
 		return createValuedGraphContextModule(
 			'ArrowValuedGraph',

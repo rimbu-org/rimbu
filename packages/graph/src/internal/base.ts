@@ -1,6 +1,6 @@
-import type { RMap, RSet } from '@rimbu/collection-types';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { ArrayNonEmpty, RelatedTo } from '@rimbu/common/types';
+import type { GraphCollection } from '@rimbu/graph/advanced/graph-base';
 import type { GraphElement, Link } from '@rimbu/graph/link';
 import type { Stream, Streamable, StreamSource } from '@rimbu/stream';
 import type { Reducer } from '@rimbu/stream/reducer';
@@ -500,12 +500,30 @@ import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 		readonly nonEmpty: GraphBase.NonEmpty<this['_N']>;
 		readonly context: GraphBase.Context<this['_N']>;
 		readonly builder: GraphBase.Builder<this['_N']>;
-		readonly linkMap: RMap<this['_N'], RSet<this['_N']>>;
-		readonly linkMapNonEmpty: RMap.NonEmpty<this['_N'], RSet<this['_N']>>;
-		readonly linkMapContext: RMap.Context<this['_N']>;
-		readonly linkConnectionsContext: RSet.Context<this['_N']>;
-		readonly linkMapBuilder: RMap.Builder<this['_N'], RSet.Builder<this['_N']>>;
-		readonly linkConnectionsBuilder: RSet.Builder<this['_N']>;
-		readonly linkConnections: RSet<this['_N']>;
+
+		/**
+		 * The family a node's connection set is built from. Pinned per variant;
+		 * every storage member below is derived from it rather than restated.
+		 */
+		readonly _LINK_CONNECTIONS_FAM: GraphCollection.Advanced.LinkConnectionsFamily<
+			this['_N']
+		>;
+		/**
+		 * The family the outer link map is built from. Its value type is derived
+		 * from {@link Types._LINK_CONNECTIONS_FAM} so each fact is named once per
+		 * variant instead of seven times.
+		 */
+		readonly _LINK_MAP_FAM: GraphCollection.Advanced.LinkMapFamily<
+			this['_N'],
+			this['_LINK_CONNECTIONS_FAM']['_NORMAL']
+		>;
+
+		readonly linkMap: this['_LINK_MAP_FAM']['_NORMAL'];
+		readonly linkMapNonEmpty: this['_LINK_MAP_FAM']['_NON_EMPTY'];
+		readonly linkMapContext: this['_LINK_MAP_FAM']['_CONTEXT'];
+		readonly linkMapBuilder: this['_LINK_MAP_FAM']['_BUILDER'];
+		readonly linkConnections: this['_LINK_CONNECTIONS_FAM']['_NORMAL'];
+		readonly linkConnectionsBuilder: this['_LINK_CONNECTIONS_FAM']['_BUILDER'];
+		readonly linkConnectionsContext: this['_LINK_CONNECTIONS_FAM']['_CONTEXT'];
 	}
 }

@@ -78,19 +78,14 @@ import { EdgeValuedGraphHashed } from '@rimbu/graph/valued/edge/hashed'
 		readonly nonEmpty: EdgeValuedGraphSorted.NonEmpty<this['_N'], this['_V']>;
 		readonly context: EdgeValuedGraphSorted.Context<this['_N']>;
 		readonly builder: EdgeValuedGraphSorted.Builder<this['_N'], this['_V']>;
-		readonly linkMap: SortedMap<this['_N'], SortedMap<this['_N'], this['_V']>>;
-		readonly linkMapNonEmpty: SortedMap.NonEmpty<
+		readonly _LINK_CONNECTIONS_FAM: SortedMap.Advanced.Family<
 			this['_N'],
-			SortedMap<this['_N'], this['_V']>
+			this['_V']
 		>;
-		readonly linkMapContext: SortedMap.Context<this['_N']>;
-		readonly linkConnectionsContext: SortedMap.Context<this['_N']>;
-		readonly linkMapBuilder: SortedMap.Builder<
+		readonly _LINK_MAP_FAM: SortedMap.Advanced.Family<
 			this['_N'],
-			SortedMap.Builder<this['_N'], this['_V']>
+			this['_LINK_CONNECTIONS_FAM']['_NORMAL']
 		>;
-		readonly linkConnectionsBuilder: SortedMap.Builder<this['_N'], this['_V']>;
-		readonly linkConnections: SortedMap<this['_N'], this['_V']>;
 	}
 }
 

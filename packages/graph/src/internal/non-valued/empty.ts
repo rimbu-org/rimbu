@@ -1,4 +1,5 @@
-import type { RMap, RSet } from '@rimbu/collection-types';
+import type { MapCollection } from '@rimbu/collection-types/map';
+import type { SetCollection } from '@rimbu/collection-types/set';
 import type { ToJSON } from '@rimbu/common/types';
 import type { Link } from '@rimbu/graph/link';
 
@@ -20,11 +21,11 @@ export class GraphEmpty<N> extends GraphEmptyBase implements GraphBase<N> {
 		super();
 	}
 
-	get linkMap(): RMap<N, RSet<N>> {
+	get linkMap(): MapCollection<N, SetCollection<N>> {
 		return this.context.linkMapContext.empty();
 	}
 
-	getConnectionsFrom(): RSet<N> {
+	getConnectionsFrom(): SetCollection<N> {
 		return this.context.linkConnectionsContext.empty<N>();
 	}
 
@@ -41,9 +42,9 @@ export class GraphEmpty<N> extends GraphEmptyBase implements GraphBase<N> {
 	addNodes(nodes: StreamSource<N>): any {
 		const emptyConnections = this.context.linkConnectionsContext.empty();
 
-		const linkMap = this.context.linkMapContext.from<N, RSet<N>>(
+		const linkMap = this.context.linkMapContext.from(
 			Stream.from(nodes).map(
-				(node) => [node, emptyConnections] as [N, RSet<N>],
+				(node) => [node, emptyConnections] as [N, SetCollection<N>],
 			),
 		);
 
@@ -54,7 +55,7 @@ export class GraphEmpty<N> extends GraphEmptyBase implements GraphBase<N> {
 	connect(node1: N, node2: N): Graph.NonEmpty<N> {
 		const linkMap = this.context.linkMapContext.of([
 			node1,
-			this.context.linkConnectionsContext.of(node2) as RSet<N>,
+			this.context.linkConnectionsContext.of(node2) as SetCollection<N>,
 		]);
 
 		if (node1 === node2) return this.context.createNonEmpty(linkMap, 1);

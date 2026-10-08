@@ -1,4 +1,4 @@
-import type { RMap } from '@rimbu/collection-types';
+import type { MapCollection } from '@rimbu/collection-types/map';
 import type { RelatedTo, ToJSON } from '@rimbu/common/types';
 import type { ValuedLink } from '@rimbu/graph/valued-link';
 
@@ -28,7 +28,7 @@ export class ValuedGraphEmpty<N, V>
 		super();
 	}
 
-	get linkMap(): RMap<N, RMap<N, V>> {
+	get linkMap(): MapCollection<N, MapCollection<N, V>> {
 		return this.context.linkMapContext.empty();
 	}
 
@@ -40,7 +40,7 @@ export class ValuedGraphEmpty<N, V>
 		return OptLazy(otherwise!);
 	}
 
-	getConnectionsFrom(): RMap<N, V> {
+	getConnectionsFrom(): MapCollection<N, V> {
 		return this.context.linkConnectionsContext.empty();
 	}
 
@@ -55,7 +55,7 @@ export class ValuedGraphEmpty<N, V>
 	}
 
 	addNodes(nodes: StreamSource<N>): any {
-		const emptyConnections = this.context.linkConnectionsContext.empty<N, V>();
+		const emptyConnections = this.context.linkConnectionsContext.empty();
 
 		const linkMap = this.context.linkMapContext.from(
 			Stream.from(nodes).map((node) => [node, emptyConnections]),
@@ -71,13 +71,16 @@ export class ValuedGraphEmpty<N, V>
 	connect(node1: N, node2: N, value: V): ValuedGraph.NonEmpty<N, V> {
 		const linkMap = this.context.linkMapContext.of([
 			node1,
-			this.context.linkConnectionsContext.of([node2, value]) as RMap<N, V>,
-		]) as RMap.NonEmpty<N, RMap<N, V>>;
+			this.context.linkConnectionsContext.of([node2, value]) as MapCollection<
+				N,
+				V
+			>,
+		]) as MapCollection.NonEmpty<N, MapCollection<N, V>>;
 
 		if (node1 === node2) return this.context.createNonEmpty(linkMap, 1);
 
 		const linkConnections = this.isDirected
-			? this.context.linkConnectionsContext.empty<N, V>()
+			? this.context.linkConnectionsContext.empty()
 			: this.context.linkConnectionsContext.of([node1, value]);
 
 		return this.context.createNonEmpty(linkMap.set(node2, linkConnections), 1);

@@ -1,4 +1,5 @@
-import type { RMap, RSet } from '@rimbu/collection-types';
+import type { MapCollection } from '@rimbu/collection-types/map';
+import type { SetCollection } from '@rimbu/collection-types/set';
 import type { GraphElement } from '@rimbu/graph/link';
 
 import type { GraphBase } from '#graph/base';
@@ -15,13 +16,17 @@ import { GraphNonEmpty } from '#graph/non-valued/non-empty';
 export interface GraphContextImpl<UN> extends GraphBase.Context<UN> {
 	isNonEmptyInstance<N extends UN>(source: any): source is Graph.NonEmpty<N>;
 	createNonEmpty<N extends UN>(
-		linkMap: RMap.NonEmpty<N, RSet<N>>,
+		linkMap: MapCollection.NonEmpty<N, SetCollection<N>>,
 		connectionSize: number,
 	): Graph.NonEmpty<N>;
 	createBuilder<N extends UN>(source?: Graph.NonEmpty<N>): Graph.Builder<N>;
 	createContext<N extends UN>(options: {
-		linkMapContext?: RMap.Context<N>;
-		linkConnectionsContext?: RSet.Context<N>;
+		linkMapContext?: MapCollection.Context<
+			MapCollection.Advanced.Family<N, any>
+		>;
+		linkConnectionsContext?: SetCollection.Context<
+			SetCollection.Advanced.Family<N>
+		>;
 	}): Graph.Context<N>;
 	defaultContext<N extends UN>(): Graph.Context<N>;
 }
@@ -30,8 +35,12 @@ export function createGraphContextModule<UN>(
 	typeTag: string,
 	isDirected: boolean,
 	options: {
-		linkMapContext: RMap.Context<UN>;
-		linkConnectionsContext: RSet.Context<UN>;
+		linkMapContext: MapCollection.Context<
+			MapCollection.Advanced.Family<UN, any>
+		>;
+		linkConnectionsContext: SetCollection.Context<
+			SetCollection.Advanced.Family<UN>
+		>;
 	},
 	_defaultContext?: GraphContextImpl<UN> | undefined,
 ): Module<GraphContextImpl<UN>> {
@@ -113,7 +122,7 @@ export function createGraphContextModule<UN>(
 			new GraphBuilder(isDirected, mod as unknown as GraphContextImpl<N>),
 
 		createNonEmpty: <N extends UN>(
-			linkMap: RMap.NonEmpty<N, RSet<N>>,
+			linkMap: MapCollection.NonEmpty<N, SetCollection<N>>,
 			connectionSize: number,
 		) => {
 			return new GraphNonEmpty(

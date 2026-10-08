@@ -72,19 +72,11 @@ import { EdgeGraphSorted } from '@rimbu/graph/non-valued/edge/sorted'
 		readonly nonEmpty: EdgeGraphSorted.NonEmpty<this['_N']>;
 		readonly context: EdgeGraphSorted.Context<this['_N']>;
 		readonly builder: EdgeGraphSorted.Builder<this['_N']>;
-		readonly linkMap: SortedMap<this['_N'], SortedSet<this['_N']>>;
-		readonly linkMapNonEmpty: SortedMap.NonEmpty<
+		readonly _LINK_CONNECTIONS_FAM: SortedSet.Advanced.Family<this['_N']>;
+		readonly _LINK_MAP_FAM: SortedMap.Advanced.Family<
 			this['_N'],
-			SortedSet<this['_N']>
+			this['_LINK_CONNECTIONS_FAM']['_NORMAL']
 		>;
-		readonly linkMapContext: SortedMap.Context<this['_N']>;
-		readonly linkConnectionsContext: SortedSet.Context<this['_N']>;
-		readonly linkMapBuilder: SortedMap.Builder<
-			this['_N'],
-			SortedSet.Builder<this['_N']>
-		>;
-		readonly linkConnectionsBuilder: SortedSet.Builder<this['_N']>;
-		readonly linkConnections: SortedSet<this['_N']>;
 	}
 }
 

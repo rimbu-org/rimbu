@@ -1,4 +1,4 @@
-import type { RMap } from '@rimbu/collection-types';
+import type { MapCollection } from '@rimbu/collection-types/map';
 import type { ArrowValuedGraph } from '@rimbu/graph/arrow-valued-graph';
 import type { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed';
 import type { ArrowValuedGraphSorted } from '@rimbu/graph/valued/arrow/sorted';
@@ -17,8 +17,12 @@ export interface ArrowValuedGraphCreators {
 	 * @returns a new `ArrowValuedGraph.Context<UN>` instance
 	 */
 	createContext<UN>(options: {
-		linkMapContext: RMap.Context<UN>;
-		linkConnectionsContext: RMap.Context<UN>;
+		linkMapContext: MapCollection.Context<
+			MapCollection.Advanced.Family<UN, any>
+		>;
+		linkConnectionsContext: MapCollection.Context<
+			MapCollection.Advanced.Family<UN, any>
+		>;
 	}): ArrowValuedGraph.Context<UN>;
 }
 

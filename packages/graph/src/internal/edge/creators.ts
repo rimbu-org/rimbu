@@ -1,4 +1,5 @@
-import type { RMap, RSet } from '@rimbu/collection-types';
+import type { MapCollection } from '@rimbu/collection-types/map';
+import type { SetCollection } from '@rimbu/collection-types/set';
 import type { EdgeGraph } from '@rimbu/graph/edge-graph';
 import type { EdgeGraphHashed } from '@rimbu/graph/non-valued/edge/hashed';
 import type { EdgeGraphSorted } from '@rimbu/graph/non-valued/edge/sorted';
@@ -18,8 +19,12 @@ export interface EdgeGraphCreators {
 	 * - linkConnectionsContext: the set context to use to maintain link connection maps
 	 */
 	createContext<UN>(options: {
-		linkMapContext: RMap.Context<UN>;
-		linkConnectionsContext: RSet.Context<UN>;
+		linkMapContext: MapCollection.Context<
+			MapCollection.Advanced.Family<UN, any>
+		>;
+		linkConnectionsContext: SetCollection.Context<
+			SetCollection.Advanced.Family<UN>
+		>;
 	}): EdgeGraph.Context<UN>;
 }
 

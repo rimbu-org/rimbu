@@ -1,4 +1,5 @@
-import type { RMap, RSet } from '@rimbu/collection-types';
+import type { MapCollection } from '@rimbu/collection-types/map';
+import type { SetCollection } from '@rimbu/collection-types/set';
 import type { ArrowGraph } from '@rimbu/graph/arrow-graph';
 import type { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed';
 import type { ArrowGraphSorted } from '@rimbu/graph/non-valued/arrow/sorted';
@@ -18,8 +19,12 @@ export interface ArrowGraphCreators {
 	 * - linkConnectionsContext: the set context to use to maintain link connection maps
 	 */
 	createContext<UN>(options: {
-		linkMapContext: RMap.Context<UN>;
-		linkConnectionsContext: RSet.Context<UN>;
+		linkMapContext: MapCollection.Context<
+			MapCollection.Advanced.Family<UN, any>
+		>;
+		linkConnectionsContext: SetCollection.Context<
+			SetCollection.Advanced.Family<UN>
+		>;
 	}): ArrowGraph.Context<UN>;
 }
 

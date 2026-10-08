@@ -72,16 +72,11 @@ import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
 		readonly nonEmpty: ArrowGraphHashed.NonEmpty<this['_N']>;
 		readonly context: ArrowGraphHashed.Context<this['_N']>;
 		readonly builder: ArrowGraphHashed.Builder<this['_N']>;
-		readonly linkMap: HashMap<this['_N'], HashSet<this['_N']>>;
-		readonly linkMapNonEmpty: HashMap.NonEmpty<this['_N'], HashSet<this['_N']>>;
-		readonly linkMapContext: HashMap.Context<this['_N']>;
-		readonly linkConnectionsContext: HashSet.Context<this['_N']>;
-		readonly linkMapBuilder: HashMap.Builder<
+		readonly _LINK_CONNECTIONS_FAM: HashSet.Advanced.Family<this['_N']>;
+		readonly _LINK_MAP_FAM: HashMap.Advanced.Family<
 			this['_N'],
-			HashSet.Builder<this['_N']>
+			this['_LINK_CONNECTIONS_FAM']['_NORMAL']
 		>;
-		readonly linkConnectionsBuilder: HashSet.Builder<this['_N']>;
-		readonly linkConnections: HashSet<this['_N']>;
 	}
 }
 

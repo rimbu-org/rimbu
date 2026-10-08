@@ -1,8 +1,8 @@
-import type { RMap } from '@rimbu/collection-types';
 import type { ModifyOptions } from '@rimbu/collection-types/advanced/common';
 import type { OptLazy } from '@rimbu/common/opt-lazy';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { ArrayNonEmpty, RelatedTo } from '@rimbu/common/types';
+import type { GraphCollection } from '@rimbu/graph/advanced/graph-base';
 import type { Link } from '@rimbu/graph/link';
 import type { ValuedGraphElement } from '@rimbu/graph/valued-link';
 import type { Stream, Streamable, StreamSource } from '@rimbu/stream';
@@ -580,18 +580,30 @@ import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
 		readonly nonEmpty: ValuedGraphBase.NonEmpty<this['_N'], this['_V']>;
 		readonly context: ValuedGraphBase.Context<this['_N']>;
 		readonly builder: ValuedGraphBase.Builder<this['_N'], this['_V']>;
-		readonly linkMap: RMap<this['_N'], RMap<this['_N'], this['_V']>>;
-		readonly linkMapNonEmpty: RMap.NonEmpty<
+
+		/**
+		 * The family a node's connection map (target node → connection value) is
+		 * built from. Pinned per variant; every storage member below is derived
+		 * from it rather than restated.
+		 */
+		readonly _LINK_CONNECTIONS_FAM: GraphCollection.Advanced.LinkValuesFamily<
 			this['_N'],
-			RMap<this['_N'], this['_V']>
+			this['_V']
 		>;
-		readonly linkMapContext: RMap.Context<this['_N']>;
-		readonly linkConnectionsContext: RMap.Context<this['_N']>;
-		readonly linkMapBuilder: RMap.Builder<
+		/**
+		 * The family the outer link map is built from. Its value type is derived
+		 * from {@link Types._LINK_CONNECTIONS_FAM} so each fact is named once per
+		 * variant instead of seven times.
+		 */
+		readonly _LINK_MAP_FAM: GraphCollection.Advanced.LinkMapFamily<
 			this['_N'],
-			RMap.Builder<this['_N'], this['_V']>
+			this['_LINK_CONNECTIONS_FAM']['_NORMAL']
 		>;
-		readonly linkConnectionsBuilder: RMap.Builder<this['_N'], this['_V']>;
-		readonly linkConnections: RMap<this['_N'], this['_V']>;
+
+		readonly linkMap: this['_LINK_MAP_FAM']['_NORMAL'];
+		readonly linkMapNonEmpty: this['_LINK_MAP_FAM']['_NON_EMPTY'];
+		readonly linkMapContext: this['_LINK_MAP_FAM']['_CONTEXT'];
+		readonly linkConnections: this['_LINK_CONNECTIONS_FAM']['_NORMAL'];
+		readonly linkConnectionsContext: this['_LINK_CONNECTIONS_FAM']['_CONTEXT'];
 	}
 }

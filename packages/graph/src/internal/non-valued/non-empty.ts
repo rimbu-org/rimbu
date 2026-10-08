@@ -1,4 +1,5 @@
-import type { RMap, RSet } from '@rimbu/collection-types';
+import type { MapCollection } from '@rimbu/collection-types/map';
+import type { SetCollection } from '@rimbu/collection-types/set';
 import type { RelatedTo, ToJSON } from '@rimbu/common/types';
 import type { GraphElement, Link } from '@rimbu/graph/link';
 
@@ -19,14 +20,14 @@ export class GraphNonEmpty<N>
 	constructor(
 		readonly isDirected: boolean,
 		readonly context: GraphContextImpl<N>,
-		readonly linkMap: RMap.NonEmpty<N, RSet<N>>,
+		readonly linkMap: MapCollection.NonEmpty<N, SetCollection<N>>,
 		readonly connectionSize: number,
 	) {
 		super();
 	}
 
 	copy(
-		linkMap: RMap.NonEmpty<N, RSet<N>>,
+		linkMap: MapCollection.NonEmpty<N, SetCollection<N>>,
 		connectionSize: number,
 	): Graph.NonEmpty<N> {
 		if (linkMap === this.linkMap && connectionSize === this.connectionSize)
@@ -34,7 +35,10 @@ export class GraphNonEmpty<N>
 		return this.context.createNonEmpty(linkMap, connectionSize);
 	}
 
-	copyE(linkMap: RMap<N, RSet<N>>, connectionSize: number): Graph<N> {
+	copyE(
+		linkMap: MapCollection<N, SetCollection<N>>,
+		connectionSize: number,
+	): Graph<N> {
 		if (linkMap.nonEmpty()) return this.copy(linkMap, connectionSize);
 		return this.context.empty();
 	}
@@ -55,7 +59,7 @@ export class GraphNonEmpty<N>
 
 		const mapIter = this.linkMap[Symbol.iterator]();
 		const done = Symbol();
-		let targetsEntry: readonly [N, RSet<N>] | typeof done;
+		let targetsEntry: readonly [N, SetCollection<N>] | typeof done;
 
 		while (!state.halted && done !== (targetsEntry = mapIter.fastNext(done))) {
 			const [node, targets] = targetsEntry;
@@ -137,7 +141,7 @@ export class GraphNonEmpty<N>
 		return targets.stream().map((node1) => [node1, node]);
 	}
 
-	getConnectionsFrom<UN = N>(node1: RelatedTo<N, UN>): RSet<N> {
+	getConnectionsFrom<UN = N>(node1: RelatedTo<N, UN>): SetCollection<N> {
 		return this.linkMap.get(
 			node1,
 			this.context.linkConnectionsContext.empty<N>(),

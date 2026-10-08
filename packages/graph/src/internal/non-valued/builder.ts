@@ -1,4 +1,5 @@
-import type { RMap, RSet } from '@rimbu/collection-types';
+import type { MapCollection } from '@rimbu/collection-types/map';
+import type { SetCollection } from '@rimbu/collection-types/set';
 import type { RelatedTo } from '@rimbu/common/types';
 
 import type { Graph } from '#graph/graph';
@@ -20,14 +21,14 @@ export class GraphBuilder<N> implements Graph.Builder<N> {
 		if (undefined !== source) this.connectionSize = source.connectionSize;
 	}
 
-	_linkMap?: RMap.Builder<N, RSet.Builder<N>>;
+	_linkMap?: MapCollection.Builder<N, SetCollection.Builder<N>>;
 	_lock = 0;
 
 	checkLock(): void {
 		if (this._lock) RimbuError.throwModifiedBuilderWhileLoopingOverItError();
 	}
 
-	get linkMap(): RMap.Builder<N, RSet.Builder<N>> {
+	get linkMap(): MapCollection.Builder<N, SetCollection.Builder<N>> {
 		if (undefined === this._linkMap) {
 			if (undefined === this.source) {
 				this._linkMap = this.context.linkMapContext.builder();
