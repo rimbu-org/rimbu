@@ -17,11 +17,16 @@ last holdout, and clearing it is what unblocks issue 10 (removal of the legacy
   ContextApi,FamilyBase,Family}` + `Capability.WithX` shape this plan copies.
 - `packages/multiset/src/advanced/multiset-base.ts` — the smaller suite.
 
-**Baseline gate (load-bearing):** `packages/graph` **does not build and does not
-test.** `bun run build:seq` builds 15 packages then aborts at graph (position
-16 of 23), leaving 7 packages downstream unverified.
-`tsc -p tsconfig.json --noEmit` reports **72 errors** (40×TS2344, 16×TS2339,
-8×TS2430, 8×TS2345). `bun test test/` reports **8 pass / 174 fail**.
+**Baseline gate (historical — this is what the plan was written against, and it
+no longer holds):** `packages/graph` **did not build and did not test.**
+`bun run build:seq` built 15 packages then aborted at graph (position 16 of 23),
+leaving 7 packages downstream unverified. `tsc -p tsconfig.json --noEmit`
+reported **72 errors** (40×TS2344, 16×TS2339, 8×TS2430, 8×TS2345).
+`bun test test/` reported **8 pass / 174 fail**.
+
+> Note: the error count is a floor, not a ceiling. Because the build aborted at
+> graph, three further packages (`multimap`, `multiset`, `bimultimap`) were *also*
+> broken and nobody had seen it. Fixing graph is what exposed them.
 
 **Hard switch:** big bang, no aliases, no deprecation shims. Breaking change
 (`major` changeset). No `Variant*` legacy surface, no `RMap`/`RSet` references.
@@ -534,17 +539,54 @@ Neither blocks `build:seq` (both are outside `src/`), but both block
 | Undirected double-count looks like a bug to a reviewer | §2.5 documents it; tightened harness guards it |
 | Scope creep into `filter`/iteration redesign | Explicitly out of scope; filed as follow-up |
 
+> **Status: 2026-10-08 — commits 1 and 3 landed; commit 2 untouched.**
+>
+> `bun run build:seq` builds all 23 packages (it used to abort at graph, position
+> 16), `bun run typecheck:seq` is clean across all 22, and `bun run test` /
+> `test:random` / `biome:check` all exit 0. Graph contributes 481 runtime tests,
+> a per-variant `test-d`, and a `test-random/` suite.
+>
+> **What actually got done differs from the plan below. Two corrections matter:**
+>
+> 1. **§2.3/§2.7 are only half-done.** `advanced/graph-base.ts` and its
+>    family-carrying storage aliases are in place and used by all eight concrete
+>    families — `linkMap` resolves to `HashMap<N, HashSet<N>>` and friends. But the
+>    public variant interfaces still extend the internal `VariantGraphBase` /
+>    `GraphConnect` hierarchy, **not** `GraphCollection.Advanced.Api`. So the
+>    capability aggregates do not reach users, and the `Variant*` tier still
+>    exists. A visible symptom: `toArray()` is declared on the capability `Api` but
+>    **graphs have no `toArray()`** (use `stream().toArray()`). This is the main
+>    remaining piece of work.
+> 2. **§6 commit 3 turned out to be much wider than "two unrelated failures."**
+>    Fixing graph exposed three further *build* failures it had been hiding
+>    (multimap, multiset, bimultimap) plus 30 errors in `list/test/`. All are fixed;
+>    §6 commit 3 is therefore done and §1's "pre-existing failures" note is stale.
+>
+> **The `test-random/` suite earned its place immediately** (§5 predicted this):
+> it found two defects the set-comparison harnesses could not reach, both now
+> fixed and pinned in `packages/graph/test/regression.test.ts` —
+> `connectionSize` drifted upwards after `removeNode` on a directed graph (only
+> incoming arcs were subtracted, outgoing ones silently ignored), and
+> `Builder.forEach` emitted a spurious isolated-node element for every *connected*
+> node, disagreeing with `Builder.build().stream()`.
+
 ## 9. Definition of done
 
 - `bun run build:seq` passes all 23 packages (currently aborts at 16).
 - `bun run typecheck:seq` clean.
 - `bun run biome:check` clean.
 - `bun run test` clean — graph contributes 4 passing harnesses and a
-  `test:random` suite.
-- `bun run test:random` runs graph's suite serially.
+  `test:random` suite. ✅
+- `bun run test:random` runs graph's suite serially. ✅
 - Zero hits for `RMap|RSet|VariantMap|VariantSet|RMapBase|RSetBase|
-  VariantMapBase|VariantSetBase|EmptyBase|NonEmptyBase` in any
-  `packages/*/src`.
+  VariantMapBase|VariantSetBase` in `packages/graph/src`. ✅
+  **Still open:** the legacy `RMap`/`RSet` classes themselves remain in
+  `collection-types/src/advanced/{map,set}/base.ts` — that is commit 2 below.
+  The `EmptyBase`/`NonEmptyBase` half of this criterion is not met and should not
+  be: those symbols now denote the local
+  `const EmptyBase = MapCollectionEmpty.WithMixin(...)` aliases that eight
+  packages legitimately declare. The criterion meant the *legacy* base classes in
+  `collection-types/advanced/common/empty-base.ts`, which only graph still uses.
 - Zero hits for the 4 removed method spellings (`hasKey`, `modifyAt`,
   `updateAt`, `addEntry`) against rimbu storage objects in graph's `src/`.
 - Zero `defaultContext()` calls.

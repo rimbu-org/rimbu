@@ -1,7 +1,5 @@
-import type { MapCollection } from '@rimbu/collection-types/map';
-import type { SetCollection } from '@rimbu/collection-types/set';
-import type { GraphCollection } from '@rimbu/graph/advanced/graph-base';
 import type { ToJSON } from '@rimbu/common/types';
+import type { GraphCollection } from '@rimbu/graph/advanced/graph-base';
 import type { Link } from '@rimbu/graph/link';
 
 import type { GraphBase } from '#graph/base';
@@ -23,32 +21,43 @@ export class GraphEmpty<N> extends GraphEmptyBase<N> implements GraphBase<N> {
 		super();
 	}
 
-	get linkMap(): MapCollection<N, SetCollection<N, GraphCollection.Advanced.LinkConnectionsFamily<N>>> {
+	get linkMap(): GraphCollection.Advanced.LinkMapType<N> {
 		return this.context.linkMapContext.empty();
 	}
 
-	getConnectionsFrom(): SetCollection<N, GraphCollection.Advanced.LinkConnectionsFamily<N>> {
+	getConnectionsFrom(): GraphCollection.Advanced.LinkConnectionsType<N> {
 		return this.context.linkConnectionsContext.empty<N>();
 	}
 
+	// `MapCollection.Context<F>` is declared with `any` for its key and value type
+	// arguments, so every factory on `linkMapContext` / `linkConnectionsContext`
+	// returns an over-generic result that cannot be fed straight back into
+	// `createNonEmpty`'s precisely-typed `linkMap` slot. Each boundary below is
+	// therefore narrowed with a cast to the family-carrying alias — never `any`.
+
 	addNode(node: N): Graph.NonEmpty<N> {
 		return this.context.createNonEmpty(
-			this.linkMap.context.of([
+			this.context.linkMapContext.of([
 				node,
 				this.context.linkConnectionsContext.empty(),
-			]),
+			]) as GraphCollection.Advanced.LinkMapTypeNonEmpty<N>,
 			0,
 		);
 	}
 
 	addNodes(nodes: StreamSource<N>): any {
-		const emptyConnections = this.context.linkConnectionsContext.empty();
+		const emptyConnections: GraphCollection.Advanced.LinkConnectionsType<N> =
+			this.context.linkConnectionsContext.empty();
 
 		const linkMap = this.context.linkMapContext.from(
 			Stream.from(nodes).map(
-				(node) => [node, emptyConnections] as [N, SetCollection<N, GraphCollection.Advanced.LinkConnectionsFamily<N>>],
+				(node) =>
+					[node, emptyConnections] as [
+						N,
+						GraphCollection.Advanced.LinkConnectionsType<N>,
+					],
 			),
-		);
+		) as GraphCollection.Advanced.LinkMapType<N>;
 
 		if (!linkMap.nonEmpty()) return this;
 		return this.context.createNonEmpty(linkMap, 0);
@@ -57,14 +66,17 @@ export class GraphEmpty<N> extends GraphEmptyBase<N> implements GraphBase<N> {
 	connect(node1: N, node2: N): Graph.NonEmpty<N> {
 		const linkMap = this.context.linkMapContext.of([
 			node1,
-			this.context.linkConnectionsContext.of(node2) as SetCollection<N, GraphCollection.Advanced.LinkConnectionsFamily<N>>,
-		]);
+			this.context.linkConnectionsContext.of(
+				node2,
+			) as GraphCollection.Advanced.LinkConnectionsType<N>,
+		]) as GraphCollection.Advanced.LinkMapTypeNonEmpty<N>;
 
 		if (node1 === node2) return this.context.createNonEmpty(linkMap, 1);
 
-		const linkConnections = this.isDirected
-			? this.context.linkConnectionsContext.empty()
-			: this.context.linkConnectionsContext.of(node1);
+		const linkConnections: GraphCollection.Advanced.LinkConnectionsType<N> =
+			this.isDirected
+				? this.context.linkConnectionsContext.empty()
+				: this.context.linkConnectionsContext.of(node1);
 
 		return this.context.createNonEmpty(linkMap.set(node2, linkConnections), 1);
 	}

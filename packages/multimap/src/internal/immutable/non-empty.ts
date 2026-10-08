@@ -476,9 +476,15 @@ export class MultiMapNonEmpty<K, V>
 		return builder.build();
 	}
 
-	union<U extends V>(other: MultiMap.NonEmpty<K, U>): MultiMap.NonEmpty<K, V>;
-	union<U extends V>(other: MultiMap<K, U>): MultiMap<K, V>;
-	union<U extends V>(other: MultiMap<K, U>): MultiMap<K, V> {
+	union<U extends V>(
+		other: MultiMapCollection.CollectionNonEmpty<K, U>,
+	): MultiMap.NonEmpty<K, V>;
+	union<U extends V>(
+		other: MultiMapCollection.Collection<K, U>,
+	): MultiMap<K, V>;
+	union<U extends V>(
+		other: MultiMapCollection.Collection<K, U>,
+	): MultiMap<K, V> {
 		if (other.isEmpty) return this.#normal;
 		if (other === (this as unknown)) return this.#normal;
 		const builder = this.toBuilder();
@@ -486,7 +492,9 @@ export class MultiMapNonEmpty<K, V>
 		return builder.build();
 	}
 
-	intersection<U extends V>(other: MultiMap<K, U>): MultiMap<K, V> {
+	intersection<U extends V>(
+		other: MultiMapCollection.Collection<K, U>,
+	): MultiMap<K, V> {
 		if (other.isEmpty) return this.context.empty<readonly [K, V]>();
 		if (other === (this as unknown)) return this.#normal;
 		const builder = this.context.builder<readonly [K, V]>();
@@ -497,14 +505,18 @@ export class MultiMapNonEmpty<K, V>
 		return builder.build();
 	}
 
-	difference<U extends V>(other: MultiMap<K, U>): MultiMap<K, V> {
+	difference<U extends V>(
+		other: MultiMapCollection.Collection<K, U>,
+	): MultiMap<K, V> {
 		if (other.isEmpty) return this.#normal;
 		if (other === (this as unknown))
 			return this.context.empty<readonly [K, V]>();
 		return this.removeEntries(other as unknown as StreamSource<[K, U]>);
 	}
 
-	symmetricDifference<U extends V>(other: MultiMap<K, U>): MultiMap<K, V> {
+	symmetricDifference<U extends V>(
+		other: MultiMapCollection.Collection<K, U>,
+	): MultiMap<K, V> {
 		if (other.isEmpty) return this.#normal;
 		if (other === (this as unknown))
 			return this.context.empty<readonly [K, V]>();

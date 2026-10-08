@@ -1,5 +1,5 @@
-import type { MapCollection } from '@rimbu/collection-types/map';
 import type { RelatedTo, ToJSON } from '@rimbu/common/types';
+import type { ValuedGraphCollection } from '@rimbu/graph/advanced/graph-base';
 import type { ValuedLink } from '@rimbu/graph/valued-link';
 
 import type { ValuedGraphBase } from '#graph/valued/base';
@@ -29,7 +29,7 @@ export class ValuedGraphEmpty<N, V>
 		super();
 	}
 
-	get linkMap(): MapCollection<N, MapCollection<N, V>> {
+	get linkMap(): ValuedGraphCollection.Advanced.LinkMapValuesType<N, V> {
 		return this.context.linkMapContext.empty();
 	}
 
@@ -41,26 +41,39 @@ export class ValuedGraphEmpty<N, V>
 		return OptLazy(otherwise!);
 	}
 
-	getConnectionsFrom(): MapCollection<N, V> {
+	getConnectionsFrom(): ValuedGraphCollection.Advanced.LinkValuesType<N, V> {
 		return this.context.linkConnectionsContext.empty();
 	}
 
+	// See the note on the non-valued twin: `MapCollection.Context<F>` is declared
+	// with `any` key/value arguments, so each boundary below is narrowed with a
+	// cast to the family-carrying alias — never `any`.
+
 	addNode(node: N): ValuedGraph.NonEmpty<N, V> {
 		return this.context.createNonEmpty(
-			this.linkMap.context.of([
+			this.context.linkMapContext.of([
 				node,
 				this.context.linkConnectionsContext.empty(),
-			]),
+			]) as ValuedGraphCollection.Advanced.LinkMapValuesTypeNonEmpty<N, V>,
 			0,
 		);
 	}
 
 	addNodes(nodes: StreamSource<N>): any {
-		const emptyConnections = this.context.linkConnectionsContext.empty();
+		const emptyConnections: ValuedGraphCollection.Advanced.LinkValuesType<
+			N,
+			V
+		> = this.context.linkConnectionsContext.empty();
 
 		const linkMap = this.context.linkMapContext.from(
-			Stream.from(nodes).map((node) => [node, emptyConnections]),
-		);
+			Stream.from(nodes).map(
+				(node) =>
+					[node, emptyConnections] as [
+						N,
+						ValuedGraphCollection.Advanced.LinkValuesType<N, V>,
+					],
+			),
+		) as ValuedGraphCollection.Advanced.LinkMapValuesType<N, V>;
 
 		if (linkMap.nonEmpty()) {
 			return this.context.createNonEmpty(linkMap, 0);
@@ -72,17 +85,18 @@ export class ValuedGraphEmpty<N, V>
 	connect(node1: N, node2: N, value: V): ValuedGraph.NonEmpty<N, V> {
 		const linkMap = this.context.linkMapContext.of([
 			node1,
-			this.context.linkConnectionsContext.of([node2, value]) as MapCollection<
-				N,
-				V
-			>,
-		]) as MapCollection.NonEmpty<N, MapCollection<N, V>>;
+			this.context.linkConnectionsContext.of([
+				node2,
+				value,
+			]) as ValuedGraphCollection.Advanced.LinkValuesType<N, V>,
+		]) as ValuedGraphCollection.Advanced.LinkMapValuesTypeNonEmpty<N, V>;
 
 		if (node1 === node2) return this.context.createNonEmpty(linkMap, 1);
 
-		const linkConnections = this.isDirected
-			? this.context.linkConnectionsContext.empty()
-			: this.context.linkConnectionsContext.of([node1, value]);
+		const linkConnections: ValuedGraphCollection.Advanced.LinkValuesType<N, V> =
+			this.isDirected
+				? this.context.linkConnectionsContext.empty()
+				: this.context.linkConnectionsContext.of([node1, value]);
 
 		return this.context.createNonEmpty(linkMap.set(node2, linkConnections), 1);
 	}

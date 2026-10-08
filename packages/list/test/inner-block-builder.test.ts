@@ -3,6 +3,7 @@ import { describe, expect, it } from 'bun:test';
 import type { Int } from '@rimbu/base';
 
 import type { ListContext } from '#list/context';
+import type { OuterBlock } from '#list/immutable/outer-block';
 import type { ListBuilder } from '#list/mutable/builder';
 import type { InnerBlockBuilder } from '#list/mutable/inner-block-builder';
 import type { OuterBlockBuilder } from '#list/mutable/outer-block-builder';
@@ -22,7 +23,7 @@ function ob(ctx: ListContext, vals: number[]): OB {
 
 function ib(ctx: ListContext, children: OB[], level = 1): IB {
 	const size = children.reduce((s, c) => s + c.size, 0);
-	return ctx.innerBlockBuilder(children, size, level);
+	return ctx.innerBlockBuilder<number, OB>(children, size, level);
 }
 
 function ibFromSource(ctx: ListContext, vals: number[], groupSize = 2): IB {
@@ -50,7 +51,7 @@ type IB2 = InnerBlockBuilder<number, IB>;
 
 function ib2(ctx: ListContext, children: IB[], level = 2): IB2 {
 	const size = children.reduce((s, c) => s + c.size, 0);
-	return ctx.innerBlockBuilder(children, size, level);
+	return ctx.innerBlockBuilder<number, IB>(children, size, level);
 }
 
 function verifyImmutableList(list: unknown): string[] {
@@ -495,8 +496,12 @@ describe('InnerBlockBuilder.edge-cases', () => {
 	describe('source unaffected after mutation', () => {
 		it('source block not mutated', () => {
 			const sourceBlock = ctx.outerBlockLeftRight(ctx.childrenOps.of([10, 20]));
-			const immutableIB = ctx.innerBlock([sourceBlock], 2, 1);
-			const b = ctx.innerBlockBuilderSource(immutableIB);
+			const immutableIB = ctx.innerBlock<number, OuterBlock<number>>(
+				[sourceBlock],
+				2,
+				1,
+			);
+			const b = ctx.innerBlockBuilderSource<number, OB>(immutableIB);
 			b.appendChild(ob(ctx, [30]));
 			expect(sourceBlock.toArray()).toEqual([10, 20]);
 		});

@@ -251,11 +251,7 @@ export declare namespace GraphCollection {
 			readonly isDirected: boolean;
 
 			createNonEmpty<N extends FAM['_UPPER_N']>(
-				linkMap: MapCollection.NonEmpty<
-					N,
-					SetCollection<N>,
-					LinkMapFamily<N, LinkConnectionsFamily<N>['_NORMAL']>
-				>,
+				linkMap: LinkMapTypeNonEmpty<N>,
 				connectionSize: number,
 			): Collection.Advanced.FamToTypes<FAM, GraphElement<N>>['_NON_EMPTY'];
 			createBuilder<N extends FAM['_UPPER_N']>(
@@ -704,7 +700,7 @@ export declare namespace ValuedGraphCollection {
 			readonly isDirected: boolean;
 
 			createNonEmpty<N extends FAM['_UPPER_N'], V extends FAM['_UPPER_V']>(
-				linkMap: MapCollection.NonEmpty<N, MapCollection<N, V>>,
+				linkMap: LinkMapValuesTypeNonEmpty<N, V>,
 				connectionSize: number,
 			): Collection.Advanced.FamToTypes<
 				FAM,
@@ -739,6 +735,41 @@ export declare namespace ValuedGraphCollection {
 					| undefined;
 			}): ContextApi<Family<N, V>>;
 		}
+
+		/**
+		 * A node's connection map: the valued inner collection.
+		 *
+		 * The concrete family is passed as the `F` argument rather than left to the
+		 * default, for the same reason as
+		 * {@link GraphCollection.Advanced.LinkConnectionsType}: the default would
+		 * instantiate `Collection.Advanced.Family` a second time, and the two
+		 * halves of that intersection can never be satisfied by the single `Api` a
+		 * concrete context actually produces.
+		 */
+		export type LinkValuesType<N, V> = MapCollection<
+			N,
+			V,
+			LinkValuesFamily<N, V>
+		>;
+		/** The non-empty form of {@link LinkValuesType}. */
+		export type LinkValuesTypeNonEmpty<N, V> = MapCollection.NonEmpty<
+			N,
+			V,
+			LinkValuesFamily<N, V>
+		>;
+
+		/** The outer link map of a valued graph: node to connection map. */
+		export type LinkMapValuesType<N, V> = MapCollection<
+			N,
+			LinkValuesType<N, V>,
+			GraphCollection.Advanced.LinkMapFamily<N, LinkValuesType<N, V>>
+		>;
+		/** The non-empty form of {@link LinkMapValuesType}. */
+		export type LinkMapValuesTypeNonEmpty<N, V> = MapCollection.NonEmpty<
+			N,
+			LinkValuesType<N, V>,
+			GraphCollection.Advanced.LinkMapFamily<N, LinkValuesType<N, V>>
+		>;
 	}
 
 	export namespace Capability {

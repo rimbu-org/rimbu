@@ -1,6 +1,5 @@
-import type { MapCollection } from '@rimbu/collection-types/map';
-import type { SetCollection } from '@rimbu/collection-types/set';
 import type { RelatedTo, ToJSON } from '@rimbu/common/types';
+import type { GraphCollection } from '@rimbu/graph/advanced/graph-base';
 import type { GraphElement, Link } from '@rimbu/graph/link';
 
 import type { GraphBase } from '#graph/base';
@@ -23,14 +22,14 @@ export class GraphNonEmpty<N>
 
 	constructor(
 		readonly context: GraphContextImpl<N>,
-		readonly linkMap: MapCollection.NonEmpty<N, SetCollection<N>>,
+		readonly linkMap: GraphCollection.Advanced.LinkMapTypeNonEmpty<N>,
 		readonly connectionSize: number,
 	) {
 		super();
 	}
 
 	copy(
-		linkMap: MapCollection.NonEmpty<N, SetCollection<N>>,
+		linkMap: GraphCollection.Advanced.LinkMapTypeNonEmpty<N>,
 		connectionSize: number,
 	): Graph.NonEmpty<N> {
 		if (linkMap === this.linkMap && connectionSize === this.connectionSize)
@@ -39,7 +38,7 @@ export class GraphNonEmpty<N>
 	}
 
 	copyE(
-		linkMap: MapCollection<N, SetCollection<N>>,
+		linkMap: GraphCollection.Advanced.LinkMapType<N>,
 		connectionSize: number,
 	): Graph<N> {
 		if (linkMap.nonEmpty()) return this.copy(linkMap, connectionSize);
@@ -62,7 +61,9 @@ export class GraphNonEmpty<N>
 
 		const mapIter = this.linkMap[Symbol.iterator]();
 		const done = Symbol();
-		let targetsEntry: readonly [N, SetCollection<N>] | typeof done;
+		let targetsEntry:
+			| readonly [N, GraphCollection.Advanced.LinkConnectionsType<N>]
+			| typeof done;
 
 		while (!state.halted && done !== (targetsEntry = mapIter.fastNext(done))) {
 			const [node, targets] = targetsEntry;
@@ -148,7 +149,9 @@ export class GraphNonEmpty<N>
 		return targets.stream().map((node1) => [node1, node] as [N, N]);
 	}
 
-	getConnectionsFrom<UN = N>(node1: RelatedTo<N, UN>): SetCollection<N> {
+	getConnectionsFrom<UN = N>(
+		node1: RelatedTo<N, UN>,
+	): GraphCollection.Advanced.LinkConnectionsType<N> {
 		return this.linkMap.get(
 			node1,
 			this.context.linkConnectionsContext.empty<N>(),

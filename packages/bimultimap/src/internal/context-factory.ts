@@ -91,21 +91,26 @@ function createContextModule<UK, UV>(
 	options: ContextOptions<UK, UV>,
 ): Module<BiMultiMapContextImpl<UK, UV>> {
 	return Module.create<BiMultiMapContextImpl<UK, UV>>((mod) => ({
-		createContext: (
-			_options?: Partial<ContextOptions<UK, UV>>,
-		): BiMultiMapContextImpl<UK, UV> =>
-			createContextModule({
+		// The signature mirrors `BiMultiMap.Advanced.ContextApi.createContext`
+		// exactly, including the explicit `| undefined` on each option. Under
+		// `exactOptionalPropertyTypes` a bare `Partial<ContextOptions<UK, UV>>`
+		// — whose members carry no `| undefined` — rejects the declared shape.
+		createContext: <K2, V2>(newOptions?: {
+			keyValueMultiMapContext?: MultiMap.Context<K2, V2> | undefined;
+			valueKeyMultiMapContext?: MultiMap.Context<V2, K2> | undefined;
+		}): BiMultiMapContextImpl<K2, V2> =>
+			createContextModule<K2, V2>({
 				get keyValueMultiMapContext() {
-					return (
-						_options?.keyValueMultiMapContext ?? options.keyValueMultiMapContext
-					);
+					// The inherited backing is keyed on `UK`/`UV` while the supplied one is
+					// keyed on the unrelated `K2`/`V2`, so the fallback needs a bridge.
+					return (newOptions?.keyValueMultiMapContext ??
+						options.keyValueMultiMapContext) as MultiMap.Context<K2, V2>;
 				},
 				get valueKeyMultiMapContext() {
-					return (
-						_options?.valueKeyMultiMapContext ?? options.valueKeyMultiMapContext
-					);
+					return (newOptions?.valueKeyMultiMapContext ??
+						options.valueKeyMultiMapContext) as MultiMap.Context<V2, K2>;
 				},
-			}).build(),
+			}).build() as BiMultiMapContextImpl<K2, V2>,
 
 		keyedContext: mod,
 		collectionContext: mod,

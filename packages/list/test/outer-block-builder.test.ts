@@ -6,8 +6,12 @@ import type { ListContext } from '#list/context';
 
 import { List } from '@rimbu/list';
 
-function makeContext<T>(blockSizeBits: number): ListContext<T> {
-	return List.createContext({ blockSizeBits }) as ListContext<T>;
+function makeContext<T>(
+	blockSizeBits: number,
+): ListContext<List.Advanced.Family<T>> {
+	return List.createContext({
+		blockSizeBits,
+	}) as ListContext<List.Advanced.Family<T>>;
 }
 
 function makeBuilder<T>(values: T[], bits = 5) {

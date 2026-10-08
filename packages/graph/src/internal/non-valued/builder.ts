@@ -105,9 +105,16 @@ export class GraphBuilder<N> implements Graph.Builder<N> {
 		this.source = undefined;
 
 		if (this.isDirected) {
-			this.linkMap.forEachIndexed(([sourceNode, targets]) => {
+			// `connectionSize` counts *every* arc, so removing a node drops both its
+			// outgoing arcs (this row, removed above by `removeKey`) and its incoming
+			// arcs (the other rows the scan below visits). A self-loop is an outgoing
+			// arc whose row is the one just removed, so `targets.size` accounts for it
+			// exactly once and the scan never sees it.
+			this.connectionSize -= targets.size;
+
+			this.linkMap.forEachIndexed(([, targets]) => {
 				if (targets.remove(node)) {
-					if (sourceNode !== node) this.connectionSize--;
+					this.connectionSize--;
 				}
 			});
 		} else {
@@ -316,7 +323,12 @@ export class GraphBuilder<N> implements Graph.Builder<N> {
 		try {
 			this.linkMap.forEachIndexed(
 				([source, targets]) => {
-					f([source], state.nextIndex(), state.halt);
+					// A node is reported as an isolated-node element only when it
+					// really is isolated — matching the immutable `forEach`. Emitting
+					// it unconditionally made the builder yield one extra element per
+					// connected node, so `builder.forEach` and `builder.build().stream()`
+					// disagreed.
+					if (targets.isEmpty) f([source], state.nextIndex(), state.halt);
 
 					targets.forEachIndexed(
 						(target) => {

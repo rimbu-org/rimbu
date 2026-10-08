@@ -392,7 +392,7 @@ describe('patch', () => {
 		expect(patch(value, value)).toBe(value);
 		expect(patch(value, () => value)).toBe(value);
 		expect(patch(value, (v) => v)).toBe(value);
-		expect(patch(value, (v) => v.with(0, 1))).toBe(value);
+		expect(patch(value, (v) => v.setAt(0, 1))).toBe(value);
 		expect(patch(value, (v) => v.take(2)).toArray()).toEqual([1, 2]);
 
 		expect(value).toEqual(List.of(1, 2, 3));

@@ -130,9 +130,22 @@ export class MultiSetContextImpl<UT, FAM extends MultiSet.Advanced.Family<UT>>
 			  }
 			| undefined,
 	): MultiSetContextImpl<UT2, any> => {
+		// `UT2` is a *new* upper type limit, so the inherited backing is keyed on
+		// `UT` while the supplied one is keyed on `UT2`. The two are unrelated
+		// generics by construction, so the merge needs a bridge — the same one
+		// `MultiMapContextImpl.createContext` uses.
+		const countMapContext = (options?.countMapContext ??
+			this.countMapContext) as MapCollection.Context<
+			MapCollection.Advanced.Family<UT2, number>
+		>;
+
 		const result = new MultiSetContextImpl(
-			options?.countMapContext ?? this.countMapContext,
-			this.getDefaultInstance,
+			countMapContext,
+			() =>
+				this as unknown as MultiSetContextImpl<
+					UT2,
+					MultiSet.Advanced.Family<UT2>
+				>,
 		);
 
 		Object.freeze(result);

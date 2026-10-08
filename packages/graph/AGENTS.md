@@ -113,16 +113,23 @@ reads as "connect everything".
 
 ## Deliberate semantics
 
-- **`size` is the node count**, identical to `nodeSize`. It is *not*
-  `toArray().length`: a graph's elements are its isolated nodes **and** its
-  links, so that number equals neither `size` nor `connectionSize`. `length` is
-  not offered — it is a banned name, and its only meaning here would be that
-  third number.
-- **Undirected iteration double-counts.** `EdgeGraph`'s `stream()` / `toArray()` /
-  `forEach()` / `streamConnections()` emit each edge **twice**, because
-  `connect` writes both directions. `connectionSize` counts once. This is kept
-  (a dedup needs a visited-pair set on a hot path) and is **asserted** by the
-  `symmetric()` helper in the edge harnesses, not masked by it.
+- **There is no `toArray()`.** A graph's elements are its isolated nodes **and**
+  its links, and nothing on the public surface collects them into an array — use
+  `stream().toArray()`. (The capability `Api` in `advanced/graph-base.ts`
+  declares `toArray()` and `forEachIndexed()`, but the public variant interfaces
+  still extend the internal `VariantGraphBase` hierarchy instead of that
+  `Api`, so neither member is reachable. Wiring the public families onto the
+  capability aggregates is the outstanding follow-up; see the "Still
+  outstanding" note below before adding either method.)
+- **`size` is the node count**, identical to `nodeSize`. It is *not* the element
+  count, which equals neither `size` nor `connectionSize`. `length` is not
+  offered — it is a banned name, and its only meaning here would be that third
+  number.
+- **Undirected iteration double-counts.** `EdgeGraph`'s `stream()` / `forEach()` /
+  `streamConnections()` emit each edge **twice**, because `connect` writes both
+  directions. `connectionSize` counts once. This is kept (a dedup needs a
+  visited-pair set on a hot path) and is **asserted** by the `symmetric()` helper
+  in the edge harnesses, not masked by it.
 - **`isSink` / `isSource` are on all four families.** Narrowing per directedness
   would add asymmetry for no gain. On an undirected graph both report whether
   the node is isolated.
@@ -150,7 +157,56 @@ All commands run from this package directory. Per the root guide, **always
 
 | Command | Purpose |
 |---|---|
-| `bun run typecheck` | `tsc -p tsconfig.json --noEmit` (includes `src`, `test`, `test-d`) |
+| `bun run typecheck` | `tsc -p tsconfig.json --noEmit` (includes `src`, `test`, `test-d`, `test-random`) |
 | `bun run test` | `bun test test/* --tsconfig-override tsconfig.common.json` |
+| `bun run test:random` | `bun test ./test-random --tsconfig-override tsconfig.common.json` (requires a build) |
 | `bun run build` | emit this package to `dist/` |
 | `bun run biome:check` / `biome:fix` | lint + format |
+
+`test:random` must keep passing `--tsconfig-override tsconfig.common.json`;
+without it the `@rimbu/graph/...` sub-path imports fail to resolve and the suite
+exits before running a single test (root `AGENTS.md` §5). Prefer `./test-random`
+over `test-random` — without the `./` the argument is a filter, not a path.
+
+## Testing
+
+| Directory | Purpose |
+|---|---|
+| `test/` | Runtime tests — 4 shared harnesses (`*-graph-test-standard.ts`) driven once per variant, plus `regression.test.ts` and the two traverse suites |
+| `test-d/` | Type-level tests: `arrowgraph.test-d.ts` for the abstract family, `variants.test-d.ts` for all 8 concrete variants |
+| `test-random/` | Randomized differential tests against an adjacency-list model |
+
+The shared harnesses are typed against `ArrowGraph.Context`, so the edge drivers
+cast to it (`EdgeGraphHashed as unknown as ArrowGraph.Context<number>`): the two
+are structurally identical for everything the harness touches.
+
+`test-random/` mutates a plain `Map<N, Set<N>>` model and a graph in lockstep.
+It checks the O(1) size invariants after **every** operation, re-verifies the
+whole graph every `CHECK_FULL_EVERY` (50) operations, and ends each case with an
+explicit `checkFull()` — verifying everything after every operation is O(n²) and
+is what made `multimap`'s suite dominate the repo-wide `test:random` runtime.
+
+It has already paid for itself: it found two defects the set-comparison harnesses
+could not reach, both now pinned in `test/regression.test.ts`.
+
+- `connectionSize` drifted upwards after `removeNode` on a **directed** graph,
+  because only the removed node's incoming arcs were subtracted.
+- `Builder.forEach` emitted a spurious isolated-node element for every
+  *connected* node, so it disagreed with `Builder.build().stream()`.
+
+## Still outstanding
+
+The public variant interfaces (`ArrowGraphHashed`, …) still extend the internal
+`VariantGraphBase` / `GraphConnect` hierarchy, **not**
+`GraphCollection.Advanced.Api`. The capability suite in `advanced/` is therefore
+only partly wired in: the storage aliases and family slots are used, but its
+`Api` / `NonEmptyApi` / `BuilderApi` / `ContextApi` aggregates are not yet the
+public surface. Consequences and follow-ups:
+
+- `toArray()` and `forEachIndexed()` are declared on the capability `Api` but
+  unreachable; do not add members there expecting them to become public.
+- The `Variant*` tier (`internal/variant-base.ts`, `internal/valued/variant-base.ts`)
+  still exists and is slated for deletion once the families are rewired.
+
+Plan: `.scratch/graph-migration-plan.md` §2.3 (adopt the capability `Api`) and
+§2.7 (delete the `Variant*` tier).

@@ -14,16 +14,20 @@ type InnerBlock<
 	C extends OuterBlock<T> = OuterBlock<T>,
 > = import('../src/internal/immutable/inner-block').InnerBlock<T, C>;
 
-function makeContext<T>(blockSizeBits: number): ListContext<T> {
-	return List.createContext({ blockSizeBits }) as ListContext<T>;
+function makeContext<T>(
+	blockSizeBits: number,
+): ListContext<List.Advanced.Family<T>> {
+	return List.createContext({
+		blockSizeBits,
+	}) as ListContext<List.Advanced.Family<T>>;
 }
 
-function ob<T>(ctx: ListContext<T>, vals: T[]): OuterBlock<T> {
+function ob<T>(ctx: ListContext<List.Advanced.Family<T>>, vals: T[]): OuterBlock<T> {
 	return ctx.outerBlockLeftRight(ctx.childrenOps.of(vals));
 }
 
 function inner<T>(
-	ctx: ListContext<T>,
+	ctx: ListContext<List.Advanced.Family<T>>,
 	children: OuterBlock<T>[],
 	level = 1,
 ): InnerBlock<T> {
@@ -33,7 +37,7 @@ function inner<T>(
 }
 
 function innerWithTable<T>(
-	ctx: ListContext<T>,
+	ctx: ListContext<List.Advanced.Family<T>>,
 	children: OuterBlock<T>[],
 	level = 1,
 ): InnerBlock<T> {

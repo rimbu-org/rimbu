@@ -1,5 +1,6 @@
 import type { MapCollection } from '@rimbu/collection-types/map';
 import type { SetCollection } from '@rimbu/collection-types/set';
+import type { GraphCollection } from '@rimbu/graph/advanced/graph-base';
 import type { GraphElement } from '@rimbu/graph/link';
 
 import type { GraphBase } from '#graph/base';
@@ -16,16 +17,19 @@ import { GraphNonEmpty } from '#graph/non-valued/non-empty';
 export interface GraphContextImpl<UN> extends GraphBase.Context<UN> {
 	isNonEmptyInstance<N extends UN>(source: any): source is Graph.NonEmpty<N>;
 	createNonEmpty<N extends UN>(
-		linkMap: MapCollection.NonEmpty<N, SetCollection<N>>,
+		linkMap: GraphCollection.Advanced.LinkMapTypeNonEmpty<N>,
 		connectionSize: number,
 	): Graph.NonEmpty<N>;
 	createBuilder<N extends UN>(source?: Graph.NonEmpty<N>): Graph.Builder<N>;
 	createContext<N extends UN>(options: {
 		linkMapContext?: MapCollection.Context<
-			MapCollection.Advanced.Family<N, any>
+			GraphCollection.Advanced.LinkMapFamily<
+				N,
+				GraphCollection.Advanced.LinkConnectionsType<N>
+			>
 		>;
 		linkConnectionsContext?: SetCollection.Context<
-			SetCollection.Advanced.Family<N>
+			GraphCollection.Advanced.LinkConnectionsFamily<N>
 		>;
 	}): Graph.Context<N>;
 	defaultContext<N extends UN>(): Graph.Context<N>;
@@ -36,10 +40,13 @@ export function createGraphContextModule<UN>(
 	isDirected: boolean,
 	options: {
 		linkMapContext: MapCollection.Context<
-			MapCollection.Advanced.Family<UN, any>
+			GraphCollection.Advanced.LinkMapFamily<
+				UN,
+				GraphCollection.Advanced.LinkConnectionsType<UN>
+			>
 		>;
 		linkConnectionsContext: SetCollection.Context<
-			SetCollection.Advanced.Family<UN>
+			GraphCollection.Advanced.LinkConnectionsFamily<UN>
 		>;
 	},
 	_defaultContext?: GraphContextImpl<UN> | undefined,
@@ -120,7 +127,7 @@ export function createGraphContextModule<UN>(
 			new GraphBuilder(mod as unknown as GraphContextImpl<N>),
 
 		createNonEmpty: <N extends UN>(
-			linkMap: MapCollection.NonEmpty<N, SetCollection<N>>,
+			linkMap: GraphCollection.Advanced.LinkMapTypeNonEmpty<N>,
 			connectionSize: number,
 		) => {
 			return new GraphNonEmpty(

@@ -149,7 +149,7 @@ function makeDeepSpineCase(
 	expected.splice(removedIndex, 1);
 
 	return {
-		builder: ctx.builderFrom(outerTree) as ListBuilder<number>,
+		builder: ctx.builderFrom<number>(outerTree) as ListBuilder<number>,
 		removedIndex,
 		expected,
 	};
@@ -267,7 +267,7 @@ describe('single-child middle repair branches', () => {
 			leftCount + middleCount + rightCount,
 		);
 
-		return ctx.builderFrom(tree) as ListBuilder<number>;
+		return ctx.builderFrom<number>(tree) as ListBuilder<number>;
 	}
 
 	for (const blockSizeBits of blockSizeBitsValues) {
@@ -423,7 +423,7 @@ describe('single-child spine repair fixtures', () => {
 		);
 		const right = ctx.outerBlockBuilder<number>(ops.of([18]));
 		const tree = ctx.outerTreeBuilder<number>(left, right, middle, 19);
-		const builder = ctx.builderFrom(tree) as ListBuilder<number>;
+		const builder = ctx.builderFrom<number>(tree) as ListBuilder<number>;
 		const expected = Array.from({ length: 19 }, (_, index) => index);
 		expected.pop();
 

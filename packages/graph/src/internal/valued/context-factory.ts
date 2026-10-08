@@ -1,4 +1,8 @@
 import type { MapCollection } from '@rimbu/collection-types/map';
+import type {
+	GraphCollection,
+	ValuedGraphCollection,
+} from '@rimbu/graph/advanced/graph-base';
 import type { ValuedGraphElement } from '@rimbu/graph/valued-link';
 
 import type { ValuedGraph } from '#graph/valued/valued-graph';
@@ -19,15 +23,18 @@ export interface ValuedGraphContextImpl<UN> extends ValuedGraph.Context<UN> {
 		source?: ValuedGraph.NonEmpty<N, V>,
 	): ValuedGraph.Builder<N, V>;
 	createNonEmpty<N extends UN, V>(
-		linkMap: MapCollection.NonEmpty<N, MapCollection<N, V>, MapCollection.Advanced.Family<N, MapCollection<N, V>>>,
+		linkMap: ValuedGraphCollection.Advanced.LinkMapValuesTypeNonEmpty<N, V>,
 		connectionSize: number,
 	): ValuedGraph.NonEmpty<N, V>;
-	createContext<N extends UN>(options: {
+	createContext<N extends UN, V>(options: {
 		linkMapContext?: MapCollection.Context<
-			MapCollection.Advanced.Family<N, any>
+			GraphCollection.Advanced.LinkMapFamily<
+				N,
+				ValuedGraphCollection.Advanced.LinkValuesType<N, V>
+			>
 		>;
 		linkConnectionsContext?: MapCollection.Context<
-			MapCollection.Advanced.Family<N, any>
+			ValuedGraphCollection.Advanced.LinkValuesFamily<N, V>
 		>;
 	}): ValuedGraph.Context<N>;
 	defaultContext<N extends UN>(): ValuedGraph.Context<N>;
@@ -38,10 +45,13 @@ export function createValuedGraphContextModule<UN>(
 	isDirected: boolean,
 	options: {
 		linkMapContext: MapCollection.Context<
-			MapCollection.Advanced.Family<UN, any>
+			GraphCollection.Advanced.LinkMapFamily<
+				UN,
+				ValuedGraphCollection.Advanced.LinkValuesType<UN, any>
+			>
 		>;
 		linkConnectionsContext: MapCollection.Context<
-			MapCollection.Advanced.Family<UN, any>
+			ValuedGraphCollection.Advanced.LinkValuesFamily<UN, any>
 		>;
 	},
 	_defaultContext?: ValuedGraphContextImpl<UN> | undefined,
@@ -139,7 +149,7 @@ export function createValuedGraphContextModule<UN>(
 			);
 		},
 		createNonEmpty<N extends UN, V>(
-			linkMap: MapCollection.NonEmpty<N, MapCollection<N, V>, MapCollection.Advanced.Family<N, MapCollection<N, V>>>,
+			linkMap: ValuedGraphCollection.Advanced.LinkMapValuesTypeNonEmpty<N, V>,
 			connectionSize: number,
 		): ValuedGraph.NonEmpty<N, V> {
 			return new ValuedGraphNonEmpty<N, V>(

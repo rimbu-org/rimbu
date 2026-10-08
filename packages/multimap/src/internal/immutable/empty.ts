@@ -201,9 +201,15 @@ export class MultiMapEmpty<K, V>
 		return this.#self as unknown as MultiMap<K2, V2>;
 	}
 
-	union<U extends V>(other: MultiMap.NonEmpty<K, U>): MultiMap.NonEmpty<K, V>;
-	union<U extends V>(other: MultiMap<K, U>): MultiMap<K, V>;
-	union<U extends V>(other: MultiMap<K, U>): MultiMap<K, V> {
+	union<U extends V>(
+		other: MultiMapCollection.CollectionNonEmpty<K, U>,
+	): MultiMap.NonEmpty<K, V>;
+	union<U extends V>(
+		other: MultiMapCollection.Collection<K, U>,
+	): MultiMap<K, V>;
+	union<U extends V>(
+		other: MultiMapCollection.Collection<K, U>,
+	): MultiMap<K, V> {
 		if (other.isEmpty) return this.#self;
 		return this.context.from(other) as unknown as MultiMap<K, V>;
 	}
@@ -216,7 +222,9 @@ export class MultiMapEmpty<K, V>
 		return this.#self;
 	}
 
-	symmetricDifference<U extends V>(other: MultiMap<K, U>): MultiMap<K, V> {
+	symmetricDifference<U extends V>(
+		other: MultiMapCollection.Collection<K, U>,
+	): MultiMap<K, V> {
 		if (other.isEmpty) return this.#self;
 		return this.context.from(other) as unknown as MultiMap<K, V>;
 	}

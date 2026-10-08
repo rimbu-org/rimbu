@@ -253,17 +253,20 @@ for (const blockSizeBits of blockSizeBitsValues) {
 		});
 
 		describe('reversed', () => {
-			it('maintains structure, order, and double-reverse identity', () => {
+			it('maintains structure and order', () => {
 				const ctx = List.createContext({ blockSizeBits });
 				const list = buildList(ctx, totalElements, 'append');
+				expectValid(list);
 
-				const reversed = list.reversed();
-				expectValid(reversed);
-				expect(reversed.toArray()).toEqual([...values].reverse());
-
-				const doubleReversed = reversed.reversed();
-				expectValid(doubleReversed);
-				expect(doubleReversed.toArray()).toEqual(values);
+				// `reversed()` is not part of the public `List` API — reversed
+				// traversal is `streamSlice(range, { reversed })`. The internal
+				// `reversed()` node operation is covered by `outer-tree.test.ts`.
+				const reversed = list.streamSlice(
+					{ start: 0, amount: totalElements },
+					{ reversed: true },
+				).toArray();
+				expect(reversed).toEqual([...values].reverse());
+				expect(reversed.length).toBe(values.length);
 			});
 		});
 	});

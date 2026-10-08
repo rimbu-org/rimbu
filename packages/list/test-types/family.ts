@@ -40,26 +40,35 @@ const _builder: List.Builder<string> = null as unknown as NewBuilder<
 	string
 >;
 
-// both variants must agree on the family slots (this is the invariant the
-// split exists to enforce; it is unrepresentable to break it, but pinning it
-// documents the intent)
-const _familyAgreesNormal: List.Advanced.Types<number>['_NORMAL'] =
-	null as unknown as List.Advanced.TypesNonEmpty<number>['_NORMAL'];
-const _familyAgreesNonEmpty: List.Advanced.Types<number>['_NON_EMPTY'] =
-	null as unknown as List.Advanced.TypesNonEmpty<number>['_NON_EMPTY'];
-const _familyAgreesBuilder: List.Advanced.Types<number>['_BUILDER'] =
-	null as unknown as List.Advanced.TypesNonEmpty<number>['_BUILDER'];
+// The family must pin the concrete public types — this is the single place the
+// slots are declared, so a regression here would silently degrade every method
+// that resolves through `_NORMAL` / `_NON_EMPTY` / `_BUILDER`.
+const _familyNormal: List<number> =
+	null as unknown as List.Advanced.Family<number>['_NORMAL'];
+const _familyNonEmpty: List.NonEmpty<number> =
+	null as unknown as List.Advanced.Family<number>['_NON_EMPTY'];
+const _familyBuilder: List.Builder<number> =
+	null as unknown as List.Advanced.Family<number>['_BUILDER'];
 
-// the variants must still differ where they should
-const _variantDiffers: false =
-	null as unknown as List.Advanced.TypesNonEmpty<number>['_isEmpty'];
+// `_FAM` must be the fixpoint of itself, and `_NEW_FAMILY` must re-enter the
+// same family at the new element type — not `unknown`, and not the
+// IndexedCollection parent. `_NEW_E` is not pinned on the family (it stays
+// `unknown`), so the new element type is supplied the same way the capability
+// machinery does it: by intersecting it in.
+const _famIsFixpoint: List.Advanced.Family<number> =
+	null as unknown as List.Advanced.Family<number>['_FAM'];
+const _newFamilyIsFixpoint: List.Advanced.Family<string> =
+	null as unknown as (List.Advanced.Family<number> & {
+		_NEW_E: string;
+	})['_NEW_FAMILY'];
 
 console.log(
 	_normal,
 	_nonEmpty,
 	_builder,
-	_familyAgreesNormal,
-	_familyAgreesNonEmpty,
-	_familyAgreesBuilder,
-	_variantDiffers,
+	_familyNormal,
+	_familyNonEmpty,
+	_familyBuilder,
+	_famIsFixpoint,
+	_newFamilyIsFixpoint,
 );

@@ -29,6 +29,10 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 		if (undefined !== source) this.connectionSize = source.connectionSize;
 	}
 
+	// The outer link map is mutable, and so is each connection map it holds —
+	// `build()` converts the inner builders back with `buildMapValues`. This is
+	// why the value type is a *builder* and not `LinkValuesType`: it is what the
+	// builder genuinely stores, not a shorthand for the immutable form.
 	_linkMap?: MapCollection.Builder<N, MapCollection.Builder<N, V>>;
 	_lock = 0;
 
@@ -128,9 +132,16 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 		this.source = undefined;
 
 		if (this.isDirected) {
-			this.linkMap.forEachIndexed(([sourceNode, targets]) => {
+			// `connectionSize` counts *every* arc, so removing a node drops both its
+			// outgoing arcs (this row, removed above by `removeKey`) and its incoming
+			// arcs (the other rows the scan below visits). A self-loop is an outgoing
+			// arc whose row is the one just removed, so `targets.size` accounts for it
+			// exactly once and the scan never sees it.
+			this.connectionSize -= targets.size;
+
+			this.linkMap.forEachIndexed(([, targets]) => {
 				if (targets.removeKey(node)) {
-					if (sourceNode !== node) this.connectionSize--;
+					this.connectionSize--;
 				}
 			});
 		} else {
@@ -169,7 +180,7 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 			ifNew: {
 				create: () => {
 					const targetBuilder =
-						this.context.linkConnectionsContext.builder<[N, V]>();
+						this.context.linkConnectionsContext.builder<readonly [N, V]>();
 					targetBuilder.set(node2, value);
 					this.connectionSize++;
 					changed = true;
@@ -195,7 +206,7 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 				ifNew: {
 					create: () => {
 						const targetBuilder =
-							this.context.linkConnectionsContext.builder<[N, V]>();
+							this.context.linkConnectionsContext.builder<readonly [N, V]>();
 						if (!this.isDirected) targetBuilder.set(node1, value);
 						return targetBuilder;
 					},
@@ -270,7 +281,8 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 					addedOrUpdatedValue = newValue;
 					this.connectionSize++;
 
-					const builder = this.context.linkMapContext.builder();
+					const builder =
+						this.context.linkConnectionsContext.builder<readonly [N, V]>();
 
 					builder.set(node2, newValue);
 
@@ -338,7 +350,8 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 			this.linkMap.modifyAtKey(node2, {
 				ifNew: {
 					create: () => {
-						const builder = this.context.linkMapContext.builder();
+						const builder =
+							this.context.linkConnectionsContext.builder<readonly [N, V]>();
 						builder.set(node1, addedOrUpdatedValue);
 						return builder;
 					},
@@ -372,7 +385,8 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 		this.linkMap.modifyAtKey(node2, {
 			ifNew: {
 				create: () => {
-					const builder = this.context.linkMapContext.builder();
+					const builder =
+						this.context.linkConnectionsContext.builder<readonly [N, V]>();
 					builder.set(node1, addedOrUpdatedValue);
 					return builder;
 				},
@@ -466,7 +480,12 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 		try {
 			this.linkMap.forEachIndexed(
 				([source, targets]) => {
-					f([source], state.nextIndex(), state.halt);
+					// A node is reported as an isolated-node element only when it
+					// really is isolated — matching the immutable `forEach`. Emitting
+					// it unconditionally made the builder yield one extra element per
+					// connected node, so `builder.forEach` and `builder.build().stream()`
+					// disagreed.
+					if (targets.isEmpty) f([source], state.nextIndex(), state.halt);
 
 					targets.forEachIndexed(
 						([target, value]) => {

@@ -1,5 +1,5 @@
-import type { MapCollection } from '@rimbu/collection-types/map';
 import type { RelatedTo, ToJSON } from '@rimbu/common/types';
+import type { ValuedGraphCollection } from '@rimbu/graph/advanced/graph-base';
 import type { Link } from '@rimbu/graph/link';
 import type { ValuedGraphElement, ValuedLink } from '@rimbu/graph/valued-link';
 
@@ -28,14 +28,17 @@ export class ValuedGraphNonEmpty<N, V>
 
 	constructor(
 		readonly context: ValuedGraphContextImpl<N>,
-		readonly linkMap: MapCollection.NonEmpty<N, MapCollection<N, V>>,
+		readonly linkMap: ValuedGraphCollection.Advanced.LinkMapValuesTypeNonEmpty<
+			N,
+			V
+		>,
 		readonly connectionSize: number,
 	) {
 		super();
 	}
 
 	copy(
-		linkMap: MapCollection.NonEmpty<N, MapCollection<N, V>>,
+		linkMap: ValuedGraphCollection.Advanced.LinkMapValuesTypeNonEmpty<N, V>,
 		connectionSize: number,
 	): ValuedGraph.NonEmpty<N, V> {
 		if (linkMap === this.linkMap && connectionSize === this.connectionSize) {
@@ -45,7 +48,7 @@ export class ValuedGraphNonEmpty<N, V>
 	}
 
 	copyE(
-		linkMap: MapCollection<N, MapCollection<N, V>>,
+		linkMap: ValuedGraphCollection.Advanced.LinkMapValuesType<N, V>,
 		connectionSize: number,
 	): ValuedGraph<N, V> {
 		if (linkMap.nonEmpty()) {
@@ -75,7 +78,9 @@ export class ValuedGraphNonEmpty<N, V>
 
 		const mapIter = this.linkMap[Symbol.iterator]();
 		const done = Symbol();
-		let targetsEntry: readonly [N, MapCollection<N, V>] | typeof done;
+		let targetsEntry:
+			| readonly [N, ValuedGraphCollection.Advanced.LinkValuesType<N, V>]
+			| typeof done;
 
 		while (!state.halted && done !== (targetsEntry = mapIter.fastNext(done))) {
 			const [node, targets] = targetsEntry;
@@ -184,7 +189,9 @@ export class ValuedGraphNonEmpty<N, V>
 			.map(([node1, value]) => [node1, node, value] as [N, N, V]);
 	}
 
-	getConnectionsFrom<UN = N>(node1: RelatedTo<N, UN>): MapCollection<N, V> {
+	getConnectionsFrom<UN = N>(
+		node1: RelatedTo<N, UN>,
+	): ValuedGraphCollection.Advanced.LinkValuesType<N, V> {
 		return this.linkMap.get(node1, this.context.linkConnectionsContext.empty());
 	}
 
@@ -285,7 +292,9 @@ export class ValuedGraphNonEmpty<N, V>
 		let addedOrUpdatedValue: V;
 
 		const { ifNew, ifExists } = options;
-		const linkMapOptions: ModifyOptions<MapCollection<N, V>> = {};
+		const linkMapOptions: ModifyOptions<
+			ValuedGraphCollection.Advanced.LinkValuesType<N, V>
+		> = {};
 
 		if (undefined !== ifNew) {
 			linkMapOptions.ifNew = {

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'bun:test';
 
 import type { ListContext } from '#list/context';
 import type { ListBuilder } from '#list/mutable/builder';
+import type { OuterBlockBuilder } from '#list/mutable/outer-block-builder';
 
 import { List } from '@rimbu/list';
 
@@ -128,11 +129,10 @@ describe('list builder middle underflow (known issue)', () => {
 		const outerBuilder = context.outerBlockBuilder(
 			context.childrenOps.of([1, 2]),
 		);
-		const innerBuilder = context.innerBlockBuilder(
-			[outerBuilder],
-			outerBuilder.size,
-			1,
-		);
+		const innerBuilder = context.innerBlockBuilder<
+			number,
+			OuterBlockBuilder<number>
+		>([outerBuilder], outerBuilder.size, 1);
 
 		// `#repairSingleChildMiddle` (tree-builder-base.ts) guards on
 		// `isBlockBuilder(this.middle)`; this predicate must accept the very

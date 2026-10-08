@@ -293,9 +293,11 @@ describe('List concat', () => {
 			const a = ctx.of(1, 2, 3);
 			const b = ctx.of(4, 5, 6);
 			const result = a.concat(b);
-			expect([...result.stream({ reversed: true })]).toEqual([
-				6, 5, 4, 3, 2, 1,
-			]);
+			// `stream` no longer takes options; reversed traversal is
+			// `streamSlice(range, { reversed })`.
+			expect([
+				...result.streamSlice({ start: 0, amount: 6 }, { reversed: true }),
+			]).toEqual([6, 5, 4, 3, 2, 1]);
 		});
 	});
 });
