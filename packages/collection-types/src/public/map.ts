@@ -35,13 +35,33 @@ export declare namespace MapCollection {
 	> = Advanced.ExtendFamily<K, V, F>['_BUILDER'];
 
 	export namespace Advanced {
+		/**
+		 * The family , widened with the map family's members.
+		 *
+		 * The widening is conditional: when  already extends  it is
+		 * returned as-is. An unconditional  would build a
+		 * redundant intersection whose two halves are *different* instantiations of
+		 * the same /, so slot reads like  resolve to
+		 *  and can never be satisfied by the single  a concrete family
+		 * (or ) actually produces.
+		 */
+		/**
+		 * The family `F`, widened with the map family's members.
+		 *
+		 * The widening is conditional: when `F` already extends `Family` it is
+		 * returned as-is. An unconditional `F & Family<K, V>` builds a redundant
+		 * intersection whose two halves are *different* instantiations of the same
+		 * `BuilderApi`/`Api`, so slot reads like `_BUILDER` resolve to `X & Y` and
+		 * can never be satisfied by the single `Api` a concrete family (or
+		 * `Context.builder()`) actually produces.
+		 */
 		export type ExtendFamily<
 			K,
 			V,
 			F extends Collection.Advanced.FamilyBase<
 				readonly [K, V]
 			> = Collection.Advanced.Family<readonly [K, V]>,
-		> = F & Family<K, V>;
+		> = F extends Family<K, V> ? F : F & Family<K, V>;
 
 		export interface Api<
 			K,

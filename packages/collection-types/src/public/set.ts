@@ -23,11 +23,20 @@ export declare namespace SetCollection {
 	> = Advanced.ExtendFamily<E, F>['_BUILDER'];
 
 	export namespace Advanced {
+		/**
+		 * The family , widened with the set family's members. Conditional for the
+		 * same reason as  — see the note there.
+		 */
+		/**
+		 * The family `F`, widened with the set family's members. Conditional for
+		 * the same reason as `MapCollection.Advanced.ExtendFamily` — see the note
+		 * there.
+		 */
 		export type ExtendFamily<
 			E,
 			F extends
 				Collection.Advanced.FamilyBase<E> = Collection.Advanced.Family<E>,
-		> = F & Family<E>;
+		> = F extends Family<E> ? F : F & Family<E>;
 
 		export interface Api<E, Tp extends Collection.Advanced.TypesBase>
 			extends ValuedCollection.Advanced.Api<E, Tp>,

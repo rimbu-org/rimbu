@@ -31,7 +31,7 @@ export namespace SortedCollection {
 			S,
 			F extends
 				Collection.Advanced.FamilyBase<E> = Collection.Advanced.Family<E>,
-		> = F & Family<E, S>;
+		> = F extends Family<E, S> ? F : F & Family<E, S>;
 
 		export interface MinMax<E, IsNonEmpty extends boolean = boolean> {
 			(): [IsNonEmpty] extends [true] ? E : E | undefined;

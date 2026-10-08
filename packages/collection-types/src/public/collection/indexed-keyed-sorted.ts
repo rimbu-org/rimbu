@@ -26,7 +26,7 @@ export declare namespace IndexedKeyedSortedCollection {
 			F extends Collection.Advanced.FamilyBase<
 				readonly [K, V]
 			> = Collection.Advanced.Family<readonly [K, V]>,
-		> = F & Family<K, V>;
+		> = F extends Family<K, V> ? F : F & Family<K, V>;
 
 		export interface Api<K, V, Tp extends Collection.Advanced.TypesBase>
 			extends IndexedKeyedCollection.Advanced.Api<K, V, Tp>,

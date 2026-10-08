@@ -30,7 +30,7 @@ export declare namespace IndexedCollection {
 			E,
 			F extends
 				Collection.Advanced.FamilyBase<E> = Collection.Advanced.Family<E>,
-		> = F & Family<E>;
+		> = F extends Family<E> ? F : F & Family<E>;
 
 		/**
 		 * The signature of `first` and `last`, which yield `E` on a non-empty

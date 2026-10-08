@@ -22,7 +22,7 @@ export declare namespace IndexedSortedCollection {
 			S,
 			F extends
 				Collection.Advanced.FamilyBase<E> = Collection.Advanced.Family<E>,
-		> = F & Family<E, S>;
+		> = F extends Family<E, S> ? F : F & Family<E, S>;
 
 		export interface Api<E, S, Tp extends Collection.Advanced.TypesBase>
 			extends IndexedCollection.Advanced.Api<E, Tp>,

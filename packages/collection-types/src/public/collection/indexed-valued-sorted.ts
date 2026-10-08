@@ -18,7 +18,7 @@ export declare namespace IndexedValuedSortedCollection {
 			E,
 			F extends
 				Collection.Advanced.FamilyBase<E> = Collection.Advanced.Family<E>,
-		> = F & Family<E>;
+		> = F extends Family<E> ? F : F & Family<E>;
 
 		export interface Api<E, Tp extends Collection.Advanced.TypesBase>
 			extends IndexedSortedCollection.Advanced.Api<E, E, Tp>,

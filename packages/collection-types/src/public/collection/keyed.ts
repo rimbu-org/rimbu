@@ -47,7 +47,7 @@ export declare namespace KeyedCollection {
 			F extends Collection.Advanced.FamilyBase<
 				readonly [K, V]
 			> = Collection.Advanced.Family<readonly [K, V]>,
-		> = F & Family<K, V>;
+		> = F extends Family<K, V> ? F : F & Family<K, V>;
 
 		export type ElementStream<E, IsNonEmpty extends boolean = boolean> = () => [
 			IsNonEmpty,
