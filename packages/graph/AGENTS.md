@@ -15,6 +15,11 @@ and sorted variants. Graphs are backed internally by nested maps/sets of
 ```
 src/
 ├── graph.ts      # exports["."]              — re-exports the whole surface
+├── advanced/     # exports["./advanced/*"]    — the capability suite
+│   └── graph-base.ts   # GraphCollection / ValuedGraphCollection
+│                       #   Advanced.{FamilyBase,Family,TypesRecord,Api,NonEmptyApi,
+│                       #              BuilderApi,ContextApi}
+│                       #   + Capability.With*  and the typed storage aliases
 ├── public/       # exports["./*"]            — public subpaths (dist/public/*)
 │   ├── arrow-graph.ts            # @rimbu/graph/arrow-graph
 │   ├── arrow-valued-graph.ts     # @rimbu/graph/arrow-valued-graph
@@ -57,7 +62,7 @@ for both folders, because:
    consistent with the `@rimbu/table` decision (users reach for `ValuedGraphHashed`
    etc. directly). So both `non-valued/` and `valued/` were moved under `src/public/`
    and the `"./*" → "./dist/*.js"` leak was repointed to `"./*" → "./dist/public/*"`.
-   No `./advanced/*` and no internal variant folder were introduced.
+   `./advanced/*` **is** now present, for the capability suite — see the layout above.
 
 Other changes:
 - The empty root `src/graph.ts` was replaced with a real re-export of the whole surface.
@@ -89,6 +94,53 @@ Other changes:
   `internal/valued/`) — the `Module` factories used by every variant constructor.
 - **`traverseDepthFirst*` / `traverseBreadthFirst*`** (`public/traverse-*.ts`) —
   traversal helpers built on `internal/traverse-base.ts`.
+
+## Naming — deliberate deviations (do not "fix")
+
+Root `AGENTS.md` §1.1 wants the same concept named the same everywhere. Graph
+deviates in three places, each on purpose. These are recorded here so the next
+reader does not "correct" them.
+
+| Graph name | Convention would say | Why it is kept |
+|---|---|---|
+| `addNodes` / `removeNodes` | `addNodeEach` / `removeNodeEach` | The plural already conveys per-element application, and `Node` is the correct unit noun. `addNodeEach` reads worse. |
+| `modifyAt(node1, node2, options)` | `modify` (as `Table` does) | A connection's key is the **pair** of nodes, not one key, so there is no single key to name. It is also not `modifyAtKey` — that would suggest one key. |
+| `getConnectionsFrom` | — | Kept. There is no `getConnectionsTo`: the incoming side has to be scanned on a directed graph, so it is exposed as `getConnectionStreamTo` (a stream of links) rather than as a connection collection. See below. |
+
+Renames actually applied: `connectAll` → `connectEach` and `disconnectAll` →
+`disconnectEach`. The `*All` ban is load-bearing — `connectAll(links)` genuinely
+reads as "connect everything".
+
+## Deliberate semantics
+
+- **`size` is the node count**, identical to `nodeSize`. It is *not*
+  `toArray().length`: a graph's elements are its isolated nodes **and** its
+  links, so that number equals neither `size` nor `connectionSize`. `length` is
+  not offered — it is a banned name, and its only meaning here would be that
+  third number.
+- **Undirected iteration double-counts.** `EdgeGraph`'s `stream()` / `toArray()` /
+  `forEach()` / `streamConnections()` emit each edge **twice**, because
+  `connect` writes both directions. `connectionSize` counts once. This is kept
+  (a dedup needs a visited-pair set on a hot path) and is **asserted** by the
+  `symmetric()` helper in the edge harnesses, not masked by it.
+- **`isSink` / `isSource` are on all four families.** Narrowing per directedness
+  would add asymmetry for no gain. On an undirected graph both report whether
+  the node is isolated.
+- **`connect` on an already-connected valued pair overwrites the value.** Asserted
+  in `edge-valued-graph-test-standard.ts` (`getConnectionStreamTo` expects
+  `['b', 'a', 4]`, not `2`). The migration plan §5 called this uncovered — it is
+  not; the valued `arrMulti` fixture deliberately contains the reverse edge with
+  a different value to pin it.
+- **`WithFilter` / `WithMap` / `WithFlatMap` / `WithRecompose` are refused.** A
+  node rename has to be applied to both sides of every link, which is not `map`'s
+  contract, and their re-typing goes through `ReTyped`, which pivots on `_NEW_E`
+  into a `_NEW_FAMILY` keyed on the **node** type. `WithFilter` is refused twice
+  over: the same problem, plus on an undirected graph each edge is stored twice,
+  so keeping `[2, 3]` while dropping `[3, 2]` yields a state no `connect` /
+  `disconnect` can produce. **Consequence: `filter` must not exist anywhere**, and
+  the classes use graph-local bases rather than `CollectionEmpty.Base` (whose
+  `Tp` bound requires `Collection.Advanced.Family`, whose `_NORMAL` carries
+  `WithFilter`).
 
 ## Tooling
 
