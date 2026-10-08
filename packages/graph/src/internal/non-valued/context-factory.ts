@@ -75,9 +75,7 @@ export function createGraphContextModule<UN>(
 		_fixedType: undefined as any,
 
 		empty: Module.lazy(<N>() =>
-			Object.freeze(
-				new GraphEmpty(isDirected, mod as unknown as GraphContextImpl<N>),
-			),
+			Object.freeze(new GraphEmpty(mod as unknown as GraphContextImpl<N>)),
 		),
 		of: (...graphElements) => mod.from(graphElements),
 		from: <N extends UN>(...sources: StreamSource<GraphElement<N>>[]): any => {
@@ -119,25 +117,20 @@ export function createGraphContextModule<UN>(
 			);
 		},
 		builder: <N>(): Graph.Builder<N> =>
-			new GraphBuilder(isDirected, mod as unknown as GraphContextImpl<N>),
+			new GraphBuilder(mod as unknown as GraphContextImpl<N>),
 
 		createNonEmpty: <N extends UN>(
 			linkMap: MapCollection.NonEmpty<N, SetCollection<N>>,
 			connectionSize: number,
 		) => {
 			return new GraphNonEmpty(
-				isDirected,
 				mod as unknown as GraphContextImpl<N>,
 				linkMap,
 				connectionSize,
 			);
 		},
 		createBuilder: <N>(source?: Graph.NonEmpty<N>) =>
-			new GraphBuilder(
-				isDirected,
-				mod as unknown as GraphContextImpl<N>,
-				source,
-			),
+			new GraphBuilder(mod as unknown as GraphContextImpl<N>, source),
 		isNonEmptyInstance: (source) => source instanceof GraphNonEmpty,
 	}));
 }

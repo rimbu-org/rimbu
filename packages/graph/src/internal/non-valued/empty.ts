@@ -14,10 +14,11 @@ import { GraphEmptyBase } from '#graph/common/base';
 export class GraphEmpty<N> extends GraphEmptyBase implements GraphBase<N> {
 	declare _NonEmptyType: Graph.NonEmpty<N>;
 
-	constructor(
-		readonly isDirected: boolean,
-		readonly context: GraphContextImpl<N>,
-	) {
+	get isDirected(): boolean {
+		return this.context.isDirected;
+	}
+
+	constructor(readonly context: GraphContextImpl<N>) {
 		super();
 	}
 

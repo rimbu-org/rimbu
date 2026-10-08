@@ -81,7 +81,6 @@ export function createValuedGraphContextModule<UN>(
 			<N extends UN, V>(): ValuedGraph<N, V> =>
 				Object.freeze(
 					new ValuedGraphEmpty<N, V>(
-						isDirected,
 						mod as unknown as ValuedGraphContextImpl<N>,
 					),
 				),
@@ -128,17 +127,13 @@ export function createValuedGraphContextModule<UN>(
 			);
 		},
 		builder: <N extends UN, V>(): ValuedGraph.Builder<N, V> =>
-			new ValuedGraphBuilder(
-				mod.isDirected,
-				mod as unknown as ValuedGraphContextImpl<N>,
-			),
+			new ValuedGraphBuilder(mod as unknown as ValuedGraphContextImpl<N>),
 
 		isNonEmptyInstance: (source) => source instanceof ValuedGraphNonEmpty,
 		createBuilder<N extends UN, V>(
 			source?: ValuedGraph.NonEmpty<N, V>,
 		): ValuedGraph.Builder<N, V> {
 			return new ValuedGraphBuilder(
-				mod.isDirected,
 				mod as unknown as ValuedGraphContextImpl<N>,
 				source,
 			);
@@ -148,7 +143,6 @@ export function createValuedGraphContextModule<UN>(
 			connectionSize: number,
 		): ValuedGraph.NonEmpty<N, V> {
 			return new ValuedGraphNonEmpty<N, V>(
-				mod.isDirected,
 				mod as unknown as ValuedGraphContextImpl<N>,
 				linkMap,
 				connectionSize,

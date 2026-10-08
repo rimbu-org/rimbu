@@ -17,8 +17,11 @@ export class GraphNonEmpty<N>
 {
 	declare _NonEmptyType: Graph.NonEmpty<N>;
 
+	get isDirected(): boolean {
+		return this.context.isDirected;
+	}
+
 	constructor(
-		readonly isDirected: boolean,
 		readonly context: GraphContextImpl<N>,
 		readonly linkMap: MapCollection.NonEmpty<N, SetCollection<N>>,
 		readonly connectionSize: number,

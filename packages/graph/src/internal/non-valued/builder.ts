@@ -13,8 +13,11 @@ import { Stream, type StreamSource } from '@rimbu/stream';
 export class GraphBuilder<N> implements Graph.Builder<N> {
 	connectionSize = 0;
 
+	get isDirected(): boolean {
+		return this.context.isDirected;
+	}
+
 	constructor(
-		readonly isDirected: boolean,
 		readonly context: GraphContextImpl<N>,
 		public source?: Graph.NonEmpty<N>,
 	) {

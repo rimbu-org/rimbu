@@ -18,8 +18,11 @@ import { Stream, type StreamSource } from '@rimbu/stream';
 export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 	connectionSize = 0;
 
+	get isDirected(): boolean {
+		return this.context.isDirected;
+	}
+
 	constructor(
-		readonly isDirected: boolean,
 		readonly context: ValuedGraphContextImpl<N>,
 		public source?: ValuedGraph.NonEmpty<N, V>,
 	) {

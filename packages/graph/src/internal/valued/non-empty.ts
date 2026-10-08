@@ -22,8 +22,11 @@ export class ValuedGraphNonEmpty<N, V>
 {
 	declare _NonEmptyType: ValuedGraph.NonEmpty<N, V>;
 
+	get isDirected(): boolean {
+		return this.context.isDirected;
+	}
+
 	constructor(
-		readonly isDirected: boolean,
 		readonly context: ValuedGraphContextImpl<N>,
 		readonly linkMap: MapCollection.NonEmpty<N, MapCollection<N, V>>,
 		readonly connectionSize: number,

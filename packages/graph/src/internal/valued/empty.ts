@@ -21,10 +21,11 @@ export class ValuedGraphEmpty<N, V>
 {
 	declare _NonEmptyType: ValuedGraph.NonEmpty<N, V>;
 
-	constructor(
-		readonly isDirected: boolean,
-		readonly context: ValuedGraphContextImpl<N>,
-	) {
+	get isDirected(): boolean {
+		return this.context.isDirected;
+	}
+
+	constructor(readonly context: ValuedGraphContextImpl<N>) {
 		super();
 	}
 
