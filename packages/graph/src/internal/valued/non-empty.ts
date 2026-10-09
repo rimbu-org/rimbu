@@ -12,13 +12,14 @@ import {
 	checkEmptyModifyOptions,
 	type ModifyOptions,
 } from '@rimbu/collection-types/advanced/common';
-import { NonEmptyBase } from '@rimbu/collection-types/advanced/common/empty-base';
 import { OptLazy } from '@rimbu/common/opt-lazy';
 import { TraverseState } from '@rimbu/common/traverse-state';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
+import { GraphNonEmptyBase } from '#graph/common/base';
+
 export class ValuedGraphNonEmpty<N, V>
-	extends NonEmptyBase<ValuedGraphElement<N, V>>
+	extends GraphNonEmptyBase<ValuedGraphElement<N, V>>
 	implements ValuedGraphBase.NonEmpty<N, V>
 {
 	declare _NonEmptyType: ValuedGraph.NonEmpty<N, V>;

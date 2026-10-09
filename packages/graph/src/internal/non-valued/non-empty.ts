@@ -7,12 +7,13 @@ import type { GraphBase } from '#graph/base';
 import type { Graph } from '#graph/graph';
 import type { GraphContextImpl } from '#graph/non-valued/context-factory';
 
-import { NonEmptyBase } from '@rimbu/collection-types/advanced/common/empty-base';
 import { TraverseState } from '@rimbu/common/traverse-state';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
+import { GraphNonEmptyBase } from '#graph/common/base';
+
 export class GraphNonEmpty<N>
-	extends NonEmptyBase<GraphElement<N>>
+	extends GraphNonEmptyBase<GraphElement<N>>
 	implements GraphBase.NonEmpty<N>
 {
 	declare _NonEmptyType: Graph.NonEmpty<N>;

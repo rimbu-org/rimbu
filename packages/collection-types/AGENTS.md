@@ -20,8 +20,6 @@ src/
 │       └── indexed-*.ts   # the intersections of the above
 ├── advanced/              # exports["./advanced/*"] — implementer / extension API
 │   ├── common.ts          # KeyValue, WithElem, common HKT helpers
-│   ├── common/
-│   │   └── empty-base.ts  # EmptyBase / NonEmptyBase classes
 │   ├── collection-base.ts # CollectionBase
 │   ├── map-base.ts        # MapCollectionBase
 │   ├── set-base.ts        # SetCollectionBase
@@ -53,6 +51,16 @@ What went away, and why the replacement is strictly better:
 
 Do not reintroduce either. If a capability is missing, add it as a
 `Capability.With*` member and widen `Advanced.Family`.
+
+- `advanced/common/empty-base.ts` — the `EmptyBase` / `NonEmptyBase` classes.
+  **Also deleted.** `@rimbu/graph` was the last consumer: its
+  `GraphEmptyBase` and its two non-empty classes inherited the emptiness brand,
+  `assumeNonEmpty`, and the empty-case `stream` / `size` / `toArray` from them.
+  Graph now declares those on its own `GraphEmptyBase` / `GraphNonEmptyBase` in
+  `internal/common/base.ts`. Nothing was gained by sharing them — the two
+  `filter` / `remove` members on the old `EmptyBase` were actively wrong for a
+  graph, since `WithFilter` is refused there, and its `length` getter is a banned
+  name. Do not reintroduce a shared empty base.
 
 ## Package imports (`#` paths)
 

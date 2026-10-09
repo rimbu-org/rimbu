@@ -52,7 +52,6 @@
  *
  * Implementer-facing base classes live under the `advanced` sub-path:<br/>
  * - [`@rimbu/collection-types/advanced/common`](./advanced/common)<br/>
- * - [`@rimbu/collection-types/advanced/common/empty-base`](./advanced/common/empty-base)<br/>
  *
  * The generic `RMap` / `RSet` / `VariantMap` / `VariantSet` type aliases that
  * previously made up this entry point have been **removed**. The capability

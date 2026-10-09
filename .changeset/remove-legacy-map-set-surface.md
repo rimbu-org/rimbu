@@ -14,6 +14,24 @@ that replaced it.
   the `RMapContextBaseModule` / `RSetContextBaseModule` factories. Together with
   the internal slot types behind them that is ~2,300 lines removed.
 
+- `advanced/common/empty-base.ts` — the `EmptyBase` / `NonEmptyBase` classes, the
+  last file of that surface. `@rimbu/graph` was the only consumer, and it now
+  declares what it needs on graph-local `GraphEmptyBase` / `GraphNonEmptyBase`
+  bases in `packages/graph/src/internal/common/base.ts`.
+
+  This is a small tightening rather than a pure move: graph no longer inherits
+  three members that were wrong for it — `filter()` (`WithFilter` is refused for
+  graphs, since a node rename must be applied to both sides of every link, and
+  on an undirected graph keeping one direction of an edge yields a state no
+  `connect` / `disconnect` can produce), `length` (a banned name, and a graph's
+  `toArray().length` is neither `size` nor `connectionSize`), and `remove()`
+  (graph's vocabulary is `removeNode` / `removeNodes` / `disconnect`).
+
+  `@rimbu/core/collection-types/advanced` no longer re-exports
+  `EmptyBase` / `NonEmptyBase`. There is no behaviour change: mutators on an
+  empty graph were already no-ops returning `this`, and `assumeNonEmpty()` still
+  throws `RimbuError.EmptyCollectionAssumedNonEmptyError`.
+
   The capability families (`Collection`, `ValuedCollection`,
   `KeyedCollection`, `IndexedCollection`, `SortedCollection`, `MapCollection`,
   `SetCollection`) describe the same operations without the separate
