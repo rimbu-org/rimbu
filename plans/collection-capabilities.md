@@ -886,7 +886,8 @@ repo-wide sequence above to catch emitted declaration and downstream failures.
 
 ## Documentation and migration guide
 
-Document the capability matrix explicitly:
+Document the capability matrix explicitly (published in
+`packages/collection-types/README.md` under "Capability matrix"):
 
 | Family | Collection | Indexed | Valued/Keyed | Sorted | Filterable | RemoveAt | SwapAt | Order edit |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|

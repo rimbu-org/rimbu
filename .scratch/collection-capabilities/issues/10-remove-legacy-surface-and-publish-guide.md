@@ -53,11 +53,13 @@
 >    add the entry file or drop the dependency. (`@rimbu/ordered` and
 >    `@rimbu/proximity` are in the same position — reachable only transitively via
 >    graph — so this is consistent existing practice rather than a new defect.)
-> 7. **Capability matrix.** `plans/collection-capabilities.md:887-903` has rows for
->    List, HashSet, HashMap, SortedSet, SortedMap, OrderedSet, OrderedMap and
->    ProximityMap — but none for MultiMap, MultiSet, BiMap, BiMultiMap, Table or
->    Graph. Phase 7 work item 5 (`:812`) requires the matrix to be published; the
->    eight specialized packages are missing from it.
+> 7. ~~**Capability matrix.**~~ **DONE 2026-10-09.** The specialized rows
+>    (MultiSet, MultiMap, BiMap, BiMultiMap, Table, Graph) were already present in
+>    `plans/collection-capabilities.md:901-906` (added 2026-10-04, the same day the
+>    stale inventory was written), so the premise of this item was out of date.
+>    What was missing was a **published** copy: the matrix now lives in the
+>    user-facing `packages/collection-types/README.md` under "Capability matrix",
+>    covering all fourteen families with the MultiMap/BiMultiMap/Table footnotes.
 > 8. **MultiSet carries a live `@deprecated`** at
 >    `packages/multiset/src/public/multiset.ts:92` (`createContext` moved onto the
 >    shared tier). It is the **only** `@deprecated` left in any `packages/*/src`.
@@ -79,8 +81,8 @@ Still open here:
   migration's commit 2 scoped "drop the last `@deprecated` in any
   `packages/*/src`", but only the `collection-types` half was actioned.
   Unrelated to legacy removal, so it was left rather than folded in silently.
-- **Item 7** (capability matrix missing the eight specialized packages) — still
-  open.
+- **Item 7** (capability matrix) — **done**; the specialized rows already existed
+  in the plan and the matrix is now published in `packages/collection-types/README.md`.
 - Item 1's **remainder**, plus items 3, 5 and 6, are unchanged.
 
 Graph-plan-specific leftovers that are not this issue's scope are filed under
