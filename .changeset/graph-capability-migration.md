@@ -98,14 +98,26 @@ these do. The singulars `connect` and `disconnect` are unchanged.
   `LinkValuesType`). The concrete families use these aliases for their storage,
   so the outer link map and the inner connection collection resolve to the
   variant's own backing instead of a generic `MapCollection`.
-- **Still outstanding:** the `VariantGraph`, `VariantValuedGraph`,
-  `VariantGraphBase` and `VariantValuedGraphBase` internal tiers have *not* been
-  deleted yet, and the public variant interfaces still extend them rather than
-  `GraphCollection.Advanced.Api`. They have been widened to declare the members
-  the capability aggregates require (`toArray`, `forEachIndexed`, `clear`,
-  `asNormal`) so that rewiring is a pure move rather than a rewrite — but until
-  that happens the capability `Api` in `advanced/graph-base.ts` is still not the
-  public surface. Tracked in `.scratch/graph-migration-plan.md` §2.3/§2.7.
+- **Deleted: the `VariantGraph`, `VariantValuedGraph`, `VariantGraphBase` and
+  `VariantValuedGraphBase` internal tiers**, plus the `GraphConnect` /
+  `GraphConnectNonEmpty` helper interfaces. Their members — and all of their
+  documentation — moved onto `GraphBase` / `ValuedGraphBase`. Nothing was
+  exported, so this is not a public change.
+
+  Two consequences are visible in the *types*, though not in behaviour:
+
+  - `GraphBase` and `ValuedGraphBase` are now two separate hierarchies rather
+    than one (`VariantValuedGraphBase extends VariantGraphBase` used to unify
+    them). Anything generic over "some graph" — the `traverse*` helpers and
+    `LinkType` — must accept `GraphBase<N, any> | ValuedGraphBase<N, any>`.
+  - The non-empty forms state `isDirected` (`true` for arrow, `false` for edge)
+    directly rather than inheriting it, because the `Omit` list that folds the
+    non-empty members into the normal form widens it back to `boolean`.
+
+- **Still outstanding:** the public variant interfaces extend `GraphBase` /
+  `ValuedGraphBase`, **not** `GraphCollection.Advanced.Api`. The capability
+  aggregates are implemented and tested but are not yet the public surface.
+  Tracked in `.scratch/graph-migration-plan.md` §2.3.
 
 ### Deviations from repo naming conventions
 

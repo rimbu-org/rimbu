@@ -42,9 +42,7 @@ src/
     ├── edge/  (base.ts, creators.ts, valued/)
     ├── non-valued/ (builder.ts, context-factory.ts, empty.ts, non-empty.ts)
     ├── valued/ (base.ts, builder.ts, context-factory.ts, empty.ts, non-empty.ts,
-    │            variant-base.ts, variant.ts, valued-graph.ts)
-    ├── variant/ (variant-graph.ts)
-    ├── variant-base.ts
+    │            valued-graph.ts)
     ├── traverse-base.ts
     └── graph.ts                  # internal graph base (name is fine inside internal/)
 ```
@@ -87,9 +85,13 @@ Other changes:
   `Builder`/`Types` members.
 - **`Link<N>` / `ValuedLink<N, V>`** — the element/connection types (`link.ts`,
   `valued-link.ts`); `GraphElement`/`ValuedGraphElement` are unions with isolated nodes.
-- **`VariantGraphBase`** (`internal/variant-base.ts`) — the type-variant, read-only base.
-- **`*Base`** (`internal/*/base.ts`, `internal/non-valued/...`, `internal/valued/...`) —
-  the concrete abstract bases holding the nested-map storage.
+- **`GraphBase` / `ValuedGraphBase`** (`internal/base.ts`, `internal/valued/base.ts`) —
+  the abstract bases holding the nested-map storage and the whole method surface.
+  They used to be split across a `Variant*` tier, which was **deleted**: the
+  shared members now live directly on `GraphBase`, and the valued members
+  directly on `ValuedGraphBase`.
+- **`*Base`** (`internal/{arrow,edge}[/valued]/base.ts`) — the per-directedness
+  refinements, which add `isSink` / `isSource` and pin `isDirected`.
 - **`createGraphContextModule` / `createValuedGraphContextModule`** (`internal/non-valued/`,
   `internal/valued/`) — the `Module` factories used by every variant constructor.
 - **`traverseDepthFirst*` / `traverseBreadthFirst*`** (`public/traverse-*.ts`) —
@@ -194,22 +196,37 @@ could not reach, both now pinned in `test/regression.test.ts`.
 - `Builder.forEach` emitted a spurious isolated-node element for every
   *connected* node, so it disagreed with `Builder.build().stream()`.
 
+## Two hierarchies, and `isDirected` on the non-empty forms
+
+`GraphBase` and `ValuedGraphBase` are **separate** hierarchies. They were
+unified by `VariantValuedGraphBase extends VariantGraphBase`, which no longer
+exists, so anything generic over "some graph" has to accept a union:
+
+```ts
+G extends GraphBase<N, any> | ValuedGraphBase<N, any>
+```
+
+That is what the `traverse*` helpers and `LinkType` do. Do not reintroduce a
+shared supertype to avoid it — the two hierarchies differ in `connect` arity
+(2 vs 3), so no single base can type both.
+
+`GraphBase.NonEmpty` folds the non-empty refinements into the normal form with
+`Omit<GraphBase<N, Tp>, 'nonEmpty' | 'asNormal' | …>`. That `Omit` list widens
+`isDirected` back to `boolean`, so each `{Arrow,Edge}GraphBase.NonEmpty` **states
+`isDirected` itself**. Removing those declarations silently breaks
+`ArrowValuedGraphHashed.of(...).addNode(x)` assignability.
+
 ## Still outstanding
 
-The public variant interfaces (`ArrowGraphHashed`, …) still extend the internal
-`VariantGraphBase` / `GraphConnect` hierarchy, **not**
-`GraphCollection.Advanced.Api`. The capability suite in `advanced/` is therefore
-only partly wired in: the storage aliases and family slots are used, but its
-`Api` / `NonEmptyApi` / `BuilderApi` / `ContextApi` aggregates are not yet the
-public surface. Consequences and follow-ups:
+The public variant interfaces (`ArrowGraphHashed`, …) extend `GraphBase` /
+`ValuedGraphBase`, **not** `GraphCollection.Advanced.Api`. The capability suite
+in `advanced/` is implemented and tested but is not yet the public surface:
 
-- The capability `Api` declares `toArray()` and `forEachIndexed()`, and so does
-  the legacy tier they will be merged into. The members are implemented and
-  tested; what is missing is only that the *public* families still point at the
-  legacy hierarchy. Do not add members to the capability `Api` expecting them to
-  become public without rewiring.
-- The `Variant*` tier (`internal/variant-base.ts`, `internal/valued/variant-base.ts`)
-  still exists and is slated for deletion once the families are rewired.
+- Its storage aliases and family slots **are** used (that is how `linkMap`
+  resolves to `HashMap<N, HashSet<N>>` rather than a generic `MapCollection`).
+- Its `Api` / `NonEmptyApi` / `BuilderApi` / `ContextApi` aggregates are **not**.
+  Every member they declare is also declared on `GraphBase`, so there is nothing
+  missing today — but do not add a member to the capability `Api` and expect it
+  to become public without rewiring.
 
-Plan: `.scratch/graph-migration-plan.md` §2.3 (adopt the capability `Api`) and
-§2.7 (delete the `Variant*` tier).
+Plan: `.scratch/graph-migration-plan.md` §2.3.

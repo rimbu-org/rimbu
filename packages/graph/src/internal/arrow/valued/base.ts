@@ -53,6 +53,13 @@ export namespace ArrowValuedGraphBase {
 			>,
 			Streamable.NonEmpty<ValuedGraphElement<N, V>> {
 		/**
+		 * Returns true since this is an arrow (directed) graph
+		 * instance. The non-empty form states it again rather than inheriting it
+		 * through the `Omit` list below, which would widen it back to `boolean`.
+		 */
+		readonly isDirected: true;
+
+		/**
 		 * Returns a non-empty `Stream` containing all graph elements of this collection as single tuples for isolated nodes
 		 * and 3-valued tuples containing the source node, target node, and connection value for connections.
 		 * @example

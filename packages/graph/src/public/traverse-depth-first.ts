@@ -1,5 +1,6 @@
+import type { GraphBase } from '#graph/base';
 import type { LinkType } from '#graph/traverse-base';
-import type { VariantGraphBase } from '#graph/variant-base';
+import type { ValuedGraphBase } from '#graph/valued/base';
 
 import { OptLazy } from '@rimbu/common/opt-lazy';
 import { HashSet } from '@rimbu/hashed/set';
@@ -9,7 +10,7 @@ import { StreamBase } from '@rimbu/stream/advanced/base';
 import { FastIteratorBase } from '@rimbu/stream/advanced/fast-iterator-base';
 
 class GraphDepthFirstStream<
-	G extends VariantGraphBase.NonEmpty<N, any>,
+	G extends GraphBase<N, any> | ValuedGraphBase<N, any>,
 	N,
 > extends StreamBase<LinkType<G, N>> {
 	constructor(
@@ -30,7 +31,7 @@ class GraphDepthFirstStream<
 }
 
 class GraphDepthFirstIterable<
-	G extends VariantGraphBase.NonEmpty<N, any>,
+	G extends GraphBase<N, any> | ValuedGraphBase<N, any>,
 	N,
 > extends FastIteratorBase<LinkType<G, N>> {
 	constructor(
@@ -98,14 +99,17 @@ import { EdgeGraphHashed } from '@rimbu/graph/non-valued/edge/hashed'
  * // => [[1, 2], [2, 3], [1, 3], [3, 4]]
  * ```
  */
-export function traverseDepthFirstCustom<G extends VariantGraphBase<N, any>, N>(
+export function traverseDepthFirstCustom<
+	G extends GraphBase<N, any> | ValuedGraphBase<N, any>,
+	N,
+>(
 	graph: G,
 	startNode: N,
 	addVisitedNode: (node: N) => boolean = (): true => true,
 ): Stream<LinkType<G, N>> {
 	if (!graph.nonEmpty() || !graph.hasNode(startNode)) return Stream.empty();
 
-	return new GraphDepthFirstStream(startNode, graph, addVisitedNode);
+	return new GraphDepthFirstStream<G, N>(startNode, graph, addVisitedNode);
 }
 
 /**
@@ -124,10 +128,10 @@ import { EdgeGraphHashed } from '@rimbu/graph/non-valued/edge/hashed'
  * // => [[1, 2], [2, 3], [1, 3], [3, 4]]
  * ```
  */
-export function traverseDepthFirstHashed<G extends VariantGraphBase<N, any>, N>(
-	graph: G,
-	startNode: N,
-): Stream<LinkType<G, N>> {
+export function traverseDepthFirstHashed<
+	G extends GraphBase<N, any> | ValuedGraphBase<N, any>,
+	N,
+>(graph: G, startNode: N): Stream<LinkType<G, N>> {
 	if (!graph.nonEmpty() || !graph.hasNode(startNode)) return Stream.empty();
 
 	const visitSet = HashSet.builder<N>();
@@ -150,10 +154,10 @@ import { EdgeGraphHashed } from '@rimbu/graph/non-valued/edge/hashed'
  * // => [[1, 2], [2, 3], [1, 3], [3, 4]]
  * ```
  */
-export function traverseDepthFirstSorted<G extends VariantGraphBase<N, any>, N>(
-	graph: G,
-	startNode: N,
-): Stream<LinkType<G, N>> {
+export function traverseDepthFirstSorted<
+	G extends GraphBase<N, any> | ValuedGraphBase<N, any>,
+	N,
+>(graph: G, startNode: N): Stream<LinkType<G, N>> {
 	if (!graph.nonEmpty() || !graph.hasNode(startNode)) return Stream.empty();
 
 	const visitSet = SortedSet.builder<N>();

@@ -1,10 +1,8 @@
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { GraphElement } from '@rimbu/graph/link';
 
-import type { VariantGraphBase } from '#graph/variant-base';
-
 import { EmptyBase } from '@rimbu/collection-types/advanced/common/empty-base';
-import { Stream, type StreamSource } from '@rimbu/stream';
+import { Stream } from '@rimbu/stream';
 
 export interface GraphValues<N = unknown, V = unknown> {
 	readonly _N: N;
@@ -12,90 +10,6 @@ export interface GraphValues<N = unknown, V = unknown> {
 }
 
 export type WithGraphValues<Tp, N, V> = GraphValues<N, V> & Tp;
-
-export interface GraphConnect<N, V, Tp extends VariantGraphBase.Types>
-	extends VariantGraphBase<N, V, Tp> {
-	/**
-	 * Returns the graph with the given `node` added, if it was not yet present.
-	 * @param node - the node to add
-	 * @example
-	 * ```ts
-import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
-	 * const g = ArrowGraphHashed.of([1], [2, 3])
-	 * g.addNode(4).stream().toArray()  // => [[1], [2, 3], [4]]
-	 * g.addNode(1).stream().toArray()  // => [[1], [2, 3]]
-	 * ```
-	 */
-	addNode(node: N): WithGraphValues<Tp, N, V>['nonEmpty'];
-	/**
-	 * Returns the graph with the nodes from the given `nodes` `StreamSource` added.
-	 * @param nodes - a `StreamSource` containing the nodes to add
-	 * @example
-	 * ```ts
-import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
-	 * const g = ArrowGraphHashed.of([1], [2, 3])
-	 * g.addNodes([4, 1]).stream().toArray()  // => [[1], [2, 3], [4]]
-	 * g.addNodes([1, 2]).stream().toArray()  // => [[1], [2, 3]]
-	 * ```
-	 */
-	addNodes(
-		nodes: StreamSource.NonEmpty<N>,
-	): WithGraphValues<Tp, N, V>['nonEmpty'];
-	addNodes(nodes: StreamSource<N>): WithGraphValues<Tp, N, V>['normal'];
-	/**
-	 * Returns the graph with the connections from the given `connections` `StreamSource` added.
-	 * @param connections - a `StreamSource` containing tuples representing the connections to add
-	 * @example
-	 * ```ts
-import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
-import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
-	 * const g = ArrowGraphHashed.of([1], [2, 3])
-	 * g.connectEach([[1, 2], [3, 1]]).stream().toArray()  // => [[1, 2], [2, 3], [3, 1]]
-	 * const g2 = ArrowValuedGraphHashed.of([1], [2, 3, 'a'])
-	 * g2.connectEach([[1, 2, 'b'], [2, 3, 'c']]).stream().toArray()
-	 * // => [[1, 2, 'b'], [2, 3, 'c']]
-	 * ```
-	 */
-	connectEach(
-		connections: StreamSource.NonEmpty<WithGraphValues<Tp, N, V>['link']>,
-	): WithGraphValues<Tp, N, V>['nonEmpty'];
-	connectEach(
-		connections: StreamSource<WithGraphValues<Tp, N, V>['link']>,
-	): WithGraphValues<Tp, N, V>['normal'];
-}
-
-export interface GraphConnectNonEmpty<N, V, Tp extends VariantGraphBase.Types>
-	extends GraphConnect<N, V, Tp> {
-	/**
-	 * Returns the non-empty graph with the nodes from the given `nodes` `StreamSource` added.
-	 * @param nodes - a `StreamSource` containing the nodes to add
-	 * @example
-	 * ```ts
-import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
-	 * const g = ArrowGraphHashed.of([1], [2, 3])
-	 * g.addNodes([4, 1]).stream().toArray()  // => [[1], [2, 3], [4]]
-	 * g.addNodes([1, 2]).stream().toArray()  // => [[1], [2, 3]]
-	 * ```
-	 */
-	addNodes(nodes: StreamSource<N>): WithGraphValues<Tp, N, V>['nonEmpty'];
-	/**
-	 * Returns the non-empty graph with the connections from the given `connections` `StreamSource` added.
-	 * @param connections - a `StreamSource` containing tuples representing the connections to add
-	 * @example
-	 * ```ts
-import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed'
-import { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed'
-	 * const g = ArrowGraphHashed.of([1], [2, 3])
-	 * g.connectEach([[1, 2], [3, 1]]).stream().toArray()  // => [[1, 2], [2, 3], [3, 1]]
-	 * const g2 = ArrowValuedGraphHashed.of([1], [2, 3, 'a'])
-	 * g2.connectEach([[1, 2, 'b'], [2, 3, 'c']]).stream().toArray()
-	 * // => [[1, 2, 'b'], [2, 3, 'c']]
-	 * ```
-	 */
-	connectEach(
-		links: StreamSource<WithGraphValues<Tp, N, V>['link']>,
-	): WithGraphValues<Tp, N, V>['nonEmpty'];
-}
 
 export abstract class GraphEmptyBase<N, E = GraphElement<N>> extends EmptyBase {
 	get nodeSize(): 0 {

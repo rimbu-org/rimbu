@@ -577,6 +577,25 @@ Neither blocks `build:seq` (both are outside `src/`), but both block
 > `test:random` / `biome:check` all exit 0. Graph contributes 512 runtime tests,
 > a per-variant `test-d`, and a `test-random/` suite.
 >
+> **§2.7 is now done: the `Variant*` tier is deleted.** `VariantGraphBase`,
+> `VariantValuedGraphBase`, `VariantGraph`, `VariantValuedGraph`,
+> `GraphConnect` and `GraphConnectNonEmpty` are gone; their members and all of
+> their documentation moved onto `GraphBase` / `ValuedGraphBase`. No public API
+> change, no behaviour change (518 tests green before and after). Two knock-on
+> effects are documented in `packages/graph/AGENTS.md`: the two hierarchies are
+> no longer unified, and each non-empty base must state `isDirected` itself
+> because the `Omit` that folds its refinements into the normal form widens it.
+>
+> **§2.3 (adopt `Advanced.Api` as the public surface) was attempted and not
+> completed.** It requires replacing graph's self-referential `Types` record with
+> a `Family<N>`, which is a public API change (12 exported interfaces removed).
+> Blocked on the fact that a set is invariant in its element type, so the
+> abstract `_LINK_MAP_FAM` cannot derive its value type from
+> `_LINK_CONNECTIONS_FAM['_NORMAL']` as §2.1 specifies — the widening is the
+> plan's own documented fallback. Even with that resolved, wiring the concrete
+> `Families` through the internal classes hits the same invariance wall one level
+> down (`_FAM` → `_CONTEXT` → `linkMapContext`). Deferred deliberately.
+>
 > **Rewiring step 1 of 2 (done): the capability surface now exists at runtime and
 > in the public types.** `toArray()`, `forEachIndexed()`, `Builder.clear()` and
 > `asNormal()` were declared by `GraphCollection.Advanced.Api` / `.BuilderApi` but

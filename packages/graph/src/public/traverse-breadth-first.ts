@@ -1,5 +1,6 @@
+import type { GraphBase } from '#graph/base';
 import type { LinkType } from '#graph/traverse-base';
-import type { VariantGraphBase } from '#graph/variant-base';
+import type { ValuedGraphBase } from '#graph/valued/base';
 
 import { OptLazy } from '@rimbu/common/opt-lazy';
 import { HashSet } from '@rimbu/hashed/set';
@@ -9,7 +10,7 @@ import { StreamBase } from '@rimbu/stream/advanced/base';
 import { FastIteratorBase } from '@rimbu/stream/advanced/fast-iterator-base';
 
 class GraphBreadthFirstStream<
-	G extends VariantGraphBase.NonEmpty<N, any>,
+	G extends GraphBase<N, any> | ValuedGraphBase<N, any>,
 	N,
 > extends StreamBase<LinkType<G, N>> {
 	constructor(
@@ -30,7 +31,7 @@ class GraphBreadthFirstStream<
 }
 
 class DirectedGraphBreadthFirstIterable<
-	G extends VariantGraphBase.NonEmpty<N, any>,
+	G extends GraphBase<N, any> | ValuedGraphBase<N, any>,
 	N,
 > extends FastIteratorBase<LinkType<G, N>> {
 	constructor(
@@ -100,7 +101,7 @@ class DirectedGraphBreadthFirstIterable<
  * ```
  */
 export function traverseBreadthFirstCustom<
-	G extends VariantGraphBase<N, any>,
+	G extends GraphBase<N, any> | ValuedGraphBase<N, any>,
 	N,
 >(
 	graph: G,
@@ -109,7 +110,7 @@ export function traverseBreadthFirstCustom<
 ): Stream<LinkType<G, N>> {
 	if (!graph.nonEmpty() || !graph.hasNode(startNode)) return Stream.empty();
 
-	return new GraphBreadthFirstStream(startNode, graph, addVisitedNode);
+	return new GraphBreadthFirstStream<G, N>(startNode, graph, addVisitedNode);
 }
 
 /**
@@ -129,7 +130,7 @@ export function traverseBreadthFirstCustom<
  * ```
  */
 export function traverseBreadthFirstHashed<
-	G extends VariantGraphBase<N, V>,
+	G extends ValuedGraphBase<N, V>,
 	N,
 	V,
 >(graph: G, startNode: N): Stream<LinkType<G, N>> {
@@ -156,7 +157,7 @@ export function traverseBreadthFirstHashed<
  * ```
  */
 export function traverseBreadthFirstSorted<
-	G extends VariantGraphBase<N, any>,
+	G extends GraphBase<N, any> | ValuedGraphBase<N, any>,
 	N,
 >(graph: G, startNode: N): Stream<LinkType<G, N>> {
 	if (!graph.nonEmpty() || !graph.hasNode(startNode)) return Stream.empty();
