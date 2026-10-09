@@ -32,7 +32,7 @@ import type { FastIterable, Stream, StreamSource } from '@rimbu/stream';
  * result. `WithFilter` is refused twice over: the same `ReTyped` problem, plus
  * on an undirected graph each edge is stored twice, so keeping `[2, 3]` while
  * dropping `[3, 2]` yields a state no `connect`/`disconnect` can produce. See
- * `.scratch/graph-migration-plan.md` §2.3 for the full claim/refuse list.
+ * `.scratch/_archive/graph-migration-plan.md` §2.3 for the full claim/refuse list.
  *
  * ## Storage typing — two HKT slots, derived
  *
@@ -42,7 +42,7 @@ import type { FastIterable, Stream, StreamSource } from '@rimbu/stream';
  * variant pins the inner family and the outer map family's value type is
  * *derived* from it, so each fact is named once per variant. Every storage
  * member (`linkMap`, `linkConnections`, their contexts) reads off those slots.
- * See `.scratch/graph-migration-plan.md` §2.1.
+ * See `.scratch/_archive/graph-migration-plan.md` §2.1.
  *
  * ## Two root families, no collapse
  *

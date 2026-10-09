@@ -6,6 +6,7 @@ pass: api
 package: bimultimap
 confidence: high
 effort_estimate: 0.25d
+status: solved
 title: "BiMultiMap removeValue/removeValues docs say 'key' but operate on 'value'"
 ---
 

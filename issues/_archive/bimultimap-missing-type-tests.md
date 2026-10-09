@@ -6,6 +6,7 @@ pass: tests
 package: bimultimap
 confidence: high
 effort_estimate: 0.5d
+status: solved
 title: "BiMultiMap has no type-level (test-d) tests, unlike every other keyed package"
 ---
 

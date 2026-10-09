@@ -6,6 +6,7 @@ pass: api
 package: bimap
 confidence: high
 effort_estimate: 0.25d
+status: solved
 title: "bimap AGENTS.md documents the public API as getKey/getValue, but the immutable API is at/atValue"
 ---
 

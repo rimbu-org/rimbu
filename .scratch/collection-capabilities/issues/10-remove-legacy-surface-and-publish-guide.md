@@ -28,7 +28,7 @@
 >    The **one survivor of that surface is still present**:
 >    `packages/collection-types/src/advanced/common/empty-base.ts`, which three
 >    graph files still `extend`. Tracked separately as
->    `.scratch/graph-migration/issues/01-delete-legacy-empty-base.md` — it was
+>    `.scratch/_archive/graph-migration/issues/01-delete-legacy-empty-base.md` — it was
 >    deliberately left out of the deletion above because graph's own inheritance
 >    had to be unwound first, and unwinding it is behaviour-changing.
 > 2. ~~**The inert type tests.**~~ **DONE 2026-10-09.** All four
@@ -86,6 +86,7 @@ Still open here:
 - Item 1's **remainder**, plus items 3, 5 and 6, are unchanged.
 
 Graph-plan-specific leftovers that are not this issue's scope are filed under
-`.scratch/graph-migration/issues/`: `01-delete-legacy-empty-base.md` (ready),
-`02-advanced-api-public-rewiring.md` (needs-triage — a design decision, not
-work), `03-advanced-aggregate-docs-exemption.md` (ready).
+`.scratch/graph-migration/issues/`: `02-advanced-api-public-rewiring.md`
+(needs-triage — a design decision, not work) and
+`03-advanced-aggregate-docs-exemption.md` (ready). The resolved
+`01-delete-legacy-empty-base.md` is archived under `.scratch/_archive/`.

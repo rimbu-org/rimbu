@@ -1,6 +1,6 @@
 # 03 — Write the `advanced/` aggregate docs exemption
 
-**Spec:** `.scratch/graph-migration-plan.md` §7, third bullet.
+**Spec:** `.scratch/_archive/graph-migration-plan.md` §7, third bullet.
 
 **What to build:** Write the required prose-only exemption into
 `packages/graph/AGENTS.md`. The plan commits to documenting the aggregate

@@ -6,6 +6,7 @@ pass: tests
 package: ordered
 confidence: high
 effort_estimate: 1d
+status: solved
 title: "ordered, bimap, and bimultimap lack property-based (test-random) test suites"
 ---
 

@@ -6,6 +6,7 @@ pass: api
 package: stream
 confidence: medium
 effort_estimate: 0.5d
+status: solved
 title: "AsyncStream.NonEmpty.concat lacks the non-empty-source overload present on Stream.NonEmpty.concat"
 ---
 

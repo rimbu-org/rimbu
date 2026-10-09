@@ -6,6 +6,7 @@ pass: api
 package: list
 confidence: high
 effort_estimate: 0.5d
+status: solved
 title: "List.repeat(negative) reverses the list, while Stream.repeat documents negative as normalized to 1"
 ---
 

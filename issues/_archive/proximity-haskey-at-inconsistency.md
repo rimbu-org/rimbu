@@ -6,6 +6,7 @@ pass: api
 package: proximity
 confidence: medium
 effort_estimate: 0.2d
+status: solved
 title: "ProximityMap.hasKey uses exact match while at() uses nearest match (inconsistent)"
 ---
 

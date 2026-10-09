@@ -6,6 +6,7 @@ pass: api
 package: stream
 confidence: high
 effort_estimate: 0.5d
+status: solved
 title: "Inconsistent negative-index handling: fromArray/fromString ranges honor negatives, Stream.at(-1) does not"
 ---
 

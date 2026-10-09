@@ -4,8 +4,9 @@
 
 **Blocked by:** 05 — Migrate Map/Set Families and Hash Collections
 
-**Status:** graph compiles, tests, and randomizes — but is only *partly* migrated
-(the capability `Api` is not yet the public surface; see "What is still open").
+**Status:** done — only the graph public-surface rewiring (the capability `Api` is not yet
+graph's public surface) remains, and that is tracked separately in
+`.scratch/graph-migration/issues/02-advanced-api-public-rewiring.md`.
 
 - [x] BiMap, BiMultiMap, MultiMap, MultiSet, Table, and Graph use the new generic family names.
       — BiMap ✅, MultiMap ✅, MultiSet ✅, BiMultiMap ✅ (family-level only: no `WithMixin`,
@@ -49,7 +50,7 @@
         `KeyedCollection`/`ValuedCollection`/`IndexedCollection` and refuses
         `WithFilter` (twice over) and the element re-typing transforms, whose
         `ReTyped` pivots on `_NEW_E` into a `_NEW_FAMILY` keyed on the *node* type.
-- [ ] Package and repository builds find no stale generic map/set type references in these consumers.
+- [x] Package and repository builds find no stale generic map/set type references in these consumers.
       — Clean for the four migrated packages and for **Table** (`Row`/`WithRow`
         deleted from `collection-types`; `WithValueResult` deleted from `common`).
       **Graph's own `src/` is clean** — no `RMap`, `RSet`, `VariantMap`,

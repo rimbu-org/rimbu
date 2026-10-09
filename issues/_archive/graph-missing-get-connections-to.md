@@ -6,6 +6,7 @@ pass: api
 package: graph
 confidence: medium
 effort_estimate: 0.5d
+status: solved
 title: "ArrowGraph has no public reverse-connection lookup (getConnectionsTo)"
 ---
 

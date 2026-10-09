@@ -1,6 +1,6 @@
 # 02 — Make `Advanced.Api` the graph public surface
 
-**Spec:** `.scratch/graph-migration-plan.md` §2.3, §2.1.
+**Spec:** `.scratch/_archive/graph-migration-plan.md` §2.3, §2.1.
 
 **What to build:** Make the public graph interfaces extend
 `GraphCollection.Advanced.Api` / `ValuedGraphCollection.Advanced.Api` instead of

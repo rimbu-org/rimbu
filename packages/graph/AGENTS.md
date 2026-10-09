@@ -229,4 +229,4 @@ in `advanced/` is implemented and tested but is not yet the public surface:
   missing today — but do not add a member to the capability `Api` and expect it
   to become public without rewiring.
 
-Plan: `.scratch/graph-migration-plan.md` §2.3.
+Plan: `.scratch/_archive/graph-migration-plan.md` §2.3.

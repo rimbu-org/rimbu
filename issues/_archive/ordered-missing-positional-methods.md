@@ -43,7 +43,7 @@ Still open. The capability rewrite deleted the `OrderedMapBase`/`RMapBase` tier 
 old evidence pointed at but did **not** add an indexed/order-edit capability to
 `OrderedMap`/`OrderedSet`: their `Advanced.Api` still composes only
 `MapCollection.Advanced.Api`. This is the same outstanding work tracked as
-`.scratch/collection-capabilities/issues/09-migrate-ordered-collections.md`
+`.scratch/_archive/collection-capabilities/issues/09-migrate-ordered-collections.md`
 ("the *ordered-specific* work has not started at all"). The method list above was
 renamed to the target vocabulary (`atIndex` → `at`, key lookup → `get`). Keep this
 issue as the user-facing symptom of issue 09; do not treat it as independent work.

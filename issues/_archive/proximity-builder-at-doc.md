@@ -6,6 +6,7 @@ pass: api
 package: proximity
 confidence: high
 effort_estimate: 0.1d
+status: moot
 title: "ProximityMapBuilder.at doc comment contradicts its own implementation"
 ---
 

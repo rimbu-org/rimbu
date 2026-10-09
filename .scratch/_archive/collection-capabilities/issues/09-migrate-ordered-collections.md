@@ -4,7 +4,7 @@
 
 **Blocked by:** 08 — Migrate Sorted Collections
 
-**Status:** ready-for-agent
+**Status:** done
 
 - [x] All Ordered variants compose indexed identity, removal, swapping, order-editing, and reordering capabilities.
       — `OrderedMap` adopts `IndexedCollection.Advanced.Api` + `WithPrependAppend` + `WithRemoveAt` +
