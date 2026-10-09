@@ -3,8 +3,23 @@ import type { IndexedCollection } from '@rimbu/collection-types/collection/index
 import type { KeyedCollection } from '@rimbu/collection-types/collection/keyed';
 import type { MapCollection } from '@rimbu/collection-types/map';
 import type { OptLazy, RelatedTo } from '@rimbu/common';
+import type { StreamSource } from '@rimbu/stream';
 
 import { OrderedMapContext } from '#ordered/map/context';
+
+/**
+ * Position handling for a bulk insert into an insertion-ordered collection.
+ *
+ * - `preserve` (default): existing identities retain position; new identities
+ *   append in source order.
+ * - `append`: move the supplied identities to the end as one block, in source
+ *   order.
+ * - `prepend`: move the supplied identities to the start as one block, in
+ *   source order (not reversed).
+ */
+export interface OrderedBulkOptions {
+	readonly position?: 'preserve' | 'append' | 'prepend';
+}
 
 /**
  * A type-invariant immutable Map of key type K, and value type V that keeps
@@ -80,6 +95,20 @@ export namespace OrderedMap {
 				IndexedCollection.Capability.WithPrependAppend.Api<readonly [K, V], Tp>,
 				IndexedCollection.Capability.WithRemoveAt.Api<readonly [K, V], Tp>,
 				IndexedCollection.Capability.WithSwapAt.Api<readonly [K, V], Tp> {
+			/**
+			 * Adds all `entries`, controlling the position of supplied identities
+			 * via `options.position`. The last source occurrence supplies the final
+			 * value. An empty source returns the receiver unchanged.
+			 */
+			addEach(
+				entries: StreamSource.NonEmpty<readonly [K, V]>,
+				options?: OrderedBulkOptions,
+			): Tp['_NON_EMPTY'];
+			addEach(
+				entries: StreamSource<readonly [K, V]>,
+				options?: OrderedBulkOptions,
+			): Tp['_SELF'];
+
 			/** Returns the position of `key` in insertion order, if present. */
 			indexOf<UK = K>(key: RelatedTo<K, UK>): number | undefined;
 			indexOf<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): number | O;
@@ -116,6 +145,12 @@ export namespace OrderedMap {
 					readonly [K, V],
 					Tp
 				> {
+			/** Adds all `entries` with the given position handling; `false` if unchanged. */
+			addEach(
+				entries: StreamSource<readonly [K, V]>,
+				options?: OrderedBulkOptions,
+			): boolean;
+
 			/** Returns the position of `key` in insertion order, if present. */
 			indexOf<UK = K>(key: RelatedTo<K, UK>): number | undefined;
 			indexOf<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): number | O;

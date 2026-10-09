@@ -3,6 +3,8 @@ import type { IndexedCollection } from '@rimbu/collection-types/collection/index
 import type { IndexedValuedCollection } from '@rimbu/collection-types/collection/indexed-valued';
 import type { MapCollection } from '@rimbu/collection-types/map';
 import type { SetCollection } from '@rimbu/collection-types/set';
+import type { OrderedBulkOptions } from '@rimbu/ordered/map';
+import type { StreamSource } from '@rimbu/stream';
 
 import { OrderedSetContext } from '#ordered/set/context';
 
@@ -69,6 +71,20 @@ export namespace OrderedSet {
 				IndexedCollection.Capability.WithRemoveAt.Api<E, Tp>,
 				IndexedCollection.Capability.WithSwapAt.Api<E, Tp> {
 			/**
+			 * Adds all `elements`, controlling the position of supplied elements
+			 * via `options.position`. An empty source returns the receiver
+			 * unchanged.
+			 */
+			addEach(
+				elements: StreamSource.NonEmpty<E>,
+				options?: OrderedBulkOptions,
+			): Tp['_NON_EMPTY'];
+			addEach(
+				elements: StreamSource<E>,
+				options?: OrderedBulkOptions,
+			): Tp['_SELF'];
+
+			/**
 			 * Moves `element` to the final position `index`, inserting it when
 			 * absent. Already-satisfied or invalid edits return the receiver.
 			 */
@@ -86,6 +102,9 @@ export namespace OrderedSet {
 				IndexedValuedCollection.Advanced.BuilderApi<E, Tp>,
 				IndexedCollection.Capability.WithPrependAppend.BuilderApi<E, Tp>,
 				IndexedCollection.Capability.WithRemoveAt.BuilderApi<E, Tp> {
+			/** Adds all `elements` with the given position handling; `false` if unchanged. */
+			addEach(elements: StreamSource<E>, options?: OrderedBulkOptions): boolean;
+
 			/** Builds or moves `element` to the final position `index`. */
 			placeAt(index: number, element: E): void;
 

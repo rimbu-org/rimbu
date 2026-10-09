@@ -6,9 +6,9 @@ import type {
 	OptLazy,
 	RelatedTo,
 } from '@rimbu/common';
+import type { OrderedBulkOptions } from '@rimbu/ordered/map';
 import type { OrderedSet } from '@rimbu/ordered/set';
 import type { SortedMap } from '@rimbu/sorted/map';
-import type { Stream } from '@rimbu/stream';
 
 import type { OrderedSetContext } from '#ordered/set/context';
 
@@ -17,6 +17,7 @@ import { ValuedCollectionNonEmpty } from '@rimbu/collection-types/advanced/colle
 import { CollectionNonEmpty } from '@rimbu/collection-types/advanced/collection-base';
 import { SetCollectionNonEmpty } from '@rimbu/collection-types/advanced/set-base';
 import { OptLazy as OptLazyValue } from '@rimbu/common/opt-lazy';
+import { Stream, type StreamSource } from '@rimbu/stream';
 
 import { Indicator } from '#ordered/common/ordered-indicator';
 
@@ -98,6 +99,47 @@ export class OrderedSetNonEmpty<T>
 		);
 
 		return this.copy(newKeyIndicatorMap.assumeNonEmpty(), newIndicatorKeyMap);
+	}
+
+	addEach(
+		elements: StreamSource.NonEmpty<T>,
+		options?: OrderedBulkOptions,
+	): OrderedSet.NonEmpty<T>;
+	addEach(
+		elements: StreamSource<T>,
+		options?: OrderedBulkOptions,
+	): OrderedSet<T>;
+	addEach(
+		elements: StreamSource<T>,
+		options?: OrderedBulkOptions,
+	): OrderedSet<T> {
+		const position = options?.position ?? 'preserve';
+		const list = Stream.from(elements).toArray();
+		if (list.length === 0) return this;
+
+		if (position === 'preserve') {
+			return super.addEach(list) as OrderedSet<T>;
+		}
+
+		const dedupe = this.context.keyMapContext.keyedContext.builder<
+			T,
+			boolean
+		>();
+		const token = Symbol();
+		const order: T[] = [];
+
+		for (const element of list) {
+			if (token === dedupe.get(element, token)) order.push(element);
+			dedupe.set(element, true);
+		}
+
+		const rest = this.toArray().filter((element) => !dedupe.has(element));
+		const final =
+			position === 'append' ? [...rest, ...order] : [...order, ...rest];
+
+		if (this.#sameEntries(this.toArray(), final)) return this;
+
+		return this.#rebuild(final) as OrderedSet<T>;
 	}
 
 	remove<U = T>(value: RelatedTo<T, U>): OrderedSet<T> {

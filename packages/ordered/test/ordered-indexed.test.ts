@@ -217,6 +217,108 @@ describe('OrderedMap indexed and order editing', () => {
 		expect(e.placeAt(0, [1, 'a']).toArray()).toEqual([[1, 'a']]);
 		expect(e.moveTo(0, 1)).toBe(e);
 	});
+
+	it('addEach position options', () => {
+		expect(
+			m
+				.addEach([
+					[3, 'C'],
+					[1, 'A'],
+					[4, 'd'],
+				])
+				.toArray(),
+		).toEqual([
+			[1, 'A'],
+			[2, 'b'],
+			[3, 'C'],
+			[4, 'd'],
+		]);
+
+		expect(
+			m
+				.addEach(
+					[
+						[1, 'A'],
+						[3, 'C'],
+					],
+					{ position: 'append' },
+				)
+				.toArray(),
+		).toEqual([
+			[2, 'b'],
+			[1, 'A'],
+			[3, 'C'],
+		]);
+
+		expect(
+			m
+				.addEach(
+					[
+						[1, 'A'],
+						[3, 'C'],
+					],
+					{ position: 'prepend' },
+				)
+				.toArray(),
+		).toEqual([
+			[1, 'A'],
+			[3, 'C'],
+			[2, 'b'],
+		]);
+
+		expect(
+			m
+				.addEach(
+					[
+						[4, 'd'],
+						[1, 'A'],
+					],
+					{ position: 'append' },
+				)
+				.toArray(),
+		).toEqual([
+			[2, 'b'],
+			[3, 'c'],
+			[4, 'd'],
+			[1, 'A'],
+		]);
+
+		expect(
+			m
+				.addEach(
+					[
+						[3, 'X'],
+						[3, 'Y'],
+						[1, 'Z'],
+					],
+					{ position: 'prepend' },
+				)
+				.toArray(),
+		).toEqual([
+			[3, 'Y'],
+			[1, 'Z'],
+			[2, 'b'],
+		]);
+
+		expect(m.addEach([], { position: 'append' })).toBe(m);
+	});
+
+	it('builder addEach position options', () => {
+		const b = m.toBuilder();
+		b.addEach(
+			[
+				[1, 'A'],
+				[3, 'C'],
+			],
+			{ position: 'append' },
+		);
+		expect(b.build().toArray()).toEqual([
+			[2, 'b'],
+			[1, 'A'],
+			[3, 'C'],
+		]);
+		expect(b.addEach([], { position: 'prepend' })).toBe(false);
+	});
 });
 
 describe('OrderedSet indexed and order editing', () => {
@@ -292,5 +394,29 @@ describe('OrderedSet indexed and order editing', () => {
 		expect(e.take(2)).toBe(e);
 		expect(e.placeAt(0, 1).toArray()).toEqual([1]);
 		expect(e.moveTo(0, 1)).toBe(e);
+	});
+
+	it('addEach position options', () => {
+		expect(s.addEach([3, 1, 4]).toArray()).toEqual([1, 2, 3, 4]);
+		expect(s.addEach([1, 3], { position: 'append' }).toArray()).toEqual([
+			2, 1, 3,
+		]);
+		expect(s.addEach([1, 3], { position: 'prepend' }).toArray()).toEqual([
+			1, 3, 2,
+		]);
+		expect(s.addEach([4, 1], { position: 'append' }).toArray()).toEqual([
+			2, 3, 4, 1,
+		]);
+		expect(s.addEach([3, 3, 1], { position: 'prepend' }).toArray()).toEqual([
+			3, 1, 2,
+		]);
+		expect(s.addEach([], { position: 'append' })).toBe(s);
+	});
+
+	it('builder addEach position options', () => {
+		const b = s.toBuilder();
+		b.addEach([1, 3], { position: 'append' });
+		expect(b.build().toArray()).toEqual([2, 1, 3]);
+		expect(b.addEach([], { position: 'prepend' })).toBe(false);
 	});
 });

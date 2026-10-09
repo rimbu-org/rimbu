@@ -1,5 +1,7 @@
 import type { OptLazy, RelatedTo } from '@rimbu/common';
+import type { OrderedBulkOptions } from '@rimbu/ordered/map';
 import type { OrderedSet } from '@rimbu/ordered/set';
+import type { StreamSource } from '@rimbu/stream';
 
 import type { OrderedSetContext } from '#ordered/set/context';
 
@@ -35,6 +37,21 @@ export class OrderedSetEmpty<T = any>
 		otherwise?: OptLazy<O>,
 	): number | O | undefined {
 		return OptLazyValue(otherwise);
+	}
+
+	addEach(
+		elements: StreamSource.NonEmpty<T>,
+		options?: OrderedBulkOptions,
+	): OrderedSet.NonEmpty<T>;
+	addEach(
+		elements: StreamSource<T>,
+		options?: OrderedBulkOptions,
+	): OrderedSet<T>;
+	addEach(
+		elements: StreamSource<T>,
+		_options?: OrderedBulkOptions,
+	): OrderedSet<T> {
+		return this.context.from(elements) as unknown as OrderedSet<T>;
 	}
 
 	placeAt(_index: number, element: T): OrderedSet.NonEmpty<T> {

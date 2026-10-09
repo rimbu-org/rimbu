@@ -58,11 +58,14 @@ issue as the user-facing symptom of issue 09; do not treat it as independent wor
   all delegating to the indicator SortedMap.
 - Order editing: `prepend`/`append`/`placeAt`/`moveTo`, plus `removeAt` and
   `swapAt`, with matching builder vocabulary.
+- Bulk position options: `addEach(entries, { position: 'preserve' | 'append' |
+  'prepend' })` on both variants (exported `OrderedBulkOptions`).
 
 The comparator-derived methods (`min`/`max`, `streamRange`, `lowerBound`/
 `upperBound`, `next`/`previous`) are intentionally **not** added: insertion order
 has no comparator, so those remain `SortedMap`/`SortedSet`-only.
 
 Coverage: `packages/ordered/test/ordered-indexed.test.ts` (deterministic, map +
-set). Bulk position options (`position: 'preserve' | 'append' | 'prepend'`) are
-still outstanding and tracked in `.scratch/.../09-migrate-ordered-collections.md`.
+set) and `packages/ordered/test-random/ordered-model.test.ts` (randomized
+Array/Map model). Issue 09 in `.scratch/.../09-migrate-ordered-collections.md` is
+now complete.

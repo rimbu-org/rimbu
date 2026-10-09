@@ -1,5 +1,6 @@
 import type { MapCollection } from '@rimbu/collection-types/map';
 import type { OptLazy, RelatedTo } from '@rimbu/common';
+import type { OrderedBulkOptions } from '@rimbu/ordered/map';
 import type { OrderedSet } from '@rimbu/ordered/set';
 import type { SortedMap } from '@rimbu/sorted/map';
 import type { StreamSource } from '@rimbu/stream';
@@ -290,8 +291,23 @@ export class OrderedSetBuilder<T>
 		return true;
 	};
 
-	addEach = (elements: StreamSource<T>): boolean => {
+	addEach = (
+		elements: StreamSource<T>,
+		options?: OrderedBulkOptions,
+	): boolean => {
 		this.checkLock();
+
+		const position = options?.position ?? 'preserve';
+
+		if (position !== 'preserve') {
+			const current = this.build();
+			const next = current.addEach(elements, options);
+			if (next === current) return false;
+
+			this.#resetFrom(next);
+
+			return true;
+		}
 
 		let changed = false;
 		const iter = Stream.from(elements)[Symbol.iterator]();

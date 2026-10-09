@@ -1,5 +1,6 @@
 import type { OptLazy, RelatedTo } from '@rimbu/common';
-import type { OrderedMap } from '@rimbu/ordered/map';
+import type { OrderedBulkOptions, OrderedMap } from '@rimbu/ordered/map';
+import type { StreamSource } from '@rimbu/stream';
 
 import type { OrderedMapContext } from '#ordered/map/context';
 
@@ -39,6 +40,21 @@ export class OrderedMapEmpty<K = any, V = any>
 		otherwise?: OptLazy<O>,
 	): number | O | undefined {
 		return OptLazyValue(otherwise);
+	}
+
+	addEach(
+		entries: StreamSource.NonEmpty<readonly [K, V]>,
+		options?: OrderedBulkOptions,
+	): OrderedMap.NonEmpty<K, V>;
+	addEach(
+		entries: StreamSource<readonly [K, V]>,
+		options?: OrderedBulkOptions,
+	): OrderedMap<K, V>;
+	addEach(
+		entries: StreamSource<readonly [K, V]>,
+		_options?: OrderedBulkOptions,
+	): OrderedMap<K, V> {
+		return this.context.from(entries) as unknown as OrderedMap<K, V>;
 	}
 
 	placeAt(_index: number, element: readonly [K, V]): OrderedMap.NonEmpty<K, V> {

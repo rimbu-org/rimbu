@@ -7,9 +7,8 @@ import type {
 	OptLazy,
 	RelatedTo,
 } from '@rimbu/common';
-import type { OrderedMap } from '@rimbu/ordered/map';
+import type { OrderedBulkOptions, OrderedMap } from '@rimbu/ordered/map';
 import type { SortedMap } from '@rimbu/sorted/map';
-import type { Stream } from '@rimbu/stream';
 
 import type { OrderedMapContext } from '#ordered/map/context';
 
@@ -19,6 +18,7 @@ import { CollectionNonEmpty } from '@rimbu/collection-types/advanced/collection-
 import { checkEmptyModifyOptions } from '@rimbu/collection-types/advanced/common';
 import { MapCollectionNonEmpty } from '@rimbu/collection-types/advanced/map-base';
 import { OptLazy as OptLazyValue } from '@rimbu/common/opt-lazy';
+import { Stream, type StreamSource } from '@rimbu/stream';
 
 import { Indicator } from '#ordered/common/ordered-indicator';
 
@@ -131,6 +131,45 @@ export class OrderedMapNonEmpty<K, V>
 		}
 
 		return this.copy(newKeyIndicatorMap.assumeNonEmpty(), newIndicatorKeyMap);
+	}
+
+	addEach(
+		entries: StreamSource.NonEmpty<readonly [K, V]>,
+		options?: OrderedBulkOptions,
+	): OrderedMap.NonEmpty<K, V>;
+	addEach(
+		entries: StreamSource<readonly [K, V]>,
+		options?: OrderedBulkOptions,
+	): OrderedMap<K, V>;
+	addEach(
+		entries: StreamSource<readonly [K, V]>,
+		options?: OrderedBulkOptions,
+	): OrderedMap<K, V> {
+		const position = options?.position ?? 'preserve';
+		const list = Stream.from(entries).toArray();
+		if (list.length === 0) return this;
+
+		if (position === 'preserve') {
+			return super.addEach(list) as OrderedMap<K, V>;
+		}
+
+		const dedupe = this.context.keyMapContext.keyedContext.builder<K, V>();
+		const token = Symbol();
+		const order: K[] = [];
+
+		for (const [key, value] of list) {
+			if (token === dedupe.get(key, token)) order.push(key);
+			dedupe.set(key, value);
+		}
+
+		const rest = this.toArray().filter(([key]) => !dedupe.has(key));
+		const block = order.map((key) => [key, dedupe.get(key) as V] as const);
+		const final =
+			position === 'append' ? [...rest, ...block] : [...block, ...rest];
+
+		if (this.#sameEntries(this.toArray(), final)) return this;
+
+		return this.#rebuild(final) as OrderedMap<K, V>;
 	}
 
 	modifyAtKey(atKey: K, options: ModifyOptions<V>): OrderedMap<K, V> {
