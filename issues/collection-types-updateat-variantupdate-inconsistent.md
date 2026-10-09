@@ -6,6 +6,7 @@ pass: api
 package: collection-types
 confidence: medium
 effort_estimate: 0.5d
+status: wontfix
 title: "RMapBase.updateAt takes (value: V) => V while updateAtAndGet/Builder use VariantUpdate<V>, an inconsistent update callback type"
 ---
 
@@ -23,3 +24,23 @@ Cross-package. Consumers implementing or calling concrete map/set APIs encounter
 
 ## Recommendation
 Standardize on a single update-callback type across `updateAt`, `updateAtAndGet`, and `Builder.updateAt` (and the set equivalents). Either adopt `VariantUpdate<V>` everywhere or use the simpler `(value: V) => V` everywhere, and document the rationale. Add type tests asserting the chosen shape is accepted by all three.
+
+## Resolution — moot (2026-10-09)
+
+The split no longer exists. The capability rewrite replaced the `RMapBase`
+`updateAt` / `updateAtAndGet` pair with `updateAtKey` / `updateAtKeyAndReturn`
+(`MapCollection.Capability.WithUpdateAtKey`, and
+`KeyedCollection`-equivalent for sets), and **both** take the plain
+`(value: V) => V` callback:
+
+- `packages/collection-types/src/public/map.ts:174-177` —
+  `updateAtKey(key, update: (value: V) => V)`.
+- `packages/collection-types/src/public/map.ts:179-188` —
+  `updateAtKeyAndReturn(key, update: (value: V) => V)`.
+
+`VariantUpdate<V>` survives only as a definition in
+`packages/collection-types/src/internal/common/utils.ts` and is referenced by
+**no** source file (`rg -l VariantUpdate packages/*/src` returns only that
+definition). The inconsistent public contract this issue described is gone;
+closing as `wontfix` (moot by redesign). The now-dead `VariantUpdate` type could
+be removed as part of the legacy-sweep clean-up.

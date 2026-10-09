@@ -31,11 +31,11 @@ Generated from the three-pass review (API / implementation / tests) across 18 pa
 ## Cross-package / repo-wide themes (for triage)
 
 - **Negative-index convention is inconsistently surfaced.** `Stream.at(-1)` correctly returns the fallback while `fromArray`/`fromString` honor negative `range.start`; `List.repeat(-1)` *reverses* while `Stream.repeat` normalizes to 1; `deep` path API treats `[-1]` as a literal key. Same library, three behaviors. (foundation + sequence + deep)
-- **HKT `NonEmpty` overload-order defect in `collection-types` map base** silently widens `transform()` results to possibly-empty for every concrete map package — the exact anti-pattern AGENTS.md §6.3 forbids. Inherited repo-wide by hashed/sorted/ordered/bimap/bimultimap/multimap.
+- **HKT `NonEmpty` overload-order defect in `collection-types` map base** silently widens `transform()` results to possibly-empty for every concrete map package — the exact anti-pattern AGENTS.md §6.3 forbids. Inherited repo-wide by hashed/sorted/ordered/bimap/bimultimap/multimap. **(Resolved 2026-10-09: the `VariantMapBase`/`transform` surface was removed; its replacement `recompose` declares the `NonEmpty` overload first. Issue 3 solved.)**
 - **Foundational comparators not total orders** (`Comp.number` NaN handling) and **spelling/naming drift** (`Eq.stringCaseInsentitive`) propagate to every number-keyed/string-keyed collection.
 - **Builder↔immutable naming divergence** in `bimap`/`bimultimap` (getValue/getKey vs at/atValue) breaks the convention every other keyed collection follows.
 - **Missing type-level (`test-d/`) and property-based (`test-random/`) tests** across foundation (collection-types HKT), keyed (bimultimap, ordered, bimap), and structure (task) packages — exactly where types are most intricate.
-- **`advanced/` vs `internal/` tier discipline** and **public `any` leakage** (proximity transform, deep selectors, EmptyBase) erode the extension API.
+- **`advanced/` vs `internal/` tier discipline** and **public `any` leakage** (proximity transform, deep selectors, EmptyBase) erode the extension API. **(Partly resolved 2026-10-09: `transform` was removed library-wide and `EmptyBase` was deleted, so the `proximity-transform-returns-any` and `collection-types-emptybase-any-returns` issues are moot; deep selectors remain.)**
 
 ## All issues (severity → impact → package)
 

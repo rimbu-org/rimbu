@@ -6,6 +6,7 @@ pass: tests
 package: collection-types
 confidence: high
 effort_estimate: 1d
+status: solved
 title: "Type-level tests for collection-types omit transform() return types and merge/reducer factories"
 ---
 
@@ -28,3 +29,41 @@ Add `expectTypeOf` assertions in both `map.test-d.ts` and `set.test-d.ts` for:
 - `transform(cb returning plain StreamSource)` resolving to `normal`.
 - `Context.reducer(source)` and `Context.mergeWith(...)(...)`/`mergeAll(...)` resulting types.
 Also add the `NoInfer`/overload-order checks described in AGENTS.md §6.4/§6.6 so future changes are pinned.
+
+## Resolution — solved on the redesigned surface (2026-10-09)
+
+The API this issue targeted no longer exists, and the coverage gap it describes
+has been closed by the capability rewrite:
+
+- **`transform` was removed.** Its re-typing role is now `recompose` (and `map` /
+  `flatMap`), all declared on capability interfaces. Both return paths are pinned:
+  `packages/collection-types/test-d/map.test-d.ts:54-88` (`map`, `mapIndexed`,
+  `flatMap`, `flatMapIndexed`, `recompose`, each with a `NonEmpty`-source and a
+  plain-source assertion) and `packages/collection-types/test-d/set.test-d.ts:26-58`.
+- **`merge` / `reducer` ARE now type-tested**, contrary to the original evidence:
+  `packages/collection-types/test-d/map.test-d.ts:120-131` asserts
+  `ctx.keyedContext.reducer<number, string>()` yields
+  `Reducer<readonly [number, string], M>`, and that `mergeWith` /
+  `mergeEachWith` produce collections whose `.get` / `.isEmpty` are precisely
+  typed.
+
+### Verification of the "merge type gap" (2026-10-09)
+
+A follow-up concern claimed `HashMap.merge(...)` / `SortedMap.merge(...)` "work
+at runtime but do not typecheck" because `packages/hashed/src/public/map.ts` and
+`packages/sorted/src/public/map.ts` never lexically mention `merge`. **That is a
+false positive.** The methods are inherited from
+`MapCollection.Advanced.KeyedContextApi`, which hardcodes
+`KeyedCollection.Capability.WithMerge.KeyedContextApi<F>` and
+`...WithReducer.KeyedContextApi<F>`
+(`packages/collection-types/src/public/map.ts:118-122`). Direct probes confirm
+`HashMap.merge`, `mergeEach`, `mergeWith`, `mergeEachWith` and `HashMap.reducer`
+all typecheck with precise, non-`any` return types, as do `SortedMap` and
+`ProximityMap`.
+
+The only real artefact was three stale test-random call sites
+(`hashed`, `sorted`, `proximity`) that cast through `as any` and carried a
+`@ts-expect-error`. They only needed the keyed context
+(`createContext({}).keyedContext`) instead of the collection context; the casts
+and suppression were removed and the randomized suites typecheck and pass. No
+library change was required.

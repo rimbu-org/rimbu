@@ -6,6 +6,7 @@ pass: api
 package: bimap
 confidence: high
 effort_estimate: 0.5d
+status: solved
 title: "BiMap.Builder lookup methods use getKey/getValue, diverging from immutable at/atValue"
 ---
 
@@ -23,3 +24,18 @@ Users writing builder-based code must remember a different lookup vocabulary tha
 
 ## Recommendation
 Rename `BiMap.Builder.getValue` → `at` (with `at<UK,O>` OptLazy overload) and `getKey` → `atValue`, matching the immutable surface. Keep the current names only as deprecated aliases if back-compat is required. Apply the same fix to `BiMultiMap.Builder` (see `bimultimap-builder-getvalues-getkeys-inconsistent`).
+
+## Resolution — solved by the capability rewrite (2026-10-09)
+
+Builder and immutable now use the **same** vocabulary, and `at`/`atValue` are gone
+entirely:
+
+- Key→value lookup is `get(key)` on both the immutable collection and its builder
+  (inherited from `KeyedCollection.Capability.WithGet`, immutable + builder).
+- Value→key lookup is `getKey(value)` on both, declared once on
+  `BiMapCollection.Capability.WithGetKey.Api` and `.BuilderApi`
+  (`packages/bimap/src/advanced/bimap-base.ts:11-25`).
+
+The old `at` / `atValue` (immutable) and `getValue` / `getKey` (builder) split no
+longer exists, so `BiMap.Builder` and `BiMap` share the keyed convention every
+other package follows. The same holds for `BiMultiMap`. Nothing to fix.

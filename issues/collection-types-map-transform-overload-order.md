@@ -29,3 +29,16 @@ Swap the two overloads in `VariantMapBase.NonEmpty.transform` so the `StreamSour
 ## Resolution
 
 The `StreamSource.NonEmpty` overload now precedes the possibly-empty `StreamSource` overload in `VariantMapBase.NonEmpty.transform`. Type-level regression tests cover both return paths in `packages/collection-types/test-d/map.test-d.ts`.
+
+### Repointed 2026-10-09 — `VariantMapBase`/`transform` no longer exist
+
+The whole `VariantMapBase` / `RMapBase` surface was deleted. The method that
+replaced the re-typing `transform` is `recompose`, defined once on the capability
+`KeyedCollection.Capability.WithRecompose.Api`
+(`packages/collection-types/src/public/collection/keyed.ts:397-413`). Its two
+overloads are already declared in the **correct** order — the
+`StreamSource.NonEmpty<readonly [K2, V2]>` overload returns `['_SELF']` first,
+the possibly-empty `StreamSource` overload returns `['_NORMAL']` second — so the
+defect cannot recur there. The new-surface equivalent is pinned by
+`packages/collection-types/test-d/map.test-d.ts:82-88` (`recomposeNE: MN` /
+`recomposeN: M`). No further action.

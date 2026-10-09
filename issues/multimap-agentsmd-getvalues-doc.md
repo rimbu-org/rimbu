@@ -6,6 +6,7 @@ pass: api
 package: multimap
 confidence: high
 effort_estimate: 0.25d
+status: solved
 title: "multimap AGENTS.md documents a getValues(key) method that does not exist on the public API"
 ---
 
@@ -21,3 +22,14 @@ Contributors reading the package guide will look for / use a non-existent `getVa
 
 ## Recommendation
 Update `multimap/AGENTS.md` to reference `valuesAt(key)` in place of `getValues(key)` (3 occurrences). Confirm no other guide (e.g. `bimultimap`) repeats the same stale name.
+
+## Resolution — solved by the capability rewrite (2026-10-09)
+
+The premise is now inverted: the design settled on `getValues`, and the guide is
+correct. The single-value-looking `valuesAt` name was retired; the capability is
+`MultiMapCollection.Capability.WithGetValues`, whose `Api` and `BuilderApi` both
+declare `getValues<UK = K>(key)` (`packages/multimap/src/advanced/multimap-base.ts:291-304`),
+and the public doc comment uses `getValues`
+(`packages/multimap/src/public/multimap.ts:14`). `AGENTS.md:152` matches the code.
+The only surviving `valuesAt` mention is the historical rename list at
+`AGENTS.md:286`, which is accurate as history. Nothing to fix.

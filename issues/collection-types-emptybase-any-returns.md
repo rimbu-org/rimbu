@@ -6,6 +6,7 @@ pass: api
 package: collection-types
 confidence: medium
 effort_estimate: 0.5d
+status: wontfix
 title: "EmptyBase.filter/remove/asNormal return `any`, leaking the concrete type for extenders"
 ---
 
@@ -23,3 +24,18 @@ Cross-package (advanced/extension surface). Extenders who forget to override the
 
 ## Recommendation
 Parameterize `EmptyBase` (e.g. `EmptyBase<T>` or a small HKT slot) and have `filter`/`remove`/`asNormal` return the appropriate concrete/NonEmpty type via the `Types` slot instead of `any`, mirroring how `NonEmptyBase` already uses `this['_NonEmptyType']`. At minimum, replace `any` with the generic element/collection type to satisfy Biome and preserve type information.
+
+## Resolution — moot (2026-10-09)
+
+`EmptyBase` has been **deleted** from `@rimbu/collection-types` along with the rest
+of the legacy `RMap`/`RSet` tier. `packages/collection-types/src/advanced/common/`
+is now empty (only the sibling `advanced/collection-base.ts`, `map-base.ts` and
+`set-base.ts` remain), and no `empty-base.ts` exists anywhere under
+`packages/collection-types`.
+
+The last consumer was `@rimbu/graph`, whose `GraphEmptyBase` / `GraphNonEmptyBase`
+now declare the emptiness members directly in
+`packages/graph/src/internal/common/base.ts` (graph-migration issue 01). There is
+no longer an abstract empty base whose loose `any` returns could leak, so the
+defect this issue describes cannot occur. Nothing to fix; closing as `wontfix`
+(moot by removal).
