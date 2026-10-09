@@ -6,27 +6,53 @@ This package defines the **abstract base interfaces and HKT machinery** shared b
 
 ```
 src/
-├── collection-types.ts    # exports["."]           — re-exports all base types (RMap, RSet, VariantMap, VariantSet)
+├── collection-types.ts    # exports["."]           — re-exports the capability surface
+├── public/                # exports["./*"]          — the public capability API
+│   ├── collection.ts      # Collection, Collection.Advanced, Collection.Capability
+│   ├── types.ts           # TypesKey, Op, and the HKT slot types
+│   ├── map.ts             # MapCollection
+│   ├── set.ts             # SetCollection
+│   └── collection/        # the per-shape capability namespaces
+│       ├── valued.ts      # ValuedCollection      (add / remove / union / …)
+│       ├── keyed.ts       # KeyedCollection       (get / has / removeKeyAndReturn / …)
+│       ├── indexed.ts     # IndexedCollection     (at / updateAt / …)
+│       ├── sorted.ts      # SortedCollection      (order-sensitive members)
+│       └── indexed-*.ts   # the intersections of the above
 ├── advanced/              # exports["./advanced/*"] — implementer / extension API
 │   ├── common.ts          # KeyValue, WithElem, common HKT helpers
 │   ├── common/
 │   │   └── empty-base.ts  # EmptyBase / NonEmptyBase classes
-│   ├── map/
-│   │   ├── base.ts        # RMapBase, VariantMapBase interfaces
-│   │   └── base-module.ts # RMapContextBaseModule
-│   └── set/
-│       ├── base.ts        # RSetBase, VariantSetBase interfaces
-│       └── base-module.ts # RSetContextBaseModule
-└── internal/              # NEVER exported; "#collection-types/*" only (package-private HKT machinery)
-    ├── common/
-    │   └── types.ts       # WithElem, KeyValue HKT slot types
-    ├── map/types/
-    │   ├── generic.ts     # Generic map type slots
-    │   └── variant.ts     # Variant map type slots
-    └── set/types/
-        ├── generic.ts     # Generic set type slots
-        └── variant.ts     # Variant set type slots
+│   ├── collection-base.ts # CollectionBase
+│   ├── map-base.ts        # MapCollectionBase
+│   ├── set-base.ts        # SetCollectionBase
+│   └── collection/        # the per-shape base classes
+└── internal/              # NEVER exported; "#collection-types/*" only
+    └── common/
+        ├── types.ts       # WithElem, KeyValue HKT slot types
+        └── utils.ts       # internal HKT helpers
 ```
+
+## Removed: the `RMap` / `RSet` / `Variant*` surface
+
+`collection-types.ts` used to re-export `RMap`, `RSet`, `VariantMap` and
+`VariantSet`, backed by `advanced/{map,set}/base.ts` (the `RMapBase` /
+`VariantMapBase` / `RSetBase` / `VariantSetBase` interfaces),
+`advanced/{map,set}/base-module.ts` (the `*ContextBaseModule` factories) and
+`internal/{map,set}/types/*.ts`. **All of it has been deleted** (~2,300
+lines); the capability families replaced it.
+
+What went away, and why the replacement is strictly better:
+
+- The **read-only / invariant split** (`VariantMapBase` vs `RMapBase`). It
+  existed so a variant type could be covariant in `K` and `V`. The capability
+  model gets covariance from the individual member signatures instead, so no
+  separate base class is needed.
+- The **second types record** (`Types` with `normal` / `nonEmpty`) alongside the
+  family's `_TYPES` / `_TYPES_NON_EMPTY`. Two records describing the same
+  binding had to be kept in sync by hand.
+
+Do not reintroduce either. If a capability is missing, add it as a
+`Capability.With*` member and widen `Advanced.Family`.
 
 ## Package imports (`#` paths)
 
@@ -37,34 +63,38 @@ src/
 
 ## Key abstractions
 
-### VariantMapBase vs RMapBase
+### HKT pattern (`Tp extends Collection.Advanced.TypesBase`)
 
-- **`VariantMapBase<K, V, Tp>`**: Type-variant base — `K` and `V` are covariant. Used for read-only views.
-- **`RMapBase<K, V, Tp>`**: Type-invariant base — extends `VariantMapBase`. Full mutation interface (set, remove, etc.). All concrete maps extend this.
-
-### HKT pattern (`Tp extends RMapBase.Types`)
-
-The `Tp` type parameter is a "types record" that binds the concrete collection type to the abstract method return types:
+The `Tp` type parameter is a "types record" that binds the concrete collection
+type to the abstract method return types:
 
 ```ts
 // Abstract:
-interface RMapBase<K, V, Tp extends RMapBase.Types> {
-  filter(...): WithKeyValue<Tp, K, V>['normal'];
-  // 'normal' resolves to the concrete type via the Types binding
+interface ValuedCollection<E, Tp extends Collection.Advanced.TypesBase> {
+  filter(...): Tp['_SELF'];
+  // '_SELF' resolves to the concrete type via the types binding
 }
 
-// Concrete binding in @rimbu/hashed:
-export namespace HashMap {
-  export interface Types extends KeyValue {
-    readonly normal: HashMap<this['_K'], this['_V']>;
-    readonly nonEmpty: HashMap.NonEmpty<this['_K'], this['_V']>;
-  }
+// Concrete binding in @rimbu/hashed, via a family slot:
+export interface Family<K, V> extends MapCollection.Advanced.Family<K, V> {
+  _NORMAL: HashMap<K, V>;
+  _NON_EMPTY: HashMap.NonEmpty<K, V>;
+  _BUILDER: HashMap.Builder<K, V>;
+  _CONTEXT: HashMap.Context<K>;
 }
 ```
 
-### base-module.ts pattern
+**Always declare a family as a named `interface` extending the aggregate**
+(`interface MyCapabilities extends SetCollection.Advanced.Family<any> {}`), never
+as an ad-hoc intersection of individual `Capability.*` families. See the root
+`AGENTS.md` §6.4 — the intersection form silently loses `_BUILDER` / `_CONTEXT` /
+`_NORMAL` members and is dramatically slower to resolve.
 
-`RMapContextBaseModule` provides the standard factory method implementations (`of`, `from`, `builder`, `reducer`) that all map contexts share. Contexts extend this and provide the `createEmpty()` and related methods.
+### Context base classes
+
+`MapCollectionBase` / `SetCollectionBase` (in `advanced/map-base.ts` and
+`advanced/set-base.ts`) provide the shared context factory implementations.
+Contexts extend these and supply the create/`createContext` members.
 
 ## When to modify this package
 
@@ -81,12 +111,21 @@ After any change here, verify all concrete implementations still compile:
 ## Sub-path exports used by other packages
 
 ```ts
-import type { RMap, RSet, VariantMap } from '@rimbu/collection-types';
+// The capability surface (public)
+import type { MapCollection } from '@rimbu/collection-types/map';
+import type { SetCollection } from '@rimbu/collection-types/set';
 import type { KeyValue } from '@rimbu/collection-types/advanced/common';
-import type { RMapBase } from '@rimbu/collection-types/advanced/map/base';
+
+// The implementer-facing base classes (advanced)
+import { MapCollectionBase } from '@rimbu/collection-types/advanced/map-base';
 ```
 
-The `advanced` sub-path holds the implementer-facing base interfaces and context modules. HKT slot types are package-private under `internal/` and surfaced only through `advanced/`.
+The `advanced` sub-path holds the implementer-facing base classes and context
+modules. HKT slot types are package-private under `internal/` and surfaced only
+through `advanced/`.
+
+There is no `advanced/map/base` or `advanced/set/base` sub-path any more — those
+held the deleted `RMapBase` / `RSetBase`.
 
 ## `test-utils/` — the shared cross-package harnesses
 

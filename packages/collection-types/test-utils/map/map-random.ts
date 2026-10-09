@@ -37,6 +37,21 @@ function expectMap<K, V>(m: {
  */
 interface Capabilities extends MapCollection.Advanced.Family<any, any> {}
 
+// The keyed context is required because this harness calls `empty<K, V>()` with
+// both type arguments (see `updateAtKey`), which only the keyed context
+// accepts. That in turn demands `merge` / `mergeEach` / `mergeWith` /
+// `mergeEachWith` / `collectionContext`, which this harness never exercises —
+// and which no concrete context currently *declares*: `HashMapContext` and
+// `SortedMapContext` implement all of them at runtime (see their
+// `internal/map/context.ts`), but `packages/hashed/src/public/map.ts` and
+// `packages/sorted/src/public/map.ts` never mention `merge`, so
+// `HashMap.Context` / `SortedMap.Context` do not expose them. Call sites
+// therefore still cast through `as any`.
+//
+// The old comment here claimed a "legacy RMap.Context vs HashMap.Context
+// mismatch until 10". That was never true: no `RMap` reference remained in
+// this harness. The cause is the untyped `merge` family above.
+
 type Context = MapCollection.Context<Capabilities>['keyedContext'];
 
 /**

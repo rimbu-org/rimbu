@@ -57,7 +57,8 @@ Core surfaces each subpackage's `advanced` tier as a **sub-folder**, not a root
 umbrella:
 
 - **`@rimbu/core/collection-types/advanced`** — `collection-types`' advanced tier
-  (`KeyValue`, `WithElem`, `Elem`, `RMapBase`, `RSetBase`, `EmptyBase`, …).
+  (`KeyValue`, `WithElem`, `Elem`, `EmptyBase`, `CollectionBase`,
+  `MapCollectionBase`, `SetCollectionBase`, …).
 - **`@rimbu/core/stream/advanced`** — `stream`'s advanced tier
   (`StreamBase`, `FastIteratorBase`, `AsyncFastIteratorBase`, `AsyncFromStream`).
 

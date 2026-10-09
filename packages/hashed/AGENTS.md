@@ -57,22 +57,24 @@ HashMap and HashSet are implemented as **Hash Array Mapped Tries** (HAMT) — a 
 
 1. Add the method signature (and NonEmpty override) to `src/map.ts`
 2. Implement in `src/internal/map/immutable.ts`
-3. Propagate to `RMapBase` in `@rimbu/collection-types/src/map/base.ts` if it belongs on the abstract base
+3. Propagate to the matching capability in `@rimbu/collection-types` (`MapCollection.Capability.*`, `KeyedCollection.Capability.*`, …) if it belongs on the abstract surface
 4. Add tests in `test/hashmap.test.ts`
 5. Add type tests in `test-d/hashmap.test-d.ts`
 
 ## HKT binding
 
-`HashMap` binds to the abstract `RMapBase` via:
+`HashMap` binds to the abstract capability surface via a family:
 ```ts
-export namespace HashMap {
-  export interface Types extends KeyValue {
-    readonly normal: HashMap<this['_K'], this['_V']>;
-    readonly nonEmpty: HashMap.NonEmpty<this['_K'], this['_V']>;
-  }
+export interface Family<K, V> extends MapCollection.Advanced.Family<K, V> {
+  _NORMAL: HashMap<K, V>;
+  _NON_EMPTY: HashMap.NonEmpty<K, V>;
+  _BUILDER: HashMap.Builder<K, V>;
+  _CONTEXT: HashMap.Context<K>;
 }
 ```
-This is how `filter()` on `RMapBase` returns `HashMap<K,V>` (not `RMapBase<K,V>`).
+This is how `filter()` on `MapCollection.Advanced.Api` returns `HashMap<K,V>`
+(not `MapCollection<K,V>`). The family lives in
+`packages/hashed/src/public/map.ts` under `HashMap.Advanced`.
 
 ## Pre-existing known issues
 

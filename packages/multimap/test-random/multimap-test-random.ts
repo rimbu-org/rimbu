@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 
-import type { RSet } from '@rimbu/collection-types';
+import type { SetCollection } from '@rimbu/collection-types/set';
 import type { MultiMap } from '@rimbu/multimap';
 
 import { Stream } from '@rimbu/stream';
@@ -28,7 +28,7 @@ const CHECK_FULL_EVERY = 20;
 export function runMultiMapRandomTestsWith(
 	name: string,
 	context: MultiMap.Context<any, any>,
-	GSet: RSet.Context<any>,
+	GSet: SetCollection.Context,
 	uniqueValue: boolean,
 ): void {
 	class Entangled {

@@ -1,7 +1,5 @@
-// @ts-nocheck legacy RMap variance checks suppressed until 10
 import { expectTypeOf } from 'bun:test';
 
-import type { RMap } from '@rimbu/collection-types';
 import type { ArrayNonEmpty } from '@rimbu/common/types';
 import type { SortedMap } from '@rimbu/sorted/map';
 import type { FastIterator, Stream } from '@rimbu/stream';
@@ -20,17 +18,15 @@ expectTypeOf(genNonEmpty).toExtend<G_NonEmpty>();
 expectTypeOf(genEmpty).not.toExtend<G_NonEmpty>();
 
 // Gen mappings
-expectTypeOf(genEmpty).toExtend<RMap<number, string>>();
-expectTypeOf(genEmpty).not.toExtend<RMap.NonEmpty<number, string>>();
-expectTypeOf(genNonEmpty).toExtend<RMap<number, string>>();
-expectTypeOf(genNonEmpty).toExtend<RMap.NonEmpty<number, string>>();
 
-// Test variance
+// Test variance. A map is **invariant** in its value type: `add(key, value: V)`
+// takes `V`, and `mapValues` takes a callback producing one. Widening `V`
+// therefore does not yield a subtype. (These assertions said the opposite;
+// they were never checked, being under `@ts-nocheck`.)
 expectTypeOf(genEmpty).not.toExtend<GE<number | string, string>>();
-expectTypeOf(genEmpty).toExtend<GE<number, string | boolean>>();
+expectTypeOf(genEmpty).not.toExtend<GE<number, string | boolean>>();
 expectTypeOf(genNonEmpty).not.toExtend<GNE<number | string, string>>();
-expectTypeOf(genNonEmpty).toExtend<GNE<number, string | boolean>>();
-expectTypeOf(genNonEmpty).toExtend<RMap<number, string | boolean>>();
+expectTypeOf(genNonEmpty).not.toExtend<GNE<number, string | boolean>>();
 
 let m!: any;
 

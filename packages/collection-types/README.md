@@ -50,14 +50,22 @@ You can also [try Rimbu in the browser](https://codesandbox.io/s/github/vitoke/r
 
 This package acts as a **convenience entry point** that re‑exports the following sub‑packages:
 
-- **`@rimbu/collection-types/map`** – interfaces for:
-  - `RMap<K, V>` – type‑invariant immutable map
-  - `VariantMap<K, V>` – type‑variant immutable map
-- **`@rimbu/collection-types/set`** – interfaces for:
-  - `RSet<T>` – type‑invariant immutable set
-  - `VariantSet<T>` – type‑variant immutable set
+- **`@rimbu/collection-types/collection`** – `Collection`, the capabilities shared by every collection
+- **`@rimbu/collection-types/map`** – `MapCollection`, the map‑shaped capabilities
+- **`@rimbu/collection-types/set`** – `SetCollection`, the set‑shaped capabilities
+- **`@rimbu/collection-types/types`** – `TypesKey` and the HKT slot types
 
-Each of these sub‑packages is implemented by concrete data structures in packages like `@rimbu/hashed`, `@rimbu/ordered`, `@rimbu/sorted`, etc.
+Each collection sub‑namespace is further split by *shape* under
+`@rimbu/collection-types/collection/*`: `ValuedCollection`, `KeyedCollection`,
+`IndexedCollection` and `SortedCollection`. These are implemented by concrete
+data structures in packages like `@rimbu/hashed`, `@rimbu/ordered`,
+`@rimbu/sorted`, etc.
+
+> **Removed:** the `RMap` / `RSet` / `VariantMap` / `VariantSet` aliases and the
+> `RMapBase` / `RSetBase` / `VariantMapBase` / `VariantSetBase` bases. The
+> capability families above replace them, without the separate read‑only /
+> invariant split and without a second `Types` record to keep in sync. See
+> `MapCollection` below for the migration.
 
 ---
 
@@ -74,7 +82,7 @@ The `@rimbu/collection-types/common` module exposes reusable higher‑kind helpe
 | `KeyValue<K, V>`         | Describes a collection that has key type `K` and value type `V` (used by map‑like types). |
 | `WithKeyValue<Tp, K, V>` | Binds a higher‑kind `Tp` to concrete key and value types.                                 |
 
-These types are used to express **higher‑kinded collection families**, such as the `Types` helpers on `RMap`, `VariantMap`, `RSet`, and `VariantSet`.
+These types are used to express **higher‑kinded collection families**, such as the `_NORMAL` / `_NON_EMPTY` / `_BUILDER` / `_CONTEXT` slots on `MapCollection.Advanced.Family` and `SetCollection.Advanced.Family`.
 
 ---
 
@@ -83,10 +91,10 @@ These types are used to express **higher‑kinded collection families**, such as
 Although `@rimbu/collection-types` itself only contains **types and interfaces**, you’ll mostly encounter it indirectly when using concrete collections such as `HashMap` or `HashSet`:
 
 ```ts
-import { HashMap } from '@rimbu/hashed'; // implements RMap
-import type { RMap } from '@rimbu/collection-types/map';
+import { HashMap } from '@rimbu/hashed'; // implements MapCollection
+import type { MapCollection } from '@rimbu/collection-types/map';
 
-const m: RMap<number, string> = HashMap.of([1, 'one'], [2, 'two']);
+const m: MapCollection<number, string> = HashMap.of([1, 'one'], [2, 'two']);
 
 console.log(m.get(2)); // 'two'
 ```
@@ -95,9 +103,9 @@ For sets:
 
 ```ts
 import { HashSet } from '@rimbu/hashed';
-import type { RSet } from '@rimbu/collection-types/set';
+import type { SetCollection } from '@rimbu/collection-types/set';
 
-const s: RSet<number> = HashSet.of(1, 2, 3);
+const s: SetCollection<number> = HashSet.of(1, 2, 3);
 
 console.log(s.has(2)); // true
 console.log(s.toArray()); // [1, 2, 3] (order depends on implementation)
@@ -105,22 +113,32 @@ console.log(s.toArray()); // [1, 2, 3] (order depends on implementation)
 
 ---
 
+## Constraining a subset of capabilities
+
+A *family* describes what a collection can do. To require only some of that, declare a **named** interface extending the aggregate `Advanced.Family` — never an ad‑hoc intersection of individual `Capability.*` families, which silently drops the `_BUILDER` / `_CONTEXT` / `_NORMAL` slots:
+
+```ts
+import type { SetCollection } from '@rimbu/collection-types/set';
+
+interface Capabilities extends SetCollection.Advanced.Family<number> {}
+
+declare const S: SetCollection.Context<Capabilities>;
+```
+
 ## Map Interfaces
 
 From `@rimbu/collection-types/map`:
 
 ### Exported Types
 
-| Name                        | Description                                                                                                           |
-| --------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `RMap<K, V>`                | Type‑invariant immutable map of keys `K` to values `V`. Each key has exactly one value; no duplicate keys.            |
-| `RMap.NonEmpty<K, V>`       | Non‑empty refinement of `RMap<K, V>` with stronger guarantees (e.g. `isEmpty` is always `false`).                     |
-| `RMap.Context<UK>`          | Factory/context for creating `RMap` instances with upper‑bounded key type `UK`.                                       |
-| `RMap.Builder<K, V>`        | Mutable builder used to efficiently construct or mutate an `RMap` before freezing it into an immutable instance.      |
-| `VariantMap<K, V>`          | Type‑variant immutable map of keys `K` to values `V`. Supports safe key/value widening; excludes mutating operations. |
-| `VariantMap.NonEmpty<K, V>` | Non‑empty refinement of `VariantMap<K, V>`.                                                                           |
+| Name                          | Description                                                                                                       |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `MapCollection<K, V>`         | Immutable map of keys `K` to values `V`. Each key has exactly one value; no duplicate keys.                       |
+| `MapCollection.NonEmpty<K, V>`| Non‑empty refinement with stronger guarantees (e.g. `isEmpty` is always `false`).                                |
+| `MapCollection.Context<F>`    | Factory/context for creating map instances. Takes a *family* rather than a key type, so it can be narrowed.        |
+| `MapCollection.Builder<K, V>` | Mutable builder used to efficiently construct a map before freezing it into an immutable instance.                 |
 
-### Key Operations (via `RMapBase` / `VariantMapBase`)
+### Key Operations (via `MapCollection.Advanced.Api`)
 
 Concrete map implementations share a common core API:
 
@@ -159,16 +177,14 @@ From `@rimbu/collection-types/set`:
 
 ### Exported Types
 
-| Name                     | Description                                                                                      |
-| ------------------------ | ------------------------------------------------------------------------------------------------ |
-| `RSet<T>`                | Type‑invariant immutable set of values `T`. No duplicate values.                                 |
-| `RSet.NonEmpty<T>`       | Non‑empty refinement of `RSet<T>`.                                                               |
-| `RSet.Context<UT>`       | Factory/context for creating `RSet` instances with upper‑bounded element type `UT`.              |
-| `RSet.Builder<T>`        | Mutable builder for efficiently constructing or mutating an `RSet` before freezing it.           |
-| `VariantSet<T>`          | Type‑variant immutable set of values `T`. Allows safe value widening; excludes mutating methods. |
-| `VariantSet.NonEmpty<T>` | Non‑empty refinement of `VariantSet<T>`.                                                         |
+| Name                       | Description                                                                                |
+| -------------------------- | ------------------------------------------------------------------------------------------ |
+| `SetCollection<T>`         | Immutable set of values `T`. No duplicate values.                                          |
+| `SetCollection.NonEmpty<T>`| Non‑empty refinement of `SetCollection<T>`.                                                |
+| `SetCollection.Context<F>` | Factory/context for creating set instances. Takes a *family* rather than an element type.   |
+| `SetCollection.Builder<T>` | Mutable builder for efficiently constructing a set before freezing it.                     |
 
-### Key Operations (via `RSetBase` / `VariantSetBase`)
+### Key Operations (via `Collection.Capability.*` and `ValuedCollection.Capability.*`)
 
 Concrete set implementations share a common core API:
 
@@ -221,7 +237,7 @@ Then you can import relative modules, for example:
 
 ```ts
 import { HashMap } from '@rimbu/hashed/mod.ts';
-import { RMap } from '@rimbu/collection-types/map/mod.ts';
+import type { MapCollection } from '@rimbu/collection-types/map';
 ```
 
 > Replace `<version>` with the desired Rimbu version.

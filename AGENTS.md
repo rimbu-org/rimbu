@@ -49,7 +49,7 @@ rimbu/
 │   ├── bimap/            # BiMap: 1-to-1 bidirectional map
 │   ├── bimultimap/       # BiMultiMap: many-to-many bidirectional map
 │   ├── channel/          # Go-style typed channels, mutex, semaphore
-│   ├── collection-types/ # Shared abstract base types (RMapBase, RSetBase, HKT machinery)
+│   ├── collection-types/ # Shared capability families (Collection, MapCollection, SetCollection) + HKT machinery
 │   ├── common/           # Shared utilities: Eq, Comp, OptLazy, Range, Reducer types
 │   ├── core/             # Umbrella re-export of all stable collections
 │   ├── deep/             # Deep patch/match/path/select for plain objects
@@ -378,27 +378,32 @@ get<UK = K>(key: RelatedTo<K, UK>): V | undefined;
 get<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O;
 ```
 
-### 6.4 Higher-Kinded Types (HKT) via Types interface
+### 6.4 Higher-Kinded Types (HKT) via capability families
 
-Abstract base classes use a `Types` interface to preserve concrete return types:
+Abstract capability interfaces use a `Tp` types record to preserve concrete
+return types:
 
 ```ts
-// In collection-types, the abstract base:
-export interface RMapBase<K, V, Tp extends RMapBase.Types> {
-  filter(...): (Tp & { _K: K; _V: V })['normal'];
+// In collection-types, the abstract capability:
+export interface ValuedCollection<E, Tp extends Collection.Advanced.TypesBase> {
+  filter(...): Tp['_SELF'];
   // The return type uses the Types slot to get the correct concrete type
 }
 
-// In hashed, the concrete binding:
-export interface HashMap<K, V> extends RMapBase<K, V, HashMap.Types> {}
-export namespace HashMap {
-  export interface Types extends RMapBase.Types {
-    readonly normal: HashMap<this['_K'], this['_V']>;
-    readonly nonEmpty: HashMap.NonEmpty<this['_K'], this['_V']>;
-  }
+// In hashed, the concrete binding — a family pins the slots:
+export interface Family<K, V> extends MapCollection.Advanced.Family<K, V> {
+  _NORMAL: HashMap<K, V>;
+  _NON_EMPTY: HashMap.NonEmpty<K, V>;
+  _BUILDER: HashMap.Builder<K, V>;
+  _CONTEXT: HashMap.Context<K>;
 }
-// Now HashMap.filter() returns HashMap<K,V>, not RMapBase<K,V>
+// Now HashMap.filter() returns HashMap<K,V>, not MapCollection<K,V>
 ```
+
+The legacy `RMap` / `RSet` / `VariantMap` / `VariantSet` aliases and their
+`RMapBase` / `VariantMapBase` bases have been **removed**. There is no separate
+read-only/invariant base pair and no second `Types` record to keep in sync — see
+`packages/collection-types/AGENTS.md`. Do not reintroduce either.
 
 When modifying abstract base methods in `collection-types`, check all concrete implementations (hashed, sorted, ordered, etc.) still satisfy the type constraints.
 
@@ -622,7 +627,7 @@ Example: adding `mapValues<W>(f: (v: V) => W): HashMap<K, W>` to HashMap.
 
 7. **Write type tests** in `packages/hashed/test-d/` if the types are non-trivial.
 
-8. **Propagate to SortedMap, OrderedMap, etc.** if the method belongs to the `RMapBase` interface.
+8. **Propagate to SortedMap, OrderedMap, etc.** if the method belongs to a shared capability (`Collection.Capability.*`, `KeyedCollection.Capability.*`, `MapCollection.Capability.*`, …).
 
 9. **Export from `@rimbu/core`** if the method is on the public API surface (`packages/core/src/hashed.ts` re-exports everything from `@rimbu/hashed`).
 

@@ -1,7 +1,5 @@
 import { describe, expect, it } from 'bun:test';
 
-import type { Collection } from '@rimbu/collection-types/collection';
-import type { ValuedCollection } from '@rimbu/collection-types/collection/valued';
 import type { SetCollection } from '@rimbu/collection-types/set';
 
 import { Stream } from '@rimbu/stream';
@@ -35,16 +33,9 @@ function expectSet<T extends number>(s: {
  * an individual `Capability.*` family, because their `_BUILDER` / `_CONTEXT` /
  * `_NORMAL` / … slots are not identical (TS2320). See root `AGENTS.md` §6.4.
  */
-type Context = SetCollection.Context<
-	Collection.Capability.WithToBuilder<any> &
-		Collection.Capability.WithReducer<any> &
-		Collection.Capability.WithAddEach<any> &
-		ValuedCollection.Capability.WithDifference<any> &
-		ValuedCollection.Capability.WithIntersection<any> &
-		ValuedCollection.Capability.WithRemove<any> &
-		ValuedCollection.Capability.WithSymmetricDifference<any> &
-		ValuedCollection.Capability.WithUnion<any>
->;
+interface Capabilities extends SetCollection.Advanced.Family<any> {}
+
+type Context = SetCollection.Context<Capabilities>;
 
 /**
  * How many operations may pass between two full re-verifications. See
