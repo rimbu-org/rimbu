@@ -96,6 +96,176 @@ export class OrderedMapBuilder<K, V>
 		return this._keyMapBuilder.size;
 	}
 
+	#resetFrom(map: OrderedMap<K, V>): void {
+		this._keyMapBuilder = undefined;
+		this._indicatorMapBuilder = undefined;
+
+		this.#source = map.nonEmpty()
+			? (map as unknown as OrderedMapNonEmpty<K, V>)
+			: undefined;
+	}
+
+	indexOf<UK = K>(key: RelatedTo<K, UK>): number | undefined;
+	indexOf<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): number | O;
+	indexOf<UK, O>(
+		key: RelatedTo<K, UK>,
+		otherwise?: OptLazy<O>,
+	): number | O | undefined {
+		return this.build().indexOf(key as K, otherwise as any);
+	}
+
+	at<O>(index: number, otherwise?: OptLazy<O>): readonly [K, V] | O {
+		return this.build().at(index, otherwise as any) as readonly [K, V] | O;
+	}
+
+	first<O>(otherwise?: OptLazy<O>): readonly [K, V] | O {
+		return this.at(0, otherwise as any);
+	}
+
+	last<O>(otherwise?: OptLazy<O>): readonly [K, V] | O {
+		return this.at(-1, otherwise as any);
+	}
+
+	prepend = (element: readonly [K, V]): void => {
+		this.checkLock();
+		this.#resetFrom(this.build().prepend(element));
+	};
+
+	append = (element: readonly [K, V]): void => {
+		this.checkLock();
+		this.#resetFrom(this.build().append(element));
+	};
+
+	prependEach = (source: StreamSource<readonly [K, V]>): void => {
+		this.checkLock();
+
+		const items = Stream.from(source).toArray();
+		if (items.length === 0) return;
+
+		let current = this.build();
+		for (let i = items.length - 1; i >= 0; i--) {
+			current = current.prepend(items[i]);
+		}
+
+		this.#resetFrom(current);
+	};
+
+	appendEach = (source: StreamSource<readonly [K, V]>): void => {
+		this.checkLock();
+
+		let current = this.build();
+		let changed = false;
+
+		for (const item of Stream.from(source)) {
+			current = current.append(item);
+			changed = true;
+		}
+
+		if (changed) this.#resetFrom(current);
+	};
+
+	placeAt = (index: number, element: readonly [K, V]): void => {
+		this.checkLock();
+		this.#resetFrom(this.build().placeAt(index, element));
+	};
+
+	moveTo = (index: number, key: K): boolean => {
+		this.checkLock();
+
+		const current = this.build();
+		const next = current.moveTo(index, key);
+		if (next === current) return false;
+
+		this.#resetFrom(next);
+
+		return true;
+	};
+
+	swapAt = (index1: number, index2: number): boolean => {
+		this.checkLock();
+
+		const current = this.build();
+		const next = current.swapAt(index1, index2);
+		if (next === current) return false;
+
+		this.#resetFrom(next);
+
+		return true;
+	};
+
+	removeAt = (index: number, otherwise?: any): any => {
+		this.checkLock();
+
+		const current = this.build();
+		const entry = current.at(index);
+		if (undefined === entry) return OptLazyValue(otherwise);
+
+		this.#resetFrom(current.removeAt(index));
+
+		return entry;
+	};
+
+	removeAmountAt = (index: number, amount: number, collector?: any): any => {
+		this.checkLock();
+
+		const current = this.build();
+		const next = current.removeAt(index, amount);
+		if (next === current) {
+			return collector === undefined
+				? false
+				: Stream.empty<readonly [K, V]>().reduce(collector);
+		}
+
+		if (collector !== undefined) {
+			const collected = current
+				.slice({ start: index, amount })
+				.stream()
+				.reduce(collector);
+			this.#resetFrom(next);
+			return collected;
+		}
+
+		this.#resetFrom(next);
+
+		return true;
+	};
+
+	removeAllAt = (indices: StreamSource<number>, collector?: any): any => {
+		this.checkLock();
+
+		const current = this.build();
+		const sorted = Stream.from(indices)
+			.toArray()
+			.slice()
+			.sort((a: number, b: number) => b - a);
+
+		let next = current;
+		let changed = false;
+		const collected: (readonly [K, V])[] = [];
+
+		for (const index of sorted) {
+			const entry = next.at(index);
+			if (undefined === entry) continue;
+			collected.push(entry);
+			next = next.removeAt(index);
+			changed = true;
+		}
+
+		if (!changed) {
+			return collector === undefined
+				? false
+				: Stream.empty<readonly [K, V]>().reduce(collector);
+		}
+
+		this.#resetFrom(next);
+
+		if (collector !== undefined) {
+			return Stream.from(collected).reduce(collector);
+		}
+
+		return true;
+	};
+
 	get<UK = K>(key: RelatedTo<K, UK>): V | undefined;
 	get<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O;
 	get<UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O | undefined {

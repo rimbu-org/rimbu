@@ -1,6 +1,8 @@
 import type { Collection } from '@rimbu/collection-types/collection';
+import type { IndexedCollection } from '@rimbu/collection-types/collection/indexed';
 import type { KeyedCollection } from '@rimbu/collection-types/collection/keyed';
 import type { MapCollection } from '@rimbu/collection-types/map';
+import type { OptLazy, RelatedTo } from '@rimbu/common';
 
 import { OrderedMapContext } from '#ordered/map/context';
 
@@ -73,7 +75,29 @@ export namespace OrderedMap {
 				KeyedCollection.Advanced.FamilyBase<K, V>,
 				readonly [K, V]
 			>,
-		> extends MapCollection.Advanced.Api<K, V, Tp> {}
+		> extends MapCollection.Advanced.Api<K, V, Tp>,
+				IndexedCollection.Advanced.Api<readonly [K, V], Tp>,
+				IndexedCollection.Capability.WithPrependAppend.Api<readonly [K, V], Tp>,
+				IndexedCollection.Capability.WithRemoveAt.Api<readonly [K, V], Tp>,
+				IndexedCollection.Capability.WithSwapAt.Api<readonly [K, V], Tp> {
+			/** Returns the position of `key` in insertion order, if present. */
+			indexOf<UK = K>(key: RelatedTo<K, UK>): number | undefined;
+			indexOf<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): number | O;
+
+			/**
+			 * Moves the entry with the given `key` to the final position `index`,
+			 * inserting it when absent and replacing its value when present.
+			 * Already-satisfied or invalid edits return the receiver.
+			 */
+			placeAt(index: number, element: readonly [K, V]): Tp['_NON_EMPTY'];
+
+			/**
+			 * Moves an existing entry identified by `key` to the final position
+			 * `index` without replacing its value. Returns the receiver when the
+			 * key is absent or the position is invalid/unchanged.
+			 */
+			moveTo(index: number, key: K): Tp['_SELF'];
+		}
 
 		export interface BuilderApi<
 			K,
@@ -82,7 +106,29 @@ export namespace OrderedMap {
 				KeyedCollection.Advanced.FamilyBase<K, V>,
 				readonly [K, V]
 			>,
-		> extends MapCollection.Advanced.BuilderApi<K, V, Tp> {}
+		> extends MapCollection.Advanced.BuilderApi<K, V, Tp>,
+				IndexedCollection.Advanced.BuilderApi<readonly [K, V], Tp>,
+				IndexedCollection.Capability.WithPrependAppend.BuilderApi<
+					readonly [K, V],
+					Tp
+				>,
+				IndexedCollection.Capability.WithRemoveAt.BuilderApi<
+					readonly [K, V],
+					Tp
+				> {
+			/** Returns the position of `key` in insertion order, if present. */
+			indexOf<UK = K>(key: RelatedTo<K, UK>): number | undefined;
+			indexOf<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): number | O;
+
+			/** Builds or moves an entry to the final position `index`. */
+			placeAt(index: number, element: readonly [K, V]): void;
+
+			/** Moves an existing key to the final position `index`; `false` when absent. */
+			moveTo(index: number, key: K): boolean;
+
+			/** Swaps the entries at the two positions; `false` when invalid or equal. */
+			swapAt(index1: number, index2: number): boolean;
+		}
 
 		export interface ContextApi<
 			UK,

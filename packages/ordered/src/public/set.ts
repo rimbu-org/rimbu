@@ -1,4 +1,6 @@
 import type { Collection } from '@rimbu/collection-types/collection';
+import type { IndexedCollection } from '@rimbu/collection-types/collection/indexed';
+import type { IndexedValuedCollection } from '@rimbu/collection-types/collection/indexed-valued';
 import type { MapCollection } from '@rimbu/collection-types/map';
 import type { SetCollection } from '@rimbu/collection-types/set';
 
@@ -61,10 +63,38 @@ export namespace OrderedSet {
 
 	export namespace Advanced {
 		export interface Api<E, Tp extends Collection.Advanced.TypesBase>
-			extends SetCollection.Advanced.Api<E, Tp> {}
+			extends SetCollection.Advanced.Api<E, Tp>,
+				IndexedValuedCollection.Advanced.Api<E, Tp>,
+				IndexedCollection.Capability.WithPrependAppend.Api<E, Tp>,
+				IndexedCollection.Capability.WithRemoveAt.Api<E, Tp>,
+				IndexedCollection.Capability.WithSwapAt.Api<E, Tp> {
+			/**
+			 * Moves `element` to the final position `index`, inserting it when
+			 * absent. Already-satisfied or invalid edits return the receiver.
+			 */
+			placeAt(index: number, element: E): Tp['_NON_EMPTY'];
+
+			/**
+			 * Moves an existing element to the final position `index`. Returns the
+			 * receiver when the element is absent or the position is invalid.
+			 */
+			moveTo(index: number, element: E): Tp['_SELF'];
+		}
 
 		export interface BuilderApi<E, Tp extends Collection.Advanced.TypesBase>
-			extends SetCollection.Advanced.BuilderApi<E, Tp> {}
+			extends SetCollection.Advanced.BuilderApi<E, Tp>,
+				IndexedValuedCollection.Advanced.BuilderApi<E, Tp>,
+				IndexedCollection.Capability.WithPrependAppend.BuilderApi<E, Tp>,
+				IndexedCollection.Capability.WithRemoveAt.BuilderApi<E, Tp> {
+			/** Builds or moves `element` to the final position `index`. */
+			placeAt(index: number, element: E): void;
+
+			/** Moves an existing element to the final position `index`; `false` when absent. */
+			moveTo(index: number, element: E): boolean;
+
+			/** Swaps the elements at the two positions; `false` when invalid or equal. */
+			swapAt(index1: number, index2: number): boolean;
+		}
 
 		export interface ContextApi<
 			UE,
@@ -88,7 +118,9 @@ export namespace OrderedSet {
 			readonly indicatorBlockSizeBits: number;
 		}
 
-		export interface Family<E> extends SetCollection.Advanced.Family<E> {
+		export interface Family<E>
+			extends SetCollection.Advanced.Family<E>,
+				IndexedValuedCollection.Advanced.Family<E> {
 			_NORMAL: OrderedSet<E>;
 			_NON_EMPTY: OrderedSet.NonEmpty<E>;
 			_BUILDER: OrderedSet.Builder<E>;

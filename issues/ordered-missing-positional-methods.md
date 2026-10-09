@@ -6,6 +6,7 @@ pass: api
 package: ordered
 confidence: high
 effort_estimate: 1d
+status: solved
 title: "OrderedMap/OrderedSet lack the positional/order methods present on SortedMap/SortedSet"
 ---
 
@@ -46,3 +47,22 @@ old evidence pointed at but did **not** add an indexed/order-edit capability to
 ("the *ordered-specific* work has not started at all"). The method list above was
 renamed to the target vocabulary (`atIndex` → `at`, key lookup → `get`). Keep this
 issue as the user-facing symptom of issue 09; do not treat it as independent work.
+
+## Resolution — positional subset landed 2026-10-09
+
+`OrderedMap` and `OrderedSet` now expose the insertion-order positional family:
+
+- `at(index)` (negative from end), `first()`, `last()`, `indexOf(identity)`
+  (`OrderedMap` by key, `OrderedSet` by element).
+- `take`/`drop`/`slice(IndexRange)`/`streamSlice(IndexRange, {reversed})`/`splitAt`,
+  all delegating to the indicator SortedMap.
+- Order editing: `prepend`/`append`/`placeAt`/`moveTo`, plus `removeAt` and
+  `swapAt`, with matching builder vocabulary.
+
+The comparator-derived methods (`min`/`max`, `streamRange`, `lowerBound`/
+`upperBound`, `next`/`previous`) are intentionally **not** added: insertion order
+has no comparator, so those remain `SortedMap`/`SortedSet`-only.
+
+Coverage: `packages/ordered/test/ordered-indexed.test.ts` (deterministic, map +
+set). Bulk position options (`position: 'preserve' | 'append' | 'prepend'`) are
+still outstanding and tracked in `.scratch/.../09-migrate-ordered-collections.md`.

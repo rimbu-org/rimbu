@@ -1,5 +1,5 @@
 import type { MapCollection } from '@rimbu/collection-types/map';
-import type { RelatedTo } from '@rimbu/common';
+import type { OptLazy, RelatedTo } from '@rimbu/common';
 import type { OrderedSet } from '@rimbu/ordered/set';
 import type { SortedMap } from '@rimbu/sorted/map';
 import type { StreamSource } from '@rimbu/stream';
@@ -8,6 +8,7 @@ import type { OrderedSetContext } from '#ordered/set/context';
 import type { OrderedSetNonEmpty } from '#ordered/set/non-empty';
 
 import { CollectionBuilderBase } from '@rimbu/collection-types/advanced/collection-base';
+import { OptLazy as OptLazyValue } from '@rimbu/common/opt-lazy';
 import { Stream } from '@rimbu/stream';
 
 import { Indicator } from '#ordered/common/ordered-indicator';
@@ -84,6 +85,177 @@ export class OrderedSetBuilder<T>
 		if (undefined === this._keyMapBuilder) return 0;
 		return this._keyMapBuilder.size;
 	}
+
+	#resetFrom(set: OrderedSet<T>): void {
+		this._keyMapBuilder = undefined;
+		this._indicatorMapBuilder = undefined;
+
+		this.#source = set.nonEmpty()
+			? (set as unknown as OrderedSetNonEmpty<T>)
+			: undefined;
+	}
+
+	at<O>(index: number, otherwise?: OptLazy<O>): T | O {
+		return this.build().at(index, otherwise as any) as T | O;
+	}
+
+	first<O>(otherwise?: OptLazy<O>): T | O {
+		return this.at(0, otherwise as any);
+	}
+
+	last<O>(otherwise?: OptLazy<O>): T | O {
+		return this.at(-1, otherwise as any);
+	}
+
+	indexOf<U = T>(element: RelatedTo<T, U>): number | undefined;
+	indexOf<U, O>(element: RelatedTo<T, U>, otherwise: OptLazy<O>): number | O;
+	indexOf<U, O>(
+		element: RelatedTo<T, U>,
+		otherwise?: OptLazy<O>,
+	): number | O | undefined {
+		return this.build().indexOf(element as T, otherwise as any);
+	}
+
+	prepend = (element: T): void => {
+		this.checkLock();
+		this.#resetFrom(this.build().prepend(element));
+	};
+
+	append = (element: T): void => {
+		this.checkLock();
+		this.#resetFrom(this.build().append(element));
+	};
+
+	prependEach = (elements: StreamSource<T>): void => {
+		this.checkLock();
+
+		const items = Stream.from(elements).toArray();
+		if (items.length === 0) return;
+
+		let current = this.build();
+		for (let i = items.length - 1; i >= 0; i--) {
+			current = current.prepend(items[i]);
+		}
+
+		this.#resetFrom(current);
+	};
+
+	appendEach = (elements: StreamSource<T>): void => {
+		this.checkLock();
+
+		let current = this.build();
+		let changed = false;
+
+		for (const element of Stream.from(elements)) {
+			current = current.append(element);
+			changed = true;
+		}
+
+		if (changed) this.#resetFrom(current);
+	};
+
+	placeAt = (index: number, element: T): void => {
+		this.checkLock();
+		this.#resetFrom(this.build().placeAt(index, element));
+	};
+
+	moveTo = (index: number, element: T): boolean => {
+		this.checkLock();
+
+		const current = this.build();
+		const next = current.moveTo(index, element);
+		if (next === current) return false;
+
+		this.#resetFrom(next);
+
+		return true;
+	};
+
+	swapAt = (index1: number, index2: number): boolean => {
+		this.checkLock();
+
+		const current = this.build();
+		const next = current.swapAt(index1, index2);
+		if (next === current) return false;
+
+		this.#resetFrom(next);
+
+		return true;
+	};
+
+	removeAt = (index: number, otherwise?: any): any => {
+		this.checkLock();
+
+		const current = this.build();
+		if (index < 0) index = current.size + index;
+		const element = current.at(index);
+		if (undefined === element) return OptLazyValue(otherwise);
+
+		this.#resetFrom(current.removeAt(index));
+
+		return element;
+	};
+
+	removeAmountAt = (index: number, amount: number, collector?: any): any => {
+		this.checkLock();
+
+		const current = this.build();
+		const next = current.removeAt(index, amount);
+		if (next === current) {
+			return collector === undefined
+				? false
+				: Stream.empty<T>().reduce(collector);
+		}
+
+		if (collector !== undefined) {
+			const collected = current
+				.slice({ start: index, amount })
+				.stream()
+				.reduce(collector);
+			this.#resetFrom(next);
+			return collected;
+		}
+
+		this.#resetFrom(next);
+
+		return true;
+	};
+
+	removeAllAt = (indices: StreamSource<number>, collector?: any): any => {
+		this.checkLock();
+
+		const current = this.build();
+		const sorted = Stream.from(indices)
+			.toArray()
+			.slice()
+			.sort((a: number, b: number) => b - a);
+
+		let next = current;
+		let changed = false;
+		const collected: T[] = [];
+
+		for (const index of sorted) {
+			const element = next.at(index);
+			if (undefined === element) continue;
+			collected.push(element);
+			next = next.removeAt(index);
+			changed = true;
+		}
+
+		if (!changed) {
+			return collector === undefined
+				? false
+				: Stream.empty<T>().reduce(collector);
+		}
+
+		this.#resetFrom(next);
+
+		if (collector !== undefined) {
+			return Stream.from(collected).reduce(collector);
+		}
+
+		return true;
+	};
 
 	has = <U = T>(value: RelatedTo<T, U>): boolean => {
 		if (undefined !== this.#source) return this.#source.has(value);
